@@ -1,0 +1,9 @@
+{
+  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValues(payload.getDimensionValues()).setMetricValues(payload.getMetricValues()).setTime(payload.getTime()).build();
+  StarTree starTree=starTreeManager.getStarTree(payload.getCollection());
+  if (starTree == null) {
+    throw new IllegalArgumentException("No collection " + payload.getCollection());
+  }
+  starTree.add(record);
+  return Response.ok().build();
+}

@@ -1,6 +1,12 @@
 {
-  final ThirdEyeMetricResource resource=new ThirdEyeMetricResource(null);
+  ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").build();
+  final StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
+  final ThirdEyeMetricsResource metricsResource=new ThirdEyeMetricsResource(starTreeManager,executorService);
+  final ThirdEyeBootstrapResource bootstrapResource=new ThirdEyeBootstrapResource(starTreeManager);
+  final ThirdEyeConfigResource configResource=new ThirdEyeConfigResource(starTreeManager);
   final ThirdEyeHealthCheck healthCheck=new ThirdEyeHealthCheck();
   environment.healthChecks().register(NAME,healthCheck);
-  environment.jersey().register(resource);
+  environment.jersey().register(metricsResource);
+  environment.jersey().register(bootstrapResource);
+  environment.jersey().register(configResource);
 }
