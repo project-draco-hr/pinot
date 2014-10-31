@@ -1,0 +1,13 @@
+{
+  final StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalArgumentException("No collection " + collection);
+  }
+  Map<String,List<String>> allDimensionValues=new HashMap<String,List<String>>();
+  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
+    List<String> dimensionValues=new ArrayList<String>(starTree.getDimensionValues(dimensionName));
+    Collections.sort(dimensionValues);
+    allDimensionValues.put(dimensionName,dimensionValues);
+  }
+  return allDimensionValues;
+}

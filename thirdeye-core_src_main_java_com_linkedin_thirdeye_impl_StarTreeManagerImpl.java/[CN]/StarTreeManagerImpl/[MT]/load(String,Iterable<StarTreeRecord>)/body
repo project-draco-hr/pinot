@@ -15,7 +15,6 @@ synchronized (trees) {
   }
   final BlockingQueue<StarTreeRecord> recordQueue=new ArrayBlockingQueue<StarTreeRecord>(DEFAULT_LOAD_QUEUE_SIZE);
   final AtomicInteger numLoaded=new AtomicInteger(0);
-  final CountDownLatch latch=new CountDownLatch(Runtime.getRuntime().availableProcessors());
   for (int i=0; i < Runtime.getRuntime().availableProcessors(); i++) {
     executorService.submit(new Runnable(){
       @Override public void run(){
@@ -32,9 +31,6 @@ synchronized (trees) {
  catch (        InterruptedException e) {
           throw new RuntimeException(e);
         }
- finally {
-          latch.countDown();
-        }
       }
     }
 );
@@ -46,7 +42,6 @@ synchronized (trees) {
     for (int i=0; i < Runtime.getRuntime().availableProcessors(); i++) {
       recordQueue.put(new StarTreeRecordEndMarker());
     }
-    latch.await();
   }
  catch (  InterruptedException e) {
     throw new RuntimeException(e);
