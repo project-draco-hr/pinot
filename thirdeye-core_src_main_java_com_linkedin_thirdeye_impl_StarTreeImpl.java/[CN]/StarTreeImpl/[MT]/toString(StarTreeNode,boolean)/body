@@ -1,0 +1,30 @@
+{
+  if (node == null) {
+    return null;
+  }
+  Map<String,Object> map=new HashMap<String,Object>();
+  map.put("id",node.getId());
+  map.put("dimensionName",node.getDimensionName());
+  map.put("dimensionValue",node.getDimensionValue());
+  map.put("ancestorDimensionNames",node.getAncestorDimensionNames());
+  List<Map<String,Object>> children=new ArrayList<Map<String,Object>>();
+  if (node.isLeaf()) {
+    map.put("recordStoreSize",node.getRecordStore().size());
+    if (includeRecords) {
+      List<String> records=new ArrayList<String>();
+      for (      StarTreeRecord record : node.getRecordStore()) {
+        records.add(record.toString());
+      }
+      map.put("records",records);
+    }
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      children.add(toString(child,includeRecords));
+    }
+  }
+  map.put("children",children);
+  map.put("other",toString(node.getOtherNode(),includeRecords));
+  map.put("star",toString(node.getStarNode(),includeRecords));
+  return map;
+}

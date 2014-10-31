@@ -1,0 +1,26 @@
+{
+  for (  String dimensionName : dimensionNames) {
+    String dimensionValue=record.getDimensionValues().get(dimensionName);
+    if (StarTreeConstants.STAR.equals(dimensionValue)) {
+      buffer.putInt(STAR_VALUE);
+    }
+ else {
+      Map<String,Integer> valueIds=forwardDimensionValueIndex.get(dimensionName);
+      if (valueIds == null) {
+        valueIds=new HashMap<String,Integer>();
+        forwardDimensionValueIndex.put(dimensionName,valueIds);
+      }
+      Integer valueId=valueIds.get(dimensionValue);
+      if (valueId == null) {
+        valueId=nextValueId.getAndIncrement();
+        valueIds.put(dimensionValue,valueId);
+        reverseDimensionValueIndex.put(valueId,dimensionValue);
+      }
+      buffer.putInt(valueId);
+    }
+  }
+  buffer.putLong(record.getTime() == null ? -1L : record.getTime());
+  for (  String metricName : metricNames) {
+    buffer.putLong(record.getMetricValues().get(metricName));
+  }
+}

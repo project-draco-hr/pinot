@@ -1,0 +1,13 @@
+{
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  for (int i=0; i < 10; i++) {
+    records.add(new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + (i % 2)).setDimensionValue("B","B" + (i % 4)).setDimensionValue("C","C" + (i % 8)).setMetricValue("M",1L).setTime(System.currentTimeMillis()).build());
+  }
+  starTreeManager.registerConfig("myCollection",config);
+  starTreeManager.load("myCollection",records);
+  StarTree starTree=starTreeManager.getStarTree("myCollection");
+  Assert.assertNotNull(starTree);
+  StarTreeRecord result=starTree.search(new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").build());
+  Assert.assertNotNull(result);
+  Assert.assertEquals(result.getMetricValues().get("M").longValue(),10);
+}

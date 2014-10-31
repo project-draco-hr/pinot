@@ -1,0 +1,13 @@
+{
+  Builder builder=new Builder();
+  for (  Map.Entry<String,String> entry : dimensionValues.entrySet()) {
+    builder.setDimensionValue(entry.getKey(),entry.getValue());
+  }
+  if (keepMetrics) {
+    for (    Map.Entry<String,Long> entry : metricValues.entrySet()) {
+      builder.setMetricValue(entry.getKey(),entry.getValue());
+    }
+  }
+  builder.setTime(time);
+  return builder.build();
+}

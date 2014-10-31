@@ -1,0 +1,22 @@
+{
+  if (jsonNode.isNull()) {
+    return null;
+  }
+  List<String> ancestorDimensionNames=new ArrayList<String>();
+  for (  JsonNode ancestorDimensionName : jsonNode.get("ancestorDimensionNames")) {
+    ancestorDimensionNames.add(ancestorDimensionName.asText());
+  }
+  Map<String,StarTreeNode> children=new HashMap<String,StarTreeNode>();
+  for (  JsonNode child : jsonNode.get("children")) {
+    children.put(child.get("dimensionValue").asText(),buildNode(config,child));
+  }
+  StarTreeNode otherNode=null;
+  if (jsonNode.has("other")) {
+    otherNode=buildNode(config,jsonNode.get("other"));
+  }
+  StarTreeNode starNode=null;
+  if (jsonNode.has("star")) {
+    starNode=buildNode(config,jsonNode.get("star"));
+  }
+  return new StarTreeNodeImpl(UUID.fromString(jsonNode.get("id").asText()),config.getThresholdFunction(),config.getRecordStoreFactory(),jsonNode.get("dimensionName").asText(),jsonNode.get("dimensionValue").asText(),ancestorDimensionNames,children,otherNode,starNode);
+}

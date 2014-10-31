@@ -1,0 +1,18 @@
+{
+  if (node.isLeaf()) {
+    if (thresholdFunction != null) {
+      collector.addAll(StarTreeUtils.getOtherValues(dimensionName,node.getRecordStore(),thresholdFunction));
+    }
+  }
+ else   if (dimensionName.equals(node.getDimensionName()) && StarTreeConstants.OTHER.equals(node.getDimensionValue())) {
+    getDimensionValues(node,dimensionName,collector);
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      getOtherDimensionValues(child,dimensionName,collector);
+    }
+    if (node.getOtherNode() != null) {
+      getOtherDimensionValues(node.getOtherNode(),dimensionName,collector);
+    }
+  }
+}

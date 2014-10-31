@@ -1,0 +1,13 @@
+{
+  if (node == null) {
+    return;
+  }
+  node.init();
+  if (!node.isLeaf()) {
+    for (    StarTreeNode child : node.getChildren()) {
+      open(child);
+    }
+    open(node.getOtherNode());
+    open(node.getStarNode());
+  }
+}

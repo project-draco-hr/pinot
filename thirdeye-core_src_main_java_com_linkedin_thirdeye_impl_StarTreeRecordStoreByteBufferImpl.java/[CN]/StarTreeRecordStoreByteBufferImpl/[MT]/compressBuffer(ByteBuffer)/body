@@ -1,0 +1,9 @@
+{
+  Map<String,List<StarTreeRecord>> groupedRecords=getGroupedRecords(buffer);
+  buffer.rewind();
+  for (  List<StarTreeRecord> group : groupedRecords.values()) {
+    StarTreeRecord mergedRecord=StarTreeUtils.merge(group);
+    putRecord(buffer,mergedRecord);
+  }
+  buffer.limit(buffer.position());
+}

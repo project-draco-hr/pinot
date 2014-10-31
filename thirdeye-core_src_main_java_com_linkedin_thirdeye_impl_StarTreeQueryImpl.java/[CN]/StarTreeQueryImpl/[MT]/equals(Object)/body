@@ -1,0 +1,15 @@
+{
+  if (!(o instanceof StarTreeQuery)) {
+    return false;
+  }
+  StarTreeQuery q=(StarTreeQuery)o;
+  if (timeBuckets != null) {
+    return dimensionValues.equals(q.getDimensionValues()) && timeBuckets.equals(q.getTimeBuckets());
+  }
+ else   if (timeRange != null) {
+    return dimensionValues.equals(q.getDimensionValues()) && timeRange.equals(q.getTimeRange());
+  }
+ else {
+    return q.getDimensionValues().equals(dimensionValues);
+  }
+}

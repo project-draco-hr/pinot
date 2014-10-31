@@ -1,0 +1,19 @@
+{
+  if (node.isLeaf()) {
+    Set<String> dimensionValues=node.getRecordStore().getDimensionValues(dimensionName);
+    if (dimensionValues != null) {
+      collector.addAll(dimensionValues);
+    }
+  }
+ else   if (dimensionName.equals(node.getDimensionName()) && StarTreeConstants.OTHER.equals(node.getDimensionValue())) {
+    collector.add(StarTreeConstants.OTHER);
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      getDimensionValues(child,dimensionName,collector);
+    }
+    if (node.getOtherNode() != null) {
+      getDimensionValues(node.getOtherNode(),dimensionName,collector);
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  rootDir=new File(System.getProperty("java.io.tmpdir"),TestStarTreeImpl.class.getName());
+  try {
+    FileUtils.forceDelete(rootDir);
+  }
+ catch (  Exception e) {
+  }
+  try {
+    FileUtils.forceMkdir(rootDir);
+  }
+ catch (  Exception e) {
+  }
+  recordStoreFactory=new StarTreeRecordStoreByteBufferImpl.Factory(Arrays.asList("A","B","C"),Arrays.asList("M"),1024,true);
+  config=new StarTreeConfig.Builder().setRecordStoreFactory(recordStoreFactory).setMaxRecordStoreEntries(4).setMetricNames(Arrays.asList("M")).setDimensionNames(Arrays.asList("A","B","C")).build();
+  starTree=new StarTreeImpl(config);
+  starTree.open();
+  for (int i=0; i < 100; i++) {
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+    builder.setDimensionValue("A","A" + (i % 2));
+    builder.setDimensionValue("B","B" + (i % 4));
+    builder.setDimensionValue("C","C" + (i % 8));
+    builder.setMetricValue("M",1L);
+    builder.setTime((long)i);
+    starTree.add(builder.build());
+  }
+  StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+  builder.setDimensionValue("A","AX");
+  builder.setDimensionValue("B","BX");
+  builder.setDimensionValue("C","CX");
+  builder.setMetricValue("M",1L);
+  starTree.add(builder.build());
+}

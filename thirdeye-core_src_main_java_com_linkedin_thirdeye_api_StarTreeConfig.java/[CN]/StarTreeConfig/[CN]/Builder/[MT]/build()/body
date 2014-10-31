@@ -1,0 +1,16 @@
+{
+  if (metricNames == null || metricNames.isEmpty()) {
+    throw new IllegalArgumentException("Must provide metric names");
+  }
+  if (dimensionNames == null || dimensionNames.isEmpty()) {
+    throw new IllegalArgumentException("Must provide dimension names");
+  }
+  StarTreeRecordImpl.Builder recordTemplateBuilder=new StarTreeRecordImpl.Builder();
+  for (  String dimensionName : dimensionNames) {
+    recordTemplateBuilder.setDimensionValue(dimensionName,null);
+  }
+  for (  String metricName : metricNames) {
+    recordTemplateBuilder.setMetricValue(metricName,0L);
+  }
+  return new StarTreeConfig(recordStoreFactory,thresholdFunction,maxRecordStoreEntries,dimensionNames,metricNames,recordTemplateBuilder.build());
+}

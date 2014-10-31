@@ -1,0 +1,16 @@
+{
+  Builder builder=new Builder();
+  for (  Map.Entry<String,String> entry : dimensionValues.entrySet()) {
+    if (dimensionNames.contains(entry.getKey())) {
+      builder.setDimensionValue(entry.getKey(),StarTreeConstants.STAR);
+    }
+ else {
+      builder.setDimensionValue(entry.getKey(),entry.getValue());
+    }
+  }
+  for (  Map.Entry<String,Long> entry : metricValues.entrySet()) {
+    builder.setMetricValue(entry.getKey(),entry.getValue());
+  }
+  builder.setTime(time);
+  return builder.build();
+}

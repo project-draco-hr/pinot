@@ -1,0 +1,32 @@
+{
+  StarTreeNode root=createRoot();
+  root.init();
+  for (int i=0; i < 100; i++) {
+    StarTreeRecordImpl.Builder b=new StarTreeRecordImpl.Builder();
+    b.setDimensionValue("A","A" + (i % 4));
+    b.setDimensionValue("B","B" + (i % 8));
+    b.setDimensionValue("C","C" + (i % 16));
+    b.setMetricValue("M",1L);
+    b.setTime(0L);
+    root.getRecordStore().update(b.build());
+    StringBuilder sb=new StringBuilder();
+    sb.append("B").append(i % 8).append("C").append(i % 16);
+  }
+  root.split("A");
+  Assert.assertEquals(root.getChildren().size(),4);
+  Assert.assertNotNull(root.getOtherNode());
+  Assert.assertNotNull(root.getStarNode());
+  Assert.assertEquals(root.getChildDimensionName(),"A");
+  Set<String> childDimensionValues=new HashSet<String>();
+  for (  StarTreeNode child : root.getChildren()) {
+    Assert.assertEquals(child.getDimensionName(),"A");
+    Assert.assertTrue(child.isLeaf());
+    childDimensionValues.add(child.getDimensionValue());
+  }
+  Set<String> expectedValues=new HashSet<String>(Arrays.asList("A0","A1","A2","A3"));
+  Assert.assertEquals(childDimensionValues,expectedValues);
+  for (int i=0; i < 4; i++) {
+    Assert.assertNotNull(root.getChild("A" + i));
+  }
+  Assert.assertNull(root.getChild("A4"));
+}

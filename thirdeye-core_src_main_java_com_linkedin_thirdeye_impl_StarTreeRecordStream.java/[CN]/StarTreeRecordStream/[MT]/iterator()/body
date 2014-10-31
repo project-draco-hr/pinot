@@ -1,0 +1,43 @@
+{
+  try {
+    final BufferedReader reader=new BufferedReader(new InputStreamReader(inputStream));
+    return new Iterator<StarTreeRecord>(){
+      String nextLine=null;
+      @Override public boolean hasNext(){
+        try {
+          if (nextLine == null) {
+            nextLine=reader.readLine();
+          }
+          return nextLine != null;
+        }
+ catch (        Exception e) {
+          throw new IllegalStateException(e);
+        }
+      }
+      @Override public StarTreeRecord next(){
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        int idx=0;
+        String[] tokens=nextLine.split(columnSeparator);
+        StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+        for (        String dimensionName : dimensionNames) {
+          builder.setDimensionValue(dimensionName,tokens[idx++]);
+        }
+        for (        String metricName : metricNames) {
+          builder.setMetricValue(metricName,Long.valueOf(tokens[idx++]));
+        }
+        builder.setTime(Long.valueOf(tokens[idx]));
+        nextLine=null;
+        return builder.build();
+      }
+      @Override public void remove(){
+        next();
+      }
+    }
+;
+  }
+ catch (  Exception e) {
+    throw new IllegalStateException(e);
+  }
+}

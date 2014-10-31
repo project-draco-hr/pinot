@@ -1,0 +1,12 @@
+{
+  StarTreeRecordStream starTreeRecords=new StarTreeRecordStream(new FileInputStream(recordFile),Arrays.asList("A","B","C"),Arrays.asList("M"),"\t");
+  int idx=0;
+  for (  StarTreeRecord starTreeRecord : starTreeRecords) {
+    Assert.assertEquals(starTreeRecord.getDimensionValues().get("A"),"A" + idx);
+    Assert.assertEquals(starTreeRecord.getDimensionValues().get("B"),"B" + idx);
+    Assert.assertEquals(starTreeRecord.getDimensionValues().get("C"),"C" + idx);
+    Assert.assertEquals(starTreeRecord.getMetricValues().get("M").longValue(),1L);
+    Assert.assertEquals(starTreeRecord.getTime().longValue(),0L);
+    idx++;
+  }
+}

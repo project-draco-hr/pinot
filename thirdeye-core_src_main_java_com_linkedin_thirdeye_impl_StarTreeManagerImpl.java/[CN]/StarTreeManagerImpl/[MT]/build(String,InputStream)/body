@@ -1,0 +1,13 @@
+{
+  StarTreeConfig config=configs.get(collection);
+  if (config == null) {
+    throw new IllegalArgumentException("Cannot load for collection with no config: " + collection);
+  }
+synchronized (trees) {
+    StarTree existingTree=trees.get(collection);
+    if (existingTree != null) {
+      existingTree.close();
+    }
+    trees.put(collection,StarTreeUtils.build(config,serializedTree));
+  }
+}

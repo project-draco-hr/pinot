@@ -1,0 +1,15 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  starTree.save(baos);
+  starTree.close();
+  baos.flush();
+  StarTree loadedTree=StarTreeUtils.build(config,new ByteArrayInputStream(baos.toByteArray()));
+  loadedTree.open();
+  StarTreeQueryImpl.Builder queryBuilder=new StarTreeQueryImpl.Builder();
+  queryBuilder.setDimensionValue("A","*");
+  queryBuilder.setDimensionValue("B","*");
+  queryBuilder.setDimensionValue("C","*");
+  StarTreeRecord result=starTree.search(queryBuilder.build());
+  Assert.assertEquals(result.getMetricValues().get("M").longValue(),100L + 1);
+  loadedTree.close();
+}

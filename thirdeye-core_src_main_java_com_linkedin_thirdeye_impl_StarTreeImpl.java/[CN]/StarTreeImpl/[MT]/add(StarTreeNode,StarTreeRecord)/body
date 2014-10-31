@@ -1,0 +1,22 @@
+{
+  if (node.isLeaf()) {
+    node.getRecordStore().update(record);
+    if (node.getRecordStore().size() > maxRecordStoreEntries && node.getAncestorDimensionNames().size() < record.getDimensionValues().size()) {
+      Set<String> blacklist=new HashSet<String>();
+      blacklist.addAll(node.getAncestorDimensionNames());
+      blacklist.add(node.getDimensionName());
+      String maxCardinalityDimensionName=node.getRecordStore().getMaxCardinalityDimension(blacklist);
+      if (maxCardinalityDimensionName != null) {
+        node.split(maxCardinalityDimensionName);
+      }
+    }
+  }
+ else {
+    StarTreeNode target=node.getChild(record.getDimensionValues().get(node.getChildDimensionName()));
+    if (target == null) {
+      target=node.getOtherNode();
+    }
+    add(target,record);
+    add(node.getStarNode(),record.relax(target.getDimensionName()));
+  }
+}

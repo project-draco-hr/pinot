@@ -1,0 +1,9 @@
+{
+synchronized (sync) {
+    ByteBuffer buffer=getBuffer();
+    buffer.position(buffer.limit());
+    buffer.limit(buffer.position() + entrySize);
+    putRecord(buffer,record);
+    size.incrementAndGet();
+  }
+}

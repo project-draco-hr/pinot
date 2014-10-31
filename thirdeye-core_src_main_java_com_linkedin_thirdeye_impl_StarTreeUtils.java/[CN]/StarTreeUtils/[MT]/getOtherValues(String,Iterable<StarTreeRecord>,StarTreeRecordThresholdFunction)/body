@@ -1,0 +1,19 @@
+{
+  Map<String,List<StarTreeRecord>> groupByValue=new HashMap<String,List<StarTreeRecord>>();
+  for (  StarTreeRecord record : records) {
+    String dimensionValue=record.getDimensionValues().get(dimensionName);
+    List<StarTreeRecord> values=groupByValue.get(dimensionValue);
+    if (values == null) {
+      values=new LinkedList<StarTreeRecord>();
+      groupByValue.put(dimensionValue,values);
+    }
+    values.add(record);
+  }
+  Set<String> otherValues=new HashSet<String>();
+  for (  Map.Entry<String,List<StarTreeRecord>> entry : groupByValue.entrySet()) {
+    if (!thresholdFunction.passesThreshold(entry.getValue())) {
+      otherValues.add(entry.getKey());
+    }
+  }
+  return otherValues;
+}

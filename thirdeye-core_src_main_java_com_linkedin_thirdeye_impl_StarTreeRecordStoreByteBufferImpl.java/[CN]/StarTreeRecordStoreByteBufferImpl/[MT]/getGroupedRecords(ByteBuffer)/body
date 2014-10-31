@@ -1,0 +1,14 @@
+{
+  Map<String,List<StarTreeRecord>> groupedRecords=new HashMap<String,List<StarTreeRecord>>();
+  buffer.rewind();
+  while (buffer.position() < buffer.limit()) {
+    StarTreeRecord record=getRecord(buffer);
+    List<StarTreeRecord> group=groupedRecords.get(record.getKey());
+    if (group == null) {
+      group=new ArrayList<StarTreeRecord>();
+      groupedRecords.put(record.getKey(),group);
+    }
+    group.add(record);
+  }
+  return groupedRecords;
+}

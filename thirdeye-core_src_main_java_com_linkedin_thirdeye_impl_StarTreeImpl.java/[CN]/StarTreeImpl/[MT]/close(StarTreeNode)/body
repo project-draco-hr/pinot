@@ -1,0 +1,12 @@
+{
+  if (node.isLeaf()) {
+    node.getRecordStore().close();
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      close(child);
+    }
+    close(node.getOtherNode());
+    close(node.getStarNode());
+  }
+}

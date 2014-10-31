@@ -1,0 +1,21 @@
+{
+  Set<String> dimensionsToExpand=new HashSet<String>();
+  for (  Map.Entry<String,String> entry : baseQuery.getDimensionValues().entrySet()) {
+    if (StarTreeConstants.ALL.equals(entry.getValue())) {
+      dimensionsToExpand.add(entry.getKey());
+    }
+  }
+  List<StarTreeQuery> queries=new LinkedList<StarTreeQuery>();
+  queries.add(baseQuery);
+  for (  String dimensionName : dimensionsToExpand) {
+    Set<String> values=starTree.getDimensionValues(dimensionName);
+    List<StarTreeQuery> expandedQueries=new ArrayList<StarTreeQuery>();
+    for (    StarTreeQuery query : queries) {
+      for (      String value : values) {
+        expandedQueries.add(new StarTreeQueryImpl.Builder().setDimensionValues(query.getDimensionValues()).setTimeBuckets(query.getTimeBuckets()).setTimeRange(query.getTimeRange()).setDimensionValue(dimensionName,value).build());
+      }
+    }
+    queries=expandedQueries;
+  }
+  return queries;
+}

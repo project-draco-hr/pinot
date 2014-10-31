@@ -1,0 +1,13 @@
+{
+  StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+  for (  String dimensionName : dimensionNames) {
+    String dimensionValue=reverseDimensionValueIndex.get(buffer.getInt());
+    builder.setDimensionValue(dimensionName,dimensionValue);
+  }
+  long time=buffer.getLong();
+  builder.setTime(time == -1 ? null : time);
+  for (  String metricName : metricNames) {
+    builder.setMetricValue(metricName,buffer.getLong());
+  }
+  return builder.build();
+}
