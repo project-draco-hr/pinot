@@ -1,0 +1,12 @@
+{
+  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","A1").setDimensionValue("B","B1").setDimensionValue("C","C1").setMetricValue("M",1000L).build();
+  recordStore.update(record);
+  Iterator<StarTreeRecord> itr=recordStore.iterator();
+  StarTreeRecord fromStore=itr.next();
+  Assert.assertFalse(itr.hasNext());
+  Assert.assertEquals(fromStore.getMetricValues().get("M").longValue(),1000L);
+  recordStore.update(record);
+  itr=recordStore.iterator();
+  Assert.assertNotNull(itr.next());
+  Assert.assertNotNull(itr.next());
+}
