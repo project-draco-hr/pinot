@@ -1,10 +1,10 @@
 {
-  StarTreeConfig config=starTreeManager.getConfig(payload.getCollection());
+  final StarTreeConfig config=starTreeManager.getConfig(payload.getCollection());
   if (config == null) {
     throw new IllegalArgumentException("No collection " + payload.getCollection());
   }
   InputStream inputStream=new URL(payload.getUri()).openStream();
   StarTreeRecordStream recordStream=new StarTreeRecordStream(inputStream,config.getDimensionNames(),config.getMetricNames(),"\t");
   starTreeManager.load(payload.getCollection(),recordStream);
-  return Response.status(Response.Status.ACCEPTED).build();
+  return Response.ok().build();
 }
