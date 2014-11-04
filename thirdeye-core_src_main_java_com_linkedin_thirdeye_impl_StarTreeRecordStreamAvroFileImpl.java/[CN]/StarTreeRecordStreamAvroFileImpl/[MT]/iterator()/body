@@ -26,38 +26,34 @@
         if (o == null) {
           throw new IllegalArgumentException("Found null metric value in " + genericRecord);
         }
-        Schema.Field field=genericRecord.getSchema().getField(metricName);
-switch (field.schema().getType()) {
-case INT:
+ else         if (o instanceof Integer) {
           builder.setMetricValue(metricName,((Integer)o).longValue());
-        break;
-case LONG:
-      builder.setMetricValue(metricName,(Long)o);
-    break;
-default :
-  throw new IllegalArgumentException("Metric field has invalid type " + field.schema().getType());
-}
-}
-Object o=genericRecord.get(timeColumnName);
-if (o == null) {
-throw new IllegalArgumentException("Found null time value in " + genericRecord);
-}
-Schema.Field field=genericRecord.getSchema().getField(timeColumnName);
-switch (field.schema().getType()) {
-case INT:
-builder.setTime(((Integer)o).longValue());
-break;
-case LONG:
-builder.setTime((Long)o);
-break;
-default :
-throw new IllegalArgumentException("Time field has invalid type " + field.schema().getType());
-}
-return builder.build();
-}
-@Override public void remove(){
-itr.remove();
-}
-}
+        }
+ else         if (o instanceof Long) {
+          builder.setMetricValue(metricName,(Long)o);
+        }
+ else {
+          throw new IllegalArgumentException("Invalid metric field: " + o);
+        }
+      }
+      Object o=genericRecord.get(timeColumnName);
+      if (o == null) {
+        throw new IllegalArgumentException("Found null metric value in " + genericRecord);
+      }
+ else       if (o instanceof Integer) {
+        builder.setMetricValue(timeColumnName,((Integer)o).longValue());
+      }
+ else       if (o instanceof Long) {
+        builder.setMetricValue(timeColumnName,(Long)o);
+      }
+ else {
+        throw new IllegalArgumentException("Invalid time field: " + o);
+      }
+      return builder.build();
+    }
+    @Override public void remove(){
+      itr.remove();
+    }
+  }
 ;
 }

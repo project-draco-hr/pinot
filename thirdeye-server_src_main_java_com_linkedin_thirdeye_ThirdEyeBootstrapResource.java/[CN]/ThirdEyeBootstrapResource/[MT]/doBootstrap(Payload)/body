@@ -3,8 +3,17 @@
   if (config == null) {
     throw new IllegalArgumentException("No collection " + payload.getCollection());
   }
-  InputStream inputStream=new URL(payload.getUri()).openStream();
-  StarTreeRecordStreamTextStreamImpl recordStream=new StarTreeRecordStreamTextStreamImpl(inputStream,config.getDimensionNames(),config.getMetricNames(),"\t");
+  URI uri=URI.create(payload.getUri());
+  Iterable<StarTreeRecord> recordStream;
+  if ("file".equals(uri.getScheme())) {
+    recordStream=new StarTreeRecordStreamTextStreamImpl(uri.toURL().openStream(),config.getDimensionNames(),config.getMetricNames(),"\t");
+  }
+ else   if ("avro".equals(uri.getScheme())) {
+    recordStream=new StarTreeRecordStreamAvroFileImpl(new File(uri.getPath()),config.getDimensionNames(),config.getMetricNames(),config.getTimeColumnName());
+  }
+ else {
+    throw new IllegalArgumentException("Invalid payload URI " + uri);
+  }
   starTreeManager.load(payload.getCollection(),recordStream);
   return Response.ok().build();
 }
