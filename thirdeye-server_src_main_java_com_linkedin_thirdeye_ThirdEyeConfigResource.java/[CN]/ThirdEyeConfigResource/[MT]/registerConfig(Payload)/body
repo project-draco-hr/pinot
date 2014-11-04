@@ -10,12 +10,12 @@
     thresholdFunction=(StarTreeRecordThresholdFunction)Class.forName(payload.getThresholdFunctionClass()).newInstance();
     thresholdFunction.init(props);
   }
-  starTreeManager.registerRecordStoreFactory(payload.getCollection(),payload.getDimensionNames(),payload.getMetricNames(),rootUri);
+  starTreeManager.registerRecordStoreFactory(payload.getCollection(),payload.getDimensionNames(),payload.getMetricNames(),URI.create(payload.getRootUri()));
   StarTreeRecordStoreFactory recordStoreFactory=starTreeManager.getRecordStoreFactory(payload.getCollection());
   if (recordStoreFactory == null) {
     throw new IllegalArgumentException("No record store has been registered for collection " + payload.getCollection());
   }
-  StarTreeConfig config=new StarTreeConfig.Builder().setThresholdFunction(thresholdFunction).setMaxRecordStoreEntries(maxRecordStoreEntries).setRecordStoreFactory(recordStoreFactory).setDimensionNames(payload.getDimensionNames()).setMetricNames(payload.getMetricNames()).build();
+  StarTreeConfig config=new StarTreeConfig.Builder().setThresholdFunction(thresholdFunction).setMaxRecordStoreEntries(payload.getMaxRecordStoreEntries()).setRecordStoreFactory(recordStoreFactory).setDimensionNames(payload.getDimensionNames()).setMetricNames(payload.getMetricNames()).build();
   starTreeManager.registerConfig(payload.getCollection(),config);
   return Response.ok().build();
 }
