@@ -1,21 +1,21 @@
 {
-  StarTreeRecordThresholdFunction thresholdFunction=null;
+  StarTreeConfig.Builder config=new StarTreeConfig.Builder().setMaxRecordStoreEntries(payload.getMaxRecordStoreEntries()).setDimensionNames(payload.getDimensionNames()).setMetricNames(payload.getMetricNames());
   if (payload.getThresholdFunctionClass() != null) {
-    Properties props=new Properties();
+    config.setThresholdFunctionClass(payload.getThresholdFunctionClass());
     if (payload.getThresholdFunctionConfig() != null) {
-      for (      Map.Entry<String,String> entry : payload.getThresholdFunctionConfig().entrySet()) {
-        props.setProperty(entry.getKey(),entry.getValue());
-      }
+      Properties props=new Properties();
+      props.putAll(payload.getThresholdFunctionConfig());
+      config.setThresholdFunctionConfig(props);
     }
-    thresholdFunction=(StarTreeRecordThresholdFunction)Class.forName(payload.getThresholdFunctionClass()).newInstance();
-    thresholdFunction.init(props);
   }
-  starTreeManager.registerRecordStoreFactory(payload.getCollection(),payload.getDimensionNames(),payload.getMetricNames(),URI.create(payload.getRootUri()));
-  StarTreeRecordStoreFactory recordStoreFactory=starTreeManager.getRecordStoreFactory(payload.getCollection());
-  if (recordStoreFactory == null) {
-    throw new IllegalArgumentException("No record store has been registered for collection " + payload.getCollection());
+  if (payload.getRecordStoreFactoryClass() != null) {
+    config.setRecordStoreFactoryClass(payload.getRecordStoreFactoryClass());
+    if (payload.getRecordStoreFactoryConfig() != null) {
+      Properties props=new Properties();
+      props.putAll(payload.getRecordStoreFactoryConfig());
+      config.setRecordStoreFactoryConfig(props);
+    }
   }
-  StarTreeConfig config=new StarTreeConfig.Builder().setThresholdFunction(thresholdFunction).setMaxRecordStoreEntries(payload.getMaxRecordStoreEntries()).setRecordStoreFactory(recordStoreFactory).setDimensionNames(payload.getDimensionNames()).setMetricNames(payload.getMetricNames()).build();
-  starTreeManager.registerConfig(payload.getCollection(),config);
+  starTreeManager.registerConfig(payload.getCollection(),config.build());
   return Response.ok().build();
 }

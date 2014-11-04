@@ -9,7 +9,7 @@
     int newLimit=buffer.limit();
     double compressionRatio=(1.0 * newLimit) / oldLimit;
     LOG.info(String.format("Compressed buffer to %.02f (oldLimit=%d, newLimit=%d)",compressionRatio,oldLimit,newLimit));
-    if (compressionRatio > TARGET_COMPRESSION_RATIO) {
+    if (compressionRatio > targetCompressionRatio) {
       buffer=createBuffer();
       buffers.add(buffer);
       LOG.info(String.format("Created new buffer (total=%d)",buffers.size()));
