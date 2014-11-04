@@ -1,0 +1,63 @@
+{
+  FileReader<GenericRecord> fileReader;
+  try {
+    fileReader=DataFileReader.openReader(avroFile,new GenericDatumReader<GenericRecord>());
+  }
+ catch (  IOException e) {
+    throw new IllegalStateException(e);
+  }
+  final Iterator<GenericRecord> itr=fileReader.iterator();
+  return new Iterator<StarTreeRecord>(){
+    @Override public boolean hasNext(){
+      return itr.hasNext();
+    }
+    @Override public StarTreeRecord next(){
+      StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+      GenericRecord genericRecord=itr.next();
+      for (      String dimensionName : dimensionNames) {
+        Object o=genericRecord.get(dimensionName);
+        if (o == null) {
+          throw new IllegalArgumentException("Found null dimension value in " + genericRecord);
+        }
+        builder.setDimensionValue(dimensionName,o.toString());
+      }
+      for (      String metricName : metricNames) {
+        Object o=genericRecord.get(metricName);
+        if (o == null) {
+          throw new IllegalArgumentException("Found null metric value in " + genericRecord);
+        }
+        Schema.Field field=genericRecord.getSchema().getField(metricName);
+switch (field.schema().getType()) {
+case INT:
+          builder.setMetricValue(metricName,((Integer)o).longValue());
+        break;
+case LONG:
+      builder.setMetricValue(metricName,(Long)o);
+    break;
+default :
+  throw new IllegalArgumentException("Metric field has invalid type " + field.schema().getType());
+}
+}
+Object o=genericRecord.get(timeColumnName);
+if (o == null) {
+throw new IllegalArgumentException("Found null time value in " + genericRecord);
+}
+Schema.Field field=genericRecord.getSchema().getField(timeColumnName);
+switch (field.schema().getType()) {
+case INT:
+builder.setTime(((Integer)o).longValue());
+break;
+case LONG:
+builder.setTime((Long)o);
+break;
+default :
+throw new IllegalArgumentException("Time field has invalid type " + field.schema().getType());
+}
+return builder.build();
+}
+@Override public void remove(){
+itr.remove();
+}
+}
+;
+}

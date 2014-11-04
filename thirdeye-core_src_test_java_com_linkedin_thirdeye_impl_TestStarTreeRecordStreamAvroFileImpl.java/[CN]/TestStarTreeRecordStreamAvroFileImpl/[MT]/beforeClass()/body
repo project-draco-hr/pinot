@@ -1,0 +1,17 @@
+{
+  avroFile=new File(System.getProperty("java.io.tmpdir") + File.separator + TestStarTreeRecordStreamAvroFileImpl.class.getSimpleName()+ ".avro");
+  Schema schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream("MyRecord.avsc"));
+  DataFileWriter<GenericRecord> dataFileWriter=new DataFileWriter<GenericRecord>(new GenericDatumWriter<GenericRecord>(schema));
+  dataFileWriter.create(schema,avroFile);
+  for (int i=0; i < 100; i++) {
+    GenericRecord record=new GenericData.Record(schema);
+    record.put("A","A" + (i % 8));
+    record.put("B","B" + (i % 2));
+    record.put("C",i);
+    record.put("M",1L);
+    record.put("hoursSinceEpoch",0L);
+    dataFileWriter.append(record);
+  }
+  dataFileWriter.flush();
+  dataFileWriter.close();
+}

@@ -4,7 +4,7 @@
     throw new IllegalArgumentException("No collection " + payload.getCollection());
   }
   InputStream inputStream=new URL(payload.getUri()).openStream();
-  StarTreeRecordStream recordStream=new StarTreeRecordStream(inputStream,config.getDimensionNames(),config.getMetricNames(),"\t");
+  StarTreeRecordStreamTextStreamImpl recordStream=new StarTreeRecordStreamTextStreamImpl(inputStream,config.getDimensionNames(),config.getMetricNames(),"\t");
   starTreeManager.load(payload.getCollection(),recordStream);
   return Response.ok().build();
 }
