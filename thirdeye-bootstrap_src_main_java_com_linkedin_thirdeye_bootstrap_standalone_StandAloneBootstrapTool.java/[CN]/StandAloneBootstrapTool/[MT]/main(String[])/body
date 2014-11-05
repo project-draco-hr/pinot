@@ -1,0 +1,29 @@
+{
+  if (args.length < 4) {
+    throw new IllegalArgumentException("usage: config.json fileType outputDir inputFile ...");
+  }
+  String configJson=args[0];
+  String fileType=args[1];
+  String outputDir=args[2];
+  String[] inputFiles=Arrays.copyOfRange(args,3,args.length);
+  JsonNode config=new ObjectMapper().readTree(new File(configJson));
+  List<String> dimensionNames=new ArrayList<String>();
+  for (  JsonNode dimensionName : config.get("dimensionNames")) {
+    dimensionNames.add(dimensionName.asText());
+  }
+  List<String> metricNames=new ArrayList<String>();
+  for (  JsonNode metricName : config.get("metricNames")) {
+    metricNames.add(metricName.asText());
+  }
+  String timeColumnName=config.get("timeColumnName").asText();
+  List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
+  if ("avro".equals(fileType)) {
+    for (    String inputFile : inputFiles) {
+      recordStreams.add(new StarTreeRecordStreamAvroFileImpl(new File(inputFile),dimensionNames,metricNames,timeColumnName));
+    }
+  }
+ else {
+    throw new IllegalArgumentException("Invalid file type " + fileType);
+  }
+  new StandAloneBootstrapTool(recordStreams,new File(outputDir)).run();
+}
