@@ -3,18 +3,25 @@
   buffer.rewind();
   while (buffer.position() < buffer.limit()) {
     StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-    builder.setTime(buffer.getLong());
+    buffer.getLong();
     for (    String dimensionName : dimensionNames) {
       Map<Integer,String> valueIds=reverseIndex.get(dimensionName);
       int valueId=buffer.getInt();
       String value=valueIds.get(valueId);
       builder.setDimensionValue(dimensionName,value);
     }
+    builder.setTime(buffer.getLong());
     for (    String metricName : metricNames) {
       long metricValue=buffer.getLong();
       builder.setMetricValue(metricName,metricValue);
     }
     records.add(builder.build());
   }
+  Collections.sort(records,new Comparator<StarTreeRecord>(){
+    @Override public int compare(    StarTreeRecord o1,    StarTreeRecord o2){
+      return (int)(o1.getTime() - o2.getTime());
+    }
+  }
+);
   return records.iterator();
 }

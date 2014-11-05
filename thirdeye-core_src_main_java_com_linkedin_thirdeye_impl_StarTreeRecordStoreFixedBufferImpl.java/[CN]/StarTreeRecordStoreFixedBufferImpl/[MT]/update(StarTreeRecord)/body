@@ -11,14 +11,21 @@
     throw new IllegalArgumentException("No bucket for record " + record);
   }
   buffer.position(idx);
-  buffer.getLong();
+  long currentBucket=buffer.getLong();
   for (  String dimensionName : dimensionNames) {
     buffer.getInt();
   }
+  long currentTime=buffer.getLong();
   buffer.mark();
   long[] metricValues=new long[metricNames.size()];
   for (int i=0; i < metricNames.size(); i++) {
-    metricValues[i]=buffer.getLong() + record.getMetricValues().get(metricNames.get(i));
+    long baseValue=buffer.getLong();
+    if (record.getTime().equals(currentTime)) {
+      metricValues[i]=baseValue + record.getMetricValues().get(metricNames.get(i));
+    }
+ else {
+      metricValues[i]=record.getMetricValues().get(metricNames.get(i));
+    }
   }
   buffer.reset();
   for (  long metricValue : metricValues) {

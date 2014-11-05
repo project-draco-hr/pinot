@@ -1,0 +1,10 @@
+{
+  buffer.putLong(record.getTime() % numTimeBuckets);
+  for (  String dimensionName : dimensionNames) {
+    buffer.putInt(forwardIndex.get(dimensionName).get(record.getDimensionValues().get(dimensionName)));
+  }
+  buffer.putLong(record.getTime());
+  for (  String metricName : metricNames) {
+    buffer.putLong(record.getMetricValues().get(metricName));
+  }
+}

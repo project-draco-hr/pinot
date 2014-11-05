@@ -4,10 +4,10 @@
   buffer.rewind();
   int[] lastDimensions=new int[dimensionNames.size()];
   int[] currentDimensions=new int[dimensionNames.size()];
-  Long lastTime=null;
-  Long currentTime=null;
+  Long lastBucket=null;
+  Long currentBucket=null;
   while (buffer.position() < buffer.limit()) {
-    currentTime=buffer.getLong();
+    currentBucket=buffer.getLong();
     for (int i=0; i < dimensionNames.size(); i++) {
       int valueId=buffer.getInt();
       currentDimensions[i]=valueId;
@@ -19,20 +19,21 @@
       }
       values.add(reverseIndex.get(dimensionName).get(valueId));
     }
-    if (lastTime != null) {
-      int compareResult=!lastTime.equals(currentTime) ? (int)(lastTime - currentTime) : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
+    buffer.getLong();
+    if (lastBucket != null) {
+      int compareResult=!lastBucket.equals(currentBucket) ? (int)(lastBucket - currentBucket) : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
       if (compareResult >= 0) {
-        throw new IllegalStateException("Buffer is not sorted by time then dimensions: " + "last=" + lastTime + ":"+ Arrays.toString(lastDimensions)+ "; current="+ currentTime+ ":"+ Arrays.toString(currentDimensions));
+        throw new IllegalStateException("Buffer is not sorted by time then dimensions: " + "last=" + lastBucket + ":"+ Arrays.toString(lastDimensions)+ "; current="+ currentBucket+ ":"+ Arrays.toString(currentDimensions));
       }
     }
     for (    String metricName : metricNames) {
       buffer.getLong();
     }
-    if (lastTime == null || lastTime < currentTime) {
-      timeBuckets.add(currentTime);
+    if (lastBucket == null || lastBucket < currentBucket) {
+      timeBuckets.add(currentBucket);
     }
     System.arraycopy(currentDimensions,0,lastDimensions,0,currentDimensions.length);
-    lastTime=currentTime;
+    lastBucket=currentBucket;
     size++;
   }
 }

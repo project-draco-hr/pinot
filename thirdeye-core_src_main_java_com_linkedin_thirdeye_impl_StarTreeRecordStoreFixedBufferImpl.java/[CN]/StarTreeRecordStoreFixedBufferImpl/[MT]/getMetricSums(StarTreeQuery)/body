@@ -8,8 +8,8 @@
     targetDimensions[i]=valueId;
   }
   if (query.getTimeBuckets() != null) {
-    for (    Long bucket : query.getTimeBuckets()) {
-      int idx=search(buffer,bucket,targetDimensions);
+    for (    Long time : query.getTimeBuckets()) {
+      int idx=search(buffer,time,targetDimensions);
       if (idx >= 0) {
         buffer.position(idx);
         updateSums(buffer,sums);
@@ -17,8 +17,8 @@
     }
   }
  else   if (query.getTimeRange() != null) {
-    for (long bucket=query.getTimeRange().getKey(); bucket <= query.getTimeRange().getValue(); bucket++) {
-      int idx=search(buffer,bucket,targetDimensions);
+    for (long time=query.getTimeRange().getKey(); time <= query.getTimeRange().getValue(); time++) {
+      int idx=search(buffer,time,targetDimensions);
       if (idx >= 0) {
         buffer.position(idx);
         updateSums(buffer,sums);
