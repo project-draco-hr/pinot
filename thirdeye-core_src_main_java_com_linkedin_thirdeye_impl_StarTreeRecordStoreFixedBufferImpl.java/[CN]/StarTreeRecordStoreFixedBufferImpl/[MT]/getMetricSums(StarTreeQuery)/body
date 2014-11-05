@@ -1,0 +1,38 @@
+{
+  long[] sums=new long[metricNames.size()];
+  int[] targetDimensions=new int[dimensionNames.size()];
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimensionName=dimensionNames.get(i);
+    String dimensionValue=query.getDimensionValues().get(dimensionName);
+    int valueId=forwardIndex.get(dimensionName).get(dimensionValue);
+    targetDimensions[i]=valueId;
+  }
+  if (query.getTimeBuckets() != null) {
+    for (    Long bucket : query.getTimeBuckets()) {
+      int idx=search(buffer,bucket,targetDimensions);
+      if (idx >= 0) {
+        buffer.position(idx);
+        updateSums(buffer,sums);
+      }
+    }
+  }
+ else   if (query.getTimeRange() != null) {
+    for (long bucket=query.getTimeRange().getKey(); bucket <= query.getTimeRange().getValue(); bucket++) {
+      int idx=search(buffer,bucket,targetDimensions);
+      if (idx >= 0) {
+        buffer.position(idx);
+        updateSums(buffer,sums);
+      }
+    }
+  }
+ else {
+    for (    long bucket : timeBuckets) {
+      int idx=search(buffer,bucket,targetDimensions);
+      if (idx >= 0) {
+        buffer.position(idx);
+        updateSums(buffer,sums);
+      }
+    }
+  }
+  return sums;
+}

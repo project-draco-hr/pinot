@@ -1,0 +1,20 @@
+{
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  buffer.rewind();
+  while (buffer.position() < buffer.limit()) {
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+    builder.setTime(buffer.getLong());
+    for (    String dimensionName : dimensionNames) {
+      Map<Integer,String> valueIds=reverseIndex.get(dimensionName);
+      int valueId=buffer.getInt();
+      String value=valueIds.get(valueId);
+      builder.setDimensionValue(dimensionName,value);
+    }
+    for (    String metricName : metricNames) {
+      long metricValue=buffer.getLong();
+      builder.setMetricValue(metricName,metricValue);
+    }
+    records.add(builder.build());
+  }
+  return records.iterator();
+}

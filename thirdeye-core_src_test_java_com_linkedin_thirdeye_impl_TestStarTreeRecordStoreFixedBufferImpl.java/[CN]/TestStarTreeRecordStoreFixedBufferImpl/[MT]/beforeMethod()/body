@@ -1,0 +1,30 @@
+{
+  file=new File(System.getProperty("java.io.tmpdir") + File.separator + TestStarTreeRecordStoreFixedBufferImpl.class.getSimpleName()+ ".buffer");
+  int valueId=1;
+  for (  String dimensionName : dimensionNames) {
+    Map<String,Integer> valueIds=new HashMap<String,Integer>();
+    for (int i=0; i < 1000; i++) {
+      valueIds.put(dimensionName + i,valueId++);
+    }
+    forwardIndex.put(dimensionName,valueIds);
+  }
+  int numEntries=1000;
+  int entrySize=dimensionNames.size() * Integer.SIZE / 8 + (metricNames.size() + 1) * Long.SIZE / 8;
+  FileChannel fileChannel=new RandomAccessFile(file,"rw").getChannel();
+  MappedByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,numEntries * entrySize);
+  for (int i=0; i < numEntries; i++) {
+    long time=i / 250;
+    String aVal="A" + i % 250;
+    String bVal="B" + i % 500;
+    String cVal="C" + i;
+    long mVal=1;
+    buffer.putLong(time);
+    buffer.putInt(forwardIndex.get("A").get(aVal));
+    buffer.putInt(forwardIndex.get("B").get(bVal));
+    buffer.putInt(forwardIndex.get("C").get(cVal));
+    buffer.putLong(mVal);
+  }
+  buffer.force();
+  recordStore=new StarTreeRecordStoreFixedBufferImpl(file,dimensionNames,metricNames,forwardIndex);
+  recordStore.open();
+}

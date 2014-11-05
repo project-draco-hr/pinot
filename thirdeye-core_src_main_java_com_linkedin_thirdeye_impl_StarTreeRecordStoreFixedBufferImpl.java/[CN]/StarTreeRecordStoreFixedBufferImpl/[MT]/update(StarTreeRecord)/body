@@ -1,0 +1,27 @@
+{
+  int[] targetDimensions=new int[dimensionNames.size()];
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimensionName=dimensionNames.get(i);
+    String dimensionValue=record.getDimensionValues().get(dimensionName);
+    int valueId=forwardIndex.get(dimensionName).get(dimensionValue);
+    targetDimensions[i]=valueId;
+  }
+  int idx=search(buffer,record.getTime(),targetDimensions);
+  if (idx < 0) {
+    throw new IllegalArgumentException("No bucket for record " + record);
+  }
+  buffer.position(idx);
+  buffer.getLong();
+  for (  String dimensionName : dimensionNames) {
+    buffer.getInt();
+  }
+  buffer.mark();
+  long[] metricValues=new long[metricNames.size()];
+  for (int i=0; i < metricNames.size(); i++) {
+    metricValues[i]=buffer.getLong() + record.getMetricValues().get(metricNames.get(i));
+  }
+  buffer.reset();
+  for (  long metricValue : metricValues) {
+    buffer.putLong(metricValue);
+  }
+}

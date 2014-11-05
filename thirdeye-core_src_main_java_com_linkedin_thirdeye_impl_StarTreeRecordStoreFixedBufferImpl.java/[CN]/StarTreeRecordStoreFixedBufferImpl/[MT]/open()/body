@@ -1,0 +1,30 @@
+{
+  FileChannel fileChannel=new RandomAccessFile(file,"rw").getChannel();
+  buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,file.length());
+  buffer.rewind();
+  int[] lastDimensions=new int[dimensionNames.size()];
+  int[] currentDimensions=new int[dimensionNames.size()];
+  Long lastTime=null;
+  Long currentTime=null;
+  while (buffer.position() < buffer.limit()) {
+    currentTime=buffer.getLong();
+    for (int i=0; i < dimensionNames.size(); i++) {
+      currentDimensions[i]=buffer.getInt();
+    }
+    if (lastTime != null) {
+      int compareResult=!lastTime.equals(currentTime) ? (int)(lastTime - currentTime) : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
+      if (compareResult >= 0) {
+        throw new IllegalStateException("Buffer is not sorted by time then dimensions: " + "last=" + lastTime + ":"+ Arrays.toString(lastDimensions)+ "; current="+ currentTime+ ":"+ Arrays.toString(currentDimensions));
+      }
+    }
+    for (    String metricName : metricNames) {
+      buffer.getLong();
+    }
+    if (lastTime == null || lastTime < currentTime) {
+      timeBuckets.add(currentTime);
+    }
+    System.arraycopy(currentDimensions,0,lastDimensions,0,currentDimensions.length);
+    lastTime=currentTime;
+    size++;
+  }
+}
