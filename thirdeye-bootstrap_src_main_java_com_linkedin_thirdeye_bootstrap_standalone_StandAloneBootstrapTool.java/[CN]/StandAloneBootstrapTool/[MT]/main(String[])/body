@@ -39,6 +39,11 @@
       recordStreams.add(new StarTreeRecordStreamAvroFileImpl(new File(inputFile),dimensionNames,metricNames,timeColumnName));
     }
   }
+ else   if ("tsv".equals(fileType)) {
+    for (    String inputFile : inputFiles) {
+      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),dimensionNames,metricNames,"\t"));
+    }
+  }
  else {
     throw new IllegalArgumentException("Invalid file type " + fileType);
   }
