@@ -1,0 +1,18 @@
+{
+  if (root.isLeaf()) {
+    List<String> fixedDimensions=new ArrayList<String>(root.getAncestorDimensionNames());
+    fixedDimensions.add(root.getDimensionName());
+    ByteBuffer fixedBuffer=fixRecordStore(config,root.getRecordStore(),fixedDimensions);
+    fixedBuffer.rewind();
+    FileChannel fileChannel=new FileOutputStream(new File(outputDir,root.getId().toString())).getChannel();
+    fileChannel.write(fixedBuffer);
+    fileChannel.close();
+  }
+ else {
+    for (    StarTreeNode child : root.getChildren()) {
+      writeFixedBuffers(config,child,outputDir);
+    }
+    writeFixedBuffers(config,root.getOtherNode(),outputDir);
+    writeFixedBuffers(config,root.getStarNode(),outputDir);
+  }
+}

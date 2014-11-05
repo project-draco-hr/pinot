@@ -1,0 +1,60 @@
+{
+  List<String> looseDimensions=new ArrayList<String>(config.getDimensionNames());
+  looseDimensions.removeAll(fixedDimensions);
+  List<Boolean> chosenLooseDimensions=new ArrayList<Boolean>(looseDimensions.size());
+  Map<String,String> dimensionValues=new HashMap<String,String>();
+  for (  String looseDimension : looseDimensions) {
+    chosenLooseDimensions.add(false);
+  }
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  Set<Long> timeBuckets=new HashSet<Long>();
+  for (  StarTreeRecord record : recordStore) {
+    timeBuckets.add(record.getTime());
+    records.add(record);
+    dimensionValues.putAll(record.getDimensionValues());
+    addOtherPlaceholders(config,dimensionValues,record.getTime(),looseDimensions,chosenLooseDimensions,records);
+    dimensionValues.clear();
+  }
+  int currentId=StarTreeConstants.FIRST_VALUE;
+  final Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
+  for (  StarTreeRecord record : records) {
+    for (    String dimensionName : config.getDimensionNames()) {
+      Map<String,Integer> valueIds=forwardIndex.get(dimensionName);
+      if (valueIds == null) {
+        valueIds=new HashMap<String,Integer>();
+        forwardIndex.put(dimensionName,valueIds);
+      }
+      String dimensionValue=record.getDimensionValues().get(dimensionName);
+      Integer valueId=valueIds.get(dimensionValue);
+      if (valueId == null) {
+        valueId=currentId++;
+        valueIds.put(dimensionValue,valueId);
+      }
+    }
+  }
+  Collections.sort(records,new Comparator<StarTreeRecord>(){
+    @Override public int compare(    StarTreeRecord o1,    StarTreeRecord o2){
+      if (!o1.getTime().equals(o2.getTime())) {
+        return (int)(o1.getTime() - o2.getTime());
+      }
+      for (      String dimensionName : config.getDimensionNames()) {
+        String v1=o1.getDimensionValues().get(dimensionName);
+        String v2=o2.getDimensionValues().get(dimensionName);
+        int i1=forwardIndex.get(dimensionName).get(v1);
+        int i2=forwardIndex.get(dimensionName).get(v2);
+        if (i1 != i2) {
+          return i1 - i2;
+        }
+      }
+      return 0;
+    }
+  }
+);
+  int entrySize=StarTreeRecordStoreFixedCircularBufferImpl.getEntrySize(config.getDimensionNames(),config.getMetricNames());
+  int bufferSize=records.size() * entrySize;
+  ByteBuffer buffer=ByteBuffer.allocate(bufferSize);
+  for (  StarTreeRecord record : records) {
+    StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,record,config.getDimensionNames(),config.getMetricNames(),forwardIndex,timeBuckets.size());
+  }
+  return buffer;
+}

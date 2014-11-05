@@ -1,0 +1,28 @@
+{
+  boolean allChosen=true;
+  for (  Boolean oneChosen : chosenLooseDimensions) {
+    allChosen&=oneChosen;
+  }
+  if (allChosen) {
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+    builder.setDimensionValues(dimensionValues);
+    for (    String metricName : config.getMetricNames()) {
+      builder.setMetricValue(metricName,0L);
+    }
+    builder.setTime(time);
+    collector.add(builder.build());
+  }
+ else {
+    for (int i=0; i < looseDimensions.size(); i++) {
+      if (!chosenLooseDimensions.get(i)) {
+        chosenLooseDimensions.set(i,true);
+        String dimensionName=looseDimensions.get(i);
+        String dimensionValue=dimensionValues.get(looseDimensions.get(i));
+        dimensionValues.put(dimensionName,StarTreeConstants.OTHER);
+        addOtherPlaceholders(config,dimensionValues,time,looseDimensions,chosenLooseDimensions,collector);
+        dimensionValues.put(dimensionName,dimensionValue);
+        chosenLooseDimensions.set(i,false);
+      }
+    }
+  }
+}
