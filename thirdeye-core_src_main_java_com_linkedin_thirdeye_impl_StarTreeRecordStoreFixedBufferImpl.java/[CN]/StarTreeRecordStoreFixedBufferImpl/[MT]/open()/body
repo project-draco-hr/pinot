@@ -9,7 +9,15 @@
   while (buffer.position() < buffer.limit()) {
     currentTime=buffer.getLong();
     for (int i=0; i < dimensionNames.size(); i++) {
-      currentDimensions[i]=buffer.getInt();
+      int valueId=buffer.getInt();
+      currentDimensions[i]=valueId;
+      String dimensionName=dimensionNames.get(i);
+      Set<String> values=dimensionValues.get(dimensionName);
+      if (values == null) {
+        values=new HashSet<String>();
+        dimensionValues.put(dimensionName,values);
+      }
+      values.add(reverseIndex.get(dimensionName).get(valueId));
     }
     if (lastTime != null) {
       int compareResult=!lastTime.equals(currentTime) ? (int)(lastTime - currentTime) : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);

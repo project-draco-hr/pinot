@@ -1,3 +1,12 @@
 {
-  throw new UnsupportedOperationException();
+  String maxDimension=null;
+  int maxCardinality=0;
+  for (  String dimensionName : dimensionNames) {
+    int cardinality=getCardinality(dimensionName);
+    if (cardinality > maxCardinality && (blacklist == null || !blacklist.contains(dimensionName))) {
+      maxCardinality=cardinality;
+      maxDimension=dimensionName;
+    }
+  }
+  return maxDimension;
 }
