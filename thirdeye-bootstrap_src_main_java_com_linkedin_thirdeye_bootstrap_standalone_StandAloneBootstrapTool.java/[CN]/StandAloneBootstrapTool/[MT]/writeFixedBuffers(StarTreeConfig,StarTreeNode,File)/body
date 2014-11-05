@@ -1,12 +1,6 @@
 {
   if (root.isLeaf()) {
-    List<String> fixedDimensions=new ArrayList<String>(root.getAncestorDimensionNames());
-    fixedDimensions.add(root.getDimensionName());
-    ByteBuffer fixedBuffer=fixRecordStore(config,root.getRecordStore(),fixedDimensions);
-    fixedBuffer.rewind();
-    FileChannel fileChannel=new FileOutputStream(new File(outputDir,root.getId().toString())).getChannel();
-    fileChannel.write(fixedBuffer);
-    fileChannel.close();
+    writeFixedRecordStore(config,root.getRecordStore(),outputDir,root.getId());
   }
  else {
     for (    StarTreeNode child : root.getChildren()) {

@@ -1,19 +1,9 @@
 {
-  List<String> looseDimensions=new ArrayList<String>(config.getDimensionNames());
-  looseDimensions.removeAll(fixedDimensions);
-  List<Boolean> chosenLooseDimensions=new ArrayList<Boolean>(looseDimensions.size());
-  Map<String,String> dimensionValues=new HashMap<String,String>();
-  for (  String looseDimension : looseDimensions) {
-    chosenLooseDimensions.add(false);
-  }
   List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
   Set<Long> timeBuckets=new HashSet<Long>();
   for (  StarTreeRecord record : recordStore) {
     timeBuckets.add(record.getTime());
     records.add(record);
-    dimensionValues.putAll(record.getDimensionValues());
-    addOtherPlaceholders(config,dimensionValues,record.getTime(),looseDimensions,chosenLooseDimensions,records);
-    dimensionValues.clear();
   }
   int currentId=StarTreeConstants.FIRST_VALUE;
   final Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
@@ -56,5 +46,12 @@
   for (  StarTreeRecord record : records) {
     StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,record,config.getDimensionNames(),config.getMetricNames(),forwardIndex,timeBuckets.size());
   }
-  return buffer;
+  File file=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.BUFFER_SUFFIX);
+  FileChannel fileChannel=new FileOutputStream(file).getChannel();
+  fileChannel.write(buffer);
+  fileChannel.close();
+  LOG.info("Wrote {}",file);
+  file=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.INDEX_SUFFIX);
+  OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(file,forwardIndex);
+  LOG.info("Wrote {}",file);
 }

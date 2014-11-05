@@ -14,8 +14,16 @@
     os.writeObject(starTree.getRoot());
     os.flush();
     os.close();
+    File bufferDir=new File(outputDir,DATA_DIR);
+    if (!bufferDir.exists() && bufferDir.mkdir()) {
+      LOG.info("Created {}",bufferDir);
+    }
+    writeFixedBuffers(starTreeConfig,starTree.getRoot(),bufferDir);
   }
  catch (  Exception e) {
     throw new RuntimeException(e);
+  }
+ finally {
+    executorService.shutdown();
   }
 }
