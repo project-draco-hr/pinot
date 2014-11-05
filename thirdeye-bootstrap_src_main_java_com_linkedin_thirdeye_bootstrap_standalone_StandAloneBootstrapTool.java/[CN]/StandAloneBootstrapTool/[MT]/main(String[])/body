@@ -6,7 +6,7 @@
   String fileType=args[1];
   String outputDir=args[2];
   String[] inputFiles=Arrays.copyOfRange(args,3,args.length);
-  JsonNode config=new ObjectMapper().readTree(new File(configJson));
+  JsonNode config=OBJECT_MAPPER.readTree(new File(configJson));
   List<String> dimensionNames=new ArrayList<String>();
   for (  JsonNode dimensionName : config.get("dimensionNames")) {
     dimensionNames.add(dimensionName.asText());

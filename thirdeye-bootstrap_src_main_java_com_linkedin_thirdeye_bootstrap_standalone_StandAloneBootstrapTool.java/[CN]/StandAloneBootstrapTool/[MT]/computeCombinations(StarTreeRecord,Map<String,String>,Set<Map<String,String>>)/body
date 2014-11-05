@@ -1,0 +1,20 @@
+{
+  if (choices.size() == record.getDimensionValues().size()) {
+    if (!collector.contains(choices)) {
+      Map<String,String> copy=new HashMap<String,String>();
+      copy.putAll(choices);
+      collector.add(copy);
+    }
+  }
+ else {
+    for (    Map.Entry<String,String> entry : record.getDimensionValues().entrySet()) {
+      if (!choices.containsKey(entry.getKey())) {
+        choices.put(entry.getKey(),entry.getValue());
+        computeCombinations(record,choices,collector);
+        choices.put(entry.getKey(),StarTreeConstants.STAR);
+        computeCombinations(record,choices,collector);
+        choices.remove(entry.getKey());
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  final AtomicInteger numRecords=new AtomicInteger();
+  final BlockingQueue<StarTreeRecord> queue=new ArrayBlockingQueue<StarTreeRecord>(100);
+  final List<Future<Set<Map<String,String>>>> futures=new ArrayList<Future<Set<Map<String,String>>>>();
+  for (int i=0; i < Runtime.getRuntime().availableProcessors(); i++) {
+    futures.add(executorService.submit(new Callable<Set<Map<String,String>>>(){
+      @Override public Set<Map<String,String>> call() throws Exception {
+        Set<Map<String,String>> combinations=new HashSet<Map<String,String>>();
+        Map<String,String> choices=new HashMap<String,String>();
+        StarTreeRecord record=null;
+        try {
+          while (!((record=queue.take()) instanceof StarTreeRecordEndMarker)) {
+            computeCombinations(record,choices,combinations);
+            choices.clear();
+            int n=numRecords.incrementAndGet();
+            if (n % 10 == 0) {
+              LOG.info("Processed {} records",n);
+            }
+          }
+        }
+ catch (        InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        return combinations;
+      }
+    }
+));
+  }
+  int streamId=0;
+  for (  Iterable<StarTreeRecord> iterable : recordStreams) {
+    LOG.info("Processing stream {} of {}",++streamId,recordStreams.size());
+    for (    StarTreeRecord record : iterable) {
+      queue.put(record);
+    }
+  }
+  for (int i=0; i < Runtime.getRuntime().availableProcessors(); i++) {
+    queue.put(new StarTreeRecordEndMarker());
+  }
+  Set<Map<String,String>> results=new HashSet<Map<String,String>>();
+  for (  Future<Set<Map<String,String>>> future : futures) {
+    results.addAll(future.get());
+  }
+  File file=new File(outputDir,S1_COMBINATIONS_FILE);
+  LOG.info("Writing {}",file);
+  OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(file,results);
+}
