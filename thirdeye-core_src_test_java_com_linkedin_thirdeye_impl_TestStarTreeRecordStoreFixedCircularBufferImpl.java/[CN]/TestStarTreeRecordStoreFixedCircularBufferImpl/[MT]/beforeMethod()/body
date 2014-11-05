@@ -1,5 +1,5 @@
 {
-  file=new File(System.getProperty("java.io.tmpdir") + File.separator + TestStarTreeRecordStoreFixedBufferImpl.class.getSimpleName()+ ".buffer");
+  file=new File(System.getProperty("java.io.tmpdir") + File.separator + TestStarTreeRecordStoreFixedCircularBufferImpl.class.getSimpleName()+ ".buffer");
   int valueId=1;
   for (  String dimensionName : dimensionNames) {
     Map<String,Integer> valueIds=new HashMap<String,Integer>();
@@ -9,14 +9,14 @@
     forwardIndex.put(dimensionName,valueIds);
   }
   int numEntries=1000;
-  int entrySize=StarTreeRecordStoreFixedBufferImpl.getEntrySize(dimensionNames,metricNames);
+  int entrySize=StarTreeRecordStoreFixedCircularBufferImpl.getEntrySize(dimensionNames,metricNames);
   FileChannel fileChannel=new RandomAccessFile(file,"rw").getChannel();
   MappedByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,numEntries * entrySize);
   for (int i=0; i < numEntries; i++) {
     StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + i % 250).setDimensionValue("B","B" + i % 500).setDimensionValue("C","C" + i).setMetricValue("M",1L).setTime((long)i / 250).build();
-    StarTreeRecordStoreFixedBufferImpl.writeRecord(buffer,record,dimensionNames,metricNames,forwardIndex,4);
+    StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,record,dimensionNames,metricNames,forwardIndex,4);
   }
   buffer.force();
-  recordStore=new StarTreeRecordStoreFixedBufferImpl(file,dimensionNames,metricNames,forwardIndex);
+  recordStore=new StarTreeRecordStoreFixedCircularBufferImpl(file,dimensionNames,metricNames,forwardIndex);
   recordStore.open();
 }
