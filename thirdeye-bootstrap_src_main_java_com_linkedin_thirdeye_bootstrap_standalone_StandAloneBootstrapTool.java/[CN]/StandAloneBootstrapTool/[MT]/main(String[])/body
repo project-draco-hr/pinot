@@ -16,6 +16,19 @@
     metricNames.add(metricName.asText());
   }
   String timeColumnName=config.get("timeColumnName").asText();
+  StarTreeRecordThresholdFunction thresholdFunction=null;
+  if (config.has("thresholdFunctionClass")) {
+    thresholdFunction=(StarTreeRecordThresholdFunction)Class.forName(config.get("thresholdFunctionClass").asText()).newInstance();
+    if (config.has("thresholdFunctionConfig")) {
+      Properties props=new Properties();
+      Iterator<Map.Entry<String,JsonNode>> itr=config.get("thresholdFunctionConfig").getFields();
+      while (itr.hasNext()) {
+        Map.Entry<String,JsonNode> next=itr.next();
+        props.put(next.getKey(),next.getValue().asText());
+      }
+      thresholdFunction.init(props);
+    }
+  }
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
     for (    String inputFile : inputFiles) {
@@ -25,5 +38,5 @@
  else {
     throw new IllegalArgumentException("Invalid file type " + fileType);
   }
-  new StandAloneBootstrapTool(recordStreams,new File(outputDir)).run();
+  new StandAloneBootstrapTool(recordStreams,new File(outputDir),thresholdFunction).run();
 }
