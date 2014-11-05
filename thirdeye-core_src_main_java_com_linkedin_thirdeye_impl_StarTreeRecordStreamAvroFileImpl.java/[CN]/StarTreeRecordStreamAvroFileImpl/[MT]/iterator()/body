@@ -1,11 +1,4 @@
 {
-  FileReader<GenericRecord> fileReader;
-  try {
-    fileReader=DataFileReader.openReader(avroFile,new GenericDatumReader<GenericRecord>());
-  }
- catch (  IOException e) {
-    throw new IllegalStateException(e);
-  }
   final Iterator<GenericRecord> itr=fileReader.iterator();
   return new Iterator<StarTreeRecord>(){
     @Override public boolean hasNext(){
@@ -24,7 +17,7 @@
       for (      String metricName : metricNames) {
         Object o=genericRecord.get(metricName);
         if (o == null) {
-          throw new IllegalArgumentException("Found null metric value in " + genericRecord);
+          builder.setMetricValue(metricName,0L);
         }
  else         if (o instanceof Integer) {
           builder.setMetricValue(metricName,((Integer)o).longValue());
