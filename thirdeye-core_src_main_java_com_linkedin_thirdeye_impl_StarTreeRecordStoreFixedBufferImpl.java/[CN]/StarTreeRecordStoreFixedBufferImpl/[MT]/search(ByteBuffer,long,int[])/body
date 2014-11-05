@@ -1,6 +1,5 @@
 {
   buffer.rewind();
-  int targetBucket=(int)(targetTime % timeBuckets.size());
   int[] currentDimensions=new int[dimensionNames.size()];
   while (buffer.position() < buffer.limit()) {
     int idx=((buffer.limit() + buffer.position()) / entrySize / 2) * entrySize;
@@ -14,7 +13,7 @@
     buffer.reset();
     int compareResult=targetBucket != currentBucket ? (int)(targetBucket - currentBucket) : DIMENSION_COMBINATION_COMPARATOR.compare(targetDimensions,currentDimensions);
     if (compareResult == 0) {
-      return currentTime == targetTime ? idx : -1;
+      return idx;
     }
  else     if (compareResult < 0) {
       buffer.limit(idx);

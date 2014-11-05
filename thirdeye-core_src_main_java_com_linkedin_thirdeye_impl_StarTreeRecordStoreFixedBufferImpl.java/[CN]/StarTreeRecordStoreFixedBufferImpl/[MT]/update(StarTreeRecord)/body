@@ -6,7 +6,8 @@
     int valueId=forwardIndex.get(dimensionName).get(dimensionValue);
     targetDimensions[i]=valueId;
   }
-  int idx=search(buffer,record.getTime(),targetDimensions);
+  int bucket=(int)(record.getTime() % timeBuckets.size());
+  int idx=search(buffer,bucket,targetDimensions);
   if (idx < 0) {
     throw new IllegalArgumentException("No bucket for record " + record);
   }
@@ -15,8 +16,8 @@
   for (  String dimensionName : dimensionNames) {
     buffer.getInt();
   }
-  long currentTime=buffer.getLong();
   buffer.mark();
+  long currentTime=buffer.getLong();
   long[] metricValues=new long[metricNames.size()];
   for (int i=0; i < metricNames.size(); i++) {
     long baseValue=buffer.getLong();
@@ -28,6 +29,7 @@
     }
   }
   buffer.reset();
+  buffer.putLong(record.getTime());
   for (  long metricValue : metricValues) {
     buffer.putLong(metricValue);
   }

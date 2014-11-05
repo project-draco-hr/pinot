@@ -9,28 +9,31 @@
   }
   if (query.getTimeBuckets() != null) {
     for (    Long time : query.getTimeBuckets()) {
-      int idx=search(buffer,time,targetDimensions);
+      int bucket=(int)(time % timeBuckets.size());
+      int idx=search(buffer,bucket,targetDimensions);
       if (idx >= 0) {
         buffer.position(idx);
-        updateSums(buffer,sums);
+        updateSums(buffer,sums,time);
       }
     }
   }
  else   if (query.getTimeRange() != null) {
     for (long time=query.getTimeRange().getKey(); time <= query.getTimeRange().getValue(); time++) {
-      int idx=search(buffer,time,targetDimensions);
+      int bucket=(int)(time % timeBuckets.size());
+      int idx=search(buffer,bucket,targetDimensions);
       if (idx >= 0) {
         buffer.position(idx);
-        updateSums(buffer,sums);
+        updateSums(buffer,sums,time);
       }
     }
   }
  else {
-    for (    long bucket : timeBuckets) {
+    for (    long time : timeBuckets) {
+      int bucket=(int)(time % timeBuckets.size());
       int idx=search(buffer,bucket,targetDimensions);
       if (idx >= 0) {
         buffer.position(idx);
-        updateSums(buffer,sums);
+        updateSums(buffer,sums,time);
       }
     }
   }
