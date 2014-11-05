@@ -1,6 +1,19 @@
 {
   try {
-    s1Combinations();
+    StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
+    starTreeManager.registerConfig(collection,starTreeConfig);
+    int streamId=0;
+    for (    Iterable<StarTreeRecord> recordStream : recordStreams) {
+      LOG.info("Processing stream {} of {}",++streamId,recordStreams.size());
+      starTreeManager.load(collection,recordStream);
+    }
+    StarTree starTree=starTreeManager.getStarTree(collection);
+    File starTreeFile=new File(outputDir,STARTREE_FILE);
+    LOG.info("Writing {}",starTreeFile);
+    ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(starTreeFile));
+    os.writeObject(starTree.getRoot());
+    os.flush();
+    os.close();
   }
  catch (  Exception e) {
     throw new RuntimeException(e);
