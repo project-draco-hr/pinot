@@ -1,5 +1,8 @@
 {
-  file=new File(System.getProperty("java.io.tmpdir") + File.separator + TestStarTreeRecordStoreFixedCircularBufferImpl.class.getSimpleName()+ ".buffer");
+  rootDir=new File(System.getProperty("java.io.tmpdir"),TestStarTreeRecordStoreFixedCircularBufferImpl.class.getSimpleName());
+  FileUtils.forceMkdir(rootDir);
+  UUID nodeId=UUID.randomUUID();
+  bufferFile=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.BUFFER_SUFFIX);
   int valueId=1;
   for (  String dimensionName : dimensionNames) {
     Map<String,Integer> valueIds=new HashMap<String,Integer>();
@@ -10,13 +13,22 @@
   }
   int numEntries=1000;
   int entrySize=StarTreeRecordStoreFixedCircularBufferImpl.getEntrySize(dimensionNames,metricNames);
-  FileChannel fileChannel=new RandomAccessFile(file,"rw").getChannel();
+  FileChannel fileChannel=new RandomAccessFile(bufferFile,"rw").getChannel();
   MappedByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,numEntries * entrySize);
   for (int i=0; i < numEntries; i++) {
     StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + i % 250).setDimensionValue("B","B" + i % 500).setDimensionValue("C","C" + i).setMetricValue("M",1L).setTime((long)i / 250).build();
     StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,record,dimensionNames,metricNames,forwardIndex,4);
   }
   buffer.force();
-  recordStore=new StarTreeRecordStoreFixedCircularBufferImpl(file,dimensionNames,metricNames,forwardIndex);
+  File forwardIndexFile=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.INDEX_SUFFIX);
+  OutputStream outputStream=new FileOutputStream(forwardIndexFile);
+  new ObjectMapper().writeValue(outputStream,forwardIndex);
+  outputStream.flush();
+  outputStream.close();
+  Properties props=new Properties();
+  props.put("rootDir",rootDir.getAbsolutePath());
+  StarTreeRecordStoreFactory recordStoreFactory=new StarTreeRecordStoreFactoryFixedCircularBufferImpl();
+  recordStoreFactory.init(dimensionNames,metricNames,props);
+  recordStore=recordStoreFactory.createRecordStore(nodeId);
   recordStore.open();
 }
