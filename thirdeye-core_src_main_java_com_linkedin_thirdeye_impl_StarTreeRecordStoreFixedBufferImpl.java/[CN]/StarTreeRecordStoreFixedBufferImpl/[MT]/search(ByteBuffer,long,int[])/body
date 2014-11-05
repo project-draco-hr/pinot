@@ -1,12 +1,12 @@
 {
   buffer.rewind();
-  long targetBucket=targetTime % timeBuckets.size();
+  int targetBucket=(int)(targetTime % timeBuckets.size());
   int[] currentDimensions=new int[dimensionNames.size()];
   while (buffer.position() < buffer.limit()) {
     int idx=((buffer.limit() + buffer.position()) / entrySize / 2) * entrySize;
     buffer.mark();
     buffer.position(idx);
-    long currentBucket=buffer.getLong();
+    int currentBucket=buffer.getInt();
     for (int i=0; i < currentDimensions.length; i++) {
       currentDimensions[i]=buffer.getInt();
     }

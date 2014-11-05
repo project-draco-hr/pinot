@@ -1,5 +1,5 @@
 {
-  buffer.putLong(record.getTime() % numTimeBuckets);
+  buffer.putInt((int)(record.getTime() % numTimeBuckets));
   for (  String dimensionName : dimensionNames) {
     buffer.putInt(forwardIndex.get(dimensionName).get(record.getDimensionValues().get(dimensionName)));
   }
