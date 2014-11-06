@@ -1,18 +1,21 @@
 {
-  if (buffers.isEmpty()) {
-    buffers.add(createBuffer());
+  if (buffer == null) {
+    buffer=createBuffer(bufferSize);
+    buffer.limit(0);
   }
-  ByteBuffer buffer=buffers.get(buffers.size() - 1);
   if (buffer.limit() + entrySize > buffer.capacity()) {
     int oldLimit=buffer.limit();
-    compressBuffer(buffer);
+    compactBuffer(buffer);
     int newLimit=buffer.limit();
-    double compressionRatio=(1.0 * newLimit) / oldLimit;
-    LOG.info(String.format("Compressed buffer to %.02f (oldLimit=%d, newLimit=%d)",compressionRatio,oldLimit,newLimit));
-    if (compressionRatio > targetCompressionRatio) {
-      buffer=createBuffer();
-      buffers.add(buffer);
-      LOG.info(String.format("Created new buffer (total=%d)",buffers.size()));
+    double loadFactor=(1.0 * newLimit) / oldLimit;
+    LOG.info(String.format("Compacted buffer (loadFactor=%.02f, oldLimit=%d, newLimit=%d)",loadFactor,oldLimit,newLimit));
+    if (loadFactor > targetLoadFactor) {
+      ByteBuffer expandedBuffer=createBuffer(buffer.capacity() + bufferSize);
+      buffer.rewind();
+      expandedBuffer.put(buffer);
+      expandedBuffer.limit(expandedBuffer.position());
+      buffer=expandedBuffer;
+      LOG.info("Expanded buffer: " + expandedBuffer);
     }
   }
   return buffer;

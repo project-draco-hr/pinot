@@ -1,11 +1,9 @@
 {
 synchronized (sync) {
     List<StarTreeRecord> records=new LinkedList<StarTreeRecord>();
-    for (    ByteBuffer buffer : buffers) {
-      buffer.rewind();
-      while (buffer.position() < buffer.limit()) {
-        records.add(getRecord(buffer));
-      }
+    buffer.rewind();
+    while (buffer.position() < buffer.limit()) {
+      records.add(getRecord(buffer));
     }
     return records.iterator();
   }
