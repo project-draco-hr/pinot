@@ -3,10 +3,8 @@
   recordStore.update(record);
   StarTreeQuery starTreeQuery=new StarTreeQueryImpl.Builder().setDimensionValue("A","A0").setDimensionValue("B","B0").setDimensionValue("C","C0").setTimeBuckets(new HashSet<Long>(Arrays.asList(0L))).build();
   long[] metricSums=recordStore.getMetricSums(starTreeQuery);
-  long[] expected=new long[]{0};
-  Assert.assertEquals(metricSums,expected);
+  Assert.assertEquals(metricSums[0],0L);
   starTreeQuery=new StarTreeQueryImpl.Builder().setDimensionValue("A","A0").setDimensionValue("B","B0").setDimensionValue("C","C0").setTimeBuckets(new HashSet<Long>(Arrays.asList(4L))).build();
   metricSums=recordStore.getMetricSums(starTreeQuery);
-  expected=new long[]{100};
-  Assert.assertEquals(metricSums,expected);
+  Assert.assertEquals(metricSums[0],100L);
 }

@@ -3,7 +3,7 @@
   FileUtils.forceMkdir(rootDir);
   UUID nodeId=UUID.randomUUID();
   bufferFile=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.BUFFER_SUFFIX);
-  int valueId=1;
+  int valueId=StarTreeConstants.FIRST_VALUE;
   for (  String dimensionName : dimensionNames) {
     Map<String,Integer> valueIds=new HashMap<String,Integer>();
     for (int i=0; i < 1000; i++) {
@@ -16,10 +16,19 @@
   int numEntries=1000;
   int entrySize=StarTreeRecordStoreFixedCircularBufferImpl.getEntrySize(dimensionNames,metricNames);
   FileChannel fileChannel=new RandomAccessFile(bufferFile,"rw").getChannel();
-  MappedByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,numEntries * entrySize);
+  MappedByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,(numEntries + 4) * entrySize);
+  StarTreeRecord otherRecord=new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0L).setTime(0L).build();
+  StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,otherRecord,dimensionNames,metricNames,forwardIndex,4);
+  long lastTime=0;
   for (int i=0; i < numEntries; i++) {
-    StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + i % 250).setDimensionValue("B","B" + i % 500).setDimensionValue("C","C" + i).setMetricValue("M",1L).setTime((long)i / 250).build();
+    long currentTime=(long)i / 250;
+    if (lastTime < currentTime) {
+      otherRecord=new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0L).setTime(currentTime).build();
+      StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,otherRecord,dimensionNames,metricNames,forwardIndex,4);
+    }
+    StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + i % 250).setDimensionValue("B","B" + i % 500).setDimensionValue("C","C" + i).setMetricValue("M",1L).setTime(currentTime).build();
     StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,record,dimensionNames,metricNames,forwardIndex,4);
+    lastTime=currentTime;
   }
   buffer.force();
   File forwardIndexFile=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.INDEX_SUFFIX);
