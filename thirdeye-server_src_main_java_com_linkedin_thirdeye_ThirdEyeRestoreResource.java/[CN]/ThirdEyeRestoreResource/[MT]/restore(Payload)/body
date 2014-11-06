@@ -1,0 +1,6 @@
+{
+  InputStream treeStream=URI.create(payload.getTreeUri()).toURL().openStream();
+  InputStream configStream=URI.create(payload.getConfigUri()).toURL().openStream();
+  starTreeManager.restore(payload.getCollection(),treeStream,configStream);
+  return Response.ok().build();
+}
