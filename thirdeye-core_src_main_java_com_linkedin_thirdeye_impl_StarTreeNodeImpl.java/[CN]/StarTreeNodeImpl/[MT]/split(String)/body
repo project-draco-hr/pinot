@@ -41,15 +41,15 @@
       }
     }
     starNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
-    starNode.init();
+    starNode.init(config);
     otherNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
-    otherNode.init();
+    otherNode.init(config);
     for (    Map.Entry<String,Boolean> entry : passingDimensionValues.entrySet()) {
       String dimensionValue=entry.getKey();
       Boolean passesThreshold=entry.getValue();
       if (passesThreshold) {
         StarTreeNode child=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,dimensionValue,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
-        child.init();
+        child.init(config);
         children.put(entry.getKey(),child);
       }
     }

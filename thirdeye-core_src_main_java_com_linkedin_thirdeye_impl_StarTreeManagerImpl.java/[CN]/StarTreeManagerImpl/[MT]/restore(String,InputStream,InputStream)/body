@@ -1,0 +1,25 @@
+{
+synchronized (trees) {
+    StarTreeNode root;
+    try {
+      ObjectInputStream objectInputStream=new ObjectInputStream(treeStream);
+      root=(StarTreeNode)objectInputStream.readObject();
+    }
+ catch (    ClassNotFoundException e) {
+      throw new IOException(e);
+    }
+    StarTreeConfig config;
+    try {
+      config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(configStream));
+    }
+ catch (    Exception e) {
+      throw new IOException(e);
+    }
+    StarTree starTree=new StarTreeImpl(config,root);
+    starTree.open();
+    StarTree previousTree=trees.put(collection,starTree);
+    if (previousTree != null) {
+      previousTree.close();
+    }
+  }
+}

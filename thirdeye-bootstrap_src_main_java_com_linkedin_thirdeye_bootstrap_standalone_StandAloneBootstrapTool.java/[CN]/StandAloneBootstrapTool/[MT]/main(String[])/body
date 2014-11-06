@@ -1,51 +1,26 @@
 {
-  if (args.length < 4) {
-    throw new IllegalArgumentException("usage: config.json fileType outputDir inputFile ...");
+  if (args.length < 5) {
+    throw new IllegalArgumentException("usage: collection config.json fileType outputDir inputFile ...");
   }
-  String configJson=args[0];
-  String fileType=args[1];
-  String outputDir=args[2];
-  String[] inputFiles=Arrays.copyOfRange(args,3,args.length);
-  JsonNode config=OBJECT_MAPPER.readTree(new File(configJson));
-  List<String> dimensionNames=new ArrayList<String>();
-  for (  JsonNode dimensionName : config.get("dimensionNames")) {
-    dimensionNames.add(dimensionName.asText());
-  }
-  List<String> metricNames=new ArrayList<String>();
-  for (  JsonNode metricName : config.get("metricNames")) {
-    metricNames.add(metricName.asText());
-  }
-  String timeColumnName=config.get("timeColumnName").asText();
-  StarTreeConfig.Builder starTreeConfig=new StarTreeConfig.Builder();
-  starTreeConfig.setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName);
-  if (config.has("thresholdFunctionClass")) {
-    starTreeConfig.setThresholdFunctionClass(config.get("thresholdFunctionClass").asText());
-    if (config.has("thresholdFunctionConfig")) {
-      Properties props=new Properties();
-      Iterator<Map.Entry<String,JsonNode>> itr=config.get("thresholdFunctionConfig").getFields();
-      while (itr.hasNext()) {
-        Map.Entry<String,JsonNode> next=itr.next();
-        props.put(next.getKey(),next.getValue().asText());
-      }
-      starTreeConfig.setThresholdFunctionConfig(props);
-    }
-  }
-  if (config.has("maxRecordStoreEntries")) {
-    starTreeConfig.setMaxRecordStoreEntries(config.get("maxRecordStoreEntries").asInt());
-  }
+  String collection=args[0];
+  String configJson=args[1];
+  String fileType=args[2];
+  String outputDir=args[3];
+  String[] inputFiles=Arrays.copyOfRange(args,4,args.length);
+  StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(new File(configJson)));
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
     for (    String inputFile : inputFiles) {
-      recordStreams.add(new StarTreeRecordStreamAvroFileImpl(new File(inputFile),dimensionNames,metricNames,timeColumnName));
+      recordStreams.add(new StarTreeRecordStreamAvroFileImpl(new File(inputFile),config.getDimensionNames(),config.getMetricNames(),config.getTimeColumnName()));
     }
   }
  else   if ("tsv".equals(fileType)) {
     for (    String inputFile : inputFiles) {
-      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),dimensionNames,metricNames,"\t"));
+      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),config.getDimensionNames(),config.getMetricNames(),"\t"));
     }
   }
  else {
     throw new IllegalArgumentException("Invalid file type " + fileType);
   }
-  new StandAloneBootstrapTool(config.get("collection").asText(),starTreeConfig.build(),recordStreams,new File(outputDir)).run();
+  new StandAloneBootstrapTool(collection,config,recordStreams,new File(outputDir)).run();
 }

@@ -8,7 +8,7 @@
       starTreeManager.load(collection,recordStream);
     }
     StarTree starTree=starTreeManager.getStarTree(collection);
-    File starTreeFile=new File(outputDir,STARTREE_FILE);
+    File starTreeFile=new File(outputDir,TREE_FILE);
     LOG.info("Writing {}",starTreeFile);
     ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(starTreeFile));
     os.writeObject(starTree.getRoot());
@@ -19,6 +19,19 @@
       LOG.info("Created {}",bufferDir);
     }
     writeFixedBuffers(starTreeConfig,starTree.getRoot(),bufferDir);
+    Properties recordStoreFactoryConfig=new Properties();
+    recordStoreFactoryConfig.setProperty("rootDir",bufferDir.getAbsolutePath());
+    Map<String,Object> configJson=new HashMap<String,Object>();
+    configJson.put("dimensionNames",starTreeConfig.getDimensionNames());
+    configJson.put("metricNames",starTreeConfig.getMetricNames());
+    configJson.put("timeColumnName",starTreeConfig.getTimeColumnName());
+    configJson.put("thresholdFunctionClass",starTreeConfig.getThresholdFunction().getClass().getCanonicalName());
+    configJson.put("thresholdFunctionConfig",starTreeConfig.getThresholdFunction().getConfig());
+    configJson.put("recordStoreFactoryClass",StarTreeRecordStoreFactoryFixedCircularBufferImpl.class.getCanonicalName());
+    configJson.put("recordStoreFactoryConfig",recordStoreFactoryConfig);
+    File configFile=new File(outputDir,CONFIG_FILE);
+    LOG.info("Writing {}",configFile);
+    OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(configFile,configJson);
   }
  catch (  Exception e) {
     throw new RuntimeException(e);
