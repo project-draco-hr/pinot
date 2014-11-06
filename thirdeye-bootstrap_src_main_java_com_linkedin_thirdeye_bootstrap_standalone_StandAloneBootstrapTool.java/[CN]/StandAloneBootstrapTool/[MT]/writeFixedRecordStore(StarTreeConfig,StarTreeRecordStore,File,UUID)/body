@@ -5,6 +5,17 @@
     timeBuckets.add(record.getTime());
     records.add(record);
   }
+  for (  Long timeBucket : timeBuckets) {
+    StarTreeRecordImpl.Builder other=new StarTreeRecordImpl.Builder();
+    for (    String dimensionName : config.getDimensionNames()) {
+      other.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
+    }
+    for (    String metricName : config.getMetricNames()) {
+      other.setMetricValue(metricName,0L);
+    }
+    other.setTime(timeBucket);
+    records.add(other.build());
+  }
   int currentId=StarTreeConstants.FIRST_VALUE;
   final Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
   for (  StarTreeRecord record : records) {
