@@ -1,39 +1,41 @@
 {
-  FileChannel fileChannel=new RandomAccessFile(file,"rw").getChannel();
-  buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,file.length());
-  buffer.rewind();
-  int[] lastDimensions=new int[dimensionNames.size()];
-  int[] currentDimensions=new int[dimensionNames.size()];
-  Integer lastBucket=null;
-  Integer currentBucket=null;
-  while (buffer.position() < buffer.limit()) {
-    currentBucket=buffer.getInt();
-    for (int i=0; i < dimensionNames.size(); i++) {
-      int valueId=buffer.getInt();
-      currentDimensions[i]=valueId;
-      String dimensionName=dimensionNames.get(i);
-      Set<String> values=dimensionValues.get(dimensionName);
-      if (values == null) {
-        values=new HashSet<String>();
-        dimensionValues.put(dimensionName,values);
+  if (!isOpen.getAndSet(true)) {
+    FileChannel fileChannel=new RandomAccessFile(file,"rw").getChannel();
+    buffer=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,file.length());
+    buffer.rewind();
+    int[] lastDimensions=new int[dimensionNames.size()];
+    int[] currentDimensions=new int[dimensionNames.size()];
+    Integer lastBucket=null;
+    Integer currentBucket=null;
+    while (buffer.position() < buffer.limit()) {
+      currentBucket=buffer.getInt();
+      for (int i=0; i < dimensionNames.size(); i++) {
+        int valueId=buffer.getInt();
+        currentDimensions[i]=valueId;
+        String dimensionName=dimensionNames.get(i);
+        Set<String> values=dimensionValues.get(dimensionName);
+        if (values == null) {
+          values=new HashSet<String>();
+          dimensionValues.put(dimensionName,values);
+        }
+        values.add(reverseIndex.get(dimensionName).get(valueId));
       }
-      values.add(reverseIndex.get(dimensionName).get(valueId));
-    }
-    buffer.getLong();
-    if (lastBucket != null) {
-      int compareResult=!lastBucket.equals(currentBucket) ? lastBucket - currentBucket : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
-      if (compareResult >= 0) {
-        throw new IllegalStateException("Buffer is not sorted by time then dimensions: " + "last=" + lastBucket + ":"+ Arrays.toString(lastDimensions)+ "; current="+ currentBucket+ ":"+ Arrays.toString(currentDimensions));
-      }
-    }
-    for (    String metricName : metricNames) {
       buffer.getLong();
+      if (lastBucket != null) {
+        int compareResult=!lastBucket.equals(currentBucket) ? lastBucket - currentBucket : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
+        if (compareResult >= 0) {
+          throw new IllegalStateException("Buffer is not sorted by time then dimensions: " + "last=" + lastBucket + ":"+ Arrays.toString(lastDimensions)+ "; current="+ currentBucket+ ":"+ Arrays.toString(currentDimensions));
+        }
+      }
+      for (      String metricName : metricNames) {
+        buffer.getLong();
+      }
+      if (lastBucket == null || lastBucket < currentBucket) {
+        timeBuckets.add(currentBucket);
+      }
+      System.arraycopy(currentDimensions,0,lastDimensions,0,currentDimensions.length);
+      lastBucket=currentBucket;
+      size++;
     }
-    if (lastBucket == null || lastBucket < currentBucket) {
-      timeBuckets.add(currentBucket);
-    }
-    System.arraycopy(currentDimensions,0,lastDimensions,0,currentDimensions.length);
-    lastBucket=currentBucket;
-    size++;
   }
 }

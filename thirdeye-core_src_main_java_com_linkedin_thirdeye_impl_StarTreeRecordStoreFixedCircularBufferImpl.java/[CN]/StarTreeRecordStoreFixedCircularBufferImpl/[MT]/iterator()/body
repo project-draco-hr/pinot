@@ -1,27 +1,29 @@
 {
   List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
-  buffer.rewind();
-  while (buffer.position() < buffer.limit()) {
-    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-    buffer.getInt();
-    for (    String dimensionName : dimensionNames) {
-      Map<Integer,String> valueIds=reverseIndex.get(dimensionName);
-      int valueId=buffer.getInt();
-      String value=valueIds.get(valueId);
-      builder.setDimensionValue(dimensionName,value);
+synchronized (sync) {
+    buffer.rewind();
+    while (buffer.position() < buffer.limit()) {
+      StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+      buffer.getInt();
+      for (      String dimensionName : dimensionNames) {
+        Map<Integer,String> valueIds=reverseIndex.get(dimensionName);
+        int valueId=buffer.getInt();
+        String value=valueIds.get(valueId);
+        builder.setDimensionValue(dimensionName,value);
+      }
+      builder.setTime(buffer.getLong());
+      for (      String metricName : metricNames) {
+        long metricValue=buffer.getLong();
+        builder.setMetricValue(metricName,metricValue);
+      }
+      records.add(builder.build());
     }
-    builder.setTime(buffer.getLong());
-    for (    String metricName : metricNames) {
-      long metricValue=buffer.getLong();
-      builder.setMetricValue(metricName,metricValue);
+    Collections.sort(records,new Comparator<StarTreeRecord>(){
+      @Override public int compare(      StarTreeRecord o1,      StarTreeRecord o2){
+        return (int)(o1.getTime() - o2.getTime());
+      }
     }
-    records.add(builder.build());
-  }
-  Collections.sort(records,new Comparator<StarTreeRecord>(){
-    @Override public int compare(    StarTreeRecord o1,    StarTreeRecord o2){
-      return (int)(o1.getTime() - o2.getTime());
-    }
-  }
 );
-  return records.iterator();
+    return records.iterator();
+  }
 }
