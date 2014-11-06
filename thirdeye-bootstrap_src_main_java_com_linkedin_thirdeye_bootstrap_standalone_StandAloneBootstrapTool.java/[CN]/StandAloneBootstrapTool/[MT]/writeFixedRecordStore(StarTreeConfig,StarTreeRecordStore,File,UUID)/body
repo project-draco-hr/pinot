@@ -1,9 +1,18 @@
 {
-  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  Map<String,List<StarTreeRecord>> groupedRecords=new HashMap<String,List<StarTreeRecord>>();
   Set<Long> timeBuckets=new HashSet<Long>();
   for (  StarTreeRecord record : recordStore) {
     timeBuckets.add(record.getTime());
+    List<StarTreeRecord> records=groupedRecords.get(record.getKey());
+    if (records == null) {
+      records=new ArrayList<StarTreeRecord>();
+      groupedRecords.put(record.getKey(),records);
+    }
     records.add(record);
+  }
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  for (  List<StarTreeRecord> group : groupedRecords.values()) {
+    records.add(StarTreeUtils.merge(group));
   }
   for (  Long timeBucket : timeBuckets) {
     StarTreeRecordImpl.Builder other=new StarTreeRecordImpl.Builder();
@@ -31,6 +40,8 @@
         valueId=currentId++;
         valueIds.put(dimensionValue,valueId);
       }
+      valueIds.put(StarTreeConstants.STAR,StarTreeConstants.STAR_VALUE);
+      valueIds.put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
     }
   }
   Collections.sort(records,new Comparator<StarTreeRecord>(){
@@ -57,9 +68,11 @@
   for (  StarTreeRecord record : records) {
     StarTreeRecordStoreFixedCircularBufferImpl.writeRecord(buffer,record,config.getDimensionNames(),config.getMetricNames(),forwardIndex,timeBuckets.size());
   }
+  buffer.flip();
   File file=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.BUFFER_SUFFIX);
   FileChannel fileChannel=new FileOutputStream(file).getChannel();
   fileChannel.write(buffer);
+  fileChannel.force(true);
   fileChannel.close();
   LOG.info("Wrote {}",file);
   file=new File(rootDir,nodeId.toString() + StarTreeRecordStoreFactoryFixedCircularBufferImpl.INDEX_SUFFIX);
