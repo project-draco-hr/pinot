@@ -7,6 +7,7 @@
     int valueId=forwardIndex.get(dimensionName).get(dimensionValue);
     targetDimensions[i]=valueId;
   }
+  Set<Integer> missedBuckets=new HashSet<Integer>();
   if (query.getTimeBuckets() != null) {
     for (    Long time : query.getTimeBuckets()) {
       int bucket=(int)(time % timeBuckets.size());
@@ -14,6 +15,9 @@
       if (idx >= 0) {
         buffer.position(idx);
         updateSums(buffer,sums,time);
+      }
+ else {
+        missedBuckets.add(bucket);
       }
     }
   }
@@ -25,17 +29,25 @@
         buffer.position(idx);
         updateSums(buffer,sums,time);
       }
+ else {
+        missedBuckets.add(bucket);
+      }
     }
   }
  else {
-    for (    long time : timeBuckets) {
-      int bucket=(int)(time % timeBuckets.size());
+    for (    int bucket : timeBuckets) {
       int idx=search(buffer,bucket,targetDimensions);
       if (idx >= 0) {
         buffer.position(idx);
-        updateSums(buffer,sums,time);
+        updateSums(buffer,sums,-1);
+      }
+ else {
+        missedBuckets.add(bucket);
       }
     }
+  }
+  if (!missedBuckets.isEmpty()) {
+    filterAggregate(buffer,sums,targetDimensions,missedBuckets);
   }
   return sums;
 }

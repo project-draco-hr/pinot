@@ -21,7 +21,7 @@
     }
     buffer.getLong();
     if (lastBucket != null) {
-      int compareResult=!lastBucket.equals(currentBucket) ? (int)(lastBucket - currentBucket) : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
+      int compareResult=!lastBucket.equals(currentBucket) ? lastBucket - currentBucket : DIMENSION_COMBINATION_COMPARATOR.compare(lastDimensions,currentDimensions);
       if (compareResult >= 0) {
         throw new IllegalStateException("Buffer is not sorted by time then dimensions: " + "last=" + lastBucket + ":"+ Arrays.toString(lastDimensions)+ "; current="+ currentBucket+ ":"+ Arrays.toString(currentDimensions));
       }
