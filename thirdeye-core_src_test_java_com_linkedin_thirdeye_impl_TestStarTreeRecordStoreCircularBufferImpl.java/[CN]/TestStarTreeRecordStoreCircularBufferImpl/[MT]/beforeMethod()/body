@@ -1,5 +1,5 @@
 {
-  recordStore=new StarTreeRecordStoreCircularBufferImpl(UUID.randomUUID(),file,dimensionNames,metricNames,forwardIndex,numTimeBuckets);
+  recordStore=recordStoreFactory.createRecordStore(nodeId);
   List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
   for (int i=0; i < numRecords; i++) {
     StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + (i % 4)).setDimensionValue("B","B" + (i % 3)).setDimensionValue("C","C" + (i % 2)).setMetricValue("M",1L).setTime((long)(i / (numRecords / numTimeBuckets)));
@@ -8,7 +8,7 @@
   ByteBuffer byteBuffer=ByteBuffer.allocate(numRecords * recordStore.getEntrySize());
   StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets);
   byteBuffer.flip();
-  FileChannel fileChannel=new FileOutputStream(file).getChannel();
+  FileChannel fileChannel=new FileOutputStream(new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX)).getChannel();
   fileChannel.write(byteBuffer);
   fileChannel.close();
   recordStore.open();
