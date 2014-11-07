@@ -1,0 +1,48 @@
+{
+  if (node.isLeaf()) {
+    int bufferSize=node.getRecordStore().size() * (starTreeConfig.getDimensionNames().size() * Integer.SIZE / 8 + (starTreeConfig.getMetricNames().size() + 1) * numTimeBuckets * Long.SIZE / 8);
+    Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
+    int nextValueId=StarTreeConstants.FIRST_VALUE;
+    for (    StarTreeRecord record : node.getRecordStore()) {
+      for (      String dimensionName : starTreeConfig.getDimensionNames()) {
+        Map<String,Integer> forward=forwardIndex.get(dimensionName);
+        if (forward == null) {
+          forward=new HashMap<String,Integer>();
+          forward.put(StarTreeConstants.STAR,StarTreeConstants.STAR_VALUE);
+          forward.put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
+          forwardIndex.put(dimensionName,forward);
+        }
+        String dimensionValue=record.getDimensionValues().get(dimensionName);
+        Integer valueId=forward.get(dimensionValue);
+        if (valueId == null) {
+          forward.put(dimensionValue,nextValueId++);
+        }
+      }
+    }
+    File file=new File(dataDir,node.getId().toString() + StarTreeRecordStoreFactoryCircularBufferImpl.INDEX_SUFFIX);
+    OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(file,forwardIndex);
+    LOG.info("Wrote {} ({} MB)",file,file.length() / (1024.0 * 1024));
+    ByteBuffer byteBuffer=ByteBuffer.allocate(bufferSize);
+    try {
+      StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,starTreeConfig.getDimensionNames(),starTreeConfig.getMetricNames(),forwardIndex,node.getRecordStore(),numTimeBuckets);
+    }
+ catch (    RuntimeException e) {
+      LOG.error("{}",byteBuffer);
+      throw e;
+    }
+    byteBuffer.flip();
+    file=new File(dataDir,node.getId().toString() + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
+    FileChannel fileChannel=new FileOutputStream(file).getChannel();
+    fileChannel.write(byteBuffer);
+    fileChannel.force(true);
+    fileChannel.close();
+    LOG.info("Wrote {} ({} MB)",file,file.length() / (1024.0 * 1024));
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      writeFixedBuffers(child);
+    }
+    writeFixedBuffers(node.getOtherNode());
+    writeFixedBuffers(node.getStarNode());
+  }
+}

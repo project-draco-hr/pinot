@@ -1,5 +1,11 @@
 {
   try {
+    if (!outputDir.exists() && outputDir.mkdir()) {
+      LOG.info("Created {}",outputDir);
+    }
+    if (!dataDir.exists() && dataDir.mkdir()) {
+      LOG.info("Created {}",dataDir);
+    }
     StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
     starTreeManager.registerConfig(collection,starTreeConfig);
     int streamId=0;
@@ -14,20 +20,17 @@
     os.writeObject(starTree.getRoot());
     os.flush();
     os.close();
-    File bufferDir=new File(outputDir,DATA_DIR);
-    if (!bufferDir.exists() && bufferDir.mkdir()) {
-      LOG.info("Created {}",bufferDir);
-    }
-    writeFixedBuffers(starTreeConfig,startTime,endTime,starTree.getRoot(),bufferDir);
+    writeFixedBuffers(starTree.getRoot());
     Properties recordStoreFactoryConfig=new Properties();
-    recordStoreFactoryConfig.setProperty("rootDir",bufferDir.getAbsolutePath());
+    recordStoreFactoryConfig.setProperty("rootDir",dataDir.getAbsolutePath());
+    recordStoreFactoryConfig.setProperty("numTimeBuckets",Integer.toString(numTimeBuckets));
     Map<String,Object> configJson=new HashMap<String,Object>();
     configJson.put("dimensionNames",starTreeConfig.getDimensionNames());
     configJson.put("metricNames",starTreeConfig.getMetricNames());
     configJson.put("timeColumnName",starTreeConfig.getTimeColumnName());
     configJson.put("thresholdFunctionClass",starTreeConfig.getThresholdFunction().getClass().getCanonicalName());
     configJson.put("thresholdFunctionConfig",starTreeConfig.getThresholdFunction().getConfig());
-    configJson.put("recordStoreFactoryClass",StarTreeRecordStoreFactoryFixedCircularBufferImpl.class.getCanonicalName());
+    configJson.put("recordStoreFactoryClass",StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName());
     configJson.put("recordStoreFactoryConfig",recordStoreFactoryConfig);
     File configFile=new File(outputDir,CONFIG_FILE);
     LOG.info("Writing {}",configFile);
