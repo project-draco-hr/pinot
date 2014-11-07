@@ -36,8 +36,21 @@
       rs.add(r);
     }
     List<StarTreeRecord> merged=new ArrayList<StarTreeRecord>();
+    Set<Integer> representedBuckets=new HashSet<Integer>();
     for (    List<StarTreeRecord> rs : timeGroup.values()) {
-      merged.add(StarTreeUtils.merge(rs));
+      StarTreeRecord r=StarTreeUtils.merge(rs);
+      merged.add(r);
+      representedBuckets.add((int)(r.getTime() % numTimeBuckets));
+    }
+    for (int i=0; i < numTimeBuckets; i++) {
+      if (!representedBuckets.contains(i)) {
+        StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+        builder.setDimensionValues(combination).setTime((long)i);
+        for (        String metricName : metricNames) {
+          builder.setMetricValue(metricName,0L);
+        }
+        merged.add(builder.build());
+      }
     }
     Collections.sort(merged,new Comparator<StarTreeRecord>(){
       @Override public int compare(      StarTreeRecord r1,      StarTreeRecord r2){

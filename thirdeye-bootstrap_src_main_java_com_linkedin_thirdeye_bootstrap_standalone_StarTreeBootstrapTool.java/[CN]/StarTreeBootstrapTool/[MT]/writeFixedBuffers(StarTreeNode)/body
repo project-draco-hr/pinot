@@ -22,21 +22,29 @@
     File file=new File(dataDir,node.getId().toString() + StarTreeRecordStoreFactoryCircularBufferImpl.INDEX_SUFFIX);
     OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(file,forwardIndex);
     LOG.info("Wrote {} ({} MB)",file,file.length() / (1024.0 * 1024));
-    ByteBuffer byteBuffer=ByteBuffer.allocate(bufferSize);
-    try {
-      StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,starTreeConfig.getDimensionNames(),starTreeConfig.getMetricNames(),forwardIndex,node.getRecordStore(),numTimeBuckets);
+    if (bufferSize > 0) {
+      ByteBuffer byteBuffer=ByteBuffer.allocate(bufferSize);
+      try {
+        StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,starTreeConfig.getDimensionNames(),starTreeConfig.getMetricNames(),forwardIndex,node.getRecordStore(),numTimeBuckets);
+      }
+ catch (      RuntimeException e) {
+        LOG.error("{}",byteBuffer);
+        throw e;
+      }
+      byteBuffer.flip();
+      file=new File(dataDir,node.getId().toString() + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
+      FileChannel fileChannel=new FileOutputStream(file).getChannel();
+      fileChannel.write(byteBuffer);
+      fileChannel.force(true);
+      fileChannel.close();
+      LOG.info("Wrote {} ({} MB)",file,file.length() / (1024.0 * 1024));
     }
- catch (    RuntimeException e) {
-      LOG.error("{}",byteBuffer);
-      throw e;
+ else {
+      file=new File(dataDir,node.getId().toString() + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
+      if (file.createNewFile()) {
+        LOG.info("Created empty file {} ({} MB)",file,file.length() / (1024.0 * 1024));
+      }
     }
-    byteBuffer.flip();
-    file=new File(dataDir,node.getId().toString() + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
-    FileChannel fileChannel=new FileOutputStream(file).getChannel();
-    fileChannel.write(byteBuffer);
-    fileChannel.force(true);
-    fileChannel.close();
-    LOG.info("Wrote {} ({} MB)",file,file.length() / (1024.0 * 1024));
   }
  else {
     for (    StarTreeNode child : node.getChildren()) {
