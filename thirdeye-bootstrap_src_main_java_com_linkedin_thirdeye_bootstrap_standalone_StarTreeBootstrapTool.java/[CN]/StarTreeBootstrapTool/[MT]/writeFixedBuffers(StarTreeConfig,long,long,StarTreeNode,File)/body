@@ -1,0 +1,12 @@
+{
+  if (root.isLeaf()) {
+    writeFixedRecordStore(config,startTime,endTime,root.getRecordStore(),outputDir,root.getId());
+  }
+ else {
+    for (    StarTreeNode child : root.getChildren()) {
+      writeFixedBuffers(config,startTime,endTime,child,outputDir);
+    }
+    writeFixedBuffers(config,startTime,endTime,root.getOtherNode(),outputDir);
+    writeFixedBuffers(config,startTime,endTime,root.getStarNode(),outputDir);
+  }
+}

@@ -1,12 +1,14 @@
 {
-  if (args.length < 5) {
-    throw new IllegalArgumentException("usage: collection config.json fileType outputDir inputFile ...");
+  if (args.length < 7) {
+    throw new IllegalArgumentException("usage: collection startTime endTime config.json fileType outputDir inputFile ...");
   }
   String collection=args[0];
-  String configJson=args[1];
-  String fileType=args[2];
-  String outputDir=args[3];
-  String[] inputFiles=Arrays.copyOfRange(args,4,args.length);
+  String startTime=args[1];
+  String endTime=args[2];
+  String configJson=args[3];
+  String fileType=args[4];
+  String outputDir=args[5];
+  String[] inputFiles=Arrays.copyOfRange(args,6,args.length);
   StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(new File(configJson)));
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
@@ -22,5 +24,5 @@
  else {
     throw new IllegalArgumentException("Invalid file type " + fileType);
   }
-  new StarTreeBootstrapTool(collection,config,recordStreams,new File(outputDir)).run();
+  new StarTreeBootstrapTool(collection,Long.valueOf(startTime),Long.valueOf(endTime),config,recordStreams,new File(outputDir)).run();
 }
