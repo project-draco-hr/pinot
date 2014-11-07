@@ -5,16 +5,16 @@
       buffer.putInt(STAR_VALUE);
     }
  else {
-      Map<String,Integer> valueIds=forwardDimensionValueIndex.get(dimensionName);
+      Map<String,Integer> valueIds=forwardIndex.get(dimensionName);
       if (valueIds == null) {
         valueIds=new HashMap<String,Integer>();
-        forwardDimensionValueIndex.put(dimensionName,valueIds);
+        forwardIndex.put(dimensionName,valueIds);
       }
       Integer valueId=valueIds.get(dimensionValue);
       if (valueId == null) {
         valueId=nextValueId.getAndIncrement();
         valueIds.put(dimensionValue,valueId);
-        reverseDimensionValueIndex.put(valueId,dimensionValue);
+        reverseIndex.get(dimensionName).put(valueId,dimensionValue);
       }
       buffer.putInt(valueId);
     }

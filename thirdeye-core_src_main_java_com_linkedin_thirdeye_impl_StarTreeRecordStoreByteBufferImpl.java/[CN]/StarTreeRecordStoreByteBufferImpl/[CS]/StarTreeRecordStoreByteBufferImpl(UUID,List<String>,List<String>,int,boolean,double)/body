@@ -9,7 +9,16 @@
   this.sync=new Object();
   this.size=new AtomicInteger(0);
   this.entrySize=dimensionNames.size() * (Integer.SIZE / 8) + metricNames.size() * (Long.SIZE / 8) + Long.SIZE / 8;
-  this.forwardDimensionValueIndex=new HashMap<String,Map<String,Integer>>();
-  this.reverseDimensionValueIndex=new HashMap<Integer,String>();
-  this.reverseDimensionValueIndex.put(STAR_VALUE,StarTreeConstants.STAR);
+  this.forwardIndex=new HashMap<String,Map<String,Integer>>();
+  this.reverseIndex=new HashMap<String,Map<Integer,String>>();
+  for (  String dimensionName : dimensionNames) {
+    Map<String,Integer> forward=new HashMap<String,Integer>();
+    forward.put(StarTreeConstants.STAR,StarTreeConstants.STAR_VALUE);
+    forward.put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
+    forwardIndex.put(dimensionName,forward);
+    Map<Integer,String> reverse=new HashMap<Integer,String>();
+    reverse.put(StarTreeConstants.STAR_VALUE,StarTreeConstants.STAR);
+    reverse.put(StarTreeConstants.OTHER_VALUE,StarTreeConstants.OTHER);
+    reverseIndex.put(dimensionName,reverse);
+  }
 }

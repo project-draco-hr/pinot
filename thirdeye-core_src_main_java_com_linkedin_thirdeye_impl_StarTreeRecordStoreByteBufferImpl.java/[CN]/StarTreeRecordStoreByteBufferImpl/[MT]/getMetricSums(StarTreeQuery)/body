@@ -7,7 +7,7 @@ synchronized (sync) {
       boolean matches=true;
       for (      String dimensionName : dimensionNames) {
         int valueId=buffer.getInt();
-        String recordValue=reverseDimensionValueIndex.get(valueId);
+        String recordValue=reverseIndex.get(dimensionName).get(valueId);
         String queryValue=query.getDimensionValues().get(dimensionName);
         if (!StarTreeConstants.STAR.equals(queryValue) && !queryValue.equals(recordValue)) {
           matches=false;
