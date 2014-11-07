@@ -1,6 +1,6 @@
 {
 synchronized (sync) {
-    int[] targetDimensions=translateDimensions(record);
+    int[] targetDimensions=translateDimensions(record.getDimensionValues());
     int timeBucket=(int)(record.getTime() % numTimeBuckets);
     int idx=binarySearch(targetDimensions);
     if (idx < 0) {
@@ -11,13 +11,13 @@ synchronized (sync) {
       while (buffer.position() < buffer.limit()) {
         int currentIdx=buffer.position();
         buffer.mark();
-        getDimensions(buffer,currentDimensions);
+        getDimensions(currentDimensions);
         int distance=computeDistance(targetDimensions,currentDimensions);
-        buffer.reset();
         if (minOtherDistance == null || distance < minOtherDistance) {
           minOtherDistance=distance;
           minOtherIdx=currentIdx;
         }
+        buffer.reset();
         buffer.position(buffer.position() + entrySize);
       }
       if (minOtherIdx == null) {
