@@ -1,29 +1,70 @@
 {
-  Map<String,List<StarTreeRecord>> groupedRecords=new HashMap<String,List<StarTreeRecord>>();
-  Set<Long> timeBuckets=new HashSet<Long>();
-  for (  StarTreeRecord record : recordStore) {
-    timeBuckets.add(record.getTime());
-    List<StarTreeRecord> records=groupedRecords.get(record.getKey());
-    if (records == null) {
-      records=new ArrayList<StarTreeRecord>();
-      groupedRecords.put(record.getKey(),records);
-    }
-    records.add(record);
-  }
   List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
-  for (  List<StarTreeRecord> group : groupedRecords.values()) {
-    records.add(StarTreeUtils.merge(group));
-  }
-  for (  Long timeBucket : timeBuckets) {
-    StarTreeRecordImpl.Builder other=new StarTreeRecordImpl.Builder();
-    for (    String dimensionName : config.getDimensionNames()) {
-      other.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
+  Set<Long> timeBuckets=new HashSet<Long>();
+  if (recordStore.size() > 0) {
+    Long minTime=null;
+    Long maxTime=null;
+    Map<String,List<StarTreeRecord>> groupedRecords=new HashMap<String,List<StarTreeRecord>>();
+    for (    StarTreeRecord record : recordStore) {
+      timeBuckets.add(record.getTime());
+      List<StarTreeRecord> group=groupedRecords.get(record.getKey());
+      if (group == null) {
+        group=new ArrayList<StarTreeRecord>();
+        groupedRecords.put(record.getKey(),group);
+      }
+      group.add(record);
+      if (minTime == null || record.getTime() < minTime) {
+        minTime=record.getTime();
+      }
+      if (maxTime == null || record.getTime() < maxTime) {
+        maxTime=record.getTime();
+      }
     }
-    for (    String metricName : config.getMetricNames()) {
-      other.setMetricValue(metricName,0L);
+    if (minTime == null || maxTime == null) {
+      throw new IllegalStateException("Cannot compute number of buckets since either minTime or maxTime is null");
     }
-    other.setTime(timeBucket);
-    records.add(other.build());
+    LOG.info("Buffer {} minTime={}, maxTime={}, numBuckets={}",nodeId,minTime,maxTime,timeBuckets.size());
+    for (    List<StarTreeRecord> group : groupedRecords.values()) {
+      records.add(StarTreeUtils.merge(group));
+    }
+    for (    Long timeBucket : timeBuckets) {
+      StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+      for (      String dimensionName : config.getDimensionNames()) {
+        builder.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
+      }
+      for (      String metricName : config.getMetricNames()) {
+        builder.setMetricValue(metricName,0L);
+      }
+      builder.setTime(timeBucket);
+      StarTreeRecord other=builder.build();
+      if (!records.contains(other)) {
+        records.add(other);
+      }
+    }
+    Map<Map<String,String>,Set<Long>> combinationTimes=new HashMap<Map<String,String>,Set<Long>>();
+    for (    StarTreeRecord record : records) {
+      Set<Long> times=combinationTimes.get(record.getDimensionValues());
+      if (times == null) {
+        times=new HashSet<Long>();
+        combinationTimes.put(record.getDimensionValues(),times);
+      }
+      times.add(record.getTime());
+    }
+    for (    Map.Entry<Map<String,String>,Set<Long>> entry : combinationTimes.entrySet()) {
+      Map<String,String> dimensionValues=entry.getKey();
+      Set<Long> times=entry.getValue();
+      for (long i=minTime; i <= maxTime; i++) {
+        if (!times.contains(i)) {
+          StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+          builder.setDimensionValues(dimensionValues);
+          for (          String metricName : config.getMetricNames()) {
+            builder.setMetricValue(metricName,0L);
+          }
+          builder.setTime(i);
+          records.add(builder.build());
+        }
+      }
+    }
   }
   int currentId=StarTreeConstants.FIRST_VALUE;
   final Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
@@ -44,10 +85,13 @@
       valueIds.put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
     }
   }
+  final int numBuckets=timeBuckets.size();
   Collections.sort(records,new Comparator<StarTreeRecord>(){
     @Override public int compare(    StarTreeRecord o1,    StarTreeRecord o2){
-      if (!o1.getTime().equals(o2.getTime())) {
-        return (int)(o1.getTime() - o2.getTime());
+      int b1=(int)(o1.getTime() % numBuckets);
+      int b2=(int)(o2.getTime() % numBuckets);
+      if (b1 != b2) {
+        return b1 - b2;
       }
       for (      String dimensionName : config.getDimensionNames()) {
         String v1=o1.getDimensionValues().get(dimensionName);
@@ -57,6 +101,9 @@
         if (i1 != i2) {
           return i1 - i2;
         }
+      }
+      if (!o1.getTime().equals(o2.getTime())) {
+        return (int)(o1.getTime() - o2.getTime());
       }
       return 0;
     }
