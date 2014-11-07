@@ -1,2 +1,18 @@
 {
+  recordStore=new StarTreeRecordStoreCircularBufferImpl(UUID.randomUUID(),file,dimensionNames,metricNames,forwardIndex,numTimeBuckets);
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  for (int i=0; i < numRecords; i++) {
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + (i % 4)).setDimensionValue("B","B" + (i % 3)).setDimensionValue("C","C" + (i % 2)).setMetricValue("M",1L).setTime((long)(i / (numRecords / numTimeBuckets)));
+    records.add(builder.build());
+  }
+  ByteBuffer byteBuffer=ByteBuffer.allocate(numRecords * recordStore.getEntrySize());
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets);
+  byteBuffer.flip();
+  FileChannel fileChannel=new FileOutputStream(file).getChannel();
+  fileChannel.write(byteBuffer);
+  fileChannel.close();
+  fileChannel=new RandomAccessFile(file,"rw").getChannel();
+  MappedByteBuffer fromFile=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,file.length());
+  StarTreeRecordStoreCircularBufferImpl.dumpBuffer(fromFile,System.out,dimensionNames,metricNames,numTimeBuckets);
+  recordStore.open();
 }
