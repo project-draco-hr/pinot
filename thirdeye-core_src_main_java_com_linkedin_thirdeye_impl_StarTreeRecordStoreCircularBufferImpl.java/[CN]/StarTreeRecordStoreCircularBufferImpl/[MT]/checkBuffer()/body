@@ -5,6 +5,17 @@
   while (buffer.position() < buffer.limit()) {
     for (int i=0; i < dimensionNames.size(); i++) {
       currentDimensions[i]=buffer.getInt();
+      Map<Integer,String> reverse=reverseIndex.get(dimensionNames.get(i));
+      String dimensionValue=reverse.get(currentDimensions[i]);
+      if (dimensionValue == null) {
+        throw new IllegalArgumentException("No dimension value in index for ID " + currentDimensions[i]);
+      }
+      Set<String> values=dimensionValues.get(dimensionNames.get(i));
+      if (values == null) {
+        values=new HashSet<String>();
+        dimensionValues.put(dimensionNames.get(i),values);
+      }
+      values.add(dimensionValue);
     }
     if (lastDimensions != null && COMPARATOR.compare(lastDimensions,currentDimensions) >= 0) {
       throw new IllegalStateException("Buffer dimension values are not unique and sorted: " + Arrays.toString(lastDimensions) + "; "+ Arrays.toString(currentDimensions));

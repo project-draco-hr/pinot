@@ -1,39 +1,41 @@
 {
-  long[] sums=new long[metricNames.size()];
-  Set<Long> timeBuckets;
-  if (query.getTimeBuckets() != null) {
-    timeBuckets=query.getTimeBuckets();
-  }
- else   if (query.getTimeRange() != null) {
-    timeBuckets=new HashSet<Long>();
-    for (long time=query.getTimeRange().getKey(); time <= query.getTimeRange().getValue(); time++) {
-      timeBuckets.add(time);
+synchronized (sync) {
+    long[] sums=new long[metricNames.size()];
+    Set<Long> timeBuckets;
+    if (query.getTimeBuckets() != null) {
+      timeBuckets=query.getTimeBuckets();
     }
-  }
- else {
-    timeBuckets=null;
-  }
-  int[] targetDimensions=translateDimensions(query.getDimensionValues());
-  int idx=binarySearch(targetDimensions);
-  if (idx >= 0) {
-    buffer.clear();
-    buffer.position(idx);
-    for (int i=0; i < numTimeBuckets; i++) {
-      updateSums(sums,timeBuckets);
+ else     if (query.getTimeRange() != null) {
+      timeBuckets=new HashSet<Long>();
+      for (long time=query.getTimeRange().getKey(); time <= query.getTimeRange().getValue(); time++) {
+        timeBuckets.add(time);
+      }
     }
-  }
  else {
-    buffer.clear();
-    int[] currentDimensions=new int[dimensionNames.size()];
-    while (buffer.position() < buffer.limit()) {
-      buffer.mark();
-      getDimensions(currentDimensions);
-      if (matches(targetDimensions,currentDimensions)) {
+      timeBuckets=null;
+    }
+    int[] targetDimensions=translateDimensions(query.getDimensionValues());
+    int idx=binarySearch(targetDimensions);
+    if (idx >= 0) {
+      buffer.clear();
+      buffer.position(idx);
+      for (int i=0; i < numTimeBuckets; i++) {
         updateSums(sums,timeBuckets);
       }
-      buffer.reset();
-      buffer.position(buffer.position() + entrySize);
     }
+ else {
+      buffer.clear();
+      int[] currentDimensions=new int[dimensionNames.size()];
+      while (buffer.position() < buffer.limit()) {
+        buffer.mark();
+        getDimensions(currentDimensions);
+        if (matches(targetDimensions,currentDimensions)) {
+          updateSums(sums,timeBuckets);
+        }
+        buffer.reset();
+        buffer.position(buffer.position() + entrySize);
+      }
+    }
+    return sums;
   }
-  return sums;
 }
