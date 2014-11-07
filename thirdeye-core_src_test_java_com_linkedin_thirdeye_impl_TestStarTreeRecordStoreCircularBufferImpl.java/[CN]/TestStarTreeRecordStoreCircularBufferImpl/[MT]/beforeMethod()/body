@@ -11,9 +11,5 @@
   FileChannel fileChannel=new FileOutputStream(new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX)).getChannel();
   fileChannel.write(byteBuffer);
   fileChannel.close();
-  File file=new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
-  fileChannel=new RandomAccessFile(file,"rw").getChannel();
-  MappedByteBuffer fromFile=fileChannel.map(FileChannel.MapMode.READ_WRITE,0,file.length());
-  StarTreeRecordStoreCircularBufferImpl.dumpBuffer(fromFile,System.out,dimensionNames,metricNames,numTimeBuckets);
   recordStore.open();
 }

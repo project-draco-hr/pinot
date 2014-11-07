@@ -8,18 +8,18 @@
       currentDimensions[i]=externalBuffer.getInt();
     }
     writer.write(Arrays.toString(currentDimensions));
-    writer.write(": ");
+    writer.newLine();
     for (int i=0; i < numTimeBuckets; i++) {
       long time=externalBuffer.getLong();
       for (int j=0; j < metricNames.size(); j++) {
         currentMetrics[j]=externalBuffer.getLong();
       }
+      writer.write("    ");
       writer.write(Arrays.toString(currentMetrics));
       writer.write("@");
       writer.write(Long.toString(time));
-      writer.write("\t");
+      writer.newLine();
     }
-    writer.newLine();
   }
   externalBuffer.reset();
   writer.flush();
