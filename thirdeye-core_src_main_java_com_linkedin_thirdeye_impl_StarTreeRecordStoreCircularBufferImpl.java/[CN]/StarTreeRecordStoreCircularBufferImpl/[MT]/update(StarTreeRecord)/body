@@ -1,0 +1,32 @@
+{
+synchronized (sync) {
+    int[] targetDimensions=translateDimensions(record);
+    int timeBucket=(int)(record.getTime() % numTimeBuckets);
+    int idx=binarySearch(targetDimensions);
+    if (idx < 0) {
+      buffer.clear();
+      int[] currentDimensions=new int[dimensionNames.size()];
+      Integer minOtherIdx=null;
+      Integer minOtherDistance=null;
+      while (buffer.position() < buffer.limit()) {
+        int currentIdx=buffer.position();
+        buffer.mark();
+        getDimensions(buffer,currentDimensions);
+        int distance=computeDistance(targetDimensions,currentDimensions);
+        buffer.reset();
+        if (minOtherDistance == null || distance < minOtherDistance) {
+          minOtherDistance=distance;
+          minOtherIdx=currentIdx;
+        }
+        buffer.position(buffer.position() + entrySize);
+      }
+      if (minOtherIdx == null) {
+        throw new IllegalStateException("Could not find index of record with " + "minimum others in buffer " + nodeId + " for "+ record);
+      }
+      idx=minOtherIdx;
+    }
+    buffer.clear();
+    buffer.position(idx + dimensionSize + timeBucket * timeBucketSize);
+    updateMetrics(record);
+  }
+}

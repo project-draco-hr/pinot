@@ -1,0 +1,28 @@
+{
+  buffer.clear();
+  int[] lastDimensions=null;
+  int[] currentDimensions=new int[dimensionNames.size()];
+  while (buffer.position() < buffer.limit()) {
+    for (int i=0; i < dimensionNames.size(); i++) {
+      currentDimensions[i]=buffer.getInt();
+    }
+    if (lastDimensions != null && COMPARATOR.compare(lastDimensions,currentDimensions) >= 0) {
+      throw new IllegalStateException("Buffer dimension values are not unique and sorted: " + Arrays.toString(lastDimensions) + "; "+ Arrays.toString(currentDimensions));
+    }
+    Long lastTime=null;
+    for (int i=0; i < numTimeBuckets; i++) {
+      long time=buffer.getLong();
+      for (int j=0; j < metricNames.size(); j++) {
+        buffer.getLong();
+      }
+      if (lastTime != null && time <= lastTime) {
+        throw new IllegalStateException("Time buckets for dimension " + Arrays.toString(currentDimensions) + " are not ordered: "+ lastTime+ " -> "+ time);
+      }
+      lastTime=time;
+    }
+    if (lastDimensions == null) {
+      lastDimensions=new int[dimensionNames.size()];
+    }
+    System.arraycopy(currentDimensions,0,lastDimensions,0,currentDimensions.length);
+  }
+}
