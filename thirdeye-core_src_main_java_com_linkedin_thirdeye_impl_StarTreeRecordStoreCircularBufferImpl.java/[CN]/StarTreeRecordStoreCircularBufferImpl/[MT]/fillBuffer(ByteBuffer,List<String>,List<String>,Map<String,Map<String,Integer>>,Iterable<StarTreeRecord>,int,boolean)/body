@@ -71,7 +71,12 @@
     for (    StarTreeRecord record : merged) {
       externalBuffer.putLong(record.getTime());
       for (      String metricName : metricNames) {
-        externalBuffer.putLong(record.getMetricValues().get(metricName));
+        if (keepMetricValues) {
+          externalBuffer.putLong(record.getMetricValues().get(metricName));
+        }
+ else {
+          externalBuffer.putLong(0L);
+        }
       }
     }
   }

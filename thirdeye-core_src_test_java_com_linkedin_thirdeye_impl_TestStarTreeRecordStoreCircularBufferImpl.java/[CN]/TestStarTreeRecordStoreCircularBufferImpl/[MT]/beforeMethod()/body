@@ -6,7 +6,7 @@
     records.add(builder.build());
   }
   ByteBuffer byteBuffer=ByteBuffer.allocate(numRecords * recordStore.getEntrySize());
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets,true);
   byteBuffer.flip();
   FileChannel fileChannel=new FileOutputStream(new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX)).getChannel();
   fileChannel.write(byteBuffer);
