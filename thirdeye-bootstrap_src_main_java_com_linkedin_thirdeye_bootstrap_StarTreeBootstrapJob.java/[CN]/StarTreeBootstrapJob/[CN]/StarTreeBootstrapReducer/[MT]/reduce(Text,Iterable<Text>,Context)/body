@@ -41,12 +41,30 @@
     }
     mergedRecords.add(StarTreeUtils.merge(latestRecords));
   }
-  Path indexPath=new Path(context.getConfiguration().get(PROP_STARTREE_DATA),nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.INDEX_SUFFIX);
-  Map<String,Map<String,Integer>> forwardIndex=OBJECT_MAPPER.readValue(FileSystem.get(context.getConfiguration()).open(indexPath),TYPE_REFERENCE);
+  int nextValueId=StarTreeConstants.FIRST_VALUE;
+  Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
+  for (  StarTreeRecord record : mergedRecords) {
+    for (    String dimensionName : config.getDimensionNames()) {
+      Map<String,Integer> forward=forwardIndex.get(dimensionName);
+      if (forward == null) {
+        forward=new HashMap<String,Integer>();
+        forwardIndex.put(dimensionName,forward);
+      }
+      String dimensionValue=record.getDimensionValues().get(dimensionName);
+      Integer valueId=forward.get(dimensionValue);
+      if (valueId == null) {
+        forward.put(dimensionValue,nextValueId++);
+      }
+    }
+  }
   int bufferSize=mergedRecords.size() * (config.getDimensionNames().size() * Integer.SIZE / 8 + (config.getMetricNames().size() + 1) * numTimeBuckets * Long.SIZE / 8);
   ByteBuffer buffer=ByteBuffer.allocate(bufferSize);
   StarTreeRecordStoreCircularBufferImpl.fillBuffer(buffer,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
-  String fileName=nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX;
-  bufferWrapper.set(buffer.array());
-  multipleOutputs.write(NullWritable.get(),bufferWrapper,fileName);
+  String bufferFileName=nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX;
+  textWrapper.set(buffer.array());
+  multipleOutputs.write(NullWritable.get(),textWrapper,bufferFileName);
+  String indexFileName=nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.INDEX_SUFFIX;
+  String forwardIndexJson=OBJECT_MAPPER.writeValueAsString(forwardIndex);
+  textWrapper.set(forwardIndexJson);
+  multipleOutputs.write(NullWritable.get(),textWrapper,indexFileName);
 }
