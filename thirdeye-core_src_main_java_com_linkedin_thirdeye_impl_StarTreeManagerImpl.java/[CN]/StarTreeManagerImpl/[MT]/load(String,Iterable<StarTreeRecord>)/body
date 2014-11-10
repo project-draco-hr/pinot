@@ -46,6 +46,7 @@ synchronized (trees) {
       recordQueue.put(new StarTreeRecordEndMarker());
     }
     latch.await();
+    LOG.info("Loaded {} records into startree for collection {}",numLoaded.get(),collection);
   }
  catch (  InterruptedException e) {
     throw new RuntimeException(e);
