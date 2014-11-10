@@ -1,0 +1,14 @@
+{
+  if (node.isLeaf()) {
+    nodeId.set(node.getId().toString());
+    leafData.set(node.getRecordStore().encode());
+    context.write(nodeId,leafData);
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      writeLeafData(context,child,nodeId,leafData);
+    }
+    writeLeafData(context,node.getOtherNode(),nodeId,leafData);
+    writeLeafData(context,node.getStarNode(),nodeId,leafData);
+  }
+}

@@ -2,5 +2,17 @@
   Job job=Job.getInstance(getConf());
   job.setJobName(name);
   job.setJarByClass(StarTreeBootstrapJob.class);
+  job.setMapperClass(StarTreeBootstrapMapper.class);
+  job.setMapOutputKeyClass(Text.class);
+  job.setMapOutputValueClass(Text.class);
   job.setNumReduceTasks(0);
+  job.getConfiguration().set(PROP_STARTREE_COLLECTION,getAndCheck(PROP_STARTREE_COLLECTION));
+  job.getConfiguration().set(PROP_STARTREE_CONFIG,getAndCheck(PROP_STARTREE_CONFIG));
+  job.getConfiguration().set(PROP_STARTREE_DATA,getAndCheck(PROP_STARTREE_DATA));
+  job.getConfiguration().set(PROP_STARTREE_ROOT,getAndCheck(PROP_STARTREE_ROOT));
+  for (  String inputPath : getAndCheck(PROP_INPUT_PATHS).split(",")) {
+    FileInputFormat.addInputPath(job,new Path(inputPath));
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(PROP_OUTPUT_PATH)));
+  job.waitForCompletion(true);
 }

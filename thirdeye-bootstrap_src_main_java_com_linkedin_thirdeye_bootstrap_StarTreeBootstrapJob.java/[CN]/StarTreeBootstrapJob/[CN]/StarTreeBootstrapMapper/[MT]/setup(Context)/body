@@ -1,2 +1,14 @@
 {
+  collection=context.getConfiguration().get(PROP_STARTREE_COLLECTION);
+  FileSystem fileSystem=FileSystem.get(context.getConfiguration());
+  executorService=Executors.newSingleThreadExecutor();
+  starTreeManager=new StarTreeManagerImpl(executorService);
+  Path rootPath=new Path(context.getConfiguration().get(PROP_STARTREE_ROOT));
+  Path configPath=new Path(context.getConfiguration().get(PROP_STARTREE_CONFIG));
+  try {
+    starTreeManager.restore(collection,fileSystem.open(rootPath),fileSystem.open(configPath));
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
 }
