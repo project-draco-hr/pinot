@@ -2,6 +2,12 @@
 synchronized (sync) {
     if (isOpen) {
       isOpen=false;
+      FileSystem fileSystem=FileSystem.get(path.toUri(),conf);
+      OutputStream outputStream=fileSystem.create(path,true);
+      byte[] bytes=buffer.array();
+      IOUtils.write(bytes,outputStream);
+      outputStream.flush();
+      fileSystem.close();
     }
   }
 }
