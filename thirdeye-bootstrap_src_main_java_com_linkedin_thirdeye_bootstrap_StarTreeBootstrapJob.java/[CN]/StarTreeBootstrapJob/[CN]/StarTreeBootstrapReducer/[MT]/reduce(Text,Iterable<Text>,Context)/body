@@ -1,0 +1,53 @@
+{
+  Path indexPath=new Path(context.getConfiguration().get(PROP_STARTREE_DATA) + nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.INDEX_SUFFIX);
+  Map<String,Map<String,Integer>> forwardIndex=OBJECT_MAPPER.readValue(FileSystem.get(context.getConfiguration()).open(indexPath),TYPE_REFERENCE);
+  Map<String,Map<Integer,String>> reverseIndex=new HashMap<String,Map<Integer,String>>();
+  for (  Map.Entry<String,Map<String,Integer>> e1 : forwardIndex.entrySet()) {
+    reverseIndex.put(e1.getKey(),new HashMap<Integer,String>());
+    for (    Map.Entry<String,Integer> e2 : e1.getValue().entrySet()) {
+      reverseIndex.get(e1.getKey()).put(e2.getValue(),e2.getKey());
+    }
+  }
+  Map<Map<String,String>,Map<Long,List<StarTreeRecord>>> groupedRecords=new HashMap<Map<String,String>,Map<Long,List<StarTreeRecord>>>();
+  for (  Text encodedRecordStore : encodedRecordStores) {
+    ByteBuffer buffer=ByteBuffer.wrap(encodedRecordStore.getBytes());
+    List<StarTreeRecord> records=StarTreeRecordStoreCircularBufferImpl.dumpRecords(buffer,reverseIndex,config.getDimensionNames(),config.getMetricNames(),numTimeBuckets);
+    for (    StarTreeRecord record : records) {
+      Map<String,String> combination=record.getDimensionValues();
+      Map<Long,List<StarTreeRecord>> group=groupedRecords.get(combination);
+      if (group == null) {
+        group=new HashMap<Long,List<StarTreeRecord>>();
+        groupedRecords.put(combination,group);
+      }
+      List<StarTreeRecord> timeGroup=group.get(record.getTime());
+      if (timeGroup == null) {
+        timeGroup=new ArrayList<StarTreeRecord>();
+        group.put(record.getTime(),timeGroup);
+      }
+      timeGroup.add(record);
+    }
+  }
+  List<StarTreeRecord> mergedRecords=new ArrayList<StarTreeRecord>();
+  for (  Map.Entry<Map<String,String>,Map<Long,List<StarTreeRecord>>> e1 : groupedRecords.entrySet()) {
+    Map<String,String> combination=e1.getKey();
+    Map<Long,List<StarTreeRecord>> timeGroups=e1.getValue();
+    Long latestTime=null;
+    List<StarTreeRecord> latestRecords=null;
+    for (    Map.Entry<Long,List<StarTreeRecord>> e2 : e1.getValue().entrySet()) {
+      if (latestTime == null || e2.getKey() > latestTime) {
+        latestTime=e2.getKey();
+        latestRecords=e2.getValue();
+      }
+    }
+    if (latestRecords == null) {
+      throw new IllegalStateException("Could not find latest records for combination " + combination);
+    }
+    mergedRecords.add(StarTreeUtils.merge(latestRecords));
+  }
+  int bufferSize=mergedRecords.size() * (config.getDimensionNames().size() * Integer.SIZE / 8 + (config.getMetricNames().size() + 1) * numTimeBuckets * Long.SIZE / 8);
+  ByteBuffer buffer=ByteBuffer.allocate(bufferSize);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(buffer,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
+  String fileName=nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX;
+  bufferWrapper.set(buffer.array());
+  multipleOutputs.write(NullWritable.get(),bufferWrapper,fileName);
+}

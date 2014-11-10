@@ -5,7 +5,9 @@
   job.setMapperClass(StarTreeBootstrapMapper.class);
   job.setMapOutputKeyClass(Text.class);
   job.setMapOutputValueClass(Text.class);
-  job.setNumReduceTasks(0);
+  job.setReducerClass(StarTreeBootstrapReducer.class);
+  job.setOutputKeyClass(NullWritable.class);
+  job.setOutputValueClass(Text.class);
   job.getConfiguration().set(PROP_STARTREE_COLLECTION,getAndCheck(PROP_STARTREE_COLLECTION));
   job.getConfiguration().set(PROP_STARTREE_CONFIG,getAndCheck(PROP_STARTREE_CONFIG));
   job.getConfiguration().set(PROP_STARTREE_DATA,getAndCheck(PROP_STARTREE_DATA));
