@@ -1,13 +1,6 @@
 {
   if (node.isLeaf()) {
-    long[] sums=node.getRecordStore().getMetricSums(query);
-    StarTreeRecordImpl.Builder result=new StarTreeRecordImpl.Builder();
-    result.setDimensionValues(query.getDimensionValues());
-    int idx=0;
-    for (    String metricName : config.getMetricNames()) {
-      result.setMetricValue(metricName,sums[idx++]);
-    }
-    return result.build();
+    return node;
   }
  else {
     StarTreeNode target=null;
