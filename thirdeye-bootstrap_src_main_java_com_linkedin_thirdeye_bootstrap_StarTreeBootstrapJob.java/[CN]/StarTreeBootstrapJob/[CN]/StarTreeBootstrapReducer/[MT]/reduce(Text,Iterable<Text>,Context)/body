@@ -22,7 +22,6 @@
       mergedRecords.add(entry.getValue());
     }
   }
-  records=null;
   int nextValueId=StarTreeConstants.FIRST_VALUE;
   Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
   for (  StarTreeRecord record : mergedRecords) {
@@ -30,6 +29,8 @@
       Map<String,Integer> forward=forwardIndex.get(dimensionName);
       if (forward == null) {
         forward=new HashMap<String,Integer>();
+        forward.put(StarTreeConstants.STAR,StarTreeConstants.STAR_VALUE);
+        forward.put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
         forwardIndex.put(dimensionName,forward);
       }
       String dimensionValue=record.getDimensionValues().get(dimensionName);
