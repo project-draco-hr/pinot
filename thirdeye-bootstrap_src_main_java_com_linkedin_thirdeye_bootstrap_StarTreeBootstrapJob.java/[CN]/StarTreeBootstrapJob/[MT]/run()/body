@@ -7,11 +7,10 @@
   job.setMapOutputValueClass(Text.class);
   job.setReducerClass(StarTreeBootstrapReducer.class);
   job.setOutputKeyClass(NullWritable.class);
-  job.setOutputValueClass(Text.class);
-  job.getConfiguration().set(PROP_STARTREE_COLLECTION,getAndCheck(PROP_STARTREE_COLLECTION));
+  job.setOutputValueClass(NullWritable.class);
   job.getConfiguration().set(PROP_STARTREE_CONFIG,getAndCheck(PROP_STARTREE_CONFIG));
-  job.getConfiguration().set(PROP_STARTREE_DATA,getAndCheck(PROP_STARTREE_DATA));
   job.getConfiguration().set(PROP_STARTREE_ROOT,getAndCheck(PROP_STARTREE_ROOT));
+  job.getConfiguration().set(PROP_OUTPUT_PATH,getAndCheck(PROP_OUTPUT_PATH));
   for (  String inputPath : getAndCheck(PROP_INPUT_PATHS).split(",")) {
     FileInputFormat.addInputPath(job,new Path(inputPath));
   }

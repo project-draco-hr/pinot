@@ -1,5 +1,4 @@
 {
-  StarTree starTree=starTreeManager.getStarTree(collection);
   int idx=0;
   String[] tokens=value.toString().split("\t");
   StarTreeQueryImpl.Builder query=new StarTreeQueryImpl.Builder();
@@ -7,7 +6,9 @@
     query.setDimensionValue(dimensionName,tokens[idx++]);
   }
   query.setTimeBuckets(new HashSet<Long>(Arrays.asList(Long.valueOf(tokens[idx]))));
-  StarTreeNode node=starTree.search(query.build());
-  nodeId.set(node.getId().toString());
-  context.write(nodeId,value);
+  Collection<StarTreeNode> nodes=starTree.findAll(query.build());
+  for (  StarTreeNode node : nodes) {
+    nodeId.set(node.getId().toString());
+    context.write(nodeId,value);
+  }
 }

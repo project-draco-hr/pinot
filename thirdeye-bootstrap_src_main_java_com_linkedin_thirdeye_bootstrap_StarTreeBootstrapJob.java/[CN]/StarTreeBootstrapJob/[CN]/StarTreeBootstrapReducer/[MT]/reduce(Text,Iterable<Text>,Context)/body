@@ -14,7 +14,7 @@
     StarTreeRecord record=builder.build();
     Map<Long,List<StarTreeRecord>> timeBucket=groupedRecords.get(record.getDimensionValues());
     if (timeBucket == null) {
-      timeBucket=new HashMap<Long,List<StarTreeRecord>>();
+      timeBucket=new HashMap<Long,List<StarTreeRecord>>(numTimeBuckets);
       groupedRecords.put(record.getDimensionValues(),timeBucket);
     }
     List<StarTreeRecord> records=timeBucket.get(record.getTime());
@@ -30,7 +30,7 @@
     Map<Long,List<StarTreeRecord>> timeGroups=e1.getValue();
     Long latestTime=null;
     List<StarTreeRecord> latestRecords=null;
-    for (    Map.Entry<Long,List<StarTreeRecord>> e2 : e1.getValue().entrySet()) {
+    for (    Map.Entry<Long,List<StarTreeRecord>> e2 : timeGroups.entrySet()) {
       if (latestTime == null || e2.getKey() > latestTime) {
         latestTime=e2.getKey();
         latestRecords=e2.getValue();
@@ -58,13 +58,21 @@
     }
   }
   int bufferSize=mergedRecords.size() * (config.getDimensionNames().size() * Integer.SIZE / 8 + (config.getMetricNames().size() + 1) * numTimeBuckets * Long.SIZE / 8);
-  ByteBuffer buffer=ByteBuffer.allocate(bufferSize);
+  if (buffer == null || bufferSize > buffer.capacity()) {
+    buffer=ByteBuffer.allocate(bufferSize);
+  }
+  buffer.clear();
   StarTreeRecordStoreCircularBufferImpl.fillBuffer(buffer,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
-  String bufferFileName=nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX;
-  textWrapper.set(buffer.array());
-  multipleOutputs.write(NullWritable.get(),textWrapper,bufferFileName);
-  String indexFileName=nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.INDEX_SUFFIX;
-  String forwardIndexJson=OBJECT_MAPPER.writeValueAsString(forwardIndex);
-  textWrapper.set(forwardIndexJson);
-  multipleOutputs.write(NullWritable.get(),textWrapper,indexFileName);
+  buffer.flip();
+  Path bufferPath=new Path(outputPath,nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX);
+  OutputStream outputStream=FileSystem.get(context.getConfiguration()).create(bufferPath,true);
+  WritableByteChannel channel=Channels.newChannel(outputStream);
+  channel.write(buffer);
+  outputStream.flush();
+  outputStream.close();
+  Path indexPath=new Path(outputPath,nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.INDEX_SUFFIX);
+  outputStream=FileSystem.get(context.getConfiguration()).create(indexPath,true);
+  OBJECT_MAPPER.writeValue(outputStream,forwardIndex);
+  outputStream.flush();
+  outputStream.close();
 }

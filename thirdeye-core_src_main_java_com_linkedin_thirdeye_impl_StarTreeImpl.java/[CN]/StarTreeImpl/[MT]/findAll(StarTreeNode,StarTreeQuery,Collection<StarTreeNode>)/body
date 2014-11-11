@@ -1,9 +1,9 @@
 {
   if (node.isLeaf()) {
-    return node;
+    collector.add(node);
   }
  else {
-    StarTreeNode target=null;
+    StarTreeNode target;
     String queryDimensionValue=query.getDimensionValues().get(node.getChildDimensionName());
     if (StarTreeConstants.STAR.equals(queryDimensionValue)) {
       target=node.getStarNode();
@@ -17,6 +17,9 @@
     if (target == null) {
       target=node.getOtherNode();
     }
-    return search(target,query);
+    findAll(target,query,collector);
+    if (target != node.getStarNode()) {
+      findAll(node.getOtherNode(),query,collector);
+    }
   }
 }
