@@ -1,0 +1,14 @@
+{
+  if (includeTime) {
+    if (timeKey.get() == null) {
+      timeKey.compareAndSet(null,dimensionValues + "@" + time);
+    }
+    return timeKey.get();
+  }
+ else {
+    if (key.get() == null) {
+      key.compareAndSet(null,dimensionValues.toString());
+    }
+    return key.get();
+  }
+}

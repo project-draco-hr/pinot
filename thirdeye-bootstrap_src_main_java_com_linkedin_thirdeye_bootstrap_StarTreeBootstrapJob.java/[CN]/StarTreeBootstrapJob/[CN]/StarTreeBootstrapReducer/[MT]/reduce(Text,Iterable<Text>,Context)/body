@@ -1,46 +1,29 @@
 {
-  Map<Map<String,String>,Map<Long,List<StarTreeRecord>>> groupedRecords=new HashMap<Map<String,String>,Map<Long,List<StarTreeRecord>>>();
+  Map<String,Map<Long,StarTreeRecord>> records=new HashMap<String,Map<Long,StarTreeRecord>>();
+  LOG.info("Merging records for " + nodeId.toString());
   for (  Text tsvRecord : tsvRecords) {
-    int idx=0;
-    String[] tokens=tsvRecord.toString().split("\t");
-    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-    for (    String dimensionName : config.getDimensionNames()) {
-      builder.setDimensionValue(dimensionName,tokens[idx++]);
+    StarTreeRecord record=createRecord(tsvRecord);
+    Map<Long,StarTreeRecord> timeBuckets=records.get(record.getKey(false));
+    if (timeBuckets == null) {
+      timeBuckets=new HashMap<Long,StarTreeRecord>();
+      records.put(record.getKey(false),timeBuckets);
     }
-    for (    String metricName : config.getMetricNames()) {
-      builder.setMetricValue(metricName,Long.valueOf(tokens[idx++]));
+    long bucket=record.getTime() % numTimeBuckets;
+    StarTreeRecord aggRecord=timeBuckets.get(bucket);
+    if (aggRecord == null || aggRecord.getTime() < record.getTime()) {
+      timeBuckets.put(bucket,record);
     }
-    builder.setTime(Long.valueOf(tokens[idx]));
-    StarTreeRecord record=builder.build();
-    Map<Long,List<StarTreeRecord>> timeBucket=groupedRecords.get(record.getDimensionValues());
-    if (timeBucket == null) {
-      timeBucket=new HashMap<Long,List<StarTreeRecord>>(numTimeBuckets);
-      groupedRecords.put(record.getDimensionValues(),timeBucket);
+ else     if (aggRecord.getTime().equals(record.getTime())) {
+      timeBuckets.put(bucket,StarTreeUtils.merge(Arrays.asList(record,aggRecord)));
     }
-    List<StarTreeRecord> records=timeBucket.get(record.getTime());
-    if (records == null) {
-      records=new ArrayList<StarTreeRecord>();
-      timeBucket.put(record.getTime(),records);
-    }
-    records.add(record);
   }
   List<StarTreeRecord> mergedRecords=new ArrayList<StarTreeRecord>();
-  for (  Map.Entry<Map<String,String>,Map<Long,List<StarTreeRecord>>> e1 : groupedRecords.entrySet()) {
-    Map<String,String> combination=e1.getKey();
-    Map<Long,List<StarTreeRecord>> timeGroups=e1.getValue();
-    Long latestTime=null;
-    List<StarTreeRecord> latestRecords=null;
-    for (    Map.Entry<Long,List<StarTreeRecord>> e2 : timeGroups.entrySet()) {
-      if (latestTime == null || e2.getKey() > latestTime) {
-        latestTime=e2.getKey();
-        latestRecords=e2.getValue();
-      }
+  for (  Map<Long,StarTreeRecord> timeBucket : records.values()) {
+    for (    Map.Entry<Long,StarTreeRecord> entry : timeBucket.entrySet()) {
+      mergedRecords.add(entry.getValue());
     }
-    if (latestRecords == null) {
-      throw new IllegalStateException("Could not find latest records for combination " + combination);
-    }
-    mergedRecords.add(StarTreeUtils.merge(latestRecords));
   }
+  records=null;
   int nextValueId=StarTreeConstants.FIRST_VALUE;
   Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
   for (  StarTreeRecord record : mergedRecords) {
@@ -58,9 +41,7 @@
     }
   }
   int bufferSize=mergedRecords.size() * (config.getDimensionNames().size() * Integer.SIZE / 8 + (config.getMetricNames().size() + 1) * numTimeBuckets * Long.SIZE / 8);
-  if (buffer == null || bufferSize > buffer.capacity()) {
-    buffer=ByteBuffer.allocate(bufferSize);
-  }
+  ByteBuffer buffer=ByteBuffer.allocateDirect(bufferSize);
   buffer.clear();
   StarTreeRecordStoreCircularBufferImpl.fillBuffer(buffer,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
   buffer.flip();
