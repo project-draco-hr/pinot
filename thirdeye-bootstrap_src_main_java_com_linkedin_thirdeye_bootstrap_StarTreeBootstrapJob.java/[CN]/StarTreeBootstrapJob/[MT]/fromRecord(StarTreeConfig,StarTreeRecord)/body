@@ -1,0 +1,11 @@
+{
+  StringBuilder sb=new StringBuilder();
+  for (  String dimensionName : config.getDimensionNames()) {
+    sb.append(record.getDimensionValues().get(dimensionName)).append("\t");
+  }
+  for (  String metricName : config.getMetricNames()) {
+    sb.append(record.getMetricValues().get(metricName)).append("\t");
+  }
+  sb.append(record.getTime());
+  return sb.toString();
+}

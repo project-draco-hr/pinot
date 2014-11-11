@@ -1,12 +1,12 @@
 {
-  StringBuilder sb=new StringBuilder();
+  StarTreeRecordImpl.Builder otherRecord=new StarTreeRecordImpl.Builder();
   for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    sb.append(StarTreeConstants.OTHER).append("\t");
+    otherRecord.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
   }
   for (  String metricName : starTree.getConfig().getMetricNames()) {
-    sb.append(0).append("\t");
+    otherRecord.setMetricValue(metricName,0L);
   }
-  sb.append(0);
-  Text value=new Text(sb.toString());
+  otherRecord.setTime(0L);
+  Text value=new Text(fromRecord(starTree.getConfig(),otherRecord.build()));
   writeOtherRecord(context,starTree.getRoot(),value);
 }

@@ -1,14 +1,9 @@
 {
-  int idx=0;
-  String[] tokens=value.toString().split("\t");
-  StarTreeQueryImpl.Builder query=new StarTreeQueryImpl.Builder();
-  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    query.setDimensionValue(dimensionName,tokens[idx++]);
-  }
-  query.setTimeBuckets(new HashSet<Long>(Arrays.asList(Long.valueOf(tokens[idx]))));
-  Collection<StarTreeNode> nodes=starTree.findAll(query.build());
-  for (  StarTreeNode node : nodes) {
-    nodeId.set(node.getId().toString());
-    context.write(nodeId,value);
+  Map<UUID,StarTreeRecord> records=new HashMap<UUID,StarTreeRecord>();
+  collectRecords(starTree.getRoot(),toRecord(starTree.getConfig(),value),records);
+  for (  Map.Entry<UUID,StarTreeRecord> entry : records.entrySet()) {
+    nodeId.set(entry.getKey().toString());
+    recordTsv.set(fromRecord(starTree.getConfig(),entry.getValue()));
+    context.write(nodeId,recordTsv);
   }
 }
