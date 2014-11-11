@@ -1,4 +1,7 @@
 {
+  if (collection == null) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
   if (metricNames == null || metricNames.isEmpty()) {
     throw new IllegalArgumentException("Must provide metric names");
   }
@@ -12,5 +15,5 @@
   }
   StarTreeRecordStoreFactory rF=(StarTreeRecordStoreFactory)Class.forName(recordStoreFactoryClass).newInstance();
   rF.init(dimensionNames,metricNames,recordStoreFactoryConfig);
-  return new StarTreeConfig(rF,tF,maxRecordStoreEntries,dimensionNames,metricNames,timeColumnName);
+  return new StarTreeConfig(collection,rF,tF,maxRecordStoreEntries,dimensionNames,metricNames,timeColumnName);
 }

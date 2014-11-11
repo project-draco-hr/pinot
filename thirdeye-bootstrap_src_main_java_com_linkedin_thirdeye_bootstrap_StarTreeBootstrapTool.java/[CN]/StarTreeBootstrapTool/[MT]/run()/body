@@ -7,13 +7,13 @@
       LOG.info("Created {}",dataDir);
     }
     StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
-    starTreeManager.registerConfig(collection,starTreeConfig);
+    starTreeManager.registerConfig(starTreeConfig.getCollection(),starTreeConfig);
     int streamId=0;
     for (    Iterable<StarTreeRecord> recordStream : recordStreams) {
       LOG.info("Processing stream {} of {}",++streamId,recordStreams.size());
-      starTreeManager.load(collection,recordStream);
+      starTreeManager.load(starTreeConfig.getCollection(),recordStream);
     }
-    StarTree starTree=starTreeManager.getStarTree(collection);
+    StarTree starTree=starTreeManager.getStarTree(starTreeConfig.getCollection());
     File starTreeFile=new File(outputDir,TREE_FILE);
     LOG.info("Writing {}",starTreeFile);
     ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(starTreeFile));
@@ -25,6 +25,7 @@
     recordStoreFactoryConfig.setProperty("rootDir",dataDir.getAbsolutePath());
     recordStoreFactoryConfig.setProperty("numTimeBuckets",Integer.toString(numTimeBuckets));
     Map<String,Object> configJson=new HashMap<String,Object>();
+    configJson.put("collection",starTreeConfig.getCollection());
     configJson.put("dimensionNames",starTreeConfig.getDimensionNames());
     configJson.put("metricNames",starTreeConfig.getMetricNames());
     configJson.put("timeColumnName",starTreeConfig.getTimeColumnName());

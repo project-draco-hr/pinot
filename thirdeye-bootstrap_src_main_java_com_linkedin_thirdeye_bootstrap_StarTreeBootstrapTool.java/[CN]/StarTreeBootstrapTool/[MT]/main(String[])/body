@@ -1,15 +1,21 @@
 {
-  if (args.length < 8) {
-    throw new IllegalArgumentException("usage: collection startTime endTime config.json fileType keepMetricValues outputDir inputFile ...");
+  Options options=new Options();
+  options.addOption("fileType",true,"File type (avro|tsv)");
+  options.addOption("keepMetricValues",false,"Keep metric values in buffers (default: false)");
+  options.addOption("keepBuffers",false,"Generate buffers (default: false)");
+  CommandLine commandLine=new GnuParser().parse(options,args);
+  if (commandLine.getArgs().length < 5) {
+    HelpFormatter helpFormatter=new HelpFormatter();
+    helpFormatter.printHelp("usage: [opts] config.json startTime endTime outputDir inputFile ...",options);
+    return;
   }
-  String collection=args[0];
-  String startTime=args[1];
-  String endTime=args[2];
-  String configJson=args[3];
-  String fileType=args[4];
-  String keepMetricValues=args[5];
-  String outputDir=args[6];
-  String[] inputFiles=Arrays.copyOfRange(args,7,args.length);
+  String configJson=commandLine.getArgs()[0];
+  Long startTime=Long.valueOf(commandLine.getArgs()[1]);
+  Long endTime=Long.valueOf(commandLine.getArgs()[2]);
+  String outputDir=commandLine.getArgs()[3];
+  String[] inputFiles=Arrays.copyOfRange(commandLine.getArgs(),4,commandLine.getArgs().length);
+  String fileType=commandLine.getOptionValue("fileType","tsv");
+  Boolean keepMetricValues=commandLine.hasOption("keepMetricValues");
   StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(new File(configJson)));
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
@@ -25,5 +31,5 @@
  else {
     throw new IllegalArgumentException("Invalid file type " + fileType);
   }
-  new StarTreeBootstrapTool(collection,Long.valueOf(startTime),Long.valueOf(endTime),Boolean.valueOf(keepMetricValues),config,recordStreams,new File(outputDir)).run();
+  new StarTreeBootstrapTool(startTime,endTime,keepMetricValues,config,recordStreams,new File(outputDir)).run();
 }

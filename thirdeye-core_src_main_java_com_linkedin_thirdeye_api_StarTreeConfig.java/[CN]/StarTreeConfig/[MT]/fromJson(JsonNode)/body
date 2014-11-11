@@ -1,4 +1,5 @@
 {
+  String collection=jsonNode.get("collection").asText();
   List<String> dimensionNames=new ArrayList<String>();
   for (  JsonNode dimensionName : jsonNode.get("dimensionNames")) {
     dimensionNames.add(dimensionName.asText());
@@ -9,7 +10,7 @@
   }
   String timeColumnName=jsonNode.get("timeColumnName").asText();
   StarTreeConfig.Builder starTreeConfig=new StarTreeConfig.Builder();
-  starTreeConfig.setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName);
+  starTreeConfig.setCollection(collection).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName);
   if (jsonNode.has("thresholdFunctionClass")) {
     starTreeConfig.setThresholdFunctionClass(jsonNode.get("thresholdFunctionClass").asText());
     if (jsonNode.has("thresholdFunctionConfig")) {
