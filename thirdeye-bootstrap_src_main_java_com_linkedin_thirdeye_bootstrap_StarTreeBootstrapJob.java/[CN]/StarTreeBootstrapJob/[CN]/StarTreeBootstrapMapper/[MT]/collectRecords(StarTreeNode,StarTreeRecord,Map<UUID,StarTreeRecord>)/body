@@ -3,10 +3,11 @@
     collector.put(node.getId(),record);
   }
  else {
-    for (    StarTreeNode child : node.getChildren()) {
-      collectRecords(child,record,collector);
+    StarTreeNode target=node.getChild(record.getDimensionValues().get(node.getChildDimensionName()));
+    if (target == null) {
+      target=node.getOtherNode();
     }
-    collectRecords(node.getOtherNode(),record,collector);
-    collectRecords(node.getStarNode(),record.relax(node.getDimensionName()),collector);
+    collectRecords(target,record,collector);
+    collectRecords(node.getStarNode(),record.relax(target.getDimensionName()),collector);
   }
 }
