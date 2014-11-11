@@ -3,9 +3,6 @@
     if (!outputDir.exists() && outputDir.mkdir()) {
       LOG.info("Created {}",outputDir);
     }
-    if (!dataDir.exists() && dataDir.mkdir()) {
-      LOG.info("Created {}",dataDir);
-    }
     StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
     starTreeManager.registerConfig(starTreeConfig.getCollection(),starTreeConfig);
     int streamId=0;
@@ -20,7 +17,12 @@
     os.writeObject(starTree.getRoot());
     os.flush();
     os.close();
-    writeFixedBuffers(starTree.getRoot());
+    if (keepBuffers) {
+      if (!dataDir.exists() && dataDir.mkdir()) {
+        LOG.info("Created {}",dataDir);
+      }
+      writeFixedBuffers(starTree.getRoot());
+    }
     Properties recordStoreFactoryConfig=new Properties();
     recordStoreFactoryConfig.setProperty("rootDir",dataDir.getAbsolutePath());
     recordStoreFactoryConfig.setProperty("numTimeBuckets",Integer.toString(numTimeBuckets));

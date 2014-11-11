@@ -3,19 +3,20 @@
   options.addOption("fileType",true,"File type (avro|tsv)");
   options.addOption("keepMetricValues",false,"Keep metric values in buffers (default: false)");
   options.addOption("keepBuffers",false,"Generate buffers (default: false)");
+  options.addOption("numTimeBuckets",true,"Number of time buckets (this times time granularity is retention period)");
   CommandLine commandLine=new GnuParser().parse(options,args);
-  if (commandLine.getArgs().length < 5) {
+  if (commandLine.getArgs().length < 3) {
     HelpFormatter helpFormatter=new HelpFormatter();
-    helpFormatter.printHelp("usage: [opts] config.json startTime endTime outputDir inputFile ...",options);
+    helpFormatter.printHelp("usage: [opts] configFile outputDir inputFile(s) ...",options);
     return;
   }
   String configJson=commandLine.getArgs()[0];
-  Long startTime=Long.valueOf(commandLine.getArgs()[1]);
-  Long endTime=Long.valueOf(commandLine.getArgs()[2]);
-  String outputDir=commandLine.getArgs()[3];
-  String[] inputFiles=Arrays.copyOfRange(commandLine.getArgs(),4,commandLine.getArgs().length);
+  String outputDir=commandLine.getArgs()[1];
+  String[] inputFiles=Arrays.copyOfRange(commandLine.getArgs(),2,commandLine.getArgs().length);
   String fileType=commandLine.getOptionValue("fileType","tsv");
   Boolean keepMetricValues=commandLine.hasOption("keepMetricValues");
+  Boolean keepBuffers=commandLine.hasOption("keepBuffers");
+  Integer numTimeBuckets=Integer.valueOf(commandLine.getOptionValue("numTimeBuckets","" + (7 * 24)));
   StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(new File(configJson)));
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
@@ -31,5 +32,5 @@
  else {
     throw new IllegalArgumentException("Invalid file type " + fileType);
   }
-  new StarTreeBootstrapTool(startTime,endTime,keepMetricValues,config,recordStreams,new File(outputDir)).run();
+  new StarTreeBootstrapTool(numTimeBuckets,keepMetricValues,keepBuffers,config,recordStreams,new File(outputDir)).run();
 }
