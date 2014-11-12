@@ -1,18 +1,9 @@
 {
   ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
-  final StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
-  final ThirdEyeMetricsResource metricsResource=new ThirdEyeMetricsResource(starTreeManager);
-  final ThirdEyeLoadResource bootstrapResource=new ThirdEyeLoadResource(starTreeManager);
-  final ThirdEyeConfigResource configResource=new ThirdEyeConfigResource(starTreeManager);
-  final ThirdEyeDimensionsResource dimensionsResource=new ThirdEyeDimensionsResource(starTreeManager);
-  final ThirdEyeCollectionsResource collectionsResource=new ThirdEyeCollectionsResource(starTreeManager);
-  final ThirdEyeRestoreResource restoreResource=new ThirdEyeRestoreResource(starTreeManager);
-  final ThirdEyeHealthCheck healthCheck=new ThirdEyeHealthCheck();
-  environment.healthChecks().register(NAME,healthCheck);
-  environment.jersey().register(metricsResource);
-  environment.jersey().register(bootstrapResource);
-  environment.jersey().register(configResource);
-  environment.jersey().register(dimensionsResource);
-  environment.jersey().register(collectionsResource);
-  environment.jersey().register(restoreResource);
+  StarTreeManager manager=new StarTreeManagerImpl(executorService);
+  environment.jersey().register(new ThirdEyeMetricsResource(manager));
+  environment.jersey().register(new ThirdEyeDimensionsResource(manager));
+  environment.jersey().register(new ThirdEyeCollectionsResource(manager));
+  environment.healthChecks().register(NAME,new ThirdEyeHealthCheck());
+  environment.admin().addTask(new ThirdEyeRestoreTask(manager));
 }

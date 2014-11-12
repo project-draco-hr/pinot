@@ -1,0 +1,12 @@
+{
+  String collection=params.get("collection").iterator().next();
+  URI treeUri=URI.create(params.get("treeUri").iterator().next());
+  URI configUri=URI.create(params.get("configUri").iterator().next());
+  printWriter.append("Loading tree from ").append(treeUri.toASCIIString());
+  InputStream treeStream=treeUri.toURL().openStream();
+  printWriter.append("Loading config from ").append(configUri.toASCIIString());
+  InputStream configStream=configUri.toURL().openStream();
+  printWriter.append("Restoring tree for ").append(collection);
+  manager.restore(collection,treeStream,configStream);
+  printWriter.append("Done!");
+}
