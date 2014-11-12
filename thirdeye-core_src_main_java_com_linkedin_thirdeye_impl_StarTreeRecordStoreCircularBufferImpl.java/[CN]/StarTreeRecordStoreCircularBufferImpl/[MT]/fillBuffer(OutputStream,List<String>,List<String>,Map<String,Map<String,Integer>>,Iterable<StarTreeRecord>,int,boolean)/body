@@ -1,4 +1,5 @@
 {
+  DataOutputStream dataOutputStream=new DataOutputStream(outputStream);
   Map<Map<String,String>,List<StarTreeRecord>> groups=new HashMap<Map<String,String>,List<StarTreeRecord>>();
   for (  StarTreeRecord record : records) {
     List<StarTreeRecord> group=groups.get(record.getDimensionValues());
@@ -66,16 +67,16 @@
       if (valueId == null) {
         throw new IllegalStateException("No ID for dimension value " + dimensionName + ":"+ dimensionValue);
       }
-      externalBuffer.putInt(valueId);
+      dataOutputStream.writeInt(valueId);
     }
     for (    StarTreeRecord record : merged) {
-      externalBuffer.putLong(record.getTime());
+      dataOutputStream.writeLong(record.getTime());
       for (      String metricName : metricNames) {
         if (keepMetricValues) {
-          externalBuffer.putLong(record.getMetricValues().get(metricName));
+          dataOutputStream.writeLong(record.getMetricValues().get(metricName));
         }
  else {
-          externalBuffer.putLong(0L);
+          dataOutputStream.writeLong(0L);
         }
       }
     }

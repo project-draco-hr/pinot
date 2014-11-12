@@ -5,11 +5,9 @@
     StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + (i % 4)).setDimensionValue("B","B" + (i % 3)).setDimensionValue("C","C" + (i % 2)).setMetricValue("M",1L).setTime((long)(i / (numRecords / numTimeBuckets)));
     records.add(builder.build());
   }
-  ByteBuffer byteBuffer=ByteBuffer.allocate(numRecords * recordStore.getEntrySize());
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(byteBuffer,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets,true);
-  byteBuffer.flip();
-  FileChannel fileChannel=new FileOutputStream(new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX)).getChannel();
-  fileChannel.write(byteBuffer);
-  fileChannel.close();
+  OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX));
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets,true);
+  outputStream.flush();
+  outputStream.close();
   recordStore.open();
 }

@@ -40,15 +40,9 @@
       }
     }
   }
-  int bufferSize=mergedRecords.size() * (config.getDimensionNames().size() * Integer.SIZE / 8 + (config.getMetricNames().size() + 1) * numTimeBuckets * Long.SIZE / 8);
-  ByteBuffer buffer=ByteBuffer.allocateDirect(bufferSize);
-  buffer.clear();
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(buffer,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
-  buffer.flip();
-  Path bufferPath=new Path(outputPath,nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX);
+  Path bufferPath=new Path(outputPath,nodeId + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX);
   OutputStream outputStream=FileSystem.get(context.getConfiguration()).create(bufferPath,true);
-  WritableByteChannel channel=Channels.newChannel(outputStream);
-  channel.write(buffer);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
   outputStream.flush();
   outputStream.close();
   Path indexPath=new Path(outputPath,nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.INDEX_SUFFIX);
