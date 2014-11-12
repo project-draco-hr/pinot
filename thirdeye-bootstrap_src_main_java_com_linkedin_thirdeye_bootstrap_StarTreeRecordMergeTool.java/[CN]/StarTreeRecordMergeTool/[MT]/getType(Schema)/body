@@ -1,0 +1,18 @@
+{
+  Schema.Type type=null;
+  if (Schema.Type.UNION.equals(schema.getType())) {
+    List<Schema> schemas=schema.getTypes();
+    for (    Schema s : schemas) {
+      if (!Schema.Type.NULL.equals(s.getType())) {
+        type=s.getType();
+      }
+    }
+  }
+ else {
+    type=schema.getType();
+  }
+  if (type == null) {
+    throw new IllegalStateException("Could not unambiguously determine type of schema " + schema);
+  }
+  return type;
+}
