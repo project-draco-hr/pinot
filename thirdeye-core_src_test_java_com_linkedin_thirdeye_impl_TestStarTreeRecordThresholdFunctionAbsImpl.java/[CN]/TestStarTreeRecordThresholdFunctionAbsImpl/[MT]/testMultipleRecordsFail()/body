@@ -7,5 +7,7 @@
   Properties props=new Properties();
   props.put("M","500");
   thresholdFunction.init(props);
-  Assert.assertFalse(thresholdFunction.passesThreshold(records));
+  Map<String,List<StarTreeRecord>> sample=new HashMap<String,List<StarTreeRecord>>();
+  sample.put("A1",records);
+  Assert.assertEquals(thresholdFunction.apply(sample).size(),0);
 }

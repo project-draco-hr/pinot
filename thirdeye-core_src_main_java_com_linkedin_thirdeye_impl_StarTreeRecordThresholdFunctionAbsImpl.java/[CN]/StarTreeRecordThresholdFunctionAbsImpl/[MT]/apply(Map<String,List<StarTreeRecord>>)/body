@@ -1,0 +1,18 @@
+{
+  Set<String> passingValues=new HashSet<String>();
+  for (  Map.Entry<String,List<StarTreeRecord>> sampleEntry : sample.entrySet()) {
+    StarTreeRecord aggregate=StarTreeUtils.merge(sampleEntry.getValue());
+    boolean passes=true;
+    for (    Map.Entry<String,Long> thresholdEntry : metricThresholdValues.entrySet()) {
+      Long aggregateValue=aggregate.getMetricValues().get(thresholdEntry.getKey());
+      if (aggregateValue < thresholdEntry.getValue()) {
+        passes=false;
+        break;
+      }
+    }
+    if (passes) {
+      passingValues.add(sampleEntry.getKey());
+    }
+  }
+  return passingValues;
+}
