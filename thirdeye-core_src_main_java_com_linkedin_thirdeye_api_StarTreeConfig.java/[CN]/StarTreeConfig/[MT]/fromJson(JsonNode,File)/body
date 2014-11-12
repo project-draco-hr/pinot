@@ -1,0 +1,45 @@
+{
+  String collection=jsonNode.get("collection").asText();
+  List<String> dimensionNames=new ArrayList<String>();
+  for (  JsonNode dimensionName : jsonNode.get("dimensionNames")) {
+    dimensionNames.add(dimensionName.asText());
+  }
+  List<String> metricNames=new ArrayList<String>();
+  for (  JsonNode metricName : jsonNode.get("metricNames")) {
+    metricNames.add(metricName.asText());
+  }
+  String timeColumnName=jsonNode.get("timeColumnName").asText();
+  StarTreeConfig.Builder starTreeConfig=new StarTreeConfig.Builder();
+  starTreeConfig.setCollection(collection).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName);
+  if (jsonNode.has("thresholdFunctionClass")) {
+    starTreeConfig.setThresholdFunctionClass(jsonNode.get("thresholdFunctionClass").asText());
+    if (jsonNode.has("thresholdFunctionConfig")) {
+      Properties props=new Properties();
+      Iterator<Map.Entry<String,JsonNode>> itr=jsonNode.get("thresholdFunctionConfig").fields();
+      while (itr.hasNext()) {
+        Map.Entry<String,JsonNode> next=itr.next();
+        props.put(next.getKey(),next.getValue().asText());
+      }
+      starTreeConfig.setThresholdFunctionConfig(props);
+    }
+  }
+  if (jsonNode.has("recordStoreFactoryClass")) {
+    starTreeConfig.setRecordStoreFactoryClass(jsonNode.get("recordStoreFactoryClass").asText());
+    if (jsonNode.has("recordStoreFactoryConfig")) {
+      Properties props=new Properties();
+      Iterator<Map.Entry<String,JsonNode>> itr=jsonNode.get("recordStoreFactoryConfig").fields();
+      while (itr.hasNext()) {
+        Map.Entry<String,JsonNode> next=itr.next();
+        props.put(next.getKey(),next.getValue().asText());
+      }
+      if (rootDir != null) {
+        props.put("rootDir",new File(new File(rootDir,collection),StarTreeConstants.DATA_DIR_NAME).getAbsolutePath());
+      }
+      starTreeConfig.setRecordStoreFactoryConfig(props);
+    }
+  }
+  if (jsonNode.has("maxRecordStoreEntries")) {
+    starTreeConfig.setMaxRecordStoreEntries(jsonNode.get("maxRecordStoreEntries").asInt());
+  }
+  return starTreeConfig.build();
+}

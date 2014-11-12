@@ -4,10 +4,5 @@
     throw new IllegalArgumentException("Must provide collection");
   }
   String collection=collectionParam.iterator().next();
-  File collectionRoot=new File(dataRoot,collection);
-  File configFile=new File(collectionRoot,"config.json");
-  File treeFile=new File(collectionRoot,"tree.bin");
-  printWriter.println("Loading data for " + collection + "...");
-  manager.restore(collection,new FileInputStream(treeFile),new FileInputStream(configFile));
-  printWriter.println("Done!");
+  manager.restore(rootDir,collection);
 }
