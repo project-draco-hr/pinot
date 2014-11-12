@@ -1,70 +1,76 @@
 {
   lock.writeLock().lock();
   try {
-    if (!children.isEmpty()) {
-      return;
-    }
- else     if (recordStore == null) {
-      throw new IllegalStateException("Splitting a node with null record store on dimension " + splitDimensionName);
-    }
-    StringBuilder nodeName=new StringBuilder();
-    if (!ancestorDimensionNames.isEmpty()) {
-      nodeName.append(StarTreeConstants.STAR).append(".");
-    }
-    for (    String ancestorName : ancestorDimensionNames) {
-      nodeName.append(ancestorName).append(".");
-    }
-    nodeName.append(dimensionName);
-    LOG.info("Splitting node " + nodeName.toString() + ":"+ dimensionValue+ " on dimension "+ splitDimensionName+ " (records="+ recordStore.size()+ ")");
-    List<String> nextAncestorDimensionNames=new ArrayList<String>();
-    if (!StarTreeConstants.STAR.equals(dimensionName)) {
-      nextAncestorDimensionNames.addAll(ancestorDimensionNames);
-      nextAncestorDimensionNames.add(dimensionName);
-    }
-    Map<String,List<StarTreeRecord>> groupedRecords=new HashMap<String,List<StarTreeRecord>>();
-    for (    StarTreeRecord record : recordStore) {
-      String dimensionValue=record.getDimensionValues().get(splitDimensionName);
-      List<StarTreeRecord> records=groupedRecords.get(dimensionValue);
-      if (records == null) {
-        records=new ArrayList<StarTreeRecord>();
-        groupedRecords.put(dimensionValue,records);
+    if (!isSplit.getAndSet(true)) {
+      if (!children.isEmpty()) {
+        return;
       }
-      records.add(record);
-    }
-    Set<String> passingValues;
-    if (thresholdFunction == null) {
-      passingValues=new HashSet<String>(groupedRecords.keySet());
-    }
- else {
-      passingValues=thresholdFunction.apply(groupedRecords);
-    }
-    starNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
-    starNode.init(config);
-    otherNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
-    otherNode.init(config);
-    for (    String dimensionValue : passingValues) {
-      StarTreeNode child=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,dimensionValue,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
-      child.init(config);
-      children.put(dimensionValue,child);
-    }
-    for (    Map.Entry<String,List<StarTreeRecord>> entry : groupedRecords.entrySet()) {
-      String dimensionValue=entry.getKey();
-      List<StarTreeRecord> records=entry.getValue();
-      StarTreeNode child=children.get(dimensionValue);
-      if (child == null) {
-        child=otherNode;
+ else       if (recordStore == null) {
+        throw new IllegalStateException("Splitting a node with null record store on dimension " + splitDimensionName);
       }
-      for (      StarTreeRecord record : records) {
-        StarTreeRecord recordForUpdate=record;
-        if (child == otherNode) {
-          recordForUpdate=record.aliasOther(splitDimensionName);
+      StringBuilder nodeName=new StringBuilder();
+      if (!ancestorDimensionNames.isEmpty()) {
+        nodeName.append(StarTreeConstants.STAR).append(".");
+      }
+      for (      String ancestorName : ancestorDimensionNames) {
+        nodeName.append(ancestorName).append(".");
+      }
+      nodeName.append(dimensionName);
+      LOG.info("Splitting node " + nodeName.toString() + ":"+ dimensionValue+ " on dimension "+ splitDimensionName+ " (records="+ recordStore.size()+ ")");
+      List<String> nextAncestorDimensionNames=new ArrayList<String>();
+      if (!StarTreeConstants.STAR.equals(dimensionName)) {
+        nextAncestorDimensionNames.addAll(ancestorDimensionNames);
+        nextAncestorDimensionNames.add(dimensionName);
+      }
+      Map<String,List<StarTreeRecord>> groupedRecords=new HashMap<String,List<StarTreeRecord>>();
+      for (      StarTreeRecord record : recordStore) {
+        String dimensionValue=record.getDimensionValues().get(splitDimensionName);
+        List<StarTreeRecord> records=groupedRecords.get(dimensionValue);
+        if (records == null) {
+          records=new ArrayList<StarTreeRecord>();
+          groupedRecords.put(dimensionValue,records);
         }
-        child.getRecordStore().update(recordForUpdate);
-        starNode.getRecordStore().update(recordForUpdate.relax(splitDimensionName));
+        records.add(record);
       }
+      Set<String> passingValues;
+      if (thresholdFunction == null) {
+        passingValues=new HashSet<String>(groupedRecords.keySet());
+      }
+ else {
+        passingValues=thresholdFunction.apply(groupedRecords);
+      }
+      LOG.info("Passing dimension values for split on {}",splitDimensionName);
+      for (      String passingValue : passingValues) {
+        LOG.info("\t{}",passingValue);
+      }
+      starNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
+      starNode.init(config);
+      otherNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
+      otherNode.init(config);
+      for (      String dimensionValue : passingValues) {
+        StarTreeNode child=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,dimensionValue,nextAncestorDimensionNames,new HashMap<String,StarTreeNode>(),null,null);
+        child.init(config);
+        children.put(dimensionValue,child);
+      }
+      for (      Map.Entry<String,List<StarTreeRecord>> entry : groupedRecords.entrySet()) {
+        String dimensionValue=entry.getKey();
+        List<StarTreeRecord> records=entry.getValue();
+        StarTreeNode child=children.get(dimensionValue);
+        if (child == null) {
+          child=otherNode;
+        }
+        for (        StarTreeRecord record : records) {
+          StarTreeRecord recordForUpdate=record;
+          if (child == otherNode) {
+            recordForUpdate=record.aliasOther(splitDimensionName);
+          }
+          child.getRecordStore().update(recordForUpdate);
+          starNode.getRecordStore().update(recordForUpdate.relax(splitDimensionName));
+        }
+      }
+      recordStore.clear();
+      childDimensionName=splitDimensionName;
     }
-    recordStore.clear();
-    childDimensionName=splitDimensionName;
   }
   finally {
     lock.writeLock().unlock();
