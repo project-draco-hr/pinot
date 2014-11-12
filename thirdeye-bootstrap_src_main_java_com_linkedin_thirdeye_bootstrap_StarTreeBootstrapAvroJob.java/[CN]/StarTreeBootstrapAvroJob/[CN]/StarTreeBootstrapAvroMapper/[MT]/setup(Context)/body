@@ -1,0 +1,14 @@
+{
+  FileSystem fileSystem=FileSystem.get(context.getConfiguration());
+  Path rootPath=new Path(context.getConfiguration().get(PROP_STARTREE_ROOT));
+  Path configPath=new Path(context.getConfiguration().get(PROP_STARTREE_CONFIG));
+  try {
+    StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(fileSystem.open(configPath)));
+    ObjectInputStream objectInputStream=new ObjectInputStream(fileSystem.open(rootPath));
+    StarTreeNode root=(StarTreeNode)objectInputStream.readObject();
+    starTree=new StarTreeImpl(config,root);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

@@ -1,0 +1,76 @@
+{
+  GenericRecord genericRecord;
+  if (reuse != null) {
+    genericRecord=reuse;
+  }
+ else {
+    genericRecord=new GenericData.Record(schema);
+  }
+  for (  Map.Entry<String,String> dimension : record.getDimensionValues().entrySet()) {
+switch (getType(schema.getField(dimension.getKey()).schema())) {
+case INT:
+      genericRecord.put(dimension.getKey(),Integer.valueOf(dimension.getValue()));
+    break;
+case LONG:
+  genericRecord.put(dimension.getKey(),Long.valueOf(dimension.getValue()));
+break;
+case FLOAT:
+genericRecord.put(dimension.getKey(),Float.valueOf(dimension.getValue()));
+break;
+case DOUBLE:
+genericRecord.put(dimension.getKey(),Double.valueOf(dimension.getValue()));
+break;
+case BOOLEAN:
+genericRecord.put(dimension.getKey(),Boolean.valueOf(dimension.getValue()));
+break;
+case STRING:
+genericRecord.put(dimension.getKey(),dimension.getValue());
+break;
+default :
+throw new IllegalStateException("Unsupported dimension type " + schema.getField(dimension.getKey()));
+}
+}
+for (Map.Entry<String,Long> metric : record.getMetricValues().entrySet()) {
+switch (getType(schema.getField(metric.getKey()).schema())) {
+case INT:
+genericRecord.put(metric.getKey(),metric.getValue().intValue());
+break;
+case LONG:
+genericRecord.put(metric.getKey(),metric.getValue());
+break;
+case FLOAT:
+genericRecord.put(metric.getKey(),metric.getValue().floatValue());
+break;
+case DOUBLE:
+genericRecord.put(metric.getKey(),metric.getValue().doubleValue());
+break;
+default :
+throw new IllegalStateException("Invalid metric schema type: " + schema.getField(metric.getKey()));
+}
+}
+switch (getType(schema.getField(config.getTimeColumnName()).schema())) {
+case INT:
+genericRecord.put(config.getTimeColumnName(),record.getTime().intValue());
+break;
+case LONG:
+genericRecord.put(config.getTimeColumnName(),record.getTime());
+break;
+default :
+throw new IllegalStateException("Invalid time schema type: " + schema.getField(config.getTimeColumnName()));
+}
+for (Schema.Field field : schema.getFields()) {
+if (!record.getDimensionValues().containsKey(field.name()) && !record.getMetricValues().containsKey(field.name())) {
+switch (getType(field.schema())) {
+case INT:
+genericRecord.put(field.name(),0);
+break;
+case LONG:
+genericRecord.put(field.name(),0L);
+break;
+default :
+throw new IllegalStateException("Invalid time schema type: " + field.schema().getType());
+}
+}
+}
+return genericRecord;
+}

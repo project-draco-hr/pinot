@@ -1,0 +1,20 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(StarTreeBootstrapJob.class);
+  job.setMapperClass(StarTreeBootstrapAvroMapper.class);
+  job.setMapOutputKeyClass(Text.class);
+  job.setMapOutputValueClass(AvroKey.class);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setReducerClass(StarTreeBootstrapAvroReducer.class);
+  job.setOutputKeyClass(NullWritable.class);
+  job.setOutputValueClass(NullWritable.class);
+  job.getConfiguration().set(PROP_STARTREE_CONFIG,getAndCheck(PROP_STARTREE_CONFIG));
+  job.getConfiguration().set(PROP_STARTREE_ROOT,getAndCheck(PROP_STARTREE_ROOT));
+  job.getConfiguration().set(PROP_OUTPUT_PATH,getAndCheck(PROP_OUTPUT_PATH));
+  for (  String inputPath : getAndCheck(PROP_INPUT_PATHS).split(",")) {
+    FileInputFormat.addInputPath(job,new Path(inputPath));
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(PROP_OUTPUT_PATH)));
+  job.waitForCompletion(true);
+}
