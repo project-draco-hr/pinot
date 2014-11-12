@@ -1,4 +1,5 @@
 {
+  Set<Long> timeBuckets=new HashSet<Long>();
   Map<Map<String,String>,Map<String,Long>> aggregates=new HashMap<Map<String,String>,Map<String,Long>>();
   Schema schema=null;
   int numRead=0;
@@ -55,8 +56,12 @@
         Long newValue=metricValues.get(metricName) + ((Number)metricValue).longValue();
         metricValues.put(metricName,newValue);
       }
+      Object timeValue=record.get(config.getTimeColumnName());
+      if (timeValue != null) {
+        timeBuckets.add(((Number)timeValue).longValue());
+      }
       if (++numRead % 5000 == 0) {
-        LOG.info("Read {} records ({} dimension combinations)",numRead,aggregates.size());
+        LOG.info("Read {} records ({} dimension combinations) ({} time buckets)",numRead,aggregates.size(),timeBuckets.size());
       }
     }
   }
@@ -137,5 +142,16 @@ LOG.info("Wrote {} records to output file",numWritten);
 }
 }
 fileWriter.close();
-LOG.info("Done: read {} records; wrote {} records",numRead,numWritten);
+Long minTimeBucket=null;
+Long maxTimeBucket=null;
+for (Long timeBucket : timeBuckets) {
+if (minTimeBucket == null || minTimeBucket > timeBucket) {
+minTimeBucket=timeBucket;
+}
+if (maxTimeBucket == null || maxTimeBucket < timeBucket) {
+maxTimeBucket=timeBucket;
+}
+}
+LOG.info("Read {} records; wrote {} records",numRead,numWritten);
+LOG.info("Processed {} time buckets (min={}, max={})",timeBuckets.size(),minTimeBucket,maxTimeBucket);
 }
