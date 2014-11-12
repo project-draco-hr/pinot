@@ -41,7 +41,7 @@
     }
   }
   Path bufferPath=new Path(outputPath,nodeId + StarTreeRecordStoreFactoryCircularBufferHdfsImpl.BUFFER_SUFFIX);
-  OutputStream outputStream=FileSystem.get(context.getConfiguration()).create(bufferPath,true);
+  OutputStream outputStream=new BufferedOutputStream(FileSystem.get(context.getConfiguration()).create(bufferPath,true));
   StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
   outputStream.flush();
   outputStream.close();
