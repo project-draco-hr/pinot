@@ -1,7 +1,9 @@
 {
   try {
+    File outputFile=new File(context.getConfiguration().get(PROP_OUTPUT_PATH));
     Path configPath=new Path(context.getConfiguration().get(PROP_STARTREE_CONFIG));
-    config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(FileSystem.get(context.getConfiguration()).open(configPath)));
+    FileSystem fileSystem=FileSystem.get(context.getConfiguration());
+    config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(fileSystem.open(configPath)),outputFile);
     numTimeBuckets=Integer.valueOf(config.getRecordStoreFactory().getConfig().getProperty("numTimeBuckets"));
   }
  catch (  Exception e) {

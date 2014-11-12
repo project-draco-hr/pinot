@@ -3,12 +3,13 @@
   job.setJobName(name);
   job.setJarByClass(StarTreeBootstrapJob.class);
   Schema schema=new Schema.Parser().parse(FileSystem.get(getConf()).open(new Path(getAndCheck(PROP_AVRO_SCHEMA))));
-  job.setInputFormatClass(AvroKeyInputFormat.class);
-  AvroJob.setInputKeySchema(job,schema);
-  AvroJob.setMapOutputValueSchema(job,schema);
+  LOG.info("{}",schema);
   job.setMapperClass(StarTreeBootstrapAvroMapper.class);
+  AvroJob.setInputKeySchema(job,schema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
   job.setMapOutputKeyClass(Text.class);
-  job.setMapOutputValueClass(AvroKey.class);
+  job.setMapOutputValueClass(AvroValue.class);
+  AvroJob.setMapOutputValueSchema(job,schema);
   job.setReducerClass(StarTreeBootstrapAvroReducer.class);
   job.setOutputKeyClass(NullWritable.class);
   job.setOutputValueClass(NullWritable.class);
