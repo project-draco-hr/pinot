@@ -5,9 +5,15 @@
   }
   Map<String,List<String>> allDimensionValues=new HashMap<String,List<String>>();
   for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    List<String> dimensionValues=new ArrayList<String>(starTree.getDimensionValues(dimensionName));
-    Collections.sort(dimensionValues);
-    allDimensionValues.put(dimensionName,dimensionValues);
+    Set<String> dimensionValues;
+    if (rollup) {
+      dimensionValues=starTree.getExplicitDimensionValues(dimensionName);
+    }
+ else {
+      dimensionValues=starTree.getDimensionValues(dimensionName);
+    }
+    allDimensionValues.put(dimensionName,new ArrayList<String>(dimensionValues));
+    Collections.sort(allDimensionValues.get(dimensionName));
   }
   return allDimensionValues;
 }
