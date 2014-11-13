@@ -6,7 +6,7 @@
   this.forwardIndex=forwardIndex;
   this.numTimeBuckets=numTimeBuckets;
   this.dimensionSize=dimensionNames.size() * Integer.SIZE / 8;
-  this.timeBucketSize=(metricNames.size() + 1) * Long.SIZE / 8;
+  this.timeBucketSize=metricNames.size() * Integer.SIZE / 8 + Long.SIZE / 8;
   this.entrySize=dimensionSize + timeBucketSize * numTimeBuckets;
   this.sync=new Object();
   this.reverseIndex=new HashMap<String,Map<Integer,String>>();

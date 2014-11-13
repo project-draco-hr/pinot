@@ -1,6 +1,6 @@
 {
 synchronized (sync) {
-    long[] sums=new long[metricNames.size()];
+    int[] sums=new int[metricNames.size()];
     ByteBuffer buffer=getBuffer();
     buffer.rewind();
     while (buffer.position() < buffer.limit()) {
@@ -21,7 +21,7 @@ synchronized (sync) {
         matches=false;
       }
       for (int i=0; i < metricNames.size(); i++) {
-        long value=buffer.getLong();
+        int value=buffer.getInt();
         if (matches) {
           sums[i]+=value;
         }

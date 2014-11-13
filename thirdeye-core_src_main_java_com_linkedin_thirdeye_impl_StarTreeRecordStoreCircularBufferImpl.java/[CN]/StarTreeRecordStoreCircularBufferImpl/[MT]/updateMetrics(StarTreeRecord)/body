@@ -1,16 +1,16 @@
 {
   buffer.mark();
-  long[] metrics=new long[metricNames.size()];
+  int[] metrics=new int[metricNames.size()];
   long time=getMetrics(metrics);
   buffer.reset();
   buffer.putLong(record.getTime());
   for (int i=0; i < metricNames.size(); i++) {
-    long metricValue=record.getMetricValues().get(metricNames.get(i));
+    int metricValue=record.getMetricValues().get(metricNames.get(i));
     if (time == record.getTime()) {
-      buffer.putLong(metrics[i] + metricValue);
+      buffer.putInt(metrics[i] + metricValue);
     }
  else {
-      buffer.putLong(metricValue);
+      buffer.putInt(metricValue);
     }
   }
 }

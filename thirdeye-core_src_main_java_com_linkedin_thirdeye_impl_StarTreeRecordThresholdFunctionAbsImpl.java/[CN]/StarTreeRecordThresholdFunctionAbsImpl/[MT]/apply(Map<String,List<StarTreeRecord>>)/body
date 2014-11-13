@@ -1,19 +1,19 @@
 {
   Set<String> passingValues=new HashSet<String>();
   for (  Map.Entry<String,List<StarTreeRecord>> sampleEntry : sample.entrySet()) {
-    Map<String,Long> aggregates=new HashMap<String,Long>();
+    Map<String,Integer> aggregates=new HashMap<String,Integer>();
     for (    StarTreeRecord record : sampleEntry.getValue()) {
       for (      String metricName : metricThresholdValues.keySet()) {
-        Long value=aggregates.get(metricName);
+        Integer value=aggregates.get(metricName);
         if (value == null) {
-          value=0L;
+          value=0;
         }
         aggregates.put(metricName,value + record.getMetricValues().get(metricName));
       }
     }
     boolean passes=true;
-    for (    Map.Entry<String,Long> thresholdEntry : metricThresholdValues.entrySet()) {
-      Long aggregateValue=aggregates.get(thresholdEntry.getKey());
+    for (    Map.Entry<String,Integer> thresholdEntry : metricThresholdValues.entrySet()) {
+      Integer aggregateValue=aggregates.get(thresholdEntry.getKey());
       if (aggregateValue < thresholdEntry.getValue()) {
         passes=false;
         break;

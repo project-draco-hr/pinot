@@ -48,7 +48,7 @@
         StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
         builder.setDimensionValues(combination).setTime((long)i);
         for (        String metricName : metricNames) {
-          builder.setMetricValue(metricName,0L);
+          builder.setMetricValue(metricName,0);
         }
         merged.add(builder.build());
       }
@@ -73,10 +73,10 @@
       dataOutputStream.writeLong(record.getTime());
       for (      String metricName : metricNames) {
         if (keepMetricValues) {
-          dataOutputStream.writeLong(record.getMetricValues().get(metricName));
+          dataOutputStream.writeInt(record.getMetricValues().get(metricName));
         }
  else {
-          dataOutputStream.writeLong(0L);
+          dataOutputStream.writeInt(0);
         }
       }
     }

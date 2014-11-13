@@ -17,12 +17,6 @@
     os.writeObject(starTree.getRoot());
     os.flush();
     os.close();
-    if (keepBuffers) {
-      if (!dataDir.exists() && dataDir.mkdir()) {
-        LOG.info("Created {}",dataDir);
-      }
-      writeFixedBuffers(starTree.getRoot());
-    }
     Properties recordStoreFactoryConfig=new Properties();
     recordStoreFactoryConfig.setProperty("numTimeBuckets",Integer.toString(numTimeBuckets));
     Map<String,Object> configJson=new HashMap<String,Object>();
@@ -37,6 +31,12 @@
     File configFile=new File(outputDir,CONFIG_FILE);
     LOG.info("Writing {}",configFile);
     OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(configFile,configJson);
+    if (keepBuffers) {
+      if (!dataDir.exists() && dataDir.mkdir()) {
+        LOG.info("Created {}",dataDir);
+      }
+      writeFixedBuffers(starTree.getRoot());
+    }
   }
  catch (  Exception e) {
     throw new RuntimeException(e);

@@ -30,13 +30,13 @@ default :
 throw new IllegalStateException("Unsupported dimension type " + schema.getField(dimension.getKey()));
 }
 }
-for (Map.Entry<String,Long> metric : record.getMetricValues().entrySet()) {
+for (Map.Entry<String,Integer> metric : record.getMetricValues().entrySet()) {
 switch (getType(schema.getField(metric.getKey()).schema())) {
 case INT:
-genericRecord.put(metric.getKey(),metric.getValue().intValue());
+genericRecord.put(metric.getKey(),metric.getValue());
 break;
 case LONG:
-genericRecord.put(metric.getKey(),metric.getValue());
+genericRecord.put(metric.getKey(),metric.getValue().longValue());
 break;
 case FLOAT:
 genericRecord.put(metric.getKey(),metric.getValue().floatValue());

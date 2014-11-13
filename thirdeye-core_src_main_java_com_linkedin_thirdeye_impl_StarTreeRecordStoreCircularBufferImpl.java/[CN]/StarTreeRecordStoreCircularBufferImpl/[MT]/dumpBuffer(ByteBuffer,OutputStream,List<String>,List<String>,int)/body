@@ -2,7 +2,7 @@
   BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(outputStream));
   externalBuffer.mark();
   int[] currentDimensions=new int[dimensionNames.size()];
-  long[] currentMetrics=new long[metricNames.size()];
+  int[] currentMetrics=new int[metricNames.size()];
   while (externalBuffer.position() < externalBuffer.limit()) {
     for (int i=0; i < dimensionNames.size(); i++) {
       currentDimensions[i]=externalBuffer.getInt();
@@ -12,7 +12,7 @@
     for (int i=0; i < numTimeBuckets; i++) {
       long time=externalBuffer.getLong();
       for (int j=0; j < metricNames.size(); j++) {
-        currentMetrics[j]=externalBuffer.getLong();
+        currentMetrics[j]=externalBuffer.getInt();
       }
       writer.write("|--");
       writer.write(Arrays.toString(currentMetrics));
