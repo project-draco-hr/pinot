@@ -1,5 +1,6 @@
 {
   Map<String,Map<Long,StarTreeRecord>> records=aggregateRecords(config,avroRecords,numTimeBuckets);
+  LOG.info("Writing {} aggregate records to {}",records.size(),nodeId.toString());
   List<StarTreeRecord> mergedRecords=new ArrayList<StarTreeRecord>();
   for (  Map<Long,StarTreeRecord> timeBucket : records.values()) {
     for (    Map.Entry<Long,StarTreeRecord> entry : timeBucket.entrySet()) {
