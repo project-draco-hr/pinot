@@ -1,0 +1,12 @@
+{
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,baseQuery);
+  List<Result> metricsResults=new ArrayList<Result>();
+  for (  StarTreeQuery query : queries) {
+    StarTreeRecord record=starTree.query(query);
+    Result result=new Result();
+    result.setDimensionValues(record.getDimensionValues());
+    result.setMetricValues(record.getMetricValues());
+    metricsResults.add(result);
+  }
+  return metricsResults;
+}

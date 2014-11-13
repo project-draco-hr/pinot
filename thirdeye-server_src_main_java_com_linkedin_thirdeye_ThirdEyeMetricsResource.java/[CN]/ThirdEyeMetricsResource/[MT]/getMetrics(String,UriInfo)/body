@@ -3,39 +3,5 @@
   if (starTree == null) {
     throw new IllegalArgumentException("No collection " + collection);
   }
-  StarTreeQueryImpl.Builder queryBuilder=new StarTreeQueryImpl.Builder();
-  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    String dimensionValue=uriInfo.getQueryParameters().getFirst(dimensionName);
-    if (dimensionValue == null) {
-      dimensionValue=StarTreeConstants.STAR;
-    }
-    queryBuilder.setDimensionValue(dimensionName,dimensionValue);
-  }
-  String betweenClause=uriInfo.getQueryParameters().getFirst(ThirdEyeConstants.BETWEEN);
-  if (betweenClause != null) {
-    String[] tokens=betweenClause.split(ThirdEyeConstants.TIME_SEPARATOR);
-    if (tokens.length != 2) {
-      throw new IllegalArgumentException("BETWEEN must be specified as start,end");
-    }
-    queryBuilder.setTimeRange(Long.valueOf(tokens[0]),Long.valueOf(tokens[1]));
-  }
-  String inClause=uriInfo.getQueryParameters().getFirst(ThirdEyeConstants.IN);
-  if (inClause != null) {
-    String[] tokens=inClause.split(ThirdEyeConstants.TIME_SEPARATOR);
-    Set<Long> inSet=new HashSet<Long>();
-    for (    String token : tokens) {
-      inSet.add(Long.valueOf(token));
-    }
-    queryBuilder.setTimeBuckets(inSet);
-  }
-  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,queryBuilder.build());
-  List<Result> metricsResults=new ArrayList<Result>();
-  for (  StarTreeQuery query : queries) {
-    StarTreeRecord record=starTree.query(query);
-    Result result=new Result();
-    result.setDimensionValues(record.getDimensionValues());
-    result.setMetricValues(record.getMetricValues());
-    metricsResults.add(result);
-  }
-  return metricsResults;
+  return queryTree(starTree,createQueryBuilder(starTree,uriInfo).build());
 }

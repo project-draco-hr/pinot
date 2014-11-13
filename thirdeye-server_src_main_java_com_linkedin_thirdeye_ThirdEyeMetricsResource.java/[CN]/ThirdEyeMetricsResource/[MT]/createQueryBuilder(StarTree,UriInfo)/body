@@ -1,0 +1,11 @@
+{
+  StarTreeQueryImpl.Builder queryBuilder=new StarTreeQueryImpl.Builder();
+  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
+    String dimensionValue=uriInfo.getQueryParameters().getFirst(dimensionName);
+    if (dimensionValue == null) {
+      dimensionValue=StarTreeConstants.STAR;
+    }
+    queryBuilder.setDimensionValue(dimensionName,dimensionValue);
+  }
+  return queryBuilder;
+}

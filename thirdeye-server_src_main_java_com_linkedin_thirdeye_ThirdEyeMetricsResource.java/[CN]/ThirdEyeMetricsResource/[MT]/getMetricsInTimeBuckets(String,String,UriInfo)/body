@@ -1,0 +1,12 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalArgumentException("No collection " + collection);
+  }
+  Set<Long> times=new HashSet<Long>();
+  String[] tokens=timeBuckets.split(ThirdEyeConstants.TIME_SEPARATOR);
+  for (  String token : tokens) {
+    times.add(Long.valueOf(token));
+  }
+  return queryTree(starTree,createQueryBuilder(starTree,uriInfo).setTimeBuckets(times).build());
+}
