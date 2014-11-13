@@ -1,27 +1,20 @@
 {
-  Map<String,Map<Long,StarTreeRecord>> records=new HashMap<String,Map<Long,StarTreeRecord>>();
-  for (  AvroValue<GenericRecord> avroRecord : avroRecords) {
-    StarTreeRecord record=toStarTreeRecord(config,avroRecord.datum());
-    Map<Long,StarTreeRecord> timeBuckets=records.get(record.getKey(false));
-    if (timeBuckets == null) {
-      timeBuckets=new HashMap<Long,StarTreeRecord>();
-      records.put(record.getKey(false),timeBuckets);
-    }
-    long bucket=record.getTime() % numTimeBuckets;
-    StarTreeRecord aggRecord=timeBuckets.get(bucket);
-    if (aggRecord == null || aggRecord.getTime() < record.getTime()) {
-      timeBuckets.put(bucket,record);
-    }
- else     if (aggRecord.getTime().equals(record.getTime())) {
-      timeBuckets.put(bucket,StarTreeUtils.merge(Arrays.asList(record,aggRecord)));
-    }
-  }
+  Map<String,Map<Long,StarTreeRecord>> records=aggregateRecords(config,avroRecords,numTimeBuckets);
   List<StarTreeRecord> mergedRecords=new ArrayList<StarTreeRecord>();
   for (  Map<Long,StarTreeRecord> timeBucket : records.values()) {
     for (    Map.Entry<Long,StarTreeRecord> entry : timeBucket.entrySet()) {
       mergedRecords.add(entry.getValue());
     }
   }
+  StarTreeRecordImpl.Builder otherRecord=new StarTreeRecordImpl.Builder();
+  for (  String dimensionName : config.getDimensionNames()) {
+    otherRecord.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
+  }
+  for (  String metricName : config.getMetricNames()) {
+    otherRecord.setMetricValue(metricName,0L);
+  }
+  otherRecord.setTime(0L);
+  mergedRecords.add(otherRecord.build());
   int nextValueId=StarTreeConstants.FIRST_VALUE;
   Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
   for (  StarTreeRecord record : mergedRecords) {
