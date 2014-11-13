@@ -1,7 +1,7 @@
 {
   Job job=Job.getInstance(getConf());
   job.setJobName(name);
-  job.setJarByClass(StarTreeBootstrapJobTsv.class);
+  job.setJarByClass(StarTreeBootstrapJob.class);
   Schema schema=new Schema.Parser().parse(FileSystem.get(getConf()).open(new Path(getAndCheck(PROP_AVRO_SCHEMA))));
   LOG.info("{}",schema);
   job.setMapperClass(StarTreeBootstrapAvroMapper.class);

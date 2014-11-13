@@ -1,9 +1,0 @@
-{
-  Map<UUID,StarTreeRecord> records=new HashMap<UUID,StarTreeRecord>();
-  collectRecords(starTree.getRoot(),toRecord(starTree.getConfig(),value),records);
-  for (  Map.Entry<UUID,StarTreeRecord> entry : records.entrySet()) {
-    nodeId.set(entry.getKey().toString());
-    recordTsv.set(fromRecord(starTree.getConfig(),entry.getValue()));
-    context.write(nodeId,recordTsv);
-  }
-}
