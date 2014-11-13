@@ -7,15 +7,6 @@
       mergedRecords.add(entry.getValue());
     }
   }
-  StarTreeRecordImpl.Builder otherRecord=new StarTreeRecordImpl.Builder();
-  for (  String dimensionName : config.getDimensionNames()) {
-    otherRecord.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
-  }
-  for (  String metricName : config.getMetricNames()) {
-    otherRecord.setMetricValue(metricName,0L);
-  }
-  otherRecord.setTime(0L);
-  mergedRecords.add(otherRecord.build());
   int nextValueId=StarTreeConstants.FIRST_VALUE;
   Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
   for (  StarTreeRecord record : mergedRecords) {

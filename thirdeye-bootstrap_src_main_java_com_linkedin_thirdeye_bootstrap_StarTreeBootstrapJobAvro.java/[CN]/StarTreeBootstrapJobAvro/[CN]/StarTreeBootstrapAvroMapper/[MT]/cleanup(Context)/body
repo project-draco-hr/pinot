@@ -1,0 +1,12 @@
+{
+  StarTreeRecordImpl.Builder otherRecord=new StarTreeRecordImpl.Builder();
+  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
+    otherRecord.setDimensionValue(dimensionName,StarTreeConstants.OTHER);
+  }
+  for (  String metricName : starTree.getConfig().getMetricNames()) {
+    otherRecord.setMetricValue(metricName,0L);
+  }
+  otherRecord.setTime(0L);
+  AvroValue<GenericRecord> value=new AvroValue<GenericRecord>(toGenericRecord(starTree.getConfig(),schema,otherRecord.build(),null));
+  writeOtherRecord(context,starTree.getRoot(),value);
+}
