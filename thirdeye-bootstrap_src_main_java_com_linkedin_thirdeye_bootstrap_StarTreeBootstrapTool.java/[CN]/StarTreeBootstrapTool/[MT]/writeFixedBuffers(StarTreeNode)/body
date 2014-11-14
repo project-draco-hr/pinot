@@ -1,6 +1,6 @@
 {
   if (node.isLeaf()) {
-    int bufferSize=node.getRecordStore().size() * starTreeConfig.getDimensionNames().size() * Integer.SIZE / 8 + starTreeConfig.getMetricNames().size() * numTimeBuckets * Integer.SIZE / 8 + numTimeBuckets * Long.SIZE / 8;
+    int bufferSize=node.getRecordStore().getRecordCount() * starTreeConfig.getDimensionNames().size() * Integer.SIZE / 8 + starTreeConfig.getMetricNames().size() * numTimeBuckets * Integer.SIZE / 8 + numTimeBuckets * Long.SIZE / 8;
     Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
     int nextValueId=StarTreeConstants.FIRST_VALUE;
     for (    StarTreeRecord record : node.getRecordStore()) {

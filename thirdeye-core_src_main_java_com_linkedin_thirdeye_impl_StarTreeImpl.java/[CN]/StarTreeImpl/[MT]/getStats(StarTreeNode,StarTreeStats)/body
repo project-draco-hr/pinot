@@ -1,0 +1,16 @@
+{
+  if (node.isLeaf()) {
+    stats.countRecords(node.getRecordStore().getRecordCount());
+    stats.countBytes(node.getRecordStore().getByteCount());
+    stats.countNode();
+    stats.countLeaf();
+  }
+ else {
+    stats.countNode();
+    for (    StarTreeNode child : node.getChildren()) {
+      getStats(child,stats);
+    }
+    getStats(node.getOtherNode(),stats);
+    getStats(node.getStarNode(),stats);
+  }
+}

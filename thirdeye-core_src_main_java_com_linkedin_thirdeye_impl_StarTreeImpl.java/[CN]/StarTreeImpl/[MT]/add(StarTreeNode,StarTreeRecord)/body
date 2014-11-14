@@ -1,7 +1,7 @@
 {
   if (node.isLeaf()) {
     node.getRecordStore().update(record);
-    if (node.getRecordStore().size() > maxRecordStoreEntries && node.getAncestorDimensionNames().size() < record.getDimensionValues().size()) {
+    if (node.getRecordStore().getRecordCount() > maxRecordStoreEntries && node.getAncestorDimensionNames().size() < record.getDimensionValues().size()) {
       Set<String> blacklist=new HashSet<String>();
       blacklist.addAll(node.getAncestorDimensionNames());
       blacklist.add(node.getDimensionName());
