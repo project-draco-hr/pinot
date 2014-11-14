@@ -8,14 +8,14 @@
     compactBuffer(buffer);
     int newLimit=buffer.limit();
     double loadFactor=(1.0 * newLimit) / oldLimit;
-    LOG.info(String.format("Compacted buffer (loadFactor=%.02f, oldLimit=%d, newLimit=%d)",loadFactor,oldLimit,newLimit));
+    LOG.info("{}: compacted buffer (loadFactor={}) {}",nodeId,loadFactor,buffer);
     if (loadFactor > targetLoadFactor) {
       ByteBuffer expandedBuffer=createBuffer(buffer.capacity() + bufferSize);
       buffer.rewind();
       expandedBuffer.put(buffer);
       expandedBuffer.limit(expandedBuffer.position());
       buffer=expandedBuffer;
-      LOG.info("Expanded buffer: " + expandedBuffer);
+      LOG.info("{}: expanded buffer {}",nodeId,buffer);
     }
   }
   return buffer;
