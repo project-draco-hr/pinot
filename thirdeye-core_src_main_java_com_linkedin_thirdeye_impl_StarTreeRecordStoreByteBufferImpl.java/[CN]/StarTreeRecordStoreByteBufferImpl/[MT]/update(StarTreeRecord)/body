@@ -4,7 +4,7 @@ synchronized (sync) {
     buffer.position(buffer.limit());
     buffer.limit(buffer.position() + entrySize);
     putRecord(buffer,record);
-    size.incrementAndGet();
+    recordCount.incrementAndGet();
     if (record.getTime() != null) {
       if (record.getTime() < minTime.get()) {
         minTime.set(record.getTime());

@@ -10,6 +10,7 @@
       LOG.info("Processing stream {} of {}",++streamId,recordStreams.size());
       starTreeManager.load(starTreeConfig.getCollection(),recordStream);
     }
+    compactBuffers(starTreeManager.getStarTree(starTreeConfig.getCollection()).getRoot());
     StarTree starTree=starTreeManager.getStarTree(starTreeConfig.getCollection());
     File starTreeFile=new File(outputDir,TREE_FILE);
     LOG.info("Writing {}",starTreeFile);
@@ -37,6 +38,14 @@
       }
       writeFixedBuffers(starTree.getRoot());
     }
+    StarTreeStats stats=starTreeManager.getStarTree(starTreeConfig.getCollection()).getStats();
+    LOG.info("Tree stats:");
+    LOG.info("\tnodeCount={}",stats.getNodeCount());
+    LOG.info("\tleafCount={}",stats.getLeafCount());
+    LOG.info("\trecordCount={}",stats.getRecordCount());
+    LOG.info("\tbyteCount={}",stats.getByteCount());
+    LOG.info("\tminTime={}",stats.getMinTime());
+    LOG.info("\tmaxTime={}",stats.getMaxTime());
   }
  catch (  Exception e) {
     throw new RuntimeException(e);
