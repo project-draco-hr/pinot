@@ -28,5 +28,11 @@ synchronized (sync) {
     buffer.clear();
     buffer.position(idx + dimensionSize + timeBucket * timeBucketSize);
     updateMetrics(record);
+    if (record.getTime() < minTime.get()) {
+      minTime.set(record.getTime());
+    }
+    if (record.getTime() > maxTime.get()) {
+      maxTime.set(record.getTime());
+    }
   }
 }

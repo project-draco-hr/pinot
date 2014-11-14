@@ -5,5 +5,13 @@ synchronized (sync) {
     buffer.limit(buffer.position() + entrySize);
     putRecord(buffer,record);
     size.incrementAndGet();
+    if (record.getTime() != null) {
+      if (record.getTime() < minTime.get()) {
+        minTime.set(record.getTime());
+      }
+      if (record.getTime() > maxTime.get()) {
+        maxTime.set(record.getTime());
+      }
+    }
   }
 }
