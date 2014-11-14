@@ -10,8 +10,8 @@
       LOG.info("Processing stream {} of {}",++streamId,recordStreams.size());
       starTreeManager.load(starTreeConfig.getCollection(),recordStream);
     }
-    compactBuffers(starTreeManager.getStarTree(starTreeConfig.getCollection()).getRoot());
     StarTree starTree=starTreeManager.getStarTree(starTreeConfig.getCollection());
+    StarTreeStats stats=starTree.getStats();
     File starTreeFile=new File(outputDir,TREE_FILE);
     LOG.info("Writing {}",starTreeFile);
     ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(starTreeFile));
@@ -38,7 +38,6 @@
       }
       writeFixedBuffers(starTree.getRoot());
     }
-    StarTreeStats stats=starTreeManager.getStarTree(starTreeConfig.getCollection()).getStats();
     LOG.info("Tree stats:");
     LOG.info("\tnodeCount={}",stats.getNodeCount());
     LOG.info("\tleafCount={}",stats.getLeafCount());
