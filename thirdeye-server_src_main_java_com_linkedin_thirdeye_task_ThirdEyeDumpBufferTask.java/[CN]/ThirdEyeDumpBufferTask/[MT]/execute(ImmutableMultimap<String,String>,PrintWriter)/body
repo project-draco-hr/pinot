@@ -1,0 +1,31 @@
+{
+  Collection<String> collectionParam=params.get("collection");
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  Collection<String> idParam=params.get("id");
+  if (idParam == null || idParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide id");
+  }
+  String id=idParam.iterator().next();
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalArgumentException("No star tree for collection " + collection);
+  }
+  StarTreeNode node=findNode(starTree.getRoot(),UUID.fromString(id));
+  if (node == null) {
+    throw new IllegalArgumentException("No buffer with id " + id);
+  }
+  if (node.getRecordStore() instanceof StarTreeRecordStoreCircularBufferImpl) {
+    Field field=node.getRecordStore().getClass().getDeclaredField("buffer");
+    field.setAccessible(true);
+    ByteBuffer buffer=(ByteBuffer)field.get(node.getRecordStore());
+    buffer.clear();
+    StarTreeRecordStoreCircularBufferImpl.dumpBuffer(buffer,printWriter,starTree.getConfig().getDimensionNames(),starTree.getConfig().getMetricNames(),Integer.valueOf(starTree.getConfig().getRecordStoreFactory().getConfig().getProperty("numTimeBuckets")));
+    printWriter.flush();
+  }
+ else {
+    throw new IllegalStateException("Buffer dump not supported");
+  }
+}

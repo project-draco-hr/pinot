@@ -1,0 +1,21 @@
+{
+  if (node.isLeaf()) {
+    return node.getId().equals(uuid) ? node : null;
+  }
+ else {
+    StarTreeNode targetNode=null;
+    for (    StarTreeNode child : node.getChildren()) {
+      targetNode=findNode(child,uuid);
+      if (targetNode != null) {
+        break;
+      }
+    }
+    if (targetNode == null) {
+      targetNode=findNode(node.getOtherNode(),uuid);
+    }
+    if (targetNode == null) {
+      targetNode=findNode(node.getStarNode(),uuid);
+    }
+    return targetNode;
+  }
+}

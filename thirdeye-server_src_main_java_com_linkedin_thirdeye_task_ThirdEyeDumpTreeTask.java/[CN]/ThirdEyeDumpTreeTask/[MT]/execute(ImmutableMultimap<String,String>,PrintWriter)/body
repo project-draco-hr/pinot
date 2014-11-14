@@ -1,0 +1,13 @@
+{
+  Collection<String> collectionParam=params.get("collection");
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalArgumentException("No star tree for collection " + collection);
+  }
+  StarTreeUtils.printNode(printWriter,starTree.getRoot(),0);
+  printWriter.flush();
+}

@@ -1,0 +1,8 @@
+{
+  if (args.length != 1) {
+    throw new IllegalArgumentException("usage: tree.bin");
+  }
+  ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(args[0]));
+  StarTreeNode root=(StarTreeNode)objectInputStream.readObject();
+  StarTreeUtils.printNode(new PrintWriter(System.out),root,0);
+}
