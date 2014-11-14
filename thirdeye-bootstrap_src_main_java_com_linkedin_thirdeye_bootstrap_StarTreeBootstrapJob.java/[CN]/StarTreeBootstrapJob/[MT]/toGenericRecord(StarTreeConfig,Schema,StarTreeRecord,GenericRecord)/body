@@ -59,7 +59,7 @@ default :
 throw new IllegalStateException("Invalid time schema type: " + schema.getField(config.getTimeColumnName()));
 }
 for (Schema.Field field : schema.getFields()) {
-if (!record.getDimensionValues().containsKey(field.name()) && !record.getMetricValues().containsKey(field.name())) {
+if (!record.getDimensionValues().containsKey(field.name()) && !record.getMetricValues().containsKey(field.name()) && !config.getTimeColumnName().equals(field.name())) {
 switch (getType(field.schema())) {
 case INT:
 genericRecord.put(field.name(),0);

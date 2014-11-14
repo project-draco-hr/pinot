@@ -1,7 +1,9 @@
 {
-  StarTree starTree=trees.remove(collection);
-  if (starTree != null) {
-    LOG.info("Closing startree for {}",collection);
-    starTree.close();
+synchronized (trees) {
+    StarTree starTree=trees.remove(collection);
+    if (starTree != null) {
+      LOG.info("Closing startree for {}",collection);
+      starTree.close();
+    }
   }
 }

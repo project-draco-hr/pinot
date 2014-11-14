@@ -3,7 +3,11 @@
     schema=record.datum().getSchema();
   }
   Map<UUID,StarTreeRecord> collector=new HashMap<UUID,StarTreeRecord>();
-  collectRecords(starTree.getRoot(),toStarTreeRecord(starTree.getConfig(),record.datum()),collector);
+  StarTreeRecord starTreeRecord=toStarTreeRecord(starTree.getConfig(),record.datum());
+  collectRecords(starTree.getRoot(),starTreeRecord,collector);
+  if (minTime == null || starTreeRecord.getTime() < minTime) {
+    minTime=starTreeRecord.getTime();
+  }
   for (  Map.Entry<UUID,StarTreeRecord> entry : collector.entrySet()) {
     nodeId.set(entry.getKey().toString());
     outputRecord.datum(toGenericRecord(starTree.getConfig(),schema,entry.getValue(),outputRecord.datum()));
