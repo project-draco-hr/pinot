@@ -9,5 +9,7 @@
   File file=new File(rootDir.asText(),args[1] + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
   FileChannel fileChannel=new RandomAccessFile(file,"r").getChannel();
   ByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_ONLY,0,file.length());
-  StarTreeRecordStoreCircularBufferImpl.dumpBuffer(buffer,new PrintWriter(System.out),config.getDimensionNames(),config.getMetricNames(),timeBuckets.asInt());
+  PrintWriter printWriter=new PrintWriter(System.out);
+  StarTreeRecordStoreCircularBufferImpl.dumpBuffer(buffer,printWriter,config.getDimensionNames(),config.getMetricNames(),timeBuckets.asInt());
+  printWriter.flush();
 }
