@@ -19,9 +19,7 @@ synchronized (sync) {
     if (idx >= 0) {
       buffer.clear();
       buffer.position(idx + dimensionSize);
-      for (int i=0; i < numTimeBuckets; i++) {
-        updateSums(sums,timeBuckets);
-      }
+      updateSums(sums,timeBuckets);
     }
  else {
       buffer.clear();
@@ -30,9 +28,7 @@ synchronized (sync) {
         buffer.mark();
         getDimensions(currentDimensions);
         if (matches(targetDimensions,currentDimensions)) {
-          for (int i=0; i < numTimeBuckets; i++) {
-            updateSums(sums,timeBuckets);
-          }
+          updateSums(sums,timeBuckets);
         }
         buffer.reset();
         buffer.position(buffer.position() + entrySize);
