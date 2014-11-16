@@ -4,7 +4,6 @@
   options.addOption("keepMetricValues",false,"Keep metric values in buffers (default: false)");
   options.addOption("keepBuffers",false,"Generate buffers (default: false)");
   options.addOption("numTimeBuckets",true,"Number of time buckets (this times time granularity is retention period)");
-  options.addOption("bufferSize",true,"Leaf log buffer size");
   CommandLine commandLine=new GnuParser().parse(options,args);
   if (commandLine.getArgs().length < 3) {
     HelpFormatter helpFormatter=new HelpFormatter();
@@ -19,7 +18,6 @@
   Boolean keepBuffers=commandLine.hasOption("keepBuffers");
   Integer numTimeBuckets=Integer.valueOf(commandLine.getOptionValue("numTimeBuckets","" + (7 * 24)));
   StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(new File(configJson)));
-  config.getRecordStoreFactory().getConfig().setProperty("bufferSize",commandLine.getOptionValue("bufferSize",String.valueOf(10 * 1024 * 1024)));
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
     for (    String inputFile : inputFiles) {
