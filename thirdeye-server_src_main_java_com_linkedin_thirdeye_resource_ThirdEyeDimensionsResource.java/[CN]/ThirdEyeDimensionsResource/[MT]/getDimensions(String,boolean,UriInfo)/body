@@ -1,0 +1,21 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  Map<String,String> fixedDimensions=new HashMap<String,String>();
+  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
+    String dimensionValue=uriInfo.getQueryParameters().getFirst(dimensionName);
+    if (dimensionValue != null) {
+      dimensionValue=StarTreeConstants.STAR;
+    }
+    fixedDimensions.put(dimensionName,dimensionValue);
+  }
+  Map<String,List<String>> allDimensionValues=new HashMap<String,List<String>>();
+  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
+    Set<String> dimensionValues=starTree.getDimensionValues(dimensionName,fixedDimensions);
+    allDimensionValues.put(dimensionName,new ArrayList<String>(dimensionValues));
+    Collections.sort(allDimensionValues.get(dimensionName));
+  }
+  return allDimensionValues;
+}

@@ -10,10 +10,12 @@
   }
  else {
     for (    StarTreeNode child : node.getChildren()) {
-      getDimensionValues(child,dimensionName,collector);
+      if (shouldTraverse(child,fixedDimensions)) {
+        getDimensionValues(child,dimensionName,fixedDimensions,collector);
+      }
     }
-    if (node.getOtherNode() != null) {
-      getDimensionValues(node.getOtherNode(),dimensionName,collector);
+    if (shouldTraverse(node.getOtherNode(),fixedDimensions)) {
+      getDimensionValues(node.getOtherNode(),dimensionName,fixedDimensions,collector);
     }
   }
 }

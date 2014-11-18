@@ -8,15 +8,9 @@
   List<StarTreeQuery> queries=new LinkedList<StarTreeQuery>();
   queries.add(baseQuery);
   for (  String dimensionName : dimensionsToExpand) {
-    Set<String> values;
-    if (rollup) {
-      values=starTree.getExplicitDimensionValues(dimensionName);
-    }
- else {
-      values=starTree.getDimensionValues(dimensionName);
-    }
     List<StarTreeQuery> expandedQueries=new ArrayList<StarTreeQuery>();
     for (    StarTreeQuery query : queries) {
+      Set<String> values=starTree.getDimensionValues(dimensionName,query.getDimensionValues());
       for (      String value : values) {
         expandedQueries.add(new StarTreeQueryImpl.Builder().setDimensionValues(query.getDimensionValues()).setTimeBuckets(query.getTimeBuckets()).setTimeRange(query.getTimeRange()).setDimensionValue(dimensionName,value).build());
       }
