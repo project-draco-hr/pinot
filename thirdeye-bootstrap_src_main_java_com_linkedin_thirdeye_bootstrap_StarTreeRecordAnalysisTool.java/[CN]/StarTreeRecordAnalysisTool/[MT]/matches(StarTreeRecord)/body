@@ -1,0 +1,12 @@
+{
+  for (  Map.Entry<String,String> entry : filter.entrySet()) {
+    String value=record.getDimensionValues().get(entry.getKey());
+    if (!entry.getValue().equals(StarTreeConstants.STAR) && !entry.getValue().equals(value)) {
+      return false;
+    }
+    if (time != null && !time.equals(record.getTime())) {
+      return false;
+    }
+  }
+  return true;
+}

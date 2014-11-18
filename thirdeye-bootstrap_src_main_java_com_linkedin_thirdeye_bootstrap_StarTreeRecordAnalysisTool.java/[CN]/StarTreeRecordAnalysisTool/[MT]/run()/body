@@ -1,0 +1,24 @@
+{
+  Map<String,Integer> aggregates=new HashMap<String,Integer>();
+  for (  String metricName : config.getMetricNames()) {
+    aggregates.put(metricName,0);
+  }
+  for (  Iterable<StarTreeRecord> stream : streams) {
+    for (    StarTreeRecord record : stream) {
+      if (matches(record)) {
+        updateAggregates(record,aggregates);
+        if (debug) {
+          printWriter.println(record);
+        }
+      }
+    }
+  }
+  printWriter.println("Aggregates:");
+  for (  String metricName : config.getMetricNames()) {
+    printWriter.print("\t");
+    printWriter.print(metricName);
+    printWriter.print("=");
+    printWriter.print(aggregates.get(metricName));
+    printWriter.println();
+  }
+}
