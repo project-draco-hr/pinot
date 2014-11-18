@@ -1,10 +1,10 @@
 {
   StarTree starTree=manager.getStarTree(collection);
   if (starTree == null) {
-    throw new IllegalArgumentException("No collection " + collection);
+    throw new NotFoundException("No collection " + collection);
   }
   if (!starTree.getConfig().getMetricNames().contains(metric)) {
-    throw new IllegalArgumentException("No metric " + metric + " in collection "+ collection);
+    throw new NotFoundException("No metric " + metric + " in collection "+ collection);
   }
   StarTreeQuery query=createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build();
   List<StarTreeRecord> timeSeries=starTree.getTimeSeries(query);

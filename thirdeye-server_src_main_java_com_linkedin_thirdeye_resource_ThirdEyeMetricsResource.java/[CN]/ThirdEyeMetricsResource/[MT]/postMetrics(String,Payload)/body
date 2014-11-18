@@ -2,7 +2,7 @@
   StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValues(payload.getDimensionValues()).setMetricValues(payload.getMetricValues()).setTime(payload.getTime()).build();
   StarTree starTree=starTreeManager.getStarTree(collection);
   if (starTree == null) {
-    throw new IllegalArgumentException("No collection " + collection);
+    throw new NotFoundException("No collection " + collection);
   }
   starTree.add(record);
   return Response.ok().build();
