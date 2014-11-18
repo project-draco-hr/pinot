@@ -1,0 +1,16 @@
+{
+  for (int i=0; i < 100; i++) {
+    StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","A1").setDimensionValue("B","B1").setDimensionValue("C","C1").setMetricValue("M",1000).setTime((long)(i / 25)).build();
+    recordStore.update(record);
+  }
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").setTimeRange(0L,4L).build();
+  List<StarTreeRecord> timeSeries=recordStore.getTimeSeries(query);
+  Assert.assertEquals(timeSeries.size(),4);
+  query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").build();
+  try {
+    recordStore.getTimeSeries(query);
+    Assert.fail();
+  }
+ catch (  Exception e) {
+  }
+}

@@ -1,19 +1,7 @@
 {
 synchronized (sync) {
     int[] sums=new int[metricNames.size()];
-    Set<Long> timeBuckets;
-    if (query.getTimeBuckets() != null) {
-      timeBuckets=query.getTimeBuckets();
-    }
- else     if (query.getTimeRange() != null) {
-      timeBuckets=new HashSet<Long>();
-      for (long time=query.getTimeRange().getKey(); time <= query.getTimeRange().getValue(); time++) {
-        timeBuckets.add(time);
-      }
-    }
- else {
-      timeBuckets=null;
-    }
+    Set<Long> timeBuckets=getTimeBuckets(query);
     int[] targetDimensions=translateDimensions(query.getDimensionValues());
     int idx=binarySearch(targetDimensions);
     if (idx >= 0) {

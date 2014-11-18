@@ -1,0 +1,16 @@
+{
+  Set<Long> timeBuckets;
+  if (query.getTimeBuckets() != null) {
+    timeBuckets=query.getTimeBuckets();
+  }
+ else   if (query.getTimeRange() != null) {
+    timeBuckets=new HashSet<Long>();
+    for (long time=query.getTimeRange().getKey(); time <= query.getTimeRange().getValue(); time++) {
+      timeBuckets.add(time);
+    }
+  }
+ else {
+    timeBuckets=null;
+  }
+  return timeBuckets;
+}

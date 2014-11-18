@@ -1,0 +1,18 @@
+{
+  int base=buffer.position();
+  for (  Long time : timeBuckets) {
+    int[] sums=allSums.get(time);
+    if (sums == null) {
+      sums=new int[metricNames.size()];
+      allSums.put(time,sums);
+    }
+    int bucket=(int)(time % numTimeBuckets);
+    buffer.position(base + bucket * timeBucketSize);
+    long t=buffer.getLong();
+    if (t == time) {
+      for (int i=0; i < metricNames.size(); i++) {
+        sums[i]+=buffer.getInt();
+      }
+    }
+  }
+}

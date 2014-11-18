@@ -1,0 +1,39 @@
+{
+synchronized (sync) {
+    Map<Long,int[]> allSums=new HashMap<Long,int[]>();
+    Set<Long> timeBuckets=getTimeBuckets(query);
+    if (timeBuckets == null) {
+      throw new IllegalArgumentException("Must specify time range in query " + query);
+    }
+    int[] targetDimensions=translateDimensions(query.getDimensionValues());
+    int idx=binarySearch(targetDimensions);
+    if (idx >= 0) {
+      buffer.clear();
+      buffer.position(idx + dimensionSize);
+      updateAllSums(allSums,timeBuckets);
+    }
+ else {
+      buffer.clear();
+      int[] currentDimensions=new int[dimensionNames.size()];
+      while (buffer.position() < buffer.limit()) {
+        buffer.mark();
+        getDimensions(currentDimensions);
+        if (matches(targetDimensions,currentDimensions)) {
+          updateAllSums(allSums,timeBuckets);
+        }
+        buffer.reset();
+        buffer.position(buffer.position() + entrySize);
+      }
+    }
+    List<StarTreeRecord> timeSeries=new ArrayList<StarTreeRecord>();
+    for (    Map.Entry<Long,int[]> entry : allSums.entrySet()) {
+      StarTreeRecordImpl.Builder record=new StarTreeRecordImpl.Builder().setTime(entry.getKey()).setDimensionValues(query.getDimensionValues());
+      for (int i=0; i < metricNames.size(); i++) {
+        record.setMetricValue(metricNames.get(i),entry.getValue()[i]);
+      }
+      timeSeries.add(record.build());
+    }
+    Collections.sort(timeSeries);
+    return timeSeries;
+  }
+}

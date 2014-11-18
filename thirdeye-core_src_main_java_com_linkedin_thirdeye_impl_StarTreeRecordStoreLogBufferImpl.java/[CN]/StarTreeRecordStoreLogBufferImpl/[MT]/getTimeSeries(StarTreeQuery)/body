@@ -1,0 +1,49 @@
+{
+  if (query.getTimeBuckets() == null && query.getTimeRange() == null) {
+    throw new IllegalArgumentException("Query must have time range " + query);
+  }
+synchronized (sync) {
+    Map<Long,int[]> allSums=new HashMap<Long,int[]>();
+    ByteBuffer buffer=getBuffer();
+    buffer.rewind();
+    while (buffer.position() < buffer.limit()) {
+      boolean matches=true;
+      for (      String dimensionName : dimensionNames) {
+        int valueId=buffer.getInt();
+        String recordValue=reverseIndex.get(dimensionName).get(valueId);
+        String queryValue=query.getDimensionValues().get(dimensionName);
+        if (!StarTreeConstants.STAR.equals(queryValue) && !queryValue.equals(recordValue)) {
+          matches=false;
+        }
+      }
+      long time=buffer.getLong();
+      if (query.getTimeBuckets() != null && !query.getTimeBuckets().contains(time)) {
+        matches=false;
+      }
+ else       if (query.getTimeRange() != null && (time < query.getTimeRange().getKey() || time > query.getTimeRange().getValue())) {
+        matches=false;
+      }
+      int[] sums=allSums.get(time);
+      if (sums == null && matches) {
+        sums=new int[dimensionNames.size()];
+        allSums.put(time,sums);
+      }
+      for (int i=0; i < metricNames.size(); i++) {
+        int value=buffer.getInt();
+        if (matches) {
+          sums[i]+=value;
+        }
+      }
+    }
+    List<StarTreeRecord> timeSeries=new ArrayList<StarTreeRecord>();
+    for (    Map.Entry<Long,int[]> entry : allSums.entrySet()) {
+      StarTreeRecordImpl.Builder record=new StarTreeRecordImpl.Builder().setTime(entry.getKey()).setDimensionValues(query.getDimensionValues());
+      for (int i=0; i < metricNames.size(); i++) {
+        record.setMetricValue(metricNames.get(i),entry.getValue()[i]);
+      }
+      timeSeries.add(record.build());
+    }
+    Collections.sort(timeSeries);
+    return timeSeries;
+  }
+}
