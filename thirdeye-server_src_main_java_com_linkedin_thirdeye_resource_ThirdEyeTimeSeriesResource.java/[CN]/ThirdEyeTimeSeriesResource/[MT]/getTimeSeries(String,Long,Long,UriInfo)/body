@@ -1,0 +1,12 @@
+{
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalArgumentException("No collection " + collection);
+  }
+  StarTreeQuery query=createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build();
+  List<StarTreeRecord> timeSeries=starTree.getTimeSeries(query);
+  Result result=new Result();
+  result.setTimeSeries(convertTimeSeries(timeSeries));
+  result.setDimensionValues(query.getDimensionValues());
+  return result;
+}
