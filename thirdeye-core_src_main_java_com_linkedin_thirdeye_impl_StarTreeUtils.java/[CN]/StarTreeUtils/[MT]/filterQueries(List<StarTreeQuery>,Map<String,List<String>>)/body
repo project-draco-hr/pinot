@@ -1,0 +1,16 @@
+{
+  List<StarTreeQuery> filteredQueries=new ArrayList<StarTreeQuery>(queries.size());
+  for (  StarTreeQuery query : queries) {
+    boolean matches=true;
+    for (    Map.Entry<String,List<String>> entry : filter.entrySet()) {
+      if (!entry.getValue().contains(StarTreeConstants.ALL) && !entry.getValue().contains(query.getDimensionValues().get(entry.getKey()))) {
+        matches=false;
+        break;
+      }
+    }
+    if (matches) {
+      filteredQueries.add(query);
+    }
+  }
+  return filteredQueries;
+}

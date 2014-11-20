@@ -6,11 +6,13 @@
   if (!starTree.getConfig().getMetricNames().contains(metric)) {
     throw new NotFoundException("No metric " + metric + " in collection "+ collection);
   }
-  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build());
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,ThirdEyeUriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build());
+  queries=StarTreeUtils.filterQueries(queries,uriInfo.getQueryParameters());
   List<Result> results=new ArrayList<Result>(queries.size());
   for (  StarTreeQuery query : queries) {
     List<StarTreeRecord> timeSeries=starTree.getTimeSeries(query);
     Result result=new Result();
+    result.setMetricName(metric);
     result.setTimeSeries(convertTimeSeries(metric,timeSeries));
     result.setDimensionValues(query.getDimensionValues());
     results.add(result);
