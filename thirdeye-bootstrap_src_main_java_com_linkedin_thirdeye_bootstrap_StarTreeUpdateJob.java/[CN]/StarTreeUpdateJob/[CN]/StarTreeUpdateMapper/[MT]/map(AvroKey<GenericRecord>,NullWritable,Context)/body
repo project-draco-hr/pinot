@@ -1,0 +1,13 @@
+{
+  if (schema == null) {
+    schema=record.datum().getSchema();
+  }
+  Map<UUID,StarTreeRecord> collector=new HashMap<UUID,StarTreeRecord>();
+  StarTreeRecord starTreeRecord=StarTreeJobUtils.toStarTreeRecord(starTree.getConfig(),record.datum());
+  StarTreeJobUtils.collectRecords(starTree.getRoot(),starTreeRecord,collector);
+  for (  Map.Entry<UUID,StarTreeRecord> entry : collector.entrySet()) {
+    nodeId.set(entry.getKey().toString());
+    outputRecord.datum(StarTreeJobUtils.toGenericRecord(starTree.getConfig(),schema,entry.getValue(),outputRecord.datum()));
+    context.write(nodeId,outputRecord);
+  }
+}
