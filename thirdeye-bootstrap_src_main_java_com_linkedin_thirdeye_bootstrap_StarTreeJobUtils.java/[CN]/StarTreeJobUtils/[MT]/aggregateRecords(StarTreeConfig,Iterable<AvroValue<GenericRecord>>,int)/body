@@ -1,7 +1,7 @@
 {
   Map<String,Map<Long,StarTreeRecord>> records=new HashMap<String,Map<Long,StarTreeRecord>>();
   for (  AvroValue<GenericRecord> avroRecord : avroRecords) {
-    StarTreeRecord record=toStarTreeRecord(config,avroRecord.datum());
+    StarTreeRecord record=StarTreeUtils.toStarTreeRecord(config,avroRecord.datum());
     Map<Long,StarTreeRecord> timeBuckets=records.get(record.getKey(false));
     if (timeBuckets == null) {
       timeBuckets=new HashMap<Long,StarTreeRecord>();
