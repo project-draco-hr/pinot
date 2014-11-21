@@ -1,13 +1,13 @@
 {
-  final File backupsDir=new File(bootstrapDir,BACKUP_DIR);
+  final File backupsDir=new File(tmpDir,BACKUP_DIR);
   if (backupsDir.mkdir()) {
     info("Created " + backupsDir);
   }
-  final File doneDir=new File(bootstrapDir,DONE_DIR);
+  final File doneDir=new File(tmpDir,DONE_DIR);
   if (doneDir.mkdir()) {
     info("Created " + doneDir);
   }
-  final File dataDir=new File(bootstrapDir,DATA_DIR);
+  final File dataDir=new File(tmpDir,DATA_DIR);
   if (!dataDir.exists()) {
     throw new IllegalStateException("No data directory " + dataDir);
   }
@@ -99,5 +99,6 @@
  catch (    InterruptedException e) {
       throw new IOException(e);
     }
+    info("Done with bulk load on " + starTree.getConfig().getCollection());
   }
 }
