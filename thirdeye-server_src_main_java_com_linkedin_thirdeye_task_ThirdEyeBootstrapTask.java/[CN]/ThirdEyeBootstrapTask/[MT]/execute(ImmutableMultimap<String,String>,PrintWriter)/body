@@ -1,0 +1,25 @@
+{
+  Collection<String> collectionParam=params.get(COLLECTION);
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  if (params.get(SOURCE).isEmpty()) {
+    throw new IllegalArgumentException("Must provide source URI parameter");
+  }
+  URI source=URI.create(params.get(SOURCE).iterator().next());
+  boolean overwrite=!params.get(OVERWRITE).isEmpty();
+  File collectionDir=new File(rootDir,collection);
+  if (collectionDir.exists()) {
+    if (overwrite) {
+      FileUtils.forceDelete(collectionDir);
+      printWriter.println("Deleted " + collectionDir);
+      printWriter.flush();
+    }
+ else {
+      throw new IllegalStateException("Cannot bootstrap data into collection that already exists: " + collection);
+    }
+  }
+  FileUtils.forceMkdir(collectionDir);
+  ThirdEyeTarUtils.extractGzippedTarArchive(source,collectionDir,printWriter);
+}
