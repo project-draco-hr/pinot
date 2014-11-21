@@ -1,25 +1,25 @@
 {
+  Collection<String> actionParam=params.get("action");
+  if (actionParam == null || actionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide action (execute|cleanup)");
+  }
+  String action=actionParam.iterator().next();
   Collection<String> collectionParam=params.get("collection");
   if (collectionParam == null || collectionParam.isEmpty()) {
     throw new IllegalArgumentException("Must provide collection");
   }
   String collection=collectionParam.iterator().next();
-  StarTree starTree=manager.getStarTree(collection);
-  if (starTree == null) {
-    throw new IllegalArgumentException("No star tree for collection " + collection);
-  }
   String type=AVRO;
   if (!params.get(TYPE).isEmpty()) {
     type=params.get(TYPE).iterator().next();
   }
-  StarTreeBulkLoader bulkLoader;
-  if (AVRO.equals(type)) {
-    bulkLoader=new StarTreeBulkLoaderAvroImpl(executorService,printWriter);
+  if (ACTION_EXECUTE.equals(action)) {
+    doExecute(collection,type,printWriter);
+  }
+ else   if (ACTION_CLEANUP.equals(action)) {
+    doCleanup(collection,printWriter);
   }
  else {
-    throw new IllegalArgumentException("Invalid file type " + type);
+    throw new IllegalArgumentException("Unsupported action " + action);
   }
-  File collectionRootDir=new File(rootDir,starTree.getConfig().getCollection());
-  File collectionTmpDir=new File(tmpDir,starTree.getConfig().getCollection());
-  bulkLoader.bulkLoad(starTree,collectionRootDir,collectionTmpDir);
 }

@@ -1,0 +1,16 @@
+{
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalArgumentException("No star tree for collection " + collection);
+  }
+  StarTreeBulkLoader bulkLoader;
+  if (AVRO.equals(type)) {
+    bulkLoader=new StarTreeBulkLoaderAvroImpl(executorService,printWriter);
+  }
+ else {
+    throw new IllegalArgumentException("Invalid file type " + type);
+  }
+  File collectionRootDir=new File(rootDir,starTree.getConfig().getCollection());
+  File collectionTmpDir=new File(tmpDir,starTree.getConfig().getCollection());
+  bulkLoader.bulkLoad(starTree,collectionRootDir,collectionTmpDir);
+}
