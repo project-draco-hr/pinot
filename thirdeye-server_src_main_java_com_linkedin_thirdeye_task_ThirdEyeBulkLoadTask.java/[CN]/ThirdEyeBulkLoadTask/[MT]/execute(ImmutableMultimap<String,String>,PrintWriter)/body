@@ -9,15 +9,22 @@
     throw new IllegalArgumentException("Must provide collection");
   }
   String collection=collectionParam.iterator().next();
-  String type=AVRO;
-  if (!params.get(TYPE).isEmpty()) {
-    type=params.get(TYPE).iterator().next();
-  }
   if (ACTION_EXECUTE.equals(action)) {
+    String type=AVRO;
+    if (!params.get(TYPE).isEmpty()) {
+      type=params.get(TYPE).iterator().next();
+    }
     doExecute(collection,type,printWriter);
   }
  else   if (ACTION_CLEANUP.equals(action)) {
     doCleanup(collection,printWriter);
+  }
+ else   if (ACTION_DOWNLOAD.equals(action)) {
+    if (params.get(SOURCE).isEmpty()) {
+      throw new IllegalArgumentException("Must provide source URI parameter");
+    }
+    URI source=URI.create(params.get(SOURCE).iterator().next());
+    doDownload(collection,source,printWriter);
   }
  else {
     throw new IllegalArgumentException("Unsupported action " + action);
