@@ -1,0 +1,103 @@
+{
+  final File backupsDir=new File(bootstrapDir,BACKUP_DIR);
+  if (backupsDir.mkdir()) {
+    info("Created " + backupsDir);
+  }
+  final File doneDir=new File(bootstrapDir,DONE_DIR);
+  if (doneDir.mkdir()) {
+    info("Created " + doneDir);
+  }
+  final File dataDir=new File(bootstrapDir,DATA_DIR);
+  if (!dataDir.exists()) {
+    throw new IllegalStateException("No data directory " + dataDir);
+  }
+  final Map<UUID,StarTreeRecordStore> recordStores=new HashMap<UUID,StarTreeRecordStore>();
+  collectRecordStores(starTree.getRoot(),recordStores);
+  File[] backupFiles=backupsDir.listFiles();
+  Set<UUID> restoredNodeIds=new HashSet<UUID>();
+  if (backupFiles != null) {
+    for (    File backupFile : backupFiles) {
+      File primaryFile=new File(rootDir,backupFile.getName());
+      UUID nodeId=UUID.fromString(primaryFile.getName().substring(0,primaryFile.getName().indexOf(BUFFER_FILE_SUFFIX)));
+      File doneFile=new File(doneDir,nodeId.toString());
+      if (doneFile.exists()) {
+        if (doneFile.delete()) {
+          info("Removed done file " + doneFile + " while restoring node "+ nodeId);
+        }
+ else {
+          throw new IllegalStateException("A done file exists and could not be removed when attempting restore " + doneFile);
+        }
+      }
+      if (primaryFile.delete()) {
+        restoredNodeIds.add(nodeId);
+        copyFile(backupFile,primaryFile);
+        info("Restored " + primaryFile + " from backup "+ backupFile);
+      }
+ else {
+        throw new IllegalStateException("Could not delete " + primaryFile + " to restore backup "+ backupFile);
+      }
+    }
+  }
+  String[] doneNodeIds=doneDir.list();
+  if (doneNodeIds != null) {
+    for (    String doneNodeId : doneNodeIds) {
+      UUID uuid=UUID.fromString(doneNodeId);
+      if (!restoredNodeIds.contains(uuid)) {
+        recordStores.remove(uuid);
+      }
+    }
+  }
+  File[] dataFiles=dataDir.listFiles();
+  if (dataFiles != null) {
+    final int numWorkers=Runtime.getRuntime().availableProcessors();
+    final Queue<File> fileQueue=new ConcurrentLinkedQueue<File>(Arrays.asList(dataFiles));
+    final CountDownLatch latch=new CountDownLatch(numWorkers);
+    for (int i=0; i < numWorkers; i++) {
+      executorService.submit(new Runnable(){
+        @Override public void run(){
+          File dataFile=null;
+          try {
+            while ((dataFile=fileQueue.poll()) != null) {
+              UUID nodeId=UUID.fromString(dataFile.getName().substring(0,dataFile.getName().indexOf(AVRO_FILE_SUFFIX)));
+              StarTreeRecordStore recordStore=recordStores.get(nodeId);
+              if (recordStore == null) {
+                warn("Skipping node " + nodeId);
+                continue;
+              }
+              byte[] backup=recordStore.encode();
+              File backupFile=new File(backupsDir,nodeId + BUFFER_FILE_SUFFIX);
+              FileOutputStream outputStream=new FileOutputStream(backupFile);
+              outputStream.write(backup);
+              outputStream.flush();
+              outputStream.close();
+              Iterable<StarTreeRecord> records=new StarTreeRecordStreamAvroFileImpl(dataFile,starTree.getConfig().getDimensionNames(),starTree.getConfig().getMetricNames(),starTree.getConfig().getTimeColumnName());
+              for (              StarTreeRecord record : records) {
+                recordStore.update(record);
+              }
+              File doneFile=new File(doneDir,nodeId.toString());
+              if (doneFile.createNewFile()) {
+                info("Loaded " + nodeId);
+              }
+              if (!backupFile.delete()) {
+                warn("Could not delete backup file " + backupFile);
+              }
+            }
+          }
+ catch (          Exception e) {
+            throw new RuntimeException(e);
+          }
+ finally {
+            latch.countDown();
+          }
+        }
+      }
+);
+    }
+    try {
+      latch.await();
+    }
+ catch (    InterruptedException e) {
+      throw new IOException(e);
+    }
+  }
+}

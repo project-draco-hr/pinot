@@ -1,6 +1,6 @@
 {
   ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
-  StarTreeManager manager=new StarTreeManagerImpl(executorService);
+  final StarTreeManager manager=new StarTreeManagerImpl(executorService);
   environment.jersey().register(new ThirdEyeMetricsResource(manager));
   environment.jersey().register(new ThirdEyeDimensionsResource(manager));
   environment.jersey().register(new ThirdEyeCollectionsResource(manager));
@@ -10,4 +10,5 @@
   environment.admin().addTask(new ThirdEyeCreateTask(manager));
   environment.admin().addTask(new ThirdEyeDumpTreeTask(manager));
   environment.admin().addTask(new ThirdEyeDumpBufferTask(manager));
+  environment.lifecycle().addLifeCycleListener(new ThirdEyeLifeCycleListener(manager));
 }

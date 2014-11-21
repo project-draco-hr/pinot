@@ -1,0 +1,12 @@
+{
+  if (node.isLeaf()) {
+    collector.put(node.getId(),node.getRecordStore());
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      collectRecordStores(child,collector);
+    }
+    collectRecordStores(node.getOtherNode(),collector);
+    collectRecordStores(node.getStarNode(),collector);
+  }
+}

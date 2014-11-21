@@ -1,0 +1,11 @@
+{
+  FileChannel srcChannel=new FileInputStream(src).getChannel();
+  FileChannel dstChannel=new FileOutputStream(dst).getChannel();
+  try {
+    dstChannel.transferFrom(srcChannel,0,srcChannel.size());
+  }
+  finally {
+    srcChannel.close();
+    dstChannel.close();
+  }
+}
