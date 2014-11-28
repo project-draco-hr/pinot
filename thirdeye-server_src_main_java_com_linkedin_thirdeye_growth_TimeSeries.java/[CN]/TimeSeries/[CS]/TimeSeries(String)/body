@@ -1,0 +1,50 @@
+{
+  super(title);
+  int start=392815;
+  int end=start + 481;
+  int topK=10;
+  Map<String,Set<String>> dimensionsAll=getDimensionValues();
+  Map<String,Set<String>> dimensionsTopK=getTopK(dimensionsAll,start,start + 24,topK);
+  JPanel panel=new JPanel();
+  for (  String dimension : dimensionsTopK.keySet()) {
+    final DefaultCategoryDataset dataset=new DefaultCategoryDataset();
+    Set<String> set=dimensionsTopK.get(dimension);
+    for (    String dimensionValue : set) {
+      title=dimension + "=" + dimensionValue;
+      int current=start;
+      int step=24;
+      while (current < end) {
+        String urlString=String.format("http://" + SERVER + "/metrics/abook/%s/%s?",current,current + step) + title;
+        System.out.println(urlString);
+        URL url=new URL(urlString);
+        URLConnection yc=url.openConnection();
+        BufferedReader in=null;
+        try {
+          in=new BufferedReader(new InputStreamReader(yc.getInputStream(),Charset.forName("UTF-8")));
+          String inputLine;
+          while ((inputLine=in.readLine()) != null) {
+            JsonNode rootNode=new ObjectMapper().readTree(inputLine.getBytes());
+            List<String> numImportedContacts=rootNode.findValuesAsText("numberOfMemberConnectionsSent");
+            Timestamp timestamp=new Timestamp((long)current * 60 * 60* 1000);
+            System.out.println(timestamp + "=" + numImportedContacts);
+            long numImportedContactsMetric=Long.parseLong(numImportedContacts.get(0));
+            dataset.addValue(numImportedContactsMetric,dimensionValue,"" + (current - start));
+          }
+        }
+ catch (        Exception e) {
+        }
+ finally {
+          if (in != null) {
+            in.close();
+          }
+        }
+        current=current + step;
+      }
+    }
+    final JFreeChart chart=createChart(dataset,dimension);
+    final ChartPanel chartPanel=new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(500,270));
+    panel.add(chartPanel);
+  }
+  setContentPane(panel);
+}

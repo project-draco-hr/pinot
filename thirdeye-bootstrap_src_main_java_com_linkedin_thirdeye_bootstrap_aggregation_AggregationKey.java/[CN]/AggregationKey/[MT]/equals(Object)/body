@@ -1,0 +1,18 @@
+{
+  long start=System.currentTimeMillis();
+  if (obj instanceof AggregationKey) {
+    AggregationKey that=(AggregationKey)obj;
+    int length=Math.min(this.dimensionValues.size(),that.dimensionValues.size());
+    boolean ret=true;
+    for (int i=0; i < length; i++) {
+      ret=this.dimensionValues.get(i).equals(that.dimensionValues.get(i));
+      if (!ret) {
+        break;
+      }
+    }
+    long end=System.currentTimeMillis();
+    LOG.info("equals time {}",(end - start));
+    return ret;
+  }
+  return false;
+}

@@ -1,0 +1,28 @@
+{
+  Map<String,Set<String>> map=new HashMap<String,Set<String>>();
+  String urlString=String.format("http://" + SERVER + "/dimensions/abook");
+  System.out.println(urlString);
+  URL url=new URL(urlString);
+  URLConnection yc=url.openConnection();
+  BufferedReader in=new BufferedReader(new InputStreamReader(yc.getInputStream()));
+  String inputLine;
+  while ((inputLine=in.readLine()) != null) {
+    JsonNode rootNode=new ObjectMapper().readTree(inputLine.getBytes());
+    Iterator<String> fieldNames=rootNode.getFieldNames();
+    while (fieldNames.hasNext()) {
+      String fieldName=(String)fieldNames.next();
+      HashSet<String> valueSet=new HashSet<String>();
+      map.put(fieldName,valueSet);
+      System.out.println(fieldName);
+      ArrayNode node=(ArrayNode)rootNode.path(fieldName);
+      for (int i=0; i < node.size(); i++) {
+        String val=node.get(i).asText().replace("\"","").trim();
+        System.out.println(val);
+        valueSet.add(val);
+      }
+    }
+    System.out.println();
+  }
+  in.close();
+  return map;
+}

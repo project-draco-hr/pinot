@@ -1,0 +1,14 @@
+{
+  long start=System.currentTimeMillis();
+  int length=Math.min(this.dimensionValues.size(),that.dimensionValues.size());
+  int ret=0;
+  for (int i=0; i < length; i++) {
+    ret=this.dimensionValues.get(i).compareTo(that.dimensionValues.get(i));
+    if (ret != 0) {
+      break;
+    }
+  }
+  long end=System.currentTimeMillis();
+  LOG.info("compare time {}",(end - start));
+  return ret;
+}

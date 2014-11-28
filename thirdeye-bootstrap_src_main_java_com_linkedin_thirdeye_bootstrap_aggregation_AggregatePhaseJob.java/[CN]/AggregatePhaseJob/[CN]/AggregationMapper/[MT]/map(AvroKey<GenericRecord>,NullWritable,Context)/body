@@ -1,0 +1,25 @@
+{
+  List<String> dimensionValues=new ArrayList<String>();
+  for (  String dimensionName : dimensionNames) {
+    dimensionValues.add(record.datum().get(dimensionName).toString());
+  }
+  AggregationKey key=new AggregationKey(dimensionValues);
+  if (Math.random() > 0.9) {
+    LOG.info("{}",key);
+  }
+  String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
+  long aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
+  AggregationTimeSeries series=new AggregationTimeSeries(metricTypes);
+  for (int i=0; i < metricNames.size(); i++) {
+    String metricName=metricNames.get(i);
+    Object object=record.datum().get(metricName);
+    String metricValueStr="0";
+    if (object != null) {
+      metricValueStr=object.toString();
+    }
+    Number metricValue=MetricUnit.valueOf(metricTypes.get(i)).toNumber(metricValueStr);
+    series.set(aggregationTimeWindow,i,metricValue);
+  }
+  byte[] digest=md5.digest(dimensionValues.toString().getBytes());
+  context.write(new Text(digest),series);
+}

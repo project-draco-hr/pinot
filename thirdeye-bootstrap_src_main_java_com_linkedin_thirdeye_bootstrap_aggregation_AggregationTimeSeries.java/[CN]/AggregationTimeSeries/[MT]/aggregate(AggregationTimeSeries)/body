@@ -1,0 +1,13 @@
+{
+  for (  long timeWindow : series.timeseries.keySet()) {
+    Number[] value=series.timeseries.get(timeWindow);
+    if (timeseries.containsKey(timeWindow)) {
+      timeseries.put(timeWindow,value);
+    }
+ else {
+      for (int i=0; i < value.length; i++) {
+        this.increment(timeWindow,i,value[i]);
+      }
+    }
+  }
+}

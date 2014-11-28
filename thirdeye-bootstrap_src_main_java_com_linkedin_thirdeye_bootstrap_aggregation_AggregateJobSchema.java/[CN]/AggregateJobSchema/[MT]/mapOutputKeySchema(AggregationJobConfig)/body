@@ -1,0 +1,9 @@
+{
+  Schema schema;
+  FieldAssembler<Schema> fields=SchemaBuilder.record("AggregateMapOutputKey").namespace("org.apache.avro.ipc").fields();
+  for (  String dimension : config.getDimensionNames()) {
+    fields.name(dimension).type().stringType().stringDefault("");
+  }
+  schema=fields.endRecord();
+  return schema;
+}

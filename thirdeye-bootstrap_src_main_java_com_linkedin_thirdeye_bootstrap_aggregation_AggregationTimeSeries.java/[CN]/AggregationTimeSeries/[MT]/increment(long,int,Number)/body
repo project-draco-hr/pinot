@@ -1,0 +1,22 @@
+{
+  if (!timeseries.containsKey(timeWindow)) {
+    timeseries.put(timeWindow,new Number[types.size()]);
+  }
+  Number[] numbers=timeseries.get(timeWindow);
+  if ("int".equals(types.get(index))) {
+    numbers[index]=numbers[index].intValue() + value.intValue();
+    return;
+  }
+  if ("long".equals(types.get(index))) {
+    numbers[index]=numbers[index].longValue() + value.longValue();
+    return;
+  }
+  if ("float".equals(types.get(index))) {
+    numbers[index]=numbers[index].floatValue() + value.floatValue();
+    return;
+  }
+  if ("double".equals(types.get(index))) {
+    numbers[index]=numbers[index].doubleValue() + value.doubleValue();
+    return;
+  }
+}

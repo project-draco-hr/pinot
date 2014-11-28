@@ -1,0 +1,47 @@
+{
+  Map<String,Map<String,Integer>> dimensionMetrics=new HashMap<String,Map<String,Integer>>();
+  for (  String dimensionName : dimensions.keySet()) {
+    Set<String> dimensionValues=dimensions.get(dimensionName);
+    Map<String,Integer> valueMetricMap=new HashMap<String,Integer>();
+    dimensionMetrics.put(dimensionName,valueMetricMap);
+    for (    String dimensionValue : dimensionValues) {
+      BufferedReader in=null;
+      try {
+        String urlString=String.format("http://" + SERVER + "/metrics/abook/%s/%s?%s=%s",startTime,endTime,dimensionName,dimensionValue);
+        System.out.println(urlString);
+        URL url=new URL(urlString);
+        URLConnection yc=url.openConnection();
+        in=new BufferedReader(new InputStreamReader(yc.getInputStream()));
+        String inputLine;
+        while ((inputLine=in.readLine()) != null) {
+          JsonNode rootNode=new ObjectMapper().readTree(inputLine.getBytes());
+          List<String> numImportedContacts=rootNode.findValuesAsText("numberOfMemberConnectionsSent");
+          valueMetricMap.put(dimensionValue,Integer.parseInt(numImportedContacts.get(0)));
+        }
+      }
+ catch (      Exception e) {
+        System.err.println(e.getMessage());
+      }
+ finally {
+        if (in != null) {
+          in.close();
+        }
+      }
+    }
+  }
+  Map<String,Set<String>> map=new TreeMap<String,Set<String>>();
+  for (  String dimensionName : dimensions.keySet()) {
+    Set<String> valueSet=new LinkedHashSet<String>();
+    map.put(dimensionName,valueSet);
+    SortedSet<Entry<String,Integer>> sortedByValues=entriesSortedByValues(dimensionMetrics.get(dimensionName));
+    int count=0;
+    for (    Entry<String,Integer> entry : sortedByValues) {
+      valueSet.add(entry.getKey());
+      count=count + 1;
+      if (count == topK) {
+        break;
+      }
+    }
+  }
+  return map;
+}

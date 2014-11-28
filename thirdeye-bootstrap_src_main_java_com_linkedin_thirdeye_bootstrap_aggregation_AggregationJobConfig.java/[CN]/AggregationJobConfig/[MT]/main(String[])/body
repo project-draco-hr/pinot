@@ -1,0 +1,17 @@
+{
+  List<String> dimensionNames=Lists.newArrayList("country","browser","emailDomain","device","source");
+  List<String> metricNames=Lists.newArrayList("numberOfImportedContacts","numberOfSuggestedMemberConnections","numberOfMemberConnectionsSent","numberOfSuggestedGuestInvitations","numberOfGuestInvitationsSent");
+  List<String> metricTypes=Lists.newArrayList("int","int","int","int","int");
+  String timeColumnName="hoursSinceEpoch";
+  String timeUnit=TimeUnit.HOURS.toString();
+  String aggregationGranularity=TimeUnit.HOURS.toString();
+  ;
+  AggregationJobConfig config=new AggregationJobConfig(dimensionNames,metricNames,metricTypes,timeColumnName,timeUnit,aggregationGranularity);
+  ByteOutputStream out=new ByteOutputStream();
+  ObjectMapper objectMapper=new ObjectMapper();
+  objectMapper.defaultPrettyPrintingWriter().writeValue(out,config);
+  String x=new String(out.getBytes());
+  System.out.println(x);
+  AggregationJobConfig readValue=objectMapper.readValue(x.getBytes(),AggregationJobConfig.class);
+  System.out.println(readValue);
+}

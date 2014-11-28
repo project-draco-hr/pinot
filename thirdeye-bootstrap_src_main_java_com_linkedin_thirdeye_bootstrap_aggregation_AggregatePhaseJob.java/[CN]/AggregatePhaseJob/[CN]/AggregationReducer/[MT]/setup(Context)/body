@@ -1,0 +1,16 @@
+{
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(AGG_CONFIG_PATH.toString()));
+  try {
+    config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),AggregationJobConfig.class);
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=config.getMetricTypes();
+    sourceTimeUnit=TimeUnit.valueOf(config.getTimeUnit());
+    aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

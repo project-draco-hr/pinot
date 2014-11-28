@@ -1,0 +1,23 @@
+{
+  List<String> dimensionValues=Lists.newArrayList("","chrome","gmail.com","android");
+  AggregationKey key=new AggregationKey(dimensionValues);
+  System.out.println("tostring--" + key.toString());
+  DataOutputBuffer out=new DataOutputBuffer();
+  try {
+    key.write(out);
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+  byte[] data=out.getData();
+  AggregationKey readKey=new AggregationKey();
+  DataInputBuffer in=new DataInputBuffer();
+  in.reset(data,data.length);
+  try {
+    readKey.readFields(in);
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+  Assert.assertEquals(key,readKey);
+}

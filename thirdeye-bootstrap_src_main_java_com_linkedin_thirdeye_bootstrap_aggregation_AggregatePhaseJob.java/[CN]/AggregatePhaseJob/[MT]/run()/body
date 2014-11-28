@@ -1,0 +1,28 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(AggregatePhaseJob.class);
+  Schema schema=new Schema.Parser().parse(FileSystem.get(getConf()).open(new Path(getAndCheck(AggregationJobConstants.AGG_INPUT_AVRO_SCHEMA.toString()))));
+  LOG.info("{}",schema);
+  job.setMapperClass(AggregationMapper.class);
+  AvroJob.setInputKeySchema(job,schema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(Text.class);
+  job.setMapOutputValueClass(AggregationTimeSeries.class);
+  job.setReducerClass(AggregationReducer.class);
+  job.setOutputKeyClass(AggregationKey.class);
+  job.setOutputValueClass(AggregationTimeSeries.class);
+  Configuration configuration=job.getConfiguration();
+  String inputPathDir=getAndSetConfiguration(configuration,AGG_INPUT_PATH);
+  getAndSetConfiguration(configuration,AGG_CONFIG_PATH);
+  getAndSetConfiguration(configuration,AGG_OUTPUT_PATH);
+  getAndSetConfiguration(configuration,AGG_INPUT_AVRO_SCHEMA);
+  LOG.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOG.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(AGG_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+}
