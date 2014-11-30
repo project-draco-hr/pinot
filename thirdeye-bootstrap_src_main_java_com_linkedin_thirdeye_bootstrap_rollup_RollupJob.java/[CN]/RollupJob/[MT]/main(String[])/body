@@ -1,0 +1,13 @@
+{
+  if (args.length != 2) {
+    throw new IllegalArgumentException("usage: <phase(phase|phase2|phase3)> config.properties");
+  }
+  Properties props=new Properties();
+  String phase=args[0];
+  props.load(new FileInputStream(args[1]));
+  if ("phase1".equalsIgnoreCase(phase)) {
+    RollupPhaseOneJob job;
+    job=new RollupPhaseOneJob("rollup_phase_one_job",props);
+    job.run();
+  }
+}

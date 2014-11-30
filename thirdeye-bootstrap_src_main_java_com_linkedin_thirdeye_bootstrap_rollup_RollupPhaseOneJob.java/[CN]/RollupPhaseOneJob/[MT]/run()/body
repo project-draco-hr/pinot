@@ -1,0 +1,24 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(RollupPhaseOneJob.class);
+  job.setMapperClass(RollupPhaseOneMapper.class);
+  job.setInputFormatClass(SequenceFileInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setReducerClass(RollupPhaseOneReducer.class);
+  job.setOutputKeyClass(BytesWritable.class);
+  job.setOutputValueClass(BytesWritable.class);
+  Configuration configuration=job.getConfiguration();
+  String inputPathDir=getAndSetConfiguration(configuration,ROLLUP_PHASE1_INPUT_PATH);
+  getAndSetConfiguration(configuration,ROLLUP_PHASE1_CONFIG_PATH);
+  getAndSetConfiguration(configuration,ROLLUP_PHASE1_OUTPUT_PATH);
+  LOG.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOG.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(ROLLUP_PHASE1_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+}
