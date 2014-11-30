@@ -7,10 +7,10 @@
   String aggregationGranularity=TimeUnit.HOURS.toString();
   ;
   AggregationJobConfig config=new AggregationJobConfig(dimensionNames,metricNames,metricTypes,timeColumnName,timeUnit,aggregationGranularity);
-  ByteOutputStream out=new ByteOutputStream();
+  ByteArrayOutputStream out=new ByteArrayOutputStream();
   ObjectMapper objectMapper=new ObjectMapper();
   objectMapper.defaultPrettyPrintingWriter().writeValue(out,config);
-  String x=new String(out.getBytes());
+  String x=new String(out.toByteArray());
   System.out.println(x);
   AggregationJobConfig readValue=objectMapper.readValue(x.getBytes(),AggregationJobConfig.class);
   System.out.println(readValue);
