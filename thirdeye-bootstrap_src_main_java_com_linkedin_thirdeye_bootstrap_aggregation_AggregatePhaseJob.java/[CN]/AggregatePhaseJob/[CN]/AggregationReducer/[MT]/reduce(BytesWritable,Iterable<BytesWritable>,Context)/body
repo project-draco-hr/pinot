@@ -1,0 +1,9 @@
+{
+  AggregationTimeSeries out=new AggregationTimeSeries(metricSchema);
+  for (  BytesWritable writable : timeSeriesIterable) {
+    AggregationTimeSeries series=AggregationTimeSeries.fromBytes(writable.getBytes(),metricSchema);
+    out.aggregate(series);
+  }
+  byte[] serializedBytes=out.toBytes();
+  context.write(aggregationKey,new BytesWritable(serializedBytes));
+}

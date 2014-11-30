@@ -2,10 +2,10 @@
   long start=System.currentTimeMillis();
   if (obj instanceof AggregationKey) {
     AggregationKey that=(AggregationKey)obj;
-    int length=Math.min(this.dimensionValues.size(),that.dimensionValues.size());
+    int length=Math.min(this.dimensionValues.length,that.dimensionValues.length);
     boolean ret=true;
     for (int i=0; i < length; i++) {
-      ret=this.dimensionValues.get(i).equals(that.dimensionValues.get(i));
+      ret=this.dimensionValues[i].equals(that.dimensionValues[i]);
       if (!ret) {
         break;
       }

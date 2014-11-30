@@ -1,0 +1,8 @@
+{
+  if (!timeseries.containsKey(timeWindow)) {
+    timeseries.put(timeWindow,ByteBuffer.allocate(schema.getRowSizeInBytes()));
+  }
+  ByteBuffer buffer=timeseries.get(timeWindow);
+  buffer.position(schema.getOffset(name));
+  buffer.putInt(value);
+}

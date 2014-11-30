@@ -1,25 +1,35 @@
 {
-  List<String> dimensionValues=new ArrayList<String>();
-  for (  String dimensionName : dimensionNames) {
-    dimensionValues.add(record.datum().get(dimensionName).toString());
-  }
-  AggregationKey key=new AggregationKey(dimensionValues);
-  if (Math.random() > 0.9) {
-    LOG.info("{}",key);
-  }
-  String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
-  long aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
-  AggregationTimeSeries series=new AggregationTimeSeries(metricTypes);
-  for (int i=0; i < metricNames.size(); i++) {
-    String metricName=metricNames.get(i);
-    Object object=record.datum().get(metricName);
-    String metricValueStr="0";
-    if (object != null) {
-      metricValueStr=object.toString();
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimensionName=dimensionNames.get(i);
+    String dimensionValue="";
+    Object val=record.datum().get(dimensionName);
+    if (val != null) {
+      dimensionValue=val.toString();
     }
-    Number metricValue=MetricUnit.valueOf(metricTypes.get(i)).toNumber(metricValueStr);
-    series.set(aggregationTimeWindow,i,metricValue);
+    dimensionValues[i]=dimensionValue;
   }
-  byte[] digest=md5.digest(dimensionValues.toString().getBytes());
-  context.write(new Text(digest),series);
+  if (Math.random() > -1) {
+    AggregationKey key=new AggregationKey(dimensionValues);
+    String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
+    long aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
+    AggregationTimeSeries series=new AggregationTimeSeries(metricSchema);
+    for (int i=0; i < metricNames.size(); i++) {
+      String metricName=metricNames.get(i);
+      Object object=record.datum().get(metricName);
+      String metricValueStr="0";
+      if (object != null) {
+        metricValueStr=object.toString();
+      }
+      Number metricValue=metricTypes.get(i).toNumber(metricValueStr);
+      series.set(aggregationTimeWindow,metricName,(Integer)metricValue);
+    }
+    byte[] serializedKey=key.toBytes();
+    byte[] serializedMetrics=series.toBytes();
+    ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    baos.write(serializedKey.length);
+    baos.write(serializedKey);
+    baos.write(serializedMetrics.length);
+    baos.write(serializedMetrics);
+    context.write(new BytesWritable(serializedKey),new BytesWritable(serializedMetrics));
+  }
 }

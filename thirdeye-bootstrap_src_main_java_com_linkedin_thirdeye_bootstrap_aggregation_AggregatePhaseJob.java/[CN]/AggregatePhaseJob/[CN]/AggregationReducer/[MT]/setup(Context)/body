@@ -6,9 +6,13 @@
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),AggregationJobConfig.class);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
-    metricTypes=config.getMetricTypes();
+    metricTypes=Lists.newArrayList();
     sourceTimeUnit=TimeUnit.valueOf(config.getTimeUnit());
     aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
   }
  catch (  Exception e) {
     throw new IOException(e);

@@ -7,10 +7,15 @@
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),AggregationJobConfig.class);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
-    metricTypes=config.getMetricTypes();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     sourceTimeUnit=TimeUnit.valueOf(config.getTimeUnit());
     aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
     md5=MessageDigest.getInstance("MD5");
+    dimensionValues=new String[dimensionNames.size()];
   }
  catch (  Exception e) {
     throw new IOException(e);
