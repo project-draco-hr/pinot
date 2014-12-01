@@ -1,0 +1,10 @@
+{
+  JsonNode jsonNode=new ObjectMapper().readTree(ClassLoader.getSystemResourceAsStream("SampleConfig.json"));
+  StarTreeConfig config=StarTreeConfig.fromJson(jsonNode);
+  Assert.assertEquals(config.getCollection(),"myCollection");
+  Assert.assertEquals(config.getDimensionNames(),Arrays.asList("A","B","C"));
+  Assert.assertEquals(config.getMetricNames(),Arrays.asList("M"));
+  Assert.assertEquals(config.getTimeColumnName(),"T");
+  Assert.assertTrue(config.getThresholdFunction() instanceof StarTreeRecordThresholdFunctionAbsImpl);
+  Assert.assertTrue(config.getRecordStoreFactory() instanceof StarTreeRecordStoreFactoryLogBufferImpl);
+}
