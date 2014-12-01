@@ -1,0 +1,9 @@
+{
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").build();
+  StarTreeRecord r1=starTree.getAggregate(query);
+  Assert.assertEquals(r1.getMetricValues().get("M").intValue(),100);
+  StarTreeBulkLoader bulkLoader=new StarTreeBulkLoaderAvroImpl(executorService);
+  bulkLoader.bulkLoad(starTree,rootDir,tmpDir);
+  StarTreeRecord r2=starTree.getAggregate(query);
+  Assert.assertEquals(r2.getMetricValues().get("M").intValue(),200);
+}
