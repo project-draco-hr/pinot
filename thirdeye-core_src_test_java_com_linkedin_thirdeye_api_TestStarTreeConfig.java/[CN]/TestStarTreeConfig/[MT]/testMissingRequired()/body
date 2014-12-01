@@ -1,0 +1,30 @@
+{
+  String collection="myCollection";
+  List<String> dimensionNames=Arrays.asList("A","B","C");
+  List<String> metricNames=Arrays.asList("M");
+  StarTreeConfig.Builder builder=new StarTreeConfig.Builder();
+  builder.setDimensionNames(dimensionNames).setMetricNames(metricNames);
+  try {
+    builder.build();
+    Assert.fail();
+  }
+ catch (  Exception e) {
+  }
+  builder.setDimensionNames(null).setMetricNames(null);
+  builder.setCollection(collection).setMetricNames(metricNames);
+  try {
+    builder.build();
+    Assert.fail();
+  }
+ catch (  Exception e) {
+  }
+  builder.setCollection(null).setMetricNames(null);
+  builder.setCollection(collection).setDimensionNames(dimensionNames);
+  try {
+    builder.build();
+    Assert.fail();
+  }
+ catch (  Exception e) {
+  }
+  builder.setCollection(null).setDimensionNames(null);
+}
