@@ -41,5 +41,12 @@
   if (jsonNode.has("maxRecordStoreEntries")) {
     starTreeConfig.setMaxRecordStoreEntries(jsonNode.get("maxRecordStoreEntries").asInt());
   }
+  if (jsonNode.has("splitOrder")) {
+    List<String> splitOrder=new ArrayList<String>();
+    for (    JsonNode dimensionName : jsonNode.get("splitOrder")) {
+      splitOrder.add(dimensionName.asText());
+    }
+    starTreeConfig.setSplitOrder(splitOrder);
+  }
   return starTreeConfig.build();
 }

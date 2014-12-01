@@ -5,9 +5,20 @@
       Set<String> blacklist=new HashSet<String>();
       blacklist.addAll(node.getAncestorDimensionNames());
       blacklist.add(node.getDimensionName());
-      String maxCardinalityDimensionName=node.getRecordStore().getMaxCardinalityDimension(blacklist);
-      if (maxCardinalityDimensionName != null) {
-        node.split(maxCardinalityDimensionName);
+      String splitDimensionName=null;
+      if (config.getSplitOrder() == null) {
+        splitDimensionName=node.getRecordStore().getMaxCardinalityDimension(blacklist);
+      }
+ else {
+        for (        String dimensionName : config.getSplitOrder()) {
+          if (!blacklist.contains(dimensionName)) {
+            splitDimensionName=dimensionName;
+            break;
+          }
+        }
+      }
+      if (splitDimensionName != null) {
+        node.split(splitDimensionName);
       }
     }
   }
