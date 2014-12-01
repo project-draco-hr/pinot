@@ -1,0 +1,11 @@
+{
+  String[] dimensionsValues=dimensionKey.getDimensionsValues();
+  List<DimensionKey> combinations=new ArrayList<DimensionKey>();
+  String[] prevComb=dimensionsValues;
+  for (  String dimensionToRollup : rollupOrder) {
+    prevComb=dimensionsValues.clone();
+    prevComb[dimensionNameToIndexMapping.get(dimensionToRollup)]="*";
+    combinations.add(new DimensionKey(prevComb));
+  }
+  return combinations;
+}

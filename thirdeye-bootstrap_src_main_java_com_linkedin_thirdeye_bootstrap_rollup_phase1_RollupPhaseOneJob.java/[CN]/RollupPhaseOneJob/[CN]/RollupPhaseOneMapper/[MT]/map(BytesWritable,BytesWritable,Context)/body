@@ -1,0 +1,17 @@
+{
+  if (Math.random() > 0.95) {
+    DimensionKey dimensionKey;
+    dimensionKey=DimensionKey.fromBytes(dimensionKeyBytes.getBytes());
+    LOG.info("dimension key {}",dimensionKey);
+    MetricTimeSeries timeSeries;
+    byte[] bytes=metricTimeSeriesBytes.getBytes();
+    timeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
+    if (thresholdFunc.isAboveThreshold(timeSeries)) {
+      mos.write(dimensionKeyBytes,metricTimeSeriesBytes,"aboveThreshold" + "/" + "aboveThreshold");
+    }
+ else {
+      mos.write(dimensionKeyBytes,metricTimeSeriesBytes,"belowThreshold" + "/" + "belowThreshold");
+    }
+    LOG.info("time series  {}",timeSeries);
+  }
+}

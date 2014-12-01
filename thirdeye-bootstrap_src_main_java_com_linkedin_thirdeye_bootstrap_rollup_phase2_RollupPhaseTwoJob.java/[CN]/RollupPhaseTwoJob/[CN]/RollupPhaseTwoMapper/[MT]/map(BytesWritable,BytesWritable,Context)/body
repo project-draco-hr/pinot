@@ -1,0 +1,19 @@
+{
+  if (Math.random() > 0.05) {
+    return;
+  }
+  DimensionKey dimensionKey;
+  dimensionKey=DimensionKey.fromBytes(dimensionKeyWritable.getBytes());
+  MetricTimeSeries timeSeries;
+  byte[] bytes=metricTimeSeriesWritable.getBytes();
+  timeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
+  List<DimensionKey> combinations=generateCombinations(dimensionKey);
+  RollupPhaseTwoMapOutput wrapper;
+  wrapper=new RollupPhaseTwoMapOutput(dimensionKey,timeSeries);
+  BytesWritable wrapperBytesWritable=new BytesWritable(wrapper.toBytes());
+  for (  DimensionKey combination : combinations) {
+    BytesWritable combinationBytesWritable;
+    combinationBytesWritable=new BytesWritable(combination.toBytes());
+    context.write(combinationBytesWritable,wrapperBytesWritable);
+  }
+}

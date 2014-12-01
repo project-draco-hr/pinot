@@ -1,0 +1,16 @@
+{
+  DimensionKey rollupDimensionKey=DimensionKey.fromBytes(rollupDimensionKeyWritable.getBytes());
+  MetricTimeSeries rollupTimeSeries=new MetricTimeSeries(metricSchema);
+  Map<DimensionKey,MetricTimeSeries> map=new HashMap<DimensionKey,MetricTimeSeries>();
+  for (  BytesWritable writable : rollupMapOutputWritableIterable) {
+    RollupPhaseTwoMapOutput temp;
+    temp=RollupPhaseTwoMapOutput.fromBytes(writable.getBytes(),metricSchema);
+    map.put(temp.dimensionKey,temp.getTimeSeries());
+    rollupTimeSeries.aggregate(temp.getTimeSeries());
+  }
+  for (  Entry<DimensionKey,MetricTimeSeries> entry : map.entrySet()) {
+    RollupPhaseTwoReduceOutput output;
+    output=new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,entry.getValue());
+    context.write(new BytesWritable(entry.getKey().toBytes()),new BytesWritable(output.toBytes()));
+  }
+}

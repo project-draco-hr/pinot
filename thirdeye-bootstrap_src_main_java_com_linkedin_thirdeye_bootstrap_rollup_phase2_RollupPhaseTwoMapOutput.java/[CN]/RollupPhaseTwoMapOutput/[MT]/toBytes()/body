@@ -1,0 +1,14 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(baos);
+  byte[] bytes;
+  bytes=dimensionKey.toBytes();
+  dos.writeInt(bytes.length);
+  dos.write(bytes);
+  bytes=timeSeries.toBytes();
+  dos.writeInt(bytes.length);
+  dos.write(bytes);
+  baos.close();
+  dos.close();
+  return baos.toByteArray();
+}
