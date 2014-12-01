@@ -1,0 +1,50 @@
+{
+  UUID nodeId=UUID.randomUUID();
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  for (int i=0; i < 100; i++) {
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+    builder.setDimensionValue("A","A" + (i % 2));
+    builder.setDimensionValue("B","B" + (i % 4));
+    builder.setDimensionValue("C","C" + (i % 8));
+    builder.setMetricValue("M",1);
+    builder.setTime((long)i);
+    records.add(builder.build());
+  }
+  int currentValueId=StarTreeConstants.FIRST_VALUE;
+  Map<String,Map<String,Integer>> forwardIndex=new HashMap<String,Map<String,Integer>>();
+  for (  String dimensionName : Arrays.asList("A","B","C")) {
+    forwardIndex.put(dimensionName,new HashMap<String,Integer>());
+    for (int i=0; i < 8; i++) {
+      forwardIndex.get(dimensionName).put(dimensionName + i,currentValueId++);
+    }
+    forwardIndex.get(dimensionName).put(StarTreeConstants.STAR,StarTreeConstants.STAR_VALUE);
+    forwardIndex.get(dimensionName).put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
+  }
+  OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + ".buf"));
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,Arrays.asList("A","B","C"),Arrays.asList("M"),forwardIndex,records,128,true);
+  outputStream.flush();
+  outputStream.close();
+  outputStream=new FileOutputStream(new File(rootDir,nodeId + ".idx"));
+  new ObjectMapper().writeValue(outputStream,forwardIndex);
+  outputStream.flush();
+  outputStream.close();
+  Properties recordStoreFactoryConfig=new Properties();
+  recordStoreFactoryConfig.setProperty("rootDir",rootDir.getAbsolutePath());
+  recordStoreFactoryConfig.setProperty("numTimeBuckets","128");
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setTimeColumnName("hoursSinceEpoch").setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
+  StarTree starTree=new StarTreeImpl(config,new StarTreeNodeImpl(nodeId,config.getThresholdFunction(),config.getRecordStoreFactory(),StarTreeConstants.STAR,StarTreeConstants.STAR,new ArrayList<String>(),new HashMap<String,String>(),new HashMap<String,StarTreeNode>(),null,null));
+  ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(new File(collectionDir,"tree.bin")));
+  objectOutputStream.writeObject(starTree.getRoot());
+  objectOutputStream.flush();
+  objectOutputStream.close();
+  outputStream=new FileOutputStream(new File(collectionDir,"config.json"));
+  outputStream.write(config.toJson().getBytes());
+  outputStream.flush();
+  outputStream.close();
+  starTreeManager.registerConfig(config.getCollection(),config);
+  starTreeManager.restore(baseDir,config.getCollection());
+  starTree=starTreeManager.getStarTree(config.getCollection());
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").build();
+  StarTreeRecord result=starTree.getAggregate(query);
+  Assert.assertEquals(result.getMetricValues().get("M").intValue(),100);
+}

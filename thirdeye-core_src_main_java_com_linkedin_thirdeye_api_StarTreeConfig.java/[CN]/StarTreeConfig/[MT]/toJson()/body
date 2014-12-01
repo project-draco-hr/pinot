@@ -1,0 +1,20 @@
+{
+  Map<String,Object> json=new HashMap<String,Object>();
+  json.put("collection",collection);
+  if (recordStoreFactory != null) {
+    json.put("recordStoreFactoryClass",recordStoreFactory.getClass().getCanonicalName());
+    json.put("recordStoreFactoryConfig",recordStoreFactory.getConfig());
+  }
+  if (thresholdFunction != null) {
+    json.put("thresholdFunctionClass",thresholdFunction.getClass().getCanonicalName());
+    json.put("thresholdFunctionConfig",thresholdFunction.getConfig());
+  }
+  if (splitOrder != null) {
+    json.put("splitOrder",splitOrder);
+  }
+  json.put("dimensionNames",dimensionNames);
+  json.put("metricNames",metricNames);
+  json.put("timeColumnName",timeColumnName);
+  json.put("maxRecordStoreEntries",maxRecordStoreEntries);
+  return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+}

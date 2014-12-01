@@ -1,0 +1,12 @@
+{
+  List<String> dimensionNames=Arrays.asList("A","B","C");
+  List<String> metricNames=Arrays.asList("M");
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("createdCollection").setMetricNames(metricNames).setDimensionNames(dimensionNames).build();
+  starTreeManager.registerConfig(config.getCollection(),config);
+  starTreeManager.create(config.getCollection());
+  StarTree created=starTreeManager.getStarTree(config.getCollection());
+  Assert.assertNotNull(created);
+  Assert.assertEquals(created.getConfig().getCollection(),config.getCollection());
+  starTreeManager.remove(config.getCollection());
+  Assert.assertNull(starTreeManager.getStarTree(config.getCollection()));
+}
