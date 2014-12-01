@@ -4,6 +4,7 @@
   options.addOption("keepMetricValues",false,"Keep metric values in buffers (default: false)");
   options.addOption("keepBuffers",false,"Generate buffers (default: false)");
   options.addOption("numTimeBuckets",true,"Number of time buckets (this times time granularity is retention period)");
+  options.addOption("ignoreTime",false,"Ignore time column in input");
   CommandLine commandLine=new GnuParser().parse(options,args);
   if (commandLine.getArgs().length < 3) {
     HelpFormatter helpFormatter=new HelpFormatter();
@@ -26,7 +27,7 @@
   }
  else   if ("tsv".equals(fileType)) {
     for (    String inputFile : inputFiles) {
-      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),config.getDimensionNames(),config.getMetricNames(),"\t"));
+      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),config.getDimensionNames(),config.getMetricNames(),"\t",commandLine.hasOption("ignoreTime")));
     }
   }
  else {
