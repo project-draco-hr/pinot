@@ -1,0 +1,14 @@
+{
+  try {
+    kafkaProducer.close();
+    if (kafkaConsumer != null) {
+      kafkaConsumer.shutdown();
+    }
+    kafkaServer.shutdown();
+    kafkaServer.awaitShutdown();
+    zkServer.shutdown();
+  }
+  finally {
+    FileUtils.forceDelete(tmpDir);
+  }
+}

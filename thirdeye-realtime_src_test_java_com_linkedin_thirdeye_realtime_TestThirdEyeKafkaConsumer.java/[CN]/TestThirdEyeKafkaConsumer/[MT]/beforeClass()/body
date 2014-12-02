@@ -1,0 +1,43 @@
+{
+  tmpDir=new File(System.getProperty("java.io.tmpdir"),TestThirdEyeKafkaConsumer.class.getSimpleName());
+  try {
+    FileUtils.forceDelete(tmpDir);
+  }
+ catch (  Exception e) {
+  }
+  config=new StarTreeConfig.Builder().setCollection(TOPIC).setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setTimeColumnName("T").build();
+  schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream("MyRecord.avsc"));
+  zkRoot=new File(tmpDir,"zk");
+  zkPort=40000;
+  zkServer=new ZkServer(new File(zkRoot,"data").getAbsolutePath(),new File(zkRoot,"log").getAbsolutePath(),new IDefaultNameSpace(){
+    @Override public void createDefaultNameSpace(    ZkClient zkClient){
+    }
+  }
+,zkPort);
+  zkServer.start();
+  kafkaPort=40001;
+  kafkaRoot=new File(tmpDir,"kafka");
+  Properties kafkaConfig=new Properties();
+  kafkaConfig.load(ClassLoader.getSystemResourceAsStream("test-kafka-server.properties"));
+  kafkaConfig.setProperty("port",String.valueOf(kafkaPort));
+  kafkaConfig.setProperty("zookeeper.connect","localhost:" + zkPort);
+  kafkaConfig.setProperty("log.dirs",kafkaRoot.getAbsolutePath());
+  kafkaServer=new KafkaServerStartable(new KafkaConfig(kafkaConfig));
+  kafkaServer.startup();
+  Properties producerConfig=new Properties();
+  producerConfig.setProperty("metadata.broker.list","localhost:" + kafkaPort);
+  producerConfig.setProperty("request.required.acks","-1");
+  kafkaProducer=new Producer<byte[],byte[]>(new ProducerConfig(producerConfig));
+  GenericRecord record=null;
+  DatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(schema);
+  BinaryEncoder encoder=null;
+  for (int i=0; i < 100; i++) {
+    ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    record=generateRecord(record);
+    encoder=EncoderFactory.get().binaryEncoder(baos,encoder);
+    datumWriter.write(record,encoder);
+    encoder.flush();
+    kafkaProducer.send(new KeyedMessage<byte[],byte[]>(TOPIC,baos.toByteArray()));
+  }
+  executorService=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+}

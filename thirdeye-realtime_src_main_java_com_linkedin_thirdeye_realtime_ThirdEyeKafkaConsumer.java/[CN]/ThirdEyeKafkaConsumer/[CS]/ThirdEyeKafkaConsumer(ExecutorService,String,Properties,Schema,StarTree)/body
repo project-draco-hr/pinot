@@ -1,0 +1,15 @@
+{
+  this.executorService=executorService;
+  this.topic=topic;
+  this.kafkaConfig=kafkaConfig;
+  this.avroSchema=avroSchema;
+  this.starTree=starTree;
+  this.consumerConnector=Consumer.createJavaConsumerConnector(new ConsumerConfig(kafkaConfig));
+  this.isShutdown=new AtomicBoolean();
+  this.messagesReceived=new AtomicLong();
+  this.startTime=kafkaConfig.containsKey(PROP_START_TIME) ? Long.valueOf(kafkaConfig.getProperty(PROP_START_TIME)) : null;
+  LOG.info("Creating kafka consumer with config:");
+  for (  Map.Entry<Object,Object> entry : kafkaConfig.entrySet()) {
+    LOG.info("\t{}={}",entry.getKey(),entry.getValue());
+  }
+}
