@@ -10,7 +10,7 @@
   HelixManager helixManager=null;
   if (config.isDistributed()) {
     helixManager=HelixManagerFactory.getZKHelixManager(config.getClusterName(),config.getInstanceName(),InstanceType.PARTICIPANT,config.getZkAddress());
-    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager,externalDataSource,rootDir));
+    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager,externalDataSource,rootDir,tmpDir));
   }
   environment.healthChecks().register(NAME,new ThirdEyeHealthCheck());
   environment.jersey().register(new ThirdEyeMetricsResource(starTreeManager));

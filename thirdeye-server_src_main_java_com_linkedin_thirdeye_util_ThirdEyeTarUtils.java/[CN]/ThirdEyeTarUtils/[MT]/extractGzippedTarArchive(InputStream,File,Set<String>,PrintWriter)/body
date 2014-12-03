@@ -1,0 +1,41 @@
+{
+  if (printWriter != null) {
+    printWriter.println("Extracting " + source + " to "+ outputDir);
+    printWriter.println();
+    printWriter.flush();
+  }
+  try {
+    TarArchiveInputStream tarBall=(TarArchiveInputStream)new ArchiveStreamFactory().createArchiveInputStream("tar",new GZIPInputStream(source));
+    TarArchiveEntry entry=null;
+    while ((entry=(TarArchiveEntry)tarBall.getNextEntry()) != null) {
+      File outputFile=new File(outputDir,entry.getName());
+      if (outputFile.exists() && overwriteFilter != null && overwriteFilter.contains(outputFile.getName())) {
+        if (!entry.isDirectory()) {
+          ByteArrayOutputStream os=new ByteArrayOutputStream();
+          IOUtils.copy(tarBall,os);
+          os.close();
+        }
+        continue;
+      }
+      if (entry.isDirectory()) {
+        FileUtils.forceMkdir(outputFile);
+      }
+ else {
+        OutputStream os=new FileOutputStream(outputFile);
+        IOUtils.copy(tarBall,os);
+        os.close();
+      }
+      if (printWriter != null) {
+        printWriter.println(outputFile);
+        printWriter.flush();
+      }
+    }
+    if (printWriter != null) {
+      printWriter.println("Done downloading " + source);
+      printWriter.flush();
+    }
+  }
+ catch (  ArchiveException e) {
+    throw new IOException(e);
+  }
+}
