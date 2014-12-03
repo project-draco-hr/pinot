@@ -1,0 +1,45 @@
+{
+  Collection<String> collectionParam=params.get(COLLECTION);
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  final String collection=collectionParam.iterator().next();
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.exists()) {
+    throw new IllegalArgumentException(collectionDir.getAbsolutePath() + " does not exist");
+  }
+  File treeFile=new File(collectionDir,StarTreeConstants.TREE_FILE_NAME);
+  if (!treeFile.exists()) {
+    throw new IllegalArgumentException(treeFile.getAbsolutePath() + " does not exist");
+  }
+  ObjectInputStream is=new ObjectInputStream(new FileInputStream(treeFile));
+  StarTreeNode root=(StarTreeNode)is.readObject();
+  IdealState idealState=helixManager.getClusterManagmentTool().getResourceIdealState(helixManager.getClusterName(),collection);
+  if (idealState == null) {
+    throw new IllegalArgumentException("No ideal state for collection " + collection);
+  }
+  Set<UUID> leafIds=new HashSet<UUID>();
+  collectLeafIds(root,leafIds);
+  final Map<Integer,List<String>> partitionToLeaves=new HashMap<Integer,List<String>>();
+  for (  UUID leafId : leafIds) {
+    int partitionId=(Integer.MAX_VALUE & leafId.hashCode()) % idealState.getNumPartitions();
+    List<String> ids=partitionToLeaves.get(partitionId);
+    if (ids == null) {
+      ids=new ArrayList<String>();
+      partitionToLeaves.put(partitionId,ids);
+    }
+    ids.add(leafId.toString());
+    printWriter.println(leafId + " -> " + partitionId);
+    printWriter.flush();
+  }
+  helixManager.getHelixPropertyStore().update(LEAF_MAP_PATH + File.separator + collection,new DataUpdater<ZNRecord>(){
+    @Override public ZNRecord update(    ZNRecord currentData){
+      ZNRecord data=new ZNRecord(collection);
+      for (      Map.Entry<Integer,List<String>> entry : partitionToLeaves.entrySet()) {
+        data.setListField(Integer.toString(entry.getKey()),entry.getValue());
+      }
+      return data;
+    }
+  }
+,AccessOption.PERSISTENT);
+}
