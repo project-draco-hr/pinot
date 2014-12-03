@@ -1,6 +1,7 @@
 {
   ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
   StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
+  HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClientConfiguration()).build("httpClient");
   File rootDir=new File(config.getRootDir());
   File tmpDir=new File(config.getTmpDir());
   HelixManager helixManager=null;
