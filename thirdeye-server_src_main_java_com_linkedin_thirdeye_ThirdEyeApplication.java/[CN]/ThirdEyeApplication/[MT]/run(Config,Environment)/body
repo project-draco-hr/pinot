@@ -1,19 +1,22 @@
 {
-  ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
-  StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
-  HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClientConfiguration()).build("httpClient");
   File rootDir=new File(config.getRootDir());
   File tmpDir=new File(config.getTmpDir());
+  ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
+  StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
+  ThirdEyeExternalDataSource externalDataSource=null;
+  if (config.getExternalDataSource() != null) {
+    externalDataSource=new ThirdEyeExternalDataSourceFactory().createExternalDataSource(URI.create(config.getExternalDataSource()),config,environment);
+  }
   HelixManager helixManager=null;
   if (config.isDistributed()) {
     helixManager=HelixManagerFactory.getZKHelixManager(config.getClusterName(),config.getInstanceName(),InstanceType.PARTICIPANT,config.getZkAddress());
-    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager,rootDir));
+    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager,externalDataSource,rootDir));
   }
+  environment.healthChecks().register(NAME,new ThirdEyeHealthCheck());
   environment.jersey().register(new ThirdEyeMetricsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeDimensionsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeCollectionsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeTimeSeriesResource(starTreeManager));
-  environment.healthChecks().register(NAME,new ThirdEyeHealthCheck());
   environment.admin().addTask(new ThirdEyeRestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new ThirdEyeCreateTask(starTreeManager));
   environment.admin().addTask(new ThirdEyeDumpTreeTask(starTreeManager));

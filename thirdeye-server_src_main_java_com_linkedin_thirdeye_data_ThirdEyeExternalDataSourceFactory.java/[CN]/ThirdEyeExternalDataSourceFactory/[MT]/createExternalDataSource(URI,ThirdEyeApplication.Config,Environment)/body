@@ -1,0 +1,9 @@
+{
+  if ("http".equals(sourceUri.getScheme())) {
+    HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClientConfiguration()).build("httpClient");
+    return new ThirdEyeExternalDataSourceHttpImpl(httpClient,new HttpHost(sourceUri.getHost(),sourceUri.getPort()));
+  }
+ else {
+    throw new IllegalArgumentException("Invalid URI scheme " + sourceUri.getScheme());
+  }
+}
