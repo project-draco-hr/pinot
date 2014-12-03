@@ -8,7 +8,6 @@ synchronized (trees) {
     File configFile=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
     StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(new FileInputStream(configFile)),rootDir);
     StarTree starTree=new StarTreeImpl(config,root);
-    starTree.open();
     StarTree previous=trees.put(collection,starTree);
     if (previous != null) {
       previous.close();

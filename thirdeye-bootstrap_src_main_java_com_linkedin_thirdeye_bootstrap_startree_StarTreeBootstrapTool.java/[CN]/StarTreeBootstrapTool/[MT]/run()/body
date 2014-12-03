@@ -5,6 +5,8 @@
     }
     StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
     starTreeManager.registerConfig(starTreeConfig.getCollection(),starTreeConfig);
+    starTreeManager.create(starTreeConfig.getCollection());
+    starTreeManager.open(starTreeConfig.getCollection());
     int streamId=0;
     for (    Iterable<StarTreeRecord> recordStream : recordStreams) {
       LOG.info("Processing stream {} of {}",++streamId,recordStreams.size());

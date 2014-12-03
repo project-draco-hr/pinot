@@ -3,16 +3,7 @@
   if (config == null) {
     throw new IllegalArgumentException("Cannot build for collection with no config: " + collection);
   }
-  final StarTree tree;
-synchronized (trees) {
-    StarTree previousTree=trees.get(collection);
-    if (previousTree == null) {
-      previousTree=new StarTreeImpl(config);
-      previousTree.open();
-      trees.put(collection,previousTree);
-    }
-    tree=previousTree;
-  }
+  final StarTree tree=getStarTree(collection);
   final BlockingQueue<StarTreeRecord> recordQueue=new ArrayBlockingQueue<StarTreeRecord>(DEFAULT_LOAD_QUEUE_SIZE);
   final AtomicInteger numLoaded=new AtomicInteger(0);
   final int numWorkers=Runtime.getRuntime().availableProcessors();
