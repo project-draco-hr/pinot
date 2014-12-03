@@ -1,0 +1,14 @@
+{
+  if (node.isLeaf()) {
+    if (targetIds.contains(node.getId())) {
+      node.setRecordStore(new StarTreeRecordStoreBlackHoleImpl(config.getDimensionNames(),config.getMetricNames()));
+    }
+  }
+ else {
+    for (    StarTreeNode child : node.getChildren()) {
+      enableRecordStores(child,config,targetIds);
+    }
+    enableRecordStores(node.getOtherNode(),config,targetIds);
+    enableRecordStores(node.getStarNode(),config,targetIds);
+  }
+}

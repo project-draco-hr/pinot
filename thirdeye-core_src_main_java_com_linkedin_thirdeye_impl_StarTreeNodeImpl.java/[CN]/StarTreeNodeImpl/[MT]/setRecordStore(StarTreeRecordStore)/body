@@ -1,6 +1,9 @@
 {
   lock.writeLock().lock();
   try {
+    if (this.recordStore != null) {
+      this.recordStore.close();
+    }
     this.recordStore=recordStore;
   }
   finally {

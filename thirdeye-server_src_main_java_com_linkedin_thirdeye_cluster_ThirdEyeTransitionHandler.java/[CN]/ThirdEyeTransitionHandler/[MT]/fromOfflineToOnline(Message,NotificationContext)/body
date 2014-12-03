@@ -1,4 +1,10 @@
 {
   LOG.info("BEGIN\t{}: OFFLINE -> ONLINE",message.getPartitionId());
+  String collection=message.getResourceName();
+  starTreeManager.stub(rootDir,collection);
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  int partitionId=Integer.valueOf(PartitionId.stripResourceId(message.getPartitionName()));
+  Set<UUID> targetIds=getLeafIds(collection,partitionId,context);
+  enableRecordStores(starTree.getRoot(),starTree.getConfig(),targetIds);
   LOG.info("END\t{}: OFFLINE -> ONLINE",message.getPartitionId());
 }

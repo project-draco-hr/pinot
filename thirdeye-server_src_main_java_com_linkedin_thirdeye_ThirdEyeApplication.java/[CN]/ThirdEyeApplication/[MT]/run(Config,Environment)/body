@@ -1,13 +1,13 @@
 {
   ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
   StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
+  File rootDir=new File(config.getRootDir());
+  File tmpDir=new File(config.getTmpDir());
   HelixManager helixManager=null;
   if (config.isDistributed()) {
     helixManager=HelixManagerFactory.getZKHelixManager(config.getClusterName(),config.getInstanceName(),InstanceType.PARTICIPANT,config.getZkAddress());
-    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager));
+    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager,rootDir));
   }
-  File rootDir=new File(config.getRootDir());
-  File tmpDir=new File(config.getTmpDir());
   environment.jersey().register(new ThirdEyeMetricsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeDimensionsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeCollectionsResource(starTreeManager));
