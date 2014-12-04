@@ -1,12 +1,6 @@
 {
-  lock.readLock().lock();
-  try {
-    if (children.isEmpty()) {
-      throw new UnsupportedOperationException("Cannot get child of leaf node");
-    }
-    return children.get(dimensionValue);
+  if (children.isEmpty()) {
+    throw new UnsupportedOperationException("Cannot get child of leaf node");
   }
-  finally {
-    lock.readLock().unlock();
-  }
+  return children.get(dimensionValue);
 }

@@ -1,24 +1,28 @@
 {
   if (node.isLeaf()) {
     node.getRecordStore().update(record);
-    if (node.getRecordStore().getRecordCount() > maxRecordStoreEntries && node.getAncestorDimensionNames().size() < record.getDimensionValues().size()) {
-      Set<String> blacklist=new HashSet<String>();
-      blacklist.addAll(node.getAncestorDimensionNames());
-      blacklist.add(node.getDimensionName());
-      String splitDimensionName=null;
-      if (config.getSplitOrder() == null) {
-        splitDimensionName=node.getRecordStore().getMaxCardinalityDimension(blacklist);
-      }
+    if (shouldSplit(node)) {
+synchronized (node) {
+        if (shouldSplit(node)) {
+          Set<String> blacklist=new HashSet<String>();
+          blacklist.addAll(node.getAncestorDimensionNames());
+          blacklist.add(node.getDimensionName());
+          String splitDimensionName=null;
+          if (config.getSplitOrder() == null) {
+            splitDimensionName=node.getRecordStore().getMaxCardinalityDimension(blacklist);
+          }
  else {
-        for (        String dimensionName : config.getSplitOrder()) {
-          if (!blacklist.contains(dimensionName)) {
-            splitDimensionName=dimensionName;
-            break;
+            for (            String dimensionName : config.getSplitOrder()) {
+              if (!blacklist.contains(dimensionName)) {
+                splitDimensionName=dimensionName;
+                break;
+              }
+            }
+          }
+          if (splitDimensionName != null) {
+            node.split(splitDimensionName);
           }
         }
-      }
-      if (splitDimensionName != null) {
-        node.split(splitDimensionName);
       }
     }
   }

@@ -1,20 +1,14 @@
 {
-  lock.writeLock().lock();
-  try {
-    this.config=config;
-    this.thresholdFunction=config.getThresholdFunction();
-    if (this.recordStore == null && this.children.isEmpty()) {
-      try {
-        this.recordStoreFactory=config.getRecordStoreFactory();
-        this.recordStore=recordStoreFactory.createRecordStore(nodeId);
-        this.recordStore.open();
-      }
- catch (      Exception e) {
-        throw new IllegalStateException(e);
-      }
+  this.config=config;
+  this.thresholdFunction=config.getThresholdFunction();
+  if (this.recordStore == null && this.children.isEmpty()) {
+    try {
+      this.recordStoreFactory=config.getRecordStoreFactory();
+      this.recordStore=recordStoreFactory.createRecordStore(nodeId);
+      this.recordStore.open();
     }
-  }
-  finally {
-    lock.writeLock().unlock();
+ catch (    Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

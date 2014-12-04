@@ -1,12 +1,6 @@
 {
-  lock.writeLock().lock();
-  try {
-    if (this.recordStore != null) {
-      this.recordStore.close();
-    }
-    this.recordStore=recordStore;
+  if (this.recordStore != null) {
+    this.recordStore.close();
   }
-  finally {
-    lock.writeLock().unlock();
-  }
+  this.recordStore=recordStore;
 }
