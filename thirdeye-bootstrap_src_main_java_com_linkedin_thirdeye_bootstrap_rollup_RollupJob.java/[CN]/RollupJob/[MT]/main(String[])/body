@@ -1,6 +1,6 @@
 {
   if (args.length != 2) {
-    throw new IllegalArgumentException("usage: <phase(phase|phase2|phase3)> config.properties");
+    throw new IllegalArgumentException("usage: <phase(phase1|phase2|phase3|phase4)> config.properties");
   }
   Properties props=new Properties();
   String phase=args[0];
@@ -8,6 +8,21 @@
   if ("phase1".equalsIgnoreCase(phase)) {
     RollupPhaseOneJob job;
     job=new RollupPhaseOneJob("rollup_phase_one_job",props);
+    job.run();
+  }
+  if ("phase2".equalsIgnoreCase(phase)) {
+    RollupPhaseTwoJob job;
+    job=new RollupPhaseTwoJob("rollup_phase_two_job",props);
+    job.run();
+  }
+  if ("phase3".equalsIgnoreCase(phase)) {
+    RollupPhaseThreeJob job;
+    job=new RollupPhaseThreeJob("rollup_phase_three_job",props);
+    job.run();
+  }
+  if ("phase4".equalsIgnoreCase(phase)) {
+    RollupPhaseFourJob job;
+    job=new RollupPhaseFourJob("rollup_phase_four_job",props);
     job.run();
   }
 }

@@ -1,0 +1,26 @@
+{
+  LOG.info("RollupPhaseOneJob.RollupPhaseOneMapper.setup()");
+  mos=new MultipleOutputs<BytesWritable,BytesWritable>(context);
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(ROLLUP_PHASE4_CONFIG_PATH.toString()));
+  try {
+    config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),RollupPhaseFourConfig.class);
+    dimensionNames=config.getDimensionNames();
+    dimensionNameToIndexMapping=new HashMap<String,Integer>();
+    for (int i=0; i < dimensionNames.size(); i++) {
+      dimensionNameToIndexMapping.put(dimensionNames.get(i),i);
+    }
+    metricNames=config.getMetricNames();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    thresholdFunc=new TotalAggregateBasedRollupFunction("numberOfMemberConnectionsSent",5000);
+    rollupOrder=config.getRollupOrder();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

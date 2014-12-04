@@ -1,15 +1,9 @@
 {
   for (  long timeWindow : series.timeseries.keySet()) {
-    ByteBuffer byteBuffer=series.timeseries.get(timeWindow);
-    if (!timeseries.containsKey(timeWindow)) {
-      timeseries.put(timeWindow,byteBuffer);
-    }
- else {
-      for (int i=0; i < schema.getNumMetrics(); i++) {
-        String metricName=schema.getMetricName(i);
-        int delta=get(timeWindow,metricName);
-        increment(timeWindow,metricName,delta);
-      }
+    for (int i=0; i < schema.getNumMetrics(); i++) {
+      String metricName=schema.getMetricName(i);
+      int delta=series.get(timeWindow,metricName);
+      increment(timeWindow,metricName,delta);
     }
   }
 }

@@ -14,7 +14,11 @@
   length=dis.readInt();
   bytes=new byte[length];
   dis.read(bytes);
+  DimensionKey rawDimensionKey=DimensionKey.fromBytes(bytes);
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
   MetricTimeSeries rawTimeSeries;
   rawTimeSeries=MetricTimeSeries.fromBytes(bytes,schema);
-  return new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,rawTimeSeries);
+  return new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,rawDimensionKey,rawTimeSeries);
 }

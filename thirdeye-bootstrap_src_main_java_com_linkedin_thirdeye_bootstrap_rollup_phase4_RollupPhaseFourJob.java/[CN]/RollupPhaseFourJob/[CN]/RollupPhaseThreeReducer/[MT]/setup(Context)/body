@@ -1,0 +1,20 @@
+{
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(ROLLUP_PHASE4_CONFIG_PATH.toString()));
+  try {
+    config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),RollupPhaseFourConfig.class);
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    rollupFunc=new DefaultRollupFunc();
+    rollupThresholdFunc=new TotalAggregateBasedRollupFunction("numberOfMemberConnectionsSent",5000);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

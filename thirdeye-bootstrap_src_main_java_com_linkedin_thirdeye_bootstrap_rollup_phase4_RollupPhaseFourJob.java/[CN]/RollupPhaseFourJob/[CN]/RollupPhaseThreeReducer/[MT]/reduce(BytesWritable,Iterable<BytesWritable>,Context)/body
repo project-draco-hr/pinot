@@ -1,0 +1,10 @@
+{
+  MetricTimeSeries aggMetricTimeSeries=new MetricTimeSeries(metricSchema);
+  for (  BytesWritable writable : rollupMetricTimeSeriesWritable) {
+    MetricTimeSeries timeSeries;
+    timeSeries=MetricTimeSeries.fromBytes(writable.getBytes(),metricSchema);
+    aggMetricTimeSeries.aggregate(timeSeries);
+  }
+  BytesWritable aggMetricTimeSeriesWritable=new BytesWritable(aggMetricTimeSeries.toBytes());
+  context.write(rawDimensionKeyWritable,aggMetricTimeSeriesWritable);
+}

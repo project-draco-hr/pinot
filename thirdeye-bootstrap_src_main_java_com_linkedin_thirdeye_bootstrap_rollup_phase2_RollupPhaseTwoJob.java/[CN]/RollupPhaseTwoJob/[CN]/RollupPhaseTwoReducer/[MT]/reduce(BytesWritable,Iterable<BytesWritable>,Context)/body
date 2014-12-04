@@ -10,7 +10,7 @@
   }
   for (  Entry<DimensionKey,MetricTimeSeries> entry : map.entrySet()) {
     RollupPhaseTwoReduceOutput output;
-    output=new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,entry.getValue());
-    context.write(new BytesWritable(entry.getKey().toBytes()),new BytesWritable(output.toBytes()));
+    output=new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,entry.getKey(),entry.getValue());
+    context.write(new BytesWritable(entry.getKey().toMD5()),new BytesWritable(output.toBytes()));
   }
 }

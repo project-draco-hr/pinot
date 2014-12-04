@@ -5,8 +5,9 @@
     sb.append(":[");
     String delim="";
     ByteBuffer buffer=timeseries.get(timeWindow);
+    buffer.rewind();
     for (int i=0; i < schema.getNumMetrics(); i++) {
-      sb.append(buffer.getInt()).append(delim);
+      sb.append(delim).append(buffer.getInt());
       delim=",";
     }
     sb.append("]\n");
