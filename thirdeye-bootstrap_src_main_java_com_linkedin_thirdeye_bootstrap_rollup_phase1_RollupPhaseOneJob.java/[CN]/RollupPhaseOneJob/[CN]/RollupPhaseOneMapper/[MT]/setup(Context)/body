@@ -7,13 +7,11 @@
   try {
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),RollupPhaseOneConfig.class);
     dimensionNames=config.getDimensionNames();
-    metricNames=config.getMetricNames();
     metricTypes=Lists.newArrayList();
     for (    String type : config.getMetricTypes()) {
       metricTypes.add(MetricType.valueOf(type));
     }
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
-    dimensionValues=new String[dimensionNames.size()];
     thresholdFunc=new TotalAggregateBasedRollupFunction("numberOfMemberConnectionsSent",5000);
   }
  catch (  Exception e) {

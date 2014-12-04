@@ -4,11 +4,7 @@
   Path configPath=new Path(configuration.get(AGG_CONFIG_PATH.toString()));
   try {
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),AggregationJobConfig.class);
-    dimensionNames=config.getDimensionNames();
-    metricNames=config.getMetricNames();
     metricTypes=Lists.newArrayList();
-    sourceTimeUnit=TimeUnit.valueOf(config.getTimeUnit());
-    aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
     for (    String type : config.getMetricTypes()) {
       metricTypes.add(MetricType.valueOf(type));
     }
