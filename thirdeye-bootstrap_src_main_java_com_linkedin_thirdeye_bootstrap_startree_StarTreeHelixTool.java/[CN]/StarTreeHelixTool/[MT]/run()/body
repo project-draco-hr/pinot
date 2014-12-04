@@ -1,0 +1,53 @@
+{
+  try {
+    if (!treeFile.exists()) {
+      throw new IllegalArgumentException(treeFile.getAbsolutePath() + " does not exist");
+    }
+    ObjectInputStream is=new ObjectInputStream(new FileInputStream(treeFile));
+    StarTreeNode root=(StarTreeNode)is.readObject();
+    LOG.info("Read {}",treeFile);
+    HelixManager helixManager=HelixManagerFactory.getZKHelixManager(clusterName,"ADMIN",InstanceType.ADMINISTRATOR,zkAddress);
+    helixManager.connect();
+    LOG.info("Connected to Helix {}:{}",zkAddress,clusterName);
+    IdealState idealState=helixManager.getClusterManagmentTool().getResourceIdealState(helixManager.getClusterName(),collection);
+    if (idealState == null) {
+      helixManager.getClusterManagmentTool().addResource(clusterName,collection,numPartitions,StateModelDefId.OnlineOffline.stringify(),IdealState.RebalanceMode.SEMI_AUTO.name());
+      idealState=helixManager.getClusterManagmentTool().getResourceIdealState(helixManager.getClusterName(),collection);
+      LOG.info("Created ideal state for collection {} with {} partitions",collection,numPartitions);
+    }
+ else     if (idealState.getNumPartitions() != numPartitions) {
+      throw new IllegalStateException("Ideal state exists with different number partitions " + idealState.getNumPartitions());
+    }
+ else {
+      LOG.warn("Ideal state exists for {} with same number of partitions - reusing it",collection);
+    }
+    Set<UUID> leafIds=new HashSet<UUID>();
+    collectLeafIds(root,leafIds);
+    final Map<Integer,List<String>> partitionToLeaves=new HashMap<Integer,List<String>>();
+    for (    UUID leafId : leafIds) {
+      int partitionId=(Integer.MAX_VALUE & leafId.hashCode()) % idealState.getNumPartitions();
+      List<String> ids=partitionToLeaves.get(partitionId);
+      if (ids == null) {
+        ids=new ArrayList<String>();
+        partitionToLeaves.put(partitionId,ids);
+      }
+      ids.add(leafId.toString());
+      LOG.info("Mapped {} -> {}",leafId,partitionId);
+    }
+    String propertyStorePath=LEAF_MAP_PATH + File.separator + collection;
+    helixManager.getHelixPropertyStore().update(propertyStorePath,new DataUpdater<ZNRecord>(){
+      @Override public ZNRecord update(      ZNRecord currentData){
+        ZNRecord data=new ZNRecord(collection);
+        for (        Map.Entry<Integer,List<String>> entry : partitionToLeaves.entrySet()) {
+          data.setListField(Integer.toString(entry.getKey()),entry.getValue());
+        }
+        return data;
+      }
+    }
+,AccessOption.PERSISTENT);
+    LOG.info("Wrote partition mapping to {} property store",propertyStorePath);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}
