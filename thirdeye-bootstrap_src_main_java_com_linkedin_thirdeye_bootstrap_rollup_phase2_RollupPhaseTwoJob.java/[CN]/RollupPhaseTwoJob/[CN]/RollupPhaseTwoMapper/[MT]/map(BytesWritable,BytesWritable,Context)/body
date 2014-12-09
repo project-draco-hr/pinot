@@ -1,22 +1,17 @@
 {
   DimensionKey rawDimensionKey;
   rawDimensionKey=DimensionKey.fromBytes(dimensionKeyWritable.getBytes());
-  MetricTimeSeries timeSeries;
+  MetricTimeSeries rawTimeSeries;
   byte[] bytes=metricTimeSeriesWritable.getBytes();
-  timeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
-  RollupPhaseTwoMapOutput wrapper;
-  wrapper=new RollupPhaseTwoMapOutput(rawDimensionKey,timeSeries);
-  BytesWritable wrapperBytesWritable=new BytesWritable(wrapper.toBytes());
-  LOG.info("Map.key {}",rawDimensionKey);
+  rawTimeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
   List<DimensionKey> combinations=generateCombinations(rawDimensionKey);
-  LOG.info("combinations:{}",combinations);
-  BytesWritable combinationBytesWritable;
-  combinationBytesWritable=new BytesWritable();
   for (  DimensionKey combination : combinations) {
-    byte[] combinationBytes=combination.toBytes();
-    combinationBytesWritable.set(combinationBytes,0,combinationBytes.length);
-    LOG.info("Map.combination:{}",combination);
-    LOG.info("Map.raw Dimension:{}",wrapper.dimensionKey);
-    context.write(combinationBytesWritable,wrapperBytesWritable);
+    byte[] md5=combination.toMD5();
+    keyWritable.set(md5,0,md5.length);
+    RollupPhaseTwoMapOutput wrapper;
+    wrapper=new RollupPhaseTwoMapOutput(combination,rawDimensionKey,rawTimeSeries);
+    byte[] valBytes=wrapper.toBytes();
+    valWritable.set(valBytes,0,valBytes.length);
+    context.write(keyWritable,valWritable);
   }
 }

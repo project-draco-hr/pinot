@@ -2,10 +2,13 @@
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   DataOutputStream dos=new DataOutputStream(baos);
   byte[] bytes;
-  bytes=dimensionKey.toBytes();
+  bytes=rollupDimensionKey.toBytes();
   dos.writeInt(bytes.length);
   dos.write(bytes);
-  bytes=timeSeries.toBytes();
+  bytes=rawDimensionKey.toBytes();
+  dos.writeInt(bytes.length);
+  dos.write(bytes);
+  bytes=rawTimeSeries.toBytes();
   dos.writeInt(bytes.length);
   dos.write(bytes);
   baos.close();

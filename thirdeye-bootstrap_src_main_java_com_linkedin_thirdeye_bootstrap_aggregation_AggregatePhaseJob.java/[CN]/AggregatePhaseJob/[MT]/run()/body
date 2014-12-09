@@ -9,10 +9,12 @@
   job.setInputFormatClass(AvroKeyInputFormat.class);
   job.setMapOutputKeyClass(BytesWritable.class);
   job.setMapOutputValueClass(BytesWritable.class);
+  job.setCombinerClass(AggregationReducer.class);
   job.setReducerClass(AggregationReducer.class);
   job.setOutputKeyClass(BytesWritable.class);
   job.setOutputValueClass(BytesWritable.class);
   job.setOutputFormatClass(SequenceFileOutputFormat.class);
+  job.setNumReduceTasks(10);
   Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,AGG_INPUT_PATH);
   getAndSetConfiguration(configuration,AGG_CONFIG_PATH);

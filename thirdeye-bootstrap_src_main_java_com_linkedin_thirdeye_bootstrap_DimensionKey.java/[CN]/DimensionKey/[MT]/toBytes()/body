@@ -3,9 +3,19 @@
   DataOutput out=new DataOutputStream(baos);
   out.writeInt(dimensionValues.length);
   for (  String dimensionValue : dimensionValues) {
-    byte[] bytes=dimensionValue.getBytes("UTF-8");
+    byte[] bytes=dimensionValue.getBytes(Charset.forName("utf-8"));
     out.writeInt(bytes.length);
     out.write(bytes);
   }
-  return baos.toByteArray();
+  baos.close();
+  byte[] byteArray=baos.toByteArray();
+  try {
+    DimensionKey key=fromBytes(byteArray);
+  }
+ catch (  Exception e) {
+    LOG.info("input key:{}",Arrays.toString(dimensionValues));
+    LOG.info("generated:{}",Arrays.toString(byteArray));
+    throw new RuntimeException(e);
+  }
+  return byteArray;
 }

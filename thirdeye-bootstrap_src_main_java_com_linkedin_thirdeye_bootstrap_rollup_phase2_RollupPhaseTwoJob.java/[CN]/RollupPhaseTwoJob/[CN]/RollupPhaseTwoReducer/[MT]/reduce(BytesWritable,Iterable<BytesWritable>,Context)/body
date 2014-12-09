@@ -1,16 +1,26 @@
 {
-  DimensionKey rollupDimensionKey=DimensionKey.fromBytes(rollupDimensionKeyWritable.getBytes());
+  DimensionKey rollupDimensionKey=null;
   MetricTimeSeries rollupTimeSeries=new MetricTimeSeries(metricSchema);
-  Map<DimensionKey,MetricTimeSeries> map=new HashMap<DimensionKey,MetricTimeSeries>();
+  System.out.println(String.format("start processing key :%s",rollupDimensionKeyMD5Writable.toString()));
+  map.clear();
   for (  BytesWritable writable : rollupMapOutputWritableIterable) {
     RollupPhaseTwoMapOutput temp;
     temp=RollupPhaseTwoMapOutput.fromBytes(writable.getBytes(),metricSchema);
-    map.put(temp.dimensionKey,temp.getTimeSeries());
-    rollupTimeSeries.aggregate(temp.getTimeSeries());
+    if (rollupDimensionKey == null) {
+      rollupDimensionKey=temp.getRollupDimensionKey();
+    }
+    map.put(temp.rawDimensionKey,temp.getRawTimeSeries());
+    rollupTimeSeries.aggregate(temp.getRawTimeSeries());
   }
+  System.out.println(String.format("processing key :%s, size:%d",rollupDimensionKeyMD5Writable.toString(),map.size()));
   for (  Entry<DimensionKey,MetricTimeSeries> entry : map.entrySet()) {
     RollupPhaseTwoReduceOutput output;
     output=new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,entry.getKey(),entry.getValue());
-    context.write(new BytesWritable(entry.getKey().toMD5()),new BytesWritable(output.toBytes()));
+    byte[] md5=entry.getKey().toMD5();
+    keyWritable.set(md5,0,md5.length);
+    byte[] outBytes=output.toBytes();
+    valWritable.set(outBytes,0,outBytes.length);
+    context.write(keyWritable,valWritable);
   }
+  System.out.println(String.format("end processing key :%s",rollupDimensionKeyMD5Writable.toString()));
 }
