@@ -6,7 +6,7 @@
   JsonNode rootDir=jsonNode.get("recordStoreFactoryConfig").get("rootDir");
   JsonNode timeBuckets=jsonNode.get("recordStoreFactoryConfig").get("numTimeBuckets");
   StarTreeConfig config=StarTreeConfig.fromJson(jsonNode);
-  File file=new File(rootDir.asText(),args[1] + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
+  File file=new File(rootDir.asText(),args[1] + StarTreeConstants.BUFFER_FILE_SUFFIX);
   FileChannel fileChannel=new RandomAccessFile(file,"r").getChannel();
   ByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_ONLY,0,file.length());
   PrintWriter printWriter=new PrintWriter(System.out);

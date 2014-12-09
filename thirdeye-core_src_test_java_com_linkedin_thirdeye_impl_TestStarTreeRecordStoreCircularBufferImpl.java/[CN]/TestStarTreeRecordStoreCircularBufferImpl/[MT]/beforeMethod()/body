@@ -6,7 +6,7 @@
     records.add(builder.build());
   }
   records.add(new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0).setTime(0L).build());
-  OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX));
+  OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + StarTreeConstants.BUFFER_FILE_SUFFIX));
   StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets,true);
   outputStream.flush();
   outputStream.close();

@@ -25,14 +25,19 @@
       }
     }
   }
-  Path bufferPath=new Path(outputPath,nodeId + StarTreeRecordStoreFactoryCircularBufferImpl.BUFFER_SUFFIX);
-  OutputStream outputStream=new BufferedOutputStream(FileSystem.get(context.getConfiguration()).create(bufferPath,true));
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
-  outputStream.flush();
-  outputStream.close();
-  Path indexPath=new Path(outputPath,nodeId.toString() + StarTreeRecordStoreFactoryCircularBufferImpl.INDEX_SUFFIX);
-  outputStream=FileSystem.get(context.getConfiguration()).create(indexPath,true);
-  OBJECT_MAPPER.writeValue(outputStream,forwardIndex);
-  outputStream.flush();
-  outputStream.close();
+  ByteArrayOutputStream entryStream=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(entryStream);
+  byte[] nodeIdBytes=nodeId.toString().getBytes(Charset.forName("UTF-8"));
+  dos.writeInt(nodeIdBytes.length);
+  dos.write(nodeIdBytes);
+  byte[] indexBytes=OBJECT_MAPPER.writeValueAsBytes(forwardIndex);
+  dos.writeInt(indexBytes.length);
+  dos.write(indexBytes);
+  ByteArrayOutputStream bufferStream=new ByteArrayOutputStream();
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(bufferStream,config.getDimensionNames(),config.getMetricNames(),forwardIndex,mergedRecords,numTimeBuckets,true);
+  byte[] bufferBytes=bufferStream.toByteArray();
+  dos.writeInt(bufferBytes.length);
+  dos.write(bufferBytes);
+  dos.flush();
+  context.write(NullWritable.get(),new BytesWritable(entryStream.toByteArray()));
 }
