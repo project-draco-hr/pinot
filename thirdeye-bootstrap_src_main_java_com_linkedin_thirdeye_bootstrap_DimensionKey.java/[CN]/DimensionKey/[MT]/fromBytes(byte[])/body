@@ -2,11 +2,17 @@
   DataInput in=new DataInputStream(new ByteArrayInputStream(bytes));
   int size=in.readInt();
   String[] dimensionValues=new String[size];
-  for (int i=0; i < size; i++) {
-    int length=in.readInt();
-    byte[] b=new byte[length];
-    in.readFully(b);
-    dimensionValues[i]=new String(b,"UTF-8");
+  try {
+    for (int i=0; i < size; i++) {
+      int length=in.readInt();
+      byte[] b=new byte[length];
+      in.readFully(b);
+      dimensionValues[i]=new String(b,"UTF-8");
+    }
+  }
+ catch (  Exception e) {
+    LOG.info(Arrays.toString(bytes),e);
+    throw new RuntimeException(e);
   }
   return new DimensionKey(dimensionValues);
 }

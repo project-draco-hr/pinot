@@ -1,5 +1,6 @@
 {
   if (!timeseries.containsKey(timeWindow)) {
-    timeseries.put(timeWindow,ByteBuffer.allocate(schema.getRowSizeInBytes()));
+    byte[] bytes=new byte[schema.getRowSizeInBytes()];
+    timeseries.put(timeWindow,ByteBuffer.wrap(bytes));
   }
 }

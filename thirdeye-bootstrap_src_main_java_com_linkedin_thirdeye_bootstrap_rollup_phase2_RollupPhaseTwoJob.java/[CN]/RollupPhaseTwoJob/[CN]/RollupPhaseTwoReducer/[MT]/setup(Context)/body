@@ -4,13 +4,14 @@
   Path configPath=new Path(configuration.get(ROLLUP_PHASE2_CONFIG_PATH.toString()));
   try {
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),RollupPhaseTwoConfig.class);
-    dimensionNames=config.getDimensionNames();
-    metricNames=config.getMetricNames();
     metricTypes=Lists.newArrayList();
     for (    String type : config.getMetricTypes()) {
       metricTypes.add(MetricType.valueOf(type));
     }
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    keyWritable=new BytesWritable();
+    valWritable=new BytesWritable();
+    map=new HashMap<DimensionKey,MetricTimeSeries>();
   }
  catch (  Exception e) {
     throw new IOException(e);

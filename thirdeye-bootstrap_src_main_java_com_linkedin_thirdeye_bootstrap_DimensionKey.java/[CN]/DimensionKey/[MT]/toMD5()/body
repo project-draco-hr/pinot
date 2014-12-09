@@ -1,3 +1,6 @@
 {
-  return md5.digest(toString().getBytes(Charset.forName("UTF-8")));
+synchronized (md5) {
+    byte[] digest=md5.digest(toString().getBytes(Charset.forName("UTF-8")));
+    return digest;
+  }
 }
