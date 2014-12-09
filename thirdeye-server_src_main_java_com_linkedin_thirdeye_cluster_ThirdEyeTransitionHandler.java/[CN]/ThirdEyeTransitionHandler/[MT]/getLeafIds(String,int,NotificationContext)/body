@@ -1,12 +1,9 @@
 {
-  ZNRecord data=context.getManager().getHelixPropertyStore().get("/LEAF_MAP/" + collection,new Stat(),0);
-  List<String> ids=data.getListField(String.valueOf(partitionId));
-  if (ids == null) {
-    throw new IllegalStateException("No IDs for partition " + partitionId);
+  Set<UUID> collector=new HashSet<UUID>();
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new IllegalStateException("No star tree for collection " + collection);
   }
-  Set<UUID> leafIds=new HashSet<UUID>();
-  for (  String id : ids) {
-    leafIds.add(UUID.fromString(id));
-  }
-  return leafIds;
+  getLeafIds(starTree.getRoot(),partitionId,getNumPartitions(collection,context),collector);
+  return collector;
 }

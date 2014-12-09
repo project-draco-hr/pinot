@@ -1,0 +1,13 @@
+{
+  if (isConnected.getAndSet(false)) {
+    httpAsyncClient.close();
+    helixManager.disconnect();
+    lock.writeLock().lock();
+    try {
+      collections.clear();
+    }
+  finally {
+      lock.writeLock().unlock();
+    }
+  }
+}

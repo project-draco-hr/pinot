@@ -1,0 +1,8 @@
+{
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No tree for collection " + collection);
+  }
+  byte[] bytes=starTree.getConfig().toJson().getBytes();
+  return Response.ok(bytes,MediaType.APPLICATION_OCTET_STREAM).build();
+}

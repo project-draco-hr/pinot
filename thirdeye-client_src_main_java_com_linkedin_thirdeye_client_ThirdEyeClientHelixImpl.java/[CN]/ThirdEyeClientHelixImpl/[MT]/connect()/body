@@ -1,0 +1,21 @@
+{
+  if (!isConnected.getAndSet(true)) {
+    httpAsyncClient=HttpAsyncClients.createDefault();
+    httpAsyncClient.start();
+    helixManager=HelixManagerFactory.getZKHelixManager(config.getClusterName(),INSTANCE_NAME,InstanceType.SPECTATOR,config.getZkAddress());
+    helixManager.connect();
+    helixManager.addIdealStateChangeListener(this);
+    helixManager.addExternalViewChangeListener(routingTable);
+    List<String> collections=helixManager.getClusterManagmentTool().getResourcesInCluster(config.getClusterName());
+    if (collections != null) {
+      List<IdealState> idealStates=new ArrayList<IdealState>(collections.size());
+      for (      String collection : collections) {
+        IdealState idealState=helixManager.getClusterManagmentTool().getResourceIdealState(config.getClusterName(),collection);
+        if (idealState != null) {
+          idealStates.add(idealState);
+        }
+      }
+      onIdealStateChange(idealStates,null);
+    }
+  }
+}

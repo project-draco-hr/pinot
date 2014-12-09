@@ -1,0 +1,7 @@
+{
+  IdealState idealState=context.getManager().getClusterManagmentTool().getResourceIdealState(context.getManager().getClusterName(),collection);
+  if (idealState == null) {
+    throw new IllegalStateException("No ideal state for " + collection);
+  }
+  return idealState.getNumPartitions();
+}

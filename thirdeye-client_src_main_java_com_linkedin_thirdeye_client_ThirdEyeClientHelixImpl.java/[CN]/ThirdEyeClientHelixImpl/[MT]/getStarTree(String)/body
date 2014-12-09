@@ -1,0 +1,59 @@
+{
+  StarTree starTree=null;
+  lock.readLock().lock();
+  try {
+    starTree=starTrees.get(collection);
+  }
+  finally {
+    lock.readLock().unlock();
+  }
+  if (starTree == null) {
+    lock.writeLock().lock();
+    try {
+      starTree=starTrees.get(collection);
+      if (starTree == null) {
+        Set<InstanceConfig> instances=routingTable.getInstances(collection,ONLINE.toString());
+        if (instances.isEmpty()) {
+          throw new IllegalStateException("No ONLINE partitions for " + collection);
+        }
+        InstanceConfig someInstance=instances.iterator().next();
+        String[] hostPort=someInstance.getInstanceName().split("_");
+        HttpHost host=new HttpHost(hostPort[0],Integer.valueOf(hostPort[1]));
+        HttpGet req=new HttpGet(getCollectionUri(collection,"config"));
+        Future<HttpResponse> res=httpAsyncClient.execute(host,req,null);
+        if (res.get().getStatusLine().getStatusCode() != 200) {
+          throw new IllegalStateException("Could not retrieve star tree for collection " + collection);
+        }
+        StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(res.get().getEntity().getContent()));
+        EntityUtils.consume(res.get().getEntity());
+        req=new HttpGet(getCollectionUri(collection,"starTree"));
+        res=httpAsyncClient.execute(host,req,null);
+        if (res.get().getStatusLine().getStatusCode() != 200) {
+          throw new IllegalStateException("Could not retrieve star tree for collection " + collection);
+        }
+        ObjectInputStream ois=new ObjectInputStream(res.get().getEntity().getContent());
+        StarTreeNode root=(StarTreeNode)ois.readObject();
+        EntityUtils.consume(res.get().getEntity());
+        req=new HttpGet(getDimensionsUri(collection));
+        res=httpAsyncClient.execute(host,req,null);
+        if (res.get().getStatusLine().getStatusCode() != 200) {
+          throw new IllegalStateException("Could not retrieve dimension values for collection " + collection);
+        }
+        Map<String,List<String>> values=OBJECT_MAPPER.readValue(res.get().getEntity().getContent(),DIMENSION_VALUES_REF);
+        dimensionValues.put(collection,values);
+        starTree=new StarTreeImpl(config,root);
+        starTrees.put(collection,starTree);
+      }
+    }
+ catch (    IOException e) {
+      throw e;
+    }
+catch (    Exception e) {
+      throw new IOException(e);
+    }
+ finally {
+      lock.writeLock().unlock();
+    }
+  }
+  return starTree;
+}

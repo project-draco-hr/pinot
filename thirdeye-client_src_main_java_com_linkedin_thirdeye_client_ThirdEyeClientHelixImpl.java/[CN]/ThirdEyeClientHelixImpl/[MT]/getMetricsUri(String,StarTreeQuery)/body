@@ -1,0 +1,11 @@
+{
+  StringBuilder sb=new StringBuilder();
+  sb.append("/metrics/").append(URLEncoder.encode(collection,"UTF-8"));
+  if (query.getTimeRange() != null) {
+    sb.append("/").append(query.getTimeRange().getKey()).append("/").append(query.getTimeRange().getValue());
+  }
+ else   if (query.getTimeBuckets() != null) {
+    sb.append("/").append(COMMA_JOINER.join(query.getTimeBuckets()));
+  }
+  return appendDimensions(sb,query).toString();
+}
