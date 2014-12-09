@@ -9,10 +9,5 @@
   Assert.assertNotNull(created);
   Assert.assertEquals(created.getConfig().getCollection(),config.getCollection());
   starTreeManager.remove(config.getCollection());
-  try {
-    starTreeManager.getStarTree(config.getCollection());
-    Assert.fail();
-  }
- catch (  Exception e) {
-  }
+  Assert.assertNull(starTreeManager.getStarTree(config.getCollection()));
 }
