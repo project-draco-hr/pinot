@@ -1,0 +1,16 @@
+{
+  if (node.isLeaf()) {
+    numLeaves.incrementAndGet();
+    numNodes.incrementAndGet();
+    updateDepthCount(leafDepthCount,currentDepth);
+  }
+ else {
+    numNodes.incrementAndGet();
+    updateDepthCount(parentDepthCount,currentDepth);
+    for (    StarTreeNode child : node.getChildren()) {
+      countNodes(child,numNodes,numLeaves,leafDepthCount,parentDepthCount,currentDepth + 1);
+    }
+    countNodes(node.getOtherNode(),numNodes,numLeaves,leafDepthCount,parentDepthCount,currentDepth + 1);
+    countNodes(node.getStarNode(),numNodes,numLeaves,leafDepthCount,parentDepthCount,currentDepth + 1);
+  }
+}
