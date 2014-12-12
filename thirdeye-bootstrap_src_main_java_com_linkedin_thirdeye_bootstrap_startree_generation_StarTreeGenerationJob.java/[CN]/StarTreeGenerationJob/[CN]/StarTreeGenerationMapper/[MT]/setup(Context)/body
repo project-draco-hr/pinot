@@ -1,0 +1,36 @@
+{
+  LOG.info("StarTreeGenerationJob.StarTreeGenerationMapper.setup()");
+  mos=new MultipleOutputs<BytesWritable,BytesWritable>(context);
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(STAR_TREE_GEN_CONFIG_PATH.toString()));
+  outputPath=new Path(configuration.get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "tree.bin");
+  try {
+    config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),StarTreeGenerationConfig.class);
+    dimensionNames=config.getDimensionNames();
+    dimensionNameToIndexMapping=new HashMap<String,Integer>();
+    for (int i=0; i < dimensionNames.size(); i++) {
+      dimensionNameToIndexMapping.put(dimensionNames.get(i),i);
+    }
+    metricNames=config.getMetricNames();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    collectionName=config.getCollectionName();
+    String timeColumnName=config.getTimeColumnName();
+    List<String> splitOrder=config.getSplitOrder();
+    int maxRecordStoreEntries=config.getSplitThreshold();
+    StarTreeConfig config=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
+    ExecutorService executorService=Executors.newSingleThreadExecutor();
+    starTreeManager=new StarTreeManagerImpl(executorService);
+    starTreeManager.registerConfig(collectionName,config);
+    starTreeManager.create(collectionName);
+    starTreeManager.open(collectionName);
+    LOG.info(config.toJson());
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

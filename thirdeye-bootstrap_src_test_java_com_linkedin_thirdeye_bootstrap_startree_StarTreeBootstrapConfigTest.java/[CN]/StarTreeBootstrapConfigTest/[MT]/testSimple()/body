@@ -1,0 +1,12 @@
+{
+  ObjectMapper mapper=new ObjectMapper();
+  URL configResource=ClassLoader.getSystemResource("star_tree_bootstrap_config.json");
+  System.out.println(configResource);
+  InputStream resourceAsStream=ClassLoader.getSystemResourceAsStream("star_tree_bootstrap_config.json");
+  System.out.println(IOUtils.readLines(resourceAsStream));
+  resourceAsStream=ClassLoader.getSystemResourceAsStream("star_tree_bootstrap_config.json");
+  System.out.println("resourceAsStream:" + resourceAsStream);
+  JsonNode jsonNode=mapper.readTree(resourceAsStream);
+  StarTreeConfig config=StarTreeConfig.fromJson(jsonNode,new File(""));
+  System.out.println(config);
+}

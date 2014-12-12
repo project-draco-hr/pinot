@@ -1,0 +1,11 @@
+{
+  StarTreeNode root=starTreeManager.getStarTree(collectionName).getRoot();
+  FileOutputStream fileOutputStream=new FileOutputStream(new File("tree.bin"));
+  ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
+  objectOutputStream.writeObject(root);
+  objectOutputStream.close();
+  FileSystem fs=FileSystem.get(context.getConfiguration());
+  Path src=FileSystem.getLocal(new Configuration()).makeQualified(new Path("tree.bin"));
+  Path dst=fs.makeQualified(outputPath);
+  fs.copyFromLocalFile(src,dst);
+}
