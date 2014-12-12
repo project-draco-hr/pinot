@@ -1,0 +1,18 @@
+{
+  final Map<String,String> configs=record.getSimpleFields();
+  _segmentMetadataPropertiesConfiguration=new PropertiesConfiguration();
+  for (  final Entry<String,String> entry : configs.entrySet()) {
+    _segmentMetadataPropertiesConfiguration.addProperty(entry.getKey(),entry.getValue());
+  }
+  if (configs.containsKey(V1Constants.MetadataKeys.Segment.SEGMENT_CRC)) {
+    _crc=Long.parseLong(configs.get(V1Constants.MetadataKeys.Segment.SEGMENT_CRC));
+  }
+  if (configs.containsKey(V1Constants.MetadataKeys.Segment.SEGMENT_CREATION_TIME)) {
+    _creationTime=Long.parseLong(configs.get(V1Constants.MetadataKeys.Segment.SEGMENT_CREATION_TIME));
+  }
+  _columnMetadataMap=null;
+  _segmentName=record.getId();
+  _schema=new Schema();
+  _allColumns=new HashSet<String>();
+  _indexDir=null;
+}

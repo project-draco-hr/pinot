@@ -1,0 +1,20 @@
+{
+  if (INDEX_DIR.exists()) {
+    FileUtils.deleteQuietly(INDEX_DIR);
+  }
+  final CrcUtils u1=CrcUtils.forAllFilesInFolder(new File(makeSegmentAndReturnPath()));
+  final long crc1=u1.computeCrc();
+  final String md51=u1.computeMD5();
+  FileUtils.deleteQuietly(INDEX_DIR);
+  final CrcUtils u2=CrcUtils.forAllFilesInFolder(new File(makeSegmentAndReturnPath()));
+  final long crc2=u2.computeCrc();
+  final String md52=u2.computeMD5();
+  Assert.assertEquals(crc1,crc2);
+  Assert.assertEquals(md51,md52);
+  FileUtils.deleteQuietly(INDEX_DIR);
+  final com.linkedin.pinot.core.indexsegment.IndexSegment segment=Loaders.IndexSegment.load(new File(makeSegmentAndReturnPath()),ReadMode.mmap);
+  final SegmentMetadata m=segment.getSegmentMetadata();
+  System.out.println(m.getCrc());
+  System.out.println(m.getIndexCreationTime());
+  FileUtils.deleteQuietly(INDEX_DIR);
+}

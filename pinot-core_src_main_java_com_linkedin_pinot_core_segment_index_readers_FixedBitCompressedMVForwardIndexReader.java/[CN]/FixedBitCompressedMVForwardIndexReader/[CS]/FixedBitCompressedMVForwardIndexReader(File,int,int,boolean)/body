@@ -1,0 +1,27 @@
+{
+  rows=numDocs;
+  final int headerSize=numDocs * SIZE_OF_INT * NUM_COLS_IN_HEADER;
+  ByteBuffer byteBuffer;
+  raf=new RandomAccessFile(file,"rw");
+  if (isMMap) {
+    byteBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,0,headerSize);
+  }
+ else {
+    byteBuffer=ByteBuffer.allocate(headerSize);
+    raf.getChannel().read(byteBuffer);
+  }
+  headerSectionReader=new FixedByteWidthRowColDataFileReader(byteBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT,SIZE_OF_INT});
+  final int startIndex=headerSectionReader.getInt(numDocs - 1,0);
+  final int length=headerSectionReader.getInt(numDocs - 1,1);
+  final int totalNumValues=startIndex + length;
+  final int dataSize=totalNumValues * columnSizeInBits;
+  ByteBuffer dataBuffer;
+  if (isMMap) {
+    dataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,headerSize,dataSize);
+  }
+ else {
+    dataBuffer=ByteBuffer.allocate(dataSize);
+    raf.getChannel().read(dataBuffer,headerSize);
+  }
+  dataSectionReader=new FixedBitWidthRowColDataFileReader(dataBuffer,totalNumValues,1,new int[]{columnSizeInBits});
+}

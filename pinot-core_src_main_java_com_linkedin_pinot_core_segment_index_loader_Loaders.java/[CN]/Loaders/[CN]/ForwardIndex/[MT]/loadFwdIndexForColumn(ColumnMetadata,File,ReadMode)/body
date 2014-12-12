@@ -1,0 +1,10 @@
+{
+  DataFileReader fwdIndexReader;
+  if (columnMetadata.isSingleValue()) {
+    fwdIndexReader=new FixedBitCompressedSVForwardIndexReader(indexFile,columnMetadata.getTotalDocs(),columnMetadata.getBitsPerElement(),loadMode == ReadMode.mmap);
+  }
+ else {
+    fwdIndexReader=new FixedBitCompressedMVForwardIndexReader(indexFile,columnMetadata.getTotalDocs(),columnMetadata.getBitsPerElement(),loadMode == ReadMode.mmap);
+  }
+  return fwdIndexReader;
+}

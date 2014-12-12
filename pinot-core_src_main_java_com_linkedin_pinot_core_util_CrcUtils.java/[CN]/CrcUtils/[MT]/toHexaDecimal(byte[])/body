@@ -1,0 +1,10 @@
+{
+  final char[] hexCharactersAsArray="0123456789ABCDEF".toCharArray();
+  final char[] convertedHexCharsArray=new char[bytesToConvert.length * 2];
+  for (int j=0; j < bytesToConvert.length; j++) {
+    final int v=bytesToConvert[j] & 0xFF;
+    convertedHexCharsArray[j * 2]=hexCharactersAsArray[v >>> 4];
+    convertedHexCharsArray[j * 2 + 1]=hexCharactersAsArray[v & 0x0F];
+  }
+  return new String(convertedHexCharsArray);
+}

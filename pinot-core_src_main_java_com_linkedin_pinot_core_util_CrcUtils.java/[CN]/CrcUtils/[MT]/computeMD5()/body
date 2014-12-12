@@ -1,0 +1,18 @@
+{
+  final MessageDigest digest=MessageDigest.getInstance("md5");
+  for (  final File file : filesToProcess) {
+    try {
+      final FileInputStream f=new FileInputStream(file);
+      final byte[] buffer=new byte[8192];
+      int len=0;
+      while (-1 != (len=f.read(buffer))) {
+        digest.update(buffer,0,len);
+      }
+      f.close();
+    }
+ catch (    final Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+  return toHexaDecimal(digest.digest());
+}

@@ -1,0 +1,10 @@
+{
+  if (isMmap) {
+    dataFileReader=FixedByteWidthRowColDataFileReader.forMmap(dictFile,rows,1,new int[]{columnSize});
+  }
+ else {
+    dataFileReader=FixedByteWidthRowColDataFileReader.forHeap(dictFile,rows,1,new int[]{columnSize});
+  }
+  this.rows=rows;
+  fileSearcher=new ByteBufferBinarySearchUtil(dataFileReader);
+}

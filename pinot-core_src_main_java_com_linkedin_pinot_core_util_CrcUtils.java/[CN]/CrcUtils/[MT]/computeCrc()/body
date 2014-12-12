@@ -1,0 +1,20 @@
+{
+  CheckedInputStream cis=null;
+  FileInputStream is=null;
+  final Checksum checksum=new Adler32();
+  final byte[] tempBuf=new byte[128];
+  for (  final File file : filesToProcess) {
+    try {
+      is=new FileInputStream(file);
+      cis=new CheckedInputStream(is,checksum);
+      while (cis.read(tempBuf) >= 0) {
+      }
+      cis.close();
+      is.close();
+    }
+ catch (    final Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+  return checksum.getValue();
+}

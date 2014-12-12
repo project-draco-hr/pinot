@@ -1,0 +1,38 @@
+{
+  final Iterator<String> metrics=_segmentMetadataPropertiesConfiguration.getList(V1Constants.MetadataKeys.Segment.METRICS).iterator();
+  while (metrics.hasNext()) {
+    final String columnName=metrics.next();
+    if (columnName.trim().length() > 0) {
+      _allColumns.add(columnName);
+    }
+  }
+  final Iterator<String> dimensions=_segmentMetadataPropertiesConfiguration.getList(V1Constants.MetadataKeys.Segment.DIMENSIONS).iterator();
+  while (dimensions.hasNext()) {
+    final String columnName=dimensions.next();
+    if (columnName.trim().length() > 0) {
+      _allColumns.add(columnName);
+    }
+  }
+  final Iterator<String> unknowns=_segmentMetadataPropertiesConfiguration.getList(V1Constants.MetadataKeys.Segment.UNKNOWN_COLUMNS).iterator();
+  while (unknowns.hasNext()) {
+    final String columnName=unknowns.next();
+    if (columnName.trim().length() > 0) {
+      _allColumns.add(columnName);
+    }
+  }
+  final Iterator<String> timeStamps=_segmentMetadataPropertiesConfiguration.getList(V1Constants.MetadataKeys.Segment.TIME_COLUMN_NAME).iterator();
+  while (timeStamps.hasNext()) {
+    final String columnName=timeStamps.next();
+    if (columnName.trim().length() > 0) {
+      _allColumns.add(columnName);
+    }
+  }
+  _segmentDataSchema=new Schema();
+  _segmentName=_segmentMetadataPropertiesConfiguration.getString(V1Constants.MetadataKeys.Segment.SEGMENT_NAME);
+  for (  final String column : _allColumns) {
+    _columnMetadataMap.put(column,extractColumnMetadataFor(column));
+  }
+  for (  final String column : _columnMetadataMap.keySet()) {
+    _schema.addSchema(column,_columnMetadataMap.get(column).toFieldSpec());
+  }
+}

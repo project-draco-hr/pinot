@@ -1,0 +1,9 @@
+{
+  if (bitOffset < 0)   throw new IllegalArgumentException();
+  final int byteToSet=bitOffset / 8;
+  if (byteToSet > nrBytes)   throw new IllegalArgumentException();
+  byte b=buf.get(byteToSet);
+  byte posBit=(byte)(1 << (7 - (bitOffset % 8)));
+  b|=posBit;
+  buf.put(byteToSet,b);
+}

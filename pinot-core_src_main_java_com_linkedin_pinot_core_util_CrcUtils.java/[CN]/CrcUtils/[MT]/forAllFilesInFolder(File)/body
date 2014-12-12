@@ -1,0 +1,17 @@
+{
+  final File[] allFiles=dir.listFiles(new FileFilter(){
+    @Override public boolean accept(    File pathname){
+      if (pathname.getName().equals(V1Constants.SEGMENT_CREATION_META)) {
+        return false;
+      }
+      return true;
+    }
+  }
+);
+  Arrays.sort(allFiles);
+  final List<File> files=new ArrayList<File>();
+  for (  final File f : allFiles) {
+    files.add(f);
+  }
+  return new CrcUtils(files);
+}

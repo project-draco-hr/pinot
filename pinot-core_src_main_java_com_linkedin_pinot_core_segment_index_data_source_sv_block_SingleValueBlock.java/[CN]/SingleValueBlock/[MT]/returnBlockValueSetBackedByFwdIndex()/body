@@ -1,0 +1,46 @@
+{
+  return new BlockValSet(){
+    @Override public BlockValIterator iterator(){
+      return new BlockSingleValIterator(){
+        private int counter=0;
+        @Override public boolean skipTo(        int docId){
+          if (docId >= sVReader.getLength()) {
+            return false;
+          }
+          counter=docId;
+          return true;
+        }
+        @Override public int size(){
+          return sVReader.getLength();
+        }
+        @Override public int nextIntVal(){
+          if (counter >= sVReader.getLength()) {
+            return Constants.EOF;
+          }
+          return sVReader.getInt(counter++);
+        }
+        @Override public boolean reset(){
+          counter=0;
+          return true;
+        }
+        @Override public boolean next(){
+          return false;
+        }
+        @Override public boolean hasNext(){
+          return (counter < sVReader.getLength());
+        }
+        @Override public DataType getValueType(){
+          return null;
+        }
+        @Override public int currentDocId(){
+          return counter;
+        }
+      }
+;
+    }
+    @Override public DataType getValueType(){
+      return null;
+    }
+  }
+;
+}

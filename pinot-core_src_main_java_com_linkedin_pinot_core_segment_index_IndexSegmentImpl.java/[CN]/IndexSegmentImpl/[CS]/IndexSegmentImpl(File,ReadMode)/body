@@ -1,0 +1,14 @@
+{
+  this.indexDir=indexDir;
+  indexLoadMode=loadMode;
+  segmentMetadata=new SegmentMetadataImpl(indexDir);
+  dictionaryMap=new HashMap<String,DictionaryReader>();
+  forwardIndexMap=new HashMap<String,DataFileReader>();
+  invertedIndexMap=new HashMap<String,BitmapInvertedIndex>();
+  for (  final String column : segmentMetadata.getAllColumns()) {
+    logger.info("loading dictionary, forwardIndex, inverted index for column : " + column);
+    dictionaryMap.put(column,Loaders.Dictionary.load(segmentMetadata.getColumnMetadataFor(column),new File(indexDir,column + V1Constants.Dict.FILE_EXTENTION),loadMode));
+    forwardIndexMap.put(column,Loaders.ForwardIndex.loadFwdIndexForColumn(segmentMetadata.getColumnMetadataFor(column),new File(indexDir,column + V1Constants.Indexes.UN_SORTED_FWD_IDX_FILE_EXTENTION),loadMode));
+    invertedIndexMap.put(column,Loaders.InvertedIndex.load(segmentMetadata.getColumnMetadataFor(column),new File(indexDir,column + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION),loadMode));
+  }
+}

@@ -1,0 +1,22 @@
+{
+  final StringBuilder result=new StringBuilder();
+  final String newLine=System.getProperty("line.separator");
+  result.append(this.getClass().getName());
+  result.append(" Object {");
+  result.append(newLine);
+  final Field[] fields=this.getClass().getDeclaredFields();
+  for (  final Field field : fields) {
+    result.append("  ");
+    try {
+      result.append(field.getName());
+      result.append(": ");
+      result.append(field.get(this));
+    }
+ catch (    final IllegalAccessException ex) {
+      System.out.println(ex);
+    }
+    result.append(newLine);
+  }
+  result.append("}");
+  return result.toString();
+}

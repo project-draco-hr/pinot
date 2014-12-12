@@ -1,0 +1,22 @@
+{
+  int mult=startBitIndex;
+  int bytePosition=mult >>> 3;
+  int startBitOffset=mult & 7;
+  int sum=startBitOffset + (endBitIndex - startBitIndex);
+  int endBitOffset=(8 - (sum & 7)) & 7;
+  int numberOfBytesUsed=((sum + 7) >>> 3);
+  int i=-1;
+  long number=0;
+  while (true) {
+    number|=(buf.get(bytePosition)) & 0xFF;
+    i++;
+    bytePosition++;
+    if (i == numberOfBytesUsed - 1) {
+      break;
+    }
+    number<<=8;
+  }
+  number>>=endBitOffset;
+  number&=(0xFFFFFFFF >>> (32 - (endBitIndex - startBitIndex)));
+  return (int)number;
+}
