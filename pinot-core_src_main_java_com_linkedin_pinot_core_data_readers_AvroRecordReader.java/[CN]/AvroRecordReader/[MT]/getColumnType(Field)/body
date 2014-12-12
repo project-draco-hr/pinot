@@ -1,0 +1,21 @@
+{
+  org.apache.avro.Schema fieldSchema=field.schema();
+  fieldSchema=extractSchemaFromUnionIfNeeded(fieldSchema);
+  final Type type=fieldSchema.getType();
+  if (type == Type.ARRAY) {
+    org.apache.avro.Schema elementSchema=extractSchemaFromUnionIfNeeded(fieldSchema.getElementType());
+    if (elementSchema.getType() == Type.RECORD) {
+      if (elementSchema.getFields().size() == 1) {
+        elementSchema=elementSchema.getFields().get(0).schema();
+      }
+ else {
+        throw new RuntimeException("More than one schema in Multi-value column!");
+      }
+      elementSchema=extractSchemaFromUnionIfNeeded(elementSchema);
+    }
+    return DataType.valueOf(elementSchema.getType());
+  }
+ else {
+    return DataType.valueOf(type);
+  }
+}

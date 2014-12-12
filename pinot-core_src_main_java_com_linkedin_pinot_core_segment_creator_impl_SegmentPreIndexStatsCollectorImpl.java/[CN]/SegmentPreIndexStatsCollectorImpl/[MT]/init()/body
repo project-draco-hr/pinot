@@ -1,0 +1,25 @@
+{
+  columnStatsCollectorMap=new HashMap<String,AbstractColumnPreIndexStatsCollector>();
+  for (  final FieldSpec spec : dataSchema.getAllFieldSpecs()) {
+switch (spec.getDataType()) {
+case BOOLEAN:
+case STRING:
+      columnStatsCollectorMap.put(spec.getName(),new StringColumnPreIndexStatsCollector(spec));
+    break;
+case INT:
+  columnStatsCollectorMap.put(spec.getName(),new IntColumnPreIndexStatsCollector(spec));
+break;
+case LONG:
+columnStatsCollectorMap.put(spec.getName(),new LongColumnPreIndexStatsCollector(spec));
+break;
+case FLOAT:
+columnStatsCollectorMap.put(spec.getName(),new FloatColumnPreIndexStatsCollector(spec));
+break;
+case DOUBLE:
+columnStatsCollectorMap.put(spec.getName(),new DoubleColumnPreIndexStatsCollector(spec));
+break;
+default :
+break;
+}
+}
+}

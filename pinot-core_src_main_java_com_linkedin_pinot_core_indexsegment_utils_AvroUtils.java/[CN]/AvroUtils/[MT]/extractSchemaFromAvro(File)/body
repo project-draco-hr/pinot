@@ -1,0 +1,22 @@
+{
+  final Schema schema=new Schema();
+  final DataFileStream<GenericRecord> dataStreamReader=getAvroReader(avroFile);
+  final org.apache.avro.Schema avroSchema=dataStreamReader.getSchema();
+  for (  final Field field : avroSchema.getFields()) {
+    final FieldSpec spec=new FieldSpec();
+    spec.setName(field.name());
+    spec.setDataType(AvroRecordReader.getColumnType(field));
+    if (field.name().contains("count") || field.name().contains("met")) {
+      spec.setFieldType(FieldType.metric);
+    }
+ else     if (field.name().contains("day") || field.name().equals("daysSinceEpoch")) {
+      spec.setFieldType(FieldType.time);
+    }
+ else {
+      spec.setFieldType(FieldType.dimension);
+    }
+    schema.addSchema(spec.getName(),spec);
+  }
+  dataStreamReader.close();
+  return schema;
+}

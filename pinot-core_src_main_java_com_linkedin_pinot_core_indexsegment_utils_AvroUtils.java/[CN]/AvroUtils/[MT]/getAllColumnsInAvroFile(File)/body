@@ -1,0 +1,9 @@
+{
+  final List<String> ret=new ArrayList<String>();
+  final DataFileStream<GenericRecord> reader=getAvroReader(avroFile);
+  for (  final Field f : reader.getSchema().getFields()) {
+    ret.add(f.name());
+  }
+  reader.close();
+  return ret;
+}

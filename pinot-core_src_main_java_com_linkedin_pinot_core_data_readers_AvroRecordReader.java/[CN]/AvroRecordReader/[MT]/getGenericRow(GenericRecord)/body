@@ -1,0 +1,14 @@
+{
+  for (  final Field field : _dataStream.getSchema().getFields()) {
+    Object value=rawRecord.get(field.name());
+    if (value instanceof Utf8) {
+      value=((Utf8)value).toString();
+    }
+    if (value instanceof Array) {
+      value=transformAvroArrayToObjectArray((Array)value);
+    }
+    _fieldMap.put(field.name(),value);
+  }
+  _genericRow.init(_fieldMap);
+  return _genericRow;
+}

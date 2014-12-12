@@ -1,0 +1,9 @@
+{
+  final long majorBitPos=(long)index * bitsPerValue;
+  final int elementPos=(int)(majorBitPos >>> BLOCK_BITS);
+  final long endBits=(majorBitPos & MOD_MASK) + bpvMinusBlockSize;
+  if (endBits <= 0) {
+    return (int)((blocks[elementPos] >>> -endBits) & maskRight);
+  }
+  return (int)(((blocks[elementPos] << endBits) | (blocks[elementPos + 1] >>> (BLOCK_SIZE - endBits))) & maskRight);
+}

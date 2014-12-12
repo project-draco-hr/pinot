@@ -1,0 +1,11 @@
+{
+  final Map<String,String> customConfigs=new HashMap<String,String>();
+  final Iterator<String> allKeys=getKeys();
+  while (allKeys.hasNext()) {
+    final String key=allKeys.next();
+    if (key.startsWith(MetadataKeys.Segment.CUSTOM_PROPERTIES_PREFIX)) {
+      customConfigs.put(key,getProperty(key).toString());
+    }
+  }
+  return customConfigs;
+}

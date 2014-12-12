@@ -1,0 +1,26 @@
+{
+  try {
+    DataOutputStream is=null;
+switch (mode) {
+case DISK:
+      File appendFile=new File(filePath);
+    if (!appendFile.exists()) {
+      if (!appendFile.getParentFile().exists()) {
+        appendFile.getParentFile().mkdirs();
+      }
+      appendFile.createNewFile();
+    }
+  is=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(appendFile,true)));
+break;
+case HDFS:
+is=fs.append(new Path(filePath));
+break;
+default :
+throw new UnsupportedOperationException();
+}
+return is;
+}
+ catch (Exception ex) {
+throw new RuntimeException(ex);
+}
+}

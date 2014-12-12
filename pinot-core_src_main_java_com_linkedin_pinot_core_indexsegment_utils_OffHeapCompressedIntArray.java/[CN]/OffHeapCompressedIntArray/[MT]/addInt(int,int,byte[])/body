@@ -1,0 +1,24 @@
+{
+  int bytePosition=position * numOfBitsPerElement / 8;
+  int startBitOffset=(position * numOfBitsPerElement) % 8;
+  int endBitOffset=(8 - ((startBitOffset + numOfBitsPerElement) % 8)) % 8;
+  int numberOfBytesUsed=(startBitOffset + numOfBitsPerElement) / 8 + ((startBitOffset + numOfBitsPerElement) % 8 != 0 ? 1 : 0);
+  buf.position(bytePosition);
+  buf.get(tempBuf,0,numberOfBytesUsed);
+  long newNumber=tempBuf[0];
+  if (startBitOffset > 0) {
+    newNumber>>=8 - startBitOffset;
+  }
+  newNumber<<=numOfBitsPerElement;
+  newNumber|=number;
+  if (endBitOffset != 0) {
+    newNumber<<=endBitOffset;
+    newNumber|=tempBuf[numberOfBytesUsed - 1] & 0xFF >>> (8 - endBitOffset);
+  }
+  for (int i=numberOfBytesUsed - 1; i >= 0; i--) {
+    tempBuf[i]=(byte)(newNumber & 0xFF);
+    newNumber=newNumber >> 8;
+  }
+  buf.position(bytePosition);
+  buf.put(tempBuf,0,numberOfBytesUsed);
+}

@@ -1,0 +1,69 @@
+{
+switch (spec.getDataType()) {
+case INT:
+    final FixedByteWidthRowColDataFileWriter intDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.INT_DICTIONARY_COL_SIZE);
+  for (int i=0; i < sortedList.length; i++) {
+    final int entry=((Integer)sortedList[i]).intValue();
+    intDictionaryWrite.setInt(i,0,entry);
+  }
+intDictionaryWrite.saveAndClose();
+dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.INT_DICTIONARY_COL_SIZE);
+break;
+case FLOAT:
+final FixedByteWidthRowColDataFileWriter floatDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.FOLAT_DICTIONARY_COL_SIZE);
+for (int i=0; i < sortedList.length; i++) {
+final float entry=((Float)sortedList[i]).floatValue();
+floatDictionaryWrite.setFloat(i,0,entry);
+}
+floatDictionaryWrite.saveAndClose();
+dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.FOLAT_DICTIONARY_COL_SIZE);
+break;
+case LONG:
+final FixedByteWidthRowColDataFileWriter longDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.LONG_DICTIONARY_COL_SIZE);
+for (int i=0; i < sortedList.length; i++) {
+final long entry=((Long)sortedList[i]).longValue();
+longDictionaryWrite.setLong(i,0,entry);
+}
+longDictionaryWrite.saveAndClose();
+dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.LONG_DICTIONARY_COL_SIZE);
+break;
+case DOUBLE:
+final FixedByteWidthRowColDataFileWriter doubleDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.DOUBLE_DICTIONARY_COL_SIZE);
+for (int i=0; i < sortedList.length; i++) {
+final double entry=((Double)sortedList[i]).doubleValue();
+doubleDictionaryWrite.setDouble(i,0,entry);
+}
+doubleDictionaryWrite.saveAndClose();
+dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.DOUBLE_DICTIONARY_COL_SIZE);
+break;
+case STRING:
+case BOOLEAN:
+for (final Object e : sortedList) {
+if (stringColumnMaxLength < ((String)e).length()) {
+stringColumnMaxLength=((String)e).length();
+}
+}
+final FixedByteWidthRowColDataFileWriter stringDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,new int[]{stringColumnMaxLength});
+final String[] revised=new String[sortedList.length];
+for (int i=0; i < sortedList.length; i++) {
+final String toWrite=sortedList[i].toString();
+final int padding=stringColumnMaxLength - toWrite.length();
+final StringBuilder bld=new StringBuilder();
+for (int j=0; j < padding; j++) {
+bld.append(V1Constants.Str.STRING_PAD_CHAR);
+}
+bld.append(toWrite);
+revised[i]=bld.toString();
+}
+Arrays.sort(revised);
+for (int i=0; i < revised.length; i++) {
+stringDictionaryWrite.setString(i,0,revised[i]);
+}
+stringDictionaryWrite.saveAndClose();
+dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,new int[]{stringColumnMaxLength});
+break;
+default :
+break;
+}
+searchableByteBuffer=new ByteBufferBinarySearchUtil(dataReader);
+}

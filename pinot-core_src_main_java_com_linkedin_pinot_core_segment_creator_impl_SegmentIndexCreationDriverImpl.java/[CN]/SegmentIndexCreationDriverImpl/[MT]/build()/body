@@ -1,0 +1,33 @@
+{
+  while (recordReader.hasNext()) {
+    totalDocs++;
+    statsCollector.collectRow(recordReader.next());
+  }
+  buildIndexCreationInfo();
+  indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
+  recordReader.rewind();
+  while (recordReader.hasNext()) {
+    indexCreator.index(recordReader.next());
+  }
+  recordReader.close();
+  final File outputDir=new File(config.getIndexOutputDir());
+  final String timeColumn=config.getTimeColumnName();
+  if (timeColumn != null && timeColumn.length() > 0) {
+    final Object minTimeValue=statsCollector.getColumnProfileFor(timeColumn).getMinValue();
+    final Object maxTimeValue=statsCollector.getColumnProfileFor(timeColumn).getMaxValue();
+    segmentName=SegmentNameBuilder.buildBasic(config.getResourceName(),config.getTableName(),minTimeValue,maxTimeValue,config.getSegmentNamePostfix());
+  }
+ else {
+    segmentName=SegmentNameBuilder.buildBasic(config.getResourceName(),config.getTableName(),config.getSegmentNamePostfix());
+  }
+  indexCreator.setSegmentName(segmentName);
+  indexCreator.seal();
+  final File segmentOutputDir=new File(outputDir,segmentName);
+  if (segmentOutputDir.exists()) {
+    FileUtils.deleteDirectory(segmentOutputDir);
+  }
+  FileUtils.moveDirectory(tempIndexDir,new File(outputDir,segmentName));
+  FileUtils.deleteQuietly(tempIndexDir);
+  final long crc=CrcUtils.forAllFilesInFolder(new File(outputDir,segmentName)).computeCrc();
+  persistCreationMeta(new File(outputDir,segmentName),crc);
+}

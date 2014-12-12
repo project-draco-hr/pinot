@@ -1,0 +1,14 @@
+{
+  final DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(invertedIndexFile)));
+  int offset=4 * (invertedIndex.length + 1);
+  out.writeInt(offset);
+  for (  final MutableRoaringBitmap element : invertedIndex) {
+    offset+=element.serializedSizeInBytes();
+    out.writeInt(offset);
+  }
+  for (  final MutableRoaringBitmap element : invertedIndex) {
+    element.serialize(out);
+  }
+  out.close();
+  logger.info("persisted bitmap inverted index for column : " + spec.getName() + " in "+ invertedIndexFile.getAbsolutePath());
+}

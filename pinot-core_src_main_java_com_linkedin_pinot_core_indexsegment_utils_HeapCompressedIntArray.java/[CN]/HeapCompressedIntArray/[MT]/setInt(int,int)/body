@@ -1,0 +1,12 @@
+{
+  final long value=val;
+  final long majorBitPos=(long)index * bitsPerValue;
+  final int elementPos=(int)(majorBitPos >>> BLOCK_BITS);
+  final long endBits=(majorBitPos & MOD_MASK) + bpvMinusBlockSize;
+  if (endBits <= 0) {
+    blocks[elementPos]=blocks[elementPos] & ~(maskRight << -endBits) | (value << -endBits);
+    return;
+  }
+  blocks[elementPos]=blocks[elementPos] & ~(maskRight >>> endBits) | (value >>> endBits);
+  blocks[elementPos + 1]=blocks[elementPos + 1] & (~0L >>> endBits) | (value << (BLOCK_SIZE - endBits));
+}

@@ -1,0 +1,16 @@
+{
+  if (((Comparable)entry).compareTo(previousValue) != 0) {
+    numberOfChanges++;
+  }
+  if (((Comparable)entry).compareTo(previousValue) < 0) {
+    prevBiggerThanNextCount++;
+  }
+  if (!entry.equals(previousValue) && previousValue != null) {
+    final Comparable prevValue=(Comparable)previousValue;
+    final Comparable origin=(Comparable)entry;
+    if (origin.compareTo(prevValue) < 0) {
+      isSorted=false;
+    }
+  }
+  previousValue=entry;
+}

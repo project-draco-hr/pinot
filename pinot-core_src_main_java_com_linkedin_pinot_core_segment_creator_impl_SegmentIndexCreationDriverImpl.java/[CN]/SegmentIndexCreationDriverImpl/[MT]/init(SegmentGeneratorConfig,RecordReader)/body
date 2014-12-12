@@ -1,0 +1,15 @@
+{
+  this.config=config;
+  recordReader=reader;
+  recordReader.init();
+  dataSchema=recordReader.getSchema();
+  statsCollector=new SegmentPreIndexStatsCollectorImpl(recordReader.getSchema());
+  statsCollector.init();
+  indexCreationInfoMap=new HashMap<String,ColumnIndexCreationInfo>();
+  indexCreator=new SegmentColumnarIndexCreator();
+  final File indexDir=new File(config.getIndexOutputDir());
+  if (!indexDir.exists()) {
+    indexDir.mkdir();
+  }
+  tempIndexDir=new File(indexDir,com.linkedin.pinot.common.utils.FileUtils.getRandomFileName());
+}

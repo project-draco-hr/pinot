@@ -1,0 +1,12 @@
+{
+  final Schema schema=new Schema();
+  final List<String> columns=getProjectedColumns();
+  for (  final String column : columns) {
+    final FieldSpec fieldSpec=new FieldSpec();
+    fieldSpec.setName(column);
+    fieldSpec.setFieldType(FieldType.valueOf(getString(DATA_SCHEMA + DOT + column+ DOT+ FIELD_TYPE,FieldType.unknown.toString())));
+    fieldSpec.setDelimeter(getString(DATA_SCHEMA + DOT + column+ DOT+ DELIMETER,COMMA));
+    schema.addSchema(column,fieldSpec);
+  }
+  return schema;
+}

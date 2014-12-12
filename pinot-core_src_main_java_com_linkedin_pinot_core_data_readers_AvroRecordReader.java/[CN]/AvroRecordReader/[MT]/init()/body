@@ -1,0 +1,8 @@
+{
+  final File file=new File(_fileName);
+  if (!file.exists()) {
+    throw new FileNotFoundException("File is not existed!");
+  }
+  _dataStream=new DataFileStream<GenericRecord>(new FileInputStream(file),new GenericDatumReader<GenericRecord>());
+  updateSchema(_schemaExtractor.getSchema());
+}

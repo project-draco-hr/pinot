@@ -1,0 +1,27 @@
+{
+  docIdCounter=0;
+  config=segmentCreationSpec;
+  this.indexCreationInfoMap=indexCreationInfoMap;
+  dictionaryCreatorMap=new HashMap<String,SegmentDictionaryCreator>();
+  forwardIndexCreatorMap=new HashMap<String,SegmentForwardIndexCreatorImpl>();
+  this.indexCreationInfoMap=indexCreationInfoMap;
+  invertedIndexCreatorMap=new HashMap<String,InvertedIndexCreator>();
+  file=outDir;
+  if (file.exists()) {
+    throw new RuntimeException(file.getAbsolutePath());
+  }
+  file.mkdir();
+  this.schema=schema;
+  this.totalDocs=totalDocs;
+  for (  final FieldSpec spec : schema.getAllFieldSpecs()) {
+    final ColumnIndexCreationInfo info=indexCreationInfoMap.get(spec.getName());
+    dictionaryCreatorMap.put(spec.getName(),new SegmentDictionaryCreator(info.hasNulls(),info.getSortedUniqueElementsArray(),spec,file));
+  }
+  for (  final String column : dictionaryCreatorMap.keySet()) {
+    dictionaryCreatorMap.get(column).build();
+  }
+  for (  final String column : dictionaryCreatorMap.keySet()) {
+    forwardIndexCreatorMap.put(column,new SegmentForwardIndexCreatorImpl(schema.getFieldSpecFor(column),file,indexCreationInfoMap.get(column).getSortedUniqueElementsArray().length,totalDocs,indexCreationInfoMap.get(column).getTotalNumberOfEntries()));
+    invertedIndexCreatorMap.put(column,new SegmentInvertedIndexCreatorImpl(file,indexCreationInfoMap.get(column).getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+  }
+}

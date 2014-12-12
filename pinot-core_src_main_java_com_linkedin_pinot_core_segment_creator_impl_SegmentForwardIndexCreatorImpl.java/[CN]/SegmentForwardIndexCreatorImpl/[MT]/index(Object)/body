@@ -1,0 +1,14 @@
+{
+  if (spec.isSingleValueField()) {
+    final int entry=((Integer)e).intValue();
+    indexSingleValue(entry);
+    return;
+  }
+  final Object[] entryArr=((Object[])e);
+  Arrays.sort(entryArr);
+  final int[] entries=new int[entryArr.length];
+  for (int i=0; i < entryArr.length; i++) {
+    entries[i]=((Integer)entryArr[i]).intValue();
+  }
+  indexMultiValue(entries);
+}
