@@ -1,0 +1,13 @@
+{
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[0];
+  DictionaryReader dictionaryReader=_groupByBlocks[0].getMetadata().getDictionary();
+  blockValIterator.skipTo(docId);
+  String groupKey=dictionaryReader.get(blockValIterator.nextIntVal()).toString();
+  for (int i=1; i < _groupByBlockValIterators.length; ++i) {
+    blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[i];
+    blockValIterator.skipTo(docId);
+    dictionaryReader=_groupByBlocks[i].getMetadata().getDictionary();
+    groupKey+=(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter + (dictionaryReader.get(blockValIterator.nextIntVal()).toString()));
+  }
+  return groupKey;
+}

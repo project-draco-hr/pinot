@@ -1,0 +1,15 @@
+{
+  String[] columnNames=new String[]{"functionName","GroupByResultMap"};
+  DataType[] columnTypes=new DataType[]{DataType.STRING,DataType.OBJECT};
+  DataSchema dataSchema=new DataSchema(columnNames,columnTypes);
+  DataTableBuilder dataTableBuilder=new DataTableBuilder(dataSchema);
+  dataTableBuilder.open();
+  for (int i=0; i < _aggregationGroupByOperatorResult.size(); ++i) {
+    dataTableBuilder.startRow();
+    dataTableBuilder.setColumn(0,_aggregationFunctionList.get(i).getFunctionName());
+    dataTableBuilder.setColumn(1,_aggregationGroupByOperatorResult.get(i));
+    dataTableBuilder.finishRow();
+  }
+  dataTableBuilder.seal();
+  return attachMetadataToDataTable(dataTableBuilder.build());
+}

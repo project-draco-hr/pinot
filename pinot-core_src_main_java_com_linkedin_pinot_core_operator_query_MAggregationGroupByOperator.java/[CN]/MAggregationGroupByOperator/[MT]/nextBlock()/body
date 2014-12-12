@@ -1,0 +1,19 @@
+{
+  final long startTime=System.currentTimeMillis();
+  List<Map<String,Serializable>> aggregationGroupByResults=new ArrayList<Map<String,Serializable>>();
+  long numDocsScanned=0;
+  while (_projectionOperator.nextBlock() != null) {
+    for (int i=0; i < _aggregationFunctionGroupByOperatorList.size(); ++i) {
+      _aggregationFunctionGroupByOperatorList.get(i).nextBlock();
+    }
+    numDocsScanned+=((DocIdSetBlock)(_projectionOperator.getCurrentBlock().getDocIdSetBlock())).getSearchableLength();
+  }
+  for (int i=0; i < _aggregationFunctionGroupByOperatorList.size(); ++i) {
+    aggregationGroupByResults.add(_aggregationFunctionGroupByOperatorList.get(i).getAggregationGroupByResult());
+  }
+  final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(AggregationFunctionFactory.getAggregationFunction(_aggregationInfoList),aggregationGroupByResults,true);
+  resultBlock.setNumDocsScanned(numDocsScanned);
+  resultBlock.setTotalDocs(_indexSegment.getSegmentMetadata().getTotalDocs());
+  resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTime);
+  return resultBlock;
+}

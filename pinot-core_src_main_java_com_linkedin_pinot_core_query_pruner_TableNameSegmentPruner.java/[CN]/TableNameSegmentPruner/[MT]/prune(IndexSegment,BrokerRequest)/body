@@ -1,0 +1,26 @@
+{
+  if (brokerRequest.getQuerySource() == null) {
+    return true;
+  }
+  if (brokerRequest.getQuerySource().getResourceName() == null || !brokerRequest.getQuerySource().getResourceName().equals(segment.getSegmentMetadata().getResourceName())) {
+    return true;
+  }
+  if (brokerRequest.getQuerySource().getTableName() == null || brokerRequest.getQuerySource().getTableName().equals("")) {
+    if (brokerRequest.getQuerySource().getResourceName().equals(segment.getSegmentMetadata().getTableName())) {
+      return false;
+    }
+ else {
+      return true;
+    }
+  }
+  if (brokerRequest.getQuerySource().getTableName().equals("*")) {
+    return false;
+  }
+  String[] tableNames=brokerRequest.getQuerySource().getTableName().split(",");
+  for (  String tableName : tableNames) {
+    if (tableName.equals(segment.getSegmentMetadata().getTableName())) {
+      return false;
+    }
+  }
+  return true;
+}

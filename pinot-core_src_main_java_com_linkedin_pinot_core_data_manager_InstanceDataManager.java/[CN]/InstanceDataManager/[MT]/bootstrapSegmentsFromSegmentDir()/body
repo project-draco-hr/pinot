@@ -1,0 +1,17 @@
+{
+  if (_instanceDataManagerConfig.getInstanceBootstrapSegmentDir() != null) {
+    File bootstrapSegmentDir=new File(_instanceDataManagerConfig.getInstanceBootstrapSegmentDir());
+    if (bootstrapSegmentDir.exists()) {
+      for (      File segment : bootstrapSegmentDir.listFiles()) {
+        addSegment(_segmentMetadataLoader.load(segment));
+        LOGGER.info("Bootstrapped segment from directory : " + segment.getAbsolutePath());
+      }
+    }
+ else {
+      LOGGER.info("Bootstrap segment directory : " + _instanceDataManagerConfig.getInstanceBootstrapSegmentDir() + " doesn't exist.");
+    }
+  }
+ else {
+    LOGGER.info("Config of bootstrap segment directory hasn't been set.");
+  }
+}

@@ -1,0 +1,14 @@
+{
+  for (int i=0; i < _groupBy.getColumnsSize(); ++i) {
+    _dictionaries[i]=_groupByBlocks[i].getMetadata().getDictionary();
+  }
+  _groupKeyBitSize=new int[_groupBy.getColumnsSize()];
+  int totalBitSet=0;
+  for (int i=0; i < _groupBy.getColumnsSize(); i++) {
+    _groupKeyBitSize[i]=BitHacks.findLogBase2(_dictionaries[i].length()) + 1;
+    totalBitSet+=_groupKeyBitSize[i];
+  }
+  if (totalBitSet > 64) {
+    throw new IllegalArgumentException("Too many columns for an efficient group by");
+  }
+}

@@ -1,0 +1,11 @@
+{
+  String resourceName=segmentMetadata.getResourceName();
+  System.out.println(segmentMetadata.getName());
+  if (_resourceDataManagerMap.containsKey(resourceName)) {
+    _resourceDataManagerMap.get(resourceName).addSegment(segmentMetadata);
+    LOGGER.info("Added a segment : " + segmentMetadata.getName() + " to resource : "+ resourceName);
+  }
+ else {
+    LOGGER.error("InstanceDataManager doesn't contain the assigned resource for segment : " + segmentMetadata.getName());
+  }
+}

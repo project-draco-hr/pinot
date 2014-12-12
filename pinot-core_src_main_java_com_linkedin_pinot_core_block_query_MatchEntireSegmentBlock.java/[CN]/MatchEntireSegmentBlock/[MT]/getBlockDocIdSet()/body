@@ -1,0 +1,28 @@
+{
+  return new BlockDocIdSet(){
+    @Override public BlockDocIdIterator iterator(){
+      return new BlockDocIdIterator(){
+        private int _currentDoc=0;
+        @Override public int skipTo(        int targetDocId){
+          return _currentDoc=targetDocId;
+        }
+        @Override public int next(){
+          if (_currentDoc < _totalDocs) {
+            return _currentDoc++;
+          }
+ else {
+            return Constants.EOF;
+          }
+        }
+        @Override public int currentDocId(){
+          return _currentDoc;
+        }
+      }
+;
+    }
+    @Override public Object getRaw(){
+      return null;
+    }
+  }
+;
+}

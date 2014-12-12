@@ -1,0 +1,85 @@
+{
+  if (_isParallel) {
+    long queryEndTime=System.currentTimeMillis() + _timeOutMs;
+    @SuppressWarnings("rawtypes") List<Future> blocks=new ArrayList<Future>();
+    for (    final Operator operator : _operators) {
+      blocks.add(_executorService.submit(new Callable<Block>(){
+        @Override public Block call() throws Exception {
+          return operator.nextBlock();
+        }
+      }
+));
+    }
+    try {
+      _mergedBlock=(IntermediateResultsBlock)blocks.get(0).get(queryEndTime - System.currentTimeMillis(),TimeUnit.MILLISECONDS);
+      for (int i=1; i < blocks.size(); ++i) {
+        CombineService.mergeTwoBlocks(_brokerRequest,_mergedBlock,((IntermediateResultsBlock)blocks.get(i).get(queryEndTime - System.currentTimeMillis(),TimeUnit.MILLISECONDS)));
+      }
+    }
+ catch (    InterruptedException e) {
+      if (_mergedBlock == null) {
+        _mergedBlock=new IntermediateResultsBlock(e);
+      }
+      List<ProcessingException> exceptions=_mergedBlock.getExceptions();
+      if (exceptions == null) {
+        exceptions=new ArrayList<ProcessingException>();
+      }
+      ProcessingException exception=new ProcessingException();
+      exception.setErrorCode(270);
+      exception.setMessage("Query execution gets InterruptedException");
+      exception.setStackTrace(e.getStackTrace());
+      exceptions.add(exception);
+      _mergedBlock.setExceptionsList(exceptions);
+    }
+catch (    ExecutionException e) {
+      if (_mergedBlock == null) {
+        _mergedBlock=new IntermediateResultsBlock(e);
+      }
+      List<ProcessingException> exceptions=_mergedBlock.getExceptions();
+      if (exceptions == null) {
+        exceptions=new ArrayList<ProcessingException>();
+      }
+      ProcessingException exception=new ProcessingException();
+      exception.setErrorCode(260);
+      exception.setMessage("Query execution gets ExecutionException");
+      exception.setStackTrace(e.getStackTrace());
+      exceptions.add(exception);
+      _mergedBlock.setExceptionsList(exceptions);
+    }
+catch (    TimeoutException e) {
+      if (_mergedBlock == null) {
+        _mergedBlock=new IntermediateResultsBlock(e);
+      }
+      List<ProcessingException> exceptions=_mergedBlock.getExceptions();
+      if (exceptions == null) {
+        exceptions=new ArrayList<ProcessingException>();
+      }
+      ProcessingException exception=new ProcessingException();
+      exception.setErrorCode(250);
+      exception.setMessage("Query execution gets TimeoutException");
+      exception.setStackTrace(e.getStackTrace());
+      exceptions.add(exception);
+      _mergedBlock.setExceptionsList(exceptions);
+    }
+  }
+ else {
+    for (    Operator operator : _operators) {
+      if ((operator instanceof MAggregationOperator) || (operator instanceof MSelectionOperator) || (operator instanceof MAggregationGroupByOperator)|| (operator instanceof MCombineOperator)) {
+        IntermediateResultsBlock block=(IntermediateResultsBlock)operator.nextBlock();
+        if (_mergedBlock == null) {
+          _mergedBlock=block;
+        }
+ else {
+          CombineService.mergeTwoBlocks(_brokerRequest,_mergedBlock,block);
+        }
+      }
+ else {
+        throw new UnsupportedOperationException("Unsupported Operator to be processed in MResultOperator : " + operator);
+      }
+    }
+  }
+  if ((_brokerRequest.getAggregationsInfoSize() > 0) && (_brokerRequest.getGroupBy() != null) && (_brokerRequest.getGroupBy().getColumnsSize() > 0)) {
+    trimToSize(_brokerRequest,_mergedBlock);
+  }
+  return _mergedBlock;
+}

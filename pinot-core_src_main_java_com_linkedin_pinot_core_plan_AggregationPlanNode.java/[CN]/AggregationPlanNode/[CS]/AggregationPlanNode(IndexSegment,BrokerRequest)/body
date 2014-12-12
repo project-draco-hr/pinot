@@ -1,0 +1,9 @@
+{
+  _indexSegment=indexSegment;
+  _brokerRequest=query;
+  _projectionPlanNode=new ProjectionPlanNode(_indexSegment,getAggregationRelatedColumns(),new DocIdSetPlanNode(_indexSegment,_brokerRequest,5000));
+  for (int i=0; i < _brokerRequest.getAggregationsInfo().size(); ++i) {
+    AggregationInfo aggregationInfo=_brokerRequest.getAggregationsInfo().get(i);
+    _aggregationFunctionPlanNodes.add(new AggregationFunctionPlanNode(aggregationInfo,_projectionPlanNode));
+  }
+}

@@ -1,0 +1,23 @@
+{
+  long start=System.currentTimeMillis();
+  final BrokerRequest brokerRequest=instanceRequest.getQuery();
+  LOGGER.info("Incoming query is :" + brokerRequest);
+  List<IndexSegment> queryableSegmentDataManagerList=getPrunedQueryableSegments(instanceRequest);
+  LOGGER.info("Matched " + queryableSegmentDataManagerList.size() + " segments! ");
+  if (queryableSegmentDataManagerList.isEmpty()) {
+    return null;
+  }
+  final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getResourceDataManager(brokerRequest.getQuerySource().getResourceName()).getExecutorService());
+  if (_printQueryPlan) {
+    System.out.println("*********************************** query plan ***********************************");
+    globalQueryPlan.print();
+    System.out.println("*********************************** end query plan ***********************************");
+  }
+  globalQueryPlan.execute();
+  DataTable instanceResponse=globalQueryPlan.getInstanceResponse();
+  long end=System.currentTimeMillis();
+  LOGGER.info("searching instance, browse took: " + (end - start));
+  LOGGER.info(instanceResponse.toString());
+  instanceResponse.getMetadata().put("timeUsedMs",Long.toString((end - start)));
+  return instanceResponse;
+}

@@ -1,0 +1,7 @@
+{
+  List<Operator> retOperators=new ArrayList<Operator>();
+  for (  PlanNode planNode : _planNodeList) {
+    retOperators.add(planNode.run());
+  }
+  return new MCombineOperator(retOperators,_executorService,_timeOutMs,_brokerRequest);
+}

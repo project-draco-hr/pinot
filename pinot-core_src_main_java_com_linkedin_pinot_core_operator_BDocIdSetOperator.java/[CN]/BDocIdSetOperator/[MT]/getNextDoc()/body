@@ -1,0 +1,17 @@
+{
+  while ((_currentBlockDocIdIterator == null) || ((_currentDoc=_currentBlockDocIdIterator.next()) == Constants.EOF)) {
+    if (_filterOperators != null) {
+      _currentBlock=_filterOperators.nextBlock();
+    }
+ else {
+      if (_currentDoc == Constants.EOF) {
+        _currentBlock=null;
+      }
+    }
+    if (_currentBlock == null) {
+      return Constants.EOF;
+    }
+    _currentBlockDocIdIterator=_currentBlock.getBlockDocIdSet().iterator();
+  }
+  return _currentDoc;
+}

@@ -1,0 +1,35 @@
+{
+  List<Long> groupKeysList=new ArrayList<Long>();
+  groupKeysList.add(0L);
+  int i=0;
+  for (  final int element : _groupKeyBitSize) {
+    if (_isSingleValueGroupByColumn[i]) {
+      BlockSingleValIterator blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[i];
+      blockValIterator.skipTo(docId);
+      int dictId=blockValIterator.nextIntVal();
+      for (int j=0; j < groupKeysList.size(); ++j) {
+        groupKeysList.set(j,(groupKeysList.get(j) << element) | dictId);
+      }
+    }
+ else {
+      BlockMultiValIterator blockValIterator=(BlockMultiValIterator)_groupByBlockValIterators[i];
+      blockValIterator.skipTo(docId);
+      final int maxValue=_groupByBlocks[i].getMetadata().maxNumberOfMultiValues();
+      final int[] entries=new int[maxValue];
+      int group=blockValIterator.nextIntVal(entries);
+      int originSize=groupKeysList.size();
+      for (int j=0; j < group - 1; ++j) {
+        for (int k=0; k < originSize; ++k) {
+          groupKeysList.add(groupKeysList.get(k));
+        }
+      }
+      for (int j=0; j < group; ++j) {
+        for (int k=0; k < originSize; ++k) {
+          groupKeysList.set(j * originSize + k,(groupKeysList.get(j * originSize + k) << element) | entries[j]);
+        }
+      }
+    }
+    i++;
+  }
+  return groupKeysList.toArray(new Long[0]);
+}

@@ -1,0 +1,10 @@
+{
+  if (aggregationGroupByResultList == null) {
+    return;
+  }
+  for (int i=0; i < aggregationGroupByResultList.size(); ++i) {
+    if (aggregationGroupByResultList.get(i).size() > (_groupByTopN * 20)) {
+      trimToSize(_aggregationFunctionList.get(i),aggregationGroupByResultList.get(i),_groupByTopN * 5);
+    }
+  }
+}

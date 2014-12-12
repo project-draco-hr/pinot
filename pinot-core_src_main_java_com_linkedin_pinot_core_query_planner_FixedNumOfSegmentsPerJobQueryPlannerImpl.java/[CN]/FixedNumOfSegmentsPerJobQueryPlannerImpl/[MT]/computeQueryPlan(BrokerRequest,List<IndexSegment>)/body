@@ -1,0 +1,16 @@
+{
+  QueryPlanCreator queryPlanCreator=new QueryPlanCreator(brokerRequest);
+  List<IndexSegment> vertexSegmentList=new ArrayList<IndexSegment>();
+  int i=0;
+  for (  IndexSegment indexSegment : indexSegmentList) {
+    vertexSegmentList.add(indexSegment);
+    if ((++i) % _numSegmentsPerJob == 0) {
+      queryPlanCreator.addJobVertexWithDependency(null,new JobVertex(vertexSegmentList));
+      vertexSegmentList=new ArrayList<IndexSegment>();
+    }
+  }
+  if (vertexSegmentList.size() > 0) {
+    queryPlanCreator.addJobVertexWithDependency(null,new JobVertex(vertexSegmentList));
+  }
+  return queryPlanCreator.buildQueryPlan();
+}

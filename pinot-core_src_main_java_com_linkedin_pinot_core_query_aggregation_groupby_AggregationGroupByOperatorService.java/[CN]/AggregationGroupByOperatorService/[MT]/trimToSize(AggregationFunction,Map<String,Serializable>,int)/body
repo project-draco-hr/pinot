@@ -1,0 +1,16 @@
+{
+  PriorityQueue priorityQueue=getPriorityQueue(aggregationFunction,aggregationGroupByResult.values().iterator().next());
+  if (priorityQueue == null) {
+    return;
+  }
+  for (  String groupedKey : aggregationGroupByResult.keySet()) {
+    priorityQueue.enqueue(new Pair(aggregationGroupByResult.get(groupedKey),groupedKey));
+    if (priorityQueue.size() == (_groupByTopN + 1)) {
+      priorityQueue.dequeue();
+    }
+  }
+  for (int i=0; i < (priorityQueue.size() - trimSize); ++i) {
+    Pair res=(Pair)priorityQueue.dequeue();
+    aggregationGroupByResult.remove(res.getSecond());
+  }
+}

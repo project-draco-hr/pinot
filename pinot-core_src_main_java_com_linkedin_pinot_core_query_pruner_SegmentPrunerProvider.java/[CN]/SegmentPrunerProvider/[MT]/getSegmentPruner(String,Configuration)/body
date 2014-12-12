@@ -1,0 +1,14 @@
+{
+  try {
+    Class<? extends SegmentPruner> cls=keyToFunction.get(prunerClassName.toLowerCase());
+    if (cls != null) {
+      SegmentPruner segmentPruner=(SegmentPruner)cls.newInstance();
+      segmentPruner.init(segmentPrunerConfig);
+      return segmentPruner;
+    }
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException("Not support SegmentPruner type with - " + prunerClassName);
+  }
+  throw new UnsupportedOperationException("No SegmentPruner type with - " + prunerClassName);
+}

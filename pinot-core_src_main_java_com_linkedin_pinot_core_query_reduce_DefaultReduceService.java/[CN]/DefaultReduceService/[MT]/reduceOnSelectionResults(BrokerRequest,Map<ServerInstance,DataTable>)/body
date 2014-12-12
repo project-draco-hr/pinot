@@ -1,0 +1,15 @@
+{
+  try {
+    if (instanceResponseMap.size() > 0) {
+      DataTable dt=instanceResponseMap.values().iterator().next();
+      SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),dt.getDataSchema());
+      return selectionService.render(selectionService.reduce(instanceResponseMap));
+    }
+ else {
+      return null;
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

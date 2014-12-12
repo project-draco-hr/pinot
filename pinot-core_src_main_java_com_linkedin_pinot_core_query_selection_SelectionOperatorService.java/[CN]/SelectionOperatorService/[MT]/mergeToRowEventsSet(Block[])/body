@@ -1,0 +1,8 @@
+{
+  final PriorityQueue<Serializable[]> rowEventsPriorityQueue=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
+  while (!_rowDocIdSet.isEmpty()) {
+    rowEventsPriorityQueue.add(getRowFromBlockValSets(_rowDocIdSet.poll(),blocks));
+  }
+  merge(_rowEventsSet,rowEventsPriorityQueue);
+  return _rowEventsSet;
+}

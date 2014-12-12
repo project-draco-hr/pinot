@@ -1,0 +1,12 @@
+{
+  if (segmentMetadata == null || segmentMetadata.getResourceName() == null) {
+    return;
+  }
+  String resourceName=segmentMetadata.getResourceName();
+  System.out.println(segmentMetadata.getName());
+  if (!_resourceDataManagerMap.containsKey(resourceName)) {
+    addResourceIfNeed(resourceName);
+  }
+  _resourceDataManagerMap.get(resourceName).addSegment(segmentMetadata);
+  LOGGER.info("Successfuly added a segment : " + segmentMetadata.getName() + " in HelixInstanceDataManager");
+}

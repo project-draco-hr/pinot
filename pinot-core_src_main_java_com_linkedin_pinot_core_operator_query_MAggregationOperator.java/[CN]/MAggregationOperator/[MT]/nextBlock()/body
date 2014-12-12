@@ -1,0 +1,22 @@
+{
+  List<Serializable> aggregationResults=new ArrayList<Serializable>();
+  for (int i=0; i < _aggregationFunctionOperatorList.size(); ++i) {
+    aggregationResults.add(null);
+  }
+  final long startTime=System.currentTimeMillis();
+  long numDocsScanned=0;
+  while (_projectionOperator.nextBlock() != null) {
+    for (int i=0; i < _aggregationFunctionOperatorList.size(); ++i) {
+      AggregationResultBlock block=(AggregationResultBlock)_aggregationFunctionOperatorList.get(i).nextBlock();
+      if (block != null) {
+        aggregationResults.set(i,_aggregationFunctionOperatorList.get(i).getAggregationFunction().combineTwoValues(aggregationResults.get(i),block.getAggregationResult()));
+      }
+    }
+    numDocsScanned+=((DocIdSetBlock)(_projectionOperator.getCurrentBlock().getDocIdSetBlock())).getSearchableLength();
+  }
+  final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(AggregationFunctionFactory.getAggregationFunction(_aggregationInfoList),aggregationResults);
+  resultBlock.setNumDocsScanned(numDocsScanned);
+  resultBlock.setTotalDocs(_indexSegment.getSegmentMetadata().getTotalDocs());
+  resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTime);
+  return resultBlock;
+}

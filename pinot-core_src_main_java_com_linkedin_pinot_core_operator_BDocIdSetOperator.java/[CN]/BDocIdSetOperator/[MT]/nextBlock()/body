@@ -1,0 +1,20 @@
+{
+  _pos=0;
+  getNextDoc();
+  while (_currentDoc != Constants.EOF) {
+    _docIds[_pos++]=_currentDoc;
+    if (_pos == _maxSizeOfdocIdSet) {
+      _searchableDocIdSize=_pos;
+      _currentDocIdSetBlock=new DocIdSetBlock(_indexSegment,_docIds,_pos);
+      return _currentDocIdSetBlock;
+    }
+    getNextDoc();
+  }
+  if (_pos > 0) {
+    _searchableDocIdSize=_pos;
+    _currentDocIdSetBlock=new DocIdSetBlock(_indexSegment,_docIds,_pos);
+    return _currentDocIdSetBlock;
+  }
+  _currentDocIdSetBlock=null;
+  return _currentDocIdSetBlock;
+}

@@ -1,0 +1,24 @@
+{
+  mergedBlock.setNumDocsScanned(mergedBlock.getNumDocsScanned() + blockToMerge.getNumDocsScanned());
+  mergedBlock.setTotalDocs(mergedBlock.getTotalDocs() + blockToMerge.getTotalDocs());
+  if (brokerRequest.isEnableTrace()) {
+    mergedBlock.getSegmentStatistics().addAll(blockToMerge.getSegmentStatistics());
+    mergedBlock.getTraceInfo().putAll(blockToMerge.getTraceInfo());
+  }
+  mergedBlock.setExceptionsList(combineExceptions(mergedBlock.getExceptions(),blockToMerge.getExceptions()));
+  mergedBlock.setRowEvents(combineSelectionResults(brokerRequest,mergedBlock.getRowEvents(),blockToMerge.getRowEvents()));
+  if (brokerRequest.isSetAggregationsInfo()) {
+    if (brokerRequest.isSetGroupBy()) {
+      mergedBlock.setAggregationGroupByResult1(combineAggregationGroupByResults1(brokerRequest,mergedBlock.getAggregationGroupByOperatorResult(),blockToMerge.getAggregationGroupByOperatorResult()));
+    }
+ else {
+      List<AggregationFunction> aggregationFunctions=AggregationFunctionFactory.getAggregationFunction(brokerRequest);
+      mergedBlock.setAggregationFunctions(aggregationFunctions);
+      mergedBlock.setAggregationResults(combineAggregationResults(brokerRequest,mergedBlock.getAggregationResult(),blockToMerge.getAggregationResult()));
+    }
+  }
+ else {
+    SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),mergedBlock.getSelectionDataSchema());
+    mergedBlock.setSelectionResult(selectionService.merge(mergedBlock.getSelectionResult(),blockToMerge.getSelectionResult()));
+  }
+}

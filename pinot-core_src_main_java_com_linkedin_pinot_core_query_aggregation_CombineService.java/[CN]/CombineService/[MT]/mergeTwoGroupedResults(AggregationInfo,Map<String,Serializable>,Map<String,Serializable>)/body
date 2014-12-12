@@ -1,0 +1,12 @@
+{
+  AggregationFunction aggregationFunction=AggregationFunctionFactory.get(aggregationInfo);
+  for (  String key : map2.keySet()) {
+    if (map1.containsKey(key)) {
+      map1.put(key,aggregationFunction.combineTwoValues(map1.get(key),map2.get(key)));
+    }
+ else {
+      map1.put(key,map2.get(key));
+    }
+  }
+  return map1;
+}

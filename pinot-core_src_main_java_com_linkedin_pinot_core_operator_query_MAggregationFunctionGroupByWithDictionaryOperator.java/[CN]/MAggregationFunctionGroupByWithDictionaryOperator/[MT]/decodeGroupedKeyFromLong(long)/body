@@ -1,0 +1,15 @@
+{
+  int i=_groupKeyBitSize.length - 1;
+  while (i >= 0) {
+    final long number=key & (-1L >>> (64 - _groupKeyBitSize[i]));
+    _stringArray[i]=_dictionaries[i].get((int)number).toString();
+    key>>>=_groupKeyBitSize[i];
+    i--;
+  }
+  final StringBuilder builder=new StringBuilder();
+  for (int j=0; j < (_stringArray.length - 1); j++) {
+    builder.append(_stringArray[j]).append(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter.toString());
+  }
+  builder.append(_stringArray[_stringArray.length - 1]);
+  return builder.toString();
+}
