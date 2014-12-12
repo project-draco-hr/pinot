@@ -13,6 +13,8 @@
     StringBuilder sb=new StringBuilder();
     sb.append("B").append(i % 8).append("C").append(i % 16);
   }
+  StarTreeRecord other=new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0).setTime(0L).build();
+  root.getRecordStore().update(other);
   root.split("A");
   Assert.assertEquals(root.getChildren().size(),4);
   Assert.assertNotNull(root.getOtherNode());
