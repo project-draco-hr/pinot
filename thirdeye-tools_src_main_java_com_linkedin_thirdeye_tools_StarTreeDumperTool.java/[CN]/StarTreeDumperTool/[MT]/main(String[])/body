@@ -5,35 +5,6 @@
   PrintWriter printWriter=new PrintWriter(System.out);
   ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(args[0]));
   StarTreeNode root=(StarTreeNode)objectInputStream.readObject();
-  StarTreeUtils.printNode(printWriter,root,0);
-  printWriter.flush();
-  AtomicInteger numNodes=new AtomicInteger();
-  AtomicInteger numLeaves=new AtomicInteger();
-  Map<Integer,Integer> leafDepthCount=new HashMap<Integer,Integer>();
-  Map<Integer,Integer> parentDepthCount=new HashMap<Integer,Integer>();
-  countNodes(root,numNodes,numLeaves,leafDepthCount,parentDepthCount,0);
-  Set<Integer> depthSet=new HashSet<Integer>();
-  depthSet.addAll(leafDepthCount.keySet());
-  depthSet.addAll(parentDepthCount.keySet());
-  List<Integer> depths=new ArrayList<Integer>(depthSet);
-  Collections.sort(depths);
-  printWriter.println();
-  printWriter.println("--------------------------------------------------");
-  printWriter.println();
-  printWriter.println("(total=" + numNodes.get() + ", leaves="+ numLeaves.get()+ ")");
-  Collections.sort(depths);
-  for (  Integer depth : depths) {
-    Integer leafCount=leafDepthCount.get(depth);
-    Integer parentCount=parentDepthCount.get(depth);
-    Integer totalCount=(leafCount == null ? 0 : leafCount) + (parentCount == null ? 0 : parentCount);
-    printWriter.println("\tat depth=" + depth + ":");
-    printWriter.println("\t\ttotal=" + totalCount);
-    if (leafCount != null) {
-      printWriter.println("\t\tleaves=" + leafCount);
-    }
-    if (parentCount != null) {
-      printWriter.println("\t\tparents=" + parentCount);
-    }
-  }
-  printWriter.flush();
+  StarTreeDumperTool dumper=new StarTreeDumperTool(root,printWriter);
+  dumper.print();
 }

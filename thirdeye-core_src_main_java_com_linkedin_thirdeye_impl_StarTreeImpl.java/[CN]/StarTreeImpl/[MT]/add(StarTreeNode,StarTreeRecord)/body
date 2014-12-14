@@ -27,11 +27,20 @@ synchronized (node) {
     }
   }
  else {
-    StarTreeNode target=node.getChild(record.getDimensionValues().get(node.getChildDimensionName()));
+    String dimensionValue=record.getDimensionValues().get(node.getChildDimensionName());
+    StarTreeNode target=node.getChild(dimensionValue);
     if (target == null) {
-      target=node.getOtherNode();
+      boolean mapToOtherNode=false;
+      if (mapToOtherNode) {
+        target=node.getOtherNode();
+        String otherDimensionNames=node.getChildDimensionName();
+        StarTreeRecord aliasOtherRecord=record.aliasOther(otherDimensionNames);
+        add(target,aliasOtherRecord);
+      }
+ else {
+        target=node.addChildNode(dimensionValue);
+      }
     }
-    add(target,record);
     add(node.getStarNode(),record.relax(target.getDimensionName()));
   }
 }

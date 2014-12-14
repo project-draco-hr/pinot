@@ -1,4 +1,5 @@
 {
+  this.splitDimensionName=dimensionName;
 synchronized (sync) {
     if (!children.isEmpty()) {
       return;
@@ -13,8 +14,8 @@ synchronized (sync) {
     }
     nodeName.append("(").append(dimensionName).append(":").append(dimensionValue).append(")");
     LOG.info("Splitting {} on dimension {} (record={})",nodeName.toString(),splitDimensionName,recordStore.getRecordCount());
-    List<String> nextAncestorDimensionNames=new ArrayList<String>();
-    Map<String,String> nextAncestorDimensionValues=new HashMap<String,String>();
+    nextAncestorDimensionNames=new ArrayList<String>();
+    nextAncestorDimensionValues=new HashMap<String,String>();
     if (!StarTreeConstants.STAR.equals(dimensionName)) {
       nextAncestorDimensionNames.addAll(ancestorDimensionNames);
       nextAncestorDimensionNames.add(dimensionName);
@@ -50,9 +51,7 @@ synchronized (sync) {
       if (StarTreeConstants.OTHER.equals(dimensionValue)) {
         continue;
       }
-      StarTreeNode child=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,dimensionValue,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
-      child.init(config);
-      children.put(dimensionValue,child);
+      StarTreeNode child=addChildNode(dimensionValue);
     }
     for (    Map.Entry<String,List<StarTreeRecord>> entry : groupedRecords.entrySet()) {
       String dimensionValue=entry.getKey();

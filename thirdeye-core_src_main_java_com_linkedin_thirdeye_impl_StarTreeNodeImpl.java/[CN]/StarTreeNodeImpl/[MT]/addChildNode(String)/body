@@ -1,0 +1,9 @@
+{
+  if (children.containsKey(dimensionValue)) {
+    return children.get(dimensionValue);
+  }
+  StarTreeNode child=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,dimensionValue,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
+  child.init(config);
+  children.put(dimensionValue,child);
+  return child;
+}

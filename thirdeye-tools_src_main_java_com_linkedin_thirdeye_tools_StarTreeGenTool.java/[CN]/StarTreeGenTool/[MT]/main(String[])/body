@@ -18,12 +18,10 @@
   String recordStoreFactoryClass="com.linkedin.thirdeye.impl.StarTreeRecordStoreFactoryCircularBufferImpl";
   Properties recordStoreFactoryConfig=new Properties();
   recordStoreFactoryConfig.setProperty("numTimeBuckets","672");
+  System.out.println(outputPath.toUri().toString());
   recordStoreFactoryConfig.setProperty("rootDir","");
-  StarTreeConfig starTreeConfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName).setRecordStoreFactoryClass(recordStoreFactoryClass).setRecordStoreFactoryConfig(recordStoreFactoryConfig).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
+  StarTreeConfig starTreeConfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
   System.out.println(starTreeConfig.toJson());
-  if (true) {
-    System.exit(1);
-  }
   ExecutorService executorService=Executors.newSingleThreadExecutor();
   StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
   starTreeManager.registerConfig(collectionName,starTreeConfig);
@@ -45,7 +43,10 @@
     StarTreeRecord record=new StarTreeRecordImpl(dimensionValuesMap,metricValuesMap,time);
     starTreeManager.getStarTree(collectionName).add(record);
   }
+  PrintWriter printWriter=new PrintWriter(System.out);
   StarTreeNode root=starTreeManager.getStarTree(collectionName).getRoot();
+  StarTreeDumperTool tool=new StarTreeDumperTool(root,printWriter);
+  tool.print();
   FileOutputStream fileOutputStream=new FileOutputStream(new File(outputPath + "/" + "tree.bin"));
   ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
   objectOutputStream.writeObject(root);
