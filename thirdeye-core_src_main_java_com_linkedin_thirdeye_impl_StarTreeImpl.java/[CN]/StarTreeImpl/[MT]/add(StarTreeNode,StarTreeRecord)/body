@@ -1,6 +1,7 @@
 {
   if (node.isLeaf()) {
     node.getRecordStore().update(record);
+    LOG.info("Added record:{} to node:{}",record.getDimensionValues().values(),node.getAncestorDimensionValues().toString() + ", " + node.getDimensionValue());
     if (shouldSplit(node)) {
 synchronized (node) {
         if (shouldSplit(node)) {
@@ -39,7 +40,11 @@ synchronized (node) {
       }
  else {
         target=node.addChildNode(dimensionValue);
+        add(target,record);
       }
+    }
+ else {
+      add(target,record);
     }
     add(node.getStarNode(),record.relax(target.getDimensionName()));
   }

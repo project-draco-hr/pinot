@@ -27,6 +27,7 @@
   starTreeManager.registerConfig(collectionName,starTreeConfig);
   starTreeManager.create(collectionName);
   starTreeManager.open(collectionName);
+  int rowCount=0;
   while (reader.next(key,val)) {
     BytesWritable writable=(BytesWritable)key;
     DimensionKey dimensionKey=DimensionKey.fromBytes(writable.getBytes());
@@ -42,7 +43,9 @@
     Long time=0l;
     StarTreeRecord record=new StarTreeRecordImpl(dimensionValuesMap,metricValuesMap,time);
     starTreeManager.getStarTree(collectionName).add(record);
+    rowCount=rowCount + 1;
   }
+  System.out.println("Number of records added:" + rowCount);
   PrintWriter printWriter=new PrintWriter(System.out);
   StarTreeNode root=starTreeManager.getStarTree(collectionName).getRoot();
   StarTreeDumperTool tool=new StarTreeDumperTool(root,printWriter);
