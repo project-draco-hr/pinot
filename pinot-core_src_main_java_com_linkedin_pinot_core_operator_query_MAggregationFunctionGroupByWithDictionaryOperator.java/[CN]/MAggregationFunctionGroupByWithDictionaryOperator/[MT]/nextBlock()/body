@@ -1,0 +1,24 @@
+{
+  final ProjectionBlock block=(ProjectionBlock)_projectionOperator.nextBlock();
+  if (block == null) {
+    return null;
+  }
+  DocIdSetBlock docIdSetBlock=(DocIdSetBlock)block.getDocIdSetBlock();
+  BlockDocIdIterator blockDocIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
+  int docId=0;
+  for (int i=0; i < _groupBy.getColumnsSize(); ++i) {
+    _groupByBlockValIterators[i]=block.getBlock(_groupBy.getColumns().get(i)).getBlockValueSet().iterator();
+  }
+  while ((docId=blockDocIdIterator.next()) != Constants.EOF) {
+    if (!_isGroupByColumnsContainMultiValueColumn) {
+      final long groupKey=getGroupKey(docId);
+      _tempAggregationResults.put(groupKey,_aggregationFunction.aggregate(_tempAggregationResults.get(groupKey),docId,_aggregationFunctionBlocks));
+    }
+ else {
+      for (      long groupKey : getGroupKeys(docId)) {
+        _tempAggregationResults.put(groupKey,_aggregationFunction.aggregate(_tempAggregationResults.get(groupKey),docId,_aggregationFunctionBlocks));
+      }
+    }
+  }
+  return null;
+}

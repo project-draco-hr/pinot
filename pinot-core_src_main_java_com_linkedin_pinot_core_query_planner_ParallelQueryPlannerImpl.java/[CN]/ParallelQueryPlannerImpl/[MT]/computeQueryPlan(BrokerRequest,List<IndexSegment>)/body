@@ -1,0 +1,9 @@
+{
+  QueryPlanCreator queryPlanCreator=new QueryPlanCreator(query);
+  for (  IndexSegment indexSegment : indexSegmentList) {
+    List<IndexSegment> vertexSegmentList=new ArrayList<IndexSegment>();
+    vertexSegmentList.add(indexSegment);
+    queryPlanCreator.addJobVertexWithDependency(null,new JobVertex(vertexSegmentList));
+  }
+  return queryPlanCreator.buildQueryPlan();
+}

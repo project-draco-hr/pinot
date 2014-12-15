@@ -1,0 +1,13 @@
+{
+  HashMap<String,SimpleColumnMetadata> columnMetadataMap=new HashMap<String,SimpleColumnMetadata>();
+  Iterator columns=config.getKeys("column");
+  while (columns.hasNext()) {
+    String key=(String)columns.next();
+    String columnName=key.split("\\.")[1];
+    SimpleColumnMetadata metadata=SimpleColumnMetadata.valueOf(config,columnName);
+    if (!columnMetadataMap.containsKey(columnName)) {
+      columnMetadataMap.put(columnName,metadata);
+    }
+  }
+  return columnMetadataMap;
+}

@@ -1,0 +1,16 @@
+{
+  try {
+    Class<? extends ResourceDataManager> cls=keyToFunction.get(resourceDataManagerConfig.getResourceDataManagerType().toLowerCase());
+    if (cls != null) {
+      ResourceDataManager resourceDataManager=(ResourceDataManager)cls.newInstance();
+      resourceDataManager.init(resourceDataManagerConfig);
+      return resourceDataManager;
+    }
+ else {
+      throw new UnsupportedOperationException("No ResourceDataManager type found.");
+    }
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException("Not support ResourceDataManager type with - " + resourceDataManagerConfig.getResourceDataManagerType());
+  }
+}

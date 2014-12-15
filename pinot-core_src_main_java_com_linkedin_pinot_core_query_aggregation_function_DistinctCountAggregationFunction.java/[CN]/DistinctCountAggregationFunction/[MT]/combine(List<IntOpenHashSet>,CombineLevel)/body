@@ -1,0 +1,12 @@
+{
+  if ((aggregationResultList == null) || aggregationResultList.isEmpty()) {
+    return null;
+  }
+  IntOpenHashSet intOpenHashSet=aggregationResultList.get(0);
+  for (int i=1; i < aggregationResultList.size(); ++i) {
+    intOpenHashSet.addAll(aggregationResultList.get(i));
+  }
+  aggregationResultList.clear();
+  aggregationResultList.add(intOpenHashSet);
+  return aggregationResultList;
+}

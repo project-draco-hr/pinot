@@ -1,0 +1,9 @@
+{
+  _segmentPrunerSetConfig=segmentPrunerConfig;
+  checkRequiredKeys();
+  String[] serviceClasses=_segmentPrunerSetConfig.getStringArray(SEGMENT_PRUNER_CLASS);
+  for (  String serviceClass : serviceClasses) {
+    _segmentPrunerClassNameList.add(serviceClass);
+    _segmentPrunerConfigurationList.add(_segmentPrunerSetConfig.subset(serviceClass));
+  }
+}

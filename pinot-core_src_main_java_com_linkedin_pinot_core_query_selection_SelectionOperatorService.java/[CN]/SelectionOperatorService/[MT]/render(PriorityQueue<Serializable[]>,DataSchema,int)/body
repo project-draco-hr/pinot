@@ -1,0 +1,10 @@
+{
+  final List<JSONArray> rowEventsJSonList=new LinkedList<JSONArray>();
+  while (finalResults.size() > offset) {
+    ((LinkedList<JSONArray>)rowEventsJSonList).addFirst(getJSonArrayFromRow(finalResults.poll(),dataSchema));
+  }
+  final JSONObject resultJsonObject=new JSONObject();
+  resultJsonObject.put("results",new JSONArray(rowEventsJSonList));
+  resultJsonObject.put("columns",getSelectionColumnsFromDataSchema(dataSchema));
+  return resultJsonObject;
+}

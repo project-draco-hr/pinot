@@ -1,0 +1,12 @@
+{
+  if (isStarted()) {
+    for (    ResourceDataManager resourceDataManager : getResourceDataManagers()) {
+      resourceDataManager.shutDown();
+    }
+    _isStarted=false;
+    LOGGER.info("InstanceDataManager is shutDown!");
+  }
+ else {
+    LOGGER.warn("InstanceDataManager is already shutDown, won't do anything!");
+  }
+}

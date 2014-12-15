@@ -1,0 +1,11 @@
+{
+  if (rootNode.getNextGroupedColumnValues() != null) {
+    for (    final int key : rootNode.getNextGroupedColumnValues().keySet()) {
+      _groupKeys[level]=key;
+      traverseTrieTree(rootNode.getNextGroupedColumnValues().get(key),level + 1);
+    }
+  }
+ else {
+    _aggregateGroupedValue.put(getGroupedKey(),rootNode.getAggregationResult());
+  }
+}

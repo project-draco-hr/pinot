@@ -1,0 +1,24 @@
+{
+  final List<String> columns=new ArrayList<String>();
+  for (  final SelectionSort selectionSort : sortSequence) {
+    columns.add(selectionSort.getColumn());
+  }
+  for (  final String selectionColumn : selectionColumns) {
+    if (!columns.contains(selectionColumn)) {
+      columns.add(selectionColumn);
+    }
+  }
+  final DataType[] dataTypes=new DataType[columns.size()];
+  for (int i=0; i < dataTypes.length; ++i) {
+    if (columns.get(i).equals("_segmentId") || (columns.get(i).equals("_docId"))) {
+      dataTypes[i]=DataType.INT;
+    }
+ else {
+      dataTypes[i]=indexSegment.getDataSource(columns.get(i)).nextBlock(new BlockId(0)).getMetadata().getDataType();
+      if (!indexSegment.getDataSource(columns.get(i)).nextBlock().getMetadata().isSingleValue()) {
+        dataTypes[i]=DataType.valueOf(dataTypes[i] + "_ARRAY");
+      }
+    }
+  }
+  return new DataSchema(columns.toArray(new String[0]),dataTypes);
+}

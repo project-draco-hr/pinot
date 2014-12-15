@@ -1,0 +1,11 @@
+{
+  if (_segmentPrunerSet == null || _segmentPrunerSet.size() == 0) {
+    return false;
+  }
+  for (  SegmentPruner pruner : _segmentPrunerSet) {
+    if (pruner.prune(segment,brokerRequest)) {
+      return true;
+    }
+  }
+  return false;
+}

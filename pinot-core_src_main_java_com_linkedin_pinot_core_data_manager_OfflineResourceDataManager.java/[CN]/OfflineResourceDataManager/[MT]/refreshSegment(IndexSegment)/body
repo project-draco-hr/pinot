@@ -1,0 +1,10 @@
+{
+synchronized (getGlobalLock()) {
+    SegmentDataManager segment=_segmentsMap.get(segmentToRefresh.getSegmentName());
+    if (segment != null) {
+      _currentNumberOfDocuments.dec(segment.getSegment().getSegmentMetadata().getTotalDocs());
+      _currentNumberOfDocuments.inc(segmentToRefresh.getSegmentMetadata().getTotalDocs());
+    }
+    _segmentsMap.put(segmentToRefresh.getSegmentName(),new SegmentDataManager(segmentToRefresh));
+  }
+}

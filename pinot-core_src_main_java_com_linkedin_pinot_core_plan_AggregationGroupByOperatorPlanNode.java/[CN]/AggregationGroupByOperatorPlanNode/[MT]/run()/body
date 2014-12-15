@@ -1,0 +1,7 @@
+{
+  List<AggregationFunctionGroupByOperator> aggregationFunctionOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
+  for (  AggregationFunctionGroupByPlanNode aggregationFunctionGroupByPlanNode : _aggregationFunctionGroupByPlanNodes) {
+    aggregationFunctionOperatorList.add((AggregationFunctionGroupByOperator)aggregationFunctionGroupByPlanNode.run());
+  }
+  return new MAggregationGroupByOperator(_indexSegment,_brokerRequest.getAggregationsInfo(),_brokerRequest.getGroupBy(),_projectionPlanNode.run(),aggregationFunctionOperatorList);
+}

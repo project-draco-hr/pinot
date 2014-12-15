@@ -1,0 +1,14 @@
+{
+  _maxSizeOfdocIdSet=maxSizeOfdocIdSet;
+  _docIds=new int[_maxSizeOfdocIdSet];
+  _filterOperators=filterOperators;
+  _indexSegment=indexSegment;
+  if (_filterOperators == null) {
+    _currentBlock=new MatchEntireSegmentBlock(_indexSegment.getSegmentMetadata().getTotalDocs());
+  }
+ else {
+    _currentBlock=_filterOperators.nextBlock();
+  }
+  _currentBlockDocIdIterator=_currentBlock.getBlockDocIdSet().iterator();
+  _currentDoc=0;
+}

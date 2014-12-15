@@ -1,0 +1,18 @@
+{
+  _queryExecutorConfig=new QueryExecutorConfig(queryExecutorConfig);
+  _instanceDataManager=(InstanceDataManager)dataManager;
+  if (_queryExecutorConfig.getTimeOut() > 0) {
+    _timeOutMs=_queryExecutorConfig.getTimeOut();
+  }
+  LOGGER.info("Timeout for query executor : " + _timeOutMs);
+  LOGGER.info("Trying to build SegmentPrunerService");
+  if (_segmentPrunerService == null) {
+    _segmentPrunerService=new SegmentPrunerServiceImpl(_queryExecutorConfig.getPrunerConfig());
+  }
+  LOGGER.info("Trying to build QueryPlanMaker");
+  _planMaker=new InstancePlanMakerImplV2(_timeOutMs);
+  LOGGER.info("Trying to build QueryExecutorTimer");
+  if (_queryExecutorTimer == null) {
+    _queryExecutorTimer=Metrics.newTimer(new MetricName(Domain,"timer","query-executor-time-"),TimeUnit.MILLISECONDS,TimeUnit.SECONDS);
+  }
+}

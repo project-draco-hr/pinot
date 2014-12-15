@@ -1,0 +1,19 @@
+{
+  StringBuilder sb=new StringBuilder();
+  sb.append("\n[InstanceDataManager Info] : ");
+  for (  String resourceName : _resourceDataManagerMap.keySet()) {
+    sb.append("\n\t{\n\t\tResource : [" + resourceName + "];\n\t\tSegments : [");
+    boolean isFirstSegment=true;
+    for (    SegmentDataManager segmentDataManager : _resourceDataManagerMap.get(resourceName).getAllSegments()) {
+      if (isFirstSegment) {
+        sb.append(segmentDataManager.getSegment().getSegmentName());
+        isFirstSegment=false;
+      }
+ else {
+        sb.append(", " + segmentDataManager.getSegment().getSegmentName());
+      }
+    }
+    sb.append("]\n\t}");
+  }
+  return sb.toString();
+}

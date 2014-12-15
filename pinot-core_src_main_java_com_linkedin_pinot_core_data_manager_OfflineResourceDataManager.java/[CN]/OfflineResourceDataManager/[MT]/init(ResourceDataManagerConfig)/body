@@ -1,0 +1,17 @@
+{
+  _resourceDataManagerConfig=resourceDataManagerConfig;
+  _resourceName=_resourceDataManagerConfig.getResourceName();
+  _resourceDataDir=_resourceDataManagerConfig.getDataDir();
+  if (!new File(_resourceDataDir).exists()) {
+    new File(_resourceDataDir).mkdirs();
+  }
+  _numberOfResourceQueryExecutorThreads=_resourceDataManagerConfig.getNumberOfResourceQueryExecutorThreads();
+  if (_numberOfResourceQueryExecutorThreads > 0) {
+    _queryExecutorService=Executors.newFixedThreadPool(_numberOfResourceQueryExecutorThreads,new NamedThreadFactory("parallel-query-executor-" + _resourceName));
+  }
+ else {
+    _queryExecutorService=Executors.newCachedThreadPool(new NamedThreadFactory("parallel-query-executor-" + _resourceName));
+  }
+  _readMode=ReadMode.valueOf(_resourceDataManagerConfig.getReadMode());
+  LOGGER.info("Initialized resource : " + _resourceName + " with :\n\tData Directory: "+ _resourceDataDir+ "\n\tRead Mode : "+ _readMode+ "\n\tQuery Exeutor with "+ ((_numberOfResourceQueryExecutorThreads > 0) ? _numberOfResourceQueryExecutorThreads : "cached")+ " threads");
+}

@@ -1,0 +1,31 @@
+{
+  BrokerResponse brokerResponse=new BrokerResponse();
+  if (instanceResponseMap == null || instanceResponseMap.size() == 0) {
+    return BrokerResponse.EMPTY_RESULT;
+  }
+  for (  ServerInstance serverInstance : instanceResponseMap.keySet()) {
+    DataTable instanceResponse=instanceResponseMap.get(serverInstance);
+    brokerResponse.setNumDocsScanned(brokerResponse.getNumDocsScanned() + Long.parseLong(instanceResponse.getMetadata().get(NUM_DOCS_SCANNED)));
+    brokerResponse.setTotalDocs(brokerResponse.getTotalDocs() + Long.parseLong(instanceResponse.getMetadata().get(TOTAL_DOCS)));
+    if (Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)) > brokerResponse.getTimeUsedMs()) {
+      brokerResponse.setTimeUsedMs(Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)));
+    }
+  }
+  if (brokerRequest.isSetSelections() && (brokerRequest.getSelections().getSelectionColumns() != null) && (brokerRequest.getSelections().getSelectionColumns().size() >= 0)) {
+    JSONObject selectionRet=reduceOnSelectionResults(brokerRequest,instanceResponseMap);
+    brokerResponse.setSelectionResults(selectionRet);
+    return brokerResponse;
+  }
+  if (brokerRequest.isSetAggregationsInfo()) {
+    if (!brokerRequest.isSetGroupBy()) {
+      List<List<Serializable>> aggregationResultsList=getShuffledAggregationResults(brokerRequest,instanceResponseMap);
+      brokerResponse.setAggregationResults(reduceOnAggregationResults(brokerRequest,aggregationResultsList));
+    }
+ else {
+      AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(brokerRequest.getAggregationsInfo(),brokerRequest.getGroupBy());
+      brokerResponse.setAggregationResults(reduceOnAggregationGroupByOperatorResults(aggregationGroupByOperatorService,instanceResponseMap));
+    }
+    return brokerResponse;
+  }
+  throw new UnsupportedOperationException("Should not reach here, the query has no attributes of selection or aggregation!");
+}

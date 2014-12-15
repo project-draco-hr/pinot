@@ -1,0 +1,37 @@
+{
+  final long startTime=System.currentTimeMillis();
+  long numDocsScanned=0;
+  ProjectionBlock projectionBlock=null;
+  try {
+    while ((projectionBlock=(ProjectionBlock)_projectionOperator.nextBlock()) != null) {
+      int j=0;
+      for (int i=0; i < _dataSchema.size(); ++i) {
+        if (_dataSchema.getColumnName(i).equalsIgnoreCase("_segmentId") || _dataSchema.getColumnName(i).equalsIgnoreCase("_docId")) {
+          continue;
+        }
+        _blocks[j++]=projectionBlock.getBlock(_dataSchema.getColumnName(i));
+      }
+      _selectionOperatorService.iterateOnBlock(projectionBlock.getDocIdSetBlock().getBlockDocIdSet().iterator(),_blocks);
+      numDocsScanned+=((DocIdSetBlock)(projectionBlock.getDocIdSetBlock())).getSearchableLength();
+    }
+    final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock();
+    resultBlock.setSelectionResult(_selectionOperatorService.getRowEventsSet());
+    resultBlock.setSelectionDataSchema(_selectionOperatorService.getDataSchema());
+    resultBlock.setNumDocsScanned(numDocsScanned);
+    resultBlock.setTotalDocs(_indexSegment.getSegmentMetadata().getTotalDocs());
+    resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTime);
+    return resultBlock;
+  }
+ catch (  Exception e) {
+    final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock();
+    List<ProcessingException> processingExceptions=new ArrayList<ProcessingException>();
+    ProcessingException processingException=new ProcessingException(400);
+    processingException.setMessage(e.toString());
+    processingExceptions.add(processingException);
+    resultBlock.setExceptionsList(processingExceptions);
+    resultBlock.setNumDocsScanned(0);
+    resultBlock.setTotalDocs(_indexSegment.getSegmentMetadata().getTotalDocs());
+    resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTime);
+    return resultBlock;
+  }
+}

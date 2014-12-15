@@ -1,0 +1,14 @@
+{
+  for (  ResourceDataManager resourceDataManager : _resourceDataManagerMap.values()) {
+    resourceDataManager.start();
+  }
+  try {
+    bootstrapSegmentsFromSegmentDir();
+  }
+ catch (  Exception e) {
+    LOGGER.error("Error in bootstrap segment from dir : " + _instanceDataManagerConfig.getInstanceBootstrapSegmentDir());
+    e.printStackTrace();
+  }
+  _isStarted=true;
+  LOGGER.info("InstanceDataManager is started! " + getServerInfo());
+}

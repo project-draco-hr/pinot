@@ -1,0 +1,8 @@
+{
+  long startTime=System.currentTimeMillis();
+  PlanNode root=getRoot();
+  UResultOperator operator=(UResultOperator)root.run();
+  InstanceResponseBlock instanceResponseBlock=(InstanceResponseBlock)operator.nextBlock();
+  _instanceResponseDataTable=instanceResponseBlock.getInstanceResponseDataTable();
+  _instanceResponseDataTable.getMetadata().put("timeUsedMs","" + (System.currentTimeMillis() - startTime));
+}

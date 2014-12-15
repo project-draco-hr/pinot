@@ -1,0 +1,56 @@
+{
+  Operator ret=null;
+  final List<FilterQueryTree> childFilters=filterQueryTree.getChildren();
+  final boolean isLeaf=(childFilters == null) || childFilters.isEmpty();
+  List<Operator> childOperators=null;
+  if (!isLeaf) {
+    childOperators=new ArrayList<Operator>();
+    for (    final FilterQueryTree query : childFilters) {
+      childOperators.add(constructPhysicalOperator(query));
+    }
+    final FilterOperator filterType=filterQueryTree.getOperator();
+switch (filterType) {
+case AND:
+      ret=new BAndOperator(childOperators);
+    break;
+case OR:
+  ret=new BOrOperator(childOperators);
+break;
+}
+}
+ else {
+final FilterOperator filterType=filterQueryTree.getOperator();
+final String column=filterQueryTree.getColumn();
+Predicate predicate=null;
+final List<String> value=filterQueryTree.getValue();
+switch (filterType) {
+case EQUALITY:
+predicate=new Predicate(column,EQ,value);
+break;
+case RANGE:
+predicate=new Predicate(column,RANGE,value);
+break;
+case REGEX:
+predicate=new Predicate(column,REGEX,value);
+break;
+case NOT:
+predicate=new Predicate(column,NEQ,value);
+break;
+case NOT_IN:
+predicate=new Predicate(column,Type.NOT_IN,value);
+break;
+case IN:
+predicate=new Predicate(column,Type.IN,value);
+break;
+}
+DataSource ds;
+if (predicate != null) {
+ds=_segment.getDataSource(column,predicate);
+}
+ else {
+ds=_segment.getDataSource(column);
+}
+ret=ds;
+}
+return ret;
+}

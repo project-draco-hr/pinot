@@ -1,0 +1,12 @@
+{
+  long ret=0L;
+  int i=0;
+  BlockSingleValIterator blockValIterator;
+  for (  final int element : _groupKeyBitSize) {
+    blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[i++];
+    blockValIterator.skipTo(docId);
+    ret=ret << element;
+    ret|=blockValIterator.nextIntVal();
+  }
+  return ret;
+}

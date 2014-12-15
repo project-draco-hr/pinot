@@ -1,0 +1,11 @@
+{
+  System.out.println(prefix + "Operator: MProjectionOperator");
+  System.out.println(prefix + "Argument 0: DocIdSet - ");
+  _docIdSetPlanNode.showTree(prefix + "    ");
+  int i=0;
+  for (  String column : _dataSourcePlanNodeMap.keySet()) {
+    System.out.println(prefix + "Argument " + (i + 1)+ ": DataSourceOperator");
+    _dataSourcePlanNodeMap.get(column).showTree(prefix + "    ");
+    i++;
+  }
+}

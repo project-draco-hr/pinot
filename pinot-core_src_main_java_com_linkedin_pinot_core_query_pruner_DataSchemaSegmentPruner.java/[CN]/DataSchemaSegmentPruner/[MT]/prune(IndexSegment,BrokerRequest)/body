@@ -1,0 +1,23 @@
+{
+  Schema schema=segment.getSegmentMetadata().getSchema();
+  if (brokerRequest.getSelections() != null) {
+    for (    String columnName : brokerRequest.getSelections().getSelectionColumns()) {
+      if ((!columnName.equalsIgnoreCase("*")) && (!schema.isExisted(columnName))) {
+        return true;
+      }
+    }
+    for (    SelectionSort selectionOrder : brokerRequest.getSelections().getSelectionSortSequence()) {
+      if (!schema.isExisted(selectionOrder.getColumn())) {
+        return true;
+      }
+    }
+  }
+  if (brokerRequest.getGroupBy() != null) {
+    for (    String columnName : brokerRequest.getGroupBy().getColumns()) {
+      if (!schema.isExisted(columnName)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}

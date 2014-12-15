@@ -1,0 +1,46 @@
+{
+  ArrayList<String> groupKeyList=new ArrayList<String>();
+  DictionaryReader dictionaryReader=_groupByBlocks[0].getMetadata().getDictionary();
+  if (_groupByBlocks[0].getMetadata().isSingleValue()) {
+    BlockSingleValIterator blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[0];
+    blockValIterator.skipTo(docId);
+    groupKeyList.add(dictionaryReader.get(blockValIterator.nextIntVal()).toString());
+  }
+ else {
+    BlockMultiValIterator blockValIterator=(BlockMultiValIterator)_groupByBlockValIterators[0];
+    blockValIterator.skipTo(docId);
+    final int maxValue=_groupByBlocks[0].getMetadata().maxNumberOfMultiValues();
+    final int[] entries=new int[maxValue];
+    int groups=blockValIterator.nextIntVal(entries);
+    for (int i=0; i < groups; ++i) {
+      groupKeyList.add((dictionaryReader.get(entries[i])).toString());
+    }
+  }
+  for (int i=1; i < _groupByBlockValIterators.length; ++i) {
+    dictionaryReader=_groupByBlocks[i].getMetadata().getDictionary();
+    if (_groupByBlocks[i].getMetadata().isSingleValue()) {
+      BlockSingleValIterator blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[i];
+      blockValIterator.skipTo(docId);
+      for (int j=0; j < groupKeyList.size(); ++j) {
+        groupKeyList.set(j,groupKeyList.get(j) + (GroupByConstants.GroupByDelimiter.groupByMultiDelimeter + (dictionaryReader.get(blockValIterator.nextIntVal()).toString())));
+      }
+    }
+ else {
+      BlockMultiValIterator blockValIterator=(BlockMultiValIterator)_groupByBlockValIterators[i];
+      blockValIterator.skipTo(docId);
+      final int maxValue=_groupByBlocks[i].getMetadata().maxNumberOfMultiValues();
+      final int[] entries=new int[maxValue];
+      int groups=blockValIterator.nextIntVal(entries);
+      int currentGroupListSize=groupKeyList.size();
+      for (int j=1; j < groups; ++j) {
+        for (int k=0; k < currentGroupListSize; ++k) {
+          groupKeyList.add(groupKeyList.get(k));
+        }
+      }
+      for (int j=0; j < groupKeyList.size(); ++j) {
+        groupKeyList.set(j,groupKeyList.get(j) + GroupByConstants.GroupByDelimiter.groupByMultiDelimeter + (dictionaryReader.get(entries[j / currentGroupListSize])).toString());
+      }
+    }
+  }
+  return groupKeyList.toArray(new String[0]);
+}

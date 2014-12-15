@@ -1,0 +1,122 @@
+{
+  return new Comparator<Serializable[]>(){
+    @Override public int compare(    Serializable[] o1,    Serializable[] o2){
+      for (int i=0; i < sortSequence.size(); ++i) {
+switch (dataSchema.getColumnType(i)) {
+case INT:
+          if (((Integer)o1[i]) > ((Integer)o2[i])) {
+            if (!sortSequence.get(i).isIsAsc()) {
+              return 1;
+            }
+ else {
+              return -1;
+            }
+          }
+        if (((Integer)o1[i]) < ((Integer)o2[i])) {
+          if (!sortSequence.get(i).isIsAsc()) {
+            return -1;
+          }
+ else {
+            return 1;
+          }
+        }
+      break;
+case SHORT:
+    if (((Short)o1[i]) > ((Short)o2[i])) {
+      if (!sortSequence.get(i).isIsAsc()) {
+        return 1;
+      }
+ else {
+        return -1;
+      }
+    }
+  if (((Short)o1[i]) < ((Short)o2[i])) {
+    if (!sortSequence.get(i).isIsAsc()) {
+      return -1;
+    }
+ else {
+      return 1;
+    }
+  }
+break;
+case LONG:
+if (((Long)o1[i]) > ((Long)o2[i])) {
+if (!sortSequence.get(i).isIsAsc()) {
+  return 1;
+}
+ else {
+  return -1;
+}
+}
+if (((Long)o1[i]) < ((Long)o2[i])) {
+if (!sortSequence.get(i).isIsAsc()) {
+return -1;
+}
+ else {
+return 1;
+}
+}
+break;
+case FLOAT:
+if (((Float)o1[i]) > ((Float)o2[i])) {
+if (!sortSequence.get(i).isIsAsc()) {
+return 1;
+}
+ else {
+return -1;
+}
+}
+if (((Float)o1[i]) < ((Float)o2[i])) {
+if (!sortSequence.get(i).isIsAsc()) {
+return -1;
+}
+ else {
+return 1;
+}
+}
+break;
+case DOUBLE:
+if (((Double)o1[i]) > ((Double)o2[i])) {
+if (!sortSequence.get(i).isIsAsc()) {
+return 1;
+}
+ else {
+return -1;
+}
+}
+if (((Double)o1[i]) < ((Double)o2[i])) {
+if (!sortSequence.get(i).isIsAsc()) {
+return -1;
+}
+ else {
+return 1;
+}
+}
+break;
+case STRING:
+if (((String)o1[i]).compareTo(((String)o2[i])) > 0) {
+if (!sortSequence.get(i).isIsAsc()) {
+return 1;
+}
+ else {
+return -1;
+}
+}
+if (((String)o1[i]).compareTo(((String)o2[i])) < 0) {
+if (!sortSequence.get(i).isIsAsc()) {
+return -1;
+}
+ else {
+return 1;
+}
+}
+break;
+default :
+break;
+}
+}
+return 0;
+}
+}
+;
+}
