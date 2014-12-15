@@ -1,0 +1,41 @@
+{
+  final Router router=new Router(getContext());
+  router.setDefaultMatchingMode(Template.MODE_EQUALS);
+  router.attach("/dataresources",PinotDataResource.class);
+  router.attach("/dataresources/",PinotDataResource.class);
+  router.attach("/dataresources/{resourceName}",PinotDataResource.class);
+  router.attach("/dataresources/{resourceName}/{tableName}",PinotDataResource.class);
+  router.attach("/dataresources/{resourceName}/segments",PinotSegment.class);
+  router.attach("/dataresources/{resourceName}/{tableName}/segments",PinotSegment.class);
+  router.attach("/dataresources/{resourceName}/segments/{segmentName}",PinotSegment.class);
+  router.attach("/instances",PinotInstance.class);
+  router.attach("/instances/",PinotInstance.class);
+  router.attach("/datafiles",PinotFileUpload.class);
+  router.attach("/datafiles/{resourceName}",PinotFileUpload.class);
+  router.attach("/datafiles/{resourceName}/{segmentName}",PinotFileUpload.class);
+  router.attach("/pinot-controller/admin",PinotControllerHealthCheck.class);
+  router.attach("/pql",RunPql.class);
+  final Restlet mainpage=new Restlet(){
+    @Override public void handle(    Request request,    Response response){
+      final StringBuilder stringBuilder=new StringBuilder();
+      stringBuilder.append("<html>");
+      stringBuilder.append("<head><title>Restlet Cluster Management page</title></head>");
+      stringBuilder.append("<body bgcolor=white>");
+      stringBuilder.append("<table border=\"0\">");
+      stringBuilder.append("<tr>");
+      stringBuilder.append("<td>");
+      stringBuilder.append("<h1>Rest cluster management interface V1</h1>");
+      stringBuilder.append("</td>");
+      stringBuilder.append("</tr>");
+      stringBuilder.append("</table>");
+      stringBuilder.append("</body>");
+      stringBuilder.append("</html>");
+      response.setEntity(new StringRepresentation(stringBuilder.toString(),MediaType.TEXT_HTML));
+    }
+  }
+;
+  final Directory webdir=new Directory(getContext(),CONSOLE_WEBAPP_ROOT_PATH);
+  webdir.setDeeplyAccessible(true);
+  router.attach("/query",webdir);
+  return router;
+}

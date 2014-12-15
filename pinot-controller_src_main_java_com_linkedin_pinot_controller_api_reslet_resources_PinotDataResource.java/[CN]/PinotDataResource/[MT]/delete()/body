@@ -1,0 +1,17 @@
+{
+  StringRepresentation presentation=null;
+  try {
+    final String resourceName=(String)getRequest().getAttributes().get("resourceName");
+    final String tableName=(String)getRequest().getAttributes().get("tableName");
+    if (tableName == null) {
+      presentation=new StringRepresentation(manager.deleteResource(resourceName).toJSON().toString());
+    }
+ else {
+      presentation=new StringRepresentation(manager.handleRemoveTableFromDataResource(createTableDeletionDataResource(resourceName,tableName)).toJSON().toString());
+    }
+  }
+ catch (  final Exception e) {
+    logger.error(e);
+  }
+  return presentation;
+}

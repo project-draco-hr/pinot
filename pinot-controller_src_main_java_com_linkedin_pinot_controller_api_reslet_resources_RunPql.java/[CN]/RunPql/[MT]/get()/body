@@ -1,0 +1,40 @@
+{
+  final String pqlString=getQuery().getValues("pql");
+  logger.info("*** found pql : " + pqlString);
+  JSONObject compiledJSON;
+  try {
+    compiledJSON=compiler.compile(pqlString);
+  }
+ catch (  final RecognitionException e) {
+    logger.error(e);
+    return new StringRepresentation(e.getMessage());
+  }
+  if (!compiledJSON.has("collection")) {
+    return new StringRepresentation("your request does not contain the collection information");
+  }
+  String resource;
+  try {
+    final String collection=compiledJSON.getString("collection");
+    resource=collection.substring(0,collection.indexOf("."));
+  }
+ catch (  final JSONException e) {
+    logger.error(e);
+    return new StringRepresentation(e.getMessage());
+  }
+  String instanceId;
+  try {
+    instanceId=manager.getBrokerInstanceFor(resource);
+  }
+ catch (  final Exception e) {
+    logger.error(e);
+    return new StringRepresentation(e.getMessage());
+  }
+  if (instanceId == null) {
+    return new StringRepresentation("could not find a broker for data resource : " + resource);
+  }
+  final String[] splStrings=instanceId.split("_");
+  final String host="http://" + splStrings[1];
+  final String port=splStrings[2];
+  final String resp=sendPQLRaw(host + ":" + port+ "/query",pqlString);
+  return new StringRepresentation(resp);
+}

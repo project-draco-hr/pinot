@@ -1,0 +1,13 @@
+{
+  try {
+    final long startTime=System.currentTimeMillis();
+    final JSONObject bqlJson=new JSONObject().put("pql",pqlRequest);
+    final String pinotResultString=sendPostRaw(url,bqlJson.toString(),null);
+    final long bqlQueryTime=System.currentTimeMillis() - startTime;
+    logger.info("BQL: " + pqlRequest + " Time: "+ bqlQueryTime);
+    return pinotResultString;
+  }
+ catch (  final Exception ex) {
+    throw new RuntimeException(ex);
+  }
+}

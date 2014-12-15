@@ -1,0 +1,13 @@
+{
+  final InstanceConfig iConfig=new InstanceConfig(toInstanceId());
+  iConfig.setHostName(instanceHost);
+  iConfig.setPort(instancePort);
+  iConfig.setInstanceEnabled(true);
+  if (tag != null) {
+    iConfig.addTag(tag);
+  }
+ else {
+    iConfig.addTag(CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+  }
+  return iConfig;
+}

@@ -1,0 +1,10 @@
+{
+  if (metadata != null) {
+    System.out.println(metadata);
+    for (Iterator iterator=metadata.fieldNames(); iterator.hasNext(); ) {
+      String key=(String)iterator.next();
+      System.out.println("key : " + key + " : value : "+ metadata.get(key));
+      ret.put(CommonConstants.Helix.DataSource.METADATA + "." + key,metadata.get(key).textValue());
+    }
+  }
+}

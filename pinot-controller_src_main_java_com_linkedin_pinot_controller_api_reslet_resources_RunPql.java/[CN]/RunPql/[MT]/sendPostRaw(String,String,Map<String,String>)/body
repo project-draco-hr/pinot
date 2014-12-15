@@ -1,0 +1,41 @@
+{
+  HttpURLConnection conn=null;
+  try {
+    logger.info("url string passed is : " + urlStr);
+    final URL url=new URL(urlStr);
+    conn=(HttpURLConnection)url.openConnection();
+    conn.setDoOutput(true);
+    conn.setRequestMethod("POST");
+    conn.setRequestProperty("Accept-Encoding","gzip");
+    final String string=requestStr;
+    final byte[] requestBytes=string.getBytes("UTF-8");
+    conn.setRequestProperty("Content-Length",String.valueOf(requestBytes.length));
+    conn.setRequestProperty("http.keepAlive",String.valueOf(true));
+    conn.setRequestProperty("default",String.valueOf(true));
+    if (headers != null && headers.size() > 0) {
+      final Set<Entry<String,String>> entries=headers.entrySet();
+      for (      final Entry<String,String> entry : entries) {
+        conn.setRequestProperty(entry.getKey(),entry.getValue());
+      }
+    }
+    final OutputStream os=new BufferedOutputStream(conn.getOutputStream());
+    os.write(requestBytes);
+    os.flush();
+    os.close();
+    final int responseCode=conn.getResponseCode();
+    if (responseCode != HttpURLConnection.HTTP_OK) {
+      throw new IOException("Failed : HTTP error code : " + responseCode);
+    }
+    final byte[] bytes=drain(new BufferedInputStream(conn.getInputStream()));
+    final String output=new String(bytes,"UTF-8");
+    return output;
+  }
+ catch (  final Exception ex) {
+    throw new RuntimeException(ex);
+  }
+ finally {
+    if (conn != null) {
+      conn.disconnect();
+    }
+  }
+}

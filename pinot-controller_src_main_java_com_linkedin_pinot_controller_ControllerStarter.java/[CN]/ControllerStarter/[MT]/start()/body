@@ -1,0 +1,22 @@
+{
+  component.getServers().add(Protocol.HTTP,Integer.parseInt(config.getControllerPort()));
+  component.getClients().add(Protocol.FILE);
+  component.getClients().add(Protocol.JAR);
+  component.getClients().add(Protocol.WAR);
+  final Context applicationContext=component.getContext().createChildContext();
+  logger.info("injecting conf and resource manager to the api context");
+  applicationContext.getAttributes().put(ControllerConf.class.toString(),config);
+  applicationContext.getAttributes().put(PinotHelixResourceManager.class.toString(),helixResourceManager);
+  controllerRestApp.setContext(applicationContext);
+  component.getDefaultHost().attach(controllerRestApp);
+  try {
+    logger.info("starting pinot helix resource manager");
+    helixResourceManager.start();
+    logger.info("starting api component");
+    component.start();
+  }
+ catch (  final Exception e) {
+    logger.error(e);
+    throw new RuntimeException(e);
+  }
+}

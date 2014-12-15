@@ -1,0 +1,67 @@
+{
+  Representation rep=null;
+  System.out.println(conf.toString());
+  File tmpSegmentDir=null;
+  File dataFile=null;
+  try {
+    final DiskFileItemFactory factory=new DiskFileItemFactory();
+    final RestletFileUpload upload=new RestletFileUpload(factory);
+    final List<FileItem> items;
+    items=upload.parseRequest(getRequest());
+    boolean found=false;
+    for (final Iterator<FileItem> it=items.iterator(); it.hasNext() && !found; ) {
+      final FileItem fi=it.next();
+      if (fi.getFieldName() != null) {
+        found=true;
+        dataFile=new File(tempDir,fi.getFieldName());
+        fi.write(dataFile);
+      }
+    }
+    if (found) {
+      rep=new StringRepresentation(dataFile + " sucessfully uploaded",MediaType.TEXT_PLAIN);
+      if (tempUntarredPath.exists()) {
+        FileUtils.deleteDirectory(tempUntarredPath);
+      }
+      tmpSegmentDir=new File(tempUntarredPath,dataFile.getName());
+      logger.info("Untar segment to temp dir: " + tmpSegmentDir);
+      if (!tmpSegmentDir.exists()) {
+        tmpSegmentDir.mkdirs();
+      }
+      TarGzCompressionUtils.unTar(dataFile,tmpSegmentDir);
+      final SegmentMetadata metadata=new SegmentMetadataImpl(tmpSegmentDir.listFiles()[0]);
+      final File resourceDir=new File(baseDataDir,metadata.getResourceName());
+      File segmentFile=new File(resourceDir,dataFile.getName());
+      if (segmentFile.exists()) {
+        FileUtils.deleteQuietly(segmentFile);
+      }
+      FileUtils.moveFile(dataFile,segmentFile);
+      PinotResourceManagerResponse res=manager.addSegment(metadata,constructDownloadUrl(metadata.getResourceName(),dataFile.getName()));
+      if (!res.isSuccessfull()) {
+        rep=new StringRepresentation(res.errorMessage,MediaType.TEXT_PLAIN);
+        FileUtils.deleteQuietly(new File(resourceDir,dataFile.getName()));
+      }
+    }
+ else {
+      rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);
+    }
+  }
+ catch (  final Exception e) {
+    e.printStackTrace();
+    logger.error(e);
+  }
+ finally {
+    if ((tmpSegmentDir != null) && tmpSegmentDir.exists()) {
+      try {
+        FileUtils.deleteDirectory(tmpSegmentDir);
+      }
+ catch (      final IOException e) {
+        e.printStackTrace();
+        logger.error(e);
+      }
+    }
+    if ((dataFile != null) && dataFile.exists()) {
+      FileUtils.deleteQuietly(dataFile);
+    }
+  }
+  return rep;
+}
