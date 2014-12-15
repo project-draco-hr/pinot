@@ -1,0 +1,12 @@
+{
+  System.out.println("HelixBrokerRoutingTable.onExternalViewChange");
+  LOGGER.info("HelixBrokerRoutingTable.onExternalViewChange");
+  Set<String> servingClusterList=getServingDataResource(externalViewList);
+  for (  ExternalView externalView : externalViewList) {
+    String resourceName=externalView.getResourceName();
+    if (servingClusterList.contains(resourceName)) {
+      LOGGER.info("Trying to update ExternalView for data resource : " + resourceName + ", ExternalView: "+ externalView);
+      _helixExternalViewBasedRouting.markDataResourceOnline(resourceName,externalView);
+    }
+  }
+}

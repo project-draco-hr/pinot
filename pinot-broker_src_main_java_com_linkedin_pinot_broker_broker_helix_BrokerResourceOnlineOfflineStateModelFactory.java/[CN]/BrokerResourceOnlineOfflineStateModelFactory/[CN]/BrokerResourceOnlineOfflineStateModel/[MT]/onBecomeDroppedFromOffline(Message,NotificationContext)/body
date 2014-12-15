@@ -1,0 +1,11 @@
+{
+  try {
+    System.out.println("BrokerResourceOnlineOfflineStateModel.onBecomeDroppedFromOffline() : " + message);
+    LOGGER.info("BrokerResourceOnlineOfflineStateModel.onBecomeDroppedFromOffline() : " + message);
+    String resourceName=message.getResourceName();
+    _helixExternalViewBasedRouting.markDataResourceOffline(resourceName);
+  }
+ catch (  Exception e) {
+    LOGGER.error(e);
+  }
+}

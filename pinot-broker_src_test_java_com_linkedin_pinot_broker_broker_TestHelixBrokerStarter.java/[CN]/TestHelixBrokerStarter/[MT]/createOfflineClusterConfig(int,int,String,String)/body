@@ -1,0 +1,18 @@
+{
+  final Map<String,String> props=new HashMap<String,String>();
+  props.put("requestType",CommonConstants.Helix.DataSourceRequestType.CREATE);
+  props.put("resourceName",resourceName);
+  props.put("tableName",resourceName);
+  props.put("timeColumnName","days");
+  props.put("timeType","daysSinceEpoch");
+  props.put("numberOfDataInstances",String.valueOf(numInstances));
+  props.put("numberOfCopies",String.valueOf(numReplicas));
+  props.put("retentionTimeUnit","DAYS");
+  props.put("retentionTimeValue","30");
+  props.put("pushFrequency","daily");
+  props.put("segmentAssignmentStrategy",segmentAssignmentStrategy);
+  props.put("brokerTagName","colocated");
+  props.put("numberOfBrokerInstances","6");
+  final DataResource res=DataResource.fromMap(props);
+  return res;
+}

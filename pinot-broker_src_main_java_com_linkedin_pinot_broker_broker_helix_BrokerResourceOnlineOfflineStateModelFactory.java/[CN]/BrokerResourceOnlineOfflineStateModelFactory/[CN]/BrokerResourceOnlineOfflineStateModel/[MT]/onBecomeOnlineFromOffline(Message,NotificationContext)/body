@@ -1,0 +1,11 @@
+{
+  try {
+    System.out.println("BrokerResourceOnlineOfflineStateModel.onBecomeOnlineFromOffline() : " + message);
+    LOGGER.info("BrokerResourceOnlineOfflineStateModel.onBecomeOnlineFromOffline() : " + message);
+    String resourceName=message.getPartitionName();
+    _helixExternalViewBasedRouting.markDataResourceOnline(resourceName,HelixHelper.getExternalViewForResouce(_helixManager.getClusterManagmentTool(),_helixManager.getClusterName(),resourceName));
+  }
+ catch (  Exception e) {
+    LOGGER.error(e);
+  }
+}

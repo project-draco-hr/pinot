@@ -1,0 +1,16 @@
+{
+  Configuration c=_config.subset(CLIENT_CONFIG_PREFIX);
+  BrokerClientConf clientConfig=new BrokerClientConf(c);
+  _server=new Server(clientConfig.getQueryPort());
+  WebAppContext context=new WebAppContext();
+  context.addServlet(PinotClientRequestServlet.class,"/query");
+  if (clientConfig.enableConsole()) {
+    System.out.println(clientConfig.getConsoleWebappPath());
+    context.setResourceBase(clientConfig.getConsoleWebappPath());
+  }
+ else {
+    context.setResourceBase("");
+  }
+  context.addEventListener(new PinotBrokerServletContextChangeListener(_requestHandler));
+  _server.setHandler(context);
+}

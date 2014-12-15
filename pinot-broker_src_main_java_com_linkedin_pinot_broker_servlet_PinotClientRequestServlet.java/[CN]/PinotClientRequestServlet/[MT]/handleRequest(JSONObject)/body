@@ -1,0 +1,9 @@
+{
+  final String pql=request.getString("pql");
+  final JSONObject compiled=requestCompiler.compile(pql);
+  final BrokerRequest brokerRequest=convertToBrokerRequest(compiled);
+  final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
+  final BrokerResponse resp=(BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
+  logger.info("Broker Response : " + resp);
+  return resp;
+}

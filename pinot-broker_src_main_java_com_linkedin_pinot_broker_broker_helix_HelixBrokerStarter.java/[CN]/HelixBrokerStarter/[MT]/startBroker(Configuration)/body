@@ -1,0 +1,21 @@
+{
+  if (config == null) {
+    config=DefaultHelixBrokerConfig.getDefaultBrokerConf();
+  }
+  final BrokerServerBuilder brokerServerBuilder=new BrokerServerBuilder(config,_helixExternalViewBasedRouting);
+  brokerServerBuilder.buildNetwork();
+  brokerServerBuilder.buildHTTP();
+  brokerServerBuilder.start();
+  Runtime.getRuntime().addShutdownHook(new Thread(){
+    @Override public void run(){
+      try {
+        brokerServerBuilder.stop();
+      }
+ catch (      final Exception e) {
+        LOGGER.error(e.getMessage());
+      }
+    }
+  }
+);
+  return brokerServerBuilder;
+}

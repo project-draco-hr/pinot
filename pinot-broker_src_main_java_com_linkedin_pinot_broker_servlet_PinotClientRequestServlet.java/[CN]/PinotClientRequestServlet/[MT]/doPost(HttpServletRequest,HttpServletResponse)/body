@@ -1,0 +1,15 @@
+{
+  try {
+    resp.getOutputStream().print(handleRequest(extractJSON(req)).toJson().toString());
+    resp.getOutputStream().flush();
+    resp.getOutputStream().close();
+  }
+ catch (  final Exception e) {
+    resp.getOutputStream().print(e.getMessage());
+    resp.getOutputStream().flush();
+    resp.getOutputStream().close();
+    logger.error(e.getMessage());
+    System.out.println(e);
+    e.printStackTrace();
+  }
+}

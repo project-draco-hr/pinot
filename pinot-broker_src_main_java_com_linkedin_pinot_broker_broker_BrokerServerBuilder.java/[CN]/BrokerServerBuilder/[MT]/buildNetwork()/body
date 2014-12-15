@@ -1,0 +1,26 @@
+{
+  Configuration transportConfigs=_config.subset(TRANSPORT_CONFIG_PREFIX);
+  TransportClientConf conf=new TransportClientConf();
+  conf.init(transportConfigs);
+  _registry=new MetricsRegistry();
+  _state=State.INIT;
+  _eventLoopGroup=new NioEventLoopGroup();
+  final NettyClientMetrics clientMetrics=new NettyClientMetrics(_registry,"client_");
+  _resourceManager=new PooledNettyClientResourceManager(_eventLoopGroup,new HashedWheelTimer(),clientMetrics);
+  _poolTimeoutExecutor=new ScheduledThreadPoolExecutor(50);
+  final ConnectionPoolConfig cfg=conf.getConnPool();
+  _requestSenderPool=new ThreadPoolExecutor(cfg.getThreadPool().getCorePoolSize(),cfg.getThreadPool().getMaxPoolSize(),cfg.getThreadPool().getIdleTimeoutMs(),TimeUnit.MILLISECONDS,new LinkedBlockingQueue<Runnable>());
+  ConnectionPoolConfig connPoolCfg=conf.getConnPool();
+  _connPool=new KeyedPoolImpl<ServerInstance,NettyClientConnection>(connPoolCfg.getMinConnectionsPerServer(),connPoolCfg.getMaxConnectionsPerServer(),connPoolCfg.getIdleTimeoutMs(),connPoolCfg.getMaxBacklogPerServer(),_resourceManager,_poolTimeoutExecutor,_requestSenderPool,_registry);
+  _resourceManager.setPool(_connPool);
+  if (conf.getRoutingMode() == RoutingMode.CONFIG) {
+    final CfgBasedRouting rt=new CfgBasedRouting();
+    rt.init(conf.getCfgBasedRouting());
+    _routingTable=rt;
+  }
+ else {
+  }
+  _scatterGather=new ScatterGatherImpl(_connPool,_requestSenderPool);
+  _requestHandler=new BrokerRequestHandler(_routingTable,_scatterGather,new DefaultReduceService());
+  LOGGER.info("Network initialized !!");
+}

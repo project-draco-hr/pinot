@@ -1,0 +1,18 @@
+{
+  _pinotHelixProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf(pinotHelixProperties);
+  final String brokerId=_pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE + NetUtil.getHostAddress() + "_"+ _pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT));
+  _pinotHelixProperties.addProperty("pinot.broker.id",brokerId);
+  RoutingTableBuilder defaultRoutingTableBuilder=getRoutingTableBuilder(_pinotHelixProperties.subset(DEFAULT_ROUTING_TABLE_BUILDER_KEY));
+  Map<String,RoutingTableBuilder> resourceToRoutingTableBuilderMap=getResourceToRoutingTableBuilderMap(_pinotHelixProperties.subset(ROUTING_TABLE_BUILDER_KEY));
+  _helixExternalViewBasedRouting=new HelixExternalViewBasedRouting(defaultRoutingTableBuilder,resourceToRoutingTableBuilderMap);
+  _helixBrokerRoutingTable=new HelixBrokerRoutingTable(_helixExternalViewBasedRouting,brokerId);
+  _brokerServerBuilder=startBroker(_pinotHelixProperties);
+  _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,brokerId,InstanceType.PARTICIPANT,zkServer);
+  final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
+  final StateModelFactory<?> stateModelFactory=new BrokerResourceOnlineOfflineStateModelFactory(_helixManager,_helixExternalViewBasedRouting);
+  stateMachineEngine.registerStateModelFactory(BrokerResourceOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
+  _helixManager.connect();
+  _helixAdmin=_helixManager.getClusterManagmentTool();
+  addInstanceTagIfNeeded(helixClusterName,brokerId);
+  _helixManager.addExternalViewChangeListener(_helixBrokerRoutingTable);
+}

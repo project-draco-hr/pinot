@@ -1,0 +1,14 @@
+{
+  LOGGER.info("Shutting down Network !!");
+  _state=State.SHUTTING_DOWN;
+  _connPool.shutdown();
+  _eventLoopGroup.shutdownGracefully();
+  _routingTable.shutdown();
+  _poolTimeoutExecutor.shutdown();
+  _requestSenderPool.shutdown();
+  _state=State.SHUTDOWN;
+  LOGGER.info("Network shutdown!!");
+  LOGGER.info("Stopping Jetty server !!");
+  _server.stop();
+  LOGGER.info("Stopped Jetty server !!");
+}

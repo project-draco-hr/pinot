@@ -1,0 +1,19 @@
+{
+  String[] resources=routingTableBuilderConfig.getStringArray("resources");
+  if ((resources != null) && (resources.length > 0)) {
+    Map<String,RoutingTableBuilder> routingTableBuilderMap=new HashMap<String,RoutingTableBuilder>();
+    for (    String resource : resources) {
+      RoutingTableBuilder routingTableBuilder=getRoutingTableBuilder(routingTableBuilderConfig.subset(resource));
+      if (routingTableBuilder == null) {
+        LOGGER.error("RoutingTableBuilder is null for resource : " + resource);
+      }
+ else {
+        routingTableBuilderMap.put(resource,routingTableBuilder);
+      }
+    }
+    return routingTableBuilderMap;
+  }
+ else {
+    return null;
+  }
+}
