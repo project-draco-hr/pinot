@@ -1,0 +1,22 @@
+{
+  this.file=file;
+  this.rows=rows;
+  this.cols=cols;
+  this.columnSizesInBits=columnSizesInBits;
+  this.columnOffsetsInBits=new int[cols];
+  raf=new RandomAccessFile(file,"rw");
+  rowSizeInBits=0;
+  for (int i=0; i < columnSizesInBits.length; i++) {
+    columnOffsetsInBits[i]=rowSizeInBits;
+    int colSize=columnSizesInBits[i];
+    rowSizeInBits+=colSize;
+  }
+  int totalSizeInBits=rowSizeInBits * rows;
+  int bytesRequired=(totalSizeInBits + 7) / 8;
+  byteBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,bytesRequired);
+  byteBuffer.position(0);
+  for (int i=0; i < bytesRequired; i++) {
+    byteBuffer.put((byte)0);
+  }
+  bitSet=CustomBitSet.withByteBuffer(bytesRequired,byteBuffer);
+}

@@ -1,0 +1,12 @@
+{
+  int prevRowStartIndex=0;
+  int prevRowLength=0;
+  if (row > 0) {
+    prevRowStartIndex=headerReader.getInt(row - 1,0);
+    prevRowLength=headerReader.getInt(row - 1,1);
+  }
+  int newStartIndex=prevRowStartIndex + prevRowLength;
+  headerWriter.setInt(row,0,newStartIndex);
+  headerWriter.setInt(row,1,length);
+  return newStartIndex;
+}

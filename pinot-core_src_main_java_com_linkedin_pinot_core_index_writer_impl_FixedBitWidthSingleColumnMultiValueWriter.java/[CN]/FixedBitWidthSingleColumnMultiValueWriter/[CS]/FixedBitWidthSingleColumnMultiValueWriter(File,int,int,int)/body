@@ -1,0 +1,11 @@
+{
+  int headerSize=numDocs * SIZE_OF_INT * NUM_COLS_IN_HEADER;
+  int dataSize=(totalNumValues * columnSizeInBits + 7) / 8;
+  int totalSize=headerSize + dataSize;
+  raf=new RandomAccessFile(file,"rw");
+  headerBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,headerSize);
+  dataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,headerSize,dataSize);
+  headerWriter=new FixedByteWidthRowColDataFileWriter(headerBuffer,numDocs,2,new int[]{SIZE_OF_INT,SIZE_OF_INT});
+  headerReader=new FixedByteWidthRowColDataFileReader(headerBuffer,numDocs,2,new int[]{SIZE_OF_INT,SIZE_OF_INT});
+  dataWriter=new FixedBitWidthRowColDataFileWriter(dataBuffer,totalNumValues,1,new int[]{columnSizeInBits});
+}
