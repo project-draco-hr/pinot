@@ -1,0 +1,6 @@
+{
+  final List<String> instanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+  final List<String> liveInstances=HelixHelper.getLiveInstances(_helixClusterName,_helixZkManager);
+  instanceList.retainAll(liveInstances);
+  return instanceList;
+}

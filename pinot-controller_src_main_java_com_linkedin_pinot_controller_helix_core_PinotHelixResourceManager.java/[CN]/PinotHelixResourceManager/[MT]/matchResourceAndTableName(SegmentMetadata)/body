@@ -1,0 +1,15 @@
+{
+  if (segmentMetadata == null || segmentMetadata.getResourceName() == null || segmentMetadata.getTableName() == null) {
+    LOGGER.error("SegmentMetadata or resource name or table name is null");
+    return false;
+  }
+  if (!getAllResourceNames().contains(segmentMetadata.getResourceName())) {
+    LOGGER.error("Resource is not registered");
+    return false;
+  }
+  if (!getAllTableNamesForResource(segmentMetadata.getResourceName()).contains(segmentMetadata.getTableName())) {
+    LOGGER.error("Table " + segmentMetadata.getTableName() + " is not registered for resource: "+ segmentMetadata.getResourceName());
+    return false;
+  }
+  return true;
+}

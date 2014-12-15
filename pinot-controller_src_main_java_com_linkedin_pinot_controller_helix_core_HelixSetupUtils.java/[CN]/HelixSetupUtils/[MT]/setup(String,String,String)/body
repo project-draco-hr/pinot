@@ -1,0 +1,16 @@
+{
+  try {
+    createHelixClusterIfNeeded(helixClusterName,zkPath);
+  }
+ catch (  final Exception e) {
+    logger.error(e);
+    return null;
+  }
+  try {
+    return startHelixControllerInStandadloneMode(helixClusterName,zkPath,pinotControllerInstanceId);
+  }
+ catch (  final Exception e) {
+    logger.error(e);
+    return null;
+  }
+}

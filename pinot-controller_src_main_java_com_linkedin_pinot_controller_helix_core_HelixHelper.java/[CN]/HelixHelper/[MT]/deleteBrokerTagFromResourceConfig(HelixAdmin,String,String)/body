@@ -1,0 +1,12 @@
+{
+  BrokerTagResource brokerTagResource=new BrokerTagResource(0,brokerTag);
+  for (  String key : brokerTagResource.toBrokerConfigs().keySet()) {
+    deleteResourcePropertyFromHelix(admin,clusterName,BROKER_RESOURCE,key);
+  }
+  List<String> dataResourceList=getDataResourceListFromBrokerResourceConfig(admin,clusterName);
+  for (  String dataResource : dataResourceList) {
+    if (isBrokerDataResourceTagAs(admin,clusterName,dataResource,brokerTag)) {
+      deleteBrokerDataResourceConfig(admin,clusterName,dataResource);
+    }
+  }
+}

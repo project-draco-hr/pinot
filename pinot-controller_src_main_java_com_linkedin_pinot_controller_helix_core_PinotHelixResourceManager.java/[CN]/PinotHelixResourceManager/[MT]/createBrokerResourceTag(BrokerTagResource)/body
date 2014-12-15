@@ -1,0 +1,26 @@
+{
+  final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  if (!brokerTagResource.getTag().startsWith(CommonConstants.Helix.PREFIX_OF_BROKER_RESOURCE_TAG)) {
+    res.status=STATUS.failure;
+    res.errorMessage="Broker tag is required to have prefix : " + CommonConstants.Helix.PREFIX_OF_BROKER_RESOURCE_TAG;
+    LOGGER.error(res.errorMessage);
+    return res;
+  }
+  if (HelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
+    return updateBrokerResourceTag(brokerTagResource);
+  }
+  final List<String> untaggedBrokerInstances=getOnlineUnTaggedBrokerInstanceList();
+  if (untaggedBrokerInstances.size() < brokerTagResource.getNumBrokerInstances()) {
+    res.status=STATUS.failure;
+    res.errorMessage="Failed to create tag : " + brokerTagResource.getTag() + ", Current number of untagged broker instances : "+ untaggedBrokerInstances.size()+ ", required : "+ brokerTagResource.getNumBrokerInstances();
+    LOGGER.error(res.errorMessage);
+    return res;
+  }
+  for (int i=0; i < brokerTagResource.getNumBrokerInstances(); ++i) {
+    _helixAdmin.removeInstanceTag(_helixClusterName,untaggedBrokerInstances.get(i),CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE);
+    _helixAdmin.addInstanceTag(_helixClusterName,untaggedBrokerInstances.get(i),brokerTagResource.getTag());
+  }
+  HelixHelper.updateBrokerTag(_helixAdmin,_helixClusterName,brokerTagResource);
+  res.status=STATUS.success;
+  return res;
+}

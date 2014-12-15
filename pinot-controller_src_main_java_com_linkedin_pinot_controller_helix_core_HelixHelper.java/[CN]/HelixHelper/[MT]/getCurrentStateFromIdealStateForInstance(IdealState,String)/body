@@ -1,0 +1,12 @@
+{
+  final Set<String> partitions=state.getPartitionSet();
+  for (  final String partition : partitions) {
+    final Map<String,String> instanceToStateMapping=state.getInstanceStateMap(partition);
+    for (    final String ins : instanceToStateMapping.keySet()) {
+      if (ins.equals(instanceName)) {
+        return instanceToStateMapping.get(ins);
+      }
+    }
+  }
+  return null;
+}

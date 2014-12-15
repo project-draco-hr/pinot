@@ -1,0 +1,17 @@
+{
+  final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  try {
+    createNewDataResource(resource);
+    handleBrokerResource(resource);
+  }
+ catch (  final Exception e) {
+    res.errorMessage=e.getMessage();
+    res.status=STATUS.failure;
+    e.printStackTrace();
+    LOGGER.error(e.toString());
+    revertDataResource(resource);
+    throw new RuntimeException("Error creating cluster, have successfull rolled back",e);
+  }
+  res.status=STATUS.success;
+  return res;
+}

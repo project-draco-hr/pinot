@@ -1,0 +1,14 @@
+{
+  final ZNRecord record=_propertyStore.get(constructPropertyStorePathForSegment(segmentMetadata),null,AccessOption.PERSISTENT);
+  if (record == null) {
+    return false;
+  }
+  final SegmentMetadata existedSegmentMetadata=new SegmentMetadataImpl(record);
+  if (segmentMetadata.getIndexCreationTime() <= existedSegmentMetadata.getIndexCreationTime()) {
+    return false;
+  }
+  if (segmentMetadata.getCrc() == segmentMetadata.getCrc()) {
+    return false;
+  }
+  return true;
+}

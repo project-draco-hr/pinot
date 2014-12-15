@@ -1,0 +1,46 @@
+{
+  final String resourceName=brokerDataResource.getResourceName();
+  final int numBrokerInstancesToServeDataResource=brokerDataResource.getNumBrokerInstances();
+  final Set<String> currentOnlineInstanceSet=new HashSet<String>();
+  final Map<String,String> currentInstanceStateMap=currentIdealState.getInstanceStateMap(resourceName);
+  for (  final String instance : currentInstanceStateMap.keySet()) {
+    if (currentInstanceStateMap.get(instance).equalsIgnoreCase(ONLINE)) {
+      currentOnlineInstanceSet.add(instance);
+    }
+  }
+  if (currentOnlineInstanceSet.size() > numBrokerInstancesToServeDataResource) {
+    int numInstancesToRemove=currentOnlineInstanceSet.size() - numBrokerInstancesToServeDataResource;
+    final Set<String> removedInstanceNames=new HashSet<String>();
+    currentIdealState.getPartitionSet().remove(resourceName);
+    for (    final String instance : currentOnlineInstanceSet) {
+      if (numInstancesToRemove > 0) {
+        removedInstanceNames.add(instance);
+        helixAdmin.enablePartition(false,helixClusterName,instance,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,Arrays.asList(resourceName));
+        numInstancesToRemove--;
+      }
+ else {
+        currentIdealState.setPartitionState(resourceName,instance,ONLINE);
+      }
+    }
+    helixAdmin.setResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,currentIdealState);
+    for (    final String instance : removedInstanceNames) {
+      helixAdmin.enablePartition(true,helixClusterName,instance,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,Arrays.asList(resourceName));
+    }
+    return null;
+  }
+  if (currentOnlineInstanceSet.size() < numBrokerInstancesToServeDataResource) {
+    int numInstancesToAdd=numBrokerInstancesToServeDataResource - currentOnlineInstanceSet.size();
+    final List<String> selectedInstances=BrokerResourceAssignmentStrategy.getRandomAssignedInstances(helixAdmin,helixClusterName,brokerDataResource);
+    for (    final String instance : selectedInstances) {
+      if (currentOnlineInstanceSet.contains(instance)) {
+        continue;
+      }
+      currentIdealState.setPartitionState(resourceName,instance,ONLINE);
+      numInstancesToAdd--;
+      if (numInstancesToAdd == 0) {
+        break;
+      }
+    }
+  }
+  return currentIdealState;
+}
