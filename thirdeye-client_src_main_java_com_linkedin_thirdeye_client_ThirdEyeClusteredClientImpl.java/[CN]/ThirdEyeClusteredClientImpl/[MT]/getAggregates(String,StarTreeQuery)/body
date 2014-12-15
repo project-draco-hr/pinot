@@ -17,13 +17,13 @@
       HttpGet req=new HttpGet(getMetricsUri(collection,entry.getKey()));
       responses.add(httpAsyncClient.execute(host,req,null));
     }
-    List<ThirdEyeAggregate> allResults=new ArrayList<ThirdEyeAggregate>();
+    List<ThirdEyeMetrics> allResults=new ArrayList<ThirdEyeMetrics>();
     for (    Future<HttpResponse> entry : responses) {
       HttpResponse response=entry.get(config.getRequestTimeoutMillis(),TimeUnit.MILLISECONDS);
       if (response.getStatusLine().getStatusCode() != 200) {
         throw new IOException(response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase());
       }
-      List<ThirdEyeAggregate> results=OBJECT_MAPPER.readValue(response.getEntity().getContent(),RESULT_LIST_REF);
+      List<ThirdEyeMetrics> results=OBJECT_MAPPER.readValue(response.getEntity().getContent(),RESULT_LIST_REF);
       EntityUtils.consume(response.getEntity());
       allResults.addAll(results);
     }

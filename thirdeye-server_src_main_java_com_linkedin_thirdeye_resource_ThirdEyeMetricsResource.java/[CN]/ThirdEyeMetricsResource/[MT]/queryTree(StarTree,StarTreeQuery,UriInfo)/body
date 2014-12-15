@@ -1,10 +1,10 @@
 {
   List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,baseQuery);
   queries=StarTreeUtils.filterQueries(queries,uriInfo.getQueryParameters());
-  List<Result> metricsResults=new ArrayList<Result>();
+  List<ThirdEyeMetrics> metricsResults=new ArrayList<ThirdEyeMetrics>();
   for (  StarTreeQuery query : queries) {
     StarTreeRecord record=starTree.getAggregate(query);
-    Result result=new Result();
+    ThirdEyeMetrics result=new ThirdEyeMetrics();
     result.setDimensionValues(record.getDimensionValues());
     result.setMetricValues(record.getMetricValues());
     metricsResults.add(result);

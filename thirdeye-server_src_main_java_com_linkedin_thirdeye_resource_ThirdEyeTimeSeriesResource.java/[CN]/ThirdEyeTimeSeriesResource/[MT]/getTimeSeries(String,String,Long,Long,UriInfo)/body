@@ -8,10 +8,10 @@
   }
   List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,ThirdEyeUriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build());
   queries=StarTreeUtils.filterQueries(queries,uriInfo.getQueryParameters());
-  List<Result> results=new ArrayList<Result>(queries.size());
+  List<ThirdEyeTimeSeries> results=new ArrayList<ThirdEyeTimeSeries>(queries.size());
   for (  StarTreeQuery query : queries) {
     List<StarTreeRecord> timeSeries=starTree.getTimeSeries(query);
-    Result result=new Result();
+    ThirdEyeTimeSeries result=new ThirdEyeTimeSeries();
     result.setMetricName(metric);
     result.setTimeSeries(convertTimeSeries(metric,timeSeries));
     result.setDimensionValues(query.getDimensionValues());
