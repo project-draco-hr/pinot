@@ -1,0 +1,24 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  oprot.writeI64(struct.requestId);
+  struct.query.write(oprot);
+  BitSet optionals=new BitSet();
+  if (struct.isSetSearchSegments()) {
+    optionals.set(0);
+  }
+  if (struct.isSetEnableTrace()) {
+    optionals.set(1);
+  }
+  oprot.writeBitSet(optionals,2);
+  if (struct.isSetSearchSegments()) {
+{
+      oprot.writeI32(struct.searchSegments.size());
+      for (      String _iter72 : struct.searchSegments) {
+        oprot.writeString(_iter72);
+      }
+    }
+  }
+  if (struct.isSetEnableTrace()) {
+    oprot.writeBool(struct.enableTrace);
+  }
+}

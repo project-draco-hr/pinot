@@ -1,0 +1,28 @@
+{
+  FileOutputStream fout=new FileOutputStream(FILE_NAME);
+  DataOutputStream out=new DataOutputStream(fout);
+  heapStorage=new int[SIZE];
+  directMemory=ByteBuffer.allocateDirect(SIZE * 4);
+  for (int i=0; i < SIZE; i++) {
+    int data=(int)(Math.random() * Integer.MAX_VALUE);
+    out.writeInt(data);
+    heapStorage[i]=data;
+    directMemory.putInt(data);
+  }
+  out.close();
+  RandomAccessFile raf=new RandomAccessFile(FILE_NAME,"rw");
+  mmappedByteBuffer=raf.getChannel().map(MapMode.READ_WRITE,0L,raf.length());
+  mmappedByteBuffer.load();
+  int toSelect=(int)(SIZE * readPercentage);
+  readIndices=new int[toSelect];
+  int ind=0;
+  for (int i=0; i < SIZE && toSelect > 0; i++) {
+    double probOfSelection=toSelect * 1.0 / (SIZE - i);
+    double random=Math.random();
+    if (random < probOfSelection) {
+      readIndices[ind]=i;
+      toSelect=toSelect - 1;
+      ind=ind + 1;
+    }
+  }
+}

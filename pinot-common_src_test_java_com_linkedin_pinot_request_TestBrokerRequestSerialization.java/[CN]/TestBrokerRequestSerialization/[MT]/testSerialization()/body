@@ -1,0 +1,63 @@
+{
+  BrokerRequest req=new BrokerRequest();
+  QueryType type=new QueryType();
+  type.setHasAggregation(true);
+  type.setHasFilter(true);
+  type.setHasSelection(true);
+  type.setHasGroup_by(true);
+  req.setQueryType(type);
+  QuerySource s=new QuerySource();
+  s.setResourceName("dummy");
+  s.setTableName("dummy");
+  req.setQuerySource(s);
+  req.setDuration("dummy");
+  req.setTimeInterval("dummy");
+  GroupBy groupBy=new GroupBy();
+  List<String> columns=new ArrayList<String>();
+  columns.add("dummy1");
+  columns.add("dummy2");
+  groupBy.setColumns(columns);
+  groupBy.setTopN(100);
+  req.setGroupBy(groupBy);
+  Selection sel=new Selection();
+  sel.setSize(1);
+  SelectionSort s2=new SelectionSort();
+  s2.setColumn("dummy1");
+  s2.setIsAsc(true);
+  sel.addToSelectionSortSequence(s2);
+  sel.addToSelectionColumns("dummy1");
+  req.setSelections(sel);
+  FilterQuery q1=new FilterQuery();
+  q1.setId(1);
+  q1.setColumn("dummy1");
+  q1.addToValue("dummy1");
+  q1.addToNestedFilterQueryIds(2);
+  q1.setOperator(FilterOperator.AND);
+  FilterQuery q2=new FilterQuery();
+  q2.setId(2);
+  q2.setColumn("dummy2");
+  q2.addToValue("dummy2");
+  q2.setOperator(FilterOperator.AND);
+  FilterQueryMap map=new FilterQueryMap();
+  map.putToFilterQueryMap(1,q1);
+  map.putToFilterQueryMap(2,q2);
+  req.setFilterQuery(q1);
+  req.setFilterSubQueryMap(map);
+  AggregationInfo agg=new AggregationInfo();
+  agg.setAggregationType("dummy1");
+  agg.putToAggregationParams("key1","dummy1");
+  req.addToAggregationsInfo(agg);
+  int numRequests=100000;
+  TimerContext t=MetricsHelper.startTimer();
+  TSerializer serializer=new TSerializer(new TCompactProtocol.Factory());
+  for (int i=0; i < numRequests; i++) {
+    try {
+      serializer.serialize(req);
+    }
+ catch (    TException e) {
+      e.printStackTrace();
+    }
+  }
+  t.stop();
+  System.out.println("Latency is :" + (t.getLatencyMs() / (float)numRequests));
+}

@@ -1,0 +1,42 @@
+{
+  url=new URL("http://localhost:" + FileBasedServerBrokerStarters.BROKER_CLIENT_PORT + "/query");
+  final String[] columns={"dimention1","dimention2","dimention3","dimention4","metric1","daysSinceEpoch"};
+  final Map<String,DataType> dataTypes=new HashMap<String,FieldSpec.DataType>();
+  final Map<String,Integer> cardinality=new HashMap<String,Integer>();
+  for (  final String col : columns) {
+    if (col.equals("dimention1")) {
+      dataTypes.put(col,DataType.STRING);
+      cardinality.put(col,1000);
+    }
+ else {
+      dataTypes.put(col,DataType.INT);
+      cardinality.put(col,1000);
+    }
+  }
+  if (avroDataDir.exists()) {
+    FileUtils.deleteDirectory(avroDataDir);
+  }
+  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,dataTypes,FileFormat.avro,avroDataDir.getAbsolutePath(),true);
+  generator=new DataGenerator();
+  generator.init(spec);
+  generator.generate(100000L,2);
+  final File bootstrapDir=new File(FileBasedServerBrokerStarters.SERVER_BOOTSTRAP_DIR);
+  if (bootstrapDir.exists()) {
+    FileUtils.deleteDirectory(bootstrapDir);
+  }
+  bootstrapDir.mkdir();
+  int counter=0;
+  for (  final File avro : avroDataDir.listFiles()) {
+    for (    final String resource : FileBasedServerBrokerStarters.RESOURCE_NAMES) {
+      final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avro,new File(bootstrapDir,"segment-" + counter),"daysSinceEpoch",SegmentTimeUnit.days,resource,resource);
+      final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+      driver.init(genConfig);
+      driver.build();
+      counter++;
+    }
+  }
+  starter=new FileBasedServerBrokerStarters();
+  starter.startAll();
+  final JSONObject selectionRequestResponse=postQuery("select * from resource1 limit 100");
+  System.out.println(selectionRequestResponse.toString(1));
+}

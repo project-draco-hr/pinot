@@ -1,0 +1,19 @@
+{
+  final Configuration segmentPrunerConfig=new PropertiesConfiguration();
+  segmentPrunerConfig.addProperty("class","TableNameSegmentPruner");
+  segmentPrunerConfig.addProperty("TableNameSegmentPruner.id","0");
+  final SegmentPrunerService segmentPrunerService=new SegmentPrunerServiceImpl(new SegmentPrunerConfig(segmentPrunerConfig));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror","mirrorTest")));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirror"),getBrokerRequest("mirror",null)));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirror"),getBrokerRequest("mirror","")));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest2"),getBrokerRequest("mirror","*")));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror","mirrorTest,mirrorTest1,mirrorTest2")));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest1"),getBrokerRequest("mirror","mirrorTest,mirrorTest1,mirrorTest2")));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest2"),getBrokerRequest("mirror","mirrorTest,mirrorTest1,mirrorTest2")));
+  Assert.assertFalse(segmentPrunerService.prune(getIndexSegment("mirror","default"),getBrokerRequest("mirror","default,mirrorTest,mirrorTest1,mirrorTest2")));
+  Assert.assertTrue(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror",null)));
+  Assert.assertTrue(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror","")));
+  Assert.assertTrue(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror","mirrorTest1")));
+  Assert.assertTrue(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror1",null)));
+  Assert.assertTrue(segmentPrunerService.prune(getIndexSegment("mirror","mirrorTest"),getBrokerRequest("mirror1","default")));
+}

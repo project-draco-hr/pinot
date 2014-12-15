@@ -1,0 +1,10 @@
+{
+  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(new File("/tmp/mirrorTwoDotO/mirror_mirror_16381_16381_1"),ReadMode.mmap);
+  final DataSource ds=segment.getDataSource("viewerPrivacySetting");
+  final Block bl=ds.nextBlock();
+  final BlockValSet valSet=bl.getBlockValueSet();
+  final BlockSingleValIterator it=(BlockSingleValIterator)valSet.iterator();
+  while (it.hasNext()) {
+    System.out.println(it.nextIntVal());
+  }
+}

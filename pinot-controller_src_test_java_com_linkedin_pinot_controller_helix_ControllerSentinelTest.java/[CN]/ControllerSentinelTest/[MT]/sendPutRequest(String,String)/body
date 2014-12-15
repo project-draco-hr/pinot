@@ -1,0 +1,20 @@
+{
+  final long start=System.currentTimeMillis();
+  final URL url=new URL(urlString);
+  final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod("PUT");
+  final BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
+  final String reqStr=payload.toString();
+  writer.write(reqStr,0,reqStr.length());
+  writer.flush();
+  final BufferedReader reader=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+  final StringBuilder sb=new StringBuilder();
+  String line=null;
+  while ((line=reader.readLine()) != null) {
+    sb.append(line);
+  }
+  final long stop=System.currentTimeMillis();
+  logger.info(" Time take for Request : " + urlString + " in ms:"+ (stop - start));
+  return sb.toString();
+}

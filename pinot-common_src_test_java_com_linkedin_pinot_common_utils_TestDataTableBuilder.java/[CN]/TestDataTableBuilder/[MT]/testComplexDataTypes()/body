@@ -1,0 +1,41 @@
+{
+  DataType[] columnTypes=new DataType[]{DataType.INT_ARRAY,DataType.INT_ARRAY};
+  String[] columnNames=new String[]{"col-0","col-1"};
+  DataSchema schema=new DataSchema(columnNames,columnTypes);
+  DataTableBuilder builder=new DataTableBuilder(schema);
+  builder.open();
+  Random r=new Random();
+  int NUM_ROWS=100;
+  Object[] oIntArr1=new Object[NUM_ROWS];
+  Object[] oIntArr2=new Object[NUM_ROWS];
+  for (int rowId=0; rowId < NUM_ROWS; rowId++) {
+    builder.startRow();
+    int size1=r.nextInt(15);
+    int size2=r.nextInt(15);
+    int[] arr1=new int[size1];
+    int[] arr2=new int[size2];
+    for (int j=0; j < size1; j++) {
+      arr1[j]=r.nextInt();
+    }
+    for (int j=0; j < size2; j++) {
+      arr2[j]=r.nextInt();
+    }
+    oIntArr1[rowId]=arr1;
+    oIntArr2[rowId]=arr2;
+    builder.setColumn(0,arr1);
+    builder.setColumn(1,arr2);
+    builder.finishRow();
+  }
+  builder.seal();
+  DataTable dataTable=builder.build();
+  for (int rowId=0; rowId < NUM_ROWS; rowId++) {
+    validate(DataType.INT_ARRAY,dataTable,oIntArr1,rowId,0);
+    validate(DataType.INT_ARRAY,dataTable,oIntArr2,rowId,1);
+  }
+  byte[] bytes=dataTable.toBytes();
+  DataTable newDataTable=new DataTable(bytes);
+  for (int rowId=0; rowId < NUM_ROWS; rowId++) {
+    validate(DataType.INT_ARRAY,newDataTable,oIntArr1,rowId,0);
+    validate(DataType.INT_ARRAY,newDataTable,oIntArr2,rowId,1);
+  }
+}

@@ -1,0 +1,13 @@
+{
+  PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
+  BrokerRequest brokerRequest=_brokerRequest.deepCopy();
+  brokerRequest.setSelections(null);
+  brokerRequest.setSelectionsIsSet(false);
+  ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
+  Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  globalPlan.print();
+  System.out.println("/////////////////////////////////////////////////////////////////////////////");
+  brokerRequest=setFilterQuery(brokerRequest);
+  globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  globalPlan.print();
+}

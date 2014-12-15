@@ -1,0 +1,13 @@
+{
+  final BrokerRequest brokerRequest=new BrokerRequest();
+  final List<AggregationInfo> aggregationsInfo=new ArrayList<AggregationInfo>();
+  aggregationsInfo.add(getCountAggregationInfo());
+  aggregationsInfo.add(getSumAggregationInfo());
+  aggregationsInfo.add(getMaxAggregationInfo());
+  aggregationsInfo.add(getMinAggregationInfo());
+  aggregationsInfo.add(getAvgAggregationInfo());
+  aggregationsInfo.add(getDistinctCountAggregationInfo("dim_memberIndustry"));
+  brokerRequest.setAggregationsInfo(aggregationsInfo);
+  brokerRequest.setGroupBy(getGroupBy());
+  return brokerRequest;
+}

@@ -1,0 +1,16 @@
+{
+  final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
+  final BDocIdSetOperator docIdSetOperator=new BDocIdSetOperator(null,_indexSegment,5000);
+  final Map<String,DataSource> dataSourceMap=getDataSourceMap();
+  final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
+  for (int i=0; i < _numAggregations; ++i) {
+    final MAggregationFunctionGroupByWithDictionaryOperator aggregationFunctionGroupByOperator=new MAggregationFunctionGroupByWithDictionaryOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator));
+    aggregationFunctionGroupByOperatorList.add(aggregationFunctionGroupByOperator);
+  }
+  final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
+  System.out.println("running query: ");
+  final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
+  for (int i=0; i < _numAggregations; ++i) {
+    System.out.println(block.getAggregationGroupByOperatorResult().get(i));
+  }
+}

@@ -1,0 +1,13 @@
+{
+  Object object=this.get(index);
+  if (object instanceof com.alibaba.fastjson.JSONArray) {
+    return new FastJSONArray((com.alibaba.fastjson.JSONArray)object);
+  }
+ else   if (object instanceof Collection) {
+    return new FastJSONArray((com.alibaba.fastjson.JSONArray)toJSON(object));
+  }
+ else   if (object instanceof JSONArray) {
+    return (JSONArray)object;
+  }
+  throw new JSONException("JSONArray[" + index + "] is not a JSONArray.");
+}

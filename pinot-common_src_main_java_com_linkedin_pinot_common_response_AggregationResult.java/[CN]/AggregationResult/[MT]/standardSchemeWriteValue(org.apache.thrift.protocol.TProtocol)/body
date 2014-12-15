@@ -1,0 +1,132 @@
+{
+switch (setField_) {
+case LONG_VAL:
+    Long longVal=(Long)value_;
+  oprot.writeI64(longVal);
+return;
+case STRING_VAL:
+String stringVal=(String)value_;
+oprot.writeString(stringVal);
+return;
+case DOUBLE_VAL:
+Double doubleVal=(Double)value_;
+oprot.writeDouble(doubleVal);
+return;
+case LONG_SET:
+Set<Long> longSet=(Set<Long>)value_;
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.I64,longSet.size()));
+for (long _iter42 : longSet) {
+oprot.writeI64(_iter42);
+}
+oprot.writeSetEnd();
+}
+return;
+case STRING_SET:
+Set<String> stringSet=(Set<String>)value_;
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRING,stringSet.size()));
+for (String _iter43 : stringSet) {
+oprot.writeString(_iter43);
+}
+oprot.writeSetEnd();
+}
+return;
+case DOUBLE_SET:
+Set<Double> doubleSet=(Set<Double>)value_;
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.DOUBLE,doubleSet.size()));
+for (double _iter44 : doubleSet) {
+oprot.writeDouble(_iter44);
+}
+oprot.writeSetEnd();
+}
+return;
+case STRING_STRING_MAP:
+Map<String,String> stringStringMap=(Map<String,String>)value_;
+{
+oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.STRING,stringStringMap.size()));
+for (Map.Entry<String,String> _iter45 : stringStringMap.entrySet()) {
+oprot.writeString(_iter45.getKey());
+oprot.writeString(_iter45.getValue());
+}
+oprot.writeMapEnd();
+}
+return;
+case STRING_LONG_MAP:
+Map<String,Long> stringLongMap=(Map<String,Long>)value_;
+{
+oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.I64,stringLongMap.size()));
+for (Map.Entry<String,Long> _iter46 : stringLongMap.entrySet()) {
+oprot.writeString(_iter46.getKey());
+oprot.writeI64(_iter46.getValue());
+}
+oprot.writeMapEnd();
+}
+return;
+case STRING_DOUBLE_MAP:
+Map<String,Double> stringDoubleMap=(Map<String,Double>)value_;
+{
+oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.DOUBLE,stringDoubleMap.size()));
+for (Map.Entry<String,Double> _iter47 : stringDoubleMap.entrySet()) {
+oprot.writeString(_iter47.getKey());
+oprot.writeDouble(_iter47.getValue());
+}
+oprot.writeMapEnd();
+}
+return;
+case STRING_STRING_SET_MAP:
+Map<String,Set<String>> stringStringSetMap=(Map<String,Set<String>>)value_;
+{
+oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.SET,stringStringSetMap.size()));
+for (Map.Entry<String,Set<String>> _iter48 : stringStringSetMap.entrySet()) {
+oprot.writeString(_iter48.getKey());
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRING,_iter48.getValue().size()));
+for (String _iter49 : _iter48.getValue()) {
+oprot.writeString(_iter49);
+}
+oprot.writeSetEnd();
+}
+}
+oprot.writeMapEnd();
+}
+return;
+case STRING_LONG_SET_MAP:
+Map<String,Set<Long>> stringLongSetMap=(Map<String,Set<Long>>)value_;
+{
+oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.SET,stringLongSetMap.size()));
+for (Map.Entry<String,Set<Long>> _iter50 : stringLongSetMap.entrySet()) {
+oprot.writeString(_iter50.getKey());
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.I64,_iter50.getValue().size()));
+for (long _iter51 : _iter50.getValue()) {
+oprot.writeI64(_iter51);
+}
+oprot.writeSetEnd();
+}
+}
+oprot.writeMapEnd();
+}
+return;
+case STRING_DOUBLE_SET_MAP:
+Map<String,Set<Double>> stringDoubleSetMap=(Map<String,Set<Double>>)value_;
+{
+oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.SET,stringDoubleSetMap.size()));
+for (Map.Entry<String,Set<Double>> _iter52 : stringDoubleSetMap.entrySet()) {
+oprot.writeString(_iter52.getKey());
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.DOUBLE,_iter52.getValue().size()));
+for (double _iter53 : _iter52.getValue()) {
+oprot.writeDouble(_iter53);
+}
+oprot.writeSetEnd();
+}
+}
+oprot.writeMapEnd();
+}
+return;
+default :
+throw new IllegalStateException("Cannot write union with unknown field " + setField_);
+}
+}

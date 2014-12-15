@@ -1,0 +1,63 @@
+{
+  org.apache.thrift.protocol.TField schemeField;
+  iprot.readStructBegin();
+  while (true) {
+    schemeField=iprot.readFieldBegin();
+    if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+      break;
+    }
+switch (schemeField.id) {
+case 1:
+      if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+        struct.requestId=iprot.readI64();
+        struct.setRequestIdIsSet(true);
+      }
+ else {
+        org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+      }
+    break;
+case 2:
+  if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+    struct.query=new BrokerRequest();
+    struct.query.read(iprot);
+    struct.setQueryIsSet(true);
+  }
+ else {
+    org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+  }
+break;
+case 3:
+if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+  org.apache.thrift.protocol.TList _list68=iprot.readListBegin();
+  struct.searchSegments=new ArrayList<String>(_list68.size);
+  for (int _i69=0; _i69 < _list68.size; ++_i69) {
+    String _elem70;
+    _elem70=iprot.readString();
+    struct.searchSegments.add(_elem70);
+  }
+  iprot.readListEnd();
+}
+struct.setSearchSegmentsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 4:
+if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+struct.enableTrace=iprot.readBool();
+struct.setEnableTraceIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+default :
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+iprot.readFieldEnd();
+}
+iprot.readStructEnd();
+struct.validate();
+}

@@ -1,0 +1,15 @@
+{
+  try {
+    HttpClient httpClient=new HttpClient();
+    GetMethod httpget=new GetMethod(url);
+    httpClient.executeMethod(httpget);
+    long ret=httpget.getResponseContentLength();
+    BufferedOutputStream output=new BufferedOutputStream(new FileOutputStream(file));
+    IOUtils.copyLarge(httpget.getResponseBodyAsStream(),output);
+    IOUtils.closeQuietly(output);
+    return ret;
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException(ex);
+  }
+}

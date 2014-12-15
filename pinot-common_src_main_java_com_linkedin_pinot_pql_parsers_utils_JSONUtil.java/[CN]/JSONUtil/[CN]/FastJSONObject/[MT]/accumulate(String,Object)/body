@@ -1,0 +1,18 @@
+{
+  Object object=_inner.get(key);
+  if (object == null) {
+    com.alibaba.fastjson.JSONArray array=new com.alibaba.fastjson.JSONArray();
+    array.add(value);
+    _inner.put(key,array);
+  }
+ else   if (object instanceof com.alibaba.fastjson.JSONArray) {
+    ((com.alibaba.fastjson.JSONArray)object).add(value);
+  }
+ else {
+    com.alibaba.fastjson.JSONArray array=new com.alibaba.fastjson.JSONArray();
+    array.add(object);
+    array.add(value);
+    _inner.put(key,array);
+  }
+  return this;
+}

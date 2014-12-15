@@ -1,0 +1,11 @@
+{
+  if ((fieldSchema).getType() == Type.UNION) {
+    fieldSchema=((org.apache.avro.Schema)CollectionUtils.find(fieldSchema.getTypes(),new Predicate(){
+      @Override public boolean evaluate(      Object object){
+        return ((org.apache.avro.Schema)object).getType() != Type.NULL;
+      }
+    }
+));
+  }
+  return fieldSchema;
+}

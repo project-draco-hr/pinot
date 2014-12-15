@@ -1,0 +1,17 @@
+{
+  final List<Integer> f=new ArrayList<Integer>();
+  if (null != tree.getChildren()) {
+    for (    final FilterQueryTree c : tree.getChildren()) {
+      f.add(c.getId());
+      final FilterQuery q=traverseFilterQueryAndPopulateMap(c,filterQueryMap);
+      filterQueryMap.put(c.getId(),q);
+    }
+  }
+  FilterQuery query=new FilterQuery();
+  query.setColumn(tree.getColumn());
+  query.setId(tree.getId());
+  query.setNestedFilterQueryIds(f);
+  query.setOperator(tree.getOperator());
+  query.setValue(tree.getValue());
+  return query;
+}

@@ -1,0 +1,36 @@
+{
+  PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
+  BrokerRequest brokerRequest=_brokerRequest.deepCopy();
+  brokerRequest.setAggregationsInfo(null);
+  brokerRequest.setAggregationsInfoIsSet(false);
+  brokerRequest.setSelections(getSelectionQuery());
+  brokerRequest.getSelections().setOffset(0);
+  brokerRequest.getSelections().setSize(20);
+  ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
+  Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  globalPlan.print();
+  System.out.println("/////////////////////////////////////////////////////////////////////////////");
+  brokerRequest=setFilterQuery(brokerRequest);
+  globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  globalPlan.print();
+  globalPlan.execute();
+  DataTable instanceResponse=globalPlan.getInstanceResponse();
+  DefaultReduceService defaultReduceService=new DefaultReduceService();
+  Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse);
+  BrokerResponse brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  System.out.println(brokerResponse.getSelectionResults());
+  System.out.println("TimeUsedMs : " + brokerResponse.getTimeUsedMs());
+  System.out.println(brokerResponse);
+  double i=99;
+  JSONArray selectionResultsArray=brokerResponse.getSelectionResults().getJSONArray("results");
+  for (int j=0; j < selectionResultsArray.length(); ++j) {
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getDouble(0),9.0);
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getDouble(1),99.0);
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getDouble(2),i);
+    if ((j % 2) == 1) {
+      i+=100;
+    }
+  }
+}

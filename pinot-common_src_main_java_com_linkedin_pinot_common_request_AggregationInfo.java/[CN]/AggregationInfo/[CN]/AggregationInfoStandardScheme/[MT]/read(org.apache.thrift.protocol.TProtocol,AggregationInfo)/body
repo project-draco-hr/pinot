@@ -1,0 +1,46 @@
+{
+  org.apache.thrift.protocol.TField schemeField;
+  iprot.readStructBegin();
+  while (true) {
+    schemeField=iprot.readFieldBegin();
+    if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+      break;
+    }
+switch (schemeField.id) {
+case 1:
+      if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+        struct.aggregationType=iprot.readString();
+        struct.setAggregationTypeIsSet(true);
+      }
+ else {
+        org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+      }
+    break;
+case 2:
+  if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+{
+      org.apache.thrift.protocol.TMap _map26=iprot.readMapBegin();
+      struct.aggregationParams=new HashMap<String,String>(2 * _map26.size);
+      for (int _i27=0; _i27 < _map26.size; ++_i27) {
+        String _key28;
+        String _val29;
+        _key28=iprot.readString();
+        _val29=iprot.readString();
+        struct.aggregationParams.put(_key28,_val29);
+      }
+      iprot.readMapEnd();
+    }
+    struct.setAggregationParamsIsSet(true);
+  }
+ else {
+    org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+  }
+break;
+default :
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+iprot.readFieldEnd();
+}
+iprot.readStructEnd();
+struct.validate();
+}

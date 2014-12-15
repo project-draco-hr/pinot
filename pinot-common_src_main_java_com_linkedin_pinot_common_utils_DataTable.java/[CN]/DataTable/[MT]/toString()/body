@@ -1,0 +1,59 @@
+{
+  final StringBuilder b=new StringBuilder();
+  b.append(schema.toString());
+  b.append("\n");
+  b.append("numRows : " + numRows + "\n");
+  fixedSizeData.position(0);
+  for (int rowId=0; rowId < numRows; rowId++) {
+    for (int colId=0; colId < numCols; colId++) {
+      final DataType type=schema.columnTypes[colId];
+switch (type) {
+case BOOLEAN:
+        b.append(fixedSizeData.get());
+      break;
+case BYTE:
+    b.append(fixedSizeData.get());
+  break;
+case CHAR:
+b.append(fixedSizeData.getChar());
+break;
+case SHORT:
+b.append(fixedSizeData.getShort());
+break;
+case INT:
+b.append(fixedSizeData.getInt());
+break;
+case LONG:
+b.append(fixedSizeData.getLong());
+break;
+case FLOAT:
+b.append(fixedSizeData.getFloat());
+break;
+case DOUBLE:
+b.append(fixedSizeData.getDouble());
+break;
+case STRING:
+b.append(fixedSizeData.getInt());
+break;
+case OBJECT:
+b.append(String.format("(%s:%s)",fixedSizeData.getInt(),fixedSizeData.getInt()));
+break;
+case BYTE_ARRAY:
+case CHAR_ARRAY:
+case SHORT_ARRAY:
+case INT_ARRAY:
+case LONG_ARRAY:
+case FLOAT_ARRAY:
+case DOUBLE_ARRAY:
+case STRING_ARRAY:
+b.append(String.format("(%s:%s)",fixedSizeData.getInt(),fixedSizeData.getInt()));
+break;
+default :
+throw new RuntimeException("Unsupported datatype:" + type);
+}
+b.append("\t");
+}
+b.append("\n");
+}
+return b.toString();
+}

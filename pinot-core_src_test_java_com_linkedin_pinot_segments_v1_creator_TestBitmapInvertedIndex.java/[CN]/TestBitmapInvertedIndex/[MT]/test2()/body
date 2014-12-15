@@ -1,0 +1,24 @@
+{
+  final IndexSegmentImpl mmapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.mmap);
+  final DataFileStream<GenericRecord> reader=new DataFileStream<GenericRecord>(new FileInputStream(new File(getClass().getClassLoader().getResource(AVRO_DATA).getFile())),new GenericDatumReader<GenericRecord>());
+  int docId=0;
+  while (reader.hasNext()) {
+    final GenericRecord rec=reader.next();
+    for (    final String column : ((SegmentMetadataImpl)mmapSegment.getSegmentMetadata()).getColumnMetadataMap().keySet()) {
+      Object entry=rec.get(column);
+      if (entry instanceof Utf8) {
+        entry=((Utf8)entry).toString();
+      }
+      final int dicId=mmapSegment.getDictionaryFor(column).indexOf(entry);
+      AssertJUnit.assertEquals(mmapSegment.getInvertedIndexFor(column).getImmutable(dicId).contains(docId),true);
+      final int size=mmapSegment.getDictionaryFor(column).length();
+      for (int i=0; i < size; ++i) {
+        if (i == dicId) {
+          continue;
+        }
+        AssertJUnit.assertEquals(mmapSegment.getInvertedIndexFor(column).getImmutable(i).contains(docId),false);
+      }
+    }
+    ++docId;
+  }
+}

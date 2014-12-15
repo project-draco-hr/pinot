@@ -1,0 +1,26 @@
+{
+  if (index < 0) {
+    throw new JSONException("JSONArray[" + index + "] not found.");
+  }
+  if (index < this.length()) {
+    if (value instanceof FastJSONObject) {
+      _inner.set(index,((FastJSONObject)value).getInnerJSONObject());
+    }
+ else     if (value instanceof FastJSONArray) {
+      _inner.set(index,((FastJSONArray)value).getInnerJSONArray());
+    }
+ else {
+      if (value instanceof JSONObject || value instanceof JSONArray) {
+        throw new IllegalArgumentException("the value is not fast version of JSONObjects: " + value);
+      }
+      _inner.set(index,value);
+    }
+  }
+ else {
+    while (index != this.length()) {
+      this.put(JSONObject.NULL);
+    }
+    this.put(value);
+  }
+  return this;
+}

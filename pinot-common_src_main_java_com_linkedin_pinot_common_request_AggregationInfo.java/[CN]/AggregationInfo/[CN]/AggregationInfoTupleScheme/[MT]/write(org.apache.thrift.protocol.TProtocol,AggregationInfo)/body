@@ -1,0 +1,23 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  BitSet optionals=new BitSet();
+  if (struct.isSetAggregationType()) {
+    optionals.set(0);
+  }
+  if (struct.isSetAggregationParams()) {
+    optionals.set(1);
+  }
+  oprot.writeBitSet(optionals,2);
+  if (struct.isSetAggregationType()) {
+    oprot.writeString(struct.aggregationType);
+  }
+  if (struct.isSetAggregationParams()) {
+{
+      oprot.writeI32(struct.aggregationParams.size());
+      for (      Map.Entry<String,String> _iter31 : struct.aggregationParams.entrySet()) {
+        oprot.writeString(_iter31.getKey());
+        oprot.writeString(_iter31.getValue());
+      }
+    }
+  }
+}

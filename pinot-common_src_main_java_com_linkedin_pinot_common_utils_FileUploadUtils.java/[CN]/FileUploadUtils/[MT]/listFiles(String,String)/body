@@ -1,0 +1,11 @@
+{
+  try {
+    HttpClient httpClient=new HttpClient();
+    GetMethod httpget=new GetMethod("http://" + host + ":"+ port+ "/files/");
+    httpClient.executeMethod(httpget);
+    return IOUtils.toString(httpget.getResponseBodyAsStream());
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException(ex);
+  }
+}

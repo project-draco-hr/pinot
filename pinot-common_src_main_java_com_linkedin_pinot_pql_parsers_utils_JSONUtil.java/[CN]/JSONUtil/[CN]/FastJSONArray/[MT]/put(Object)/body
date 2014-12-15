@@ -1,0 +1,15 @@
+{
+  if (value instanceof FastJSONObject) {
+    _inner.add(((FastJSONObject)value).getInnerJSONObject());
+  }
+ else   if (value instanceof FastJSONArray) {
+    _inner.add(((FastJSONArray)value).getInnerJSONArray());
+  }
+ else {
+    if (value instanceof JSONObject || value instanceof JSONArray) {
+      throw new IllegalArgumentException("the value is not fast version of JSONObjects: " + value);
+    }
+    _inner.add(toJSON(value));
+  }
+  return this;
+}

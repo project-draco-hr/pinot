@@ -1,0 +1,27 @@
+{
+  struct.validate();
+  oprot.writeStructBegin(STRUCT_DESC);
+  if (struct.aggregationType != null) {
+    if (struct.isSetAggregationType()) {
+      oprot.writeFieldBegin(AGGREGATION_TYPE_FIELD_DESC);
+      oprot.writeString(struct.aggregationType);
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.aggregationParams != null) {
+    if (struct.isSetAggregationParams()) {
+      oprot.writeFieldBegin(AGGREGATION_PARAMS_FIELD_DESC);
+{
+        oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.STRING,struct.aggregationParams.size()));
+        for (        Map.Entry<String,String> _iter30 : struct.aggregationParams.entrySet()) {
+          oprot.writeString(_iter30.getKey());
+          oprot.writeString(_iter30.getValue());
+        }
+        oprot.writeMapEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  oprot.writeFieldStop();
+  oprot.writeStructEnd();
+}

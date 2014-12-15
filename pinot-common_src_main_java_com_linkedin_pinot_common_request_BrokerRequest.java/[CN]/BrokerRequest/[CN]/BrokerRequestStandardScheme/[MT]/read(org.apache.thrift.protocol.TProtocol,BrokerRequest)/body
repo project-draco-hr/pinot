@@ -1,0 +1,132 @@
+{
+  org.apache.thrift.protocol.TField schemeField;
+  iprot.readStructBegin();
+  while (true) {
+    schemeField=iprot.readFieldBegin();
+    if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+      break;
+    }
+switch (schemeField.id) {
+case 1:
+      if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+        struct.queryType=new QueryType();
+        struct.queryType.read(iprot);
+        struct.setQueryTypeIsSet(true);
+      }
+ else {
+        org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+      }
+    break;
+case 2:
+  if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+    struct.querySource=new QuerySource();
+    struct.querySource.read(iprot);
+    struct.setQuerySourceIsSet(true);
+  }
+ else {
+    org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+  }
+break;
+case 3:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+struct.timeInterval=iprot.readString();
+struct.setTimeIntervalIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 4:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+struct.duration=iprot.readString();
+struct.setDurationIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 5:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+struct.filterQuery=new FilterQuery();
+struct.filterQuery.read(iprot);
+struct.setFilterQueryIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 6:
+if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+org.apache.thrift.protocol.TList _list60=iprot.readListBegin();
+struct.aggregationsInfo=new ArrayList<AggregationInfo>(_list60.size);
+for (int _i61=0; _i61 < _list60.size; ++_i61) {
+AggregationInfo _elem62;
+_elem62=new AggregationInfo();
+_elem62.read(iprot);
+struct.aggregationsInfo.add(_elem62);
+}
+iprot.readListEnd();
+}
+struct.setAggregationsInfoIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 7:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+struct.groupBy=new GroupBy();
+struct.groupBy.read(iprot);
+struct.setGroupByIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 8:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+struct.selections=new Selection();
+struct.selections.read(iprot);
+struct.setSelectionsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 9:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+struct.filterSubQueryMap=new FilterQueryMap();
+struct.filterSubQueryMap.read(iprot);
+struct.setFilterSubQueryMapIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 10:
+if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+struct.bucketHashKey=iprot.readString();
+struct.setBucketHashKeyIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 11:
+if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+struct.enableTrace=iprot.readBool();
+struct.setEnableTraceIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+default :
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+iprot.readFieldEnd();
+}
+iprot.readStructEnd();
+struct.validate();
+}

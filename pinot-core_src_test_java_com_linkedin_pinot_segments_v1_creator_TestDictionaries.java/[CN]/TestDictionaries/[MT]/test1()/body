@@ -1,0 +1,35 @@
+{
+  final IndexSegmentImpl heapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.heap);
+  final IndexSegmentImpl mmapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.mmap);
+  for (  final String column : ((SegmentMetadataImpl)mmapSegment.getSegmentMetadata()).getColumnMetadataMap().keySet()) {
+    final DictionaryReader heapDictionary=heapSegment.getDictionaryFor(column);
+    final DictionaryReader mmapDictionary=mmapSegment.getDictionaryFor(column);
+switch (((SegmentMetadataImpl)mmapSegment.getSegmentMetadata()).getColumnMetadataMap().get(column).getDataType()) {
+case BOOLEAN:
+case STRING:
+      AssertJUnit.assertEquals(heapDictionary instanceof StringDictionary,true);
+    AssertJUnit.assertEquals(mmapDictionary instanceof StringDictionary,true);
+  break;
+case DOUBLE:
+AssertJUnit.assertEquals(heapDictionary instanceof DoubleDictionary,true);
+AssertJUnit.assertEquals(mmapDictionary instanceof DoubleDictionary,true);
+break;
+case FLOAT:
+AssertJUnit.assertEquals(heapDictionary instanceof FloatDictionary,true);
+AssertJUnit.assertEquals(mmapDictionary instanceof FloatDictionary,true);
+break;
+case LONG:
+AssertJUnit.assertEquals(heapDictionary instanceof LongDictionary,true);
+AssertJUnit.assertEquals(mmapDictionary instanceof LongDictionary,true);
+break;
+case INT:
+AssertJUnit.assertEquals(heapDictionary instanceof IntDictionary,true);
+AssertJUnit.assertEquals(mmapDictionary instanceof IntDictionary,true);
+break;
+}
+AssertJUnit.assertEquals(heapDictionary.length(),mmapDictionary.length());
+for (int i=0; i < heapDictionary.length(); i++) {
+AssertJUnit.assertEquals(heapDictionary.get(i),mmapDictionary.get(i));
+}
+}
+}

@@ -1,0 +1,89 @@
+{
+  final DataType[] columnTypes=DataType.values();
+  final String[] columnNames=new String[columnTypes.length];
+  for (int i=0; i < columnTypes.length; i++) {
+    columnNames[i]=columnTypes[i].toString();
+  }
+  final DataSchema schema=new DataSchema(columnNames,columnTypes);
+  final DataTableBuilder builder=new DataTableBuilder(schema);
+  builder.open();
+  final Random r=new Random();
+  final int NUM_ROWS=100;
+  final boolean[] boolArr=new boolean[NUM_ROWS];
+  final char[] cArr=new char[NUM_ROWS];
+  final byte[] bArr=new byte[NUM_ROWS];
+  final short[] sArr=new short[NUM_ROWS];
+  final int[] iArr=new int[NUM_ROWS];
+  final float[] fArr=new float[NUM_ROWS];
+  final long[] lArr=new long[NUM_ROWS];
+  final double[] dArr=new double[NUM_ROWS];
+  final String[] strArr=new String[NUM_ROWS];
+  final Object[] oArr=new Object[NUM_ROWS];
+  for (int rowId=0; rowId < NUM_ROWS; rowId++) {
+    builder.startRow();
+    for (int colId=0; colId < schema.columnNames.length; colId++) {
+      final DataType type=columnTypes[colId];
+switch (type) {
+case BOOLEAN:
+        final boolean bool=r.nextBoolean();
+      boolArr[rowId]=bool;
+    builder.setColumn(colId,bool);
+  break;
+case CHAR:
+final char ch=(char)(r.nextInt(26) + 'a');
+cArr[rowId]=ch;
+builder.setColumn(colId,ch);
+break;
+case BYTE:
+final byte b=(byte)(r.nextInt((int)Math.pow(2,8)));
+bArr[rowId]=b;
+builder.setColumn(colId,b);
+break;
+case SHORT:
+final short s=(short)(r.nextInt((int)Math.pow(2,16)));
+sArr[rowId]=s;
+builder.setColumn(colId,s);
+break;
+case INT:
+final int i=(r.nextInt());
+iArr[rowId]=i;
+builder.setColumn(colId,i);
+break;
+case LONG:
+final long l=(r.nextLong());
+lArr[rowId]=l;
+builder.setColumn(colId,l);
+break;
+case FLOAT:
+final float f=(r.nextFloat());
+fArr[rowId]=f;
+builder.setColumn(colId,f);
+break;
+case DOUBLE:
+final double d=(r.nextDouble());
+dArr[rowId]=d;
+builder.setColumn(colId,d);
+break;
+case STRING:
+final String str=new BigInteger(130,r).toString(32);
+strArr[rowId]=str;
+builder.setColumn(colId,str);
+break;
+case OBJECT:
+final A obj=new A(r.nextInt());
+oArr[rowId]=obj;
+builder.setColumn(colId,obj);
+break;
+default :
+break;
+}
+}
+builder.finishRow();
+}
+builder.seal();
+final DataTable dataTable=builder.build();
+validate(dataTable,NUM_ROWS,schema,boolArr,cArr,bArr,sArr,iArr,fArr,lArr,dArr,strArr,oArr);
+final byte[] bytes=dataTable.toBytes();
+final DataTable newDataTable=new DataTable(bytes);
+validate(newDataTable,NUM_ROWS,schema,boolArr,cArr,bArr,sArr,iArr,fArr,lArr,dArr,strArr,oArr);
+}

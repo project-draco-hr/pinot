@@ -1,0 +1,25 @@
+{
+  TTupleProtocol iprot=(TTupleProtocol)prot;
+  struct.requestId=iprot.readI64();
+  struct.setRequestIdIsSet(true);
+  struct.query=new BrokerRequest();
+  struct.query.read(iprot);
+  struct.setQueryIsSet(true);
+  BitSet incoming=iprot.readBitSet(2);
+  if (incoming.get(0)) {
+{
+      org.apache.thrift.protocol.TList _list73=new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING,iprot.readI32());
+      struct.searchSegments=new ArrayList<String>(_list73.size);
+      for (int _i74=0; _i74 < _list73.size; ++_i74) {
+        String _elem75;
+        _elem75=iprot.readString();
+        struct.searchSegments.add(_elem75);
+      }
+    }
+    struct.setSearchSegmentsIsSet(true);
+  }
+  if (incoming.get(1)) {
+    struct.enableTrace=iprot.readBool();
+    struct.setEnableTraceIsSet(true);
+  }
+}

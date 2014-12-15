@@ -1,0 +1,21 @@
+{
+  BrokerRequest brokerRequest=getAggregationGroupByWithFilterBrokerRequest();
+  brokerRequest.getGroupBy().getColumns().clear();
+  brokerRequest.getGroupBy().getColumns().add("dim0");
+  brokerRequest.getGroupBy().getColumns().add("dim1");
+  PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
+  PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
+  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
+  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
+  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  List<Map<String,Serializable>> combinedGroupByResult=resultBlock.getAggregationGroupByOperatorResult();
+  for (int i=0; i < combinedGroupByResult.size(); ++i) {
+    System.out.println("function : " + brokerRequest.getAggregationsInfo().get(i));
+    for (    String keyString : combinedGroupByResult.get(i).keySet()) {
+      System.out.println("grouped key : " + keyString + ", value : "+ combinedGroupByResult.get(i).get(keyString));
+    }
+  }
+}

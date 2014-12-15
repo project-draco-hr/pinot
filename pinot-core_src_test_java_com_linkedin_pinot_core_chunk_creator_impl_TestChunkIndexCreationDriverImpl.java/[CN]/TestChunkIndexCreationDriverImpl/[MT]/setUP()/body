@@ -1,0 +1,12 @@
+{
+  if (INDEX_DIR.exists()) {
+    FileUtils.deleteQuietly(INDEX_DIR);
+  }
+  final String filePath=TestChunkIndexCreationDriverImpl.class.getClassLoader().getResource(AVRO_DATA).getFile();
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),new File("/tmp/mirrorTwoDotO"),"daysSinceEpoch",SegmentTimeUnit.days,"mirror","mirror");
+  config.setSegmentNamePostfix("1");
+  config.setTimeColumnName("daysSinceEpoch");
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(config);
+  driver.build();
+}

@@ -1,0 +1,15 @@
+{
+  AggregationFunction aggregationFunction=new AvgAggregationFunction();
+  aggregationFunction.init(_paramsInfo);
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> aggregationResults=getAvgPairValues(i);
+    List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+    AvgPair retAvgPair=(AvgPair)combinedResult.get(0);
+    assertEquals(1.0,retAvgPair.getFirst() / retAvgPair.getSecond());
+  }
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> combinedResults=getAvgPairValues(i);
+    Serializable reduceResult=aggregationFunction.reduce(combinedResults);
+    assertEquals(1.0,reduceResult);
+  }
+}

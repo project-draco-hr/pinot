@@ -1,0 +1,10 @@
+{
+  final int numPerFiles=(int)(totalDocs / numFiles);
+  for (int i=0; i < numFiles; i++) {
+    final AvroWriter writer=new AvroWriter(outDir,i,generators,fetchSchema());
+    for (int j=0; j < numPerFiles; j++) {
+      writer.writeNext();
+    }
+    writer.seal();
+  }
+}

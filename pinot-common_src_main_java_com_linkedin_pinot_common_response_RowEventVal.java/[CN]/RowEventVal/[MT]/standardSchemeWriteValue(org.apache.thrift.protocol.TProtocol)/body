@@ -1,0 +1,78 @@
+{
+switch (setField_) {
+case LONG_VAL:
+    Long longVal=(Long)value_;
+  oprot.writeI64(longVal);
+return;
+case STRING_VAL:
+String stringVal=(String)value_;
+oprot.writeString(stringVal);
+return;
+case DOUBLE_VAL:
+Double doubleVal=(Double)value_;
+oprot.writeDouble(doubleVal);
+return;
+case LONG_SET:
+Set<Long> longSet=(Set<Long>)value_;
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.I64,longSet.size()));
+for (long _iter126 : longSet) {
+oprot.writeI64(_iter126);
+}
+oprot.writeSetEnd();
+}
+return;
+case STRING_SET:
+Set<String> stringSet=(Set<String>)value_;
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRING,stringSet.size()));
+for (String _iter127 : stringSet) {
+oprot.writeString(_iter127);
+}
+oprot.writeSetEnd();
+}
+return;
+case DOUBLE_SET:
+Set<Double> doubleSet=(Set<Double>)value_;
+{
+oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.DOUBLE,doubleSet.size()));
+for (double _iter128 : doubleSet) {
+oprot.writeDouble(_iter128);
+}
+oprot.writeSetEnd();
+}
+return;
+case LONG_LIST:
+List<Long> longList=(List<Long>)value_;
+{
+oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64,longList.size()));
+for (long _iter129 : longList) {
+oprot.writeI64(_iter129);
+}
+oprot.writeListEnd();
+}
+return;
+case STRING_LIST:
+List<String> stringList=(List<String>)value_;
+{
+oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING,stringList.size()));
+for (String _iter130 : stringList) {
+oprot.writeString(_iter130);
+}
+oprot.writeListEnd();
+}
+return;
+case DOUBLE_LIST:
+List<Double> doubleList=(List<Double>)value_;
+{
+oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE,doubleList.size()));
+for (double _iter131 : doubleList) {
+oprot.writeDouble(_iter131);
+}
+oprot.writeListEnd();
+}
+return;
+default :
+throw new IllegalStateException("Cannot write union with unknown field " + setField_);
+}
+}

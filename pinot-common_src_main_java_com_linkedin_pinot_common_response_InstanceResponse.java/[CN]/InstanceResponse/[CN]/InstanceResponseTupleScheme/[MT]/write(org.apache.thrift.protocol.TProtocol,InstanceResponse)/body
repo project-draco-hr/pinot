@@ -1,0 +1,80 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  oprot.writeI64(struct.requestId);
+  BitSet optionals=new BitSet();
+  if (struct.isSetTotalDocs()) {
+    optionals.set(0);
+  }
+  if (struct.isSetNumDocsScanned()) {
+    optionals.set(1);
+  }
+  if (struct.isSetTimeUsedMs()) {
+    optionals.set(2);
+  }
+  if (struct.isSetAggregationResults()) {
+    optionals.set(3);
+  }
+  if (struct.isSetRowEvents()) {
+    optionals.set(4);
+  }
+  if (struct.isSetSegmentStatistics()) {
+    optionals.set(5);
+  }
+  if (struct.isSetExceptions()) {
+    optionals.set(6);
+  }
+  if (struct.isSetTraceInfo()) {
+    optionals.set(7);
+  }
+  oprot.writeBitSet(optionals,8);
+  if (struct.isSetTotalDocs()) {
+    oprot.writeI64(struct.totalDocs);
+  }
+  if (struct.isSetNumDocsScanned()) {
+    oprot.writeI64(struct.numDocsScanned);
+  }
+  if (struct.isSetTimeUsedMs()) {
+    oprot.writeI64(struct.timeUsedMs);
+  }
+  if (struct.isSetAggregationResults()) {
+{
+      oprot.writeI32(struct.aggregationResults.size());
+      for (      AggregationResult _iter187 : struct.aggregationResults) {
+        _iter187.write(oprot);
+      }
+    }
+  }
+  if (struct.isSetRowEvents()) {
+{
+      oprot.writeI32(struct.rowEvents.size());
+      for (      RowEvent _iter188 : struct.rowEvents) {
+        _iter188.write(oprot);
+      }
+    }
+  }
+  if (struct.isSetSegmentStatistics()) {
+{
+      oprot.writeI32(struct.segmentStatistics.size());
+      for (      ResponseStatistics _iter189 : struct.segmentStatistics) {
+        _iter189.write(oprot);
+      }
+    }
+  }
+  if (struct.isSetExceptions()) {
+{
+      oprot.writeI32(struct.exceptions.size());
+      for (      ProcessingException _iter190 : struct.exceptions) {
+        _iter190.write(oprot);
+      }
+    }
+  }
+  if (struct.isSetTraceInfo()) {
+{
+      oprot.writeI32(struct.traceInfo.size());
+      for (      Map.Entry<String,String> _iter191 : struct.traceInfo.entrySet()) {
+        oprot.writeString(_iter191.getKey());
+        oprot.writeString(_iter191.getValue());
+      }
+    }
+  }
+}

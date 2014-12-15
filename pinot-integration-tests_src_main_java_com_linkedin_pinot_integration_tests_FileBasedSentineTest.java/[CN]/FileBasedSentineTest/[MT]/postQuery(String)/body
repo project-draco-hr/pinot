@@ -1,0 +1,25 @@
+{
+  final JSONObject json=new JSONObject();
+  json.put("pql",query);
+  final long start=System.currentTimeMillis();
+  final URLConnection conn=url.openConnection();
+  conn.setDoOutput(true);
+  final BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
+  final String reqStr=json.toString();
+  writer.write(reqStr,0,reqStr.length());
+  writer.flush();
+  final BufferedReader reader=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+  final StringBuilder sb=new StringBuilder();
+  String line=null;
+  while ((line=reader.readLine()) != null) {
+    sb.append(line);
+  }
+  final long stop=System.currentTimeMillis();
+  logger.info(" Time take for Request : " + query + " in ms:"+ (stop - start));
+  final String res=sb.toString();
+  final JSONObject ret=new JSONObject(res);
+  if (ret.opt("totaldocs") != null) {
+  }
+  ret.put("totalTime",(stop - start));
+  return ret;
+}

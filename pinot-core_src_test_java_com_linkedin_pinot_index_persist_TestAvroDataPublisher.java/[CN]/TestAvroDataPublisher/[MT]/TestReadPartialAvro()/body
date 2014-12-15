@@ -1,0 +1,36 @@
+{
+  final String filePath=getClass().getClassLoader().getResource(AVRO_DATA).getFile();
+  final String jsonPath=getClass().getClassLoader().getResource(JSON_DATA).getFile();
+  final List<String> projectedColumns=new ArrayList<String>();
+  projectedColumns.add("dim_campaignType");
+  projectedColumns.add("sort_campaignId");
+  final SegmentGeneratorConfig config=new SegmentGeneratorConfig();
+  config.setInputFileFormat(FileFormat.avro);
+  config.setInputFilePath(filePath);
+  config.setProjectedColumns(projectedColumns);
+  config.setSegmentVersion(SegmentVersion.v1);
+  final Schema schema=new Schema();
+  for (  final String column : projectedColumns) {
+    final FieldSpec spec=new FieldSpec(column,FieldType.dimension,null,true);
+    schema.addSchema(column,spec);
+  }
+  final AvroRecordReader avroDataPublisher=new AvroRecordReader(FieldExtractorFactory.get(config),config.getInputFilePath());
+  avroDataPublisher.next();
+  int cnt=0;
+  for (  final String line : FileUtils.readLines(new File(jsonPath))) {
+    final JSONObject obj=new JSONObject(line);
+    if (avroDataPublisher.hasNext()) {
+      final GenericRow recordRow=avroDataPublisher.next();
+      AssertJUnit.assertEquals(2,recordRow.getFieldNames().length);
+      for (      final String column : recordRow.getFieldNames()) {
+        final String valueFromJson=obj.get(column).toString();
+        final String valueFromAvro=recordRow.getValue(column).toString();
+        if (cnt > 1) {
+          AssertJUnit.assertEquals(valueFromJson,valueFromAvro);
+        }
+      }
+    }
+    cnt++;
+  }
+  AssertJUnit.assertEquals(cnt,10000);
+}

@@ -1,0 +1,22 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  BitSet optionals=new BitSet();
+  if (struct.isSetColumns()) {
+    optionals.set(0);
+  }
+  if (struct.isSetTopN()) {
+    optionals.set(1);
+  }
+  oprot.writeBitSet(optionals,2);
+  if (struct.isSetColumns()) {
+{
+      oprot.writeI32(struct.columns.size());
+      for (      String _iter40 : struct.columns) {
+        oprot.writeString(_iter40);
+      }
+    }
+  }
+  if (struct.isSetTopN()) {
+    oprot.writeI64(struct.topN);
+  }
+}

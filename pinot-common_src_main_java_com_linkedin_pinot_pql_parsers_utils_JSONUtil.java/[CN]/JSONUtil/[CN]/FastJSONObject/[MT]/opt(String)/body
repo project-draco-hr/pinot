@@ -1,0 +1,22 @@
+{
+  if (key == null) {
+    return null;
+  }
+  Object object=_inner.get(key);
+  if (object == null) {
+    return null;
+  }
+ else   if (object instanceof com.alibaba.fastjson.JSONObject) {
+    return new FastJSONObject((com.alibaba.fastjson.JSONObject)object);
+  }
+ else   if (object instanceof com.alibaba.fastjson.JSONArray) {
+    return new FastJSONArray((com.alibaba.fastjson.JSONArray)object);
+  }
+ else   if (object instanceof Map) {
+    return new FastJSONObject((com.alibaba.fastjson.JSONObject)toJSON(object));
+  }
+ else   if (object instanceof Collection) {
+    return new FastJSONArray((com.alibaba.fastjson.JSONArray)toJSON(object));
+  }
+  return object;
+}

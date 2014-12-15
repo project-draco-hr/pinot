@@ -1,0 +1,90 @@
+{
+  struct.validate();
+  oprot.writeStructBegin(STRUCT_DESC);
+  oprot.writeFieldBegin(REQUEST_ID_FIELD_DESC);
+  oprot.writeI64(struct.requestId);
+  oprot.writeFieldEnd();
+  if (struct.isSetTotalDocs()) {
+    oprot.writeFieldBegin(TOTAL_DOCS_FIELD_DESC);
+    oprot.writeI64(struct.totalDocs);
+    oprot.writeFieldEnd();
+  }
+  if (struct.isSetNumDocsScanned()) {
+    oprot.writeFieldBegin(NUM_DOCS_SCANNED_FIELD_DESC);
+    oprot.writeI64(struct.numDocsScanned);
+    oprot.writeFieldEnd();
+  }
+  if (struct.isSetTimeUsedMs()) {
+    oprot.writeFieldBegin(TIME_USED_MS_FIELD_DESC);
+    oprot.writeI64(struct.timeUsedMs);
+    oprot.writeFieldEnd();
+  }
+  if (struct.aggregationResults != null) {
+    if (struct.isSetAggregationResults()) {
+      oprot.writeFieldBegin(AGGREGATION_RESULTS_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT,struct.aggregationResults.size()));
+        for (        AggregationResult _iter182 : struct.aggregationResults) {
+          _iter182.write(oprot);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.rowEvents != null) {
+    if (struct.isSetRowEvents()) {
+      oprot.writeFieldBegin(ROW_EVENTS_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT,struct.rowEvents.size()));
+        for (        RowEvent _iter183 : struct.rowEvents) {
+          _iter183.write(oprot);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.segmentStatistics != null) {
+    if (struct.isSetSegmentStatistics()) {
+      oprot.writeFieldBegin(SEGMENT_STATISTICS_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT,struct.segmentStatistics.size()));
+        for (        ResponseStatistics _iter184 : struct.segmentStatistics) {
+          _iter184.write(oprot);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.exceptions != null) {
+    if (struct.isSetExceptions()) {
+      oprot.writeFieldBegin(EXCEPTIONS_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT,struct.exceptions.size()));
+        for (        ProcessingException _iter185 : struct.exceptions) {
+          _iter185.write(oprot);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.traceInfo != null) {
+    if (struct.isSetTraceInfo()) {
+      oprot.writeFieldBegin(TRACE_INFO_FIELD_DESC);
+{
+        oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING,org.apache.thrift.protocol.TType.STRING,struct.traceInfo.size()));
+        for (        Map.Entry<String,String> _iter186 : struct.traceInfo.entrySet()) {
+          oprot.writeString(_iter186.getKey());
+          oprot.writeString(_iter186.getValue());
+        }
+        oprot.writeMapEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  oprot.writeFieldStop();
+  oprot.writeStructEnd();
+}

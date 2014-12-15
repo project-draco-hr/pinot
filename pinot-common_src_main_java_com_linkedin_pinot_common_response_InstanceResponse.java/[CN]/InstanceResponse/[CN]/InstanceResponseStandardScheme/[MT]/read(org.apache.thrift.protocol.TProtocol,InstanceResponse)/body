@@ -1,0 +1,149 @@
+{
+  org.apache.thrift.protocol.TField schemeField;
+  iprot.readStructBegin();
+  while (true) {
+    schemeField=iprot.readFieldBegin();
+    if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+      break;
+    }
+switch (schemeField.id) {
+case 1:
+      if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+        struct.requestId=iprot.readI64();
+        struct.setRequestIdIsSet(true);
+      }
+ else {
+        org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+      }
+    break;
+case 2:
+  if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+    struct.totalDocs=iprot.readI64();
+    struct.setTotalDocsIsSet(true);
+  }
+ else {
+    org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+  }
+break;
+case 3:
+if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+struct.numDocsScanned=iprot.readI64();
+struct.setNumDocsScannedIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 4:
+if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+struct.timeUsedMs=iprot.readI64();
+struct.setTimeUsedMsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 5:
+if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+org.apache.thrift.protocol.TList _list166=iprot.readListBegin();
+struct.aggregationResults=new ArrayList<AggregationResult>(_list166.size);
+for (int _i167=0; _i167 < _list166.size; ++_i167) {
+AggregationResult _elem168;
+_elem168=new AggregationResult();
+_elem168.read(iprot);
+struct.aggregationResults.add(_elem168);
+}
+iprot.readListEnd();
+}
+struct.setAggregationResultsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 6:
+if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+org.apache.thrift.protocol.TList _list169=iprot.readListBegin();
+struct.rowEvents=new ArrayList<RowEvent>(_list169.size);
+for (int _i170=0; _i170 < _list169.size; ++_i170) {
+RowEvent _elem171;
+_elem171=new RowEvent();
+_elem171.read(iprot);
+struct.rowEvents.add(_elem171);
+}
+iprot.readListEnd();
+}
+struct.setRowEventsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 7:
+if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+org.apache.thrift.protocol.TList _list172=iprot.readListBegin();
+struct.segmentStatistics=new ArrayList<ResponseStatistics>(_list172.size);
+for (int _i173=0; _i173 < _list172.size; ++_i173) {
+ResponseStatistics _elem174;
+_elem174=new ResponseStatistics();
+_elem174.read(iprot);
+struct.segmentStatistics.add(_elem174);
+}
+iprot.readListEnd();
+}
+struct.setSegmentStatisticsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 8:
+if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+org.apache.thrift.protocol.TList _list175=iprot.readListBegin();
+struct.exceptions=new ArrayList<ProcessingException>(_list175.size);
+for (int _i176=0; _i176 < _list175.size; ++_i176) {
+ProcessingException _elem177;
+_elem177=new ProcessingException();
+_elem177.read(iprot);
+struct.exceptions.add(_elem177);
+}
+iprot.readListEnd();
+}
+struct.setExceptionsIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 9:
+if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+{
+org.apache.thrift.protocol.TMap _map178=iprot.readMapBegin();
+struct.traceInfo=new HashMap<String,String>(2 * _map178.size);
+for (int _i179=0; _i179 < _map178.size; ++_i179) {
+String _key180;
+String _val181;
+_key180=iprot.readString();
+_val181=iprot.readString();
+struct.traceInfo.put(_key180,_val181);
+}
+iprot.readMapEnd();
+}
+struct.setTraceInfoIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+default :
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+iprot.readFieldEnd();
+}
+iprot.readStructEnd();
+struct.validate();
+}

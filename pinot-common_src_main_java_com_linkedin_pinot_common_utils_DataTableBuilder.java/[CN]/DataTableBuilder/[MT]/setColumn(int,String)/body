@@ -1,0 +1,15 @@
+{
+  currentRowData.position(columnOffsets[columnIndex]);
+  String columnName=schema.columnNames[columnIndex];
+  if (dictionary.get(columnName) == null) {
+    dictionary.put(columnName,new HashMap<String,Integer>());
+    reverseDictionary.put(columnName,new HashMap<Integer,String>());
+  }
+  Map<String,Integer> map=dictionary.get(columnName);
+  if (!map.containsKey(value)) {
+    int id=map.size();
+    map.put(value,id);
+    reverseDictionary.get(columnName).put(id,value);
+  }
+  currentRowData.putInt(map.get(value));
+}

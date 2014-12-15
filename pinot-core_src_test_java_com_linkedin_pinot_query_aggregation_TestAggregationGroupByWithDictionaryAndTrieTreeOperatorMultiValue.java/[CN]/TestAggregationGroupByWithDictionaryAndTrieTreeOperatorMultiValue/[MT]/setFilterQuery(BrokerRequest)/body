@@ -1,0 +1,24 @@
+{
+  FilterQueryTree filterQueryTree;
+  String filterColumn="vieweeId";
+  String filterVal="356899";
+  if (filterColumn.contains(",")) {
+    String[] filterColumns=filterColumn.split(",");
+    String[] filterValues=filterVal.split(",");
+    List<FilterQueryTree> nested=new ArrayList<FilterQueryTree>();
+    for (int i=0; i < filterColumns.length; i++) {
+      List<String> vals=new ArrayList<String>();
+      vals.add(filterValues[i]);
+      FilterQueryTree d=new FilterQueryTree(i + 1,filterColumns[i],vals,FilterOperator.EQUALITY,null);
+      nested.add(d);
+    }
+    filterQueryTree=new FilterQueryTree(0,null,null,FilterOperator.AND,nested);
+  }
+ else {
+    List<String> vals=new ArrayList<String>();
+    vals.add(filterVal);
+    filterQueryTree=new FilterQueryTree(0,filterColumn,vals,FilterOperator.EQUALITY,null);
+  }
+  RequestUtils.generateFilterFromTree(filterQueryTree,brokerRequest);
+  return brokerRequest;
+}

@@ -1,0 +1,72 @@
+{
+  org.apache.thrift.protocol.TField schemeField;
+  iprot.readStructBegin();
+  while (true) {
+    schemeField=iprot.readFieldBegin();
+    if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+      break;
+    }
+switch (schemeField.id) {
+case 1:
+      if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+          org.apache.thrift.protocol.TList _list44=iprot.readListBegin();
+          struct.selectionColumns=new ArrayList<String>(_list44.size);
+          for (int _i45=0; _i45 < _list44.size; ++_i45) {
+            String _elem46;
+            _elem46=iprot.readString();
+            struct.selectionColumns.add(_elem46);
+          }
+          iprot.readListEnd();
+        }
+        struct.setSelectionColumnsIsSet(true);
+      }
+ else {
+        org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+      }
+    break;
+case 2:
+  if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+{
+      org.apache.thrift.protocol.TList _list47=iprot.readListBegin();
+      struct.selectionSortSequence=new ArrayList<SelectionSort>(_list47.size);
+      for (int _i48=0; _i48 < _list47.size; ++_i48) {
+        SelectionSort _elem49;
+        _elem49=new SelectionSort();
+        _elem49.read(iprot);
+        struct.selectionSortSequence.add(_elem49);
+      }
+      iprot.readListEnd();
+    }
+    struct.setSelectionSortSequenceIsSet(true);
+  }
+ else {
+    org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+  }
+break;
+case 3:
+if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+struct.offset=iprot.readI32();
+struct.setOffsetIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+case 4:
+if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+struct.size=iprot.readI32();
+struct.setSizeIsSet(true);
+}
+ else {
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+break;
+default :
+org.apache.thrift.protocol.TProtocolUtil.skip(iprot,schemeField.type);
+}
+iprot.readFieldEnd();
+}
+iprot.readStructEnd();
+struct.validate();
+}

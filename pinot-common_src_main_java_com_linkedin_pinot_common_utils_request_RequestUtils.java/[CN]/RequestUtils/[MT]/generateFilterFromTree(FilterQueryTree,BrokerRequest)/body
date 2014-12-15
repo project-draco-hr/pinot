@@ -1,0 +1,9 @@
+{
+  Map<Integer,FilterQuery> filterQueryMap=new HashMap<Integer,FilterQuery>();
+  FilterQuery root=traverseFilterQueryAndPopulateMap(filterQueryTree,filterQueryMap);
+  filterQueryMap.put(root.getId(),root);
+  request.setFilterQuery(root);
+  FilterQueryMap mp=new FilterQueryMap();
+  mp.setFilterQueryMap(filterQueryMap);
+  request.setFilterSubQueryMap(mp);
+}

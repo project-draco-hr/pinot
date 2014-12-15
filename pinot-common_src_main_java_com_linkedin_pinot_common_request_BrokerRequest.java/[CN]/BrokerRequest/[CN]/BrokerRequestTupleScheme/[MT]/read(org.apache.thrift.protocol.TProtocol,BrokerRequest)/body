@@ -1,0 +1,63 @@
+{
+  TTupleProtocol iprot=(TTupleProtocol)prot;
+  BitSet incoming=iprot.readBitSet(11);
+  if (incoming.get(0)) {
+    struct.queryType=new QueryType();
+    struct.queryType.read(iprot);
+    struct.setQueryTypeIsSet(true);
+  }
+  if (incoming.get(1)) {
+    struct.querySource=new QuerySource();
+    struct.querySource.read(iprot);
+    struct.setQuerySourceIsSet(true);
+  }
+  if (incoming.get(2)) {
+    struct.timeInterval=iprot.readString();
+    struct.setTimeIntervalIsSet(true);
+  }
+  if (incoming.get(3)) {
+    struct.duration=iprot.readString();
+    struct.setDurationIsSet(true);
+  }
+  if (incoming.get(4)) {
+    struct.filterQuery=new FilterQuery();
+    struct.filterQuery.read(iprot);
+    struct.setFilterQueryIsSet(true);
+  }
+  if (incoming.get(5)) {
+{
+      org.apache.thrift.protocol.TList _list65=new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT,iprot.readI32());
+      struct.aggregationsInfo=new ArrayList<AggregationInfo>(_list65.size);
+      for (int _i66=0; _i66 < _list65.size; ++_i66) {
+        AggregationInfo _elem67;
+        _elem67=new AggregationInfo();
+        _elem67.read(iprot);
+        struct.aggregationsInfo.add(_elem67);
+      }
+    }
+    struct.setAggregationsInfoIsSet(true);
+  }
+  if (incoming.get(6)) {
+    struct.groupBy=new GroupBy();
+    struct.groupBy.read(iprot);
+    struct.setGroupByIsSet(true);
+  }
+  if (incoming.get(7)) {
+    struct.selections=new Selection();
+    struct.selections.read(iprot);
+    struct.setSelectionsIsSet(true);
+  }
+  if (incoming.get(8)) {
+    struct.filterSubQueryMap=new FilterQueryMap();
+    struct.filterSubQueryMap.read(iprot);
+    struct.setFilterSubQueryMapIsSet(true);
+  }
+  if (incoming.get(9)) {
+    struct.bucketHashKey=iprot.readString();
+    struct.setBucketHashKeyIsSet(true);
+  }
+  if (incoming.get(10)) {
+    struct.enableTrace=iprot.readBool();
+    struct.setEnableTraceIsSet(true);
+  }
+}

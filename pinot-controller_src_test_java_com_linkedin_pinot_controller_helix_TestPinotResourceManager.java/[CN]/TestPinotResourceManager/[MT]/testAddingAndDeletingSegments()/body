@@ -1,0 +1,16 @@
+{
+  for (int i=1; i <= 5; i++) {
+    addOneSegment(TEST_RESOURCE_NAME);
+    Thread.sleep(2000);
+    final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,TEST_RESOURCE_NAME);
+    Assert.assertEquals(externalView.getPartitionSet().size(),i);
+  }
+  final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,TEST_RESOURCE_NAME);
+  int i=4;
+  for (  final String segmentId : externalView.getPartitionSet()) {
+    deleteOneSegment(TEST_RESOURCE_NAME,segmentId);
+    Thread.sleep(2000);
+    Assert.assertEquals(_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,TEST_RESOURCE_NAME).getPartitionSet().size(),i);
+    i--;
+  }
+}

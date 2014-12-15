@@ -1,0 +1,57 @@
+{
+  this.schema=schema;
+  this.metadata=new HashMap<String,String>();
+  columnOffsets=new int[schema.columnNames.length];
+  fixedSizeDataHolder=new ByteHolder();
+  variableSizeDataHolder=new ByteHolder();
+  for (int i=0; i < schema.columnNames.length; i++) {
+    DataType type=schema.columnTypes[i];
+    columnOffsets[i]=rowSizeInBytes;
+switch (type) {
+case BOOLEAN:
+      rowSizeInBytes+=1;
+    break;
+case BYTE:
+  rowSizeInBytes+=1;
+break;
+case CHAR:
+rowSizeInBytes+=2;
+break;
+case SHORT:
+rowSizeInBytes+=2;
+break;
+case INT:
+rowSizeInBytes+=4;
+break;
+case LONG:
+rowSizeInBytes+=8;
+break;
+case FLOAT:
+rowSizeInBytes+=8;
+break;
+case DOUBLE:
+rowSizeInBytes+=8;
+break;
+case STRING:
+rowSizeInBytes+=4;
+break;
+case OBJECT:
+rowSizeInBytes+=8;
+break;
+case BYTE_ARRAY:
+case CHAR_ARRAY:
+case SHORT_ARRAY:
+case INT_ARRAY:
+case LONG_ARRAY:
+case FLOAT_ARRAY:
+case DOUBLE_ARRAY:
+case STRING_ARRAY:
+rowSizeInBytes+=8;
+break;
+default :
+throw new RuntimeException("Unsupported datatype:" + type);
+}
+}
+dictionary=new HashMap<String,Map<String,Integer>>();
+reverseDictionary=new HashMap<String,Map<Integer,String>>();
+}

@@ -1,0 +1,11 @@
+{
+  final JSONObject ret=new JSONObject();
+  ret.put("name","data_gen_record");
+  ret.put("type","record");
+  final JSONArray fields=new JSONArray();
+  for (  final FieldSpec spec : schema.getAllFieldSpecs()) {
+    fields.put(spec.getDataType().toJSONSchemaFor(spec.getName()));
+  }
+  ret.put("fields",fields);
+  return ret;
+}

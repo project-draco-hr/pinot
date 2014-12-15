@@ -1,0 +1,7 @@
+{
+  final QueryPlanner queryPlanner=new SequentialQueryPlannerImpl();
+  final QueryPlan plan=queryPlanner.computeQueryPlan(null,_indexSegmentList);
+  final List<JobVertex> roots=plan.getVirtualRoot().getSuccessors();
+  assertEquals(1,roots.size());
+  assertEquals(_numOfSegmentDataManagers,roots.get(0).getIndexSegmentList().size());
+}

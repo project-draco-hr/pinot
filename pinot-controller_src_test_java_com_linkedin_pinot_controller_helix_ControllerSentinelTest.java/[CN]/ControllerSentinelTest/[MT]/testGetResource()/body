@@ -1,0 +1,19 @@
+{
+  final JSONObject payload=ControllerRequestBuilderUtil.buildCreateResourceJSON("testGetResource",2,2);
+  final String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceCreate(),payload.toString());
+  System.out.println("**************");
+  System.out.println(res);
+  System.out.println("**************");
+  final String getResponse=senGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceGet("testGetResource"));
+  System.out.println("**************");
+  System.out.println(getResponse);
+  System.out.println("**************");
+  final JSONObject getResJSON=new JSONObject(getResponse);
+  Assert.assertEquals("testGetResource",getResJSON.getString("resourceName"));
+  final String getAllResponse=senGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceGet(null));
+  System.out.println("**************");
+  System.out.println(getAllResponse);
+  System.out.println("**************");
+  Assert.assertEquals(getAllResponse.contains("testGetResource"),true);
+  Assert.assertEquals(getAllResponse.contains("brokerResource"),true);
+}

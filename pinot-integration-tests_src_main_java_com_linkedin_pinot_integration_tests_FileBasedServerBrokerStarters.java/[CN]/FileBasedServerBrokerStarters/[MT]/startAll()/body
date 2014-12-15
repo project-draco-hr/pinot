@@ -1,0 +1,19 @@
+{
+  final PropertiesConfiguration broker=brokerProperties();
+  final PropertiesConfiguration server=serverProperties();
+  log(broker,"broker");
+  log(server,"server");
+  System.out.println("************************ 1");
+  serverInstance=new ServerInstance();
+  System.out.println("************************ 2");
+  serverInstance.init(new ServerConf(server));
+  System.out.println("************************ 3");
+  bld=new BrokerServerBuilder(broker,null);
+  System.out.println("************************ 4");
+  bld.buildNetwork();
+  System.out.println("************************ 5");
+  bld.buildHTTP();
+  System.out.println("************************ 6");
+  startServer();
+  startBroker();
+}

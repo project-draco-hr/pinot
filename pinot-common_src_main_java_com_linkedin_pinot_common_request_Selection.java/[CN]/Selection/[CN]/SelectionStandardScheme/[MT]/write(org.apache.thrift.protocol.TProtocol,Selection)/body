@@ -1,0 +1,42 @@
+{
+  struct.validate();
+  oprot.writeStructBegin(STRUCT_DESC);
+  if (struct.selectionColumns != null) {
+    if (struct.isSetSelectionColumns()) {
+      oprot.writeFieldBegin(SELECTION_COLUMNS_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING,struct.selectionColumns.size()));
+        for (        String _iter50 : struct.selectionColumns) {
+          oprot.writeString(_iter50);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.selectionSortSequence != null) {
+    if (struct.isSetSelectionSortSequence()) {
+      oprot.writeFieldBegin(SELECTION_SORT_SEQUENCE_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT,struct.selectionSortSequence.size()));
+        for (        SelectionSort _iter51 : struct.selectionSortSequence) {
+          _iter51.write(oprot);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.isSetOffset()) {
+    oprot.writeFieldBegin(OFFSET_FIELD_DESC);
+    oprot.writeI32(struct.offset);
+    oprot.writeFieldEnd();
+  }
+  if (struct.isSetSize()) {
+    oprot.writeFieldBegin(SIZE_FIELD_DESC);
+    oprot.writeI32(struct.size);
+    oprot.writeFieldEnd();
+  }
+  oprot.writeFieldStop();
+  oprot.writeStructEnd();
+}

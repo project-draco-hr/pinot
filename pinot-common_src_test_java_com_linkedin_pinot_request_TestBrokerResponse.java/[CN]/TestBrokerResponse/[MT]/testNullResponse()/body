@@ -1,0 +1,9 @@
+{
+  BrokerResponse brokerResponse=BrokerResponse.getNullBrokerResponse();
+  String brokerString=brokerResponse.toJson().toString();
+  BrokerResponse newBrokerResponse=BrokerResponse.fromJson(new JSONObject(brokerString));
+  System.out.println(newBrokerResponse);
+  System.out.println(newBrokerResponse.getExceptions().get(0));
+  Assert.assertEquals(newBrokerResponse.getExceptions().get(0).getErrorCode(),410);
+  Assert.assertEquals(newBrokerResponse.getExceptions().get(0).getMessage(),"No Resources hits!");
+}

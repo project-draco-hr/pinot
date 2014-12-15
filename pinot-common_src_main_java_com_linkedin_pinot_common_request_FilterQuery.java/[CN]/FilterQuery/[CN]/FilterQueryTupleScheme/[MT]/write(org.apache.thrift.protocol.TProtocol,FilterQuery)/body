@@ -1,0 +1,40 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  oprot.writeI32(struct.id);
+  BitSet optionals=new BitSet();
+  if (struct.isSetColumn()) {
+    optionals.set(0);
+  }
+  if (struct.isSetValue()) {
+    optionals.set(1);
+  }
+  if (struct.isSetOperator()) {
+    optionals.set(2);
+  }
+  if (struct.isSetNestedFilterQueryIds()) {
+    optionals.set(3);
+  }
+  oprot.writeBitSet(optionals,4);
+  if (struct.isSetColumn()) {
+    oprot.writeString(struct.column);
+  }
+  if (struct.isSetValue()) {
+{
+      oprot.writeI32(struct.value.size());
+      for (      String _iter8 : struct.value) {
+        oprot.writeString(_iter8);
+      }
+    }
+  }
+  if (struct.isSetOperator()) {
+    oprot.writeI32(struct.operator.getValue());
+  }
+  if (struct.isSetNestedFilterQueryIds()) {
+{
+      oprot.writeI32(struct.nestedFilterQueryIds.size());
+      for (      int _iter9 : struct.nestedFilterQueryIds) {
+        oprot.writeI32(_iter9);
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  String columnName=schema.columnNames[columnIndex];
+  if (dictionary.get(columnName) == null) {
+    dictionary.put(columnName,new HashMap<String,Integer>());
+    reverseDictionary.put(columnName,new HashMap<Integer,String>());
+  }
+  Map<String,Integer> map=dictionary.get(columnName);
+  for (  String value : values) {
+    if (!map.containsKey(value)) {
+      int id=map.size();
+      map.put(value,id);
+      reverseDictionary.get(columnName).put(id,value);
+    }
+  }
+  currentRowData.position(columnOffsets[columnIndex]);
+  currentRowData.putInt(variableSizeDataHolder.position());
+  for (int i=0; i < values.length; i++) {
+    variableSizeDataHolder.add(map.get(values[i]));
+  }
+  currentRowData.putInt(values.length);
+}

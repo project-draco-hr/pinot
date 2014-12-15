@@ -1,0 +1,22 @@
+{
+  final PropertiesConfiguration serverConfiguration=new PropertiesConfiguration();
+  serverConfiguration.addProperty(getKey("pinot.server.instance","id"),"0");
+  serverConfiguration.addProperty(getKey("pinot.server.instance","bootstrap.segment.dir"),SERVER_BOOTSTRAP_DIR);
+  serverConfiguration.addProperty(getKey("pinot.server.instance","dataDir"),SERVER_INDEX_DIR);
+  serverConfiguration.addProperty(getKey("pinot.server.instance","resourceName"),StringUtils.join(RESOURCE_NAMES,',').trim());
+  for (  final String resource : RESOURCE_NAMES) {
+    serverConfiguration.addProperty(getKey("pinot.server.instance",resource.trim(),"numQueryExecutorThreads"),"50");
+    serverConfiguration.addProperty(getKey("pinot.server.instance",resource.trim(),"dataManagerType"),"offline");
+    serverConfiguration.addProperty(getKey("pinot.server.instance",resource.trim(),"readMode"),SERVER_INDEX_READ_MODE);
+  }
+  serverConfiguration.addProperty("pinot.server.instance.data.manager.class","com.linkedin.pinot.core.data.manager.InstanceDataManager");
+  serverConfiguration.addProperty("pinot.server.instance.segment.metadata.loader.class","com.linkedin.pinot.core.indexsegment.columnar.ColumnarSegmentMetadataLoader");
+  serverConfiguration.addProperty("pinot.server.query.executor.pruner.class","TimeSegmentPruner,DataSchemaSegmentPruner,TableNameSegmentPruner");
+  serverConfiguration.addProperty("pinot.server.query.executor.pruner.TimeSegmentPruner.id","0");
+  serverConfiguration.addProperty("pinot.server.query.executor.pruner.DataSchemaSegmentPruner.id","1");
+  serverConfiguration.addProperty("pinot.server.query.executor.class","com.linkedin.pinot.core.query.executor.ServerQueryExecutorV1Impl");
+  serverConfiguration.addProperty("pinot.server.requestHandlerFactory.class","com.linkedin.pinot.server.request.SimpleRequestHandlerFactory");
+  serverConfiguration.addProperty("pinot.server.netty.port",SERVER_PORT);
+  serverConfiguration.setDelimiterParsingDisabled(false);
+  return serverConfiguration;
+}

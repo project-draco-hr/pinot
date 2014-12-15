@@ -1,0 +1,10 @@
+{
+  JSONObject json=(JSONObject)param;
+  Iterator<String> iter=json.keys();
+  if (!iter.hasNext())   return null;
+  String field=iter.next();
+  String text=json.getJSONObject(field).getString("value");
+  List<String> vals=new ArrayList<String>();
+  vals.add(text);
+  return new FilterQueryTree(this.hashCode(),field,vals,FilterOperator.EQUALITY,null);
+}

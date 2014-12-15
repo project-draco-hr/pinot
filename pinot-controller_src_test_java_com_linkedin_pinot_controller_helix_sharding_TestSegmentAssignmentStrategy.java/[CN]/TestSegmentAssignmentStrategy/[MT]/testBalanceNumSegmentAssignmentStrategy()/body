@@ -1,0 +1,34 @@
+{
+  final int numRelicas=3;
+  final int numInstancesPerReplica=2;
+  final int totalInstances=numInstancesPerReplica * numRelicas;
+  final DataResource resource=ControllerRequestBuilderUtil.createOfflineClusterCreationConfig(totalInstances,numRelicas,RESOURCE_NAME_BALANCED,"BalanceNumSegmentAssignmentStrategy");
+  _pinotResourceManager.handleCreateNewDataResource(resource);
+  Thread.sleep(3000);
+  for (int i=0; i < 10; ++i) {
+    addOneSegment(RESOURCE_NAME_BALANCED);
+    Thread.sleep(2000);
+    final List<String> taggedInstances=_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,RESOURCE_NAME_BALANCED);
+    final Map<String,Integer> instance2NumSegmentsMap=new HashMap<String,Integer>();
+    for (    final String instance : taggedInstances) {
+      instance2NumSegmentsMap.put(instance,0);
+    }
+    final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,RESOURCE_NAME_BALANCED);
+    for (    final String segmentId : externalView.getPartitionSet()) {
+      for (      final String instance : externalView.getStateMap(segmentId).keySet()) {
+        instance2NumSegmentsMap.put(instance,instance2NumSegmentsMap.get(instance) + 1);
+      }
+    }
+    final int totalSegments=(i + 1) * numRelicas;
+    final int minNumSegmentsPerInstance=totalSegments / totalInstances;
+    int maxNumSegmentsPerInstance=minNumSegmentsPerInstance;
+    if ((minNumSegmentsPerInstance * totalInstances) < totalSegments) {
+      maxNumSegmentsPerInstance=maxNumSegmentsPerInstance + 1;
+    }
+    for (    final String instance : instance2NumSegmentsMap.keySet()) {
+      Assert.assertTrue(instance2NumSegmentsMap.get(instance) >= minNumSegmentsPerInstance);
+      Assert.assertTrue(instance2NumSegmentsMap.get(instance) <= maxNumSegmentsPerInstance);
+    }
+  }
+  _helixAdmin.dropResource(HELIX_CLUSTER_NAME,RESOURCE_NAME_BALANCED);
+}

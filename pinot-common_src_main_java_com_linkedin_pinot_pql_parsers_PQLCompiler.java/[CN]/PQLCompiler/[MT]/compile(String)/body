@@ -1,0 +1,10 @@
+{
+  ANTLRStringStream input=new ANTLRStringStream(bqlStmt);
+  TokenStream tokens=new CommonTokenStream(new PQLLexer(input));
+  PQLParser parser=new PQLParser(tokens,_facetInfoMap);
+  _parser.set(parser);
+  PQLParser.statement_return ret=parser.statement();
+  CommonTree ast=(CommonTree)ret.tree;
+  JSONObject json=(JSONObject)ret.json;
+  return json;
+}

@@ -1,0 +1,27 @@
+{
+  final BrokerRequest brokerRequest=getAggregationWithFilterBrokerRequest();
+  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV0();
+  final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  final MAggregationOperator operator=(MAggregationOperator)rootPlanNode.run();
+  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
+  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
+  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  Assert.assertEquals(resultBlock.getNumDocsScanned(),582);
+  Assert.assertEquals(resultBlock.getTotalDocs(),10001);
+  ReduceService reduceService=new DefaultReduceService();
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationResultDataTable());
+  final BrokerResponse reducedResults=reduceService.reduceOnDataTable(getAggregationNoFilterBrokerRequest(),instanceResponseMap);
+  System.out.println(reducedResults);
+}

@@ -1,0 +1,41 @@
+{
+  final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
+  final BDocIdSetOperator docIdSetOperator=new BDocIdSetOperator(null,_indexSegment,5000);
+  final Map<String,DataSource> dataSourceMap=getDataSourceMap();
+  final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
+  for (int i=0; i < _numAggregations; ++i) {
+    final MAggregationFunctionGroupByWithDictionaryOperator aggregationFunctionGroupByOperator=new MAggregationFunctionGroupByWithDictionaryOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator));
+    aggregationFunctionGroupByOperatorList.add(aggregationFunctionGroupByOperator);
+  }
+  final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
+  final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
+  System.out.println("Result 1: ");
+  for (int i=0; i < _numAggregations; ++i) {
+    System.out.println(block.getAggregationGroupByOperatorResult().get(i));
+  }
+  final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList1=new ArrayList<AggregationFunctionGroupByOperator>();
+  final BDocIdSetOperator docIdSetOperator1=new BDocIdSetOperator(null,_indexSegment,5000);
+  final Map<String,DataSource> dataSourceMap1=getDataSourceMap();
+  final MProjectionOperator projectionOperator1=new MProjectionOperator(dataSourceMap1,docIdSetOperator1);
+  for (int i=0; i < _numAggregations; ++i) {
+    final MAggregationFunctionGroupByWithDictionaryOperator aggregationFunctionGroupByOperator1=new MAggregationFunctionGroupByWithDictionaryOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator1));
+    aggregationFunctionGroupByOperatorList1.add(aggregationFunctionGroupByOperator1);
+  }
+  final MAggregationGroupByOperator aggregationGroupByOperator1=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator1,aggregationFunctionGroupByOperatorList1);
+  final IntermediateResultsBlock block1=(IntermediateResultsBlock)aggregationGroupByOperator1.nextBlock();
+  System.out.println("Result 2: ");
+  for (int i=0; i < _numAggregations; ++i) {
+    System.out.println(block1.getAggregationGroupByOperatorResult().get(i));
+  }
+  CombineService.mergeTwoBlocks(getAggregationGroupByNoFilterBrokerRequest(),block,block1);
+  System.out.println("Combined Result : ");
+  for (int i=0; i < _numAggregations; ++i) {
+    System.out.println(block.getAggregationGroupByOperatorResult().get(i));
+  }
+  final DataTable dataTable=block.getAggregationGroupByResultDataTable();
+  final List<Map<String,Serializable>> results=AggregationGroupByOperatorService.transformDataTableToGroupByResult(dataTable);
+  System.out.println("Decode AggregationResult from DataTable: ");
+  for (int i=0; i < _numAggregations; ++i) {
+    System.out.println(results.get(i));
+  }
+}

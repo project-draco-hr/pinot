@@ -1,0 +1,38 @@
+{
+  final File file=new File("/tmp/" + TestingServerPropertiesBuilder.class.toString());
+  if (file.exists()) {
+    FileUtils.deleteDirectory(file);
+  }
+  file.mkdir();
+  final File bootsDir=new File(file,"bootstrap");
+  final File dataDir=new File(file,"data");
+  bootsDir.mkdir();
+  dataDir.mkdir();
+  final PropertiesConfiguration config=new PropertiesConfiguration();
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"id"),"0");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"bootstrap.segment.dir"),bootsDir.getAbsolutePath());
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"dataDir"),dataDir.getAbsolutePath());
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"bootstrap.segment.dir"),"0");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"data.manager.class"),"com.linkedin.pinot.core.data.manager.InstanceDataManager");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"segment.metadata.loader.class"),"com.linkedin.pinot.core.indexsegment.columnar.ColumnarSegmentMetadataLoader");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"resourceName"),StringUtils.join(resourceNames,","));
+  for (  final String resource : resourceNames) {
+    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,resource,"dataManagerType"),"offline");
+    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,resource,"readMode"),"heap");
+    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,resource,"numQueryExecutorThreads"),"50");
+  }
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"pruner.class"),"TimeSegmentPruner,DataSchemaSegmentPruner,TableNameSegmentPruner");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"pruner.TimeSegmentPruner.id"),"0");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"pruner.DataSchemaSegmentPruner.id"),"1");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"class"),"com.linkedin.pinot.core.query.executor.ServerQueryExecutor");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"timeout"),"150000");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,"requestHandlerFactory.class"),"com.linkedin.pinot.server.request.SimpleRequestHandlerFactory");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,"netty.port"),"8882");
+  config.setDelimiterParsingDisabled(true);
+  final Iterator<String> keys=config.getKeys();
+  while (keys.hasNext()) {
+    final String key=keys.next();
+    System.out.println(key + "  : " + config.getProperty(key));
+  }
+  return config;
+}

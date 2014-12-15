@@ -1,0 +1,28 @@
+{
+  final BrokerRequest brokerRequest=getAggregationGroupByWithFilterBrokerRequest();
+  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV1();
+  final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  final MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
+  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
+  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
+  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  Assert.assertEquals(resultBlock.getNumDocsScanned(),10);
+  Assert.assertEquals(resultBlock.getTotalDocs(),100000);
+  final AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(_aggregationInfos,brokerRequest.getGroupBy());
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationGroupByResultDataTable());
+  final List<Map<String,Serializable>> reducedResults=aggregationGroupByOperatorService.reduceGroupByOperators(instanceResponseMap);
+  final List<JSONObject> jsonResult=aggregationGroupByOperatorService.renderGroupByOperators(reducedResults);
+  System.out.println(jsonResult);
+}

@@ -1,0 +1,17 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  BitSet optionals=new BitSet();
+  if (struct.isSetFilterQueryMap()) {
+    optionals.set(0);
+  }
+  oprot.writeBitSet(optionals,1);
+  if (struct.isSetFilterQueryMap()) {
+{
+      oprot.writeI32(struct.filterQueryMap.size());
+      for (      Map.Entry<Integer,FilterQuery> _iter21 : struct.filterQueryMap.entrySet()) {
+        oprot.writeI32(_iter21.getKey());
+        _iter21.getValue().write(oprot);
+      }
+    }
+  }
+}

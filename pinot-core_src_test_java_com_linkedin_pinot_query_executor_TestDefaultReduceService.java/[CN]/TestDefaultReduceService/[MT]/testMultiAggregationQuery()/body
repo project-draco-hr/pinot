@@ -1,0 +1,44 @@
+{
+  BrokerRequest brokerRequest=getMultiAggregationQuery();
+  QuerySource querySource=new QuerySource();
+  querySource.setResourceName("midas");
+  querySource.setTableName("testTable");
+  brokerRequest.setQuerySource(querySource);
+  InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
+  Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  try {
+    instanceResponseMap.put(new ServerInstance("localhost:0000"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:1111"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:2222"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:3333"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:4444"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:5555"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:6666"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:7777"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:8888"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:9999"),_queryExecutor.processQuery(instanceRequest));
+    BrokerResponse brokerResponse=_reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(0).toString(),"{\"value\":\"400000020\",\"function\":\"count_star\"}");
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(1));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(1).toString(),"{\"value\":\"4000000200000000.00000\",\"function\":\"sum_met\"}");
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(2));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(2).toString(),"{\"value\":\"20000000.00000\",\"function\":\"max_met\"}");
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(3));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(3).toString(),"{\"value\":\"0.00000\",\"function\":\"min_met\"}");
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(4));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(4).toString(),"{\"value\":\"10000000.00000\",\"function\":\"avg_met\"}");
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(5));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(5).toString(),"{\"value\":\"10\",\"function\":\"distinctCount_dim0\"}");
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(6));
+    Assert.assertEquals(brokerResponse.getAggregationResults().get(6).toString(),"{\"value\":\"100\",\"function\":\"distinctCount_dim1\"}");
+    LOGGER.info("Time Used for BrokerResponse is " + brokerResponse.getTimeUsedMs());
+    LOGGER.info("Num Docs Scanned is " + brokerResponse.getNumDocsScanned());
+    LOGGER.info("Total Docs for BrokerResponse is " + brokerResponse.getTotalDocs());
+    System.out.println(brokerResponse.toJson());
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException(e.toString(),e);
+  }
+}

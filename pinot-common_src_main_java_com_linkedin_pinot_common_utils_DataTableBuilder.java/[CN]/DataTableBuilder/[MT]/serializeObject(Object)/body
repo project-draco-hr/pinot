@@ -1,0 +1,29 @@
+{
+  byte[] bytes;
+  ByteArrayOutputStream bos=new ByteArrayOutputStream();
+  ObjectOutput out=null;
+  try {
+    try {
+      out=new ObjectOutputStream(bos);
+      out.writeObject(value);
+    }
+ catch (    IOException e) {
+    }
+    bytes=bos.toByteArray();
+  }
+  finally {
+    try {
+      if (out != null) {
+        out.close();
+      }
+    }
+ catch (    IOException ex) {
+    }
+    try {
+      bos.close();
+    }
+ catch (    IOException ex) {
+    }
+  }
+  return bytes;
+}

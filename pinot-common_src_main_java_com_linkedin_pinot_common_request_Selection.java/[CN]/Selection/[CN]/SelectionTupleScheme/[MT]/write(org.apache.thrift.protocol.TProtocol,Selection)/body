@@ -1,0 +1,39 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  BitSet optionals=new BitSet();
+  if (struct.isSetSelectionColumns()) {
+    optionals.set(0);
+  }
+  if (struct.isSetSelectionSortSequence()) {
+    optionals.set(1);
+  }
+  if (struct.isSetOffset()) {
+    optionals.set(2);
+  }
+  if (struct.isSetSize()) {
+    optionals.set(3);
+  }
+  oprot.writeBitSet(optionals,4);
+  if (struct.isSetSelectionColumns()) {
+{
+      oprot.writeI32(struct.selectionColumns.size());
+      for (      String _iter52 : struct.selectionColumns) {
+        oprot.writeString(_iter52);
+      }
+    }
+  }
+  if (struct.isSetSelectionSortSequence()) {
+{
+      oprot.writeI32(struct.selectionSortSequence.size());
+      for (      SelectionSort _iter53 : struct.selectionSortSequence) {
+        _iter53.write(oprot);
+      }
+    }
+  }
+  if (struct.isSetOffset()) {
+    oprot.writeI32(struct.offset);
+  }
+  if (struct.isSetSize()) {
+    oprot.writeI32(struct.size);
+  }
+}

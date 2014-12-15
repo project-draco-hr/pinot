@@ -1,0 +1,16 @@
+{
+  Assert.assertEquals(10001 * numSegments,brokerResponse.getNumDocsScanned());
+  Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
+  Assert.assertEquals("count_star",brokerResponse.getAggregationResults().get(0).getString("function").toString());
+  Assert.assertEquals(10001 * numSegments,Integer.parseInt(brokerResponse.getAggregationResults().get(0).getString("value")));
+  Assert.assertEquals("sum_met_impressionCount",brokerResponse.getAggregationResults().get(1).getString("function").toString());
+  Assert.assertEquals(24574.0 * numSegments,Double.parseDouble(brokerResponse.getAggregationResults().get(1).getString("value")));
+  Assert.assertEquals("max_met_impressionCount",brokerResponse.getAggregationResults().get(2).getString("function").toString());
+  Assert.assertEquals(53.0,Double.parseDouble(brokerResponse.getAggregationResults().get(2).getString("value")));
+  Assert.assertEquals("min_met_impressionCount",brokerResponse.getAggregationResults().get(3).getString("function").toString());
+  Assert.assertEquals(1.0,Double.parseDouble(brokerResponse.getAggregationResults().get(3).getString("value")));
+  Assert.assertEquals("avg_met_impressionCount",brokerResponse.getAggregationResults().get(4).getString("function").toString());
+  Assert.assertEquals(2.45715,Double.parseDouble(brokerResponse.getAggregationResults().get(4).getString("value")));
+  Assert.assertEquals("distinctCount_dim_memberIndustry",brokerResponse.getAggregationResults().get(5).getString("function").toString());
+  Assert.assertEquals(147,Integer.parseInt(brokerResponse.getAggregationResults().get(5).getString("value")));
+}

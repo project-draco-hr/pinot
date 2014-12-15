@@ -1,0 +1,14 @@
+{
+  FilterQuery q=queryMap.get(id);
+  List<Integer> children=q.getNestedFilterQueryIds();
+  List<FilterQueryTree> c=null;
+  if (null != children) {
+    c=new ArrayList<FilterQueryTree>();
+    for (    final Integer i : children) {
+      final FilterQueryTree t=buildFilterQuery(i,queryMap);
+      c.add(t);
+    }
+  }
+  FilterQueryTree q2=new FilterQueryTree(id,q.getColumn(),q.getValue(),q.getOperator(),c);
+  return q2;
+}

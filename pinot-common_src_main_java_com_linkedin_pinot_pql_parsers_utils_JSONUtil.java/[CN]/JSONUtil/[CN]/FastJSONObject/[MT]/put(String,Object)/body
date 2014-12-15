@@ -1,0 +1,23 @@
+{
+  if (key == null) {
+    throw new JSONException("Null key.");
+  }
+  if (value != null) {
+    if (value instanceof FastJSONObject) {
+      _inner.put(key,((FastJSONObject)value).getInnerJSONObject());
+    }
+ else     if (value instanceof FastJSONArray) {
+      _inner.put(key,((FastJSONArray)value).getInnerJSONArray());
+    }
+ else {
+      if (value instanceof JSONObject || value instanceof JSONArray) {
+        throw new JSONException("the value is not fast version of JSONObjects: " + value);
+      }
+      _inner.put(key,toJSON(value));
+    }
+  }
+ else {
+    this.remove(key);
+  }
+  return this;
+}

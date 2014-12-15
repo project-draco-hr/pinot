@@ -1,0 +1,15 @@
+{
+  if (json == null) {
+    return null;
+  }
+  final Iterator<String> iter=json.keys();
+  if (!iter.hasNext()) {
+    throw new IllegalArgumentException("Filter type not specified: " + json);
+  }
+  final String type=iter.next();
+  final FilterQueryTreeConstructor filterConstructor=FilterQueryTreeConstructor.getFilterConstructor(type);
+  if (filterConstructor == null) {
+    throw new IllegalArgumentException("Filter type '" + type + "' not supported");
+  }
+  return filterConstructor.doConstructFilter(json.get(type));
+}

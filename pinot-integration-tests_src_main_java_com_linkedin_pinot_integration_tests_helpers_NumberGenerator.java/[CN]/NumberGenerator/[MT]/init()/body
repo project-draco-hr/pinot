@@ -1,0 +1,47 @@
+{
+  final Random rand=new Random(System.currentTimeMillis());
+switch (columnType) {
+case INT:
+    intValues=new ArrayList<Integer>();
+  final int start=rand.nextInt(cardinality);
+final int end=start + cardinality;
+for (int i=start; i < end; i++) {
+intValues.add(new Integer(i));
+}
+break;
+case LONG:
+longValues=new ArrayList<Long>();
+final long longStart=rand.nextInt(cardinality);
+final long longEnd=longStart + cardinality;
+for (long i=longStart; i < longEnd; i++) {
+longValues.add(new Long(i));
+}
+break;
+case FLOAT:
+floatValues=new ArrayList<Float>();
+final float floatStart=rand.nextFloat() * rand.nextInt(1000);
+int floatCounter=1;
+while (true) {
+floatValues.add(new Float(floatStart + 0.1f));
+if (floatCounter == cardinality) {
+break;
+}
+floatCounter++;
+}
+break;
+case DOUBLE:
+doubleValues=new ArrayList<Double>();
+final double doubleStart=rand.nextDouble() * rand.nextInt(10000);
+int doubleCounter=1;
+while (true) {
+doubleValues.add(new Double(doubleStart + 0.1d));
+if (doubleCounter == cardinality) {
+break;
+}
+doubleCounter++;
+}
+break;
+default :
+throw new RuntimeException("number generator can only accept a column of type number and this : " + columnType + " is not a supported number type");
+}
+}

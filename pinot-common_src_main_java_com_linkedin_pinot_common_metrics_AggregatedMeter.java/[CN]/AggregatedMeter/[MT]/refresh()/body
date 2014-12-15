@@ -1,0 +1,19 @@
+{
+  long oneMinSum=0;
+  long fiveMinSum=0;
+  long fifteenMinSum=0;
+  long meanSum=0;
+  int count=_meters.size();
+  _count=0;
+  for (  T m : _meters) {
+    oneMinSum+=m.oneMinuteRate() * SECONDS_IN_ONE_MIN;
+    fiveMinSum+=m.fiveMinuteRate() * SECONDS_IN_FIVE_MIN;
+    fifteenMinSum+=m.fifteenMinuteRate() * SECONDS_IN_FIFTEEN_MIN;
+    meanSum+=m.meanRate() * m.count();
+    _count+=m.count();
+  }
+  _oneMinRate=oneMinSum / (count * SECONDS_IN_ONE_MIN * 1.0);
+  _fiveMinRate=fiveMinSum / (count * SECONDS_IN_FIVE_MIN * 1.0);
+  _fifteenMinRate=fifteenMinSum / (count * SECONDS_IN_FIFTEEN_MIN * 1.0);
+  _meanRate=meanSum / _count;
+}

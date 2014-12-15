@@ -1,0 +1,19 @@
+{
+  final String filePath=TestDictionaries.class.getClassLoader().getResource(AVRO_DATA).getFile();
+  if (INDEX_DIR.exists()) {
+    FileUtils.deleteQuietly(INDEX_DIR);
+  }
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",SegmentTimeUnit.days,"test","testTable");
+  config.setTimeColumnName("daysSinceEpoch");
+  driver.init(config);
+  driver.build();
+  final DataFileStream<GenericRecord> avroReader=AvroUtils.getAvroReader(new File(filePath));
+  final org.apache.avro.Schema avroSchema=avroReader.getSchema();
+  final String[] columns=new String[avroSchema.getFields().size()];
+  int i=0;
+  for (  final Field f : avroSchema.getFields()) {
+    columns[i]=f.name();
+    i++;
+  }
+}

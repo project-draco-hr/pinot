@@ -1,0 +1,13 @@
+{
+  Object obj=json.get(index);
+  if (obj == null)   return null;
+  if (!(obj instanceof com.alibaba.fastjson.JSONObject)) {
+    try {
+      return (com.alibaba.fastjson.JSONObject)toJSON(obj);
+    }
+ catch (    Exception e) {
+      return null;
+    }
+  }
+  return (com.alibaba.fastjson.JSONObject)obj;
+}

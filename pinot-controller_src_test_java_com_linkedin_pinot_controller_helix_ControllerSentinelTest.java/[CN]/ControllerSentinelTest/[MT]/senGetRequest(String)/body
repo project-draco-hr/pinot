@@ -1,0 +1,10 @@
+{
+  BufferedReader reader=null;
+  final URL url=new URL(urlString);
+  reader=new BufferedReader(new InputStreamReader(url.openStream(),"UTF-8"));
+  final StringBuilder queryResp=new StringBuilder();
+  for (String respLine; (respLine=reader.readLine()) != null; ) {
+    queryResp.append(respLine);
+  }
+  return queryResp.toString();
+}

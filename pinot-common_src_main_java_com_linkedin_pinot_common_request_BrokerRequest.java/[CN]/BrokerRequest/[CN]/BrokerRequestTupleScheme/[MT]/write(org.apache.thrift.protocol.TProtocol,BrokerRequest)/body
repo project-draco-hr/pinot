@@ -1,0 +1,76 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  BitSet optionals=new BitSet();
+  if (struct.isSetQueryType()) {
+    optionals.set(0);
+  }
+  if (struct.isSetQuerySource()) {
+    optionals.set(1);
+  }
+  if (struct.isSetTimeInterval()) {
+    optionals.set(2);
+  }
+  if (struct.isSetDuration()) {
+    optionals.set(3);
+  }
+  if (struct.isSetFilterQuery()) {
+    optionals.set(4);
+  }
+  if (struct.isSetAggregationsInfo()) {
+    optionals.set(5);
+  }
+  if (struct.isSetGroupBy()) {
+    optionals.set(6);
+  }
+  if (struct.isSetSelections()) {
+    optionals.set(7);
+  }
+  if (struct.isSetFilterSubQueryMap()) {
+    optionals.set(8);
+  }
+  if (struct.isSetBucketHashKey()) {
+    optionals.set(9);
+  }
+  if (struct.isSetEnableTrace()) {
+    optionals.set(10);
+  }
+  oprot.writeBitSet(optionals,11);
+  if (struct.isSetQueryType()) {
+    struct.queryType.write(oprot);
+  }
+  if (struct.isSetQuerySource()) {
+    struct.querySource.write(oprot);
+  }
+  if (struct.isSetTimeInterval()) {
+    oprot.writeString(struct.timeInterval);
+  }
+  if (struct.isSetDuration()) {
+    oprot.writeString(struct.duration);
+  }
+  if (struct.isSetFilterQuery()) {
+    struct.filterQuery.write(oprot);
+  }
+  if (struct.isSetAggregationsInfo()) {
+{
+      oprot.writeI32(struct.aggregationsInfo.size());
+      for (      AggregationInfo _iter64 : struct.aggregationsInfo) {
+        _iter64.write(oprot);
+      }
+    }
+  }
+  if (struct.isSetGroupBy()) {
+    struct.groupBy.write(oprot);
+  }
+  if (struct.isSetSelections()) {
+    struct.selections.write(oprot);
+  }
+  if (struct.isSetFilterSubQueryMap()) {
+    struct.filterSubQueryMap.write(oprot);
+  }
+  if (struct.isSetBucketHashKey()) {
+    oprot.writeString(struct.bucketHashKey);
+  }
+  if (struct.isSetEnableTrace()) {
+    oprot.writeBool(struct.enableTrace);
+  }
+}

@@ -1,0 +1,29 @@
+{
+  final ByteArrayInputStream bais=new ByteArrayInputStream(value);
+  ObjectInput out=null;
+  try {
+    try {
+      out=new ObjectInputStream(bais);
+      final Object readObject=out.readObject();
+      return (T)readObject;
+    }
+ catch (    final Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+  finally {
+    try {
+      if (out != null) {
+        out.close();
+      }
+    }
+ catch (    final IOException ex) {
+    }
+    try {
+      bais.close();
+    }
+ catch (    final IOException ex) {
+    }
+  }
+}

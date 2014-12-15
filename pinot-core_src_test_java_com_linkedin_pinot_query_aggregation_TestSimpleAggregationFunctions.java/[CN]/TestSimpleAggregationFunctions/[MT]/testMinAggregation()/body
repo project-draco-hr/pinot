@@ -1,0 +1,14 @@
+{
+  AggregationFunction aggregationFunction=new MinAggregationFunction();
+  aggregationFunction.init(_paramsInfo);
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> aggregationResults=getDoubleValues(i);
+    List<Serializable> combinedResults=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+    assertEquals(0.0,combinedResults.get(0));
+  }
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> combinedResults=getDoubleValues(i);
+    Serializable reduceResult=aggregationFunction.reduce(combinedResults);
+    assertEquals(0.0,reduceResult);
+  }
+}

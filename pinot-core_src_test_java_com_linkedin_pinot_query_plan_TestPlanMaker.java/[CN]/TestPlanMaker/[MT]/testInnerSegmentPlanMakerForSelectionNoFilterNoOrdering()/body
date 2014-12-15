@@ -1,0 +1,22 @@
+{
+  BrokerRequest brokerRequest=getSelectionNoFilterBrokerRequest();
+  brokerRequest.getSelections().setSelectionSortSequence(null);
+  PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
+  PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  MSelectionOperator operator=(MSelectionOperator)rootPlanNode.run();
+  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  PriorityQueue<Serializable[]> retPriorityQueue=resultBlock.getSelectionResult();
+  int i=19;
+  double j=19.0;
+  while (!retPriorityQueue.isEmpty()) {
+    Serializable[] row=retPriorityQueue.poll();
+    System.out.println(Arrays.toString(row));
+    Assert.assertEquals(row[1],i);
+    Assert.assertEquals(row[2],(double)(i % 10));
+    Assert.assertEquals(row[3],j);
+    Assert.assertEquals(row[4],j);
+    i--;
+    j--;
+  }
+}

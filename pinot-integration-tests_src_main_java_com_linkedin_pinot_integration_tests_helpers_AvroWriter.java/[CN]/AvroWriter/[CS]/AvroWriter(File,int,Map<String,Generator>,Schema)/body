@@ -1,0 +1,9 @@
+{
+  avroFile=new File(baseDir,"part-" + index + ".avro");
+  this.generatorMap=generatorMap;
+  this.schema=schema;
+  schemaJSON=org.apache.avro.Schema.parse(getJSONSchema().toString());
+  final GenericDatumWriter<GenericData.Record> datum=new GenericDatumWriter<GenericData.Record>(schemaJSON);
+  recordWriter=new DataFileWriter<GenericData.Record>(datum);
+  recordWriter.create(schemaJSON,avroFile);
+}

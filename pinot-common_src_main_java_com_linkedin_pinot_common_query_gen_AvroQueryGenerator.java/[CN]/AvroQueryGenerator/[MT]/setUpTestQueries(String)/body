@@ -1,0 +1,27 @@
+{
+  final String filePath="/home/xiafu/workspace-building/open-source/github/new_pinot_build/pinot-core/target/test-classes/data/mirror-sv.avro";
+  final List<String> dims=new ArrayList<String>();
+  dims.add("viewerId");
+  dims.add("viewerType");
+  dims.add("vieweeId");
+  dims.add("viewerCompany");
+  dims.add("viewerCountry");
+  dims.add("viewerRegionCode");
+  dims.add("viewerIndustry");
+  dims.add("viewerOccupation");
+  dims.add("viewerSchool");
+  dims.add("viewerSeniority");
+  dims.add("viewerPrivacySetting");
+  dims.add("viewerObfuscationType");
+  dims.add("vieweePrivacySetting");
+  dims.add("weeksSinceEpochSunday");
+  dims.add("daysSinceEpoch");
+  dims.add("hoursSinceEpoch");
+  final List<String> mets=new ArrayList<String>();
+  mets.add("count");
+  final String time="minutesSinceEpoch";
+  AvroQueryGenerator avroQueryGen=new AvroQueryGenerator(new File(filePath),dims,mets,time,resource);
+  avroQueryGen.init();
+  avroQueryGen.generateSimpleAggregationOnSingleColumnFilters();
+  return avroQueryGen;
+}

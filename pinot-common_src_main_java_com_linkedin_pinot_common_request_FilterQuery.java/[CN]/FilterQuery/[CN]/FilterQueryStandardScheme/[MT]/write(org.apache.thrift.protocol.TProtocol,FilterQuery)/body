@@ -1,0 +1,45 @@
+{
+  struct.validate();
+  oprot.writeStructBegin(STRUCT_DESC);
+  oprot.writeFieldBegin(ID_FIELD_DESC);
+  oprot.writeI32(struct.id);
+  oprot.writeFieldEnd();
+  if (struct.column != null) {
+    if (struct.isSetColumn()) {
+      oprot.writeFieldBegin(COLUMN_FIELD_DESC);
+      oprot.writeString(struct.column);
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.value != null) {
+    oprot.writeFieldBegin(VALUE_FIELD_DESC);
+{
+      oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING,struct.value.size()));
+      for (      String _iter6 : struct.value) {
+        oprot.writeString(_iter6);
+      }
+      oprot.writeListEnd();
+    }
+    oprot.writeFieldEnd();
+  }
+  if (struct.operator != null) {
+    if (struct.isSetOperator()) {
+      oprot.writeFieldBegin(OPERATOR_FIELD_DESC);
+      oprot.writeI32(struct.operator.getValue());
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.nestedFilterQueryIds != null) {
+    oprot.writeFieldBegin(NESTED_FILTER_QUERY_IDS_FIELD_DESC);
+{
+      oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32,struct.nestedFilterQueryIds.size()));
+      for (      int _iter7 : struct.nestedFilterQueryIds) {
+        oprot.writeI32(_iter7);
+      }
+      oprot.writeListEnd();
+    }
+    oprot.writeFieldEnd();
+  }
+  oprot.writeFieldStop();
+  oprot.writeStructEnd();
+}

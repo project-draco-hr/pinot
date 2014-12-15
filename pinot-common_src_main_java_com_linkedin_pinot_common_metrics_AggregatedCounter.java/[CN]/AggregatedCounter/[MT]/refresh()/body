@@ -1,0 +1,12 @@
+{
+  long count=0;
+  for (  Metric m : _counters) {
+    if (m instanceof Counter) {
+      count+=((Counter)m).count();
+    }
+ else     if (m instanceof AggregatedCounter) {
+      count+=((AggregatedCounter)m).count();
+    }
+  }
+  _count=count;
+}

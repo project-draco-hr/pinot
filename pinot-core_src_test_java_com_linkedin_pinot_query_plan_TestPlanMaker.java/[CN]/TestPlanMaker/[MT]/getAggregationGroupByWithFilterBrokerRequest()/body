@@ -1,0 +1,15 @@
+{
+  BrokerRequest brokerRequest=new BrokerRequest();
+  List<AggregationInfo> aggregationsInfo=new ArrayList<AggregationInfo>();
+  aggregationsInfo.add(getCountAggregationInfo());
+  aggregationsInfo.add(getSumAggregationInfo());
+  aggregationsInfo.add(getMaxAggregationInfo());
+  aggregationsInfo.add(getMinAggregationInfo());
+  aggregationsInfo.add(getAvgAggregationInfo());
+  aggregationsInfo.add(getDistinctCountDim0AggregationInfo());
+  aggregationsInfo.add(getDistinctCountDim1AggregationInfo());
+  brokerRequest.setAggregationsInfo(aggregationsInfo);
+  brokerRequest.setGroupBy(getGroupBy());
+  brokerRequest=setFilterQuery(brokerRequest);
+  return brokerRequest;
+}

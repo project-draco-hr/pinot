@@ -1,0 +1,17 @@
+{
+  TTupleProtocol oprot=(TTupleProtocol)prot;
+  BitSet optionals=new BitSet();
+  if (struct.isSetStringRowEventMap()) {
+    optionals.set(0);
+  }
+  oprot.writeBitSet(optionals,1);
+  if (struct.isSetStringRowEventMap()) {
+{
+      oprot.writeI32(struct.stringRowEventMap.size());
+      for (      Map.Entry<String,RowEventVal> _iter161 : struct.stringRowEventMap.entrySet()) {
+        oprot.writeString(_iter161.getKey());
+        _iter161.getValue().write(oprot);
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  CONFIG_BUILDER=new TestingServerPropertiesBuilder("mirror");
+  setupSegmentFor("mirror");
+  setUpTestQueries("mirror");
+  final PropertiesConfiguration serverConf=CONFIG_BUILDER.build();
+  serverConf.setDelimiterParsingDisabled(false);
+  final InstanceDataManager instanceDataManager=InstanceDataManager.getInstanceDataManager();
+  instanceDataManager.init(new InstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
+  instanceDataManager.start();
+  final IndexSegment indexSegment=ColumnarSegmentLoader.load(new File(INDEX_DIR,"segment"),ReadMode.heap);
+  instanceDataManager.getResourceDataManager("mirror");
+  instanceDataManager.getResourceDataManager("mirror").addSegment(indexSegment);
+  QUERY_EXECUTOR=new ServerQueryExecutorV1Impl(false);
+  QUERY_EXECUTOR.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager);
+}

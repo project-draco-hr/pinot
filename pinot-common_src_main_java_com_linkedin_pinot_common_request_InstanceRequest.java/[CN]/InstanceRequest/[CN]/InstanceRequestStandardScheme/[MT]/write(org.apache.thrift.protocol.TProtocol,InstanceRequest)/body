@@ -1,0 +1,32 @@
+{
+  struct.validate();
+  oprot.writeStructBegin(STRUCT_DESC);
+  oprot.writeFieldBegin(REQUEST_ID_FIELD_DESC);
+  oprot.writeI64(struct.requestId);
+  oprot.writeFieldEnd();
+  if (struct.query != null) {
+    oprot.writeFieldBegin(QUERY_FIELD_DESC);
+    struct.query.write(oprot);
+    oprot.writeFieldEnd();
+  }
+  if (struct.searchSegments != null) {
+    if (struct.isSetSearchSegments()) {
+      oprot.writeFieldBegin(SEARCH_SEGMENTS_FIELD_DESC);
+{
+        oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING,struct.searchSegments.size()));
+        for (        String _iter71 : struct.searchSegments) {
+          oprot.writeString(_iter71);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+  }
+  if (struct.isSetEnableTrace()) {
+    oprot.writeFieldBegin(ENABLE_TRACE_FIELD_DESC);
+    oprot.writeBool(struct.enableTrace);
+    oprot.writeFieldEnd();
+  }
+  oprot.writeFieldStop();
+  oprot.writeStructEnd();
+}

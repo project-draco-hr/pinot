@@ -1,0 +1,9 @@
+{
+  DatagramSocket ds=new DatagramSocket();
+  ds.connect(InetAddress.getByName(DUMMY_OUT_IP),80);
+  InetAddress localAddress=ds.getLocalAddress();
+  if (localAddress.getHostAddress().equals("0.0.0.0")) {
+    localAddress=InetAddress.getLocalHost();
+  }
+  return localAddress.getHostAddress();
+}
