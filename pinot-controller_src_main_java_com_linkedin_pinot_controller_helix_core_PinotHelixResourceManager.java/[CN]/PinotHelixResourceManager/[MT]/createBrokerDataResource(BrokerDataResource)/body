@@ -1,0 +1,26 @@
+{
+  final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  try {
+    LOGGER.info("Trying to update BrokerDataResource with config: \n" + brokerDataResource.toString());
+    if (_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerDataResource.getTag()).isEmpty()) {
+      res.status=STATUS.failure;
+      res.errorMessage="broker resource tag : " + brokerDataResource.getTag() + " is not existed!";
+      LOGGER.error(res.toString());
+      return res;
+    }
+    LOGGER.info("Trying to update BrokerDataResource Config!");
+    HelixHelper.updateBrokerDataResource(_helixAdmin,_helixClusterName,brokerDataResource);
+    LOGGER.info("Trying to update BrokerDataResource IdealState!");
+    final IdealState idealState=PinotResourceIdealStateBuilder.addBrokerResourceToIdealStateFor(brokerDataResource,_helixAdmin,_helixClusterName);
+    if (idealState != null) {
+      _helixAdmin.setResourceIdealState(_helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,idealState);
+    }
+    res.status=STATUS.success;
+  }
+ catch (  final Exception e) {
+    res.status=STATUS.failure;
+    res.errorMessage=e.getMessage();
+    LOGGER.error(res.toString());
+  }
+  return res;
+}

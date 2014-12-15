@@ -1,0 +1,24 @@
+{
+  LOGGER.info("Trying to delete segment : " + segmentId + " from Property store.");
+  final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  try {
+    IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName);
+    final Set<String> instanceNames=idealState.getInstanceSet(segmentId);
+    for (    final String instanceName : instanceNames) {
+      _helixAdmin.enablePartition(false,_helixClusterName,instanceName,resourceName,Arrays.asList(segmentId));
+    }
+    idealState=PinotResourceIdealStateBuilder.removeSegmentFromIdealStateFor(resourceName,segmentId,_helixAdmin,_helixClusterName);
+    _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
+    for (    final String instanceName : instanceNames) {
+      _helixAdmin.enablePartition(true,_helixClusterName,instanceName,resourceName,Arrays.asList(segmentId));
+    }
+    _propertyStore.remove(constructPropertyStorePathForSegment(resourceName,segmentId),AccessOption.PERSISTENT);
+    LOGGER.info("Delete segment : " + segmentId + " from Property store.");
+    res.status=STATUS.success;
+  }
+ catch (  final Exception e) {
+    res.status=STATUS.failure;
+    res.errorMessage=e.getMessage();
+  }
+  return res;
+}

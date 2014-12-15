@@ -1,0 +1,10 @@
+{
+  final DataResource ds=getDataResource(resourceName);
+  ds.getBrokerTagName();
+  final List<String> instanceIds=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ds.getBrokerTagName());
+  if (instanceIds == null || instanceIds.size() == 0) {
+    return null;
+  }
+  Collections.shuffle(instanceIds);
+  return instanceIds.get(0);
+}

@@ -1,0 +1,20 @@
+{
+  final String resourceName=brokerResource.getResourceName();
+  try {
+    final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
+    final Set<String> currentInstanceSet=currentIdealState.getInstanceSet(resourceName);
+    if (currentInstanceSet.isEmpty()) {
+      final List<String> selectedInstances=BrokerResourceAssignmentStrategy.getRandomAssignedInstances(helixAdmin,helixClusterName,brokerResource);
+      for (      final String instance : selectedInstances) {
+        currentIdealState.setPartitionState(resourceName,instance,ONLINE);
+      }
+    }
+ else {
+      return updateBrokerResourceToIdealStateFor(currentIdealState,brokerResource,helixAdmin,helixClusterName);
+    }
+    return currentIdealState;
+  }
+ catch (  final Exception ex) {
+    throw ex;
+  }
+}

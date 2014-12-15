@@ -1,0 +1,11 @@
+{
+  final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
+  final Set<String> currentInstanceSet=currentIdealState.getInstanceSet(brokerResourceName);
+  if (!currentInstanceSet.isEmpty() && currentIdealState.getPartitionSet().contains(brokerResourceName)) {
+    currentIdealState.getPartitionSet().remove(brokerResourceName);
+  }
+ else {
+    throw new RuntimeException("Cannot found broker resource - " + brokerResourceName + " in broker resource ");
+  }
+  return currentIdealState;
+}

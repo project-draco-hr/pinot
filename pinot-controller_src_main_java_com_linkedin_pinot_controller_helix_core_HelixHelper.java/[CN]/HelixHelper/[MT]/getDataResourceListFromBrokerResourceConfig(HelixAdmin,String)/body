@@ -1,0 +1,10 @@
+{
+  List<String> dataResourceList=new ArrayList<String>();
+  Map<String,String> brokerResourceConfig=HelixHelper.getBrokerResourceConfig(admin,clusterName);
+  for (  String key : brokerResourceConfig.keySet()) {
+    if (key.startsWith(BrokerDataResource.CONFIG_PREFIX_OF_BROKER_DATA_RESOURCE) && key.endsWith(".resourceName")) {
+      dataResourceList.add(brokerResourceConfig.get(key));
+    }
+  }
+  return dataResourceList;
+}

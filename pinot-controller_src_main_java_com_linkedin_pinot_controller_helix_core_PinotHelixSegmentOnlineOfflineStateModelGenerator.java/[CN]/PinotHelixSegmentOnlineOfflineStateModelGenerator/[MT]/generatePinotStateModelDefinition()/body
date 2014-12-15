@@ -1,0 +1,47 @@
+{
+  ZNRecord record=new ZNRecord(PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL);
+  record.setSimpleField(StateModelDefinitionProperty.INITIAL_STATE.toString(),OFFLINE_STATE);
+  List<String> statePriorityList=new ArrayList<String>();
+  statePriorityList.add(ONLINE_STATE);
+  statePriorityList.add(OFFLINE_STATE);
+  statePriorityList.add(DROPPED_STATE);
+  record.setListField(StateModelDefinitionProperty.STATE_PRIORITY_LIST.toString(),statePriorityList);
+  for (  String state : statePriorityList) {
+    String key=state + ".meta";
+    Map<String,String> metadata=new HashMap<String,String>();
+    if (state.equals(ONLINE_STATE)) {
+      metadata.put("count","R");
+      record.setMapField(key,metadata);
+    }
+    if (state.equals(OFFLINE_STATE)) {
+      metadata.put("count","-1");
+      record.setMapField(key,metadata);
+    }
+    if (state.equals(DROPPED_STATE)) {
+      metadata.put("count","-1");
+      record.setMapField(key,metadata);
+    }
+  }
+  for (  String state : statePriorityList) {
+    String key=state + ".next";
+    if (state.equals(ONLINE_STATE)) {
+      Map<String,String> metadata=new HashMap<String,String>();
+      metadata.put(OFFLINE_STATE,OFFLINE_STATE);
+      metadata.put(DROPPED_STATE,DROPPED_STATE);
+      record.setMapField(key,metadata);
+    }
+    if (state.equals("OFFLINE")) {
+      Map<String,String> metadata=new HashMap<String,String>();
+      metadata.put(ONLINE_STATE,ONLINE_STATE);
+      metadata.put(DROPPED_STATE,DROPPED_STATE);
+      record.setMapField(key,metadata);
+    }
+  }
+  List<String> stateTransitionPriorityList=new ArrayList<String>();
+  stateTransitionPriorityList.add("ONLINE-OFFLINE");
+  stateTransitionPriorityList.add("ONLINE-DROPPED");
+  stateTransitionPriorityList.add("OFFLINE-ONLINE");
+  stateTransitionPriorityList.add("OFFLINE-DROPPED");
+  record.setListField(StateModelDefinitionProperty.STATE_TRANSITION_PRIORITYLIST.toString(),stateTransitionPriorityList);
+  return new StateModelDefinition(record);
+}

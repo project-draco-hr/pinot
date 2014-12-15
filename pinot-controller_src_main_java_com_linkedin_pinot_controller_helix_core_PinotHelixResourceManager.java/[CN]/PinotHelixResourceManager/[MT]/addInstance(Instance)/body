@@ -1,0 +1,15 @@
+{
+  final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
+  final List<String> instances=HelixHelper.getAllInstances(_helixAdmin,_helixClusterName);
+  if (instances.contains(instance.toInstanceId())) {
+    resp.status=STATUS.failure;
+    resp.errorMessage="instance already exist";
+    return resp;
+  }
+ else {
+    _helixAdmin.addInstance(_helixClusterName,instance.toInstanceConfig());
+    resp.status=STATUS.success;
+    resp.errorMessage="";
+    return resp;
+  }
+}

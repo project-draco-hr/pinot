@@ -1,0 +1,9 @@
+{
+  int numReplicaSet=0;
+  for (  final String partition : state.getPartitionSet()) {
+    if (numReplicaSet < state.getInstanceSet(partition).size()) {
+      numReplicaSet=state.getInstanceSet(partition).size();
+    }
+  }
+  return numReplicaSet;
+}

@@ -1,0 +1,11 @@
+{
+  final String resourceName=segmentMetadata.getResourceName();
+  final String segmentName=segmentMetadata.getName();
+  final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,resourceName);
+  final Set<String> currentInstanceSet=currentIdealState.getInstanceSet(segmentName);
+  for (  final String instance : currentInstanceSet) {
+    currentIdealState.setPartitionState(segmentName,instance,OFFLINE);
+    currentIdealState.setPartitionState(segmentName,instance,ONLINE);
+  }
+  return currentIdealState;
+}

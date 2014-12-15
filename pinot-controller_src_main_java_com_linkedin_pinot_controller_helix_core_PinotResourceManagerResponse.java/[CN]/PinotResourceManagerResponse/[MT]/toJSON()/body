@@ -1,0 +1,16 @@
+{
+  final JSONObject ret=new JSONObject();
+  ret.put("status",status.toString());
+  if (status == STATUS.success) {
+    ret.put("message",errorMessage);
+  }
+ else {
+    ret.put("errorMessage",errorMessage);
+  }
+  if (metadata != null) {
+    for (    final String key : metadata.keySet()) {
+      ret.put(key,metadata.get(key));
+    }
+  }
+  return ret;
+}
