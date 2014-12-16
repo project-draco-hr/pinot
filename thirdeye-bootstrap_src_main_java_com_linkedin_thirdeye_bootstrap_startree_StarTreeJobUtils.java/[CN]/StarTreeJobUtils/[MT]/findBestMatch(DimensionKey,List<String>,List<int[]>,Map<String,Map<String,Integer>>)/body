@@ -1,0 +1,36 @@
+{
+  int[] target=new int[dimensionKey.getDimensionsValues().length];
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimensionName=dimensionNames.get(i);
+    String dimensionValue=dimensionKey.getDimensionsValues()[i];
+    Integer intValue=forwardIndex.get(dimensionName).get(dimensionValue);
+    if (intValue == null) {
+      throw new IllegalArgumentException("No mapping for " + dimensionName + ":"+ dimensionValue+ " in index");
+    }
+    target[i]=intValue;
+  }
+  int[] closestCombination=null;
+  Integer closestScore=null;
+  for (  int[] combination : dimensionCombinations) {
+    int score=0;
+    for (int i=0; i < target.length; i++) {
+      if (target[i] != combination[i]) {
+        if (combination[i] == StarTreeConstants.OTHER_VALUE) {
+          score+=1;
+        }
+ else {
+          score=-1;
+          break;
+        }
+      }
+    }
+    if (score >= 0 && (closestScore == null || score < closestScore)) {
+      closestScore=score;
+      closestCombination=combination;
+    }
+  }
+  if (closestCombination == null) {
+    throw new IllegalArgumentException("Could not find matching combination for " + dimensionKey);
+  }
+  return closestCombination;
+}
