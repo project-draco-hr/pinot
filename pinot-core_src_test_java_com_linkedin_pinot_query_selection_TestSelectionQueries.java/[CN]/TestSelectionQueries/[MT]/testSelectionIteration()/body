@@ -2,15 +2,15 @@
   final BDocIdSetOperator docIdSetOperator=new BDocIdSetOperator(null,_indexSegment,5000);
   final Map<String,DataSource> dataSourceMap=getDataSourceMap();
   final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
-  Selection selection=getSelectionQuery();
-  MSelectionOperator selectionOperator=new MSelectionOperator(_indexSegment,selection,projectionOperator);
+  final Selection selection=getSelectionQuery();
+  final MSelectionOperator selectionOperator=new MSelectionOperator(_indexSegment,selection,projectionOperator);
   final IntermediateResultsBlock block=(IntermediateResultsBlock)selectionOperator.nextBlock();
-  PriorityQueue pq=block.getSelectionResult();
-  DataSchema dataSchema=block.getSelectionDataSchema();
+  final PriorityQueue pq=block.getSelectionResult();
+  final DataSchema dataSchema=block.getSelectionDataSchema();
   System.out.println(dataSchema);
   int i=0;
   while (!pq.isEmpty()) {
-    Serializable[] row=(Serializable[])pq.poll();
+    final Serializable[] row=(Serializable[])pq.poll();
     System.out.println(SelectionOperatorService.getRowStringFromSerializable(row,dataSchema));
     Assert.assertEquals(SelectionOperatorService.getRowStringFromSerializable(row,dataSchema),SELECTION_ITERATION_TEST_RESULTS[i++]);
   }
