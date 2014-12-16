@@ -1,0 +1,15 @@
+{
+  int sleepMs=initSleepMs;
+  for (int i=0; i < numRetries; i++) {
+    Thread.sleep(sleepMs);
+    boolean done=c.runCheck();
+    if (done) {
+      return;
+    }
+    sleepMs=sleepMs * multiple + increment;
+    if (sleepMs > maxSleepMs) {
+      sleepMs=maxSleepMs;
+    }
+  }
+  throw new TimeoutException("Retries exhausted running the checkable !!");
+}
