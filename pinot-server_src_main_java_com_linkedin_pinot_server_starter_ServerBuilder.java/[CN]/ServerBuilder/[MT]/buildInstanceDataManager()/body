@@ -1,0 +1,7 @@
+{
+  String className=_serverConf.getInstanceDataManagerClassName();
+  LOGGER.info("Trying to Load Instance DataManager by Class : " + className);
+  DataManager instanceDataManager=(DataManager)Class.forName(className).newInstance();
+  instanceDataManager.init(_serverConf.getInstanceDataManagerConfig());
+  return instanceDataManager;
+}

@@ -1,0 +1,13 @@
+{
+  InstanceRequest r=new InstanceRequest();
+  r.setQuery(_brokerRequest);
+  r.setRequestId(_requestIdGen.incrementAndGet());
+  byte[] b=null;
+  try {
+    b=serialize(r);
+  }
+ catch (  IOException ioe) {
+    throw new RuntimeException(ioe);
+  }
+  return b;
+}

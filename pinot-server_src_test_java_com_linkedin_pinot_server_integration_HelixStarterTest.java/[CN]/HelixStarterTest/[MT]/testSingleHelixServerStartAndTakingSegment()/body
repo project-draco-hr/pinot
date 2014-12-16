@@ -1,0 +1,22 @@
+{
+  final Configuration pinotHelixProperties=new PropertiesConfiguration();
+  final String instanceId="localhost:0000";
+  pinotHelixProperties.addProperty("pinot.server.instance.id",instanceId);
+  final ServerConf serverConf=DefaultHelixStarterServerConfig.getDefaultHelixServerConfig(pinotHelixProperties);
+  final ServerInstance serverInstance=new ServerInstance();
+  serverInstance.init(serverConf);
+  serverInstance.start();
+  final DataManager instanceDataManager=serverInstance.getInstanceDataManager();
+  final File segmentDir0=new File(INDEX_DIR.getAbsolutePath() + "/segment0");
+  System.out.println(segmentDir0);
+  setupSegment(segmentDir0,"mirror","testTable");
+  final File segmentDir1=new File(INDEX_DIR.getAbsolutePath() + "/segment1");
+  System.out.println(segmentDir1);
+  setupSegment(segmentDir1,"resource0","testTable");
+  final File segmentDir2=new File(INDEX_DIR.getAbsolutePath() + "/segment2");
+  System.out.println(segmentDir2);
+  setupSegment(segmentDir2,"resource1","testTable");
+  instanceDataManager.addSegment(_columnarSegmentMetadataLoader.loadIndexSegmentMetadataFromDir(segmentDir0.getAbsolutePath()));
+  instanceDataManager.addSegment(_columnarSegmentMetadataLoader.loadIndexSegmentMetadataFromDir(segmentDir1.getAbsolutePath()));
+  instanceDataManager.addSegment(_columnarSegmentMetadataLoader.loadIndexSegmentMetadataFromDir(segmentDir2.getAbsolutePath()));
+}

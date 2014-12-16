@@ -1,0 +1,9 @@
+{
+  Configuration defaultConfigs=loadDefaultServerConf();
+  @SuppressWarnings("unchecked") Iterator<String> iterable=externalConfigs.getKeys();
+  while (iterable.hasNext()) {
+    String key=iterable.next();
+    defaultConfigs.setProperty(key,externalConfigs.getProperty(key));
+  }
+  return new ServerConf(defaultConfigs);
+}

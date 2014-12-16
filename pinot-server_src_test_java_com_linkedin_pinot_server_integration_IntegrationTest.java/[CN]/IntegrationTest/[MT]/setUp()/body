@@ -1,0 +1,23 @@
+{
+  FileUtils.deleteDirectory(new File("/tmp/pinot/test1"));
+  File confDir=new File(InstanceServerStarter.class.getClassLoader().getResource("conf").toURI());
+  File confFile=new File(confDir,PINOT_PROPERTIES);
+  PropertiesConfiguration serverConf=new PropertiesConfiguration();
+  serverConf.setDelimiterParsingDisabled(false);
+  serverConf.load(confFile);
+  _serverConf=new ServerConf(serverConf);
+  LOGGER.info("Trying to create a new ServerInstance!");
+  _serverInstance=new ServerInstance();
+  LOGGER.info("Trying to initial ServerInstance!");
+  _serverInstance.init(_serverConf);
+  LOGGER.info("Trying to start ServerInstance!");
+  _serverInstance.start();
+  _queryExecutor=_serverInstance.getQueryExecutor();
+  InstanceDataManager instanceDataManager=(InstanceDataManager)_serverInstance.getInstanceDataManager();
+  for (int i=0; i < 2; ++i) {
+    IndexSegment indexSegment=IndexSegmentUtils.getIndexSegmentWithAscendingOrderValues(20000001);
+    SegmentMetadata segmentMetadata=indexSegment.getSegmentMetadata();
+    instanceDataManager.getResourceDataManager("midas");
+    instanceDataManager.getResourceDataManager("midas").addSegment(indexSegment);
+  }
+}

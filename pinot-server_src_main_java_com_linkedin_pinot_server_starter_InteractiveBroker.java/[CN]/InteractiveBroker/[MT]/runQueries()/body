@@ -1,0 +1,19 @@
+{
+  List<ServerInstance> s1=new ArrayList<ServerInstance>();
+  ServerInstance s=new ServerInstance("localhost",9099);
+  s1.add(s);
+  SimpleScatterGatherRequest req=null;
+  while (true) {
+    do {
+      req=getRequest();
+    }
+ while ((null == req) && (_isDaemonMode));
+    if (null == req) {
+      return;
+    }
+    InstanceResponse r=sendRequestAndGetResponse(req);
+    System.out.println("Response is :" + r);
+    System.out.println("\n\n");
+    req=null;
+  }
+}

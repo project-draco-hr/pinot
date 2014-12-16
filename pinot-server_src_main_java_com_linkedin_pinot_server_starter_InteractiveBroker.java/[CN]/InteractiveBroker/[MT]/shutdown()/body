@@ -1,0 +1,21 @@
+{
+  if (null != _pool) {
+    LOGGER.info("Shutting down Pool !!");
+    try {
+      _pool.shutdown().get();
+      LOGGER.info("Pool shut down!!");
+    }
+ catch (    Exception ex) {
+      LOGGER.error("Unable to shutdown pool",ex);
+    }
+  }
+  if (null != _timedExecutor) {
+    _timedExecutor.shutdown();
+  }
+  if (null != _eventLoopGroup) {
+    _eventLoopGroup.shutdownGracefully();
+  }
+  if (null != _service) {
+    _service.shutdown();
+  }
+}

@@ -1,0 +1,7 @@
+{
+  InstanceConfig instanceConfig=_helixAdmin.getInstanceConfig(clusterName,instanceName);
+  List<String> instanceTags=instanceConfig.getTags();
+  if (instanceTags == null || instanceTags.size() == 0) {
+    _helixAdmin.addInstanceTag(clusterName,instanceName,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+  }
+}

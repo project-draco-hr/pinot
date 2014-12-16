@@ -1,0 +1,15 @@
+{
+  QuerySource querySource=new QuerySource();
+  querySource.setResourceName("midas");
+  querySource.setTableName("testTable");
+  brokerRequest.setQuerySource(querySource);
+  InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
+  try {
+    DataTable instanceResponse=queryExecutor.processQuery(instanceRequest);
+    System.out.println(instanceResponse.toString());
+    System.out.println("Query Time Used : " + instanceResponse.getMetadata().get("timeUsedMs"));
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

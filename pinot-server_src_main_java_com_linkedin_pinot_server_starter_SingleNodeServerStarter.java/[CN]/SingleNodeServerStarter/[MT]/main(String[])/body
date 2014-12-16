@@ -1,0 +1,12 @@
+{
+  processCommandLineArgs(args);
+  LOGGER.info("Trying to create a new ServerInstance!");
+  _serverInstance=new ServerInstance();
+  LOGGER.info("Trying to initial ServerInstance!");
+  _serverInstance.init(_serverConf);
+  LOGGER.info("Trying to start ServerInstance!");
+  _serverInstance.start();
+  LOGGER.info("Adding ShutdownHook!");
+  final ShutdownHook shutdownHook=new ShutdownHook(_serverInstance);
+  Runtime.getRuntime().addShutdownHook(shutdownHook);
+}

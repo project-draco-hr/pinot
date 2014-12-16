@@ -1,0 +1,23 @@
+{
+  System.out.println("Please provide the Query (Type exit/quit to exit) !!");
+  String queryStr=_reader.readLine();
+  if ((null == queryStr) || queryStr.toLowerCase().startsWith("exit") || queryStr.toLowerCase().startsWith("quit")) {
+    return null;
+  }
+  JSONObject jsonObj=new JSONObject(queryStr);
+  BrokerRequest brokerRequest=null;
+  try {
+    brokerRequest=null;
+  }
+ catch (  Exception ex) {
+    System.out.println("Input query is wrong. Got exception :" + Arrays.toString(ex.getStackTrace()));
+    return null;
+  }
+  ResourceRoutingConfig cfg=_routingConfig.getResourceRoutingCfg().get(brokerRequest.getQuerySource().getResourceName());
+  if (null == cfg) {
+    System.out.println("Unable to find routing config for resource (" + brokerRequest.getQuerySource().getResourceName() + ")");
+    return null;
+  }
+  SimpleScatterGatherRequest request=new SimpleScatterGatherRequest(brokerRequest,cfg);
+  return request;
+}

@@ -1,0 +1,13 @@
+{
+  _pinotHelixProperties=pinotHelixProperties;
+  final String instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress()) + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
+  pinotHelixProperties.addProperty("pinot.server.instance.id",instanceId);
+  startServerInstance(pinotHelixProperties);
+  _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,instanceId,InstanceType.PARTICIPANT,zkServer);
+  final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
+  final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory(_serverInstance.getInstanceDataManager(),new ColumnarSegmentMetadataLoader());
+  stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
+  _helixManager.connect();
+  _helixAdmin=_helixManager.getClusterManagmentTool();
+  addInstanceTagIfNeeded(helixClusterName,instanceId);
+}

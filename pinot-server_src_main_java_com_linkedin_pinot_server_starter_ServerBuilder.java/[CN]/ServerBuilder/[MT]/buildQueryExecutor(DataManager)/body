@@ -1,0 +1,7 @@
+{
+  String className=_serverConf.getQueryExecutorClassName();
+  LOGGER.info("Trying to Load Query Executor by Class : " + className);
+  QueryExecutor queryExecutor=(QueryExecutor)Class.forName(className).newInstance();
+  queryExecutor.init(_serverConf.getQueryExecutorConfig(),instanceDataManager);
+  return queryExecutor;
+}

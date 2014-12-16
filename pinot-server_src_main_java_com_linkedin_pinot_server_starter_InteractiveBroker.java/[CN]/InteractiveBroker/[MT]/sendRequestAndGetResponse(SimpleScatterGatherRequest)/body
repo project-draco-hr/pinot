@@ -1,0 +1,11 @@
+{
+  CompositeFuture<ServerInstance,ByteBuf> future=_scatterGather.scatterGather(request);
+  ByteBuf b=future.getOne();
+  InstanceResponse r=null;
+  if (null != b) {
+    byte[] b2=new byte[b.readableBytes()];
+    b.readBytes(b2);
+    r=(InstanceResponse)deserialize(b2);
+  }
+  return r;
+}

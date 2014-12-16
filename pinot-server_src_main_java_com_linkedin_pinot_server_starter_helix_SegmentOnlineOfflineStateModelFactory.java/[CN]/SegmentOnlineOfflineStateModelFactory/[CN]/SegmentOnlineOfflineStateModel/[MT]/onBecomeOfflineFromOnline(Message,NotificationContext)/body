@@ -1,0 +1,10 @@
+{
+  System.out.println("SegmentOnlineOfflineStateModel.onBecomeOfflineFromOnline() : " + message);
+  final String segmentId=message.getPartitionName();
+  try {
+    INSTANCE_DATA_MANAGER.removeSegment(segmentId);
+  }
+ catch (  final Exception e) {
+    LOGGER.error("Cannot unload the segment : " + segmentId + "!\n"+ e.getMessage());
+  }
+}

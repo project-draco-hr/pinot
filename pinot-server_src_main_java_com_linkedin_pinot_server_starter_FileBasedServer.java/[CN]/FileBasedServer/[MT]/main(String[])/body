@@ -1,0 +1,19 @@
+{
+  processCommandLineArgs(args);
+  LOGGER.info("Trying to build server config");
+  ServerBuilder serverBuilder=new ServerBuilder(new File(_serverConfigPath));
+  LOGGER.info("Trying to build InstanceDataManager");
+  final DataManager instanceDataManager=serverBuilder.buildInstanceDataManager();
+  LOGGER.info("Trying to start InstanceDataManager");
+  instanceDataManager.start();
+  LOGGER.info("Trying to build QueryExecutor");
+  final QueryExecutor queryExecutor=serverBuilder.buildQueryExecutor(instanceDataManager);
+  LOGGER.info("Trying to build RequestHandlerFactory");
+  RequestHandlerFactory simpleRequestHandlerFactory=serverBuilder.buildRequestHandlerFactory(queryExecutor);
+  LOGGER.info("Trying to build NettyServer");
+  NettyServer nettyServer=new NettyTCPServer(_serverPort,simpleRequestHandlerFactory,null);
+  Thread serverThread=new Thread(nettyServer);
+  ShutdownHook shutdownHook=new ShutdownHook(nettyServer);
+  serverThread.start();
+  Runtime.getRuntime().addShutdownHook(shutdownHook);
+}

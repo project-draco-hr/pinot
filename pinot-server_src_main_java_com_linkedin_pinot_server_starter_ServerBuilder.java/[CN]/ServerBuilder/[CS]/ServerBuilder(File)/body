@@ -1,0 +1,10 @@
+{
+  if (!configFilePath.exists()) {
+    LOGGER.error("configuration file: " + configFilePath.getAbsolutePath() + " does not exist.");
+    throw new ConfigurationException("configuration file: " + configFilePath.getAbsolutePath() + " does not exist.");
+  }
+  PropertiesConfiguration serverConf=new PropertiesConfiguration();
+  serverConf.setDelimiterParsingDisabled(false);
+  serverConf.load(configFilePath);
+  _serverConf=new ServerConf(serverConf);
+}

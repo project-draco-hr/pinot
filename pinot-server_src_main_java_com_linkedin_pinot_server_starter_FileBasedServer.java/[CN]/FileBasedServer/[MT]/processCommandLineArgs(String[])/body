@@ -1,0 +1,12 @@
+{
+  CommandLineParser cliParser=new GnuParser();
+  Options cliOptions=buildCommandLineOptions();
+  CommandLine cmd=cliParser.parse(cliOptions,cliArgs,true);
+  if (!cmd.hasOption(SERVER_CONFIG_OPT_NAME) || !cmd.hasOption(SERVER_PORT_OPT_NAME)) {
+    System.err.println("Missing required arguments !!");
+    System.err.println(cliOptions);
+    throw new RuntimeException("Missing required arguments !!");
+  }
+  _serverConfigPath=cmd.getOptionValue(SERVER_CONFIG_OPT_NAME);
+  _serverPort=Integer.parseInt(cmd.getOptionValue(SERVER_PORT_OPT_NAME));
+}

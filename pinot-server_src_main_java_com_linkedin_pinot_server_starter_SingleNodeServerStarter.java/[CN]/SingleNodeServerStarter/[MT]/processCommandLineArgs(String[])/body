@@ -1,0 +1,13 @@
+{
+  final CommandLineParser cliParser=new GnuParser();
+  final Options cliOptions=new Options();
+  cliOptions.addOption(SERVER_CONFIG_OPT_NAME,true,"Server Config file");
+  final CommandLine cmd=cliParser.parse(cliOptions,cliArgs,true);
+  if (!cmd.hasOption(SERVER_CONFIG_OPT_NAME)) {
+    System.err.println("Missing required arguments !!");
+    System.err.println(cliOptions);
+    throw new RuntimeException("Missing required arguments !!");
+  }
+  _serverConfigPath=cmd.getOptionValue(SERVER_CONFIG_OPT_NAME);
+  buildServerConfig(new File(_serverConfigPath,PINOT_PROPERTIES));
+}
