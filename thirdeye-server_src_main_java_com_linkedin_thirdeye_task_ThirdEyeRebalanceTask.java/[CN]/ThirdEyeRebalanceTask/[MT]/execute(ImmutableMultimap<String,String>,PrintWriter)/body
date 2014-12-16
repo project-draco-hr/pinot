@@ -1,0 +1,20 @@
+{
+  if (params.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection and replicas");
+  }
+  Collection<String> collectionParam=params.get("collection");
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  Collection<String> replicasParam=params.get("replicas");
+  if (replicasParam == null || replicasParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide replicas");
+  }
+  int replicas=Integer.parseInt(replicasParam.iterator().next());
+  printWriter.println("Rebalancing " + collection + " with "+ replicas+ " replicas...");
+  printWriter.flush();
+  helixAdmin.rebalance(clusterName,collection,replicas);
+  printWriter.println("Done rebalancing");
+  printWriter.flush();
+}
