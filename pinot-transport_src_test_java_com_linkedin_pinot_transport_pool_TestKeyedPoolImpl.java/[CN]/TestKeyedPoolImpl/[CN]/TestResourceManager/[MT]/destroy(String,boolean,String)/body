@@ -1,0 +1,17 @@
+{
+  boolean fail=false;
+  List<String> fails=_failDestroyResources.get(key);
+  if (null != fails) {
+    fail=fails.contains(resource);
+  }
+  List<String> destroyed=_destroyedMap.get(key);
+  if (null == destroyed) {
+    destroyed=new ArrayList<String>();
+    _destroyedMap.put(key,destroyed);
+  }
+  destroyed.add(resource);
+  if (null != _latch) {
+    _latch.countDown();
+  }
+  return !fail;
+}

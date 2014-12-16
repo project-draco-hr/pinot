@@ -1,0 +1,16 @@
+{
+  final long startTime=System.currentTimeMillis();
+  _executor.submit(new Runnable(){
+    @Override public void run(){
+      T resource=_resourceManager.create(_key);
+      _histogram.update(System.currentTimeMillis() - startTime);
+      if (null != resource) {
+        callback.onSuccess(resource);
+      }
+ else {
+        callback.onError(new Exception("Unable to create resource for key " + _key));
+      }
+    }
+  }
+);
+}

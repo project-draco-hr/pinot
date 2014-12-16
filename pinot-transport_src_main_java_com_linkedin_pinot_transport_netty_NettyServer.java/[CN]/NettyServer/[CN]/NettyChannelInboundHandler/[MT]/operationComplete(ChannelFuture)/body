@@ -1,0 +1,6 @@
+{
+  LOG.debug("Response has been sent !!");
+  _lastSendResponseLatency.stop();
+  _metric.addServingStats(_lastRequsetSizeInBytes,_lastResponseSizeInBytes,1L,false,_lastProcessingLatency.getLatencyMs(),_lastSendResponseLatency.getLatencyMs());
+  _state=State.RESPONSE_SENT;
+}

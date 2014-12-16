@@ -1,0 +1,29 @@
+{
+  final Callback<NoneType> shutdown;
+  Callback<T> waiter;
+synchronized (_lock) {
+    if (isNewlyCreatedObject) {
+      _poolSize++;
+      _sampleMaxPoolSize=Math.max(_poolSize,_sampleMaxPoolSize);
+    }
+    waiter=_waiters.poll();
+    if (waiter == null) {
+      _idle.offerLast(new TimedObject<T>(obj));
+    }
+ else {
+      _checkedOut++;
+      _sampleMaxCheckedOut=Math.max(_checkedOut,_sampleMaxCheckedOut);
+    }
+    shutdown=checkShutdownComplete();
+  }
+  if (waiter != null) {
+    trc("dequeued a waiter");
+    waiter.onSuccess(obj);
+  }
+ else {
+    trc("enqueued an idle object");
+  }
+  if (shutdown != null) {
+    finishShutdown(shutdown);
+  }
+}

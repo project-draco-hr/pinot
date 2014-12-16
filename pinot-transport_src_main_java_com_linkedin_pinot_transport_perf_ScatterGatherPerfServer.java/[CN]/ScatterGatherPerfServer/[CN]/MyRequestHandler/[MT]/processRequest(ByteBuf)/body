@@ -1,0 +1,22 @@
+{
+  byte[] b=new byte[request.readableBytes()];
+  request.readBytes(b);
+  if (null != _responseHandlingLatch) {
+    try {
+      _responseHandlingLatch.await();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+  _request=new String(b);
+  if (_responseLatencyMs > 0) {
+    try {
+      Thread.sleep(_responseLatencyMs);
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+  return _response.getBytes();
+}

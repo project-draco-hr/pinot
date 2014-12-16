@@ -1,0 +1,73 @@
+{
+  List<String> keys=new ArrayList<String>();
+  int numFutures=100;
+  int numSuccessFutures=5;
+  Map<String,KeyedFuture<String,String>> futureMap=new HashMap<String,KeyedFuture<String,String>>();
+  Map<String,String> expectedMessages=new HashMap<String,String>();
+  for (int i=0; i < numFutures; i++) {
+    String key="key_" + i;
+    keys.add(key);
+    AsyncResponseFuture<String,String> future=new AsyncResponseFuture<String,String>(key,"");
+    futureMap.put(key,future);
+  }
+  CompositeFuture<String,String> compositeFuture=new CompositeFuture<String,String>("a",GatherModeOnError.SHORTCIRCUIT_AND);
+  compositeFuture.start(futureMap.values());
+  ResponseCompositeFutureClientRunnerListener runner=new ResponseCompositeFutureClientRunnerListener(compositeFuture);
+  ResponseCompositeFutureClientRunnerListener listener=new ResponseCompositeFutureClientRunnerListener(compositeFuture);
+  compositeFuture.addListener(listener,null);
+  ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+  executor.execute(runner);
+  runner.waitForAboutToGet();
+  Thread.sleep(100);
+  for (int i=0; i < numSuccessFutures; i++) {
+    String message="dummy Message_" + i;
+    String k="key_" + i;
+    AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
+    future.onSuccess(message);
+    expectedMessages.put(k,message);
+  }
+  String errorKey="key_" + numSuccessFutures;
+  Exception expectedException=new Exception("Exception");
+  AsyncResponseFuture<String,String> f=(AsyncResponseFuture<String,String>)futureMap.get(errorKey);
+  f.onError(expectedException);
+  runner.waitForDone();
+  AssertJUnit.assertFalse("Composite Cancelled ?",runner.isCancelled());
+  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
+  AssertJUnit.assertFalse("listener Cancelled ?",listener.isCancelled());
+  AssertJUnit.assertTrue("listener Is Done ? ",listener.isDone());
+  Map<String,Throwable> runnerException=runner.getError();
+  Map<String,String> runnerMessages=runner.getMessage();
+  Map<String,String> listenerMessages=listener.getMessage();
+  Map<String,Throwable> listenerException=listener.getError();
+  for (int i=0; i < numSuccessFutures; i++) {
+    String k="key_" + i;
+    AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
+    AssertJUnit.assertFalse("Cancelled ?",future.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
+    AssertJUnit.assertEquals("Reponse :",expectedMessages.get(k),future.getOne());
+    AssertJUnit.assertNull("No Error :",future.getError());
+    AssertJUnit.assertEquals("Message_" + i,expectedMessages.get(k),runnerMessages.get(k));
+    AssertJUnit.assertEquals("Message_" + i,expectedMessages.get(k),listenerMessages.get(k));
+  }
+  String key1="key_" + numSuccessFutures;
+  f=(AsyncResponseFuture<String,String>)futureMap.get(key1);
+  AssertJUnit.assertFalse("Cancelled ?",f.isCancelled());
+  AssertJUnit.assertTrue("Is Done ? ",f.isDone());
+  AssertJUnit.assertEquals("Exception :",expectedException,f.getError().values().iterator().next());
+  AssertJUnit.assertNull("No Response :",f.get());
+  AssertJUnit.assertEquals("Exception_" + numSuccessFutures,expectedException,runnerException.get(key1));
+  AssertJUnit.assertEquals("Exception_" + numSuccessFutures,expectedException,listenerException.get(key1));
+  for (int i=numSuccessFutures + 1; i < numFutures; i++) {
+    String k="key_" + i;
+    AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
+    AssertJUnit.assertTrue("Cancelled ?",future.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
+    AssertJUnit.assertNull("No Reponse :",future.get());
+    AssertJUnit.assertNull("No Error :",future.getError());
+    Assert.assertNull(runnerMessages.get(k));
+    Assert.assertNull(listenerMessages.get(k));
+    Assert.assertNull(runnerException.get(k));
+    Assert.assertNull(listenerException.get(k));
+  }
+  executor.shutdown();
+}

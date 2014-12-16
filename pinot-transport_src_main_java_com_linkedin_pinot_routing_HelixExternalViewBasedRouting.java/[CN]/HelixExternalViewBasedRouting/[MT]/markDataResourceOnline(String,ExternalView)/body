@@ -1,0 +1,13 @@
+{
+  if (!_dataResourceSet.contains(resourceName)) {
+    LOGGER.info("Adding a new data resource to broker : " + resourceName);
+    _dataResourceSet.add(resourceName);
+  }
+  RoutingTableBuilder routingTableBuilder=_defaultRoutingTableBuilder;
+  if (_routingTableBuilderMap.containsKey(resourceName) && (_routingTableBuilderMap.get(resourceName) != null)) {
+    routingTableBuilder=_routingTableBuilderMap.get(resourceName);
+  }
+  LOGGER.info("Trying to compute routing table for resource : " + resourceName + ",by : "+ routingTableBuilder);
+  List<ServerToSegmentSetMap> serverToSegmentSetMap=routingTableBuilder.computeRoutingTableFromExternalView(resourceName,externalView);
+  _brokerRoutingTable.put(resourceName,serverToSegmentSetMap);
+}

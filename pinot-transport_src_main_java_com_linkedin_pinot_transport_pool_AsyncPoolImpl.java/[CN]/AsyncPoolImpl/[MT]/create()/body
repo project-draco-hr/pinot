@@ -1,0 +1,41 @@
+{
+  trc("initiating object creation");
+  _lifecycle.create(new Callback<T>(){
+    @Override public void onSuccess(    T t){
+synchronized (_lock) {
+        _totalCreated++;
+        _lastCreateError=null;
+      }
+      add(t,true);
+    }
+    @Override public void onError(    final Throwable e){
+      boolean create;
+      final Collection<Callback<T>> waitersDenied;
+synchronized (_lock) {
+        _totalCreateErrors++;
+        _lastCreateError=e;
+        create=objectDestroyed();
+        if (!_waiters.isEmpty()) {
+          waitersDenied=cancelWaiters();
+          create=shouldCreate();
+        }
+ else {
+          waitersDenied=Collections.emptyList();
+        }
+      }
+      _callbackExecutor.submit(new Runnable(){
+        @Override public void run(){
+          for (          Callback<T> denied : waitersDenied) {
+            denied.onError(e);
+          }
+        }
+      }
+);
+      if (create) {
+        create();
+      }
+      LOG.error(_poolName + ": object creation failed. Create triggered : {}",create,e);
+    }
+  }
+);
+}

@@ -1,0 +1,12 @@
+{
+  Integer index=_createdIndex.get(key);
+  if (null == index) {
+    index=0;
+  }
+  List<String> failCreateList=_failCreateResources.get(key);
+  if ((null != failCreateList) && failCreateList.contains(_createdMap.get(key).get(index))) {
+    return null;
+  }
+  _createdIndex.put(key,index + 1);
+  return _createdMap.get(key).get(index);
+}

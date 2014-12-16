@@ -1,0 +1,27 @@
+{
+{
+    String key="localhost:8080";
+    String value="dummy";
+    MyPooledResourceManager rm=new MyPooledResourceManager(true,value);
+    AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
+    MyCallback callback=new MyCallback();
+    adapter.create(callback);
+    AssertJUnit.assertEquals("Callback Resource",value,callback.getResource());
+    AssertJUnit.assertEquals("Callback onSuccess",true,callback.isOnSuccessCalled());
+    AssertJUnit.assertEquals("Callback onError",false,callback.isOnErrorCalled());
+    AssertJUnit.assertNull("Callback Error Null",callback.getThrowable());
+    AssertJUnit.assertEquals("Resource Manager create Key",key,rm.getCreateKey());
+  }
+{
+    String key="localhost:8080";
+    MyPooledResourceManager rm=new MyPooledResourceManager(true,null);
+    AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
+    MyCallback callback=new MyCallback();
+    adapter.create(callback);
+    AssertJUnit.assertNull("Callback Resource",callback.getResource());
+    AssertJUnit.assertEquals("Callback onSuccess",false,callback.isOnSuccessCalled());
+    AssertJUnit.assertEquals("Callback onError",true,callback.isOnErrorCalled());
+    AssertJUnit.assertNotNull("Callback Error Null",callback.getThrowable());
+    AssertJUnit.assertEquals("Resource Manager create Key",key,rm.getCreateKey());
+  }
+}

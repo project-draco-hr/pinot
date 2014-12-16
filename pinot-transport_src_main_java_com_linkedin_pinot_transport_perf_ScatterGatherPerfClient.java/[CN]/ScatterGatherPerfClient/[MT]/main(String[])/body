@@ -1,0 +1,24 @@
+{
+  CommandLineParser cliParser=new GnuParser();
+  Options cliOptions=buildCommandLineOptions();
+  CommandLine cmd=cliParser.parse(cliOptions,args,true);
+  if ((!cmd.hasOption(BROKER_CONFIG_OPT_NAME)) || (!cmd.hasOption(REQUEST_SIZE_OPT_NAME)) || (!cmd.hasOption(RESOURCE_NAME_OPT_NAME))|| (!cmd.hasOption(RESOURCE_NAME_OPT_NAME))) {
+    System.err.println("Missing required arguments !!");
+    System.err.println(cliOptions);
+    throw new RuntimeException("Missing required arguments !!");
+  }
+  String brokerConfigPath=cmd.getOptionValue(BROKER_CONFIG_OPT_NAME);
+  int requestSize=Integer.parseInt(cmd.getOptionValue(REQUEST_SIZE_OPT_NAME));
+  int numRequests=Integer.parseInt(cmd.getOptionValue(NUM_REQUESTS_OPT_NAME));
+  String resourceName=cmd.getOptionValue(RESOURCE_NAME_OPT_NAME);
+  PropertiesConfiguration brokerConf=new PropertiesConfiguration();
+  brokerConf.setDelimiterParsingDisabled(false);
+  brokerConf.load(brokerConfigPath);
+  RoutingTableConfig config=new RoutingTableConfig();
+  config.init(brokerConf.subset(ROUTING_CFG_PREFIX));
+  ScatterGatherPerfClient client=new ScatterGatherPerfClient(config,requestSize,resourceName,false,numRequests,1,1);
+  client.run();
+  System.out.println("Shutting down !!");
+  client.shutdown();
+  System.out.println("Shut down complete !!");
+}

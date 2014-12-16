@@ -1,0 +1,91 @@
+{
+  ServerInstance s=new ServerInstance("localhost",8080);
+{
+    ResponseFuture f=new ResponseFuture(s);
+    ResponseFutureClientRunner runner=new ResponseFutureClientRunner(f);
+    ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    executor.execute(runner);
+    runner.waitForAboutToGet();
+    Thread.sleep(100);
+    f.cancel(false);
+    runner.waitForDone();
+    AssertJUnit.assertTrue("Cancelled ?",runner.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    AssertJUnit.assertNull("No Reponse :",runner.getMessage());
+    AssertJUnit.assertNull("No Error :",runner.getError());
+    executor.shutdown();
+  }
+{
+    ResponseFuture f=new ResponseFuture(s);
+    ResponseFutureClientRunner runner=new ResponseFutureClientRunner(f);
+    f.cancel(false);
+    ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    executor.execute(runner);
+    runner.waitForDone();
+    AssertJUnit.assertTrue("Cancelled ?",runner.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    AssertJUnit.assertNull("No Reponse :",runner.getMessage());
+    AssertJUnit.assertNull("No Error :",runner.getError());
+    executor.shutdown();
+  }
+{
+    ResponseFuture f=new ResponseFuture(s);
+    ResponseFutureClientRunner runner=new ResponseFutureClientRunner(f);
+    ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    executor.execute(runner);
+    runner.waitForAboutToGet();
+    Thread.sleep(100);
+    Exception expectedError=new Exception("error processing");
+    f.onError(expectedError);
+    runner.waitForDone();
+    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    AssertJUnit.assertNull("No Reponse :",runner.getMessage());
+    AssertJUnit.assertEquals("Error",expectedError,runner.getError());
+    executor.shutdown();
+  }
+{
+    ResponseFuture f=new ResponseFuture(s);
+    ResponseFutureClientRunner runner=new ResponseFutureClientRunner(f);
+    Exception expectedError=new Exception("error processing");
+    f.onError(expectedError);
+    ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    executor.execute(runner);
+    runner.waitForDone();
+    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    AssertJUnit.assertNull("No Reponse :",runner.getMessage());
+    AssertJUnit.assertEquals("Error",expectedError,runner.getError());
+    executor.shutdown();
+  }
+{
+    ResponseFuture f=new ResponseFuture(s);
+    ResponseFutureClientRunner runner=new ResponseFutureClientRunner(f);
+    ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    executor.execute(runner);
+    runner.waitForAboutToGet();
+    Thread.sleep(100);
+    String message="dummy Message";
+    setResponse(f,message);
+    runner.waitForDone();
+    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    AssertJUnit.assertEquals("Response Check:",message,runner.getMessage());
+    AssertJUnit.assertNull("No Error :",runner.getError());
+    executor.shutdown();
+  }
+{
+    ResponseFuture f=new ResponseFuture(s);
+    ResponseFutureClientRunner runner=new ResponseFutureClientRunner(f);
+    String message="dummy Message";
+    setResponse(f,message);
+    ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+    executor.execute(runner);
+    runner.waitForDone();
+    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
+    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    AssertJUnit.assertEquals("Response Check:",message,runner.getMessage());
+    AssertJUnit.assertNull("No Error :",runner.getError());
+    executor.shutdown();
+  }
+}

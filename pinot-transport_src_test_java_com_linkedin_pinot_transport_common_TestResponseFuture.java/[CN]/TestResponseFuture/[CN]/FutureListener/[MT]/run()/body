@@ -1,0 +1,27 @@
+{
+  _isCalled=true;
+  _numRuns++;
+  LOG.info("Running Listener !!");
+  _isDone=_future.isDone();
+  _isCancelled=_future.isCancelled();
+  ByteBuf message=null;
+  try {
+    message=_future.getOne();
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+catch (  ExecutionException e) {
+    e.printStackTrace();
+  }
+  if (null != message) {
+    byte[] m=new byte[message.readableBytes()];
+    message.readBytes(m);
+    _message=new String(m);
+  }
+  Map<ServerInstance,Throwable> errorMap=_future.getError();
+  if ((null != errorMap) && (!errorMap.isEmpty())) {
+    _error=errorMap.values().iterator().next();
+  }
+  LOG.info("End Running Listener !!");
+}

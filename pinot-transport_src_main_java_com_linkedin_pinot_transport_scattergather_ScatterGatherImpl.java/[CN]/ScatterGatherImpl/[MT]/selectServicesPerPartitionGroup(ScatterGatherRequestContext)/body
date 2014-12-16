@@ -1,0 +1,11 @@
+{
+  Map<ServerInstance,SegmentIdSet> selectedServers=new HashMap<ServerInstance,SegmentIdSet>();
+  ScatterGatherRequest request=requestContext.getRequest();
+  Map<List<ServerInstance>,SegmentIdSet> instanceToSegmentMap=requestContext.getInvertedMap();
+  ReplicaSelection selection=request.getReplicaSelection();
+  for (  Entry<List<ServerInstance>,SegmentIdSet> e : instanceToSegmentMap.entrySet()) {
+    ServerInstance s=selection.selectServer(e.getValue().getOneSegment(),e.getKey(),request.getHashKey());
+    mergePartitionGroup(selectedServers,s,e.getValue());
+  }
+  requestContext.setSelectedServers(selectedServers);
+}

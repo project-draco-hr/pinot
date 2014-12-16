@@ -1,0 +1,21 @@
+{
+  _routingConfig=config;
+  _reader=new BufferedReader(new InputStreamReader(System.in));
+  StringBuilder s1=new StringBuilder();
+  for (int i=0; i < requestSize; i++) {
+    s1.append("a");
+  }
+  _request=s1.toString().getBytes();
+  _resourceName=resourceName;
+  _numRequests=numRequests;
+  _asyncRequestSubmit=asyncRequestSubmit;
+  _queue=new LinkedBlockingQueue<ScatterGatherPerfClient.QueueEntry>();
+  _readerThreads=new ArrayList<AsyncReader>();
+  if (asyncRequestSubmit) {
+    for (int i=0; i < numReaderThreads; i++) {
+      _readerThreads.add(new AsyncReader(_queue,_latencyHistogram));
+    }
+  }
+  _maxActiveConnections=maxActiveConnections;
+  setup();
+}

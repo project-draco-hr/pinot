@@ -1,0 +1,9 @@
+{
+synchronized (_lock) {
+    List<Callback<T>> cancelled=new ArrayList<Callback<T>>(_waiters.size());
+    for (Callback<T> item; (item=_waiters.poll()) != null; ) {
+      cancelled.add(item);
+    }
+    return cancelled;
+  }
+}

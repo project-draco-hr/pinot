@@ -1,0 +1,21 @@
+{
+  AsyncPool<T> pool=_keyedPool.get(key);
+  if (null == pool) {
+synchronized (_mutex) {
+      pool=_keyedPool.get(key);
+      if (null == pool) {
+        String poolName="Pool for (" + key + ")";
+        AsyncPoolResourceManagerAdapter<K,T> rmAdapter=new AsyncPoolResourceManagerAdapter<K,T>(key,_resourceManager,_executorService,_metricRegistry);
+        pool=new AsyncPoolImpl<T>(poolName,rmAdapter,_maxResourcesPerKey,_idleTimeoutMs,_timeoutExecutor,_executorService,_maxPendingCheckoutRequests,Strategy.LRU,_minResourcesPerKey,_metricRegistry);
+        _keyedPool.put(key,pool);
+        _poolStats.add(pool);
+        _pooledResourceManagerMap.put(key,rmAdapter);
+        pool.start();
+      }
+    }
+  }
+  AsyncResponseFuture<K,T> future=new AsyncResponseFuture<K,T>(key,"Checkout future for key " + key);
+  Cancellable cancellable=pool.get(future);
+  future.setCancellable(cancellable);
+  return future;
+}

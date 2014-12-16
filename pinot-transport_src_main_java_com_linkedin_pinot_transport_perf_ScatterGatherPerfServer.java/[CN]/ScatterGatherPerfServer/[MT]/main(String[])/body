@@ -1,0 +1,14 @@
+{
+  CommandLineParser cliParser=new GnuParser();
+  Options cliOptions=buildCommandLineOptions();
+  CommandLine cmd=cliParser.parse(cliOptions,args,true);
+  if (!cmd.hasOption(RESPONSE_SIZE_OPT_NAME) || !cmd.hasOption(SERVER_PORT_OPT_NAME)) {
+    System.err.println("Missing required arguments !!");
+    System.err.println(cliOptions);
+    throw new RuntimeException("Missing required arguments !!");
+  }
+  int responseSize=Integer.parseInt(cmd.getOptionValue(RESPONSE_SIZE_OPT_NAME));
+  int serverPort=Integer.parseInt(cmd.getOptionValue(SERVER_PORT_OPT_NAME));
+  ScatterGatherPerfServer server=new ScatterGatherPerfServer(serverPort,responseSize,2);
+  server.run();
+}

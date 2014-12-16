@@ -1,0 +1,12 @@
+{
+  LOG.info("Destroying client connection to server :" + key);
+  boolean closed=false;
+  try {
+    resource.close();
+    closed=true;
+  }
+ catch (  InterruptedException e) {
+    LOG.error("Got interrupted exception when closing resource",e);
+  }
+  return closed;
+}

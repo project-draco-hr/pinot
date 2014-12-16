@@ -1,0 +1,15 @@
+{
+  try {
+    _futureLock.lock();
+    if (_state.isCompleted()) {
+      LOG.info("Request is no longer pending. Cannot cancel !!");
+      return false;
+    }
+    setDone(State.CANCELLED);
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  cancelUnderlyingFutures();
+  return true;
+}

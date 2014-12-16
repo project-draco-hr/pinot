@@ -1,0 +1,14 @@
+{
+  try {
+    _futureLock.lock();
+    if (_state.isCompleted()) {
+      LOG.debug("{} Request has already been completed. Discarding error message !!",_ctxt,t);
+      return;
+    }
+    _error=t;
+    setDone(State.DONE);
+  }
+  finally {
+    _futureLock.unlock();
+  }
+}

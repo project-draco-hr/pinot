@@ -1,0 +1,14 @@
+{
+  try {
+    Class<? extends RoutingTableBuilder> cls=keyToFunction.get(routingTableBuilderKey.toLowerCase());
+    if (cls != null) {
+      return cls.newInstance();
+    }
+    cls=(Class<? extends RoutingTableBuilder>)Class.forName(routingTableBuilderKey);
+    keyToFunction.put(routingTableBuilderKey,cls);
+    return cls.newInstance();
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException(ex);
+  }
+}

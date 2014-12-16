@@ -1,0 +1,22 @@
+{
+  Callback<NoneType> done=null;
+  final State state;
+  final int waiters;
+  final int idle;
+  final int poolSize;
+synchronized (_lock) {
+    state=_state;
+    waiters=_waiters.size();
+    idle=_idle.size();
+    poolSize=_poolSize;
+    if ((state == State.SHUTTING_DOWN) && (waiters == 0) && (idle == poolSize)) {
+      _state=State.STOPPED;
+      done=_shutdownCallback;
+      _shutdownCallback=null;
+    }
+  }
+  if ((state == State.SHUTTING_DOWN) && (done == null)) {
+    LOG.info("{}: {} waiters and {} objects outstanding before shutdown",new Object[]{_poolName,waiters,poolSize - idle});
+  }
+  return done;
+}

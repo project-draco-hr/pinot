@@ -1,0 +1,14 @@
+{
+  byte[] b=new byte[request.readableBytes()];
+  request.readBytes(b);
+  if (null != _responseHandlingLatch) {
+    try {
+      _responseHandlingLatch.await();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+  _request=new String(b);
+  return _response.getBytes();
+}

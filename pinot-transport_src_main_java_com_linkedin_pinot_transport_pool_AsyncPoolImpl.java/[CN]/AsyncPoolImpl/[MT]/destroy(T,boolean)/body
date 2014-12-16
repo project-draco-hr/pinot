@@ -1,0 +1,31 @@
+{
+  if (bad) {
+synchronized (_lock) {
+      _totalBadDestroyed++;
+    }
+  }
+  trc("disposing a pooled object");
+  _lifecycle.destroy(obj,bad,new Callback<T>(){
+    @Override public void onSuccess(    T t){
+      boolean create;
+synchronized (_lock) {
+        _totalDestroyed++;
+        create=objectDestroyed();
+      }
+      if (create) {
+        create();
+      }
+    }
+    @Override public void onError(    Throwable e){
+      boolean create;
+synchronized (_lock) {
+        _totalDestroyErrors++;
+        create=objectDestroyed();
+      }
+      if (create) {
+        create();
+      }
+    }
+  }
+);
+}

@@ -1,0 +1,57 @@
+{
+  ScheduledExecutorService timedExecutor=new ScheduledThreadPoolExecutor(1);
+  ExecutorService service=MoreExecutors.sameThreadExecutor();
+  int numKeys=5;
+  int numResourcesPerKey=5;
+  TestResourceManager rm=new TestResourceManager(buildCreateMap(numKeys,numResourcesPerKey),null,null,null);
+  KeyedPool<String,String> kPool=new KeyedPoolImpl<String,String>(5,5,1000 * 60 * 60L,100,rm,timedExecutor,service,null);
+  kPool.start();
+  AggregatedPoolStats s=(AggregatedPoolStats)kPool.getStats();
+  int c=1;
+  for (int j=0; j < numResourcesPerKey; j++) {
+    for (int i=0; i < numKeys; i++) {
+      KeyedFuture<String,String> rFuture=kPool.checkoutObject(getKey(i));
+      String resource=rFuture.getOne();
+      AssertJUnit.assertEquals(getResource(i,j),resource);
+      s.refresh();
+      AssertJUnit.assertEquals(c++,s.getCheckedOut());
+    }
+  }
+  s=(AggregatedPoolStats)kPool.getStats();
+  AssertJUnit.assertEquals(numKeys * numResourcesPerKey,s.getTotalCreated());
+  int checkedOut=c - 1;
+  for (int j=0; j < numResourcesPerKey; j++) {
+    for (int i=0; i < numKeys; i++) {
+      kPool.checkinObject(getKey(i),getResource(i,j));
+      s.refresh();
+      AssertJUnit.assertEquals(--checkedOut,s.getCheckedOut());
+    }
+  }
+  s=(AggregatedPoolStats)kPool.getStats();
+  c=1;
+  int d=1;
+  for (int i=0; i < numKeys; i++) {
+    KeyedFuture<String,String> rFuture=kPool.checkoutObject(getKey(i));
+    String resource=rFuture.getOne();
+    AssertJUnit.assertEquals(getResource(i,0),resource);
+    CountDownLatch latch=new CountDownLatch(1);
+    rm.setCountDownLatch(latch);
+    kPool.destroyObject(getKey(i),resource);
+    latch.await();
+    Thread.sleep(1000);
+    s.refresh();
+    AssertJUnit.assertEquals(0,s.getCheckedOut());
+    AssertJUnit.assertEquals(d++,s.getTotalDestroyed());
+  }
+  Future<Map<String,NoneType>> f=kPool.shutdown();
+  f.get();
+  Map<String,List<String>> destroyedMap=rm.getDestroyedMap();
+  AssertJUnit.assertEquals(numKeys,destroyedMap.keySet().size());
+  for (int i=0; i < numKeys; i++) {
+    List<String> r=destroyedMap.get(getKey(i));
+    AssertJUnit.assertEquals("Resource for Key (" + getKey(i) + ")",numResourcesPerKey,r.size());
+    for (int j=0; j < numResourcesPerKey; j++) {
+      AssertJUnit.assertTrue(r.contains(getResource(i,j)));
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  if (_isCancelled.get()) {
+    LOGGER.error("Request {} to server {} cancelled even before request is sent !! Not sending request",_request.getRequestId(),_server);
+    _requestDispatchLatch.countDown();
+    return;
+  }
+  NettyClientConnection conn=null;
+  try {
+    KeyedFuture<ServerInstance,NettyClientConnection> c=_connPool.checkoutObject(_server);
+    byte[] serializedRequest=_request.getRequestForService(_server,_segmentIds);
+    LOGGER.info("Timeout is :" + _timeoutMS);
+    conn=c.getOne(_timeoutMS,TimeUnit.MILLISECONDS);
+    ByteBuf req=Unpooled.wrappedBuffer(serializedRequest);
+    _responseFuture=conn.sendRequest(req,_request.getRequestId(),_timeoutMS);
+    _isSent.set(true);
+    LOGGER.debug("Response Future is : {}",_responseFuture);
+  }
+ catch (  TimeoutException e1) {
+    LOGGER.error("Timed out waiting for connection for server (" + _server + ") ("+ _request.getRequestId()+ "). Setting error future",e1);
+    _responseFuture=new ResponseFuture(_server,e1,"Error Future for request " + _request.getRequestId());
+  }
+catch (  Exception e) {
+    LOGGER.error("Got exception sending request (" + _request.getRequestId() + "). Setting error future",e);
+    _responseFuture=new ResponseFuture(_server,e,"Error Future for request " + _request.getRequestId());
+  }
+ finally {
+    _requestDispatchLatch.countDown();
+  }
+}

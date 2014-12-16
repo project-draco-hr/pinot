@@ -1,0 +1,39 @@
+{
+  while (true) {
+    QueueEntry e=null;
+    try {
+      e=_queue.take();
+    }
+ catch (    InterruptedException e2) {
+      e2.printStackTrace();
+    }
+    if (e.isLast()) {
+      break;
+    }
+    ByteBuf b=null;
+    try {
+      b=e.getFuture().getOne();
+      _endLastResponseTime=System.currentTimeMillis();
+    }
+ catch (    InterruptedException e1) {
+      e1.printStackTrace();
+    }
+catch (    Exception e1) {
+      e1.printStackTrace();
+    }
+    long timeDiff=System.currentTimeMillis() - e.getTimeSentMs();
+    _latencyHistogram.update(timeDiff);
+    String r=null;
+    if (null != b) {
+      byte[] b2=new byte[b.readableBytes()];
+      b.readBytes(b2);
+      r=new String(b2);
+    }
+    try {
+      releaseByteBuf(e.getFuture());
+    }
+ catch (    Exception e1) {
+      e1.printStackTrace();
+    }
+  }
+}

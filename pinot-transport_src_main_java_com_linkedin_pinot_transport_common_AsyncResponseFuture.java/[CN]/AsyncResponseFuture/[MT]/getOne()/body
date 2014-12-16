@@ -1,0 +1,12 @@
+{
+  try {
+    _futureLock.lock();
+    while (!_state.isCompleted()) {
+      _finished.await();
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  return _delayedResponse;
+}

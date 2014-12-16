@@ -1,0 +1,21 @@
+{
+  if (node != _head && node._next == null && node._prev == null) {
+    return null;
+  }
+  if (node == _head) {
+    _head=node._next;
+  }
+  if (node._prev != null) {
+    node._prev._next=node._next;
+  }
+  if (node == _tail) {
+    _tail=node._prev;
+  }
+  if (node._next != null) {
+    node._next._prev=node._prev;
+  }
+  node._next=null;
+  node._prev=null;
+  _size--;
+  return node._value;
+}

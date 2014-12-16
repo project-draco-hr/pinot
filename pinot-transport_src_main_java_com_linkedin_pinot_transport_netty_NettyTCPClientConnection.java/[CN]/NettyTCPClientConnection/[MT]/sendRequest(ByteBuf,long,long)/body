@@ -1,0 +1,47 @@
+{
+  checkTransition(State.REQUEST_WRITTEN);
+  _lastRequsetSizeInBytes=serializedRequest.readableBytes();
+  _lastSendRequestLatency=MetricsHelper.startTimer();
+  _lastResponseLatency=MetricsHelper.startTimer();
+  _outstandingFuture.set(new ResponseFuture(_server,"Response Future for request " + requestId + " to server "+ _server));
+  _lastRequestTimeoutMS=timeoutMS;
+  _lastRequestId=requestId;
+  _lastError=null;
+  _lastRequestTimeout=_timer.newTimeout(new ReadTimeoutHandler(),_lastRequestTimeoutMS,TimeUnit.MILLISECONDS);
+  ChannelFuture f=null;
+  try {
+    _connState=State.REQUEST_WRITTEN;
+    f=_channel.writeAndFlush(serializedRequest);
+synchronized (_handler) {
+      _lastSendRequestLatency.stop();
+      if (_connState == State.REQUEST_WRITTEN) {
+        _connState=State.REQUEST_SENT;
+      }
+ else {
+        LOG.info("Response/Error already arrived !! Checking-in/destroying the connection");
+        if (_connState == State.GOT_RESPONSE) {
+          if (null != _requestCallback) {
+            _requestCallback.onSuccess(null);
+          }
+        }
+ else         if (_connState == State.ERROR) {
+          if (null != _requestCallback) {
+            _requestCallback.onError(_lastError);
+          }
+        }
+ else {
+          throw new IllegalStateException("Invalid connection State (" + _connState + ") when sending request to  server "+ _server);
+        }
+      }
+    }
+  }
+ catch (  Exception e) {
+    LOG.error("Got exception sending the request to server (" + _server + ") id :"+ _connId,e);
+    _outstandingFuture.get().onError(e);
+    if (null != _requestCallback) {
+      _requestCallback.onError(e);
+    }
+    _lastSendRequestLatency.stop();
+  }
+  return _outstandingFuture.get();
+}

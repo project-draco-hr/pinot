@@ -1,0 +1,33 @@
+{
+synchronized (_mutex) {
+    if ((_state == State.SHUTTING_DOWN) || (_state == State.SHUTDOWN)) {
+      return _shutdownFuture;
+    }
+    _state=State.SHUTTING_DOWN;
+    List<KeyedFuture<K,NoneType>> futureList=new ArrayList<KeyedFuture<K,NoneType>>();
+    for (    Entry<K,AsyncPool<T>> poolEntry : _keyedPool.entrySet()) {
+      AsyncResponseFuture<K,NoneType> shutdownFuture=new AsyncResponseFuture<K,NoneType>(poolEntry.getKey(),"Shutdown future for pool entry " + poolEntry.getKey());
+      poolEntry.getValue().shutdown(shutdownFuture);
+      futureList.add(shutdownFuture);
+      Collection<Callback<T>> waiters=poolEntry.getValue().cancelWaiters();
+      if ((null != waiters) && !waiters.isEmpty()) {
+        Exception ex=new Exception("Pool is shutting down !!");
+        for (        Callback<T> w : waiters) {
+          w.onError(ex);
+        }
+        poolEntry.getValue().shutdown(shutdownFuture);
+      }
+    }
+    _shutdownFuture=new CompositeFuture<K,NoneType>("Shutdown For Pool",GatherModeOnError.AND);
+    _shutdownFuture.start(futureList);
+    _shutdownFuture.addListener(new Runnable(){
+      @Override public void run(){
+synchronized (_mutex) {
+          _state=State.SHUTDOWN;
+        }
+      }
+    }
+,null);
+  }
+  return _shutdownFuture;
+}

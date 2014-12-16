@@ -1,0 +1,18 @@
+{
+  try {
+    _futureLock.lock();
+    while (!_state.isCompleted()) {
+      boolean notElapsed=_finished.await(timeout,unit);
+      if (!notElapsed) {
+        throw new TimeoutException("Timeout awaiting response !!");
+      }
+      if (null == _responseMap) {
+        setResponseMap();
+      }
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  return _responseMap;
+}

@@ -1,0 +1,13 @@
+{
+  cancelLastRequestTimeout();
+  ByteBuf result=(ByteBuf)msg;
+  _lastResponseSizeInBytes=result.readableBytes();
+  _lastResponseLatency.stop();
+  State prevState=_connState;
+  _connState=State.GOT_RESPONSE;
+  _outstandingFuture.get().onSuccess(result);
+  _clientMetric.addRequestResponseStats(_lastRequsetSizeInBytes,1,_lastResponseSizeInBytes,false,_lastSendRequestLatency.getLatencyMs(),_lastResponseLatency.getLatencyMs());
+  if ((null != _requestCallback) && (prevState == State.REQUEST_SENT)) {
+    _requestCallback.onSuccess(null);
+  }
+}

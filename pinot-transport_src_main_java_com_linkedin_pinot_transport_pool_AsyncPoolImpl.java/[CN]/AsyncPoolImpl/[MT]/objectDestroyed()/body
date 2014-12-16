@@ -1,0 +1,11 @@
+{
+  boolean create;
+synchronized (_lock) {
+    if (_poolSize > 0) {
+      _poolSize--;
+    }
+    create=shouldCreate();
+    shutdownIfNeeded();
+  }
+  return create;
+}

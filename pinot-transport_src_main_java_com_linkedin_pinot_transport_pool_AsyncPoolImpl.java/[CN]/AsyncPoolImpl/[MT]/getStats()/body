@@ -1,0 +1,9 @@
+{
+synchronized (_lock) {
+    PoolStats.LifecycleStats<Histogram> lifecycleStats=_lifecycle.getStats();
+    PoolStats<Histogram> stats=new AsyncPoolStats<Histogram>(_totalCreated,_totalDestroyed,_totalCreateErrors,_totalDestroyErrors,_totalBadDestroyed,_totalTimedOut,_checkedOut,_maxSize,_minSize,_poolSize,_sampleMaxCheckedOut,_sampleMaxPoolSize,_idle.size(),new LatencyMetric<Histogram>(_waitTime),lifecycleStats);
+    _sampleMaxCheckedOut=_checkedOut;
+    _sampleMaxPoolSize=_poolSize;
+    return stats;
+  }
+}

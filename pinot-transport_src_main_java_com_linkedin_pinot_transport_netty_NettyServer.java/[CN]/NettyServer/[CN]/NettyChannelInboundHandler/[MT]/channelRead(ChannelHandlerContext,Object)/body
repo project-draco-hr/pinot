@@ -1,0 +1,15 @@
+{
+  LOG.debug("Request received by server !!");
+  _state=State.REQUEST_RECEIVED;
+  ByteBuf request=(ByteBuf)msg;
+  _lastRequsetSizeInBytes=request.readableBytes();
+  _lastProcessingLatency=MetricsHelper.startTimer();
+  byte[] response=_handler.processRequest(request);
+  _lastProcessingLatency.stop();
+  ByteBuf responseBuf=Unpooled.wrappedBuffer(response);
+  _lastSendResponseLatency=MetricsHelper.startTimer();
+  ChannelFuture f=ctx.writeAndFlush(responseBuf);
+  _state=State.RESPONSE_WRITTEN;
+  f.addListener(this);
+  request.release();
+}

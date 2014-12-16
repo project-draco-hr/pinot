@@ -1,0 +1,17 @@
+{
+switch (nextState) {
+case INIT:
+    return false;
+case CONNECTED:
+  return this == State.INIT;
+case REQUEST_WRITTEN:
+return (this == State.CONNECTED) || (this == State.GOT_RESPONSE);
+case REQUEST_SENT:
+return this == State.REQUEST_WRITTEN;
+case ERROR:
+return true;
+case GOT_RESPONSE:
+return this == State.REQUEST_SENT;
+}
+return false;
+}

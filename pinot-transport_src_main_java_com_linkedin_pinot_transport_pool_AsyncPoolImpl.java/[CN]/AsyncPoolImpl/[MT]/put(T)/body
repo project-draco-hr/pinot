@@ -1,0 +1,10 @@
+{
+synchronized (_lock) {
+    _checkedOut--;
+  }
+  if (!_lifecycle.validatePut(obj)) {
+    destroy(obj,true);
+    return;
+  }
+  add(obj,false);
+}

@@ -1,0 +1,16 @@
+{
+  final State state;
+synchronized (_lock) {
+    state=_state;
+    if (state == State.RUNNING) {
+      _state=State.SHUTTING_DOWN;
+      _shutdownCallback=callback;
+    }
+  }
+  if (state != State.RUNNING) {
+    callback.onError(new IllegalStateException(_poolName + " is " + _state));
+    return;
+  }
+  LOG.info("{}: {}",_poolName,"shutdown requested");
+  shutdownIfNeeded();
+}

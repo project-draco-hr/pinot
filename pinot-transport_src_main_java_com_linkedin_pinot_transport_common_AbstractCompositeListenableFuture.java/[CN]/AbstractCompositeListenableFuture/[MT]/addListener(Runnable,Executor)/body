@@ -1,0 +1,23 @@
+{
+  boolean processed=false;
+  try {
+    _futureLock.lock();
+    if (!_state.isCompleted()) {
+      _pendingRunnable.add(listener);
+      _pendingRunnableExecutors.add(executor);
+      processed=true;
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  if (!processed) {
+    LOG.info("Executing the listener as the future event is already done !!");
+    if (null != executor) {
+      executor.execute(listener);
+    }
+ else {
+      listener.run();
+    }
+  }
+}

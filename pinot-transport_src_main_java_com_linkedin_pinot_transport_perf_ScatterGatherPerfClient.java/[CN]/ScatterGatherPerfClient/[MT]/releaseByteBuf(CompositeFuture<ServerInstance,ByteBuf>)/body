@@ -1,0 +1,11 @@
+{
+  Map<ServerInstance,ByteBuf> bMap=future.get();
+  if (null != bMap) {
+    for (    Entry<ServerInstance,ByteBuf> bEntry : bMap.entrySet()) {
+      ByteBuf b=bEntry.getValue();
+      if (null != b) {
+        b.release();
+      }
+    }
+  }
+}

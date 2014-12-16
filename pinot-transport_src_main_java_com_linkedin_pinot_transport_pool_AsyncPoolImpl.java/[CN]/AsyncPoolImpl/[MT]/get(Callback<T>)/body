@@ -1,0 +1,64 @@
+{
+  boolean create=false;
+  boolean reject=false;
+  final LinkedDequeue.Node<Callback<T>> node;
+  final Callback<T> callbackWithTracking=new TimeTrackingCallback<T>(callback);
+  for (; ; ) {
+    TimedObject<T> obj=null;
+    final State state;
+synchronized (_lock) {
+      state=_state;
+      if (state == State.RUNNING) {
+        if (_strategy == Strategy.LRU) {
+          obj=_idle.pollFirst();
+        }
+ else {
+          obj=_idle.pollLast();
+        }
+        if (obj == null) {
+          if (_waiters.size() < _maxWaiters) {
+            node=_waiters.addLastNode(callbackWithTracking);
+            create=shouldCreate();
+          }
+ else {
+            reject=true;
+            node=null;
+          }
+          break;
+        }
+      }
+    }
+    if (state != State.RUNNING) {
+      callbackWithTracking.onError(new IllegalStateException(_poolName + " is " + _state));
+      return null;
+    }
+    T rawObj=obj.get();
+    if (_lifecycle.validateGet(rawObj)) {
+      trc("dequeued an idle object");
+synchronized (_lock) {
+        _checkedOut++;
+        _sampleMaxCheckedOut=Math.max(_checkedOut,_sampleMaxCheckedOut);
+      }
+      callbackWithTracking.onSuccess(rawObj);
+      return null;
+    }
+    destroy(rawObj,true);
+    trc("dequeued and disposed an invalid idle object");
+  }
+  if (reject) {
+    callbackWithTracking.onError(new SizeLimitExceededException("AsyncPool " + _poolName + " reached maximum waiter size: "+ _maxWaiters));
+    return null;
+  }
+  trc("enqueued a waiter");
+  if (create) {
+    create();
+  }
+  return new Cancellable(){
+    @Override public boolean cancel(){
+synchronized (_lock) {
+        return _waiters.removeNode(node) != null;
+      }
+    }
+  }
+;
+}

@@ -1,0 +1,32 @@
+{
+{
+    String key="localhost:8080";
+    String value="dummy";
+    MyPooledResourceManager rm=new MyPooledResourceManager(true,null);
+    AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
+    boolean ret=adapter.validateGet(value);
+    AssertJUnit.assertTrue("Validate Return",ret);
+    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
+    AssertJUnit.assertEquals("Resource Manager validate Resource",value,rm.getResourceForValidate());
+    String value2="dummy2";
+    ret=adapter.validatePut(value2);
+    AssertJUnit.assertTrue("Validate Return",ret);
+    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
+    AssertJUnit.assertEquals("Resource Manager validate Resource",value2,rm.getResourceForValidate());
+  }
+{
+    String key="localhost:8080";
+    String value="dummy";
+    MyPooledResourceManager rm=new MyPooledResourceManager(false,null);
+    AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
+    boolean ret=adapter.validateGet(value);
+    AssertJUnit.assertFalse("Validate Return",ret);
+    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
+    AssertJUnit.assertEquals("Resource Manager validate Resource",value,rm.getResourceForValidate());
+    String value2="dummy2";
+    ret=adapter.validatePut(value2);
+    AssertJUnit.assertFalse("Validate Return",ret);
+    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
+    AssertJUnit.assertEquals("Resource Manager validate Resource",value2,rm.getResourceForValidate());
+  }
+}

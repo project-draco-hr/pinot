@@ -1,0 +1,15 @@
+{
+  boolean result=false;
+synchronized (_lock) {
+    if (_state == State.RUNNING) {
+      if (_poolSize >= _maxSize) {
+        _lastCreateError=null;
+      }
+ else       if ((_waiters.size() > 0) || (_poolSize < _minSize)) {
+        result=true;
+      }
+    }
+  }
+  LOG.debug("PoolSize : {} , Min Size : {}, Max Size : {}, Result : {}, State : {}",_poolSize,_minSize,_maxSize,result,_state);
+  return result;
+}

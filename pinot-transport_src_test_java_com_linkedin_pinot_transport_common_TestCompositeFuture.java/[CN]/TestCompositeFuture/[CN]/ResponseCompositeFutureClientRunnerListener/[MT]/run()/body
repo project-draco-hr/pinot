@@ -1,0 +1,22 @@
+{
+  LOG.info("Running Future runner !!");
+  Map<String,String> message=null;
+  try {
+    _latch.countDown();
+    message=_future.get();
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+catch (  ExecutionException e) {
+    e.printStackTrace();
+  }
+  _isDone=_future.isDone();
+  _isCancelled=_future.isCancelled();
+  if (null != message) {
+    _message=message;
+  }
+  _errorMap=_future.getError();
+  _endLatch.countDown();
+  LOG.info("End Running Listener !!");
+}

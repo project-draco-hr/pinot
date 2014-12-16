@@ -1,0 +1,8 @@
+{
+  long timeout=_request.getRequestTimeoutMS();
+  if (timeout < 0) {
+    return Long.MAX_VALUE;
+  }
+  long timeElapsed=System.currentTimeMillis() - _startTimeMs;
+  return (timeout - timeElapsed);
+}

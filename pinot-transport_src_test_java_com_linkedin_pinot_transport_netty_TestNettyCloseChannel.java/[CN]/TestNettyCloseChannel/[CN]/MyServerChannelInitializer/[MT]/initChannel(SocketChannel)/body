@@ -1,0 +1,6 @@
+{
+  super.initChannel(ch);
+  ch.pipeline().removeLast();
+  ch.pipeline().addLast("request_handler",new MyNettyChannelInboundHandler());
+  LOG.info("Server Channel pipeline setup modified. Pipeline:" + ch.pipeline().names());
+}

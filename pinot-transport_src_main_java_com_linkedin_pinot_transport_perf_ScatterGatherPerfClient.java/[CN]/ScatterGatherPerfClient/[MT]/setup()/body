@@ -1,0 +1,15 @@
+{
+  MetricsRegistry registry=new MetricsRegistry();
+  _timedExecutor=new ScheduledThreadPoolExecutor(1);
+  _service=new ThreadPoolExecutor(10,10,10,TimeUnit.DAYS,new LinkedBlockingDeque<Runnable>());
+  _eventLoopGroup=new NioEventLoopGroup(10);
+  _timer=new HashedWheelTimer();
+  NettyClientMetrics clientMetrics=new NettyClientMetrics(registry,"client_");
+  PooledNettyClientResourceManager rm=new PooledNettyClientResourceManager(_eventLoopGroup,_timer,clientMetrics);
+  _pool=new KeyedPoolImpl<ServerInstance,NettyClientConnection>(1,_maxActiveConnections,300000,10,rm,_timedExecutor,MoreExecutors.sameThreadExecutor(),registry);
+  rm.setPool(_pool);
+  _scatterGather=new ScatterGatherImpl(_pool,_service);
+  for (  AsyncReader r : _readerThreads) {
+    r.start();
+  }
+}

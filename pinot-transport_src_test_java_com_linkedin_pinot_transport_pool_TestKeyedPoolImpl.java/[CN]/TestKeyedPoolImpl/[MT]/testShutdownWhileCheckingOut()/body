@@ -1,0 +1,28 @@
+{
+  ScheduledExecutorService timedExecutor=new ScheduledThreadPoolExecutor(1);
+  ExecutorService service=new ThreadPoolExecutor(1,1,1,TimeUnit.DAYS,new LinkedBlockingDeque<Runnable>());
+  int numKeys=1;
+  int numResourcesPerKey=1;
+  Map<String,List<String>> resources=buildCreateMap(numKeys,numResourcesPerKey);
+  BlockingTestResourceManager rm=new BlockingTestResourceManager(resources,null,null,null);
+  KeyedPool<String,String> kPool=new KeyedPoolImpl<String,String>(0,1,1000L,1000 * 60 * 60,rm,timedExecutor,service,null);
+  kPool.start();
+  AsyncResponseFuture<String,String> f=(AsyncResponseFuture<String,String>)kPool.checkoutObject(getKey(0));
+  boolean isTimedout=false;
+  try {
+    f.get(2,TimeUnit.SECONDS);
+  }
+ catch (  TimeoutException e) {
+    isTimedout=true;
+  }
+  AssertJUnit.assertTrue(isTimedout);
+  kPool.shutdown().get();
+  AssertJUnit.assertNull(f.get());
+  AssertJUnit.assertNotNull(f.getError());
+  boolean cancelled=f.cancel(false);
+  AssertJUnit.assertFalse(cancelled);
+  AssertJUnit.assertFalse(f.isCancelled());
+  AssertJUnit.assertTrue(f.isDone());
+  rm.getCreateBlockLatch().countDown();
+  Thread.sleep(5000);
+}

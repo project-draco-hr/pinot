@@ -1,0 +1,9 @@
+{
+  ResourceRoutingConfig cfg=_routingConfig.getResourceRoutingCfg().get(_resourceName);
+  if (null == cfg) {
+    System.out.println("Unable to find routing config for resource (" + _resourceName + ")");
+    return null;
+  }
+  SimpleScatterGatherRequest request=new SimpleScatterGatherRequest(_request,cfg,_idGen.incrementAndGet());
+  return request;
+}

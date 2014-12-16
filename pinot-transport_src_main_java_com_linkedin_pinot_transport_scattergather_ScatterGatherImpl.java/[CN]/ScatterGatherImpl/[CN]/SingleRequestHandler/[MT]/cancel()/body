@@ -1,0 +1,9 @@
+{
+  if (_isCancelled.get()) {
+    return;
+  }
+  _isCancelled.set(true);
+  if (_isSent.get()) {
+    _responseFuture.cancel(true);
+  }
+}

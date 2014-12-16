@@ -1,0 +1,7 @@
+{
+  String message="Request (" + _lastRequestId + ") to server "+ _server+ " timed-out waiting for response. Closing the channel !!";
+  LOG.error(message);
+  Exception e=new Exception(message);
+  _outstandingFuture.get().onError(e);
+  close();
+}

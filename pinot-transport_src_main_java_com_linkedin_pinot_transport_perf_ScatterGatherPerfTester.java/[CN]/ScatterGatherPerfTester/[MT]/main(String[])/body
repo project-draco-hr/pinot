@@ -1,0 +1,66 @@
+{
+  CommandLineParser cliParser=new GnuParser();
+  Options cliOptions=buildCommandLineOptions();
+  CommandLine cmd=cliParser.parse(cliOptions,args,true);
+  if (!cmd.hasOption(EXECUTION_MODE)) {
+    System.out.println("Missing required argument (" + EXECUTION_MODE + ")");
+    HelpFormatter formatter=new HelpFormatter();
+    formatter.printHelp("",cliOptions);
+    System.exit(-1);
+  }
+  ExecutionMode mode=ExecutionMode.valueOf(cmd.getOptionValue(EXECUTION_MODE));
+  int numClients=1;
+  int numServers=1;
+  int requestSize=1000;
+  int responseSize=100000;
+  int numRequests=10000;
+  int startPortNum=9078;
+  boolean isAsyncRequest=true;
+  List<String> servers=new ArrayList<String>();
+  int numActiveConnectionsPerPeer=10;
+  int numResponseReaders=3;
+  long serverInducedLatency=10;
+  if (mode == ExecutionMode.RUN_CLIENT) {
+    if (!cmd.hasOption(SERVER_HOSTS)) {
+      System.out.println("Missing required argument (" + SERVER_HOSTS + ")");
+      HelpFormatter formatter=new HelpFormatter();
+      formatter.printHelp("",cliOptions);
+      System.exit(-1);
+    }
+  }
+  if (cmd.hasOption(NUM_CLIENTS)) {
+    numClients=Integer.parseInt(cmd.getOptionValue(NUM_CLIENTS));
+  }
+  if (cmd.hasOption(NUM_SERVERS)) {
+    numServers=Integer.parseInt(cmd.getOptionValue(NUM_SERVERS));
+  }
+  if (cmd.hasOption(REQUEST_SIZE)) {
+    requestSize=Integer.parseInt(cmd.getOptionValue(REQUEST_SIZE));
+  }
+  if (cmd.hasOption(RESPONSE_SIZE)) {
+    responseSize=Integer.parseInt(cmd.getOptionValue(RESPONSE_SIZE));
+  }
+  if (cmd.hasOption(NUM_REQUESTS)) {
+    numRequests=Integer.parseInt(cmd.getOptionValue(NUM_REQUESTS));
+  }
+  if (cmd.hasOption(SERVER_START_PORT)) {
+    startPortNum=Integer.parseInt(cmd.getOptionValue(SERVER_START_PORT));
+  }
+  if (cmd.hasOption(SYNC_REQUEST_DISPATCH)) {
+    isAsyncRequest=false;
+  }
+  if (cmd.hasOption(CONN_POOL_SIZE_PER_PEER)) {
+    numActiveConnectionsPerPeer=Integer.parseInt(cmd.getOptionValue(CONN_POOL_SIZE_PER_PEER));
+  }
+  if (cmd.hasOption(NUM_RESPONSE_READERS)) {
+    numResponseReaders=Integer.parseInt(cmd.getOptionValue(NUM_RESPONSE_READERS));
+  }
+  if (cmd.hasOption(RESPONSE_LATENCY)) {
+    serverInducedLatency=Integer.parseInt(cmd.getOptionValue(RESPONSE_LATENCY));
+  }
+  if (cmd.hasOption(SERVER_HOSTS)) {
+    servers=Arrays.asList(cmd.getOptionValue(SERVER_HOSTS).split(","));
+  }
+  ScatterGatherPerfTester tester=new ScatterGatherPerfTester(numClients,numServers,requestSize,responseSize,numRequests,startPortNum,isAsyncRequest,ExecutionMode.RUN_CLIENT,servers,numActiveConnectionsPerPeer,numResponseReaders,serverInducedLatency);
+  tester.run();
+}

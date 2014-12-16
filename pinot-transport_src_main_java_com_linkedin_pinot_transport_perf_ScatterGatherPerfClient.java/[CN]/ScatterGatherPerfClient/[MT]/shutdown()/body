@@ -1,0 +1,32 @@
+{
+  if (null != _pool) {
+    LOGGER.info("Shutting down Pool !!");
+    try {
+      _pool.shutdown().get();
+      LOGGER.info("Pool shut down!!");
+    }
+ catch (    Exception ex) {
+      LOGGER.error("Unable to shutdown pool",ex);
+    }
+  }
+  if (null != _timedExecutor) {
+    LOGGER.info("Shutting down scheduled executor !!");
+    _timedExecutor.shutdown();
+    LOGGER.info("Scheduled executor shut down !!");
+  }
+  if (null != _eventLoopGroup) {
+    LOGGER.info("Shutting down event-loop group !!");
+    _eventLoopGroup.shutdownGracefully();
+    LOGGER.info("Event Loop group shut down !!");
+  }
+  if (null != _service) {
+    LOGGER.info("Shutting down executor service !!");
+    _service.shutdown();
+    LOGGER.info("Executor Service shut down !!");
+  }
+  if (null != _timer) {
+    LOGGER.info("Shutting down timer !!");
+    _timer.stop();
+    LOGGER.info("Timer shut down !!");
+  }
+}

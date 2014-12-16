@@ -1,0 +1,14 @@
+{
+  boolean fail=false;
+  List<String> fails=_failValidationResources.get(key);
+  if (null != fails) {
+    fail=fails.contains(resource);
+  }
+  List<String> validated=_validatedMap.get(key);
+  if (null == validated) {
+    validated=new ArrayList<String>();
+    _validatedMap.put(key,validated);
+  }
+  validated.add(resource);
+  return !fail;
+}

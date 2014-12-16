@@ -1,0 +1,21 @@
+{
+  ScheduledExecutorService timedExecutor=new ScheduledThreadPoolExecutor(1);
+  ExecutorService service=MoreExecutors.sameThreadExecutor();
+  int numKeys=1;
+  int numResourcesPerKey=1;
+  Map<String,List<String>> resources=buildCreateMap(numKeys,numResourcesPerKey);
+  TestResourceManager rm=new TestResourceManager(resources,null,resources,null);
+  KeyedPool<String,String> kPool=new KeyedPoolImpl<String,String>(0,5,1000L,1000 * 60 * 60,rm,timedExecutor,service,null);
+  AsyncResponseFuture<String,String> f=(AsyncResponseFuture<String,String>)kPool.checkoutObject(getKey(0));
+  String r=f.getOne();
+  AssertJUnit.assertTrue(f.isDone());
+  AssertJUnit.assertNull(f.getError());
+  CountDownLatch latch=new CountDownLatch(1);
+  rm.setCountDownLatch(latch);
+  kPool.destroyObject(getKey(0),r);
+  latch.await();
+  kPool.shutdown().get();
+  AggregatedPoolStats s=(AggregatedPoolStats)kPool.getStats();
+  s.refresh();
+  AssertJUnit.assertEquals(1,s.getTotalDestroyErrors());
+}

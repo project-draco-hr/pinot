@@ -1,0 +1,28 @@
+{
+  ScheduledExecutorService timedExecutor=new ScheduledThreadPoolExecutor(1);
+  ExecutorService service=new ThreadPoolExecutor(1,1,1,TimeUnit.DAYS,new LinkedBlockingDeque<Runnable>());
+  int numKeys=1;
+  int numResourcesPerKey=1;
+  Map<String,List<String>> resources=buildCreateMap(numKeys,numResourcesPerKey);
+  TestResourceManager rm=new TestResourceManager(resources,null,null,null);
+  KeyedPool<String,String> kPool=new KeyedPoolImpl<String,String>(0,1,1000L,1000 * 60 * 60,rm,timedExecutor,service,null);
+  kPool.start();
+  AsyncResponseFuture<String,String> f=(AsyncResponseFuture<String,String>)kPool.checkoutObject(getKey(0));
+  String s1=f.getOne();
+  boolean isException=false;
+  try {
+    kPool.checkinObject(getKey(1),s1);
+  }
+ catch (  IllegalStateException e) {
+    isException=true;
+  }
+  AssertJUnit.assertTrue(isException);
+  isException=false;
+  try {
+    kPool.destroyObject(getKey(1),s1);
+  }
+ catch (  IllegalStateException e) {
+    isException=true;
+  }
+  AssertJUnit.assertTrue(isException);
+}

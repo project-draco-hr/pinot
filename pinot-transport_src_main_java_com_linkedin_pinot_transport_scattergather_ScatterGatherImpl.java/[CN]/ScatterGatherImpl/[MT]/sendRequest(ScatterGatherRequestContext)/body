@@ -1,0 +1,33 @@
+{
+  TimerContext t=MetricsHelper.startTimer();
+  Map<ServerInstance,SegmentIdSet> mp=ctxt.getSelectedServers();
+  CountDownLatch requestDispatchLatch=new CountDownLatch(mp.size());
+  ExecutorService executor=MoreExecutors.sameThreadExecutor();
+  List<SingleRequestHandler> handlers=new ArrayList<SingleRequestHandler>(mp.size());
+  int i=0;
+  for (  Entry<ServerInstance,SegmentIdSet> e : mp.entrySet()) {
+    SingleRequestHandler handler=new SingleRequestHandler(_connPool,e.getKey(),ctxt.getRequest(),e.getValue(),ctxt.getTimeRemaining(),requestDispatchLatch);
+    _executorService.submit(handler);
+    handlers.add(handler);
+  }
+  CompositeFuture<ServerInstance,ByteBuf> response=new CompositeFuture<ServerInstance,ByteBuf>("scatterRequest",GatherModeOnError.SHORTCIRCUIT_AND);
+  long timeRemaining=ctxt.getTimeRemaining();
+  boolean sentSuccessfully=requestDispatchLatch.await(timeRemaining,TimeUnit.MILLISECONDS);
+  if (sentSuccessfully) {
+    List<KeyedFuture<ServerInstance,ByteBuf>> responseFutures=new ArrayList<KeyedFuture<ServerInstance,ByteBuf>>();
+    for (    SingleRequestHandler h : handlers) {
+      responseFutures.add(h.getResponseFuture());
+    }
+    response.start(responseFutures);
+  }
+ else {
+    LOGGER.error("Request (" + ctxt.getRequest().getRequestId() + ") not sent completely within time ("+ timeRemaining+ " ms) !! Cancelling !!");
+    response.start(null);
+    for (    SingleRequestHandler h : handlers) {
+      h.cancel();
+    }
+  }
+  t.stop();
+  _latency.update(t.getLatencyMs());
+  return response;
+}

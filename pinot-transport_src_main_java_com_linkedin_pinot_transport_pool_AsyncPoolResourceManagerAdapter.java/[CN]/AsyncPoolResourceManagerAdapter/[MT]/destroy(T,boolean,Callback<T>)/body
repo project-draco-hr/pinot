@@ -1,0 +1,15 @@
+{
+  _executor.submit(new Runnable(){
+    @Override public void run(){
+      LOG.info("Running teardown for the client connection " + obj + " Error is : "+ error);
+      boolean success=_resourceManager.destroy(_key,error,obj);
+      if (success) {
+        callback.onSuccess(obj);
+      }
+ else {
+        callback.onError(new Exception("Unable to destroy resource for key " + _key));
+      }
+    }
+  }
+);
+}

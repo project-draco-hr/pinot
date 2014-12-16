@@ -1,0 +1,12 @@
+{
+  AggregatedMetricsRegistry metricsRegistry=new AggregatedMetricsRegistry();
+  _bakedResponse=new byte[_responseSize];
+  for (int i=0; i < _responseSize; i++)   _bakedResponse[i]='a';
+  MyRequestHandler handler=new MyRequestHandler(new String(_bakedResponse),null,_responseLatencyMs);
+  MyRequestHandlerFactory handlerFactory=new MyRequestHandlerFactory(handler);
+  _server=new NettyTCPServer(_serverPort,handlerFactory,metricsRegistry);
+  Thread serverThread=new Thread(_server,"ServerMain");
+  ShutdownHook shutdownHook=new ShutdownHook(_server);
+  Runtime.getRuntime().addShutdownHook(shutdownHook);
+  serverThread.start();
+}

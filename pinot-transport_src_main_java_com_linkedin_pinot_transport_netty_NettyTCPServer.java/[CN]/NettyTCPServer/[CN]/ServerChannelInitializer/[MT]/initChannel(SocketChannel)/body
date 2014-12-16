@@ -1,0 +1,10 @@
+{
+  LOG.info("Setting up Server channel !!");
+  ch.pipeline().addLast("decoder",new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,0,4,0,4));
+  ch.pipeline().addLast("encoder",new LengthFieldPrepender(4));
+  NettyServerMetrics serverMetric=new NettyServerMetrics(_registry,NettyTCPServer.class.getName() + "_" + Utils.getUniqueId()+ "_");
+  if (null != _globalMetrics) {
+    _globalMetrics.addTransportClientMetrics(serverMetric);
+  }
+  ch.pipeline().addLast("request_handler",new NettyChannelInboundHandler(_handlerFactory.createNewRequestHandler(),serverMetric));
+}

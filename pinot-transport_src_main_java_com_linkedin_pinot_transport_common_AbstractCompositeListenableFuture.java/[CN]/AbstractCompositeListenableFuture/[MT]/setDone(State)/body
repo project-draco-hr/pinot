@@ -1,0 +1,26 @@
+{
+  LOG.debug("Setting state to :" + state + ", Current State :"+ _state);
+  try {
+    _futureLock.lock();
+    _state=state;
+    long count=_latch.getCount();
+    for (long i=0; i < count; i++) {
+      _latch.countDown();
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  for (int i=0; i < _pendingRunnable.size(); i++) {
+    LOG.info("Running pending runnable :" + i);
+    Executor e=_pendingRunnableExecutors.get(i);
+    if (null != e) {
+      e.execute(_pendingRunnable.get(i));
+    }
+ else {
+      _pendingRunnable.get(i).run();
+    }
+  }
+  _pendingRunnable.clear();
+  _pendingRunnableExecutors.clear();
+}

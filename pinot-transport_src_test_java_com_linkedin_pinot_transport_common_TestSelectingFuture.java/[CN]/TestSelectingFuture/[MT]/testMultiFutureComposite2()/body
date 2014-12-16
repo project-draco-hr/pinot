@@ -1,0 +1,43 @@
+{
+  List<String> keys=new ArrayList<String>();
+  int numFutures=3;
+  List<KeyedFuture<String,String>> futureList=new ArrayList<KeyedFuture<String,String>>();
+  for (int i=0; i < numFutures; i++) {
+    String key="key_" + i;
+    keys.add(key);
+    AsyncResponseFuture<String,String> future=new AsyncResponseFuture<String,String>(key,"");
+    futureList.add(future);
+  }
+  SelectingFuture<String,String> compositeFuture=new SelectingFuture<String,String>("abc");
+  compositeFuture.start(futureList);
+  ResponseCompositeFutureClientRunnerListener runner=new ResponseCompositeFutureClientRunnerListener(compositeFuture);
+  ResponseCompositeFutureClientRunnerListener listener=new ResponseCompositeFutureClientRunnerListener(compositeFuture);
+  compositeFuture.addListener(listener,null);
+  ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+  executor.execute(runner);
+  runner.waitForAboutToGet();
+  Thread.sleep(100);
+  Throwable error=null;
+  for (int i=0; i < numFutures; i++) {
+    String message="dummy Message_" + i;
+    error=new Exception(message);
+    AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureList.get(i);
+    future.onError(error);
+  }
+  Throwable expectedError=error;
+  runner.waitForDone();
+  AssertJUnit.assertFalse("Composite Cancelled ?",runner.isCancelled());
+  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
+  AssertJUnit.assertNull("Composite No Message :",runner.getMessage());
+  AssertJUnit.assertEquals("Error",expectedError,runner.getError());
+  AssertJUnit.assertFalse("First response not cancelled",futureList.get(0).isCancelled());
+  AssertJUnit.assertFalse("Second response not cancelled",futureList.get(1).isCancelled());
+  AssertJUnit.assertFalse("Third response not cancelled",futureList.get(2).isCancelled());
+  AssertJUnit.assertNotNull(futureList.get(0).getError());
+  AssertJUnit.assertNotNull(futureList.get(1).getError());
+  AssertJUnit.assertEquals(runner.getError(),futureList.get(2).getError().get("key_2"));
+  AssertJUnit.assertNull(futureList.get(0).get());
+  AssertJUnit.assertNull(futureList.get(1).get());
+  AssertJUnit.assertNull(futureList.get(2).get());
+  executor.shutdown();
+}

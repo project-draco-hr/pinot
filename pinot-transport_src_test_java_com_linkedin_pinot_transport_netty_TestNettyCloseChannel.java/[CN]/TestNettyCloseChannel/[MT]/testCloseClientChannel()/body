@@ -1,0 +1,34 @@
+{
+  NettyClientMetrics metric=new NettyClientMetrics(null,"abc");
+  Timer timer=new HashedWheelTimer();
+  String response="dummy response";
+  int port=9089;
+  CountDownLatch latch=new CountDownLatch(1);
+  MyRequestHandler handler=new MyRequestHandler(response,latch);
+  MyRequestHandlerFactory handlerFactory=new MyRequestHandlerFactory(handler);
+  NettyTCPServer serverConn=new NettyTCPServer(port,handlerFactory,null);
+  Thread serverThread=new Thread(serverConn,"ServerMain");
+  serverThread.start();
+  Thread.sleep(1000);
+  ServerInstance server=new ServerInstance("localhost",port);
+  EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
+  NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server,eventLoopGroup,timer,metric);
+  LOG.info("About to connect the client !!");
+  boolean connected=clientConn.connect();
+  LOG.info("Client connected !!");
+  AssertJUnit.assertTrue("connected",connected);
+  Thread.sleep(1000);
+  String request="dummy request";
+  LOG.info("Sending the request !!");
+  ResponseFuture serverRespFuture=clientConn.sendRequest(Unpooled.wrappedBuffer(request.getBytes()),1L,5000L);
+  clientConn.close();
+  latch.countDown();
+  ByteBuf serverResp=serverRespFuture.getOne();
+  clientConn.close();
+  serverConn.shutdownGracefully();
+  AssertJUnit.assertNull(serverResp);
+  AssertJUnit.assertFalse("Is Cancelled",serverRespFuture.isCancelled());
+  AssertJUnit.assertTrue("Got Exception",serverRespFuture.getError() != null);
+  serverConn.shutdownGracefully();
+  System.out.println(metric);
+}

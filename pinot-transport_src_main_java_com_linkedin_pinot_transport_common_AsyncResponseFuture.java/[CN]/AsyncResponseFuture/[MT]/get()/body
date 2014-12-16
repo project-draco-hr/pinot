@@ -1,0 +1,15 @@
+{
+  try {
+    _futureLock.lock();
+    while (!_state.isCompleted()) {
+      _finished.await();
+    }
+    if (null == _responseMap) {
+      setResponseMap();
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  return _responseMap;
+}

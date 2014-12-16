@@ -1,0 +1,8 @@
+{
+  boolean notElapsed=_latch.await(timeout,unit);
+  if (!notElapsed)   throw new TimeoutException("Timedout waiting for async result for selecting future " + _name);
+  if ((null == _delayedResponse) || (_delayedResponse.isEmpty())) {
+    return null;
+  }
+  return _delayedResponse.values().iterator().next();
+}

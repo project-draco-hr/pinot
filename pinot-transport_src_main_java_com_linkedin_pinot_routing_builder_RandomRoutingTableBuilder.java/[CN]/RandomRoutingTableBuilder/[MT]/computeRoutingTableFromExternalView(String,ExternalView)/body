@@ -1,0 +1,35 @@
+{
+  List<Map<String,Set<String>>> routingTables=new ArrayList<Map<String,Set<String>>>();
+  for (int i=0; i < _numberOfRoutingTables; ++i) {
+    routingTables.add(new HashMap<String,Set<String>>());
+  }
+  String[] segmentSet=externalView.getPartitionSet().toArray(new String[0]);
+  for (  String segment : segmentSet) {
+    Map<String,String> instanceToStateMap=externalView.getStateMap(segment);
+    for (    String instance : instanceToStateMap.keySet().toArray(new String[0])) {
+      if (!instanceToStateMap.get(instance).equals("ONLINE")) {
+        instanceToStateMap.remove(instance);
+      }
+    }
+    if (instanceToStateMap.size() > 0) {
+      String[] instances=instanceToStateMap.keySet().toArray(new String[0]);
+      Random randomSeed=new Random(System.currentTimeMillis());
+      for (int i=0; i < _numberOfRoutingTables; ++i) {
+        String instance=instances[randomSeed.nextInt(instances.length)];
+        if (routingTables.get(i).containsKey(instance)) {
+          routingTables.get(i).get(instance).add(segment);
+        }
+ else {
+          Set<String> instanceSegmentSet=new HashSet<String>();
+          instanceSegmentSet.add(segment);
+          routingTables.get(i).put(instance,instanceSegmentSet);
+        }
+      }
+    }
+  }
+  List<ServerToSegmentSetMap> resultRoutingTableList=new ArrayList<ServerToSegmentSetMap>();
+  for (int i=0; i < _numberOfRoutingTables; ++i) {
+    resultRoutingTableList.add(new ServerToSegmentSetMap(routingTables.get(i)));
+  }
+  return resultRoutingTableList;
+}

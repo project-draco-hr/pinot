@@ -1,0 +1,15 @@
+{
+  _started=true;
+  _latch.countDown();
+  try {
+    _future.get();
+    _done=true;
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+catch (  ExecutionException e) {
+    e.printStackTrace();
+  }
+  _latch2.countDown();
+}

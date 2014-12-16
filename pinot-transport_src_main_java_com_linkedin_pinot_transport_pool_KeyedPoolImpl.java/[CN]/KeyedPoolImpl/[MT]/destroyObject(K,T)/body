@@ -1,0 +1,10 @@
+{
+  AsyncPool<T> pool=_keyedPool.get(key);
+  LOG.error("Destroying object for the key (" + key + ") object :"+ object);
+  if (null != pool) {
+    pool.dispose(object);
+  }
+ else {
+    throw new IllegalStateException("Trying to destroy an object from a pool which does not exist. No pool available for key (" + key + ") !!");
+  }
+}

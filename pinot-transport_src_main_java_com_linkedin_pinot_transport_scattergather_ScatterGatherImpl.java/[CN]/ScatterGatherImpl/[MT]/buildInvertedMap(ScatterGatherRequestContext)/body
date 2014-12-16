@@ -1,0 +1,10 @@
+{
+  ScatterGatherRequest request=requestContext.getRequest();
+  Map<ServerInstance,SegmentIdSet> segmentIdToInstanceMap=request.getSegmentsServicesMap();
+  Map<List<ServerInstance>,SegmentIdSet> instanceToSegmentMap=new HashMap<List<ServerInstance>,SegmentIdSet>();
+  BucketingSelection sel=request.getPredefinedSelection();
+  for (  ServerInstance serverInstance : segmentIdToInstanceMap.keySet()) {
+    instanceToSegmentMap.put(Arrays.asList(serverInstance),segmentIdToInstanceMap.get(serverInstance));
+  }
+  requestContext.setInvertedMap(instanceToSegmentMap);
+}

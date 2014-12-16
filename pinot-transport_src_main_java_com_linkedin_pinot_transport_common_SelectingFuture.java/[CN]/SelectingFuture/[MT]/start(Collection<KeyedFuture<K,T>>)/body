@@ -1,0 +1,15 @@
+{
+  boolean started=super.start();
+  if (!started) {
+    String msg="Unable to start the future. State is already : " + _state;
+    LOG.error(msg);
+    throw new IllegalStateException(msg);
+  }
+  _futuresList.addAll(futuresList);
+  _latch=new CountDownLatch(futuresList.size());
+  for (  KeyedFuture<K,T> entry : _futuresList) {
+    if (null != entry) {
+      addResponseFutureListener(entry);
+    }
+  }
+}

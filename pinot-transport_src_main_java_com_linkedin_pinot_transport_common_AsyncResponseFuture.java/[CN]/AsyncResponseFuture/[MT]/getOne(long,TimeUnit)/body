@@ -1,0 +1,13 @@
+{
+  try {
+    _futureLock.lock();
+    while (!_state.isCompleted()) {
+      boolean notElapsed=_finished.await(timeout,unit);
+      if (!notElapsed)       throw new TimeoutException("Timedout waiting for async result for key " + _key);
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  return _delayedResponse;
+}

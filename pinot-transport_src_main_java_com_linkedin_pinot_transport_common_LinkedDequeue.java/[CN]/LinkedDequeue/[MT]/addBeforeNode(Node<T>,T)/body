@@ -1,0 +1,30 @@
+{
+  if (item == null) {
+    throw new NullPointerException();
+  }
+  if (before != null && before != _head && before._next == null && before._prev == null) {
+    throw new IllegalStateException("node was already removed");
+  }
+  Node<T> node=new Node<T>(item);
+  if (before == null) {
+    node._next=null;
+    node._prev=_tail;
+    if (_tail != null) {
+      _tail._next=node;
+    }
+    _tail=node;
+    if (_head == null) {
+      _head=node;
+    }
+  }
+ else {
+    node._next=before;
+    node._prev=before._prev;
+    before._prev=node;
+    if (before == _head) {
+      _head=node;
+    }
+  }
+  _size++;
+  return node;
+}

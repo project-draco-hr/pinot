@@ -1,0 +1,18 @@
+{
+  if (_sleepTimeMS > 0) {
+    try {
+      Thread.sleep(_sleepTimeMS);
+    }
+ catch (    InterruptedException e) {
+    }
+  }
+  if (_throwError) {
+    throw new RuntimeException("Dummy exception from processRequest()");
+  }
+  byte[] dst=new byte[request.readableBytes()];
+  request.getBytes(0,dst);
+  _request.add(new String(dst));
+  int index=_index.incrementAndGet();
+  String res=_responses.get(index);
+  return res.getBytes();
+}

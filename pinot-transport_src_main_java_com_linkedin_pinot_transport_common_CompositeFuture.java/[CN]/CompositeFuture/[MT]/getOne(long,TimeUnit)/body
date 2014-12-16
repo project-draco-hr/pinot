@@ -1,0 +1,8 @@
+{
+  boolean notElapsed=_latch.await(timeout,unit);
+  if (!notElapsed)   throw new TimeoutException("Timedout waiting for async result for composite ");
+  if (_delayedResponseMap.isEmpty()) {
+    return null;
+  }
+  return _delayedResponseMap.values().iterator().next();
+}

@@ -1,0 +1,14 @@
+{
+  ScheduledFuture<?> future=_objectTimeoutFuture;
+  if (future != null) {
+    future.cancel(false);
+  }
+  LOG.info("{}: {}",_poolName,"Discarding resources before shutdown");
+  TimedObject<T> obj=_idle.pollFirst();
+  while (obj != null) {
+    destroy(obj.get(),false);
+    obj=_idle.pollFirst();
+  }
+  LOG.info("{}: {}",_poolName,"shutdown complete");
+  shutdown.onSuccess(NoneType.NONE);
+}

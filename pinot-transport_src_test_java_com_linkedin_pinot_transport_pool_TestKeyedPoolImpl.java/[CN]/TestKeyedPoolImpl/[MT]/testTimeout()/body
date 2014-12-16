@@ -1,0 +1,37 @@
+{
+  ScheduledExecutorService timedExecutor=new ScheduledThreadPoolExecutor(1);
+  ExecutorService service=MoreExecutors.sameThreadExecutor();
+  int numKeys=5;
+  int numResourcesPerKey=1;
+  TestResourceManager rm=new TestResourceManager(buildCreateMap(numKeys,numResourcesPerKey),null,null,null);
+  KeyedPool<String,String> kPool=new KeyedPoolImpl<String,String>(0,5,1000L,100,rm,timedExecutor,service,null);
+  CountDownLatch latch=new CountDownLatch(numKeys * numResourcesPerKey);
+  rm.setCountDownLatch(latch);
+  kPool.start();
+  AggregatedPoolStats s=(AggregatedPoolStats)kPool.getStats();
+  for (int j=0; j < numResourcesPerKey; j++) {
+    for (int i=0; i < numKeys; i++) {
+      KeyedFuture<String,String> rFuture=kPool.checkoutObject(getKey(i));
+      String resource=rFuture.getOne();
+    }
+  }
+  for (int j=0; j < numResourcesPerKey; j++) {
+    for (int i=0; i < numKeys; i++) {
+      kPool.checkinObject(getKey(i),getResource(i,j));
+    }
+  }
+  latch.await();
+  s.refresh();
+  AssertJUnit.assertEquals(5,s.getTotalTimedOut());
+  Map<String,List<String>> destroyedMap=rm.getDestroyedMap();
+  AssertJUnit.assertEquals(numKeys,destroyedMap.keySet().size());
+  for (int i=0; i < numKeys; i++) {
+    List<String> r=destroyedMap.get(getKey(i));
+    AssertJUnit.assertEquals("Resource for Key (" + getKey(i) + ")",numResourcesPerKey,r.size());
+    for (int j=0; j < numResourcesPerKey; j++) {
+      AssertJUnit.assertTrue(r.contains(getResource(i,j)));
+    }
+  }
+  Future<Map<String,NoneType>> f=kPool.shutdown();
+  f.get();
+}

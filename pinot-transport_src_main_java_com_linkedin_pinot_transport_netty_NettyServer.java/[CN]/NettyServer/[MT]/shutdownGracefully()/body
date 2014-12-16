@@ -1,0 +1,9 @@
+{
+  LOG.info("Shutdown requested in the server !!");
+  if (null != _channel) {
+    LOG.info("Closing the server channel");
+    _channel.close();
+    _bossGroup.shutdownGracefully();
+    _workerGroup.shutdownGracefully();
+  }
+}

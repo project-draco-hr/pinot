@@ -1,0 +1,40 @@
+{
+  LOG.debug("Running Future Listener for underlying future for {}",_future.getName());
+  try {
+    _futureLock.lock();
+    if (_state.isCompleted()) {
+      return;
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+  Map<K,T> response=null;
+  try {
+    response=_future.get();
+  }
+ catch (  InterruptedException e) {
+    LOG.info("Got interrupted waiting for response",e);
+  }
+catch (  ExecutionException e) {
+    LOG.info("Got execution exception waiting for response",e);
+  }
+  Map<K,Throwable> error=_future.getError();
+  boolean done=processFutureResult(_future.getName(),response,error);
+  if (done) {
+    setDone(State.DONE);
+    cancelUnderlyingFutures();
+  }
+  try {
+    _futureLock.lock();
+    if ((_latch.getCount() == 1) && !done) {
+      setDone(State.DONE);
+    }
+ else     if (!done) {
+      _latch.countDown();
+    }
+  }
+  finally {
+    _futureLock.unlock();
+  }
+}

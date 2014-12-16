@@ -1,0 +1,48 @@
+{
+  List<String> keys=new ArrayList<String>();
+  int numFutures=3;
+  List<KeyedFuture<String,String>> futureList=new ArrayList<KeyedFuture<String,String>>();
+  for (int i=0; i < numFutures; i++) {
+    String key="key_" + i;
+    keys.add(key);
+    AsyncResponseFuture<String,String> future=new AsyncResponseFuture<String,String>(key,"");
+    futureList.add(future);
+  }
+  SelectingFuture<String,String> compositeFuture=new SelectingFuture<String,String>("test");
+  compositeFuture.start(futureList);
+  ResponseCompositeFutureClientRunnerListener runner=new ResponseCompositeFutureClientRunnerListener(compositeFuture);
+  ResponseCompositeFutureClientRunnerListener listener=new ResponseCompositeFutureClientRunnerListener(compositeFuture);
+  compositeFuture.addListener(listener,null);
+  ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+  executor.execute(runner);
+  runner.waitForAboutToGet();
+  Thread.sleep(100);
+  String expectedMessage=null;
+  String message="dummy Message_" + 0;
+  Throwable error=new Exception(message);
+  AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureList.get(0);
+  future.onError(error);
+  message="dummy Message_" + 1;
+  future=(AsyncResponseFuture<String,String>)futureList.get(1);
+  future.onSuccess(message);
+  expectedMessage=message;
+  message="dummy Message_" + 2;
+  error=new Exception(message);
+  future=(AsyncResponseFuture<String,String>)futureList.get(2);
+  future.onError(error);
+  runner.waitForDone();
+  AssertJUnit.assertFalse("Composite Cancelled ?",runner.isCancelled());
+  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
+  AssertJUnit.assertNull("Composite No Error :",runner.getError());
+  AssertJUnit.assertEquals("Response",expectedMessage,runner.getMessage());
+  AssertJUnit.assertFalse("First response not cancelled",futureList.get(0).isCancelled());
+  AssertJUnit.assertFalse("Second response not cancelled",futureList.get(1).isCancelled());
+  AssertJUnit.assertTrue("Third response cancelled",futureList.get(2).isCancelled());
+  AssertJUnit.assertNotNull(futureList.get(0).getError());
+  AssertJUnit.assertNull(futureList.get(1).getError());
+  AssertJUnit.assertNull(futureList.get(2).getError());
+  AssertJUnit.assertNull(futureList.get(0).get());
+  AssertJUnit.assertEquals(runner.getMessage(),futureList.get(1).getOne());
+  AssertJUnit.assertNull(futureList.get(2).get());
+  executor.shutdown();
+}

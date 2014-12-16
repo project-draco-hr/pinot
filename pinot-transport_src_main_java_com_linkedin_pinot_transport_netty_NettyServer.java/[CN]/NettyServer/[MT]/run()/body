@@ -1,0 +1,17 @@
+{
+  try {
+    ServerBootstrap bootstrap=getServerBootstrap();
+    LOG.info("Binding to the server port !!");
+    ChannelFuture f=bootstrap.bind(_port).sync();
+    _channel=f.channel();
+    LOG.info("Server bounded to port :" + _port + ", Waiting for closing");
+    f.channel().closeFuture().sync();
+    LOG.info("Server boss channel is closed. Gracefully shutting down the server netty threads and pipelines");
+  }
+ catch (  Exception e) {
+    LOG.error("Got exception in the main server thread. Stopping !!",e);
+  }
+ finally {
+    _shutdownComplete.set(true);
+  }
+}

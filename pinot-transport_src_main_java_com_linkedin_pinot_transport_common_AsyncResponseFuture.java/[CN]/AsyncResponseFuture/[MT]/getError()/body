@@ -1,0 +1,15 @@
+{
+  if ((null == _errorMap) && (null != _error)) {
+    try {
+      _futureLock.lock();
+      if ((null == _errorMap) && (null != _error)) {
+        _errorMap=new HashMap<K,Throwable>();
+        _errorMap.put(_key,_error);
+      }
+    }
+  finally {
+      _futureLock.unlock();
+    }
+  }
+  return _errorMap;
+}

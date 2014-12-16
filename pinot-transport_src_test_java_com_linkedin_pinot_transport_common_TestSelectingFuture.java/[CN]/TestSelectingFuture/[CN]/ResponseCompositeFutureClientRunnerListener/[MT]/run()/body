@@ -1,0 +1,25 @@
+{
+  LOG.info("Running Future runner !!");
+  String message=null;
+  try {
+    _latch.countDown();
+    message=_future.getOne();
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+catch (  ExecutionException e) {
+    e.printStackTrace();
+  }
+  _isDone=_future.isDone();
+  _isCancelled=_future.isCancelled();
+  if (null != message) {
+    _message=message;
+  }
+  Map<String,Throwable> t=_future.getError();
+  if ((null != t) && (!t.isEmpty())) {
+    _error=t.values().iterator().next();
+  }
+  _endLatch.countDown();
+  LOG.info("End Running Listener !!");
+}

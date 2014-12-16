@@ -1,0 +1,17 @@
+{
+  if (_connState != State.ERROR) {
+    cancelLastRequestTimeout();
+    if (null != _lastResponseLatency)     _lastResponseLatency.stop();
+    checkTransition(State.ERROR);
+    if (null != _outstandingFuture.get()) {
+      _outstandingFuture.get().onError(cause);
+    }
+    _clientMetric.addRequestResponseStats(_lastRequsetSizeInBytes,1,_lastResponseSizeInBytes,true,(null == _lastSendRequestLatency) ? 0 : _lastSendRequestLatency.getLatencyMs(),(null == _lastSendRequestLatency) ? 0 : _lastResponseLatency.getLatencyMs());
+    if ((null != _requestCallback) && (_connState == State.REQUEST_SENT)) {
+      LOG.info("Discarding the connection !!");
+      _requestCallback.onError(cause);
+    }
+    _connState=State.ERROR;
+    ctx.close();
+  }
+}

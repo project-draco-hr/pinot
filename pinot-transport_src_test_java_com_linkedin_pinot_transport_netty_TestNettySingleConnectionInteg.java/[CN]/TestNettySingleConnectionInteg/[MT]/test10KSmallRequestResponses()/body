@@ -1,0 +1,45 @@
+{
+  NettyClientMetrics metric=new NettyClientMetrics(null,"abc");
+  int port=9089;
+  MyRequestHandler handler=new MyRequestHandler(null,null);
+  MyRequestHandlerFactory handlerFactory=new MyRequestHandlerFactory(handler);
+  NettyTCPServer serverConn=new NettyTCPServer(port,handlerFactory,null);
+  Thread serverThread=new Thread(serverConn,"ServerMain");
+  serverThread.start();
+  Thread.sleep(1000);
+  ServerInstance server=new ServerInstance("localhost",port);
+  EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
+  NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server,eventLoopGroup,new HashedWheelTimer(),metric);
+  try {
+    LOG.info("About to connect the client !!");
+    boolean connected=clientConn.connect();
+    LOG.info("Client connected !!");
+    AssertJUnit.assertTrue("connected",connected);
+    Thread.sleep(1000);
+    for (int i=0; i < 10000; i++) {
+      String request="dummy request :" + i;
+      String response="dummy response :" + i;
+      handler.setResponse(response);
+      LOG.info("Sending the request (" + request + ")");
+      ResponseFuture serverRespFuture=clientConn.sendRequest(Unpooled.wrappedBuffer(request.getBytes()),1L,5000L);
+      LOG.info("Request  sent !!");
+      ByteBuf serverResp=serverRespFuture.getOne();
+      if (null == serverResp) {
+        LOG.error("Got unexpected error while trying to get response.",serverRespFuture.getError());
+      }
+      byte[] b2=new byte[serverResp.readableBytes()];
+      serverResp.readBytes(b2);
+      String gotResponse=new String(b2);
+      AssertJUnit.assertEquals("Response Check at client",response,gotResponse);
+      AssertJUnit.assertEquals("Request Check at server",request,handler.getRequest());
+    }
+  }
+  finally {
+    if (null != clientConn) {
+      clientConn.close();
+    }
+    if (null != serverConn) {
+      serverConn.shutdownGracefully();
+    }
+  }
+}

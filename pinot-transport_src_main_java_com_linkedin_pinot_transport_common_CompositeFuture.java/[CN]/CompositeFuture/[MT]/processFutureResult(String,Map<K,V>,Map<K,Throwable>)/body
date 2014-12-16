@@ -1,0 +1,15 @@
+{
+  boolean ret=false;
+  if (null != response) {
+    LOG.debug("Response from {} is {}",name,response);
+    _delayedResponseMap.putAll(response);
+  }
+ else   if (null != error) {
+    LOG.debug("Error from {} is : {}",name,error);
+    _errorMap.putAll(error);
+    if (_gatherMode == GatherModeOnError.SHORTCIRCUIT_AND) {
+      ret=true;
+    }
+  }
+  return ret;
+}
