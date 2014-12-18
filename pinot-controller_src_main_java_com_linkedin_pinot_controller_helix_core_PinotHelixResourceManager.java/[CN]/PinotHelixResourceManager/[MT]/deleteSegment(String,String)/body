@@ -7,12 +7,7 @@
     _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
     idealState=PinotResourceIdealStateBuilder.removeSegmentFromIdealStateFor(resourceName,segmentId,_helixAdmin,_helixClusterName);
     _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
-    _executorService.schedule(new Runnable(){
-      @Override public void run(){
-        deleteSegmentFromPropertyStoreAndLocal(resourceName,segmentId);
-      }
-    }
-,5,TimeUnit.SECONDS);
+    _segmentDeletionManager.deleteSegment(resourceName,segmentId);
     res.status=STATUS.success;
   }
  catch (  final Exception e) {

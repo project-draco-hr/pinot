@@ -2,7 +2,7 @@
   Map<String,String> segmentToInstancesMapFromExternalView=_helixAdmin.getResourceExternalView(_helixClusterName,resourceName).getStateMap(segmentId);
   Map<String,String> segmentToInstancesMapFromIdealStates=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName).getInstanceStateMap(segmentId);
   if ((segmentToInstancesMapFromExternalView == null || segmentToInstancesMapFromExternalView.size() < 1) || (segmentToInstancesMapFromIdealStates == null || segmentToInstancesMapFromIdealStates.size() < 1)) {
-    _propertyStore.remove(constructPropertyStorePathForSegment(resourceName,segmentId),AccessOption.PERSISTENT);
+    _propertyStore.remove(PinotHelixUtils.constructPropertyStorePathForSegment(resourceName,segmentId),AccessOption.PERSISTENT);
     LOGGER.info("Delete segment : " + segmentId + " from Property store.");
     if (_localDiskDir != null) {
       File fileToDelete=new File(new File(_localDiskDir,resourceName),segmentId);

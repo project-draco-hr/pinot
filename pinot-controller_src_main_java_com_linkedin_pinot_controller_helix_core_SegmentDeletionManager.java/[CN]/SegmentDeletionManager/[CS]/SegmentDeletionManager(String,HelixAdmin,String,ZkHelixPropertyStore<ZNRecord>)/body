@@ -1,0 +1,14 @@
+{
+  _localDiskDir=localDiskDir;
+  _helixAdmin=helixAdmin;
+  _helixClusterName=helixClusterName;
+  _propertyStore=propertyStore;
+  _executorService=Executors.newSingleThreadScheduledExecutor(new ThreadFactory(){
+    @Override public Thread newThread(    Runnable runnable){
+      Thread thread=new Thread(runnable);
+      thread.setName("PinotHelixResourceManagerExecutorService");
+      return thread;
+    }
+  }
+);
+}

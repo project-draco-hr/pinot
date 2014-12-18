@@ -1,0 +1,8 @@
+{
+  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResource(_testResourceName)) {
+    _pinotHelixResourceManager.deleteSegment(_testResourceName,segmentId);
+  }
+  while (_helixZkManager.getHelixPropertyStore().getChildNames("/" + _testResourceName,AccessOption.PERSISTENT).size() > 0) {
+    Thread.sleep(1000);
+  }
+}
