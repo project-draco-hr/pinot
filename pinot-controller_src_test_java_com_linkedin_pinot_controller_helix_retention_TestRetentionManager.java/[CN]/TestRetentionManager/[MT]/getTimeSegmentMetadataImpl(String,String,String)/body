@@ -1,0 +1,68 @@
+{
+  if (startTime == null || endTime == null || timeUnit == null) {
+    long startTimeValue=System.currentTimeMillis();
+    return getTimeSegmentMetadataImpl(startTimeValue + "",startTimeValue + "","millis");
+  }
+  final long creationTime=System.currentTimeMillis();
+  final String segmentName="testResource_testTable_" + creationTime;
+  SegmentMetadata segmentMetadata=new SegmentMetadata(){
+    SegmentTimeUnit segmentTimeUnit=SegmentTimeUnit.valueOf(timeUnit);
+    Duration _timeGranularity=new Duration(SegmentTimeUnit.toMillis(segmentTimeUnit));
+    Interval _timeInterval=new Interval(SegmentTimeUnit.toMillis(segmentTimeUnit,startTime),SegmentTimeUnit.toMillis(segmentTimeUnit,endTime));
+    @Override public Map<String,String> toMap(){
+      final Map<String,String> ret=new HashMap<String,String>();
+      ret.put(V1Constants.MetadataKeys.Segment.RESOURCE_NAME,getResourceName());
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_TOTAL_DOCS,String.valueOf(getTotalDocs()));
+      ret.put(V1Constants.VERSION,getVersion());
+      ret.put(V1Constants.MetadataKeys.Segment.TABLE_NAME,getTableName());
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_NAME,getName());
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_CRC,getCrc());
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_CREATION_TIME,getIndexCreationTime() + "");
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_START_TIME,startTime);
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_END_TIME,endTime);
+      ret.put(V1Constants.MetadataKeys.Segment.TIME_UNIT,timeUnit);
+      return ret;
+    }
+    @Override public String getVersion(){
+      return SegmentVersion.v1.toString();
+    }
+    @Override public int getTotalDocs(){
+      return 0;
+    }
+    @Override public Interval getTimeInterval(){
+      return _timeInterval;
+    }
+    @Override public Duration getTimeGranularity(){
+      return _timeGranularity;
+    }
+    @Override public String getTableName(){
+      return "testTable";
+    }
+    @Override public String getShardingKey(){
+      return null;
+    }
+    @Override public Schema getSchema(){
+      return null;
+    }
+    @Override public String getResourceName(){
+      return "testResource";
+    }
+    @Override public String getName(){
+      return segmentName;
+    }
+    @Override public String getIndexType(){
+      return null;
+    }
+    @Override public String getIndexDir(){
+      return null;
+    }
+    @Override public long getIndexCreationTime(){
+      return creationTime;
+    }
+    @Override public String getCrc(){
+      return creationTime + "";
+    }
+  }
+;
+  return segmentMetadata;
+}

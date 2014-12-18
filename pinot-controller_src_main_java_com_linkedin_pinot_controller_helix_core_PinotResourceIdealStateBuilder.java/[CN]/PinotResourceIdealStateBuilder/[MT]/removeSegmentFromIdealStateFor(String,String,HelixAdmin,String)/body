@@ -1,9 +1,7 @@
 {
   final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,resourceName);
-  final Set<String> currentInstanceSet=currentIdealState.getInstanceSet(segmentId);
-  if (!currentInstanceSet.isEmpty() && currentIdealState.getPartitionSet().contains(segmentId)) {
+  if (currentIdealState != null && currentIdealState.getPartitionSet() != null && currentIdealState.getPartitionSet().contains(segmentId)) {
     currentIdealState.getPartitionSet().remove(segmentId);
-    currentIdealState.setNumPartitions(currentIdealState.getNumPartitions() - 1);
   }
  else {
     throw new RuntimeException("Cannot found segmentId - " + segmentId + " in resource - "+ resourceName);

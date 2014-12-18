@@ -1,0 +1,13 @@
+{
+  for (int i=0; i < 10; ++i) {
+    SegmentMetadata segmentMetadata=getTimeSegmentMetadataImpl(null,null,null);
+    registerSegmentMetadat(segmentMetadata);
+    Thread.sleep(100);
+  }
+  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames("/" + _testResourceName,AccessOption.PERSISTENT).size(),10);
+  Thread.sleep(35000);
+  LOGGER.info("Sleeping thread wakes up!");
+  Assert.assertEquals(_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,_testResourceName).getPartitionSet().size(),0);
+  Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,_testResourceName).getPartitionSet().size(),0);
+  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames("/" + _testResourceName,AccessOption.PERSISTENT).size(),0);
+}

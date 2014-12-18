@@ -1,0 +1,22 @@
+{
+  for (  String resourceName : _segmentMetadataMap.keySet()) {
+    List<SegmentMetadata> segmentMetadataList=_segmentMetadataMap.get(resourceName);
+    for (    SegmentMetadata segmentMetadata : segmentMetadataList) {
+      RetentionStrategy deletionStrategy;
+      if (_tableDeletionStrategy.containsKey(resourceName + "." + segmentMetadata.getTableName())) {
+        deletionStrategy=_tableDeletionStrategy.get(resourceName + "." + segmentMetadata.getTableName());
+      }
+ else {
+        deletionStrategy=_tableDeletionStrategy.get(resourceName + ".*");
+      }
+      if (deletionStrategy == null) {
+        LOGGER.info("No Retention strategy found for segment: " + segmentMetadata.getName());
+        continue;
+      }
+      if (deletionStrategy.purgeSegment(segmentMetadata)) {
+        LOGGER.info("Trying to delete segment: " + segmentMetadata.getName());
+        _pinotHelixResourceManager.deleteSegment(resourceName,segmentMetadata.getName());
+      }
+    }
+  }
+}

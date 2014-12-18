@@ -1,0 +1,37 @@
+{
+  Map<String,RetentionStrategy> tableToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
+  Map<String,String> resourceConfigs=HelixHelper.getResourceConfigsFor(_helixClusterName,resourceName,_helixAdmin);
+  if (resourceConfigs.get(CommonConstants.Helix.DataSource.PUSH_FREQUENCY).equalsIgnoreCase(REFRESH)) {
+    LOGGER.info("Resource: " + resourceName + " is a fresh only data resource.");
+    return tableToDeletionStrategyMap;
+  }
+ else {
+    try {
+      TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(resourceConfigs.get(CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT),resourceConfigs.get(CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE));
+      tableToDeletionStrategyMap.put(resourceName + ".*",timeRetentionStrategy);
+    }
+ catch (    Exception e) {
+      LOGGER.error("Error creating TimeRetentionStrategy for resource: " + resourceName + ", Exception: "+ e);
+    }
+    for (    String key : resourceConfigs.keySet()) {
+      if (key.endsWith("." + CommonConstants.Helix.DataSource.PUSH_FREQUENCY)) {
+        String tableName=key.split(".",2)[0];
+        if (!resourceConfigs.get(key).equalsIgnoreCase(REFRESH)) {
+          LOGGER.info("Resource.table - " + resourceName + "."+ tableName+ " is a fresh only data table.");
+        }
+ else {
+          if (resourceConfigs.containsKey(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT) && resourceConfigs.containsKey(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE)) {
+            try {
+              TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(resourceConfigs.get(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT),resourceConfigs.get(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE));
+              tableToDeletionStrategyMap.put(resourceName + "." + tableName,timeRetentionStrategy);
+            }
+ catch (            Exception e) {
+              LOGGER.error("Error creating TimeRetentionStrategy for resource.table: " + resourceName + "."+ tableName+ ", Exception: "+ e);
+            }
+          }
+        }
+      }
+    }
+  }
+  return tableToDeletionStrategyMap;
+}

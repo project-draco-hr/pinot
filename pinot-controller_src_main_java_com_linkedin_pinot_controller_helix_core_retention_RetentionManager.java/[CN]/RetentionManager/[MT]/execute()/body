@@ -1,0 +1,14 @@
+{
+  if (_pinotHelixResourceManager.isLeader()) {
+    LOGGER.info("Trying to run retentionManager!");
+    updateDeletionStrategiesForEntireCluster();
+    LOGGER.info("Finished update deletion strategies for entire cluster!");
+    updateSegmentMetadataForEntireCluster();
+    LOGGER.info("Finished update segment metadata for entire cluster!");
+    scanSegmentMetadataAndPurge();
+    LOGGER.info("Finished segment purge for entire cluster!");
+  }
+ else {
+    LOGGER.info("Not leader of the controller, sleep!");
+  }
+}

@@ -1,19 +1,18 @@
 {
-  LOGGER.info("Trying to delete segment : " + segmentId + " from Property store.");
+  LOGGER.info("Trying to delete segment : " + segmentId);
   final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
   try {
     IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName);
-    final Set<String> instanceNames=idealState.getInstanceSet(segmentId);
-    for (    final String instanceName : instanceNames) {
-      _helixAdmin.enablePartition(false,_helixClusterName,instanceName,resourceName,Arrays.asList(segmentId));
-    }
+    idealState=PinotResourceIdealStateBuilder.dropSegmentFromIdealStateFor(resourceName,segmentId,_helixAdmin,_helixClusterName);
+    _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
     idealState=PinotResourceIdealStateBuilder.removeSegmentFromIdealStateFor(resourceName,segmentId,_helixAdmin,_helixClusterName);
     _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
-    for (    final String instanceName : instanceNames) {
-      _helixAdmin.enablePartition(true,_helixClusterName,instanceName,resourceName,Arrays.asList(segmentId));
+    _executorService.schedule(new Runnable(){
+      @Override public void run(){
+        deleteSegmentFromPropertyStoreAndLocal(resourceName,segmentId);
+      }
     }
-    _propertyStore.remove(constructPropertyStorePathForSegment(resourceName,segmentId),AccessOption.PERSISTENT);
-    LOGGER.info("Delete segment : " + segmentId + " from Property store.");
+,5,TimeUnit.SECONDS);
     res.status=STATUS.success;
   }
  catch (  final Exception e) {

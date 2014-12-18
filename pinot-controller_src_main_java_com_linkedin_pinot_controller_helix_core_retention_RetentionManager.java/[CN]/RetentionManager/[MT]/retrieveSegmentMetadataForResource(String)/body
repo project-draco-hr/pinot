@@ -1,0 +1,8 @@
+{
+  List<SegmentMetadata> segmentMetadataList=new ArrayList<SegmentMetadata>();
+  List<ZNRecord> segmentMetadataZnRecords=_propertyStore.getChildren("/" + resourceName,null,AccessOption.PERSISTENT);
+  for (  ZNRecord segmentMetaZnRecord : segmentMetadataZnRecords) {
+    segmentMetadataList.add(new SegmentMetadataImpl(segmentMetaZnRecord));
+  }
+  return segmentMetadataList;
+}

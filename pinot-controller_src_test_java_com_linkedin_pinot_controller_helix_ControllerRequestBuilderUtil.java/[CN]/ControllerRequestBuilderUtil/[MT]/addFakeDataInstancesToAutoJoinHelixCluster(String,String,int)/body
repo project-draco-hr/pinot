@@ -3,8 +3,8 @@
     final String instanceId="Server_localhost_" + i;
     final HelixManager helixZkManager=HelixManagerFactory.getZKHelixManager(helixClusterName,instanceId,InstanceType.PARTICIPANT,zkServer);
     final StateMachineEngine stateMachineEngine=helixZkManager.getStateMachineEngine();
-    final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory();
-    stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
+    final StateModelFactory<?> stateModelFactory=new EmptySegmentOnlineOfflineStateModelFactory();
+    stateMachineEngine.registerStateModelFactory(EmptySegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
     helixZkManager.connect();
     helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
   }

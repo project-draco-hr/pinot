@@ -1,0 +1,16 @@
+{
+  if (_zkClient.exists("/" + HELIX_CLUSTER_NAME)) {
+    _zkClient.deleteRecursive("/" + HELIX_CLUSTER_NAME);
+  }
+  Thread.sleep(1000);
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_STR,HELIX_CLUSTER_NAME,CONTROLLER_INSTANCE_NAME,null);
+  _pinotHelixResourceManager.start();
+  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
+  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
+  _helixAdmin=_pinotHelixResourceManager.getHelixAdmin();
+  _helixZkManager=_pinotHelixResourceManager.getHelixZkManager();
+  DataResource dataResource=new DataResource("create",_testResourceName,_testTableName,"timestamp","millsSinceEpoch",2,2,"SECONDS","5","daily","BalanceNumSegmentAssignmentStrategy","broker_" + _testResourceName,2,null);
+  _pinotHelixResourceManager.handleCreateNewDataResource(dataResource);
+  _retentionManager=new RetentionManager(_pinotHelixResourceManager,10);
+  _retentionManager.start();
+}
