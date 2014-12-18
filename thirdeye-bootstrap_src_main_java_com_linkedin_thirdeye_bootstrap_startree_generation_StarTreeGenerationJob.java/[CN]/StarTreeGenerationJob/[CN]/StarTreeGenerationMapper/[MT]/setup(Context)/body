@@ -4,7 +4,6 @@
   Configuration configuration=context.getConfiguration();
   FileSystem fileSystem=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(STAR_TREE_GEN_CONFIG_PATH.toString()));
-  outputPath=new Path(configuration.get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "tree.bin");
   try {
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),StarTreeGenerationConfig.class);
     dimensionNames=config.getDimensionNames();
@@ -28,6 +27,7 @@
     starTreeManager.registerConfig(collectionName,config);
     starTreeManager.create(collectionName);
     starTreeManager.open(collectionName);
+    hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "star-tree-"+ collectionName;
     LOG.info(config.toJson());
   }
  catch (  Exception e) {

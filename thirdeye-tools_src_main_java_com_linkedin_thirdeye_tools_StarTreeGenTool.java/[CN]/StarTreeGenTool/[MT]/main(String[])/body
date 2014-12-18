@@ -1,7 +1,8 @@
 {
   Path inputPath=new Path(args[0]);
   Path configPath=new Path(args[1]);
-  Path outputPath=new Path(args[2]);
+  String outputDir=args[2];
+  Path outputPath=new Path(outputDir);
   SequenceFile.Reader reader=new SequenceFile.Reader(new Configuration(),Reader.file(inputPath));
   System.out.println(reader.getKeyClass());
   System.out.println(reader.getValueClassName());
@@ -28,6 +29,7 @@
   starTreeManager.create(collectionName);
   starTreeManager.open(collectionName);
   int rowCount=0;
+  StarTree starTree=starTreeManager.getStarTree(collectionName);
   while (reader.next(key,val)) {
     BytesWritable writable=(BytesWritable)key;
     DimensionKey dimensionKey=DimensionKey.fromBytes(writable.getBytes());
@@ -42,16 +44,14 @@
     }
     Long time=0l;
     StarTreeRecord record=new StarTreeRecordImpl(dimensionValuesMap,metricValuesMap,time);
-    starTreeManager.getStarTree(collectionName).add(record);
+    starTree.add(record);
     rowCount=rowCount + 1;
   }
   System.out.println("Number of records added:" + rowCount);
   PrintWriter printWriter=new PrintWriter(System.out);
-  StarTreeNode root=starTreeManager.getStarTree(collectionName).getRoot();
+  StarTreeNode root=starTree.getRoot();
   StarTreeDumperTool tool=new StarTreeDumperTool(root,printWriter);
   tool.print();
-  FileOutputStream fileOutputStream=new FileOutputStream(new File(outputPath + "/" + "tree.bin"));
-  ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
-  objectOutputStream.writeObject(root);
-  objectOutputStream.close();
+  StarTreePersistanceUtil.saveTree(starTree,outputDir);
+  StarTreePersistanceUtil.saveLeafDimensionData(starTree,outputDir);
 }

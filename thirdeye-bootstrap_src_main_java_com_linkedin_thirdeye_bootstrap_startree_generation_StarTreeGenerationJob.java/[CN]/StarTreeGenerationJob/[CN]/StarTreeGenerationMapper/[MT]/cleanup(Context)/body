@@ -1,11 +1,54 @@
 {
-  StarTreeNode root=starTreeManager.getStarTree(collectionName).getRoot();
-  FileOutputStream fileOutputStream=new FileOutputStream(new File("tree.bin"));
-  ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
-  objectOutputStream.writeObject(root);
-  objectOutputStream.close();
-  FileSystem fs=FileSystem.get(context.getConfiguration());
-  Path src=FileSystem.getLocal(new Configuration()).makeQualified(new Path("tree.bin"));
-  Path dst=fs.makeQualified(outputPath);
-  fs.copyFromLocalFile(src,dst);
+  LOG.info("START: serializing star tree and the leaf record dimension store");
+  StarTree starTree=starTreeManager.getStarTree(collectionName);
+  String localOutputDir="./star-tree-" + collectionName;
+  Map<String,Integer> metricValuesMap=new HashMap<String,Integer>();
+  for (int i=0; i < metricNames.size(); i++) {
+    metricValuesMap.put(metricNames.get(i),0);
+  }
+  Long time=0l;
+  LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
+  starTree.close();
+  StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTree.getRoot());
+  int prevLeafNodes;
+  do {
+    prevLeafNodes=leafNodes.size();
+    LOG.info("Number of leaf Nodes" + prevLeafNodes);
+    for (    StarTreeNode node : leafNodes) {
+      Map<String,String> ancestorDimensionValues=node.getAncestorDimensionValues();
+      Map<String,String> map=new HashMap<String,String>();
+      map.putAll(ancestorDimensionValues);
+      map.put(node.getDimensionName(),node.getDimensionValue());
+      for (      String dimensionName : dimensionNames) {
+        if (!map.containsKey(dimensionName)) {
+          map.put(dimensionName,StarTreeConstants.OTHER);
+        }
+      }
+      StarTreeRecord record=new StarTreeRecordImpl(map,metricValuesMap,time);
+      starTreeManager.getStarTree(collectionName).add(record);
+    }
+    leafNodes.clear();
+    StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTree.getRoot());
+    LOG.info("Number of leaf Nodes" + prevLeafNodes);
+  }
+ while (prevLeafNodes != leafNodes.size());
+  FileSystem dfs=FileSystem.get(context.getConfiguration());
+  Path src, dst;
+  StarTreePersistanceUtil.saveTree(starTree,localOutputDir);
+  String treeOutputFileName=collectionName + "-tree.bin";
+  src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(localOutputDir + "/" + treeOutputFileName));
+  dst=dfs.makeQualified(new Path(hdfsOutputPath,treeOutputFileName));
+  LOG.info("Copying " + src + " to "+ dst);
+  dfs.copyFromLocalFile(src,dst);
+  String leafDataOutputDir=localOutputDir + "/" + "data";
+  new File(leafDataOutputDir).mkdirs();
+  StarTreePersistanceUtil.saveLeafDimensionData(starTree,leafDataOutputDir);
+  LOG.info("END: serializing the leaf record dimension store");
+  String leafDataTarGz=localOutputDir + "/leaf-data.tar.gz";
+  LOG.info("Generating " + leafDataTarGz + " from "+ leafDataOutputDir);
+  TarGzCompressionUtils.createTarGzOfDirectory(leafDataOutputDir,leafDataTarGz);
+  src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(leafDataTarGz));
+  dst=dfs.makeQualified(new Path(hdfsOutputPath,"leaf-data.tar.gz"));
+  LOG.info("Copying " + src + " to "+ dst);
+  dfs.copyFromLocalFile(src,dst);
 }
