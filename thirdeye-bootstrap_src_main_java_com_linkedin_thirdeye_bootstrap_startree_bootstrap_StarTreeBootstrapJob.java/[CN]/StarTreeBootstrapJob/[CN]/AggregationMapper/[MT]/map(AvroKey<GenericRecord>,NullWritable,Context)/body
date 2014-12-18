@@ -1,0 +1,60 @@
+{
+  if (Math.random() < 0.9) {
+    return;
+  }
+  Map<String,String> dimensionValuesMap=new HashMap<String,String>();
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimensionName=dimensionNames.get(i);
+    String dimensionValue="";
+    Object val=record.datum().get(dimensionName);
+    if (val != null) {
+      dimensionValue=val.toString();
+    }
+    dimensionValues[i]=dimensionValue;
+    dimensionValuesMap.put(dimensionValues[i],dimensionValue);
+  }
+  DimensionKey key=new DimensionKey(dimensionValues);
+  String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
+  long aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
+  aggregationTimeWindow=-1;
+  MetricTimeSeries series=new MetricTimeSeries(metricSchema);
+  for (int i=0; i < metricNames.size(); i++) {
+    String metricName=metricNames.get(i);
+    Object object=record.datum().get(metricName);
+    String metricValueStr="0";
+    if (object != null) {
+      metricValueStr=object.toString();
+    }
+    try {
+      Number metricValue=metricTypes.get(i).toNumber(metricValueStr);
+      series.increment(aggregationTimeWindow,metricName,metricValue);
+    }
+ catch (    NumberFormatException e) {
+      throw new NumberFormatException("Exception trying to convert " + metricValueStr + " to "+ metricTypes.get(i)+ " for metricName:"+ metricName);
+    }
+  }
+  Map<UUID,StarTreeRecord> collector=new HashMap<UUID,StarTreeRecord>();
+  Map<String,Integer> metricValues=Collections.emptyMap();
+  Long time=0L;
+  StarTreeRecord starTreeRecord=new StarTreeRecordImpl(dimensionValuesMap,metricValues,time);
+  StarTreeJobUtils.collectRecords(starTreeRootNode,starTreeRecord,collector);
+  byte[] serializedKey=key.toBytes();
+  byte[] serializedMetrics=series.toBytes();
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(baos);
+  dos.writeInt(serializedKey.length);
+  dos.write(serializedKey);
+  dos.writeInt(serializedMetrics.length);
+  dos.write(serializedMetrics);
+  BytesWritable valWritable=new BytesWritable(baos.toByteArray());
+  for (  UUID uuid : collector.keySet()) {
+    if (!leafNodesMap.containsKey(uuid)) {
+      String msg="Got a mapping to non existant leaf node:" + uuid + " - "+ collector.get(uuid)+ " input :"+ starTreeRecord;
+      LOG.error(msg);
+      throw new RuntimeException(msg);
+    }
+    byte[] uuidBytes=uuid.toString().getBytes();
+    LOG.info(new String(uuidBytes) + Arrays.toString(uuidBytes));
+    context.write(new BytesWritable(uuidBytes),valWritable);
+  }
+}

@@ -1,0 +1,41 @@
+{
+  Configuration configuration=context.getConfiguration();
+  FileSystem dfs=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_CONFIG_PATH.toString()));
+  hdfsOutputDir=configuration.get(STAR_TREE_BOOTSTRAP_OUTPUT_PATH.toString());
+  try {
+    config=OBJECT_MAPPER.readValue(dfs.open(configPath),StarTreeBootstrapConfig.class);
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    numTimeBuckets=config.getNumTimeBuckets();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+  String starTreeOutputPath=context.getConfiguration().get(STAR_TREE_GENERATION_OUTPUT_PATH.toString());
+  try {
+    collectionName=config.getCollectionName();
+    String tarGZName="leaf-data.tar.gz";
+    Path pathToLeafData=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,tarGZName);
+    dfs.copyToLocalFile(pathToLeafData,new Path(tarGZName));
+    new File(localInputDataDir).mkdirs();
+    TarGzCompressionUtils.unTar(new File(tarGZName),new File(localInputDataDir));
+    Collection<File> listFiles=FileUtils.listFiles(new File("."),FileFileFilter.FILE,DirectoryFileFilter.DIRECTORY);
+    boolean b=true;
+    for (    File f : listFiles) {
+      LOG.info(f.getAbsolutePath());
+      if (b && f.getName().endsWith("idx")) {
+        LOG.info(FileUtils.readFileToString(f));
+      }
+    }
+    new File(localOutputDataDir + "/data/").mkdirs();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

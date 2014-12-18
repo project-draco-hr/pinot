@@ -1,0 +1,81 @@
+{
+  byte[] uuidBytes=nodeIdWritable.copyBytes();
+  String uuidString=new String(uuidBytes);
+  LOG.info("Processing:" + uuidString + Arrays.toString(uuidBytes));
+  String nodeId=uuidString;
+  Map<String,Map<String,Integer>> forwardIndex;
+  reverseForwardIndex.clear();
+  rawAggregateMap.clear();
+  rollUpAggregateMap.clear();
+  records.clear();
+  dimensionValuesMap.clear();
+  metricValuesMap.clear();
+  List<int[]> leafRecords;
+  forwardIndex=StarTreePersistanceUtil.readForwardIndex(nodeId,localInputDataDir + "/data");
+  leafRecords=StarTreePersistanceUtil.readLeafRecords(localInputDataDir + "/data",nodeId,dimensionNames.size());
+  for (  String dimensionName : forwardIndex.keySet()) {
+    Map<String,Integer> map=forwardIndex.get(dimensionName);
+    reverseForwardIndex.put(dimensionName,new HashMap<Integer,String>());
+    for (    Entry<String,Integer> entry : map.entrySet()) {
+      reverseForwardIndex.get(dimensionName).put(entry.getValue(),entry.getKey());
+    }
+  }
+  for (  BytesWritable writable : dimensionTimeSeriesIterable) {
+    byte[] bytes=writable.copyBytes();
+    DataInputStream dis=new DataInputStream(new ByteArrayInputStream(bytes));
+    int length=dis.readInt();
+    byte[] dimensionKeyBytes=new byte[length];
+    dis.readFully(dimensionKeyBytes);
+    DimensionKey key=DimensionKey.fromBytes(dimensionKeyBytes);
+    length=dis.readInt();
+    byte[] timeSeriesBytes=new byte[length];
+    dis.readFully(timeSeriesBytes);
+    MetricTimeSeries series=MetricTimeSeries.fromBytes(timeSeriesBytes,metricSchema);
+    if (!rawAggregateMap.containsKey(key)) {
+      rawAggregateMap.put(key,new MetricTimeSeries(metricSchema));
+    }
+    rawAggregateMap.get(key).aggregate(series);
+  }
+  for (  DimensionKey key : rawAggregateMap.keySet()) {
+    MetricTimeSeries series=rawAggregateMap.get(key);
+    int[] matchedValues=StarTreeJobUtils.findBestMatch(key,dimensionNames,leafRecords,forwardIndex);
+    DimensionKey bestMatchDimensionKey=new DimensionKey(convertToStringValue(reverseForwardIndex,matchedValues));
+    if (!rollUpAggregateMap.containsKey(bestMatchDimensionKey)) {
+      rollUpAggregateMap.put(bestMatchDimensionKey,new MetricTimeSeries(metricSchema));
+    }
+    rollUpAggregateMap.get(bestMatchDimensionKey).aggregate(series);
+  }
+  for (  int[] leafRecord : leafRecords) {
+    String[] dimValues=convertToStringValue(reverseForwardIndex,leafRecord);
+    dimensionValuesMap.clear();
+    for (int i=0; i < dimensionNames.size(); i++) {
+      dimensionValuesMap.put(dimensionNames.get(i),dimValues[i]);
+    }
+    DimensionKey dimensionKey=new DimensionKey(dimValues);
+    MetricTimeSeries metricTimeSeries=rollUpAggregateMap.get(dimensionKey);
+    if (metricTimeSeries != null) {
+      for (      long timeWindow : metricTimeSeries.getTimeWindowSet()) {
+        metricValuesMap.clear();
+        for (        String metricName : metricNames) {
+          Number number=metricTimeSeries.get(timeWindow,metricName);
+          metricValuesMap.put(metricName,number.intValue());
+        }
+        StarTreeRecord record=new StarTreeRecordImpl(dimensionValuesMap,metricValuesMap,timeWindow);
+        records.add(record);
+      }
+    }
+ else {
+      metricValuesMap.clear();
+      for (      String metricName : metricNames) {
+        metricValuesMap.put(metricName,0);
+      }
+      StarTreeRecord record=new StarTreeRecordImpl(dimensionValuesMap,metricValuesMap,0l);
+      records.add(record);
+    }
+  }
+  OutputStream outputStream=new FileOutputStream(localOutputDataDir + "/data/" + nodeId.toString()+ StarTreeConstants.BUFFER_FILE_SUFFIX);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets,keepMetricValues);
+  outputStream.flush();
+  outputStream.close();
+  StarTreePersistanceUtil.saveLeafNodeForwardIndex(localOutputDataDir + "/data/",forwardIndex,nodeId);
+}
