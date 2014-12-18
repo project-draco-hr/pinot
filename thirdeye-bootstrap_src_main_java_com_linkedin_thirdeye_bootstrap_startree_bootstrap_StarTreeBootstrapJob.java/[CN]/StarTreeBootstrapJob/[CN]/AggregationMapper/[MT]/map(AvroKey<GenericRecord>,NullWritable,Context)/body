@@ -1,7 +1,4 @@
 {
-  if (Math.random() < 0.9) {
-    return;
-  }
   Map<String,String> dimensionValuesMap=new HashMap<String,String>();
   for (int i=0; i < dimensionNames.size(); i++) {
     String dimensionName=dimensionNames.get(i);
@@ -15,8 +12,8 @@
   }
   DimensionKey key=new DimensionKey(dimensionValues);
   String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
-  long aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
-  aggregationTimeWindow=-1;
+  long timeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
+  timeWindow=-1;
   MetricTimeSeries series=new MetricTimeSeries(metricSchema);
   for (int i=0; i < metricNames.size(); i++) {
     String metricName=metricNames.get(i);
@@ -27,7 +24,7 @@
     }
     try {
       Number metricValue=metricTypes.get(i).toNumber(metricValueStr);
-      series.increment(aggregationTimeWindow,metricName,metricValue);
+      series.increment(timeWindow,metricName,metricValue);
     }
  catch (    NumberFormatException e) {
       throw new NumberFormatException("Exception trying to convert " + metricValueStr + " to "+ metricTypes.get(i)+ " for metricName:"+ metricName);
