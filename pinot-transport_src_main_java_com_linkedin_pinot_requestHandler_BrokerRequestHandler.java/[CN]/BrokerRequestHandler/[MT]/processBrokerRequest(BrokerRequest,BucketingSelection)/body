@@ -1,4 +1,5 @@
 {
+  final long routingStartTime=System.nanoTime();
   if (request == null || request.getQuerySource() == null || request.getQuerySource().getResourceName() == null) {
     LOGGER.info("Query contains null resource.");
     return BrokerResponse.getNullBrokerResponse();
@@ -13,9 +14,14 @@
   for (  ServerInstance serverInstance : segmentServices.keySet()) {
     LOGGER.info(serverInstance + " : " + segmentServices.get(serverInstance));
   }
+  final long queryRoutingTime=System.nanoTime() - routingStartTime;
+  final String resourceName=request.getQuerySource().getResourceName();
+  final String tableName=request.getQuerySource().getTableName();
+  getTimer(resourceName,tableName,"queryRouting").update(queryRoutingTime,TimeUnit.NANOSECONDS);
+  final long scatterGatherStartTime=System.nanoTime();
   ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,_requestIdGen.incrementAndGet(),10 * 1000L);
   CompositeFuture<ServerInstance,ByteBuf> response=_scatterGatherer.scatterGather(scatterRequest);
-  Map<ServerInstance,DataTable> instanceResponseMap=null;
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
 {
     Map<ServerInstance,ByteBuf> responses=null;
     try {
@@ -24,8 +30,10 @@
  catch (    ExecutionException e) {
       e.printStackTrace();
     }
+    final long scatterGatherTime=System.nanoTime() - scatterGatherStartTime;
+    getTimer(resourceName,tableName,"scatterGather").update(scatterGatherTime,TimeUnit.NANOSECONDS);
+    final long deserializationStartTime=System.nanoTime();
     Map<ServerInstance,Throwable> errors=response.getError();
-    instanceResponseMap=new HashMap<ServerInstance,DataTable>();
     if (null != responses) {
       for (      Entry<ServerInstance,ByteBuf> e : responses.entrySet()) {
         try {
@@ -50,6 +58,18 @@
         instanceResponseMap.put(e.getKey(),r2);
       }
     }
+    final long deserializationTime=System.nanoTime() - deserializationStartTime;
+    getTimer(resourceName,tableName,"deserialization").update(deserializationTime,TimeUnit.NANOSECONDS);
   }
-  return _reduceService.reduceOnDataTable(request,instanceResponseMap);
+  try {
+    return getTimer(resourceName,tableName,"reduction").time(new Callable<BrokerResponse>(){
+      @Override public BrokerResponse call(){
+        return _reduceService.reduceOnDataTable(request,instanceResponseMap);
+      }
+    }
+);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
 }

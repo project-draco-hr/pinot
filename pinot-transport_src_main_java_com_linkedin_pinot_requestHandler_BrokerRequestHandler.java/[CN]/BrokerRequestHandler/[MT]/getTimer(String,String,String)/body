@@ -1,0 +1,13 @@
+{
+  String fullResourceName=resourceName + "." + tableName;
+  String key=fullResourceName + "-" + timerName;
+  Timer timer=timers.get(key);
+  if (timer != null) {
+    return timer;
+  }
+ else {
+    Timer newTimer=Metrics.newTimer(BrokerRequestHandler.class,"pinot.broker." + fullResourceName + "."+ timerName);
+    timer=timers.putIfAbsent(key,newTimer);
+    return timer != null ? timer : newTimer;
+  }
+}
