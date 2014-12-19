@@ -1,0 +1,5 @@
+{
+  final String fullMeterName="pinot.broker." + request.getQuerySource().getResourceName() + "."+ request.getQuerySource().getTableName()+ "."+ meterName;
+  final MetricName metricName=new MetricName(BrokerMetrics.class,fullMeterName);
+  MetricsHelper.newMeter(_metricsRegistry,metricName,fullMeterName,TimeUnit.SECONDS).mark(unitCount);
+}

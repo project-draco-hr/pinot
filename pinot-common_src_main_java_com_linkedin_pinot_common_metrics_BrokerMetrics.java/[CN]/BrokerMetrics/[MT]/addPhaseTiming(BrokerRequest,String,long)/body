@@ -1,0 +1,5 @@
+{
+  final String fullTimerName="pinot.broker." + request.getQuerySource().getResourceName() + "."+ request.getQuerySource().getTableName()+ "."+ phase;
+  final MetricName metricName=new MetricName(BrokerMetrics.class,fullTimerName);
+  MetricsHelper.newTimer(_metricsRegistry,metricName,TimeUnit.MILLISECONDS,TimeUnit.SECONDS).update(nanos,TimeUnit.NANOSECONDS);
+}

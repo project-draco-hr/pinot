@@ -3,6 +3,8 @@
   TransportClientConf conf=new TransportClientConf();
   conf.init(transportConfigs);
   _registry=new MetricsRegistry();
+  new JmxReporter(_registry).start();
+  _brokerMetrics=new BrokerMetrics(_registry);
   _state=State.INIT;
   _eventLoopGroup=new NioEventLoopGroup();
   final NettyClientMetrics clientMetrics=new NettyClientMetrics(_registry,"client_");
@@ -21,6 +23,6 @@
  else {
   }
   _scatterGather=new ScatterGatherImpl(_connPool,_requestSenderPool);
-  _requestHandler=new BrokerRequestHandler(_routingTable,_scatterGather,new DefaultReduceService());
+  _requestHandler=new BrokerRequestHandler(_routingTable,_scatterGather,new DefaultReduceService(),_brokerMetrics);
   LOGGER.info("Network initialized !!");
 }

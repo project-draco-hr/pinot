@@ -15,9 +15,7 @@
     LOGGER.info(serverInstance + " : " + segmentServices.get(serverInstance));
   }
   final long queryRoutingTime=System.nanoTime() - routingStartTime;
-  final String resourceName=request.getQuerySource().getResourceName();
-  final String tableName=request.getQuerySource().getTableName();
-  getTimer(resourceName,tableName,"queryRouting").update(queryRoutingTime,TimeUnit.NANOSECONDS);
+  _brokerMetrics.addPhaseTiming(request,"queryRouting",queryRoutingTime);
   final long scatterGatherStartTime=System.nanoTime();
   ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,_requestIdGen.incrementAndGet(),10 * 1000L);
   CompositeFuture<ServerInstance,ByteBuf> response=_scatterGatherer.scatterGather(scatterRequest);
@@ -31,7 +29,7 @@
       e.printStackTrace();
     }
     final long scatterGatherTime=System.nanoTime() - scatterGatherStartTime;
-    getTimer(resourceName,tableName,"scatterGather").update(scatterGatherTime,TimeUnit.NANOSECONDS);
+    _brokerMetrics.addPhaseTiming(request,"scatterGather",scatterGatherTime);
     final long deserializationStartTime=System.nanoTime();
     Map<ServerInstance,Throwable> errors=response.getError();
     if (null != responses) {
@@ -59,12 +57,14 @@
       }
     }
     final long deserializationTime=System.nanoTime() - deserializationStartTime;
-    getTimer(resourceName,tableName,"deserialization").update(deserializationTime,TimeUnit.NANOSECONDS);
+    _brokerMetrics.addPhaseTiming(request,"deserialization",deserializationTime);
   }
   try {
-    return getTimer(resourceName,tableName,"reduction").time(new Callable<BrokerResponse>(){
+    return _brokerMetrics.timePhase(request,"reduce",new Callable<BrokerResponse>(){
       @Override public BrokerResponse call(){
-        return _reduceService.reduceOnDataTable(request,instanceResponseMap);
+        BrokerResponse returnValue=_reduceService.reduceOnDataTable(request,instanceResponseMap);
+        _brokerMetrics.addMeteredValue(request,"documentsScanned","documentsScanned",returnValue.getNumDocsScanned());
+        return returnValue;
       }
     }
 );

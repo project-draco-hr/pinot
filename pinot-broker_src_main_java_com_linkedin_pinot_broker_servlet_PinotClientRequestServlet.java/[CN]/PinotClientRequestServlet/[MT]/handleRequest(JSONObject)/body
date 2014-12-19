@@ -4,9 +4,8 @@
   final JSONObject compiled=requestCompiler.compile(pql);
   final BrokerRequest brokerRequest=convertToBrokerRequest(compiled);
   final long requestCompilationTime=System.nanoTime() - startTime;
-  final String resourceName=brokerRequest.getQuerySource().getResourceName();
-  getTimer(resourceName,"requestCompilation").update(requestCompilationTime,TimeUnit.NANOSECONDS);
-  final BrokerResponse resp=getTimer(resourceName,"queryExecution").time(new Callable<BrokerResponse>(){
+  brokerMetrics.addPhaseTiming(brokerRequest,"requestCompilation",requestCompilationTime);
+  final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,"queryExecution",new Callable<BrokerResponse>(){
     @Override public BrokerResponse call() throws Exception {
       final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
       return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
