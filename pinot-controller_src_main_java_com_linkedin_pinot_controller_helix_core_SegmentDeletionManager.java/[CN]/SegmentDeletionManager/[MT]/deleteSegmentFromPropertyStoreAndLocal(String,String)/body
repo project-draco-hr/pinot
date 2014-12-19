@@ -1,4 +1,7 @@
 {
+  if (_helixAdmin.getResourceExternalView(_helixClusterName,resourceName) == null || _helixAdmin.getResourceIdealState(_helixClusterName,resourceName) == null) {
+    return;
+  }
   Map<String,String> segmentToInstancesMapFromExternalView=_helixAdmin.getResourceExternalView(_helixClusterName,resourceName).getStateMap(segmentId);
   Map<String,String> segmentToInstancesMapFromIdealStates=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName).getInstanceStateMap(segmentId);
   if ((segmentToInstancesMapFromExternalView == null || segmentToInstancesMapFromExternalView.size() < 1) || (segmentToInstancesMapFromIdealStates == null || segmentToInstancesMapFromIdealStates.size() < 1)) {

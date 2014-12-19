@@ -1,14 +1,14 @@
 {
   if (startTime == null || endTime == null || timeUnit == null) {
     long startTimeValue=System.currentTimeMillis();
-    return getTimeSegmentMetadataImpl(startTimeValue + "",startTimeValue + "","millis");
+    return getTimeSegmentMetadataImpl(startTimeValue + "",startTimeValue + "",TimeUnit.MILLISECONDS.toString());
   }
   final long creationTime=System.currentTimeMillis();
   final String segmentName="testResource_testTable_" + creationTime;
   SegmentMetadata segmentMetadata=new SegmentMetadata(){
-    SegmentTimeUnit segmentTimeUnit=SegmentTimeUnit.valueOf(timeUnit);
-    Duration _timeGranularity=new Duration(SegmentTimeUnit.toMillis(segmentTimeUnit));
-    Interval _timeInterval=new Interval(SegmentTimeUnit.toMillis(segmentTimeUnit,startTime),SegmentTimeUnit.toMillis(segmentTimeUnit,endTime));
+    TimeUnit segmentTimeUnit=TimeUnit.valueOf(timeUnit);
+    Duration _timeGranularity=new Duration(segmentTimeUnit.toMillis(1));
+    Interval _timeInterval=new Interval(segmentTimeUnit.toMillis(Long.parseLong(startTime)),segmentTimeUnit.toMillis(Long.parseLong(endTime)));
     @Override public Map<String,String> toMap(){
       final Map<String,String> ret=new HashMap<String,String>();
       ret.put(V1Constants.MetadataKeys.Segment.RESOURCE_NAME,getResourceName());

@@ -3,7 +3,7 @@
   if (INDEX_DIR.exists()) {
     FileUtils.deleteQuietly(INDEX_DIR);
   }
-  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"time_day",SegmentTimeUnit.days,"test","testTable");
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"time_day",TimeUnit.DAYS,"test","testTable");
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   driver.init(config);
   driver.build();
