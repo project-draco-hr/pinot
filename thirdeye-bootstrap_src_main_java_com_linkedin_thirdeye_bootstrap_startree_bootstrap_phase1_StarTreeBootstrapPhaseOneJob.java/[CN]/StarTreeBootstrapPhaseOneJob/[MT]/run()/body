@@ -1,0 +1,33 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(StarTreeBootstrapPhaseOneJob.class);
+  Schema schema=new Schema.Parser().parse(FileSystem.get(getConf()).open(new Path(getAndCheck(STAR_TREE_BOOTSTRAP_INPUT_AVRO_SCHEMA.toString()))));
+  LOG.info("{}",schema);
+  job.setMapperClass(BootstrapMapper.class);
+  AvroJob.setInputKeySchema(job,schema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setPartitionerClass(NodeIdBasedPartitioner.class);
+  job.setCombinerClass(StarTreeBootstrapReducer.class);
+  job.setReducerClass(StarTreeBootstrapReducer.class);
+  job.setOutputKeyClass(BytesWritable.class);
+  job.setOutputValueClass(BytesWritable.class);
+  job.setOutputFormatClass(SequenceFileOutputFormat.class);
+  job.setNumReduceTasks(10);
+  Configuration configuration=job.getConfiguration();
+  String inputPathDir=getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_INPUT_PATH);
+  getAndSetConfiguration(configuration,STAR_TREE_GENERATION_OUTPUT_PATH);
+  getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_CONFIG_PATH);
+  getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_OUTPUT_PATH);
+  getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_INPUT_AVRO_SCHEMA);
+  LOG.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOG.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(STAR_TREE_BOOTSTRAP_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+}

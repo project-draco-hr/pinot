@@ -1,0 +1,14 @@
+{
+  MetricTimeSeries aggregateSeries=new MetricTimeSeries(metricSchema);
+  DimensionKey key=null;
+  for (  BytesWritable writable : bootstrapMapOutputValueWritableIterable) {
+    BootstrapPhaseMapOutputValue mapOutputValue=BootstrapPhaseMapOutputValue.fromBytes(writable.copyBytes(),metricSchema);
+    if (key == null) {
+      key=mapOutputValue.dimensionKey;
+    }
+    aggregateSeries.aggregate(mapOutputValue.metricTimeSeries);
+  }
+  BootstrapPhaseMapOutputValue mapOutputValue=new BootstrapPhaseMapOutputValue(key,aggregateSeries);
+  BytesWritable valWritable=new BytesWritable(mapOutputValue.toBytes());
+  context.write(bootstrapMapOutputKeyWritable,valWritable);
+}

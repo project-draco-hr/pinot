@@ -1,0 +1,58 @@
+{
+  String config=args[0];
+  String pathToTreeBinary=args[1];
+  String dataDirectory=args[2];
+  JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(config));
+  StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode,new File(dataDirectory).getParentFile());
+  StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
+  List<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
+  StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
+  List<String> dimensionNames=starTreeConfig.getDimensionNames();
+  int totalCount=0;
+  int errorCount=0;
+  for (  StarTreeNode node : leafNodes) {
+    String[] parentDimValues=new String[node.getAncestorDimensionNames().size() + 1];
+    Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(node.getId().toString(),dataDirectory);
+    Map<String,Map<Integer,String>> reverseIndex=StarTreeUtils.toReverseIndex(forwardIndex);
+    List<int[]> leafRecords=StarTreePersistanceUtil.readLeafRecords(dataDirectory,node.getId().toString(),starTreeConfig.getDimensionNames().size());
+    List<String> ancestorDimensionNames=node.getAncestorDimensionNames();
+    for (int i=0; i < ancestorDimensionNames.size(); i++) {
+      String name=ancestorDimensionNames.get(i);
+      parentDimValues[i]=node.getAncestorDimensionValues().get(name);
+    }
+    parentDimValues[parentDimValues.length - 1]=node.getDimensionValue();
+    String[] childDimValues=new String[dimensionNames.size()];
+    System.out.println("START: Processing leaf node:" + node.getId() + " "+ node.getPath()+ " numChildren:"+ leafRecords.size());
+    if (node.getPath().equals("/(countryCode:*)/(emailDomain:in)/(source:*)/source:desktop-registration-v1")) {
+      System.out.println("forwardIndex:" + forwardIndex);
+    }
+    for (    int arr[] : leafRecords) {
+      Arrays.fill(childDimValues,"");
+      boolean passed=true;
+      for (int i=0; i < dimensionNames.size(); i++) {
+        String name=dimensionNames.get(i);
+        childDimValues[i]=reverseIndex.get(name).get(arr[i]);
+      }
+      for (int i=0; i < dimensionNames.size(); i++) {
+        String name=dimensionNames.get(i);
+        String parentNodeVal=null;
+        if (node.getAncestorDimensionValues().containsKey(name)) {
+          parentNodeVal=node.getAncestorDimensionValues().get(name);
+        }
+        if (node.getDimensionName().equals(name)) {
+          parentNodeVal=node.getDimensionValue();
+        }
+        if (parentNodeVal != null && !parentNodeVal.equals(StarTreeConstants.STAR)) {
+          if (!parentNodeVal.equals(childDimValues[i])) {
+            System.out.println("\t\t\t\t ERROR: " + name + " : parentVal:"+ parentNodeVal+ " childVal:"+ childDimValues[i]+ Arrays.toString(childDimValues));
+            passed=false;
+          }
+        }
+      }
+      totalCount=totalCount + 1;
+      if (!passed)       errorCount=errorCount + 1;
+    }
+    System.out.println("END: Processing leaf node:" + node.getId());
+  }
+  System.out.println("total Count: " + totalCount + " failed count: "+ errorCount);
+}

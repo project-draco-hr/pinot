@@ -1,0 +1,37 @@
+{
+  LOG.info("AggregatePhaseJob.AggregationMapper.setup()");
+  Configuration configuration=context.getConfiguration();
+  FileSystem dfs=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_PHASE2_CONFIG_PATH.toString()));
+  try {
+    config=OBJECT_MAPPER.readValue(dfs.open(configPath),StarTreeBootstrapPhaseTwoConfig.class);
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    dimensionValues=new String[dimensionNames.size()];
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+  String starTreeOutputPath=context.getConfiguration().get(STAR_TREE_GENERATION_OUTPUT_PATH.toString());
+  try {
+    collectionName=config.getCollectionName();
+    Path pathToTree=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,collectionName + "-tree.bin");
+    InputStream is=dfs.open(pathToTree);
+    starTreeRootNode=StarTreePersistanceUtil.loadStarTree(is);
+    LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
+    StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
+    LOG.info("Num leaf Nodes in star tree:" + leafNodes.size());
+    leafNodesMap=new HashMap<UUID,StarTreeNode>();
+    for (    StarTreeNode node : leafNodes) {
+      leafNodesMap.put(node.getId(),node);
+    }
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

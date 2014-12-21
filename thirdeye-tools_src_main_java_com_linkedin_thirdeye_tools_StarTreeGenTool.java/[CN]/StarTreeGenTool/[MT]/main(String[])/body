@@ -52,6 +52,9 @@
   StarTreeNode root=starTree.getRoot();
   StarTreeDumperTool tool=new StarTreeDumperTool(root,printWriter);
   tool.print();
+  System.out.println("Saving tree at " + outputDir);
   StarTreePersistanceUtil.saveTree(starTree,outputDir);
-  StarTreePersistanceUtil.saveLeafDimensionData(starTree,outputDir);
+  new File(outputDir + "/data").mkdirs();
+  System.out.println("Saving leaf data at " + outputDir + "/data");
+  StarTreePersistanceUtil.saveLeafDimensionData(starTree,outputDir + "/data");
 }

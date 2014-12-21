@@ -1,0 +1,15 @@
+{
+  if (args.length != 2) {
+    throw new IllegalArgumentException("usage: config.json nodeId");
+  }
+  JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(args[0]));
+  JsonNode rootDir=jsonNode.get("recordStoreFactoryConfig").get("rootDir");
+  JsonNode timeBuckets=jsonNode.get("recordStoreFactoryConfig").get("numTimeBuckets");
+  StarTreeConfig config=StarTreeConfig.fromJson(jsonNode);
+  File file=new File(rootDir.asText(),args[1] + StarTreeConstants.BUFFER_FILE_SUFFIX);
+  FileChannel fileChannel=new RandomAccessFile(file,"r").getChannel();
+  ByteBuffer buffer=fileChannel.map(FileChannel.MapMode.READ_ONLY,0,file.length());
+  PrintWriter printWriter=new PrintWriter(System.out);
+  StarTreeRecordStoreCircularBufferImpl.dumpBuffer(buffer,printWriter,config.getDimensionNames(),config.getMetricNames(),timeBuckets.asInt());
+  printWriter.flush();
+}

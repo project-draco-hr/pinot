@@ -1,0 +1,65 @@
+{
+  LOG.info("AggregatePhaseJob.AggregationMapper.setup()");
+  Configuration configuration=context.getConfiguration();
+  FileSystem dfs=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_CONFIG_PATH.toString()));
+  try {
+    config=OBJECT_MAPPER.readValue(dfs.open(configPath),StarTreeBootstrapPhaseOneConfig.class);
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=Lists.newArrayList();
+    for (    String type : config.getMetricTypes()) {
+      metricTypes.add(MetricType.valueOf(type));
+    }
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    sourceTimeUnit=TimeUnit.valueOf(config.getTimeUnit());
+    aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
+    dimensionValues=new String[dimensionNames.size()];
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+  String starTreeOutputPath=context.getConfiguration().get(STAR_TREE_GENERATION_OUTPUT_PATH.toString());
+  try {
+    collectionName=config.getCollectionName();
+    Path pathToTree=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,collectionName + "-tree.bin");
+    InputStream is=dfs.open(pathToTree);
+    starTreeRootNode=StarTreePersistanceUtil.loadStarTree(is);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+  try {
+    collectionName=config.getCollectionName();
+    String tarGZName="leaf-data.tar.gz";
+    Path pathToLeafData=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,tarGZName);
+    dfs.copyToLocalFile(pathToLeafData,new Path(tarGZName));
+    new File(localInputDataDir).mkdirs();
+    TarGzCompressionUtils.unTar(new File(tarGZName),new File(localInputDataDir));
+    Collection<File> listFiles=FileUtils.listFiles(new File("."),FileFileFilter.FILE,DirectoryFileFilter.DIRECTORY);
+    boolean b=true;
+    for (    File f : listFiles) {
+      LOG.info(f.getAbsolutePath());
+      if (b && f.getName().endsWith("idx")) {
+        LOG.info(FileUtils.readFileToString(f));
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+  LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
+  StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
+  LOG.info("Num leaf Nodes in star tree:" + leafNodes.size());
+  leafNodesMap=new HashMap<UUID,StarTreeNode>();
+  forwardIndexMap=new HashMap<UUID,Map<String,Map<String,Integer>>>();
+  nodeIdToleafRecordsMap=new HashMap<UUID,List<int[]>>();
+  for (  StarTreeNode node : leafNodes) {
+    UUID uuid=node.getId();
+    Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(uuid.toString(),localInputDataDir + "/data");
+    List<int[]> leafRecords=StarTreePersistanceUtil.readLeafRecords(localInputDataDir + "/data",uuid.toString(),dimensionNames.size());
+    leafNodesMap.put(uuid,node);
+    forwardIndexMap.put(uuid,forwardIndex);
+    nodeIdToleafRecordsMap.put(uuid,leafRecords);
+  }
+}
