@@ -1,2 +1,16 @@
 {
+  String config=args[0];
+  String pathToTreeBinary=args[1];
+  final String dataDirectory=args[2];
+  final int numTimeBuckets=Integer.parseInt(args[3]);
+  JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(config));
+  final StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode,new File(dataDirectory).getParentFile());
+  StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
+  final StarTree starTree=new StarTreeImpl(starTreeConfig,starTreeRootNode);
+  javax.swing.SwingUtilities.invokeLater(new Runnable(){
+    public void run(){
+      createAndShowGUI(starTreeConfig,starTree,dataDirectory,numTimeBuckets);
+    }
+  }
+);
 }

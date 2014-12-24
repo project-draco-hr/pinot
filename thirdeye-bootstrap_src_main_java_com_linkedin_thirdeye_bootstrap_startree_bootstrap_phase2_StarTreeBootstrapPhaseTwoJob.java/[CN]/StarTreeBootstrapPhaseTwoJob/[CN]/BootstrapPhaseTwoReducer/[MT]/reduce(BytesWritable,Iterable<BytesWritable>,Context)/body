@@ -8,46 +8,15 @@
   reverseForwardIndex=StarTreeUtils.toReverseIndex(forwardIndex);
   for (  BytesWritable writable : bootstrapMapOutputValueWritableIterable) {
     BootstrapPhaseMapOutputValue val=BootstrapPhaseMapOutputValue.fromBytes(writable.copyBytes(),metricSchema);
-    map.put(val.getDimensionKey(),val.getMetricTimeSeries());
+    if (!map.containsKey(val.getDimensionKey())) {
+      map.put(val.getDimensionKey(),val.getMetricTimeSeries());
+    }
+ else {
+      map.get(val.getDimensionKey()).aggregate(val.getMetricTimeSeries());
+    }
   }
   String fileName=localOutputDataDir + "/data/" + nodeId.toString()+ StarTreeConstants.BUFFER_FILE_SUFFIX;
-  RandomAccessFile raf=new RandomAccessFile(fileName,"rw");
-  FileChannel fc=raf.getChannel();
-  int numRecords=leafRecords.size();
-  int bufferSize=numRecords * dimensionNames.size() * (Integer.SIZE / 8);
-  bufferSize+=numRecords * numTimeBuckets * Long.SIZE / 8;
-  bufferSize+=numRecords * numTimeBuckets * metricNames.size()* (Integer.SIZE / 8);
-  MappedByteBuffer buffer=fc.map(FileChannel.MapMode.READ_WRITE,0,bufferSize);
-  int sizeRequiredToStoreMetricForEachTimeWindow=(Long.SIZE / 8) + (metricNames.size() * (Integer.SIZE / 8));
-  LOG.info("Generating buffer index for size: {}",leafRecords.size());
-  for (  int[] leafRecord : leafRecords) {
-    for (    int id : leafRecord) {
-      buffer.putInt(id);
-    }
-    int position=buffer.position();
-    for (int i=0; i < numTimeBuckets; i++) {
-      buffer.putLong(0L);
-      for (int j=0; j < metricNames.size(); j++) {
-        buffer.putInt(0);
-      }
-    }
-    buffer.position(position);
-    String[] dimValues=StarTreeUtils.convertToStringValue(reverseForwardIndex,leafRecord,dimensionNames);
-    DimensionKey dimensionKey=new DimensionKey(dimValues);
-    MetricTimeSeries metricTimeSeries=map.get(dimensionKey);
-    if (metricTimeSeries != null) {
-      for (      long timeWindow : metricTimeSeries.getTimeWindowSet()) {
-        int index=(int)(timeWindow % numTimeBuckets);
-        buffer.position(position + index * sizeRequiredToStoreMetricForEachTimeWindow);
-        for (        String metricName : metricNames) {
-          Number number=metricTimeSeries.get(timeWindow,metricName);
-          buffer.putInt(number.intValue());
-        }
-      }
-    }
-  }
-  fc.close();
-  raf.close();
+  CircularBufferUtil.createLeafBufferFile(map,leafRecords,fileName,dimensionNames,dimensionNames,inputCount,reverseForwardIndex);
   LOG.info("Generating forward index");
   StarTreePersistanceUtil.saveLeafNodeForwardIndex(localOutputDataDir + "/data/",forwardIndex,nodeId);
   LOG.info("END: processing {}",nodeId);

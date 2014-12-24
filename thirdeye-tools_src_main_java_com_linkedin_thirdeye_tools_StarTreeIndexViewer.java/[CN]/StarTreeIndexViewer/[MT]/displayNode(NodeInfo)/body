@@ -1,0 +1,51 @@
+{
+  try {
+    StringBuffer sb=new StringBuffer("<html><table border=1>");
+    String nodeId=nodeInfo._node.getId().toString();
+    Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(nodeId,dataDir);
+    Map<String,Map<Integer,String>> reverseIndex=StarTreeUtils.toReverseIndex(forwardIndex);
+    int numMetrics=_config.getMetricNames().size();
+    int numDimensions=_config.getDimensionNames().size();
+    Map<int[],Map<Long,int[]>> leafRecords=StarTreePersistanceUtil.readLeafRecords(dataDir,nodeId,numDimensions,numMetrics,numTimeBuckets);
+    int numColumns=numDimensions + numMetrics + 1;
+    int rowId=0;
+    int[] emptyMetrics=new int[numMetrics];
+    Arrays.fill(emptyMetrics,0);
+    for (    Entry<int[],Map<Long,int[]>> entry : leafRecords.entrySet()) {
+      int[] dimArr=entry.getKey();
+      sb.append("<tr>");
+      for (int i=0; i < numDimensions; i++) {
+        sb.append("<td>");
+        sb.append(reverseIndex.get(_config.getDimensionNames().get(i)).get(dimArr[i]));
+        sb.append("</td>");
+      }
+      sb.append("<td colspan=" + (numMetrics + 1) + ">");
+      sb.append("</tr>");
+      Map<Long,int[]> timeSeries=entry.getValue();
+      if (timeSeries.size() > 0) {
+        for (        Entry<Long,int[]> timeSeriesEntry : timeSeries.entrySet()) {
+          int[] metrics=timeSeriesEntry.getValue();
+          if (timeSeriesEntry.getKey() > 0 && !Arrays.equals(emptyMetrics,metrics)) {
+            sb.append("<tr>");
+            sb.append("<td colspan=" + (numDimensions) + ">");
+            sb.append("<td>");
+            sb.append(timeSeriesEntry.getKey());
+            sb.append("</td>");
+            for (int i=0; i < numMetrics; i++) {
+              sb.append("<td>");
+              sb.append(metrics[i]);
+              sb.append("</td>");
+            }
+            sb.append("</tr>");
+          }
+        }
+      }
+    }
+    htmlPane.setContentType("text/html");
+    sb.append("</table></html>");
+    htmlPane.setText(sb.toString());
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

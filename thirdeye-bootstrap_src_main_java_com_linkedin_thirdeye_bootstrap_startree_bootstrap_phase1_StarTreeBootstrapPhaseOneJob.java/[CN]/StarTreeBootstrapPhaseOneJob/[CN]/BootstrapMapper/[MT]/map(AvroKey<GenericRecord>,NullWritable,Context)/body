@@ -9,12 +9,11 @@
       dimensionValue=val.toString();
     }
     dimensionValues[i]=dimensionValue;
-    dimensionValuesMap.put(dimensionValues[i],dimensionValue);
+    dimensionValuesMap.put(dimensionName,dimensionValue);
   }
   DimensionKey key=new DimensionKey(dimensionValues);
   String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
   long timeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
-  timeWindow=-1;
   MetricTimeSeries series=new MetricTimeSeries(metricSchema);
   for (int i=0; i < metricNames.size(); i++) {
     String metricName=metricNames.get(i);
@@ -36,6 +35,10 @@
   Long time=0L;
   StarTreeRecord starTreeRecord=new StarTreeRecordImpl(dimensionValuesMap,metricValues,time);
   StarTreeJobUtils.collectRecords(starTreeRootNode,starTreeRecord,collector);
+  if (debug) {
+    LOG.info("processing {}",key);
+    LOG.info("times series {}",series);
+  }
   for (  UUID uuid : collector.keySet()) {
     if (!leafNodesMap.containsKey(uuid)) {
       String msg="Got a mapping to non existant leaf node:" + uuid + " - "+ collector.get(uuid)+ " input :"+ starTreeRecord;
@@ -47,9 +50,12 @@
     Map<String,Map<Integer,String>> reverseForwardIndex=StarTreeUtils.toReverseIndex(forwardIndex);
     int[] bestMatch=StarTreeJobUtils.findBestMatch(key,dimensionNames,leafRecords,forwardIndex);
     String[] dimValues=StarTreeUtils.convertToStringValue(reverseForwardIndex,bestMatch,dimensionNames);
-    DimensionKey dimensionKey=new DimensionKey(dimValues);
-    BootstrapPhaseMapOutputKey outputKey=new BootstrapPhaseMapOutputKey(uuid,dimensionKey.toMD5());
-    BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(dimensionKey,series);
+    DimensionKey matchedDimensionKey=new DimensionKey(dimValues);
+    if (debug) {
+      LOG.info("Match: {} under {}",matchedDimensionKey,leafNodesMap.get(uuid).getPath());
+    }
+    BootstrapPhaseMapOutputKey outputKey=new BootstrapPhaseMapOutputKey(uuid,matchedDimensionKey.toMD5());
+    BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,series);
     BytesWritable keyWritable=new BytesWritable(outputKey.toBytes());
     BytesWritable valWritable=new BytesWritable(outputValue.toBytes());
     context.write(keyWritable,valWritable);

@@ -10,5 +10,9 @@
   }
   BootstrapPhaseMapOutputValue mapOutputValue=new BootstrapPhaseMapOutputValue(key,aggregateSeries);
   BytesWritable valWritable=new BytesWritable(mapOutputValue.toBytes());
+  if (debug) {
+    LOG.info("Processed {}",key);
+    LOG.info("time series: {}",aggregateSeries);
+  }
   context.write(bootstrapMapOutputKeyWritable,valWritable);
 }

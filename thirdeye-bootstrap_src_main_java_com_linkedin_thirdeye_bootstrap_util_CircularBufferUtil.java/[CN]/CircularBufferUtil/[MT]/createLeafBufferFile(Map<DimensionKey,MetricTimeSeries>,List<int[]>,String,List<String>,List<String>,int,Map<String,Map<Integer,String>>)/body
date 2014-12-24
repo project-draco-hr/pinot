@@ -1,0 +1,58 @@
+{
+  int numRecords=leafRecords.size();
+  int perRecordDimesionKeySize=dimensionNames.size() * (Integer.SIZE / 8);
+  int perTimeWindowMetricSize=Long.SIZE / 8 + (metricNames.size() * (Integer.SIZE / 8));
+  int perRecordMetricSize=numTimeBuckets * perTimeWindowMetricSize;
+  int perRecordEntrySize=perRecordDimesionKeySize + perRecordMetricSize;
+  int totalBufferSize=numRecords * perRecordEntrySize;
+  LOG.info("Generating buffer index for size: {}",leafRecords.size());
+  Comparator<? super int[]> c=new Comparator<int[]>(){
+    @Override public int compare(    int[] o1,    int[] o2){
+      int ret=0;
+      int length=o1.length;
+      for (int i=0; i < length; i++) {
+        ret=Integer.compare(o1[i],o2[i]);
+        if (ret != 0) {
+          break;
+        }
+      }
+      return ret;
+    }
+  }
+;
+  RandomAccessFile raf=new RandomAccessFile(fileName,"rw");
+  FileChannel fc=raf.getChannel();
+  MappedByteBuffer buffer=fc.map(FileChannel.MapMode.READ_WRITE,0,totalBufferSize);
+  Collections.sort(leafRecords,c);
+  int recordIndex=0;
+  for (  int[] leafRecord : leafRecords) {
+    int recordStartOffset=recordIndex * perRecordEntrySize;
+    buffer.position(recordStartOffset);
+    for (    int id : leafRecord) {
+      buffer.putInt(id);
+    }
+    for (int i=0; i < numTimeBuckets; i++) {
+      buffer.putLong(i);
+      for (int j=0; j < metricNames.size(); j++) {
+        buffer.putInt(0);
+      }
+    }
+    String[] dimValues=StarTreeUtils.convertToStringValue(reverseForwardIndex,leafRecord,dimensionNames);
+    DimensionKey dimensionKey=new DimensionKey(dimValues);
+    MetricTimeSeries metricTimeSeries=map.get(dimensionKey);
+    if (metricTimeSeries != null) {
+      for (      long timeWindow : metricTimeSeries.getTimeWindowSet()) {
+        int bucket=(int)(timeWindow % numTimeBuckets);
+        buffer.position(recordStartOffset + perRecordDimesionKeySize + bucket * perTimeWindowMetricSize);
+        buffer.putLong(timeWindow);
+        for (        String metricName : metricNames) {
+          Number number=metricTimeSeries.get(timeWindow,metricName);
+          buffer.putInt(number.intValue());
+        }
+      }
+    }
+    recordIndex=recordIndex + 1;
+  }
+  fc.close();
+  raf.close();
+}
