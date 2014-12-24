@@ -3,6 +3,7 @@
   String pathToTreeBinary=args[1];
   String dataDirectory=args[2];
   JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(configPath));
+  JsonNode timeBuckets=jsonNode.get("recordStoreFactoryConfig").get("numTimeBuckets");
   StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode,new File(dataDirectory).getParentFile());
   StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
   List<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
@@ -12,7 +13,7 @@
   String[] dimValues=new String[dimensionNames.size()];
   int numDimensions=dimensionNames.size();
   int numMetrics=metricNames.size();
-  int numTimeBuckets=672;
+  int numTimeBuckets=timeBuckets.asInt();
   for (  StarTreeNode node : leafNodes) {
     Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(node.getId().toString(),dataDirectory);
     Map<String,Map<Integer,String>> reverseIndex=StarTreeUtils.toReverseIndex(forwardIndex);
