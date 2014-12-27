@@ -21,8 +21,8 @@
   List<String> metricNames=config.getMetricNames();
   String timeColumnName=config.getTimeColumnName();
   int numTimeBuckets=config.getNumTimeBuckets();
-  ArrayList<MetricType> types=Lists.newArrayList(MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT);
-  MetricSchema schema=new MetricSchema(metricNames,types);
+  ArrayList<MetricType> metricTypes=Lists.newArrayList(MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT);
+  MetricSchema schema=new MetricSchema(metricNames,metricTypes);
   StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(new File(treeBinary)));
   LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
@@ -92,7 +92,7 @@
       Map<String,Map<Integer,String>> reverseForwardIndex=StarTreeUtils.toReverseIndex(forwardIndex);
       StarTreePersistanceUtil.saveLeafNodeForwardIndex(leafDataOutputDirectory,forwardIndex,nodeId.toString());
       String fileName=leafDataOutputDirectory + "/" + nodeId+ StarTreeConstants.BUFFER_FILE_SUFFIX;
-      CircularBufferUtil.createLeafBufferFile(aggregatedLeafRecords,leafRecords,fileName,dimensionNames,metricNames,numTimeBuckets,reverseForwardIndex);
+      CircularBufferUtil.createLeafBufferFile(aggregatedLeafRecords,leafRecords,fileName,dimensionNames,metricNames,metricTypes,numTimeBuckets,reverseForwardIndex);
     }
     int[] metrics=new int[metricNames.size()];
     if (debug) {

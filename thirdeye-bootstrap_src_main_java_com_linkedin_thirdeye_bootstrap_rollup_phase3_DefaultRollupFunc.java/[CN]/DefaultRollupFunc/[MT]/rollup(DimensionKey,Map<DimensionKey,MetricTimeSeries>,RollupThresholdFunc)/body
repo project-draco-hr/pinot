@@ -7,7 +7,7 @@
     LOG.info("Trying {}",key);
     String[] dimensionsValues=key.getDimensionsValues();
     if (func.isAboveThreshold(entry.getValue())) {
-      LOG.info("passedc threshold");
+      LOG.info("passed threshold");
       int count=0;
       for (      String val : dimensionsValues) {
         if ("?".equalsIgnoreCase(val)) {
@@ -30,7 +30,7 @@
       sb.append(entry.getValue());
       sb.append("\n");
     }
-    LOG.info("cannot find roll up for {} possiblerollups:{}",rawDimensionKey,sb.toString());
+    LOG.error("cannot find roll up for {} possiblerollups:{}",rawDimensionKey,sb.toString());
   }
   return selectedRollup;
 }

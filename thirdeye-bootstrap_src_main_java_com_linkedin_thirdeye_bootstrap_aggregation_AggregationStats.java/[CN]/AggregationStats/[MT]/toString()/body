@@ -1,0 +1,32 @@
+{
+  StringWriter sw=new StringWriter();
+  Map<String,Map<String,Object>> resultPerTimeWindow=new HashMap<String,Map<String,Object>>();
+  Map<String,Map<String,Object>> resultAggregated=new HashMap<String,Map<String,Object>>();
+  sw.append(String.format(metricNameFormat,"MetricName"));
+  for (  String field : fields) {
+    sw.append(String.format(metricValueFormat,field));
+  }
+  for (int i=0; i < schema.getNumMetrics(); i++) {
+    sw.append("\n");
+    String metricName=schema.getMetricName(i);
+    Histogram histogram=perTimeWindowHistogram.get(metricName);
+    Map<String,Object> map=toMap(histogram);
+    sw.append(String.format(metricNameFormat,metricName));
+    for (    String field : fields) {
+      sw.append(String.format(metricValueFormat,map.get(field)));
+    }
+    resultPerTimeWindow.put(metricName,map);
+  }
+  for (int i=0; i < schema.getNumMetrics(); i++) {
+    sw.append("\n");
+    String metricName=schema.getMetricName(i);
+    Histogram histogram=aggregateHistogram.get(metricName);
+    Map<String,Object> map=toMap(histogram);
+    sw.append(String.format(metricNameFormat,metricName));
+    for (    String field : fields) {
+      sw.append(String.format(metricValueFormat,map.get(field)));
+    }
+    resultAggregated.put(metricName,map);
+  }
+  return sw.toString();
+}

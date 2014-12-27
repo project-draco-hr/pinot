@@ -12,7 +12,10 @@
     }
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     rollupFunc=new DefaultRollupFunc();
-    rollupThresholdFunc=new TotalAggregateBasedRollupFunction("numberOfMemberConnectionsSent",5000);
+    String className=config.getThresholdFuncClassName();
+    Map<String,String> params=config.getThresholdFuncParams();
+    Constructor<?> constructor=Class.forName(className).getConstructor(Map.class);
+    rollupThresholdFunc=(RollupThresholdFunc)constructor.newInstance(params);
   }
  catch (  Exception e) {
     throw new IOException(e);

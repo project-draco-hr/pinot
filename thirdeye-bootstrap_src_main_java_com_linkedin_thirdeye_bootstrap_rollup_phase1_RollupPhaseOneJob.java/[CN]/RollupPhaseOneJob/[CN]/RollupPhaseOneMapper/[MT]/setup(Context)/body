@@ -12,7 +12,10 @@
       metricTypes.add(MetricType.valueOf(type));
     }
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
-    thresholdFunc=new TotalAggregateBasedRollupFunction("numberOfMemberConnectionsSent",5000);
+    String className=config.getThresholdFuncClassName();
+    Map<String,String> params=config.getThresholdFuncParams();
+    Constructor<?> constructor=Class.forName(className).getConstructor(Map.class);
+    thresholdFunc=(RollupThresholdFunc)constructor.newInstance(params);
   }
  catch (  Exception e) {
     throw new IOException(e);

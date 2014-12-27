@@ -1,18 +1,17 @@
 {
   DimensionKey rollupDimensionKey=null;
   MetricTimeSeries rollupTimeSeries=new MetricTimeSeries(metricSchema);
-  System.out.println(String.format("start processing key :%s",rollupDimensionKeyMD5Writable.toString()));
   map.clear();
   for (  BytesWritable writable : rollupMapOutputWritableIterable) {
     RollupPhaseTwoMapOutput temp;
-    temp=RollupPhaseTwoMapOutput.fromBytes(writable.getBytes(),metricSchema);
+    temp=RollupPhaseTwoMapOutput.fromBytes(writable.copyBytes(),metricSchema);
     if (rollupDimensionKey == null) {
       rollupDimensionKey=temp.getRollupDimensionKey();
     }
     map.put(temp.rawDimensionKey,temp.getRawTimeSeries());
     rollupTimeSeries.aggregate(temp.getRawTimeSeries());
   }
-  System.out.println(String.format("processing key :%s, size:%d",rollupDimensionKeyMD5Writable.toString(),map.size()));
+  LOG.info(String.format("processing key :%s, size:%d",rollupDimensionKeyMD5Writable.toString(),map.size()));
   for (  Entry<DimensionKey,MetricTimeSeries> entry : map.entrySet()) {
     RollupPhaseTwoReduceOutput output;
     output=new RollupPhaseTwoReduceOutput(rollupDimensionKey,rollupTimeSeries,entry.getKey(),entry.getValue());

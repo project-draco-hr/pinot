@@ -8,9 +8,13 @@
   for (  JsonNode metricName : jsonNode.get("metricNames")) {
     metricNames.add(metricName.asText());
   }
+  List<String> metricTypes=new ArrayList<String>();
+  for (  JsonNode metricType : jsonNode.get("metricTypes")) {
+    metricTypes.add(metricType.asText());
+  }
   String timeColumnName=jsonNode.get("timeColumnName").asText();
   StarTreeConfig.Builder starTreeConfig=new StarTreeConfig.Builder();
-  starTreeConfig.setCollection(collection).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName);
+  starTreeConfig.setCollection(collection).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(metricTypes).setTimeColumnName(timeColumnName);
   if (jsonNode.has("thresholdFunctionClass")) {
     starTreeConfig.setThresholdFunctionClass(jsonNode.get("thresholdFunctionClass").asText());
   }

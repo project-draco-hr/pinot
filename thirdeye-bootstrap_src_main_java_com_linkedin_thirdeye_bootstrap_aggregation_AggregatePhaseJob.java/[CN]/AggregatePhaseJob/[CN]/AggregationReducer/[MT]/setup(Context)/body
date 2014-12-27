@@ -1,6 +1,6 @@
 {
   Configuration configuration=context.getConfiguration();
-  FileSystem fileSystem=FileSystem.get(configuration);
+  fileSystem=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(AGG_CONFIG_PATH.toString()));
   try {
     config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),AggregationJobConfig.class);
@@ -9,6 +9,8 @@
       metricTypes.add(MetricType.valueOf(type));
     }
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    aggregationStats=new AggregationStats(metricSchema);
+    statOutputDir=configuration.get(AGG_OUTPUT_PATH.toString()) + "_stats/";
   }
  catch (  Exception e) {
     throw new IOException(e);

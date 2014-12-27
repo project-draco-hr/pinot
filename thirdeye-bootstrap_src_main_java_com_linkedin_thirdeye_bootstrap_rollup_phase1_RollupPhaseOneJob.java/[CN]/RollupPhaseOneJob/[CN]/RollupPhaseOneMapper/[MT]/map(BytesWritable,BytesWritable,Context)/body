@@ -7,9 +7,11 @@
   timeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
   if (thresholdFunc.isAboveThreshold(timeSeries)) {
     mos.write(dimensionKeyBytes,metricTimeSeriesBytes,"aboveThreshold" + "/" + "aboveThreshold");
+    context.getCounter(RollupCounter.ABOVE_THRESHOLD).increment(1);
   }
  else {
     mos.write(dimensionKeyBytes,metricTimeSeriesBytes,"belowThreshold" + "/" + "belowThreshold");
+    context.getCounter(RollupCounter.BELOW_THRESHOLD).increment(1);
   }
   LOG.info("time series  {}",timeSeries);
 }

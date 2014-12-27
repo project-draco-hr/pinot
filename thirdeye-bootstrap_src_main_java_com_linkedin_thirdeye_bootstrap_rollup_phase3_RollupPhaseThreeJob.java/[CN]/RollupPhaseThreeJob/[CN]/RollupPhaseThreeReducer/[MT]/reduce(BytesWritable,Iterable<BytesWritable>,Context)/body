@@ -4,7 +4,7 @@
   Map<DimensionKey,MetricTimeSeries> possibleRollupTimeSeriesMap=new HashMap<DimensionKey,MetricTimeSeries>();
   for (  BytesWritable writable : rollupReduceOutputWritableIterable) {
     RollupPhaseTwoReduceOutput temp;
-    temp=RollupPhaseTwoReduceOutput.fromBytes(writable.getBytes(),metricSchema);
+    temp=RollupPhaseTwoReduceOutput.fromBytes(writable.copyBytes(),metricSchema);
     if (rawMetricTimeSeries == null) {
       rawDimensionKey=temp.getRawDimensionKey();
       rawMetricTimeSeries=temp.getRawTimeSeries();

@@ -1,8 +1,8 @@
 {
   DimensionKey rawDimensionKey;
-  rawDimensionKey=DimensionKey.fromBytes(dimensionKeyWritable.getBytes());
+  rawDimensionKey=DimensionKey.fromBytes(dimensionKeyWritable.copyBytes());
   MetricTimeSeries rawTimeSeries;
-  byte[] bytes=metricTimeSeriesWritable.getBytes();
+  byte[] bytes=metricTimeSeriesWritable.copyBytes();
   rawTimeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
   List<DimensionKey> combinations=generateCombinations(rawDimensionKey);
   for (  DimensionKey combination : combinations) {

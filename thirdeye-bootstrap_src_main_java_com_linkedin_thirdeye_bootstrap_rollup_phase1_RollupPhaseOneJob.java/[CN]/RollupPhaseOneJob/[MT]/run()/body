@@ -24,4 +24,9 @@
   MultipleOutputs.addNamedOutput(job,"belowThreshold",SequenceFileOutputFormat.class,BytesWritable.class,BytesWritable.class);
   FileOutputFormat.setOutputPath(job,new Path(getAndCheck(ROLLUP_PHASE1_OUTPUT_PATH.toString())));
   job.waitForCompletion(true);
+  Counters counters=job.getCounters();
+  for (  Enum e : RollupCounter.values()) {
+    Counter counter=counters.findCounter(e);
+    System.out.println(counter.getDisplayName() + " : " + counter.getValue());
+  }
 }
