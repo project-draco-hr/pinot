@@ -24,8 +24,10 @@
         for (        String dimensionName : dimensionNames) {
           builder.setDimensionValue(dimensionName,tokens[idx++]);
         }
-        for (        String metricName : metricNames) {
+        for (int i=0; i < metricNames.size(); i++) {
+          String metricName=metricNames.get(i);
           builder.setMetricValue(metricName,Integer.valueOf(tokens[idx++]));
+          builder.setMetricType(metricName,metricTypes.get(i));
         }
         builder.setTime(hasTime ? Long.valueOf(tokens[idx]) : 0L);
         nextLine=null;

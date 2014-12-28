@@ -1,0 +1,27 @@
+{
+  this.nodeId=nodeId;
+  this.file=file;
+  this.dimensionNames=dimensionNames;
+  this.metricNames=metricNames;
+  this.metricTypes=metricTypes;
+  this.forwardIndex=forwardIndex;
+  this.numTimeBuckets=numTimeBuckets;
+  this.dimensionSize=dimensionNames.size() * Integer.SIZE / 8;
+  int metricSize=0;
+  for (  String type : metricTypes) {
+    metricSize+=NumberUtils.byteSize(type);
+  }
+  this.timeBucketSize=metricSize + Long.SIZE / 8;
+  this.entrySize=dimensionSize + timeBucketSize * numTimeBuckets;
+  this.sync=new Object();
+  this.reverseIndex=new HashMap<String,Map<Integer,String>>();
+  for (  Map.Entry<String,Map<String,Integer>> e1 : forwardIndex.entrySet()) {
+    this.reverseIndex.put(e1.getKey(),new HashMap<Integer,String>());
+    for (    Map.Entry<String,Integer> e2 : e1.getValue().entrySet()) {
+      this.reverseIndex.get(e1.getKey()).put(e2.getValue(),e2.getKey());
+    }
+  }
+  this.dimensionValues=new HashMap<String,Set<String>>();
+  this.minTime=new AtomicLong(Long.MAX_VALUE);
+  this.maxTime=new AtomicLong(0);
+}

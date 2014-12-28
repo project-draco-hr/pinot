@@ -40,6 +40,8 @@ synchronized (sync) {
       StarTreeRecordImpl.Builder record=new StarTreeRecordImpl.Builder().setTime(entry.getKey()).setDimensionValues(query.getDimensionValues());
       for (int i=0; i < metricNames.size(); i++) {
         record.setMetricValue(metricNames.get(i),entry.getValue()[i]);
+        record.setMetricType(metricNames.get(i),metricTypes.get(i));
+        ;
       }
       timeSeries.add(record.build());
     }

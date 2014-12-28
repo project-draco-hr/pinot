@@ -70,7 +70,7 @@
               outputStream.write(backup);
               outputStream.flush();
               outputStream.close();
-              Iterable<StarTreeRecord> records=new StarTreeRecordStreamAvroFileImpl(dataFile,starTree.getConfig().getDimensionNames(),starTree.getConfig().getMetricNames(),starTree.getConfig().getTimeColumnName());
+              Iterable<StarTreeRecord> records=new StarTreeRecordStreamAvroFileImpl(dataFile,starTree.getConfig().getDimensionNames(),starTree.getConfig().getMetricNames(),starTree.getConfig().getMetricTypes(),starTree.getConfig().getTimeColumnName());
               for (              StarTreeRecord record : records) {
                 recordStore.update(record);
               }

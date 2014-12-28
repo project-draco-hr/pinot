@@ -19,6 +19,7 @@
   config=OBJECT_MAPPER.readValue(new FileInputStream(new File(configPath)),StarTreeBootstrapPhaseOneConfig.class);
   List<String> dimensionNames=config.getDimensionNames();
   List<String> metricNames=config.getMetricNames();
+  List<String> types=config.getMetricTypes();
   String timeColumnName=config.getTimeColumnName();
   int numTimeBuckets=config.getNumTimeBuckets();
   ArrayList<MetricType> metricTypes=Lists.newArrayList(MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT);
@@ -42,7 +43,7 @@
   Map<DimensionKey,MetricTimeSeries> aggregatedLeafRecords=new HashMap<DimensionKey,MetricTimeSeries>();
   if (new File(inputPath).isFile()) {
     File avroFile=new File(inputPath);
-    StarTreeRecordStreamAvroFileImpl recordStream=new StarTreeRecordStreamAvroFileImpl(avroFile,dimensionNames,metricNames,timeColumnName);
+    StarTreeRecordStreamAvroFileImpl recordStream=new StarTreeRecordStreamAvroFileImpl(avroFile,dimensionNames,metricNames,types,timeColumnName);
     Iterator<StarTreeRecord> iterator=recordStream.iterator();
     Map<UUID,StarTreeRecord> collector=new HashMap<UUID,StarTreeRecord>();
     int rowId=0;

@@ -6,8 +6,10 @@
   }
   long time=buffer.getLong();
   builder.setTime(time == -1 ? null : time);
-  for (  String metricName : metricNames) {
+  for (int i=0; i < metricNames.size(); i++) {
+    String metricName=metricNames.get(i);
     builder.setMetricValue(metricName,buffer.getInt());
+    builder.setMetricType(metricName,metricTypes.get(i));
   }
   return builder.build();
 }

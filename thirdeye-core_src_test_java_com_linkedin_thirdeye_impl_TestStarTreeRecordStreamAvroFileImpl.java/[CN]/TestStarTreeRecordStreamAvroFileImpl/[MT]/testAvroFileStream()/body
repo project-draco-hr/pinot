@@ -1,7 +1,7 @@
 {
-  int metricSum=0;
-  for (  StarTreeRecord record : new StarTreeRecordStreamAvroFileImpl(avroFile,Arrays.asList("A","B","C"),Arrays.asList("M"),"hoursSinceEpoch")) {
-    metricSum+=record.getMetricValues().get("M");
+  Number metricSum=0;
+  for (  StarTreeRecord record : new StarTreeRecordStreamAvroFileImpl(avroFile,Arrays.asList("A","B","C"),Arrays.asList("M"),Arrays.asList("INT"),"hoursSinceEpoch")) {
+    metricSum=NumberUtils.sum(metricSum,record.getMetricValues().get("M"),"INT");
   }
   Assert.assertEquals(metricSum,100);
 }

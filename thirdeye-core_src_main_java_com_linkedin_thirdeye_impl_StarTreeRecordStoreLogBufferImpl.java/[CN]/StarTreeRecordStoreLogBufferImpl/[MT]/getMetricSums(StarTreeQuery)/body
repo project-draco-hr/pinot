@@ -1,6 +1,7 @@
 {
 synchronized (sync) {
-    int[] sums=new int[metricNames.size()];
+    Number[] sums=new Number[metricNames.size()];
+    Arrays.fill(sums,0);
     ByteBuffer buffer=getBuffer();
     buffer.rewind();
     while (buffer.position() < buffer.limit()) {
@@ -21,9 +22,9 @@ synchronized (sync) {
         matches=false;
       }
       for (int i=0; i < metricNames.size(); i++) {
-        int value=buffer.getInt();
+        Number value=NumberUtils.readFromBuffer(buffer,metricTypes.get(i));
         if (matches) {
-          sums[i]+=value;
+          sums[i]=NumberUtils.sum(sums[i],value,metricTypes.get(i));
         }
       }
     }

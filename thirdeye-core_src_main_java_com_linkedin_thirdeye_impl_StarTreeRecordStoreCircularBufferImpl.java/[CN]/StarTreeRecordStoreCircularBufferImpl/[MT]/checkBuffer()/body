@@ -31,8 +31,10 @@
       if (time != 0 && time % numTimeBuckets != i) {
         throw new IllegalStateException("Time bucket violation: " + time + " % "+ numTimeBuckets+ " != "+ i);
       }
-      for (      String metricName : metricNames) {
-        buffer.getInt();
+      for (int j=0; j < metricNames.size(); j++) {
+        String metricName=metricNames.get(j);
+        String metricType=metricTypes.get(j);
+        Number val=NumberUtils.readFromBuffer(buffer,metricType);
       }
     }
     if (lastDimensions == null) {

@@ -1,0 +1,99 @@
+{
+  DataOutputStream dataOutputStream=new DataOutputStream(outputStream);
+  Map<Map<String,String>,List<StarTreeRecord>> groups=new HashMap<Map<String,String>,List<StarTreeRecord>>();
+  for (  StarTreeRecord record : records) {
+    List<StarTreeRecord> group=groups.get(record.getDimensionValues());
+    if (group == null) {
+      group=new ArrayList<StarTreeRecord>();
+      groups.put(record.getDimensionValues(),group);
+    }
+    group.add(record);
+  }
+  List<Map<String,String>> orderedCombinations=new ArrayList<Map<String,String>>(groups.keySet());
+  Collections.sort(orderedCombinations,new Comparator<Map<String,String>>(){
+    @Override public int compare(    Map<String,String> c1,    Map<String,String> c2){
+      for (      String dimensionName : dimensionNames) {
+        String v1=c1.get(dimensionName);
+        String v2=c2.get(dimensionName);
+        int i1=forwardIndex.get(dimensionName).get(v1);
+        int i2=forwardIndex.get(dimensionName).get(v2);
+        if (i1 != i2) {
+          return i1 - i2;
+        }
+      }
+      return 0;
+    }
+  }
+);
+  for (  Map<String,String> combination : orderedCombinations) {
+    List<StarTreeRecord> group=groups.get(combination);
+    Map<Long,List<StarTreeRecord>> timeGroup=new HashMap<Long,List<StarTreeRecord>>();
+    for (    StarTreeRecord r : group) {
+      List<StarTreeRecord> rs=timeGroup.get(r.getTime());
+      if (rs == null) {
+        rs=new ArrayList<StarTreeRecord>();
+        timeGroup.put(r.getTime(),rs);
+      }
+      rs.add(r);
+    }
+    Long minTime=null;
+    List<StarTreeRecord> merged=new ArrayList<StarTreeRecord>();
+    Set<Integer> representedBuckets=new HashSet<Integer>();
+    for (    List<StarTreeRecord> rs : timeGroup.values()) {
+      StarTreeRecord r=StarTreeUtils.merge(rs);
+      merged.add(r);
+      representedBuckets.add((int)(r.getTime() % numTimeBuckets));
+      if (minTime == null || r.getTime() < minTime) {
+        minTime=r.getTime();
+      }
+    }
+    if (minTime != null) {
+      int startBucket=(int)(minTime % numTimeBuckets);
+      int currentBucket=startBucket;
+      long currentTime=minTime;
+      do {
+        if (!representedBuckets.contains(currentBucket)) {
+          StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionValues(combination).setTime(currentTime);
+          for (int i=0; i < metricNames.size(); i++) {
+            String metricName=metricNames.get(i);
+            builder.setMetricValue(metricName,0);
+            builder.setMetricType(metricName,metricTypes.get(i));
+          }
+          merged.add(builder.build());
+        }
+        currentTime++;
+        currentBucket=(int)(currentTime % numTimeBuckets);
+      }
+ while (currentBucket != startBucket);
+    }
+    Collections.sort(merged,new Comparator<StarTreeRecord>(){
+      @Override public int compare(      StarTreeRecord r1,      StarTreeRecord r2){
+        int b1=(int)(r1.getTime() % numTimeBuckets);
+        int b2=(int)(r2.getTime() % numTimeBuckets);
+        return b1 - b2;
+      }
+    }
+);
+    for (    String dimensionName : dimensionNames) {
+      String dimensionValue=combination.get(dimensionName);
+      Integer valueId=forwardIndex.get(dimensionName).get(dimensionValue);
+      if (valueId == null) {
+        throw new IllegalStateException("No ID for dimension value " + dimensionName + ":"+ dimensionValue);
+      }
+      dataOutputStream.writeInt(valueId);
+    }
+    for (    StarTreeRecord record : merged) {
+      dataOutputStream.writeLong(record.getTime());
+      for (int i=0; i < metricNames.size(); i++) {
+        String metricName=metricNames.get(i);
+        if (keepMetricValues) {
+          Number val=record.getMetricValues().get(metricName);
+          NumberUtils.addToDataOutputStream(dataOutputStream,val,metricTypes.get(i));
+        }
+ else {
+          NumberUtils.addToDataOutputStream(dataOutputStream,0,metricTypes.get(i));
+        }
+      }
+    }
+  }
+}

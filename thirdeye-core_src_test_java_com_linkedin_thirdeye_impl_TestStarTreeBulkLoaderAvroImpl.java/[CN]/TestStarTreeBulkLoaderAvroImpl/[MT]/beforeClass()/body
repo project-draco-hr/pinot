@@ -11,6 +11,7 @@
     builder.setDimensionValue("B","B" + (i % 4));
     builder.setDimensionValue("C","C" + (i % 8));
     builder.setMetricValue("M",1);
+    builder.setMetricType("M","INT");
     builder.setTime((long)i);
     records.add(builder.build());
   }
@@ -25,7 +26,7 @@
     forwardIndex.get(dimensionName).put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
   }
   OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + ".buf"));
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,Arrays.asList("A","B","C"),Arrays.asList("M"),forwardIndex,records,128,true);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,Arrays.asList("A","B","C"),Arrays.asList("M"),Arrays.asList("INT"),forwardIndex,records,128,true);
   outputStream.flush();
   outputStream.close();
   outputStream=new FileOutputStream(new File(rootDir,nodeId + ".idx"));
@@ -35,7 +36,7 @@
   Properties recordStoreFactoryConfig=new Properties();
   recordStoreFactoryConfig.setProperty("rootDir",rootDir.getAbsolutePath());
   recordStoreFactoryConfig.setProperty("numTimeBuckets","128");
-  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setTimeColumnName("hoursSinceEpoch").setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setMetricTypes(Arrays.asList("INT")).setTimeColumnName("hoursSinceEpoch").setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
   starTree=new StarTreeImpl(config,new StarTreeNodeImpl(nodeId,config.getThresholdFunction(),config.getRecordStoreFactory(),StarTreeConstants.STAR,StarTreeConstants.STAR,new ArrayList<String>(),new HashMap<String,String>(),new HashMap<String,StarTreeNode>(),null,null));
   starTree.open();
   File bulkLoadDataDir=new File(tmpDir,"data");

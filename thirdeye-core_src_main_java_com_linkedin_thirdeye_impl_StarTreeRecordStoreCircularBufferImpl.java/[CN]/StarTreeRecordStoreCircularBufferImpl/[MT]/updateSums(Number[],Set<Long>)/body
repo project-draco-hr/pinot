@@ -1,0 +1,35 @@
+{
+  if (timeBuckets == null) {
+    for (int i=0; i < numTimeBuckets; i++) {
+      long time=buffer.getLong();
+      for (int j=0; j < metricNames.size(); j++) {
+        Number val=NumberUtils.readFromBuffer(buffer,metricTypes.get(j));
+        if (sums[j] == null) {
+          sums[j]=val;
+        }
+ else {
+          sums[j]=NumberUtils.sum(sums[j],val,metricTypes.get(j));
+        }
+      }
+    }
+  }
+ else {
+    int base=buffer.position();
+    for (    Long time : timeBuckets) {
+      int bucket=(int)(time % numTimeBuckets);
+      buffer.position(base + bucket * timeBucketSize);
+      long t=buffer.getLong();
+      if (t == time) {
+        for (int i=0; i < metricNames.size(); i++) {
+          Number val=NumberUtils.readFromBuffer(buffer,metricTypes.get(i));
+          if (sums[i] != null) {
+            sums[i]=NumberUtils.sum(sums[i],val,metricTypes.get(i));
+          }
+ else {
+            sums[i]=val;
+          }
+        }
+      }
+    }
+  }
+}

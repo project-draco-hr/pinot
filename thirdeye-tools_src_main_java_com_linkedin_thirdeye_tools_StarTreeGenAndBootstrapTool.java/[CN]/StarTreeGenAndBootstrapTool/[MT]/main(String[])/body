@@ -22,12 +22,12 @@
   List<Iterable<StarTreeRecord>> recordStreams=new ArrayList<Iterable<StarTreeRecord>>();
   if ("avro".equals(fileType)) {
     for (    String inputFile : inputFiles) {
-      recordStreams.add(new StarTreeRecordStreamAvroFileImpl(new File(inputFile),config.getDimensionNames(),config.getMetricNames(),config.getTimeColumnName()));
+      recordStreams.add(new StarTreeRecordStreamAvroFileImpl(new File(inputFile),config.getDimensionNames(),config.getMetricNames(),config.getMetricTypes(),config.getTimeColumnName()));
     }
   }
  else   if ("tsv".equals(fileType)) {
     for (    String inputFile : inputFiles) {
-      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),config.getDimensionNames(),config.getMetricNames(),"\t",commandLine.hasOption("ignoreTime")));
+      recordStreams.add(new StarTreeRecordStreamTextStreamImpl(new FileInputStream(inputFile),config.getDimensionNames(),config.getMetricNames(),config.getMetricTypes(),"\t",commandLine.hasOption("ignoreTime")));
     }
   }
  else   if ("sequenceFile".equals(fileType)) {

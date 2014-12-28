@@ -3,7 +3,7 @@ synchronized (sync) {
     List<StarTreeRecord> list=new LinkedList<StarTreeRecord>();
     buffer.clear();
     int[] currentDimensions=new int[dimensionNames.size()];
-    int[] currentMetrics=new int[metricNames.size()];
+    Number[] currentMetrics=new Number[metricNames.size()];
     while (buffer.position() < buffer.limit()) {
       getDimensions(currentDimensions);
       Map<String,String> values=translateDimensions(currentDimensions);
@@ -13,6 +13,7 @@ synchronized (sync) {
         builder.setDimensionValues(values).setTime(time);
         for (int j=0; j < metricNames.size(); j++) {
           builder.setMetricValue(metricNames.get(j),currentMetrics[j]);
+          builder.setMetricType(metricNames.get(j),metricTypes.get(j));
         }
         list.add(builder.build());
       }

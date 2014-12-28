@@ -14,7 +14,9 @@
         }
         builder.setDimensionValue(dimensionName,o.toString());
       }
-      for (      String metricName : metricNames) {
+      for (int i=0; i < metricNames.size(); i++) {
+        String metricName=metricNames.get(i);
+        builder.setMetricType(metricName,metricTypes.get(i));
         Object o=genericRecord.get(metricName);
         if (o == null) {
           builder.setMetricValue(metricName,0);

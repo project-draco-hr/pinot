@@ -1,7 +1,8 @@
 {
   List<String> dimensionNames=Arrays.asList("A","B","C");
   List<String> metricNames=Arrays.asList("M");
-  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("createdCollection").setMetricNames(metricNames).setDimensionNames(dimensionNames).build();
+  List<String> metricTypes=Arrays.asList("INT");
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("createdCollection").setMetricNames(metricNames).setDimensionNames(dimensionNames).setMetricTypes(metricTypes).build();
   starTreeManager.registerConfig(config.getCollection(),config);
   starTreeManager.create(config.getCollection());
   starTreeManager.open(config.getCollection());

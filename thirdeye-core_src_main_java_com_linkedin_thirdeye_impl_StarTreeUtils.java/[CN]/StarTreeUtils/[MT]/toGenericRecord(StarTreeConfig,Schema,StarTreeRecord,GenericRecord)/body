@@ -30,7 +30,7 @@ default :
 throw new IllegalStateException("Unsupported dimension type " + schema.getField(dimension.getKey()));
 }
 }
-for (Map.Entry<String,Integer> metric : record.getMetricValues().entrySet()) {
+for (Map.Entry<String,Number> metric : record.getMetricValues().entrySet()) {
 switch (getType(schema.getField(metric.getKey()).schema())) {
 case INT:
 genericRecord.put(metric.getKey(),metric.getValue());

@@ -2,12 +2,12 @@
   recordStore=recordStoreFactory.createRecordStore(nodeId);
   List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
   for (int i=0; i < numRecords; i++) {
-    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + (i % 4)).setDimensionValue("B","B" + (i % 3)).setDimensionValue("C","C" + (i % 2)).setMetricValue("M",1).setTime((long)(i / (numRecords / numTimeBuckets)));
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionValue("A","A" + (i % 4)).setDimensionValue("B","B" + (i % 3)).setDimensionValue("C","C" + (i % 2)).setMetricValue("M",1).setMetricType("M","INT").setTime((long)(i / (numRecords / numTimeBuckets)));
     records.add(builder.build());
   }
-  records.add(new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0).setTime(0L).build());
+  records.add(new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0).setMetricType("M","INT").setTime(0L).build());
   OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + StarTreeConstants.BUFFER_FILE_SUFFIX));
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,dimensionNames,metricNames,forwardIndex,records,numTimeBuckets,true);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,dimensionNames,metricNames,metricTypes,forwardIndex,records,numTimeBuckets,true);
   outputStream.flush();
   outputStream.close();
   recordStore.open();

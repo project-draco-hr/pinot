@@ -25,7 +25,7 @@
     if (bufferSize > 0) {
       file=new File(dataDir,node.getId() + StarTreeConstants.BUFFER_FILE_SUFFIX);
       OutputStream outputStream=new FileOutputStream(file);
-      StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,starTreeConfig.getDimensionNames(),starTreeConfig.getMetricNames(),forwardIndex,node.getRecordStore(),numTimeBuckets,keepMetricValues);
+      StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,starTreeConfig.getDimensionNames(),starTreeConfig.getMetricNames(),starTreeConfig.getMetricTypes(),forwardIndex,node.getRecordStore(),numTimeBuckets,keepMetricValues);
       outputStream.flush();
       outputStream.close();
       LOG.info("Wrote {} ({} MB)",file,file.length() / (1024.0 * 1024));

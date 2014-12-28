@@ -4,11 +4,12 @@
     Map<String,Integer> aggregates=new HashMap<String,Integer>();
     for (    StarTreeRecord record : sampleEntry.getValue()) {
       for (      String metricName : metricThresholdValues.keySet()) {
-        Integer value=aggregates.get(metricName);
+        Number value=aggregates.get(metricName);
         if (value == null) {
           value=0;
         }
-        aggregates.put(metricName,value + record.getMetricValues().get(metricName));
+        Number sum=NumberUtils.sum(value,record.getMetricValues().get(metricName),"INT");
+        aggregates.put(metricName,sum.intValue());
       }
     }
     boolean passes=true;

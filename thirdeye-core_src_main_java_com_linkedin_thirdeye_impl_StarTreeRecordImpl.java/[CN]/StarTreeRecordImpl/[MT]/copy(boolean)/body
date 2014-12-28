@@ -4,10 +4,11 @@
     builder.setDimensionValue(entry.getKey(),entry.getValue());
   }
   if (keepMetrics) {
-    for (    Map.Entry<String,Integer> entry : metricValues.entrySet()) {
+    for (    Map.Entry<String,Number> entry : metricValues.entrySet()) {
       builder.setMetricValue(entry.getKey(),entry.getValue());
     }
   }
+  builder.setMetricType(metricTypes);
   builder.setTime(time);
   return builder.build();
 }
