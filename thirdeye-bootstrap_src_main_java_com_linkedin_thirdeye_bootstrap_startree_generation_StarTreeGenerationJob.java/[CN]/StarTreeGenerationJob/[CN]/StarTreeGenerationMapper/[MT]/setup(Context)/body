@@ -21,14 +21,20 @@
     String timeColumnName=config.getTimeColumnName();
     List<String> splitOrder=config.getSplitOrder();
     int maxRecordStoreEntries=config.getSplitThreshold();
-    StarTreeConfig config=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTimeColumnName(timeColumnName).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
+    StarTreeConfig starTreeconfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(config.getMetricTypes()).setTimeColumnName(timeColumnName).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
     ExecutorService executorService=Executors.newSingleThreadExecutor();
     starTreeManager=new StarTreeManagerImpl(executorService);
-    starTreeManager.registerConfig(collectionName,config);
+    starTreeManager.registerConfig(collectionName,starTreeconfig);
     starTreeManager.create(collectionName);
     starTreeManager.open(collectionName);
     hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "star-tree-"+ collectionName;
-    LOG.info(config.toJson());
+    LOG.info(starTreeconfig.toJson());
+    emptyMetricValuesMap=new HashMap<String,Number>();
+    metricTypesMap=new HashMap<String,String>();
+    for (int i=0; i < metricNames.size(); i++) {
+      emptyMetricValuesMap.put(metricNames.get(i),0);
+      metricTypesMap.put(metricNames.get(i),config.getMetricTypes().get(i));
+    }
   }
  catch (  Exception e) {
     throw new IOException(e);

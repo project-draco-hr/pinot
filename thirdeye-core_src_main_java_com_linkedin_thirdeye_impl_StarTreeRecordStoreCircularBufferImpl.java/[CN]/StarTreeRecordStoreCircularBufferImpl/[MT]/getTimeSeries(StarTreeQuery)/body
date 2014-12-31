@@ -1,6 +1,6 @@
 {
 synchronized (sync) {
-    Map<Long,int[]> allSums=new HashMap<Long,int[]>();
+    Map<Long,Number[]> allSums=new HashMap<Long,Number[]>();
     Set<Long> timeBuckets=getTimeBuckets(query);
     if (timeBuckets == null) {
       throw new IllegalArgumentException("Must specify time range in query " + query);
@@ -26,7 +26,7 @@ synchronized (sync) {
       }
     }
     List<StarTreeRecord> timeSeries=new ArrayList<StarTreeRecord>();
-    for (    Map.Entry<Long,int[]> entry : allSums.entrySet()) {
+    for (    Map.Entry<Long,Number[]> entry : allSums.entrySet()) {
       StarTreeRecordImpl.Builder record=new StarTreeRecordImpl.Builder().setTime(entry.getKey()).setDimensionValues(query.getDimensionValues());
       for (int i=0; i < metricNames.size(); i++) {
         record.setMetricValue(metricNames.get(i),entry.getValue()[i]);

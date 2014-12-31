@@ -2,8 +2,6 @@
   LOG.info("START: serializing star tree and the leaf record dimension store");
   StarTree starTree=starTreeManager.getStarTree(collectionName);
   String localOutputDir="./star-tree-" + collectionName;
-  Map<String,Number> metricValuesMap=Collections.emptyMap();
-  Map<String,String> metricTypesMap=Collections.emptyMap();
   Long time=0l;
   LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   starTree.close();
@@ -22,7 +20,7 @@
           map.put(dimensionName,StarTreeConstants.OTHER);
         }
       }
-      StarTreeRecord record=new StarTreeRecordImpl(map,metricValuesMap,metricTypesMap,time);
+      StarTreeRecord record=new StarTreeRecordImpl(map,emptyMetricValuesMap,metricTypesMap,time);
       starTreeManager.getStarTree(collectionName).add(record);
     }
     leafNodes.clear();
