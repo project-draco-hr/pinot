@@ -15,6 +15,12 @@
   String timeColumnName=jsonNode.get("timeColumnName").asText();
   StarTreeConfig.Builder starTreeConfig=new StarTreeConfig.Builder();
   starTreeConfig.setCollection(collection).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(metricTypes).setTimeColumnName(timeColumnName);
+  if (jsonNode.has("timeBucketSize")) {
+    starTreeConfig.setTimeBucketSize(jsonNode.get("timeBucketSize").asInt());
+  }
+  if (jsonNode.has("timeBucketSizeUnit")) {
+    starTreeConfig.setTimeBucketSizeUnit(TimeUnit.valueOf(jsonNode.get("timeBucketSizeUnit").asText().toUpperCase()));
+  }
   if (jsonNode.has("thresholdFunctionClass")) {
     starTreeConfig.setThresholdFunctionClass(jsonNode.get("thresholdFunctionClass").asText());
   }
