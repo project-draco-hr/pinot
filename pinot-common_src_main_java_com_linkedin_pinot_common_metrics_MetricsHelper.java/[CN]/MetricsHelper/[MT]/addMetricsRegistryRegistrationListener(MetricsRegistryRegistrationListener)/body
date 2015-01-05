@@ -1,0 +1,9 @@
+{
+synchronized (MetricsHelper.class) {
+    metricsRegistryRegistrationListenersMap.put(listener,null);
+    Set<MetricsRegistry> metricsRegistries=metricsRegistryMap.keySet();
+    for (    MetricsRegistry metricsRegistry : metricsRegistries) {
+      listener.onMetricsRegistryRegistered(metricsRegistry);
+    }
+  }
+}

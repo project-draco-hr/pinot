@@ -3,7 +3,8 @@
   TransportClientConf conf=new TransportClientConf();
   conf.init(transportConfigs);
   _registry=new MetricsRegistry();
-  new JmxReporter(_registry).start();
+  MetricsHelper.initializeMetrics(_config.subset(METRICS_CONFIG_PREFIX));
+  MetricsHelper.registerMetricsRegistry(_registry);
   _brokerMetrics=new BrokerMetrics(_registry);
   _state=State.INIT;
   _eventLoopGroup=new NioEventLoopGroup();
