@@ -1,0 +1,15 @@
+{
+  Map<String,ThirdEyeTimeSeries> timeSeries=new HashMap<String,ThirdEyeTimeSeries>(metricNames.length);
+  for (  String metricName : metricNames) {
+    ThirdEyeTimeSeries ts=new ThirdEyeTimeSeries();
+    ts.setLabel(metricName);
+    ts.setDimensionValues(dimensionValues);
+    timeSeries.put(metricName,ts);
+  }
+  for (  StarTreeRecord record : records) {
+    for (    Map.Entry<String,ThirdEyeTimeSeries> entry : timeSeries.entrySet()) {
+      entry.getValue().addRecord(record.getTime(),record.getMetricValues().get(entry.getKey()));
+    }
+  }
+  return new ArrayList<ThirdEyeTimeSeries>(timeSeries.values());
+}
