@@ -32,26 +32,15 @@ synchronized (sync) {
       }
       records.add(record);
     }
-    Set<String> passingValues;
-    if (thresholdFunction == null) {
-      passingValues=new HashSet<String>(groupedRecords.keySet());
-    }
- else {
-      passingValues=thresholdFunction.apply(groupedRecords);
-    }
-    LOG.info("Passing dimension values for split on {}",splitDimensionName);
-    for (    String passingValue : passingValues) {
-      LOG.info("\t{}",passingValue);
-    }
-    starNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
+    starNode=new StarTreeNodeImpl(UUID.randomUUID(),recordStoreFactory,splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
     starNode.init(config);
-    otherNode=new StarTreeNodeImpl(UUID.randomUUID(),thresholdFunction,recordStoreFactory,splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
+    otherNode=new StarTreeNodeImpl(UUID.randomUUID(),recordStoreFactory,splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
     otherNode.init(config);
-    for (    String dimensionValue : passingValues) {
+    for (    String dimensionValue : groupedRecords.keySet()) {
       if (StarTreeConstants.OTHER.equals(dimensionValue)) {
         continue;
       }
-      StarTreeNode child=addChildNode(dimensionValue);
+      addChildNode(dimensionValue);
     }
     for (    Map.Entry<String,List<StarTreeRecord>> entry : groupedRecords.entrySet()) {
       String dimensionValue=entry.getKey();

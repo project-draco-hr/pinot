@@ -21,18 +21,6 @@
   if (jsonNode.has("timeBucketSizeUnit")) {
     starTreeConfig.setTimeBucketSizeUnit(TimeUnit.valueOf(jsonNode.get("timeBucketSizeUnit").asText().toUpperCase()));
   }
-  if (jsonNode.has("thresholdFunctionClass")) {
-    starTreeConfig.setThresholdFunctionClass(jsonNode.get("thresholdFunctionClass").asText());
-  }
-  Properties thresholdFunctionConfig=new Properties();
-  if (jsonNode.has("thresholdFunctionConfig")) {
-    Iterator<Map.Entry<String,JsonNode>> itr=jsonNode.get("thresholdFunctionConfig").fields();
-    while (itr.hasNext()) {
-      Map.Entry<String,JsonNode> next=itr.next();
-      thresholdFunctionConfig.put(next.getKey(),next.getValue().asText());
-    }
-    starTreeConfig.setThresholdFunctionConfig(thresholdFunctionConfig);
-  }
   if (jsonNode.has("recordStoreFactoryClass")) {
     starTreeConfig.setRecordStoreFactoryClass(jsonNode.get("recordStoreFactoryClass").asText());
   }
