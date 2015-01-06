@@ -7,7 +7,7 @@
   }
  catch (  final RecognitionException e) {
     logger.error(e);
-    return new StringRepresentation(e.getMessage());
+    return new StringRepresentation(QueryException.PQL_PARSING_ERROR.toString());
   }
   if (!compiledJSON.has("collection")) {
     return new StringRepresentation("your request does not contain the collection information");
@@ -19,7 +19,7 @@
   }
  catch (  final JSONException e) {
     logger.error(e);
-    return new StringRepresentation(e.getMessage());
+    return new StringRepresentation(QueryException.BROKER_RESOURCE_MISSING_ERROR.toString());
   }
   String instanceId;
   try {
@@ -27,10 +27,10 @@
   }
  catch (  final Exception e) {
     logger.error(e);
-    return new StringRepresentation(e.getMessage());
+    return new StringRepresentation(QueryException.BROKER_INSTANCE_MISSING_ERROR.toString());
   }
   if (instanceId == null) {
-    return new StringRepresentation("could not find a broker for data resource : " + resource);
+    return new StringRepresentation(QueryException.BROKER_INSTANCE_MISSING_ERROR.toString());
   }
   final String[] splStrings=instanceId.split("_");
   final String host="http://" + splStrings[1];
