@@ -24,8 +24,8 @@
   MetricTimeSeries aggSeries=new MetricTimeSeries(schema);
   aggSeries.aggregate(series);
   aggSeries.aggregate(newSeries);
-  Assert.assertEquals(aggSeries.timeseries.size(),series.timeseries.size());
-  for (  long timeWindow : series.timeseries.keySet()) {
+  Assert.assertEquals(aggSeries.getTimeWindowSet().size(),series.getTimeWindowSet().size());
+  for (  long timeWindow : series.getTimeWindowSet()) {
     for (int j=0; j < names.size(); j++) {
       String name=names.get(j);
       int v1=(Integer)series.get(timeWindow,name);

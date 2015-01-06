@@ -11,6 +11,6 @@
     }
     possibleRollupTimeSeriesMap.put(temp.getRollupDimensionKey(),temp.getRollupTimeSeries());
   }
-  DimensionKey selectedRollup=rollupFunc.rollup(rawDimensionKey,possibleRollupTimeSeriesMap,rollupThresholdFunc);
+  DimensionKey selectedRollup=rollupFunc.rollup(rawDimensionKey,possibleRollupTimeSeriesMap,rollupThresholdFunction);
   context.write(new BytesWritable(selectedRollup.toBytes()),new BytesWritable(rawMetricTimeSeries.toBytes()));
 }
