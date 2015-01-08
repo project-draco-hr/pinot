@@ -20,9 +20,9 @@
           throw new IllegalStateException("Schema missing field " + metricName + ": "+ schema);
         }
       }
-      Schema.Field field=schema.getField(config.getTimeColumnName());
+      Schema.Field field=schema.getField(config.getTime().getColumnName());
       if (field == null) {
-        throw new IllegalStateException("Schema missing field " + config.getTimeColumnName() + ": "+ schema);
+        throw new IllegalStateException("Schema missing field " + config.getTime().getColumnName() + ": "+ schema);
       }
       LOG.info("Using schema {}",schema);
     }
@@ -56,7 +56,7 @@
         Integer newValue=metricValues.get(metricName) + ((Number)metricValue).intValue();
         metricValues.put(metricName,newValue);
       }
-      Object timeValue=record.get(config.getTimeColumnName());
+      Object timeValue=record.get(config.getTime().getColumnName());
       if (timeValue != null) {
         timeBuckets.add(((Number)timeValue).longValue());
       }

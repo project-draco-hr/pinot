@@ -3,7 +3,8 @@
   FileSystem dfs=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_CONFIG_PATH.toString()));
   try {
-    config=OBJECT_MAPPER.readValue(dfs.open(configPath),StarTreeBootstrapPhaseOneConfig.class);
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(dfs.open(configPath));
+    config=StarTreeBootstrapPhaseOneConfig.fromStarTreeConfig(starTreeConfig);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
     metricTypes=Lists.newArrayList();

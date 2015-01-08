@@ -25,11 +25,11 @@ synchronized (node) {
           blacklist.addAll(node.getAncestorDimensionNames());
           blacklist.add(node.getDimensionName());
           String splitDimensionName=null;
-          if (config.getSplitOrder() == null) {
+          if (config.getSplit().getOrder() == null) {
             splitDimensionName=node.getRecordStore().getMaxCardinalityDimension(blacklist);
           }
  else {
-            for (            String dimensionName : config.getSplitOrder()) {
+            for (            String dimensionName : config.getSplit().getOrder()) {
               if (!blacklist.contains(dimensionName)) {
                 splitDimensionName=dimensionName;
                 break;

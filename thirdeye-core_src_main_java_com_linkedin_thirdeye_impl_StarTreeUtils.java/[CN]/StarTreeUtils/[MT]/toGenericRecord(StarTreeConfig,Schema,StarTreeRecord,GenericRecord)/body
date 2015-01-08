@@ -48,18 +48,18 @@ default :
 throw new IllegalStateException("Invalid metric schema type: " + schema.getField(metric.getKey()));
 }
 }
-switch (getType(schema.getField(config.getTimeColumnName()).schema())) {
+switch (getType(schema.getField(config.getTime().getColumnName()).schema())) {
 case INT:
-genericRecord.put(config.getTimeColumnName(),record.getTime().intValue());
+genericRecord.put(config.getTime().getColumnName(),record.getTime().intValue());
 break;
 case LONG:
-genericRecord.put(config.getTimeColumnName(),record.getTime());
+genericRecord.put(config.getTime().getColumnName(),record.getTime());
 break;
 default :
-throw new IllegalStateException("Invalid time schema type: " + schema.getField(config.getTimeColumnName()));
+throw new IllegalStateException("Invalid time schema type: " + schema.getField(config.getTime().getColumnName()));
 }
 for (Schema.Field field : schema.getFields()) {
-if (!record.getDimensionValues().containsKey(field.name()) && !record.getMetricValues().containsKey(field.name()) && !config.getTimeColumnName().equals(field.name())) {
+if (!record.getDimensionValues().containsKey(field.name()) && !record.getMetricValues().containsKey(field.name()) && !config.getTime().getColumnName().equals(field.name())) {
 switch (getType(field.schema())) {
 case INT:
 genericRecord.put(field.name(),0);

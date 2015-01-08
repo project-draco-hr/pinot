@@ -7,7 +7,7 @@
     helpFormatter.printHelp("usage: [opts] configFile outputFile inputFile(s) ...",options);
     return;
   }
-  StarTreeConfig config=StarTreeConfig.fromJson(new ObjectMapper().readTree(new FileInputStream(commandLine.getArgs()[0])));
+  StarTreeConfig config=StarTreeConfig.decode(new FileInputStream(commandLine.getArgs()[0]));
   FileType fileType=FileType.valueOf(commandLine.getOptionValue("fileType","AVRO").toUpperCase());
   File outputFile=new File(commandLine.getArgs()[1]);
   List<File> inputFiles=new ArrayList<File>();

@@ -34,17 +34,15 @@
   new ObjectMapper().writeValue(outputStream,forwardIndex);
   outputStream.flush();
   outputStream.close();
-  Properties recordStoreFactoryConfig=new Properties();
-  recordStoreFactoryConfig.setProperty("rootDir",rootDir.getAbsolutePath());
-  recordStoreFactoryConfig.setProperty("numTimeBuckets","128");
-  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setMetricTypes(Arrays.asList("INT")).setTimeColumnName("hoursSinceEpoch").setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
+  TimeSpec timeSpec=new TimeSpec("hoursSinceEpoch",new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(128,TimeUnit.HOURS));
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setMetricTypes(Arrays.asList("INT")).setTime(timeSpec).build();
   StarTree starTree=new StarTreeImpl(config,rootDir,new StarTreeNodeImpl(nodeId,StarTreeConstants.STAR,StarTreeConstants.STAR,new ArrayList<String>(),new HashMap<String,String>(),new HashMap<String,StarTreeNode>(),null,null));
-  ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(new File(collectionDir,"tree.bin")));
+  ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(new File(collectionDir,StarTreeConstants.TREE_FILE_NAME)));
   objectOutputStream.writeObject(starTree.getRoot());
   objectOutputStream.flush();
   objectOutputStream.close();
-  outputStream=new FileOutputStream(new File(collectionDir,"config.json"));
-  outputStream.write(config.toJson().getBytes());
+  outputStream=new FileOutputStream(new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME));
+  outputStream.write(config.encode().getBytes());
   outputStream.flush();
   outputStream.close();
 }

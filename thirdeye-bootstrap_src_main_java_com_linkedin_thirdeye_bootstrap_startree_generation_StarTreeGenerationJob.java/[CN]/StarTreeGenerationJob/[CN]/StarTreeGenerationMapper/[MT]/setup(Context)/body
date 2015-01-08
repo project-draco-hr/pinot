@@ -5,7 +5,8 @@
   FileSystem fileSystem=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(STAR_TREE_GEN_CONFIG_PATH.toString()));
   try {
-    config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),StarTreeGenerationConfig.class);
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=StarTreeGenerationConfig.fromStarTreeConfig(starTreeConfig);
     dimensionNames=config.getDimensionNames();
     dimensionNameToIndexMapping=new HashMap<String,Integer>();
     for (int i=0; i < dimensionNames.size(); i++) {
@@ -21,14 +22,11 @@
     String timeColumnName=config.getTimeColumnName();
     List<String> splitOrder=config.getSplitOrder();
     int maxRecordStoreEntries=config.getSplitThreshold();
-    StarTreeConfig starTreeconfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(config.getMetricTypes()).setTimeColumnName(timeColumnName).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
-    ExecutorService executorService=Executors.newSingleThreadExecutor();
-    starTreeManager=new StarTreeManagerImpl(executorService,null);
-    starTreeManager.registerConfig(collectionName,starTreeconfig);
-    starTreeManager.create(collectionName);
-    starTreeManager.open(collectionName);
+    StarTreeConfig genConfig=new StarTreeConfig.Builder().setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(config.getMetricTypes()).setTime(starTreeConfig.getTime()).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
+    starTree=new StarTreeImpl(genConfig);
+    starTree.open();
     hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "star-tree-"+ collectionName;
-    LOG.info(starTreeconfig.toJson());
+    LOG.info(genConfig.encode());
     emptyMetricValuesMap=new HashMap<String,Number>();
     metricTypesMap=new HashMap<String,String>();
     for (int i=0; i < metricNames.size(); i++) {

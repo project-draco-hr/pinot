@@ -1,5 +1,5 @@
 {
-  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("dummy").setMaxRecordStoreEntries(4).setMetricNames(Arrays.asList("M")).setDimensionNames(Arrays.asList("A","B","C")).setMetricTypes(Arrays.asList("INT")).build();
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetricNames(Arrays.asList("M")).setDimensionNames(Arrays.asList("A","B","C")).setMetricTypes(Arrays.asList("INT")).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).build();
   StarTree starTree=new StarTreeImpl(config);
   starTree.open();
   for (int i=0; i < 100; i++) {

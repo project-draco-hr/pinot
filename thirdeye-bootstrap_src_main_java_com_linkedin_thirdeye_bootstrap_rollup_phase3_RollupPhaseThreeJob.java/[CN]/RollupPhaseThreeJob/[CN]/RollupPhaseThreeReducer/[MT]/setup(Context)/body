@@ -3,7 +3,8 @@
   FileSystem fileSystem=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(ROLLUP_PHASE3_CONFIG_PATH.toString()));
   try {
-    config=OBJECT_MAPPER.readValue(fileSystem.open(configPath),RollupPhaseThreeConfig.class);
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=RollupPhaseThreeConfig.fromStarTreeConfig(starTreeConfig);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
     metricTypes=Lists.newArrayList();

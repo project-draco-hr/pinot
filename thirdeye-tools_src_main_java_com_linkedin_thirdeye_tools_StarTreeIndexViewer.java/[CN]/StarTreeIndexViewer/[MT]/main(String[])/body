@@ -3,8 +3,7 @@
   String pathToTreeBinary=args[1];
   final String dataDirectory=args[2];
   final int numTimeBuckets=Integer.parseInt(args[3]);
-  JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(config));
-  final StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode);
+  final StarTreeConfig starTreeConfig=StarTreeConfig.decode(new FileInputStream(config));
   StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
   final StarTree starTree=new StarTreeImpl(starTreeConfig);
   javax.swing.SwingUtilities.invokeLater(new Runnable(){

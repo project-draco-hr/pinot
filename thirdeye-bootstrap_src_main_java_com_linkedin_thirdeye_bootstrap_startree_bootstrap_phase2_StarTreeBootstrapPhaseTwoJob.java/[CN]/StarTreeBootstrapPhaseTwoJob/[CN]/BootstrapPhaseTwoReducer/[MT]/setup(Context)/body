@@ -5,7 +5,8 @@
   Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_PHASE2_CONFIG_PATH.toString()));
   hdfsOutputDir=configuration.get(STAR_TREE_BOOTSTRAP_PHASE2_OUTPUT_PATH.toString());
   try {
-    config=OBJECT_MAPPER.readValue(dfs.open(configPath),StarTreeBootstrapPhaseTwoConfig.class);
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(dfs.open(configPath));
+    config=StarTreeBootstrapPhaseTwoConfig.fromStarTreeConfig(starTreeConfig);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
     metricTypes=Lists.newArrayList();

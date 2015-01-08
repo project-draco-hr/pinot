@@ -2,6 +2,7 @@
   List<String> dimensionNames=Arrays.asList("A","B","C");
   List<String> metricNames=Arrays.asList("M");
   List<String> metricTypes=Arrays.asList("INT");
-  starTreeManager=new StarTreeManagerImpl(Executors.newSingleThreadExecutor(),rootDir);
-  config=new StarTreeConfig.Builder().setCollection("myCollection").setMetricNames(metricNames).setMetricTypes(metricTypes).setDimensionNames(dimensionNames).build();
+  TimeSpec timeSpec=new TimeSpec("hoursSinceEpoch",new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(128,TimeUnit.HOURS));
+  starTreeManager=new StarTreeManagerImpl(Executors.newSingleThreadExecutor(),baseDir);
+  config=new StarTreeConfig.Builder().setCollection("myCollection").setMetricNames(metricNames).setMetricTypes(metricTypes).setDimensionNames(dimensionNames).setTime(timeSpec).build();
 }

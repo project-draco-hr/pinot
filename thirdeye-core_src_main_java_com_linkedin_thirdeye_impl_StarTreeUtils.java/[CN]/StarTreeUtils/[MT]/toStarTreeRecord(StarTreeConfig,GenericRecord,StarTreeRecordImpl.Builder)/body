@@ -15,9 +15,9 @@
     builder.setMetricValue(metricName,((Number)metricValue).intValue());
     builder.setMetricType(metricName,config.getMetricTypes().get(i));
   }
-  Object time=record.get(config.getTimeColumnName());
+  Object time=record.get(config.getTime().getColumnName());
   if (time == null) {
-    throw new IllegalStateException("Record does not have time column " + config.getTimeColumnName() + ": "+ record);
+    throw new IllegalStateException("Record does not have time column " + config.getTime().getColumnName() + ": "+ record);
   }
   builder.setTime(((Number)time).longValue());
 }

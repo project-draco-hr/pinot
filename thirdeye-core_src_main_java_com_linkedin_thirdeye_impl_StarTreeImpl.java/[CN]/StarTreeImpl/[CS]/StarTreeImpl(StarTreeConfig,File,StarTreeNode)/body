@@ -1,11 +1,11 @@
 {
   this.config=config;
-  this.maxRecordStoreEntries=config.getMaxRecordStoreEntries();
+  this.maxRecordStoreEntries=config.getSplit().getThreshold();
   this.root=root;
   this.dataDir=dataDir;
   try {
     this.recordStoreFactory=(StarTreeRecordStoreFactory)Class.forName(config.getRecordStoreFactoryClass()).newInstance();
-    this.recordStoreFactory.init(dataDir,config.getDimensionNames(),config.getMetricNames(),config.getMetricTypes(),config.getRecordStoreFactoryConfig());
+    this.recordStoreFactory.init(dataDir,config,config.getRecordStoreFactoryConfig());
   }
  catch (  Exception e) {
     throw new IllegalStateException(e);

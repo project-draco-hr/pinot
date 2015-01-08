@@ -2,6 +2,7 @@
   Job job=Job.getInstance(getConf());
   job.setJobName(name);
   job.setJarByClass(RollupPhaseThreeJob.class);
+  job.getConfiguration().set("mapreduce.reduce.shuffle.input.buffer.percent","0.40");
   job.setMapperClass(RollupPhaseThreeMapper.class);
   job.setInputFormatClass(SequenceFileInputFormat.class);
   job.setMapOutputKeyClass(BytesWritable.class);

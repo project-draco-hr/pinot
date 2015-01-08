@@ -4,7 +4,7 @@
   String dataDirectory=args[2];
   JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(configPath));
   JsonNode timeBuckets=jsonNode.get("recordStoreFactoryConfig").get("numTimeBuckets");
-  StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode);
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(new FileInputStream(configPath));
   StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
   List<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);

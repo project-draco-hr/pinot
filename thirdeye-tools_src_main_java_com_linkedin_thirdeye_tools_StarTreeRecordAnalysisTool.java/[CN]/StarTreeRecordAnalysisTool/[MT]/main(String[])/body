@@ -9,7 +9,7 @@
     helpFormatter.printHelp("usage: [opts] configFile inputFile(s) ...",options);
     return;
   }
-  StarTreeConfig config=StarTreeConfig.fromJson(new ObjectMapper().readTree(new FileInputStream(commandLine.getArgs()[0])));
+  StarTreeConfig config=StarTreeConfig.decode(new FileInputStream(commandLine.getArgs()[0]));
   Map<String,String> filter=OBJECT_MAPPER.readValue(commandLine.getOptionValue("filter","{}"),TYPE_REFERENCE);
   Long time=null;
   if (commandLine.hasOption("time")) {
@@ -17,7 +17,7 @@
   }
   List<Iterable<StarTreeRecord>> streams=new ArrayList<Iterable<StarTreeRecord>>();
   for (int i=1; i < commandLine.getArgs().length; i++) {
-    streams.add(new StarTreeRecordStreamAvroFileImpl(new File(commandLine.getArgs()[i]),config.getDimensionNames(),config.getMetricNames(),config.getMetricTypes(),config.getTimeColumnName()));
+    streams.add(new StarTreeRecordStreamAvroFileImpl(new File(commandLine.getArgs()[i]),config.getDimensionNames(),config.getMetricNames(),config.getMetricTypes(),config.getTime().getColumnName()));
   }
   boolean debug=commandLine.hasOption("debug");
   PrintWriter printWriter=new PrintWriter(System.out);

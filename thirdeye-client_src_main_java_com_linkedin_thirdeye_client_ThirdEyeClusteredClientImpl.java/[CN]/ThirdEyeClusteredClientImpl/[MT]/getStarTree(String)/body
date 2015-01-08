@@ -24,7 +24,7 @@
         if (res.get().getStatusLine().getStatusCode() != 200) {
           throw new IllegalStateException("Could not retrieve star tree for collection " + collection);
         }
-        StarTreeConfig config=StarTreeConfig.fromJson(OBJECT_MAPPER.readTree(res.get().getEntity().getContent()));
+        StarTreeConfig config=StarTreeConfig.decode(res.get().getEntity().getContent());
         EntityUtils.consume(res.get().getEntity());
         req=new HttpGet(getCollectionUri(collection,"starTree"));
         res=httpAsyncClient.execute(host,req,null);
