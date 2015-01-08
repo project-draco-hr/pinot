@@ -11,7 +11,5 @@
   if (metricTypes == null || metricTypes.isEmpty()) {
     throw new IllegalArgumentException("Must provide metric types");
   }
-  StarTreeRecordStoreFactory rF=(StarTreeRecordStoreFactory)Class.forName(recordStoreFactoryClass).newInstance();
-  rF.init(dimensionNames,metricNames,metricTypes,recordStoreFactoryConfig);
-  return new StarTreeConfig(collection,rF,maxRecordStoreEntries,dimensionNames,metricNames,metricTypes,splitOrder,timeColumnName,timeBucketSize,timeBucketSizeUnit);
+  return new StarTreeConfig(collection,recordStoreFactoryClass,recordStoreFactoryConfig,maxRecordStoreEntries,dimensionNames,metricNames,metricTypes,splitOrder,timeColumnName,timeBucketSize,timeBucketSizeUnit);
 }

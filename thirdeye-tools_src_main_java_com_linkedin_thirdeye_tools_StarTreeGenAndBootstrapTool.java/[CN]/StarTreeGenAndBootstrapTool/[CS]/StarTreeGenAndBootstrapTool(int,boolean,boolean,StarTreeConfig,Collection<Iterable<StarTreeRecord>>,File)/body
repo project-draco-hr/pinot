@@ -4,7 +4,8 @@
   this.keepBuffers=keepBuffers;
   this.starTreeConfig=starTreeConfig;
   this.recordStreams=recordStreams;
-  this.outputDir=outputDir;
-  this.dataDir=new File(outputDir,DATA_DIR);
+  this.rootDir=rootDir;
+  this.collectionDir=new File(rootDir,starTreeConfig.getCollection());
+  this.dataDir=new File(collectionDir,StarTreeConstants.DATA_DIR_NAME);
   this.executorService=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 }

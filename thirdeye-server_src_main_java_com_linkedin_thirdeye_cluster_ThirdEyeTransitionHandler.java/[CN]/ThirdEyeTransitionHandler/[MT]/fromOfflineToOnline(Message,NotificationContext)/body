@@ -32,6 +32,6 @@ synchronized (archiveSource) {
   starTreeManager.stub(rootDir,collection);
   StarTree starTree=starTreeManager.getStarTree(collection);
   Set<UUID> targetIds=getLeafIds(collection,partitionId,context);
-  enableRecordStores(starTree.getRoot(),starTree.getConfig(),targetIds);
+  enableRecordStores(starTree.getRoot(),starTree.getConfig(),starTree.getRecordStoreFactory(),targetIds);
   LOG.info("END\t{}: OFFLINE -> ONLINE",message.getPartitionId());
 }

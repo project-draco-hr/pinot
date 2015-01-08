@@ -23,7 +23,7 @@
     int maxRecordStoreEntries=config.getSplitThreshold();
     StarTreeConfig starTreeconfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(config.getMetricTypes()).setTimeColumnName(timeColumnName).setMaxRecordStoreEntries(maxRecordStoreEntries).build();
     ExecutorService executorService=Executors.newSingleThreadExecutor();
-    starTreeManager=new StarTreeManagerImpl(executorService);
+    starTreeManager=new StarTreeManagerImpl(executorService,null);
     starTreeManager.registerConfig(collectionName,starTreeconfig);
     starTreeManager.create(collectionName);
     starTreeManager.open(collectionName);

@@ -32,10 +32,10 @@ synchronized (sync) {
       }
       records.add(record);
     }
-    starNode=new StarTreeNodeImpl(UUID.randomUUID(),recordStoreFactory,splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
-    starNode.init(config);
-    otherNode=new StarTreeNodeImpl(UUID.randomUUID(),recordStoreFactory,splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
-    otherNode.init(config);
+    starNode=new StarTreeNodeImpl(UUID.randomUUID(),splitDimensionName,StarTreeConstants.STAR,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
+    starNode.init(config,recordStoreFactory);
+    otherNode=new StarTreeNodeImpl(UUID.randomUUID(),splitDimensionName,StarTreeConstants.OTHER,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
+    otherNode.init(config,recordStoreFactory);
     for (    String dimensionValue : groupedRecords.keySet()) {
       if (StarTreeConstants.OTHER.equals(dimensionValue)) {
         continue;

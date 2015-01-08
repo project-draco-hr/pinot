@@ -38,7 +38,7 @@
   recordStoreFactoryConfig.setProperty("rootDir",rootDir.getAbsolutePath());
   recordStoreFactoryConfig.setProperty("numTimeBuckets","128");
   StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setMetricTypes(Arrays.asList("INT")).setTimeColumnName("hoursSinceEpoch").setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
-  StarTree starTree=new StarTreeImpl(config,new StarTreeNodeImpl(nodeId,config.getRecordStoreFactory(),StarTreeConstants.STAR,StarTreeConstants.STAR,new ArrayList<String>(),new HashMap<String,String>(),new HashMap<String,StarTreeNode>(),null,null));
+  StarTree starTree=new StarTreeImpl(config,rootDir,new StarTreeNodeImpl(nodeId,StarTreeConstants.STAR,StarTreeConstants.STAR,new ArrayList<String>(),new HashMap<String,String>(),new HashMap<String,StarTreeNode>(),null,null));
   ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(new File(collectionDir,"tree.bin")));
   objectOutputStream.writeObject(starTree.getRoot());
   objectOutputStream.flush();

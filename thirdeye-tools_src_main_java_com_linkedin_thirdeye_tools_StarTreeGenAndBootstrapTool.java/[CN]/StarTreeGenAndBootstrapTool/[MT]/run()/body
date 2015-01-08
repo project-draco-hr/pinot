@@ -1,9 +1,9 @@
 {
   try {
-    if (!outputDir.exists() && outputDir.mkdir()) {
-      LOG.info("Created {}",outputDir);
+    if (!collectionDir.exists() && collectionDir.mkdir()) {
+      LOG.info("Created {}",collectionDir);
     }
-    StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService);
+    StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService,rootDir);
     starTreeManager.registerConfig(starTreeConfig.getCollection(),starTreeConfig);
     starTreeManager.create(starTreeConfig.getCollection());
     starTreeManager.open(starTreeConfig.getCollection());
@@ -14,7 +14,7 @@
     }
     StarTree starTree=starTreeManager.getStarTree(starTreeConfig.getCollection());
     StarTreeStats stats=starTree.getStats();
-    File starTreeFile=new File(outputDir,TREE_FILE);
+    File starTreeFile=new File(collectionDir,TREE_FILE);
     LOG.info("Writing {}",starTreeFile);
     ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(starTreeFile));
     os.writeObject(starTree.getRoot());
@@ -29,7 +29,7 @@
     configJson.put("timeColumnName",starTreeConfig.getTimeColumnName());
     configJson.put("recordStoreFactoryClass",StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName());
     configJson.put("recordStoreFactoryConfig",recordStoreFactoryConfig);
-    File configFile=new File(outputDir,CONFIG_FILE);
+    File configFile=new File(collectionDir,CONFIG_FILE);
     LOG.info("Writing {}",configFile);
     OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(configFile,configJson);
     if (keepBuffers) {

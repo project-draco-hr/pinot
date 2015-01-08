@@ -3,7 +3,7 @@
   String pathToTreeBinary=args[1];
   String dataDirectory=args[2];
   JsonNode jsonNode=new ObjectMapper().readTree(new FileInputStream(config));
-  StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode,new File(dataDirectory).getParentFile());
+  StarTreeConfig starTreeConfig=StarTreeConfig.fromJson(jsonNode);
   StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
   List<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
