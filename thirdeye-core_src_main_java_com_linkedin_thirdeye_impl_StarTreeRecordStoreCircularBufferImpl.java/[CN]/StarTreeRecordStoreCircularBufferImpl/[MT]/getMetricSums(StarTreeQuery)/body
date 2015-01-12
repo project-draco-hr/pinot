@@ -1,6 +1,6 @@
 {
 synchronized (sync) {
-    Number[] sums=new Number[metricNames.size()];
+    Number[] sums=new Number[metricSpecs.size()];
     Arrays.fill(sums,0);
     Set<Long> timeBuckets=getTimeBuckets(query);
     int[] targetDimensions=translateDimensions(query.getDimensionValues());
@@ -12,7 +12,7 @@ synchronized (sync) {
     }
  else {
       buffer.clear();
-      int[] currentDimensions=new int[dimensionNames.size()];
+      int[] currentDimensions=new int[dimensionSpecs.size()];
       while (buffer.position() < buffer.limit()) {
         buffer.mark();
         getDimensions(currentDimensions);

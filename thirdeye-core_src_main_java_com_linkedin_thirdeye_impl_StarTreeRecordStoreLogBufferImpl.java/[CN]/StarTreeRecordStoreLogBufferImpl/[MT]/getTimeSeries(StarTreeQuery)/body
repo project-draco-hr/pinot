@@ -8,10 +8,10 @@ synchronized (sync) {
     buffer.rewind();
     while (buffer.position() < buffer.limit()) {
       boolean matches=true;
-      for (      String dimensionName : dimensionNames) {
+      for (      DimensionSpec dimensionSpec : dimensionSpecs) {
         int valueId=buffer.getInt();
-        String recordValue=reverseIndex.get(dimensionName).get(valueId);
-        String queryValue=query.getDimensionValues().get(dimensionName);
+        String recordValue=reverseIndex.get(dimensionSpec.getName()).get(valueId);
+        String queryValue=query.getDimensionValues().get(dimensionSpec.getName());
         if (!StarTreeConstants.STAR.equals(queryValue) && !queryValue.equals(recordValue)) {
           matches=false;
         }
@@ -25,10 +25,10 @@ synchronized (sync) {
       }
       int[] sums=allSums.get(time);
       if (sums == null && matches) {
-        sums=new int[dimensionNames.size()];
+        sums=new int[dimensionSpecs.size()];
         allSums.put(time,sums);
       }
-      for (int i=0; i < metricNames.size(); i++) {
+      for (int i=0; i < metricSpecs.size(); i++) {
         int value=buffer.getInt();
         if (matches) {
           sums[i]+=value;
@@ -38,10 +38,9 @@ synchronized (sync) {
     List<StarTreeRecord> timeSeries=new ArrayList<StarTreeRecord>();
     for (    Map.Entry<Long,int[]> entry : allSums.entrySet()) {
       StarTreeRecordImpl.Builder record=new StarTreeRecordImpl.Builder().setTime(entry.getKey()).setDimensionValues(query.getDimensionValues());
-      for (int i=0; i < metricNames.size(); i++) {
-        record.setMetricValue(metricNames.get(i),entry.getValue()[i]);
-        record.setMetricType(metricNames.get(i),metricTypes.get(i));
-        ;
+      for (int i=0; i < metricSpecs.size(); i++) {
+        record.setMetricValue(metricSpecs.get(i).getName(),entry.getValue()[i]);
+        record.setMetricType(metricSpecs.get(i).getName(),metricSpecs.get(i).getType());
       }
       timeSeries.add(record.build());
     }

@@ -1,28 +1,28 @@
 {
-  for (  String dimensionName : dimensionNames) {
-    String dimensionValue=record.getDimensionValues().get(dimensionName);
+  for (  DimensionSpec dimensionSpec : dimensionSpecs) {
+    String dimensionValue=record.getDimensionValues().get(dimensionSpec.getName());
     if (StarTreeConstants.STAR.equals(dimensionValue)) {
       buffer.putInt(STAR_VALUE);
     }
  else {
-      Map<String,Integer> valueIds=getForwardIndex().get(dimensionName);
+      Map<String,Integer> valueIds=getForwardIndex().get(dimensionSpec.getName());
       if (valueIds == null) {
         valueIds=new HashMap<String,Integer>();
-        getForwardIndex().put(dimensionName,valueIds);
+        getForwardIndex().put(dimensionSpec.getName(),valueIds);
       }
       Integer valueId=valueIds.get(dimensionValue);
       if (valueId == null) {
         valueId=nextValueId.getAndIncrement();
         valueIds.put(dimensionValue,valueId);
-        reverseIndex.get(dimensionName).put(valueId,dimensionValue);
+        reverseIndex.get(dimensionSpec.getName()).put(valueId,dimensionValue);
       }
       buffer.putInt(valueId);
     }
   }
   buffer.putLong(record.getTime() == null ? -1L : record.getTime());
-  for (int i=0; i < metricNames.size(); i++) {
-    String metricName=metricNames.get(i);
+  for (int i=0; i < metricSpecs.size(); i++) {
+    String metricName=metricSpecs.get(i).getName();
     Number value=record.getMetricValues().get(metricName);
-    NumberUtils.addToBuffer(buffer,value,metricTypes.get(i));
+    NumberUtils.addToBuffer(buffer,value,metricSpecs.get(i).getType());
   }
 }

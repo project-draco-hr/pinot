@@ -7,16 +7,16 @@
     @Override public StarTreeRecord next(){
       StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
       GenericRecord genericRecord=itr.next();
-      for (      String dimensionName : dimensionNames) {
-        Object o=genericRecord.get(dimensionName);
+      for (      DimensionSpec dimensionSpec : dimensionSpecs) {
+        Object o=genericRecord.get(dimensionSpec.getName());
         if (o == null) {
           throw new IllegalArgumentException("Found null dimension value in " + genericRecord);
         }
-        builder.setDimensionValue(dimensionName,o.toString());
+        builder.setDimensionValue(dimensionSpec.getName(),o.toString());
       }
-      for (int i=0; i < metricNames.size(); i++) {
-        String metricName=metricNames.get(i);
-        builder.setMetricType(metricName,metricTypes.get(i));
+      for (int i=0; i < metricSpecs.size(); i++) {
+        String metricName=metricSpecs.get(i).getName();
+        builder.setMetricType(metricName,metricSpecs.get(i).getType());
         Object o=genericRecord.get(metricName);
         if (o == null) {
           builder.setMetricValue(metricName,0);

@@ -1,11 +1,11 @@
 {
   Map<String,String> fixedDimensions=new HashMap<String,String>();
-  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    String dimensionValue=uriInfo.getQueryParameters().getFirst(dimensionName);
+  for (  DimensionSpec dimensionSpec : starTree.getConfig().getDimensions()) {
+    String dimensionValue=uriInfo.getQueryParameters().getFirst(dimensionSpec.getName());
     if (dimensionValue != null) {
       dimensionValue=StarTreeConstants.STAR;
     }
-    fixedDimensions.put(dimensionName,dimensionValue);
+    fixedDimensions.put(dimensionSpec.getName(),dimensionValue);
   }
   return fixedDimensions;
 }

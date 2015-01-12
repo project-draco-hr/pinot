@@ -1,30 +1,30 @@
 {
   String collection="myCollection";
-  List<String> dimensionNames=Arrays.asList("A","B","C");
-  List<String> metricNames=Arrays.asList("M");
+  List<DimensionSpec> dimensionSpecs=Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"));
+  List<MetricSpec> metricSpecs=Arrays.asList(new MetricSpec("M",MetricType.INT));
   StarTreeConfig.Builder builder=new StarTreeConfig.Builder();
-  builder.setDimensionNames(dimensionNames).setMetricNames(metricNames);
+  builder.setDimensions(dimensionSpecs).setMetrics(metricSpecs);
   try {
     builder.build();
     Assert.fail();
   }
  catch (  Exception e) {
   }
-  builder.setDimensionNames(null).setMetricNames(null);
-  builder.setCollection(collection).setMetricNames(metricNames);
+  builder.setDimensions(null).setMetrics(null);
+  builder.setCollection(collection).setMetrics(metricSpecs);
   try {
     builder.build();
     Assert.fail();
   }
  catch (  Exception e) {
   }
-  builder.setCollection(null).setMetricNames(null);
-  builder.setCollection(collection).setDimensionNames(dimensionNames);
+  builder.setCollection(null).setMetrics(null);
+  builder.setCollection(collection).setDimensions(dimensionSpecs);
   try {
     builder.build();
     Assert.fail();
   }
  catch (  Exception e) {
   }
-  builder.setCollection(null).setDimensionNames(null);
+  builder.setCollection(null).setDimensions(null);
 }

@@ -2,14 +2,11 @@
   if (collection == null) {
     throw new IllegalArgumentException("Must provide collection");
   }
-  if (metricNames == null || metricNames.isEmpty()) {
-    throw new IllegalArgumentException("Must provide metric names");
-  }
-  if (dimensionNames == null || dimensionNames.isEmpty()) {
+  if (dimensions == null || dimensions.isEmpty()) {
     throw new IllegalArgumentException("Must provide dimension names");
   }
-  if (metricTypes == null || metricTypes.isEmpty()) {
-    throw new IllegalArgumentException("Must provide metric types");
+  if (metrics == null || metrics.isEmpty()) {
+    throw new IllegalArgumentException("Must provide metric specs");
   }
-  return new StarTreeConfig(collection,recordStoreFactoryClass,recordStoreFactoryConfig,dimensionNames,metricNames,metricTypes,time,rollup,split);
+  return new StarTreeConfig(collection,recordStoreFactoryClass,recordStoreFactoryConfig,dimensions,metrics,time,rollup,split);
 }

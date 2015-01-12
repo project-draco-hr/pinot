@@ -1,8 +1,8 @@
 {
   StarTreeConfig config=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("SampleConfig.json"));
   Assert.assertEquals(config.getCollection(),"myCollection");
-  Assert.assertEquals(config.getDimensionNames(),Arrays.asList("A","B","C"));
-  Assert.assertEquals(config.getMetricNames(),Arrays.asList("M"));
+  Assert.assertEquals(config.getDimensions(),DIMENSION_SPECS);
+  Assert.assertEquals(config.getMetrics(),Arrays.asList(new MetricSpec("M",MetricType.INT)));
   Assert.assertEquals(config.getTime().getColumnName(),"T");
   Assert.assertEquals(config.getRecordStoreFactoryClass(),StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName());
 }

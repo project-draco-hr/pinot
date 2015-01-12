@@ -19,10 +19,10 @@
     }
   }
   int idx=0;
-  for (int i=0; i < config.getMetricNames().size(); i++) {
-    String metricName=config.getMetricNames().get(i);
+  for (int i=0; i < config.getMetrics().size(); i++) {
+    String metricName=config.getMetrics().get(i).getName();
     result.setMetricValue(metricName,sums[idx++]);
-    result.setMetricType(metricName,config.getMetricTypes().get(i));
+    result.setMetricType(metricName,config.getMetrics().get(i).getType());
   }
   return result.build();
 }

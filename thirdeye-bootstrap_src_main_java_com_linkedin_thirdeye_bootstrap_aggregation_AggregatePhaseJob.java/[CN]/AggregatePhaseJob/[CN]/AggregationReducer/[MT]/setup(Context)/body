@@ -5,10 +5,7 @@
   try {
     StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
     config=AggregationJobConfig.fromStarTreeConfig(starTreeConfig);
-    metricTypes=Lists.newArrayList();
-    for (    String type : config.getMetricTypes()) {
-      metricTypes.add(MetricType.valueOf(type));
-    }
+    metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     aggregationStats=new AggregationStats(metricSchema);
     statOutputDir=configuration.get(AGG_OUTPUT_PATH.toString()) + "_stats/";

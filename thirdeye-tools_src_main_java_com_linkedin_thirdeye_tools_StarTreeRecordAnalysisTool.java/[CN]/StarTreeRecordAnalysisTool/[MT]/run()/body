@@ -1,7 +1,7 @@
 {
   Map<String,Number> aggregates=new HashMap<String,Number>();
-  for (  String metricName : config.getMetricNames()) {
-    aggregates.put(metricName,0);
+  for (  MetricSpec spec : config.getMetrics()) {
+    aggregates.put(spec.getName(),0);
   }
   for (  Iterable<StarTreeRecord> stream : streams) {
     for (    StarTreeRecord record : stream) {
@@ -13,10 +13,10 @@
       }
     }
   }
-  for (  String metricName : config.getMetricNames()) {
-    printWriter.print(metricName);
+  for (  MetricSpec spec : config.getMetrics()) {
+    printWriter.print(spec.getName());
     printWriter.print("=");
-    printWriter.print(aggregates.get(metricName));
+    printWriter.print(aggregates.get(spec.getName()));
     printWriter.println();
   }
 }

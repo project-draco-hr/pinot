@@ -5,10 +5,10 @@
   }
   Map<String,String> fixedDimensions=getFixedDimensions(starTree,uriInfo);
   Map<String,List<String>> allDimensionValues=new HashMap<String,List<String>>();
-  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    Set<String> dimensionValues=starTree.getDimensionValues(dimensionName,fixedDimensions);
-    allDimensionValues.put(dimensionName,new ArrayList<String>(dimensionValues));
-    Collections.sort(allDimensionValues.get(dimensionName));
+  for (  DimensionSpec dimensionSpec : starTree.getConfig().getDimensions()) {
+    Set<String> dimensionValues=starTree.getDimensionValues(dimensionSpec.getName(),fixedDimensions);
+    allDimensionValues.put(dimensionSpec.getName(),new ArrayList<String>(dimensionValues));
+    Collections.sort(allDimensionValues.get(dimensionSpec.getName()));
   }
   return allDimensionValues;
 }

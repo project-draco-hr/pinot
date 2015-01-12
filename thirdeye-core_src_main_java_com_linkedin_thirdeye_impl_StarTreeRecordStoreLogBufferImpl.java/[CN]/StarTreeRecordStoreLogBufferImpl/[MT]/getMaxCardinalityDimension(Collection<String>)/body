@@ -2,11 +2,11 @@
 synchronized (sync) {
     String maxDimension=null;
     int maxCardinality=0;
-    for (    String dimensionName : dimensionNames) {
-      int cardinality=getCardinality(dimensionName);
-      if (cardinality > maxCardinality && (blacklist == null || !blacklist.contains(dimensionName))) {
+    for (    DimensionSpec dimensionSpec : dimensionSpecs) {
+      int cardinality=getCardinality(dimensionSpec.getName());
+      if (cardinality > maxCardinality && (blacklist == null || !blacklist.contains(dimensionSpec.getName()))) {
         maxCardinality=cardinality;
-        maxDimension=dimensionName;
+        maxDimension=dimensionSpec.getName();
       }
     }
     return maxDimension;

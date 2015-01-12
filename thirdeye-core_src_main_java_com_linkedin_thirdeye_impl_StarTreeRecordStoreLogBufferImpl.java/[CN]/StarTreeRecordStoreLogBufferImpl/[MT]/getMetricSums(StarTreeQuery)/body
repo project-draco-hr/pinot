@@ -1,15 +1,15 @@
 {
 synchronized (sync) {
-    Number[] sums=new Number[metricNames.size()];
+    Number[] sums=new Number[metricSpecs.size()];
     Arrays.fill(sums,0);
     ByteBuffer buffer=getBuffer();
     buffer.rewind();
     while (buffer.position() < buffer.limit()) {
       boolean matches=true;
-      for (      String dimensionName : dimensionNames) {
+      for (      DimensionSpec dimensionSpec : dimensionSpecs) {
         int valueId=buffer.getInt();
-        String recordValue=reverseIndex.get(dimensionName).get(valueId);
-        String queryValue=query.getDimensionValues().get(dimensionName);
+        String recordValue=reverseIndex.get(dimensionSpec.getName()).get(valueId);
+        String queryValue=query.getDimensionValues().get(dimensionSpec.getName());
         if (!StarTreeConstants.STAR.equals(queryValue) && !queryValue.equals(recordValue)) {
           matches=false;
         }
@@ -21,10 +21,10 @@ synchronized (sync) {
  else       if (query.getTimeRange() != null && (time < query.getTimeRange().getKey() || time > query.getTimeRange().getValue())) {
         matches=false;
       }
-      for (int i=0; i < metricNames.size(); i++) {
-        Number value=NumberUtils.readFromBuffer(buffer,metricTypes.get(i));
+      for (int i=0; i < metricSpecs.size(); i++) {
+        Number value=NumberUtils.readFromBuffer(buffer,metricSpecs.get(i).getType());
         if (matches) {
-          sums[i]=NumberUtils.sum(sums[i],value,metricTypes.get(i));
+          sums[i]=NumberUtils.sum(sums[i],value,metricSpecs.get(i).getType());
         }
       }
     }

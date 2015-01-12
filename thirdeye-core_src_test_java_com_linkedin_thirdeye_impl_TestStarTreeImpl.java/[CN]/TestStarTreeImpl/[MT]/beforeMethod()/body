@@ -10,7 +10,7 @@
   }
  catch (  Exception e) {
   }
-  config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetricNames(Arrays.asList("M")).setMetricTypes(Arrays.asList("INT")).setDimensionNames(Arrays.asList("A","B","C")).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).build();
+  config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).build();
   starTree=new StarTreeImpl(config);
   starTree.open();
   for (int i=0; i < 100; i++) {
@@ -19,7 +19,7 @@
     builder.setDimensionValue("B","B" + (i % 4));
     builder.setDimensionValue("C","C" + (i % 8));
     builder.setMetricValue("M",1);
-    builder.setMetricType("M","INT");
+    builder.setMetricType("M",MetricType.INT);
     builder.setTime((long)i);
     starTree.add(builder.build());
   }
@@ -28,6 +28,6 @@
   builder.setDimensionValue("B","BX");
   builder.setDimensionValue("C","CX");
   builder.setMetricValue("M",1);
-  builder.setMetricType("M","INT");
+  builder.setMetricType("M",MetricType.INT);
   starTree.add(builder.build());
 }

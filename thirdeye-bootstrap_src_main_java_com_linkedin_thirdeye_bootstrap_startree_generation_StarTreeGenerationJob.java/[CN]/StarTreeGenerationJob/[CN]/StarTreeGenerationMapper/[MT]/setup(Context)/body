@@ -13,22 +13,27 @@
       dimensionNameToIndexMapping.put(dimensionNames.get(i),i);
     }
     metricNames=config.getMetricNames();
-    metricTypes=Lists.newArrayList();
-    for (    String type : config.getMetricTypes()) {
-      metricTypes.add(MetricType.valueOf(type));
-    }
+    metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    List<MetricSpec> metricSpecs=new ArrayList<MetricSpec>();
+    for (int i=0; i < metricNames.size(); i++) {
+      metricSpecs.add(new MetricSpec(metricNames.get(i),metricTypes.get(i)));
+    }
+    List<DimensionSpec> dimensionSpecs=new ArrayList<DimensionSpec>();
+    for (    String dimensionName : dimensionNames) {
+      dimensionSpecs.add(new DimensionSpec(dimensionName));
+    }
     collectionName=config.getCollectionName();
     String timeColumnName=config.getTimeColumnName();
     List<String> splitOrder=config.getSplitOrder();
     int maxRecordStoreEntries=config.getSplitThreshold();
-    StarTreeConfig genConfig=new StarTreeConfig.Builder().setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setMetricTypes(config.getMetricTypes()).setTime(starTreeConfig.getTime()).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
+    StarTreeConfig genConfig=new StarTreeConfig.Builder().setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setCollection(collectionName).setDimensions(dimensionSpecs).setMetrics(metricSpecs).setTime(starTreeConfig.getTime()).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
     starTree=new StarTreeImpl(genConfig);
     starTree.open();
     hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "star-tree-"+ collectionName;
     LOG.info(genConfig.encode());
     emptyMetricValuesMap=new HashMap<String,Number>();
-    metricTypesMap=new HashMap<String,String>();
+    metricTypesMap=new HashMap<String,MetricType>();
     for (int i=0; i < metricNames.size(); i++) {
       emptyMetricValuesMap.put(metricNames.get(i),0);
       metricTypesMap.put(metricNames.get(i),config.getMetricTypes().get(i));

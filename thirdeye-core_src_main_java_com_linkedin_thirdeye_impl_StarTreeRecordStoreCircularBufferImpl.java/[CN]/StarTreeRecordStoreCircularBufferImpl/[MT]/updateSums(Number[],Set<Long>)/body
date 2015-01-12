@@ -2,13 +2,13 @@
   if (timeBuckets == null) {
     for (int i=0; i < numTimeBuckets; i++) {
       long time=buffer.getLong();
-      for (int j=0; j < metricNames.size(); j++) {
-        Number val=NumberUtils.readFromBuffer(buffer,metricTypes.get(j));
+      for (int j=0; j < metricSpecs.size(); j++) {
+        Number val=NumberUtils.readFromBuffer(buffer,metricSpecs.get(j).getType());
         if (sums[j] == null) {
           sums[j]=val;
         }
  else {
-          sums[j]=NumberUtils.sum(sums[j],val,metricTypes.get(j));
+          sums[j]=NumberUtils.sum(sums[j],val,metricSpecs.get(j).getType());
         }
       }
     }
@@ -20,10 +20,10 @@
       buffer.position(base + bucket * timeBucketSize);
       long t=buffer.getLong();
       if (t == time) {
-        for (int i=0; i < metricNames.size(); i++) {
-          Number val=NumberUtils.readFromBuffer(buffer,metricTypes.get(i));
+        for (int i=0; i < metricSpecs.size(); i++) {
+          Number val=NumberUtils.readFromBuffer(buffer,metricSpecs.get(i).getType());
           if (sums[i] != null) {
-            sums[i]=NumberUtils.sum(sums[i],val,metricTypes.get(i));
+            sums[i]=NumberUtils.sum(sums[i],val,metricSpecs.get(i).getType());
           }
  else {
             sums[i]=val;

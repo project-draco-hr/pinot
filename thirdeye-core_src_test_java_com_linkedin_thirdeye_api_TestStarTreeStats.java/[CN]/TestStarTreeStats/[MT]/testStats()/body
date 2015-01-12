@@ -1,5 +1,5 @@
 {
-  StarTreeStats stats=new StarTreeStats(Arrays.asList("A","B","C"),Arrays.asList("M"),"T",1,TimeUnit.HOURS);
+  StarTreeStats stats=new StarTreeStats(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C")),Arrays.asList(new MetricSpec("M",MetricType.INT)),"T",1,TimeUnit.HOURS);
   stats.countNode();
   stats.countLeaf();
   stats.countBytes(1024);
@@ -10,8 +10,8 @@
   stats.updateMinTime(2000L);
   Assert.assertEquals(stats.getNodeCount(),1);
   Assert.assertEquals(stats.getLeafCount(),1);
-  Assert.assertEquals(stats.getDimensionNames(),Arrays.asList("A","B","C"));
-  Assert.assertEquals(stats.getMetricNames(),Arrays.asList("M"));
+  Assert.assertEquals(stats.getDimensions(),DIMENSION_SPECS);
+  Assert.assertEquals(stats.getMetrics(),Arrays.asList(new MetricSpec("M",MetricType.INT)));
   Assert.assertEquals(stats.getTimeColumnName(),"T");
   Assert.assertEquals(stats.getMinTime(),1000L);
   Assert.assertEquals(stats.getMaxTime(),2000L);

@@ -14,7 +14,7 @@ synchronized (sync) {
     }
  else {
       buffer.clear();
-      int[] currentDimensions=new int[dimensionNames.size()];
+      int[] currentDimensions=new int[dimensionSpecs.size()];
       while (buffer.position() < buffer.limit()) {
         buffer.mark();
         getDimensions(currentDimensions);
@@ -28,9 +28,9 @@ synchronized (sync) {
     List<StarTreeRecord> timeSeries=new ArrayList<StarTreeRecord>();
     for (    Map.Entry<Long,Number[]> entry : allSums.entrySet()) {
       StarTreeRecordImpl.Builder record=new StarTreeRecordImpl.Builder().setTime(entry.getKey()).setDimensionValues(query.getDimensionValues());
-      for (int i=0; i < metricNames.size(); i++) {
-        record.setMetricValue(metricNames.get(i),entry.getValue()[i]);
-        record.setMetricType(metricNames.get(i),metricTypes.get(i));
+      for (int i=0; i < metricSpecs.size(); i++) {
+        record.setMetricValue(metricSpecs.get(i).getName(),entry.getValue()[i]);
+        record.setMetricType(metricSpecs.get(i).getName(),metricSpecs.get(i).getType());
       }
       timeSeries.add(record.build());
     }

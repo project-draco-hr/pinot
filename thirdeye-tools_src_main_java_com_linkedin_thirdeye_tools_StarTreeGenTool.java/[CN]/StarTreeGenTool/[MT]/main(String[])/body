@@ -21,12 +21,20 @@
   recordStoreFactoryConfig.setProperty("numTimeBuckets","672");
   System.out.println(outputPath.toUri().toString());
   recordStoreFactoryConfig.setProperty("rootDir","");
+  List<MetricSpec> metricSpecs=new ArrayList<MetricSpec>(metricNames.size());
+  for (  String metricName : metricNames) {
+    metricSpecs.add(new MetricSpec(metricName,MetricType.INT));
+  }
+  List<DimensionSpec> dimensionSpecs=new ArrayList<DimensionSpec>(dimensionNames.size());
+  for (  String dimensionName : dimensionNames) {
+    dimensionSpecs.add(new DimensionSpec(dimensionName));
+  }
   TimeSpec timeSpec=new TimeSpec(config.getTimeColumnName(),new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(672,TimeUnit.HOURS));
-  StarTreeConfig starTreeConfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensionNames(dimensionNames).setMetricNames(metricNames).setTime(timeSpec).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
+  StarTreeConfig starTreeConfig=new StarTreeConfig.Builder().setCollection(collectionName).setDimensions(dimensionSpecs).setMetrics(metricSpecs).setTime(timeSpec).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
   System.out.println(starTreeConfig.encode());
   int rowCount=0;
   StarTree starTree=new StarTreeImpl(starTreeConfig);
-  Map<String,String> metricTypesMap=Collections.emptyMap();
+  Map<String,MetricType> metricTypesMap=Collections.emptyMap();
   Map<String,Number> metricValuesMap=Collections.emptyMap();
   while (reader.next(key,val)) {
     BytesWritable writable=(BytesWritable)key;

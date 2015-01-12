@@ -6,31 +6,31 @@
   StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(new FileInputStream(pathToTreeBinary));
   List<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
-  List<String> dimensionNames=starTreeConfig.getDimensionNames();
+  List<DimensionSpec> dimensionSpecs=starTreeConfig.getDimensions();
   int totalCount=0;
   int errorCount=0;
   for (  StarTreeNode node : leafNodes) {
     String[] parentDimValues=new String[node.getAncestorDimensionNames().size() + 1];
     Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(node.getId().toString(),dataDirectory);
     Map<String,Map<Integer,String>> reverseIndex=StarTreeUtils.toReverseIndex(forwardIndex);
-    List<int[]> leafRecords=StarTreePersistanceUtil.readLeafRecords(dataDirectory,node.getId().toString(),starTreeConfig.getDimensionNames().size());
+    List<int[]> leafRecords=StarTreePersistanceUtil.readLeafRecords(dataDirectory,node.getId().toString(),starTreeConfig.getDimensions().size());
     List<String> ancestorDimensionNames=node.getAncestorDimensionNames();
     for (int i=0; i < ancestorDimensionNames.size(); i++) {
       String name=ancestorDimensionNames.get(i);
       parentDimValues[i]=node.getAncestorDimensionValues().get(name);
     }
     parentDimValues[parentDimValues.length - 1]=node.getDimensionValue();
-    String[] childDimValues=new String[dimensionNames.size()];
+    String[] childDimValues=new String[dimensionSpecs.size()];
     System.out.println("START: Processing leaf node:" + node.getId() + " "+ node.getPath()+ " numChildren:"+ leafRecords.size());
     for (    int arr[] : leafRecords) {
       Arrays.fill(childDimValues,"");
       boolean passed=true;
-      for (int i=0; i < dimensionNames.size(); i++) {
-        String name=dimensionNames.get(i);
+      for (int i=0; i < dimensionSpecs.size(); i++) {
+        String name=dimensionSpecs.get(i).getName();
         childDimValues[i]=reverseIndex.get(name).get(arr[i]);
       }
-      for (int i=0; i < dimensionNames.size(); i++) {
-        String name=dimensionNames.get(i);
+      for (int i=0; i < dimensionSpecs.size(); i++) {
+        String name=dimensionSpecs.get(i).getName();
         String parentNodeVal=null;
         if (node.getAncestorDimensionValues().containsKey(name)) {
           parentNodeVal=node.getAncestorDimensionValues().get(name);

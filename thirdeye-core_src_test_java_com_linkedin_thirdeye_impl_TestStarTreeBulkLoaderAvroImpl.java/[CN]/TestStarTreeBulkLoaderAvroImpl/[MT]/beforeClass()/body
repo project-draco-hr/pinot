@@ -11,7 +11,7 @@
     builder.setDimensionValue("B","B" + (i % 4));
     builder.setDimensionValue("C","C" + (i % 8));
     builder.setMetricValue("M",1);
-    builder.setMetricType("M","INT");
+    builder.setMetricType("M",MetricType.INT);
     builder.setTime((long)i);
     records.add(builder.build());
   }
@@ -26,7 +26,7 @@
     forwardIndex.get(dimensionName).put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
   }
   OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + ".buf"));
-  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,Arrays.asList("A","B","C"),Arrays.asList("M"),Arrays.asList("INT"),forwardIndex,records,128,true);
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C")),Arrays.asList(new MetricSpec("M",MetricType.INT)),forwardIndex,records,128,true);
   outputStream.flush();
   outputStream.close();
   outputStream=new FileOutputStream(new File(rootDir,nodeId + ".idx"));
@@ -35,7 +35,7 @@
   outputStream.close();
   TimeSpec timeSpec=new TimeSpec("hoursSinceEpoch",new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(1,TimeUnit.HOURS),new TimeGranularity(128,TimeUnit.HOURS));
   Properties recordStoreFactoryConfig=new Properties();
-  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensionNames(Arrays.asList("A","B","C")).setMetricNames(Arrays.asList("M")).setMetricTypes(Arrays.asList("INT")).setTime(timeSpec).setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("myCollection").setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setTime(timeSpec).setRecordStoreFactoryConfig(recordStoreFactoryConfig).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryCircularBufferImpl.class.getCanonicalName()).build();
   starTree=new StarTreeImpl(config,rootDir,new StarTreeNodeImpl(nodeId,StarTreeConstants.STAR,StarTreeConstants.STAR,new ArrayList<String>(),new HashMap<String,String>(),new HashMap<String,StarTreeNode>(),null,null));
   starTree.open();
   File bulkLoadDataDir=new File(tmpDir,"data");

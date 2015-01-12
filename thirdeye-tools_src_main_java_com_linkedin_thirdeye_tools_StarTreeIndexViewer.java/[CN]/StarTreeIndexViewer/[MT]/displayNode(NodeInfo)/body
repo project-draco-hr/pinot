@@ -4,10 +4,9 @@
     String nodeId=nodeInfo._node.getId().toString();
     Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(nodeId,dataDir);
     Map<String,Map<Integer,String>> reverseIndex=StarTreeUtils.toReverseIndex(forwardIndex);
-    int numMetrics=_config.getMetricNames().size();
-    List<String> metricTypes=_config.getMetricTypes();
-    int numDimensions=_config.getDimensionNames().size();
-    Map<int[],Map<Long,Number[]>> leafRecords=StarTreePersistanceUtil.readLeafRecords(dataDir,nodeId,numDimensions,numMetrics,metricTypes,numTimeBuckets);
+    int numMetrics=_config.getMetrics().size();
+    int numDimensions=_config.getDimensions().size();
+    Map<int[],Map<Long,Number[]>> leafRecords=StarTreePersistanceUtil.readLeafRecords(dataDir,nodeId,numDimensions,numMetrics,_config.getMetrics(),numTimeBuckets);
     int numColumns=numDimensions + numMetrics + 1;
     int rowId=0;
     Number[] emptyMetrics=new Number[numMetrics];
@@ -17,7 +16,7 @@
       sb.append("<tr>");
       for (int i=0; i < numDimensions; i++) {
         sb.append("<td>");
-        sb.append(reverseIndex.get(_config.getDimensionNames().get(i)).get(dimArr[i]));
+        sb.append(reverseIndex.get(_config.getDimensions().get(i)).get(dimArr[i]));
         sb.append("</td>");
       }
       sb.append("<td colspan=" + (numMetrics + 1) + ">");

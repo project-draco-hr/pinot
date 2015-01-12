@@ -9,9 +9,9 @@
     throw new NotFoundException("No leaf for id " + nodeId);
   }
   Map<String,List<String>> dimensionValues=new HashMap<String,List<String>>();
-  for (  String dimensionName : starTree.getConfig().getDimensionNames()) {
-    List<String> values=new ArrayList<String>(leaf.getRecordStore().getDimensionValues(dimensionName));
-    dimensionValues.put(dimensionName,values);
+  for (  DimensionSpec dimensionSpec : starTree.getConfig().getDimensions()) {
+    List<String> values=new ArrayList<String>(leaf.getRecordStore().getDimensionValues(dimensionSpec.getName()));
+    dimensionValues.put(dimensionSpec.getName(),values);
   }
   return dimensionValues;
 }

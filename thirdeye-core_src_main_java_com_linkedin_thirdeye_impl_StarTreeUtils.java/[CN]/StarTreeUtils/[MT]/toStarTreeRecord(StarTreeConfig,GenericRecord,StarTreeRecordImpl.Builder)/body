@@ -1,19 +1,19 @@
 {
-  for (  String dimensionName : config.getDimensionNames()) {
-    Object dimensionValue=record.get(dimensionName);
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    Object dimensionValue=record.get(dimensionSpec.getName());
     if (dimensionValue == null) {
-      throw new IllegalStateException("Record has no value for dimension " + dimensionName);
+      throw new IllegalStateException("Record has no value for dimension " + dimensionSpec.getName());
     }
-    builder.setDimensionValue(dimensionName,dimensionValue.toString());
+    builder.setDimensionValue(dimensionSpec.getName(),dimensionValue.toString());
   }
-  for (int i=0; i < config.getMetricNames().size(); i++) {
-    String metricName=config.getMetricNames().get(i);
+  for (int i=0; i < config.getMetrics().size(); i++) {
+    String metricName=config.getMetrics().get(i).getName();
     Object metricValue=record.get(metricName);
     if (metricValue == null) {
       metricValue=0L;
     }
     builder.setMetricValue(metricName,((Number)metricValue).intValue());
-    builder.setMetricType(metricName,config.getMetricTypes().get(i));
+    builder.setMetricType(metricName,config.getMetrics().get(i).getType());
   }
   Object time=record.get(config.getTime().getColumnName());
   if (time == null) {

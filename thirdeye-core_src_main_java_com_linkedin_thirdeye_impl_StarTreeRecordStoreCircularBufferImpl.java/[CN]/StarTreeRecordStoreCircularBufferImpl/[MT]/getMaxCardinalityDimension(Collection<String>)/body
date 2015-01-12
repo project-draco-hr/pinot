@@ -1,11 +1,11 @@
 {
   String maxDimensionName=null;
   Integer maxCardinality=null;
-  for (  String dimensionName : dimensionNames) {
-    int cardinality=getCardinality(dimensionName);
-    if ((blacklist == null || !blacklist.contains(dimensionName)) && (maxCardinality == null || cardinality > maxCardinality)) {
+  for (  DimensionSpec dimensionSpec : dimensionSpecs) {
+    int cardinality=getCardinality(dimensionSpec.getName());
+    if ((blacklist == null || !blacklist.contains(dimensionSpec.getName())) && (maxCardinality == null || cardinality > maxCardinality)) {
       maxCardinality=cardinality;
-      maxDimensionName=dimensionName;
+      maxDimensionName=dimensionSpec.getName();
     }
   }
   return maxDimensionName;
