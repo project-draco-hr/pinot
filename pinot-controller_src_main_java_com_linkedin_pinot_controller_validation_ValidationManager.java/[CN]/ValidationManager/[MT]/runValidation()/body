@@ -35,15 +35,10 @@
           _validationMetrics.updateMissingSegmentsGauge(resourceName,tableName,missingIntervals.size());
         }
         long maxSegmentEndTime=Long.MIN_VALUE;
-        long maxSegmentPushTime=Long.MIN_VALUE;
         for (        SegmentMetadata segmentMetadata : tableSegmentsMetadata) {
           Interval segmentInterval=segmentMetadata.getTimeInterval();
-          long indexCreationTime=segmentMetadata.getIndexCreationTime();
           if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
             maxSegmentEndTime=segmentInterval.getEndMillis();
-          }
-          if (maxSegmentPushTime < indexCreationTime) {
-            maxSegmentPushTime=indexCreationTime;
           }
         }
         _validationMetrics.updateOfflineSegmentDelayGauge(resourceName,tableName,maxSegmentEndTime);
