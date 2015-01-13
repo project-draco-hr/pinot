@@ -1,0 +1,13 @@
+{
+  _validationMetrics=validationMetrics;
+  _pinotHelixResourceManager=pinotHelixResourceManager;
+  _validationIntervalSeconds=config.getValidationControllerFrequencyInSeconds();
+  _executorService=Executors.newSingleThreadScheduledExecutor(new ThreadFactory(){
+    @Override public Thread newThread(    Runnable runnable){
+      Thread thread=new Thread(runnable);
+      thread.setName("PinotValidationManagerExecutorService");
+      return thread;
+    }
+  }
+);
+}

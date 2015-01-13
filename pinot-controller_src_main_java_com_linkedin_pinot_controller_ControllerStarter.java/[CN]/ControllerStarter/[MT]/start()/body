@@ -16,9 +16,12 @@
     component.start();
     logger.info("starting retention manager");
     retentionManager.start();
+    validationManager.start();
   }
  catch (  final Exception e) {
     logger.error(e);
     throw new RuntimeException(e);
   }
+  MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));
+  MetricsHelper.registerMetricsRegistry(_metricsRegistry);
 }

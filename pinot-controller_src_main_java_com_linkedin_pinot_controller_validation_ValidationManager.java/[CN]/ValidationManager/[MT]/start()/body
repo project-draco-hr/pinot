@@ -1,0 +1,9 @@
+{
+  logger.info("Starting validation manager");
+  _executorService.scheduleWithFixedDelay(new Runnable(){
+    @Override public void run(){
+      runValidation();
+    }
+  }
+,120,_validationIntervalSeconds,TimeUnit.SECONDS);
+}

@@ -1,0 +1,30 @@
+{
+  if (sortedStartTimes.length < 2) {
+    return 0;
+  }
+  final long frequencyMillis=frequency.toMillis(1);
+  final long halfFrequencyMillis=frequencyMillis / 2;
+  final long firstStartTime=sortedStartTimes[0];
+  final long lastStartTime=sortedStartTimes[sortedStartTimes.length - 1];
+  final int expectedSegmentCount=(int)((lastStartTime + halfFrequencyMillis - firstStartTime) / frequencyMillis);
+  int missingSegments=0;
+  int currentIndex=1;
+  for (int expectedIntervalCount=1; expectedIntervalCount <= expectedSegmentCount; ) {
+    final int intervalCount=(int)((sortedStartTimes[currentIndex] + halfFrequencyMillis - firstStartTime) / frequencyMillis);
+    if (intervalCount == expectedIntervalCount) {
+      ++expectedIntervalCount;
+      ++currentIndex;
+    }
+ else {
+      if (intervalCount < expectedIntervalCount) {
+        ++currentIndex;
+      }
+ else {
+        missingSegments+=intervalCount - expectedIntervalCount;
+        expectedIntervalCount=intervalCount + 1;
+        ++currentIndex;
+      }
+    }
+  }
+  return missingSegments;
+}

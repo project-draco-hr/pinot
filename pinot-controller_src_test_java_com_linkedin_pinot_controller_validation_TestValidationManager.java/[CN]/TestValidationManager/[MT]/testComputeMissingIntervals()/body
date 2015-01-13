@@ -1,0 +1,30 @@
+{
+  Interval jan1st=new Interval(new DateTime(2015,1,1,0,0,0),new DateTime(2015,1,1,23,59,59));
+  Interval jan2nd=new Interval(new DateTime(2015,1,2,0,0,0),new DateTime(2015,1,2,23,59,59));
+  Interval jan3rd=new Interval(new DateTime(2015,1,3,0,0,0),new DateTime(2015,1,3,23,59,59));
+  Interval jan4th=new Interval(new DateTime(2015,1,4,0,0,0),new DateTime(2015,1,4,23,59,59));
+  Interval jan5th=new Interval(new DateTime(2015,1,5,0,0,0),new DateTime(2015,1,5,23,59,59));
+  ArrayList<Interval> jan1st2nd3rd=new ArrayList<Interval>();
+  jan1st2nd3rd.add(jan1st);
+  jan1st2nd3rd.add(jan2nd);
+  jan1st2nd3rd.add(jan3rd);
+  List<Interval> missingIntervalsForJan1st2nd3rd=ValidationManager.computeMissingIntervals(jan1st2nd3rd,Duration.standardDays(1));
+  Assert.assertTrue(missingIntervalsForJan1st2nd3rd.isEmpty());
+  ArrayList<Interval> jan1st2nd3rd5th=new ArrayList<Interval>(jan1st2nd3rd);
+  jan1st2nd3rd5th.add(jan5th);
+  List<Interval> missingIntervalsForJan1st2nd3rd5th=ValidationManager.computeMissingIntervals(jan1st2nd3rd5th,Duration.standardDays(1));
+  Assert.assertEquals(missingIntervalsForJan1st2nd3rd5th.size(),1);
+  ArrayList<Interval> jan5th2nd1st=new ArrayList<Interval>();
+  jan5th2nd1st.add(jan5th);
+  jan5th2nd1st.add(jan2nd);
+  jan5th2nd1st.add(jan1st);
+  List<Interval> missingIntervalsForJan5th2nd1st=ValidationManager.computeMissingIntervals(jan5th2nd1st,Duration.standardDays(1));
+  Assert.assertEquals(missingIntervalsForJan5th2nd1st.size(),2);
+  Interval jan1stAnd2nd=new Interval(new DateTime(2015,1,1,0,0,0),new DateTime(2015,1,2,23,59,59));
+  ArrayList<Interval> jan1st2nd4th5th=new ArrayList<Interval>();
+  jan1st2nd4th5th.add(jan1stAnd2nd);
+  jan1st2nd4th5th.add(jan4th);
+  jan1st2nd4th5th.add(jan5th);
+  List<Interval> missingIntervalsForJan1st2nd4th5th=ValidationManager.computeMissingIntervals(jan1st2nd4th5th,Duration.standardDays(1));
+  Assert.assertEquals(missingIntervalsForJan1st2nd4th5th.size(),1);
+}
