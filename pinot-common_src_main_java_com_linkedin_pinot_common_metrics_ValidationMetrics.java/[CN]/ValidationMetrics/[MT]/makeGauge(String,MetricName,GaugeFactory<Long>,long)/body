@@ -1,0 +1,9 @@
+{
+  if (!gaugeValues.containsKey(gaugeName)) {
+    gaugeValues.put(gaugeName,value);
+  }
+ else {
+    gaugeValues.put(gaugeName,value);
+    MetricsHelper.newGauge(_metricsRegistry,metricName,gaugeFactory.buildGauge(gaugeName));
+  }
+}

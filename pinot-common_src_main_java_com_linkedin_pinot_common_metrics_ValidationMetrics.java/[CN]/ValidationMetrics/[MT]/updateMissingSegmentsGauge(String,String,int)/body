@@ -1,9 +1,4 @@
 {
-  final String fullGaugeName="pinot.controller." + resource + "."+ tableName+ ".missingSegmentCount";
-  final MetricName metricName=new MetricName(ValidationMetrics.class,fullGaugeName);
-  final boolean needToCreateNewGauge=!gaugeValues.containsKey(fullGaugeName);
-  gaugeValues.put(fullGaugeName,(long)missingSegmentCount);
-  if (needToCreateNewGauge) {
-    MetricsHelper.newGauge(_metricsRegistry,metricName,new StoredValueGauge(fullGaugeName));
-  }
+  final String fullGaugeName=makeGaugeName(resource,tableName,"missingSegmentCount");
+  makeGauge(fullGaugeName,makeMetricName(fullGaugeName),_storedValueGaugeFactory,missingSegmentCount);
 }

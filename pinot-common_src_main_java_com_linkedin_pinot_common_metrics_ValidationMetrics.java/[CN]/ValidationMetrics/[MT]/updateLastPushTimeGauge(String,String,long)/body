@@ -1,9 +1,4 @@
 {
-  final String fullGaugeName="pinot.controller." + resource + "."+ tableName+ ".lastPushTimeDelayMillis";
-  final MetricName metricName=new MetricName(ValidationMetrics.class,fullGaugeName);
-  final boolean needToCreateNewGauge=!gaugeValues.containsKey(fullGaugeName);
-  gaugeValues.put(fullGaugeName,lastPushTimeMillis);
-  if (needToCreateNewGauge) {
-    MetricsHelper.newGauge(_metricsRegistry,metricName,new CurrentTimeMillisDeltaGauge(fullGaugeName));
-  }
+  final String fullGaugeName=makeGaugeName(resource,tableName,"lastPushTimeDelayMillis");
+  makeGauge(fullGaugeName,makeMetricName(fullGaugeName),_currentTimeMillisDeltaGaugeFactory,lastPushTimeMillis);
 }
