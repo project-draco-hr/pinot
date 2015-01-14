@@ -1,0 +1,40 @@
+{
+  String HELIX_CLUSTER_NAME="TestValidationManager";
+  String ZK_STR="localhost:2181";
+  String CONTROLLER_INSTANCE_NAME="localhost_11984";
+  PinotHelixResourceManager pinotHelixResourceManager;
+  ZkClient _zkClient=new ZkClient(ZK_STR);
+  String testResourceName="testResource";
+  String testTableName="testTable";
+  if (_zkClient.exists("/" + HELIX_CLUSTER_NAME)) {
+    _zkClient.deleteRecursive("/" + HELIX_CLUSTER_NAME);
+  }
+  Thread.sleep(1000);
+  pinotHelixResourceManager=new PinotHelixResourceManager(ZK_STR,HELIX_CLUSTER_NAME,CONTROLLER_INSTANCE_NAME,null);
+  pinotHelixResourceManager.start();
+  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
+  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
+  DataResource dataResource=new DataResource("create",testResourceName,testTableName,"timestamp","millsSinceEpoch",2,2,"DAYS","5","daily","BalanceNumSegmentAssignmentStrategy","broker_" + testResourceName,2,null);
+  pinotHelixResourceManager.handleCreateNewDataResource(dataResource);
+  DummyMetadata metadata=new DummyMetadata(testResourceName,testTableName);
+  metadata.setCrc("fakecrc");
+  pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
+  Thread.sleep(1000);
+  ZNRecord znRecord=pinotHelixResourceManager.getPropertyStore().get(PinotHelixUtils.constructPropertyStorePathForSegment(metadata.getResourceName(),metadata.getName()),null,AccessOption.PERSISTENT);
+  SegmentMetadata fetchedMetadata=new SegmentMetadataImpl(znRecord);
+  long pushTime=fetchedMetadata.getPushTime();
+  Assert.assertTrue(System.currentTimeMillis() - pushTime < 30000);
+  Assert.assertEquals(fetchedMetadata.getRefreshTime(),Long.MIN_VALUE);
+  metadata.setCrc("anotherfakecrc");
+  pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
+  Thread.sleep(1000);
+  znRecord=pinotHelixResourceManager.getPropertyStore().get(PinotHelixUtils.constructPropertyStorePathForSegment(metadata.getResourceName(),metadata.getName()),null,AccessOption.PERSISTENT);
+  fetchedMetadata=new SegmentMetadataImpl(znRecord);
+  Assert.assertEquals(fetchedMetadata.getPushTime(),pushTime);
+  Assert.assertTrue(System.currentTimeMillis() - fetchedMetadata.getRefreshTime() < 30000);
+  pinotHelixResourceManager.stop();
+  if (_zkClient.exists("/" + HELIX_CLUSTER_NAME)) {
+    _zkClient.deleteRecursive("/" + HELIX_CLUSTER_NAME);
+  }
+  _zkClient.close();
+}
