@@ -3,7 +3,7 @@
   starTreeManager.stub(baseDir,config.getCollection());
   starTreeManager.open(config.getCollection());
   StarTree starTree=starTreeManager.getStarTree(config.getCollection());
-  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").build();
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","*","*")).build(config);
   StarTreeRecord result=starTree.getAggregate(query);
-  Assert.assertEquals(result.getMetricValues().get("M").intValue(),0);
+  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),0);
 }

@@ -1,17 +1,3 @@
 {
-  Builder builder=new Builder();
-  for (  Map.Entry<String,String> entry : dimensionValues.entrySet()) {
-    if (otherDimensionNames.contains(entry.getKey())) {
-      builder.setDimensionValue(entry.getKey(),StarTreeConstants.OTHER);
-    }
- else {
-      builder.setDimensionValue(entry.getKey(),entry.getValue());
-    }
-  }
-  for (  Map.Entry<String,Number> entry : metricValues.entrySet()) {
-    builder.setMetricValue(entry.getKey(),entry.getValue());
-  }
-  builder.setMetricType(metricTypes);
-  builder.setTime(time);
-  return builder.build();
+  return alias(otherDimensionNames,StarTreeConstants.OTHER);
 }

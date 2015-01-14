@@ -1,7 +1,9 @@
 {
-  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValue("A","AX").setDimensionValue("B","B0").setDimensionValue("C","C0").setMetricValue("M",1).setMetricType("M",MetricType.INT).setTime(0L).build();
+  MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+  timeSeries.set(0,"M",1);
+  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("AX","B0","C0")).setMetricTimeSeries(timeSeries).build(starTreeConfig);
   recordStore.update(record);
-  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).build();
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey(StarTreeConstants.OTHER,StarTreeConstants.OTHER,StarTreeConstants.OTHER)).build(starTreeConfig);
   Number[] sums=recordStore.getMetricSums(query);
   Assert.assertEquals(sums[0],1);
 }

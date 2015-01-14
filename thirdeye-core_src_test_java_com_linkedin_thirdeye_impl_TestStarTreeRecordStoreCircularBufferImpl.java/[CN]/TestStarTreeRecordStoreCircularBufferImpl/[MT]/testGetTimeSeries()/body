@@ -1,11 +1,11 @@
 {
-  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").setTimeRange(0L,3L).build();
-  List<StarTreeRecord> timeSeries=recordStore.getTimeSeries(query);
-  Assert.assertEquals(timeSeries.size(),4);
-  for (  StarTreeRecord record : timeSeries) {
-    Assert.assertEquals(record.getMetricValues().get("M").intValue(),25);
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","*","*")).setTimeRange(new TimeRange(0L,3L)).build(starTreeConfig);
+  MetricTimeSeries timeSeries=recordStore.getTimeSeries(query);
+  Assert.assertEquals(timeSeries.getTimeWindowSet().size(),4);
+  for (  Long timeWindow : timeSeries.getTimeWindowSet()) {
+    Assert.assertEquals(timeSeries.get(timeWindow,"M").intValue(),25);
   }
-  query=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","*").setDimensionValue("C","*").build();
+  query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","*","*")).build(starTreeConfig);
   try {
     recordStore.getTimeSeries(query);
     Assert.fail();

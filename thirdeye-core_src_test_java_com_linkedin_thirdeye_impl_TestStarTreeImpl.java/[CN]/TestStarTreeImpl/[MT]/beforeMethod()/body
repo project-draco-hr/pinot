@@ -11,23 +11,21 @@
  catch (  Exception e) {
   }
   config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).build();
+  metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
   starTree=new StarTreeImpl(config);
   starTree.open();
   for (int i=0; i < 100; i++) {
+    MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+    ts.set(i,"M",1);
     StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-    builder.setDimensionValue("A","A" + (i % 2));
-    builder.setDimensionValue("B","B" + (i % 4));
-    builder.setDimensionValue("C","C" + (i % 8));
-    builder.setMetricValue("M",1);
-    builder.setMetricType("M",MetricType.INT);
-    builder.setTime((long)i);
-    starTree.add(builder.build());
+    builder.setDimensionKey(getDimensionKey("A" + (i % 2),"B" + (i % 4),"C" + (i % 8)));
+    builder.setMetricTimeSeries(ts);
+    starTree.add(builder.build(config));
   }
+  MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+  ts.set(0,"M",1);
   StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-  builder.setDimensionValue("A","AX");
-  builder.setDimensionValue("B","BX");
-  builder.setDimensionValue("C","CX");
-  builder.setMetricValue("M",1);
-  builder.setMetricType("M",MetricType.INT);
-  starTree.add(builder.build());
+  builder.setDimensionKey(getDimensionKey("AX","BX","CX"));
+  builder.setMetricTimeSeries(ts);
+  starTree.add(builder.build(config));
 }

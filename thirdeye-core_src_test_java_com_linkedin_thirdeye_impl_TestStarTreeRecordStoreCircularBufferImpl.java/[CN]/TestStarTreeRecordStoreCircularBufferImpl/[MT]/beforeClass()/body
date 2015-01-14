@@ -1,5 +1,6 @@
 {
   starTreeConfig=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("SampleConfig.json"));
+  metricSchema=MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics());
   rootDir=new File(System.getProperty("java.io.tmpdir"),TestStarTreeRecordStoreCircularBufferImpl.class.getSimpleName());
   nodeId=UUID.randomUUID();
   if (rootDir.exists()) {

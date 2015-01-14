@@ -5,7 +5,7 @@
   FileSystem fileSystem=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(STAR_TREE_GEN_CONFIG_PATH.toString()));
   try {
-    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
     config=StarTreeGenerationConfig.fromStarTreeConfig(starTreeConfig);
     dimensionNames=config.getDimensionNames();
     dimensionNameToIndexMapping=new HashMap<String,Integer>();
@@ -24,7 +24,6 @@
       dimensionSpecs.add(new DimensionSpec(dimensionName));
     }
     collectionName=config.getCollectionName();
-    String timeColumnName=config.getTimeColumnName();
     List<String> splitOrder=config.getSplitOrder();
     int maxRecordStoreEntries=config.getSplitThreshold();
     StarTreeConfig genConfig=new StarTreeConfig.Builder().setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setCollection(collectionName).setDimensions(dimensionSpecs).setMetrics(metricSpecs).setTime(starTreeConfig.getTime()).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
@@ -32,12 +31,7 @@
     starTree.open();
     hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "star-tree-"+ collectionName;
     LOG.info(genConfig.encode());
-    emptyMetricValuesMap=new HashMap<String,Number>();
-    metricTypesMap=new HashMap<String,MetricType>();
-    for (int i=0; i < metricNames.size(); i++) {
-      emptyMetricValuesMap.put(metricNames.get(i),0);
-      metricTypesMap.put(metricNames.get(i),config.getMetricTypes().get(i));
-    }
+    emptyTimeSeries=new MetricTimeSeries(metricSchema);
   }
  catch (  Exception e) {
     throw new IOException(e);

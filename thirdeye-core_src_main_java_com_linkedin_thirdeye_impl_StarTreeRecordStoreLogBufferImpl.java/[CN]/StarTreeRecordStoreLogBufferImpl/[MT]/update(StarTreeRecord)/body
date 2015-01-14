@@ -1,16 +1,17 @@
 {
+  int entrySize=dimensionSpecs.size() * Integer.SIZE / 8 + Integer.SIZE / 8 + record.getMetricTimeSeries().getTimeWindowSet().size() * (Long.SIZE / 8 + metricSize);
 synchronized (sync) {
-    ByteBuffer buffer=getBuffer();
+    ByteBuffer buffer=getBuffer(entrySize);
     buffer.position(buffer.limit());
     buffer.limit(buffer.position() + entrySize);
     putRecord(buffer,record);
     recordCount.incrementAndGet();
-    if (record.getTime() != null) {
-      if (record.getTime() < minTime.get()) {
-        minTime.set(record.getTime());
+    for (    Long time : record.getMetricTimeSeries().getTimeWindowSet()) {
+      if (time < minTime.get()) {
+        minTime.set(time);
       }
-      if (record.getTime() > maxTime.get()) {
-        maxTime.set(record.getTime());
+      if (time > maxTime.get()) {
+        maxTime.set(time);
       }
     }
   }

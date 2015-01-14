@@ -2,24 +2,18 @@
   try {
     StarTree starTree=getStarTree(collection);
     List<StarTreeQuery> queries=expandQueries(collection,starTree,query);
-    Map<String,List<String>> filter=new HashMap<String,List<String>>(query.getDimensionValues().size());
-    for (    Map.Entry<String,String> entry : query.getDimensionValues().entrySet()) {
-      if (!(StarTreeConstants.ALL.equals(entry.getValue()) || StarTreeConstants.STAR.equals(entry.getValue()))) {
-        filter.put(entry.getKey(),Arrays.asList(entry.getValue()));
-      }
-    }
-    queries=StarTreeUtils.filterQueries(queries,filter);
+    queries=StarTreeUtils.filterQueries(starTree.getConfig(),queries,getFilter(starTree.getConfig(),query));
     Map<StarTreeQuery,UUID> queryToNodeId=getQueryToNodeId(starTree,queries);
     Map<UUID,HttpHost> nodeIdToHost=getNodeIdToHost(collection,collections.get(collection),queryToNodeId.values());
     Set<Future<HttpResponse>> responses=new HashSet<Future<HttpResponse>>(nodeIdToHost.size());
     for (    Map.Entry<StarTreeQuery,UUID> entry : queryToNodeId.entrySet()) {
       HttpHost host=nodeIdToHost.get(entry.getValue());
-      HttpGet req=new HttpGet(getMetricsUri(collection,entry.getKey()));
+      HttpGet req=new HttpGet(getMetricsUri(collection,starTree.getConfig(),entry.getKey()));
       responses.add(httpAsyncClient.execute(host,req,null));
     }
     List<ThirdEyeMetrics> allResults=new ArrayList<ThirdEyeMetrics>();
     for (    Future<HttpResponse> entry : responses) {
-      HttpResponse response=entry.get(config.getRequestTimeoutMillis(),TimeUnit.MILLISECONDS);
+      HttpResponse response=entry.get(clientConfig.getRequestTimeoutMillis(),TimeUnit.MILLISECONDS);
       if (response.getStatusLine().getStatusCode() != 200) {
         throw new IOException(response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase());
       }

@@ -1,0 +1,14 @@
+{
+  if (node.isLeaf()) {
+    collector.put(node.getId(),record);
+  }
+ else {
+    StarTreeNode target=node.getChild(record.getDimensionKey().getDimensionValue(config.getDimensions(),node.getChildDimensionName()));
+    if (target == null) {
+      target=node.getOtherNode();
+      record=record.aliasOther(target.getDimensionName());
+    }
+    collectRecords(config,target,record,collector);
+    collectRecords(config,node.getStarNode(),record.relax(target.getDimensionName()),collector);
+  }
+}

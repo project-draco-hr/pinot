@@ -1,9 +1,18 @@
 {
-  Map<String,List<StarTreeRecord>> groupedRecords=getGroupedRecords(buffer);
+  Map<DimensionKey,StarTreeRecord> groupedRecords=new HashMap<DimensionKey,StarTreeRecord>();
   buffer.rewind();
-  for (  List<StarTreeRecord> group : groupedRecords.values()) {
-    StarTreeRecord mergedRecord=StarTreeUtils.merge(group);
-    putRecord(buffer,mergedRecord);
+  while (buffer.position() < buffer.limit()) {
+    StarTreeRecord record=getRecord(buffer);
+    StarTreeRecord group=groupedRecords.get(record.getDimensionKey());
+    if (group == null) {
+      group=new StarTreeRecordImpl(config,record.getDimensionKey(),new MetricTimeSeries(metricSchema));
+      groupedRecords.put(group.getDimensionKey(),group);
+    }
+    group.getMetricTimeSeries().aggregate(record.getMetricTimeSeries());
+  }
+  buffer.rewind();
+  for (  StarTreeRecord group : groupedRecords.values()) {
+    putRecord(buffer,group);
   }
   buffer.limit(buffer.position());
   recordCount.set(groupedRecords.size());

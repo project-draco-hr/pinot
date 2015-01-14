@@ -7,50 +7,30 @@
     @Override public StarTreeRecord next(){
       StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
       GenericRecord genericRecord=itr.next();
-      for (      DimensionSpec dimensionSpec : dimensionSpecs) {
+      String[] dimensionValues=new String[config.getDimensions().size()];
+      for (int i=0; i < config.getDimensions().size(); i++) {
+        DimensionSpec dimensionSpec=config.getDimensions().get(i);
         Object o=genericRecord.get(dimensionSpec.getName());
         if (o == null) {
           throw new IllegalArgumentException("Found null dimension value in " + genericRecord);
         }
-        builder.setDimensionValue(dimensionSpec.getName(),o.toString());
-      }
-      for (int i=0; i < metricSpecs.size(); i++) {
-        String metricName=metricSpecs.get(i).getName();
-        builder.setMetricType(metricName,metricSpecs.get(i).getType());
-        Object o=genericRecord.get(metricName);
-        if (o == null) {
-          builder.setMetricValue(metricName,0);
-        }
- else         if (o instanceof Integer) {
-          builder.setMetricValue(metricName,(Integer)o);
-        }
- else         if (o instanceof Long) {
-          builder.setMetricValue(metricName,((Long)o).intValue());
-        }
- else         if (o instanceof Double) {
-          builder.setMetricValue(metricName,((Double)o).intValue());
-        }
- else         if (o instanceof Float) {
-          builder.setMetricValue(metricName,((Float)o).intValue());
-        }
- else {
-          throw new IllegalArgumentException("Invalid metric field: " + o);
-        }
+        dimensionValues[i]=o.toString();
       }
       Object o=genericRecord.get(timeColumnName);
       if (o == null) {
         throw new IllegalArgumentException("Found null metric value in " + genericRecord);
       }
- else       if (o instanceof Integer) {
-        builder.setTime(((Integer)o).longValue());
+      Long time=((Number)o).longValue();
+      MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+      for (int i=0; i < config.getMetrics().size(); i++) {
+        String metricName=config.getMetrics().get(i).getName();
+        o=genericRecord.get(metricName);
+        if (o == null) {
+          o=0;
+        }
+        timeSeries.increment(time,metricName,(Number)o);
       }
- else       if (o instanceof Long) {
-        builder.setTime((Long)o);
-      }
- else {
-        throw new IllegalArgumentException("Invalid time field: " + o);
-      }
-      return builder.build();
+      return builder.setDimensionKey(new DimensionKey(dimensionValues)).setMetricTimeSeries(timeSeries).build(config);
     }
     @Override public void remove(){
       itr.remove();

@@ -4,12 +4,16 @@
   if (starTree == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,ThirdEyeUriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build());
-  queries=StarTreeUtils.filterQueries(queries,uriInfo.getQueryParameters());
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,ThirdEyeUriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(new TimeRange(start,end)).build(starTree.getConfig()));
+  queries=StarTreeUtils.filterQueries(starTree.getConfig(),queries,uriInfo.getQueryParameters());
   List<ThirdEyeTimeSeries> results=new ArrayList<ThirdEyeTimeSeries>(queries.size());
   for (  StarTreeQuery query : queries) {
-    List<StarTreeRecord> timeSeries=starTree.getTimeSeries(query);
-    results.addAll(convertTimeSeries(metricNames,query.getDimensionValues(),timeSeries));
+    MetricTimeSeries timeSeries=starTree.getTimeSeries(query);
+    Map<String,String> dimensionValues=new HashMap<String,String>(query.getDimensionKey().getDimensionValues().length);
+    for (int i=0; i < starTree.getConfig().getDimensions().size(); i++) {
+      dimensionValues.put(starTree.getConfig().getDimensions().get(i).getName(),query.getDimensionKey().getDimensionValues()[i]);
+    }
+    results.addAll(convertTimeSeries(metricNames,dimensionValues,timeSeries));
   }
   return results;
 }

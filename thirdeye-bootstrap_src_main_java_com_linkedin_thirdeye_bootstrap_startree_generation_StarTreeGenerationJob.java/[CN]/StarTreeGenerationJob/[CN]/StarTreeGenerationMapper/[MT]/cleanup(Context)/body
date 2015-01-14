@@ -1,7 +1,6 @@
 {
   LOG.info("START: serializing star tree and the leaf record dimension store");
   String localOutputDir="./star-tree-" + collectionName;
-  Long time=0l;
   LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   starTree.close();
   StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTree.getRoot());
@@ -10,16 +9,20 @@
     prevLeafNodes=leafNodes.size();
     LOG.info("Number of leaf Nodes" + prevLeafNodes);
     for (    StarTreeNode node : leafNodes) {
-      Map<String,String> ancestorDimensionValues=node.getAncestorDimensionValues();
-      Map<String,String> map=new HashMap<String,String>();
-      map.putAll(ancestorDimensionValues);
-      map.put(node.getDimensionName(),node.getDimensionValue());
-      for (      String dimensionName : dimensionNames) {
-        if (!map.containsKey(dimensionName)) {
-          map.put(dimensionName,StarTreeConstants.OTHER);
+      String[] values=new String[starTreeConfig.getDimensions().size()];
+      for (int i=0; i < starTreeConfig.getDimensions().size(); i++) {
+        String dimensionName=starTreeConfig.getDimensions().get(i).getName();
+        if (node.getAncestorDimensionValues().containsKey(dimensionName)) {
+          values[i]=node.getAncestorDimensionValues().get(dimensionName);
+        }
+ else         if (node.getDimensionName().equals(dimensionName)) {
+          values[i]=node.getDimensionValue();
+        }
+ else {
+          values[i]=StarTreeConstants.OTHER;
         }
       }
-      StarTreeRecord record=new StarTreeRecordImpl(map,emptyMetricValuesMap,metricTypesMap,time);
+      StarTreeRecord record=new StarTreeRecordImpl(starTreeConfig,new DimensionKey(values),emptyTimeSeries);
       starTree.add(record);
     }
     leafNodes.clear();

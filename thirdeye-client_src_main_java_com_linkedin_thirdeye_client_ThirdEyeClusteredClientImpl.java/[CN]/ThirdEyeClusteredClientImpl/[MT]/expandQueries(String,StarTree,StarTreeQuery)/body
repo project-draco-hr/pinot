@@ -1,8 +1,9 @@
 {
   Set<String> dimensionsToExpand=new HashSet<String>();
-  for (  Map.Entry<String,String> entry : baseQuery.getDimensionValues().entrySet()) {
-    if (StarTreeConstants.ALL.equals(entry.getValue())) {
-      dimensionsToExpand.add(entry.getKey());
+  List<DimensionSpec> dimensionSpecs=starTree.getConfig().getDimensions();
+  for (int i=0; i < dimensionSpecs.size(); i++) {
+    if (StarTreeConstants.ALL.equals(baseQuery.getDimensionKey().getDimensionValues()[i])) {
+      dimensionsToExpand.add(dimensionSpecs.get(i).getName());
     }
   }
   List<StarTreeQuery> queries=new LinkedList<StarTreeQuery>();
@@ -16,7 +17,11 @@
       }
       List<String> values=allValues.get(dimensionName);
       for (      String value : values) {
-        expandedQueries.add(new StarTreeQueryImpl.Builder().setDimensionValues(query.getDimensionValues()).setTimeBuckets(query.getTimeBuckets()).setTimeRange(query.getTimeRange()).setDimensionValue(dimensionName,value).build());
+        String[] newValues=new String[dimensionSpecs.size()];
+        for (int i=0; i < dimensionSpecs.size(); i++) {
+          newValues[i]=dimensionSpecs.get(i).getName().equals(dimensionName) ? value : query.getDimensionKey().getDimensionValues()[i];
+        }
+        expandedQueries.add(new StarTreeQueryImpl.Builder().setDimensionKey(new DimensionKey(newValues)).setTimeRange(query.getTimeRange()).build(starTree.getConfig()));
       }
     }
     queries=expandedQueries;

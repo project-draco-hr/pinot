@@ -1,6 +1,7 @@
 {
-  for (  DimensionSpec dimensionSpec : dimensionSpecs) {
-    String dimensionValue=record.getDimensionValues().get(dimensionSpec.getName());
+  for (int i=0; i < dimensionSpecs.size(); i++) {
+    DimensionSpec dimensionSpec=dimensionSpecs.get(i);
+    String dimensionValue=record.getDimensionKey().getDimensionValues()[i];
     if (StarTreeConstants.STAR.equals(dimensionValue)) {
       buffer.putInt(STAR_VALUE);
     }
@@ -19,10 +20,14 @@
       buffer.putInt(valueId);
     }
   }
-  buffer.putLong(record.getTime() == null ? -1L : record.getTime());
-  for (int i=0; i < metricSpecs.size(); i++) {
-    String metricName=metricSpecs.get(i).getName();
-    Number value=record.getMetricValues().get(metricName);
-    NumberUtils.addToBuffer(buffer,value,metricSpecs.get(i).getType());
+  Set<Long> times=record.getMetricTimeSeries().getTimeWindowSet();
+  buffer.putInt(times.size());
+  for (  Long time : times) {
+    buffer.putLong(time);
+    for (int i=0; i < metricSpecs.size(); i++) {
+      String metricName=metricSpecs.get(i).getName();
+      Number value=record.getMetricTimeSeries().get(time,metricName);
+      NumberUtils.addToBuffer(buffer,value,metricSpecs.get(i).getType());
+    }
   }
 }

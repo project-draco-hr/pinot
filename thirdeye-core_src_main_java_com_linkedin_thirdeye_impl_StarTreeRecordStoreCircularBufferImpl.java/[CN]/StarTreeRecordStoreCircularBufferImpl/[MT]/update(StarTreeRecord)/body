@@ -1,7 +1,6 @@
 {
 synchronized (sync) {
-    int[] targetDimensions=translateDimensions(record.getDimensionValues());
-    int timeBucket=(int)(record.getTime() % numTimeBuckets);
+    int[] targetDimensions=translateDimensions(record.getDimensionKey());
     int idx=binarySearch(targetDimensions);
     if (idx < 0) {
       buffer.clear();
@@ -25,14 +24,14 @@ synchronized (sync) {
       }
       idx=minOtherIdx;
     }
-    buffer.clear();
-    buffer.position(idx + dimensionSize + timeBucket * timeBucketSize);
-    updateMetrics(record);
-    if (record.getTime() < minTime.get()) {
-      minTime.set(record.getTime());
-    }
-    if (record.getTime() > maxTime.get()) {
-      maxTime.set(record.getTime());
+    updateMetrics(idx,record);
+    for (    Long time : record.getMetricTimeSeries().getTimeWindowSet()) {
+      if (time < minTime.get()) {
+        minTime.set(time);
+      }
+      if (time > maxTime.get()) {
+        maxTime.set(time);
+      }
     }
   }
 }

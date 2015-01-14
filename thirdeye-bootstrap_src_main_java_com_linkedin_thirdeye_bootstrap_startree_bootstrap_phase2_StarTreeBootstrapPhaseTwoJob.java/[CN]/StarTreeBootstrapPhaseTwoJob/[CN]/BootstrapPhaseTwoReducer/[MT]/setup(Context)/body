@@ -5,13 +5,12 @@
   Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_PHASE2_CONFIG_PATH.toString()));
   hdfsOutputDir=configuration.get(STAR_TREE_BOOTSTRAP_PHASE2_OUTPUT_PATH.toString());
   try {
-    StarTreeConfig starTreeConfig=StarTreeConfig.decode(dfs.open(configPath));
+    starTreeConfig=StarTreeConfig.decode(dfs.open(configPath));
     config=StarTreeBootstrapPhaseTwoConfig.fromStarTreeConfig(starTreeConfig);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
     metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
-    numTimeBuckets=config.getNumTimeBuckets();
   }
  catch (  Exception e) {
     throw new IOException(e);

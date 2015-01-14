@@ -1,33 +1,28 @@
 {
 synchronized (sync) {
-    Number[] sums=new Number[metricSpecs.size()];
-    Arrays.fill(sums,0);
+    MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
     ByteBuffer buffer=getBuffer();
     buffer.rewind();
     while (buffer.position() < buffer.limit()) {
+      StarTreeRecord record=getRecord(buffer);
       boolean matches=true;
-      for (      DimensionSpec dimensionSpec : dimensionSpecs) {
-        int valueId=buffer.getInt();
-        String recordValue=reverseIndex.get(dimensionSpec.getName()).get(valueId);
-        String queryValue=query.getDimensionValues().get(dimensionSpec.getName());
+      for (int i=0; i < dimensionSpecs.size(); i++) {
+        String recordValue=record.getDimensionKey().getDimensionValues()[i];
+        String queryValue=query.getDimensionKey().getDimensionValues()[i];
         if (!StarTreeConstants.STAR.equals(queryValue) && !queryValue.equals(recordValue)) {
           matches=false;
         }
       }
-      long time=buffer.getLong();
-      if (query.getTimeBuckets() != null && !query.getTimeBuckets().contains(time)) {
-        matches=false;
-      }
- else       if (query.getTimeRange() != null && (time < query.getTimeRange().getKey() || time > query.getTimeRange().getValue())) {
-        matches=false;
-      }
-      for (int i=0; i < metricSpecs.size(); i++) {
-        Number value=NumberUtils.readFromBuffer(buffer,metricSpecs.get(i).getType());
-        if (matches) {
-          sums[i]=NumberUtils.sum(sums[i],value,metricSpecs.get(i).getType());
+      if (matches) {
+        for (        Long time : record.getMetricTimeSeries().getTimeWindowSet()) {
+          if (query.getTimeRange() == null || query.getTimeRange().contains(time)) {
+            for (            MetricSpec metricSpec : metricSpecs) {
+              timeSeries.increment(time,metricSpec.getName(),record.getMetricTimeSeries().get(time,metricSpec.getName()));
+            }
+          }
         }
       }
     }
-    return sums;
+    return timeSeries.getMetricSums();
   }
 }

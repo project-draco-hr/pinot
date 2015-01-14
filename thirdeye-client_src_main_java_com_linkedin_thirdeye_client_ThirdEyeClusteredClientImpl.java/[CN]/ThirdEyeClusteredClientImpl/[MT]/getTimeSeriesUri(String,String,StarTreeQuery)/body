@@ -1,8 +1,0 @@
-{
-  if (query.getTimeRange() == null) {
-    throw new IllegalArgumentException("Query must have time range");
-  }
-  StringBuilder sb=new StringBuilder();
-  sb.append("/timeSeries").append("/").append(URLEncoder.encode(collection,"UTF-8")).append("/").append(URLEncoder.encode(metricName,"UTF-8")).append("/").append(query.getTimeRange().getKey()).append("/").append(query.getTimeRange().getValue());
-  return appendDimensions(sb,query).toString();
-}

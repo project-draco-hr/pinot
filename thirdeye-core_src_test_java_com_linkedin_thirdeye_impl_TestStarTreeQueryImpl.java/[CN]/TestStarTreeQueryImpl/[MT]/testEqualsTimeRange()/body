@@ -1,11 +1,9 @@
 {
-  StarTreeQuery q1=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","B0").setDimensionValue("C","*").setTimeRange(1L,3L).build();
-  StarTreeQuery q2=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","B0").setDimensionValue("C","*").setTimeRange(1L,3L).build();
-  StarTreeQuery q3=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","B0").setDimensionValue("C","*").setTimeBuckets(new HashSet<Long>(Arrays.asList(2L,3L))).build();
-  StarTreeQuery q4=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","B0").setDimensionValue("C","*").build();
-  StarTreeQuery q5=new StarTreeQueryImpl.Builder().setDimensionValue("A","*").setDimensionValue("B","B0").setDimensionValue("C","*").setTimeBuckets(new HashSet<Long>(Arrays.asList(1L,2L,3L))).build();
+  StarTreeQuery q1=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","B0","*")).setTimeRange(new TimeRange(1L,3L)).build(config);
+  StarTreeQuery q2=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","B0","*")).setTimeRange(new TimeRange(1L,3L)).build(config);
+  StarTreeQuery q3=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","B0","*")).build(config);
+  StarTreeQuery q4=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","B0","*")).setTimeRange(new TimeRange(1L,4L)).build(config);
   Assert.assertEquals(q2,q1);
   Assert.assertNotEquals(q3,q1);
   Assert.assertNotEquals(q4,q1);
-  Assert.assertNotEquals(q5,q1);
 }

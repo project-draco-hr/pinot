@@ -1,7 +1,11 @@
 {
-  StarTreeRecord first=new StarTreeRecordImpl.Builder().setDimensionValue("A","A1").setDimensionValue("B","B1").setDimensionValue("C","C1").setMetricValue("M",1000).setMetricType("M",MetricType.INT).setTime(0L).build();
+  MetricTimeSeries ts1=new MetricTimeSeries(metricSchema);
+  ts1.set(0,"M",1000);
+  StarTreeRecord first=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("A1","B1","C1")).setMetricTimeSeries(ts1).build(config);
   recordStore.update(first);
-  StarTreeRecord second=new StarTreeRecordImpl.Builder().setDimensionValue("A","A2").setDimensionValue("B","B2").setDimensionValue("C","C2").setMetricValue("M",1000).setMetricType("M",MetricType.INT).setTime(0L).build();
+  MetricTimeSeries ts2=new MetricTimeSeries(metricSchema);
+  ts2.set(0,"M",1000);
+  StarTreeRecord second=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("A2","B2","C2")).setMetricTimeSeries(ts2).build(config);
   recordStore.update(second);
   Iterator<StarTreeRecord> itr=recordStore.iterator();
   Assert.assertEquals(itr.next(),first);

@@ -1,9 +1,18 @@
 {
-  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionValues(metrics.getDimensionValues()).setMetricValues(metrics.getMetricValues()).setTime(time).build();
   StarTree starTree=starTreeManager.getStarTree(collection);
   if (starTree == null) {
     throw new NotFoundException("No collection " + collection);
   }
+  String[] dimensionValues=new String[starTree.getConfig().getDimensions().size()];
+  for (int i=0; i < starTree.getConfig().getDimensions().size(); i++) {
+    String dimensionName=starTree.getConfig().getDimensions().get(i).getName();
+    dimensionValues[i]=metrics.getDimensionValues().get(dimensionName);
+  }
+  MetricTimeSeries timeSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTree.getConfig().getMetrics()));
+  for (  MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+    timeSeries.set(time,metricSpec.getName(),metrics.getMetricValues().get(metricSpec.getName()));
+  }
+  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionKey(new DimensionKey(dimensionValues)).setMetricTimeSeries(timeSeries).build(starTree.getConfig());
   starTree.add(record);
   return Response.ok().build();
 }

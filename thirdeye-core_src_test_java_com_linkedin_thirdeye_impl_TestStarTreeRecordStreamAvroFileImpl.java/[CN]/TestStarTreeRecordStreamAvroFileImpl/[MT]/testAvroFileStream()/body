@@ -1,7 +1,9 @@
 {
   Number metricSum=0;
-  for (  StarTreeRecord record : new StarTreeRecordStreamAvroFileImpl(avroFile,Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C")),Arrays.asList(new MetricSpec("M",MetricType.INT)),"hoursSinceEpoch")) {
-    metricSum=NumberUtils.sum(metricSum,record.getMetricValues().get("M"),MetricType.INT);
+  for (  StarTreeRecord record : new StarTreeRecordStreamAvroFileImpl(config,avroFile,config.getTime().getColumnName())) {
+    for (    Long timeWindow : record.getMetricTimeSeries().getTimeWindowSet()) {
+      metricSum=NumberUtils.sum(metricSum,record.getMetricTimeSeries().get(timeWindow,"M"),MetricType.INT);
+    }
   }
   Assert.assertEquals(metricSum,100);
 }

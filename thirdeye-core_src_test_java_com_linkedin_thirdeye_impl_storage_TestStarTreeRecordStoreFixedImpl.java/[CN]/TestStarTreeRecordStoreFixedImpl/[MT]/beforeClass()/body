@@ -1,0 +1,21 @@
+{
+  ObjectMapper objectMapper=new ObjectMapper();
+  InputStream inputStream=ClassLoader.getSystemResourceAsStream("sample-dictionary.json");
+  dictionary=objectMapper.readValue(inputStream,DimensionDictionary.class);
+  inputStream=ClassLoader.getSystemResourceAsStream("sample-config.yml");
+  config=StarTreeConfig.decode(inputStream);
+  metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
+  ByteBuffer dimensionBuffer=ByteBuffer.allocate(1024 * 1024);
+  for (  DimensionKey key : generateKeys()) {
+    StorageUtils.addToDimensionStore(config,dimensionBuffer,key,dictionary);
+  }
+  dimensionBuffer.flip();
+  dimensionStore=new DimensionStore(config,dimensionBuffer,dictionary);
+  List<TimeRange> timeRanges=Arrays.asList(new TimeRange(0L,3L),new TimeRange(4L,7L));
+  Map<TimeRange,ByteBuffer> metricBuffers=new HashMap<TimeRange,ByteBuffer>();
+  for (  TimeRange timeRange : timeRanges) {
+    metricBuffers.put(timeRange,generateBuffer(timeRange));
+  }
+  metricStore=new MetricStore(config,metricBuffers);
+  recordStore=new StarTreeRecordStoreFixedImpl(config,dimensionStore,metricStore);
+}

@@ -1,10 +1,5 @@
 {
   DimensionKey dimensionKey=DimensionKey.fromBytes(dimensionKeyWritable.copyBytes());
-  Map<String,String> dimensionValuesMap=new HashMap<String,String>();
-  for (int i=0; i < dimensionNames.size(); i++) {
-    dimensionValuesMap.put(dimensionNames.get(i),dimensionKey.getDimensionsValues()[i]);
-  }
-  Long time=0l;
-  StarTreeRecord record=new StarTreeRecordImpl(dimensionValuesMap,emptyMetricValuesMap,metricTypesMap,time);
+  StarTreeRecord record=new StarTreeRecordImpl(starTreeConfig,dimensionKey,emptyTimeSeries);
   starTree.add(record);
 }

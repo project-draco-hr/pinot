@@ -1,13 +1,6 @@
 {
   StarTreeQueryImpl.Builder builder=new StarTreeQueryImpl.Builder();
   StarTree starTree=getStarTree(collection);
-  for (  DimensionSpec dimensionSpec : starTree.getConfig().getDimensions()) {
-    builder.setDimensionValue(dimensionSpec.getName(),StarTreeConstants.STAR);
-  }
-  if (dimensionValues != null) {
-    for (    Map.Entry<String,String> entry : dimensionValues.entrySet()) {
-      builder.setDimensionValue(entry.getKey(),entry.getValue());
-    }
-  }
+  builder.setDimensionKey(convertToDimensionKey(starTree.getConfig(),dimensionValues));
   return builder;
 }

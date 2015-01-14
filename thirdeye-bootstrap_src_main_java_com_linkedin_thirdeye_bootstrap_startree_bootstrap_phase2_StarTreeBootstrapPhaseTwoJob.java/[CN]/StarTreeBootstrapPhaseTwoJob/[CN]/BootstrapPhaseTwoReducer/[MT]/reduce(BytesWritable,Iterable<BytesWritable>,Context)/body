@@ -1,23 +1,26 @@
 {
   String nodeId=new String(keyWritable.copyBytes());
   LOG.info("START: processing {}",nodeId);
-  Map<DimensionKey,MetricTimeSeries> map=new HashMap<DimensionKey,MetricTimeSeries>();
-  List<int[]> leafRecords;
-  forwardIndex=StarTreePersistanceUtil.readForwardIndex(nodeId,localInputDataDir + "/data");
-  leafRecords=StarTreePersistanceUtil.readLeafRecords(localInputDataDir + "/data",nodeId,dimensionNames.size());
-  reverseForwardIndex=StarTreeUtils.toReverseIndex(forwardIndex);
-  for (  BytesWritable writable : bootstrapMapOutputValueWritableIterable) {
-    BootstrapPhaseMapOutputValue val=BootstrapPhaseMapOutputValue.fromBytes(writable.copyBytes(),metricSchema);
-    if (!map.containsKey(val.getDimensionKey())) {
-      map.put(val.getDimensionKey(),val.getMetricTimeSeries());
+  Map<DimensionKey,MetricTimeSeries> records=new HashMap<DimensionKey,MetricTimeSeries>();
+  String dataDir=localInputDataDir + "/data";
+  DimensionDictionary dictionary=new DimensionDictionary(StarTreePersistanceUtil.readForwardIndex(nodeId,dataDir));
+  List<int[]> allCombinations=StarTreePersistanceUtil.readLeafRecords(dataDir,nodeId,starTreeConfig.getDimensions().size());
+  for (  BytesWritable recordBytes : bootstrapMapOutputValueWritableIterable) {
+    BootstrapPhaseMapOutputValue record=BootstrapPhaseMapOutputValue.fromBytes(recordBytes.copyBytes(),metricSchema);
+    if (!records.containsKey(record.getDimensionKey())) {
+      records.put(record.getDimensionKey(),record.getMetricTimeSeries());
     }
  else {
-      map.get(val.getDimensionKey()).aggregate(val.getMetricTimeSeries());
+      records.get(record.getDimensionKey()).aggregate(record.getMetricTimeSeries());
     }
   }
-  String fileName=localOutputDataDir + "/data/" + nodeId.toString()+ StarTreeConstants.BUFFER_FILE_SUFFIX;
-  CircularBufferUtil.createLeafBufferFile(map,leafRecords,fileName,dimensionNames,metricNames,metricTypes,numTimeBuckets,reverseForwardIndex);
-  LOG.info("Generating forward index");
-  StarTreePersistanceUtil.saveLeafNodeForwardIndex(localOutputDataDir + "/data/",forwardIndex,nodeId);
+  for (  int[] combination : allCombinations) {
+    DimensionKey dimensionKey=dictionary.translate(starTreeConfig.getDimensions(),combination);
+    if (!records.containsKey(dimensionKey)) {
+      MetricTimeSeries emptyTimeSeries=new MetricTimeSeries(metricSchema);
+      records.put(dimensionKey,emptyTimeSeries);
+    }
+  }
+  FixedBufferUtil.createLeafBufferFiles(new File(localTmpDataDir),nodeId,starTreeConfig,records,dictionary);
   LOG.info("END: processing {}",nodeId);
 }

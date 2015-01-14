@@ -1,9 +1,7 @@
 {
   StarTreeQueryImpl.Builder queryBuilder=new StarTreeQueryImpl.Builder();
-  queryBuilder.setDimensionValue("A","*");
-  queryBuilder.setDimensionValue("B","*");
-  queryBuilder.setDimensionValue("C","*");
-  queryBuilder.setTimeRange(0L,50L);
-  StarTreeRecord result=starTree.getAggregate(queryBuilder.build());
-  Assert.assertEquals(result.getMetricValues().get("M").intValue(),50 + 1);
+  queryBuilder.setDimensionKey(getDimensionKey("*","*","*"));
+  queryBuilder.setTimeRange(new TimeRange(0L,49L));
+  StarTreeRecord result=starTree.getAggregate(queryBuilder.build(config));
+  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),50 + 1);
 }

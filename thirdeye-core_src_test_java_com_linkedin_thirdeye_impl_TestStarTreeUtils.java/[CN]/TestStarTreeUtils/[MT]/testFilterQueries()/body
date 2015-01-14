@@ -3,22 +3,20 @@
   StarTree starTree=new StarTreeImpl(config);
   starTree.open();
   for (int i=0; i < 100; i++) {
+    MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+    ts.set(i,"M",1);
     StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-    builder.setDimensionValue("A","A" + (i % 2));
-    builder.setDimensionValue("B","B" + (i % 4));
-    builder.setDimensionValue("C","C" + (i % 8));
-    builder.setMetricValue("M",1);
-    builder.setMetricType("M",MetricType.INT);
-    builder.setTime((long)i);
-    starTree.add(builder.build());
+    builder.setDimensionKey(getDimensionKey("A" + (i % 2),"B" + (i % 4),"C" + (i % 8)));
+    builder.setMetricTimeSeries(ts);
+    starTree.add(builder.build(config));
   }
-  StarTreeQuery baseQuery=new StarTreeQueryImpl.Builder().setDimensionValue("A",StarTreeConstants.ALL).setDimensionValue("B","*").setDimensionValue("C","*").build();
+  StarTreeQuery baseQuery=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey(StarTreeConstants.ALL,StarTreeConstants.STAR,StarTreeConstants.STAR)).build(config);
   List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,baseQuery);
   Assert.assertEquals(queries.size(),2);
   Map<String,List<String>> filter=new HashMap<String,List<String>>();
   filter.put("A",Arrays.asList("A0"));
-  List<StarTreeQuery> filteredQueries=StarTreeUtils.filterQueries(queries,filter);
+  List<StarTreeQuery> filteredQueries=StarTreeUtils.filterQueries(config,queries,filter);
   Assert.assertEquals(filteredQueries.size(),1);
-  Assert.assertEquals(filteredQueries.get(0).getDimensionValues().get("A"),"A0");
+  Assert.assertEquals(filteredQueries.get(0).getDimensionKey().getDimensionValue(config.getDimensions(),"A"),"A0");
   starTree.close();
 }

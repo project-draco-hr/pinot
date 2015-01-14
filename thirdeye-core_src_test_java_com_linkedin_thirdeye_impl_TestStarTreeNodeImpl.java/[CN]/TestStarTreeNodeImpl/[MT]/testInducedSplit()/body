@@ -1,20 +1,17 @@
 {
-  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("dummy").setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).build();
   StarTreeNode root=createRoot();
   root.init(config,recordStoreFactory);
   for (int i=0; i < 100; i++) {
-    StarTreeRecordImpl.Builder b=new StarTreeRecordImpl.Builder();
-    b.setDimensionValue("A","A" + (i % 4));
-    b.setDimensionValue("B","B" + (i % 8));
-    b.setDimensionValue("C","C" + (i % 16));
-    b.setMetricValue("M",1);
-    b.setMetricType("M",MetricType.INT);
-    b.setTime(0L);
-    root.getRecordStore().update(b.build());
+    MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+    ts.set(0,"M",1);
+    StarTreeRecordImpl.Builder b=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("A" + (i % 4),"B" + (i % 8),"C" + (i % 16))).setMetricTimeSeries(ts);
+    root.getRecordStore().update(b.build(config));
     StringBuilder sb=new StringBuilder();
     sb.append("B").append(i % 8).append("C").append(i % 16);
   }
-  StarTreeRecord other=new StarTreeRecordImpl.Builder().setDimensionValue("A",StarTreeConstants.OTHER).setDimensionValue("B",StarTreeConstants.OTHER).setDimensionValue("C",StarTreeConstants.OTHER).setMetricValue("M",0).setMetricType("M",MetricType.INT).setTime(0L).build();
+  MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+  ts.set(0,"M",0);
+  StarTreeRecord other=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey(StarTreeConstants.OTHER,StarTreeConstants.OTHER,StarTreeConstants.OTHER)).setMetricTimeSeries(ts).build(config);
   root.getRecordStore().update(other);
   root.split("A");
   Assert.assertEquals(root.getChildren().size(),4);

@@ -1,0 +1,33 @@
+{
+  Number[] result=new Number[schema.getNumMetrics()];
+  for (int i=0; i < schema.getNumMetrics(); i++) {
+    result[i]=0;
+  }
+  for (  Long time : timeseries.keySet()) {
+    for (int i=0; i < schema.getNumMetrics(); i++) {
+      String metricName=schema.getMetricName(i);
+      MetricType metricType=schema.getMetricType(i);
+      Number metricValue=get(time,metricName);
+switch (metricType) {
+case INT:
+        result[i]=result[i].intValue() + metricValue.intValue();
+      break;
+case SHORT:
+    result[i]=result[i].shortValue() + metricValue.shortValue();
+  break;
+case LONG:
+result[i]=result[i].longValue() + metricValue.longValue();
+break;
+case FLOAT:
+result[i]=result[i].floatValue() + metricValue.floatValue();
+break;
+case DOUBLE:
+result[i]=result[i].doubleValue() + metricValue.doubleValue();
+break;
+default :
+throw new IllegalStateException();
+}
+}
+}
+return result;
+}

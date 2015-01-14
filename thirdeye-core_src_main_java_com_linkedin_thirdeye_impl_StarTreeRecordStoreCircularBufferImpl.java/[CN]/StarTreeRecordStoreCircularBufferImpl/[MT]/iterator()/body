@@ -6,17 +6,15 @@ synchronized (sync) {
     Number[] currentMetrics=new Number[metricSpecs.size()];
     while (buffer.position() < buffer.limit()) {
       getDimensions(currentDimensions);
-      Map<String,String> values=translateDimensions(currentDimensions);
+      DimensionKey dimensionKey=translateDimensions(currentDimensions);
+      MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
       for (int i=0; i < numTimeBuckets; i++) {
         long time=getMetrics(currentMetrics);
-        StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
-        builder.setDimensionValues(values).setTime(time);
         for (int j=0; j < metricSpecs.size(); j++) {
-          builder.setMetricValue(metricSpecs.get(j).getName(),currentMetrics[j]);
-          builder.setMetricType(metricSpecs.get(j).getName(),metricSpecs.get(j).getType());
+          timeSeries.increment(time,metricSpecs.get(j).getName(),currentMetrics[j]);
         }
-        list.add(builder.build());
       }
+      list.add(new StarTreeRecordImpl(config,dimensionKey,timeSeries));
     }
     return list.iterator();
   }

@@ -1,4 +1,5 @@
 {
+  config=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("sample-config.yml"));
   avroFile=new File(System.getProperty("java.io.tmpdir") + File.separator + TestStarTreeRecordStreamAvroFileImpl.class.getSimpleName()+ ".avro");
   Schema schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream("MyRecord.avsc"));
   DataFileWriter<GenericRecord> dataFileWriter=new DataFileWriter<GenericRecord>(new GenericDatumWriter<GenericRecord>(schema));
@@ -9,7 +10,7 @@
     record.put("B","B" + (i % 2));
     record.put("C","C" + (i & 4));
     record.put("M",1);
-    record.put("hoursSinceEpoch",0L);
+    record.put("T",0L);
     dataFileWriter.append(record);
   }
   dataFileWriter.flush();
