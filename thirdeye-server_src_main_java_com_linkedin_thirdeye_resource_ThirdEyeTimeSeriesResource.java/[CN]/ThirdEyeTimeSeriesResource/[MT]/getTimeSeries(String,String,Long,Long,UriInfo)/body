@@ -1,3 +1,15 @@
 {
-  return getTimeSeries(collection,metrics,start,end,false,uriInfo);
+  String[] metricNames=metrics.split(",");
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,ThirdEyeUriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(start,end).build());
+  queries=StarTreeUtils.filterQueries(queries,uriInfo.getQueryParameters());
+  List<ThirdEyeTimeSeries> results=new ArrayList<ThirdEyeTimeSeries>(queries.size());
+  for (  StarTreeQuery query : queries) {
+    List<StarTreeRecord> timeSeries=starTree.getTimeSeries(query);
+    results.addAll(convertTimeSeries(metricNames,query.getDimensionValues(),timeSeries));
+  }
+  return results;
 }
