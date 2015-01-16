@@ -26,14 +26,17 @@
       for (      Map.Entry<String,List<SegmentMetadata>> stringListEntry : tableToSegmentMetadata.entrySet()) {
         String tableName=stringListEntry.getKey();
         List<SegmentMetadata> tableSegmentsMetadata=stringListEntry.getValue();
+        int missingSegmentCount=0;
         if (2 < tableSegmentsMetadata.size()) {
           List<Interval> segmentIntervals=new ArrayList<Interval>();
           for (          SegmentMetadata tableSegmentMetadata : tableSegmentsMetadata) {
-            segmentIntervals.add(tableSegmentMetadata.getTimeInterval());
+            Interval timeInterval=tableSegmentMetadata.getTimeInterval();
+            if (timeInterval != null)             segmentIntervals.add(timeInterval);
           }
           List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,tableSegmentsMetadata.get(0).getTimeGranularity());
-          _validationMetrics.updateMissingSegmentsGauge(resourceName,tableName,missingIntervals.size());
+          missingSegmentCount=missingIntervals.size();
         }
+        _validationMetrics.updateMissingSegmentsGauge(resourceName,tableName,missingSegmentCount);
         long maxSegmentEndTime=Long.MIN_VALUE;
         long maxSegmentPushTime=Long.MIN_VALUE;
         for (        SegmentMetadata segmentMetadata : tableSegmentsMetadata) {
