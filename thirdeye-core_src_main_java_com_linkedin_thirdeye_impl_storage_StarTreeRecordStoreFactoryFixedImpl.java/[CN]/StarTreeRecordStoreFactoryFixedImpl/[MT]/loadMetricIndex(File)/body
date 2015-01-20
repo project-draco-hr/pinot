@@ -1,0 +1,16 @@
+{
+  List<Object> entries=readObjectFile(indexFile);
+  UUID fileId=getFileId(indexFile.getName(),INDEX_SUFFIX);
+  metricIndexByFile.put(fileId,new HashSet<MetricIndexEntry>());
+  for (  Object o : entries) {
+    MetricIndexEntry e=(MetricIndexEntry)o;
+    List<MetricIndexEntry> nodeEntries=metricIndex.get(e.getNodeId());
+    if (nodeEntries == null) {
+      nodeEntries=new ArrayList<MetricIndexEntry>();
+      metricIndex.put(e.getNodeId(),nodeEntries);
+    }
+    nodeEntries.add(e);
+    metricIndexByFile.get(fileId).add(e);
+  }
+  LOG.info("Loaded metric index {}",indexFile);
+}

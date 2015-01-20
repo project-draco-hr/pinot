@@ -1,23 +1,12 @@
 {
   File rootDir=new File(config.getRootDir());
-  ExecutorService executorService=environment.lifecycle().executorService("starTreeManager").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
-  StarTreeManager starTreeManager=new StarTreeManagerImpl(executorService,rootDir);
-  URI archiveSource=config.getArchiveSource() == null ? null : URI.create(config.getArchiveSource());
-  HelixManager helixManager=null;
-  if (config.isDistributed()) {
-    InetSocketAddress localHost=getLocalHost(config);
-    String instanceName=String.format("%s_%d",localHost.getHostName(),localHost.getPort());
-    helixManager=HelixManagerFactory.getZKHelixManager(config.getClusterName(),instanceName,InstanceType.PARTICIPANT,config.getZkAddress());
-    helixManager.getStateMachineEngine().registerStateModelFactory(StateModelDefId.OnlineOffline,new ThirdEyeTransitionHandlerFactory(starTreeManager,archiveSource,rootDir));
-    environment.admin().addTask(new ThirdEyeRebalanceTask(config.getClusterName(),helixManager.getClusterManagmentTool()));
-  }
+  StarTreeManager starTreeManager=new StarTreeManagerImpl();
   environment.healthChecks().register(NAME,new ThirdEyeHealthCheck());
   environment.jersey().register(new ThirdEyeMetricsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeDimensionsResource(starTreeManager));
-  environment.jersey().register(new ThirdEyeCollectionsResource(starTreeManager,helixManager));
+  environment.jersey().register(new ThirdEyeCollectionsResource(starTreeManager));
   environment.jersey().register(new ThirdEyeTimeSeriesResource(starTreeManager));
   environment.admin().addTask(new ThirdEyeRestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new ThirdEyeDumpTreeTask(starTreeManager));
-  environment.admin().addTask(new ThirdEyeBootstrapTask(new File(config.getRootDir())));
-  environment.lifecycle().addLifeCycleListener(new ThirdEyeLifeCycleListener(helixManager,starTreeManager));
+  environment.lifecycle().addLifeCycleListener(new ThirdEyeLifeCycleListener(starTreeManager));
 }

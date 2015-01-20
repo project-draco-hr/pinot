@@ -1,9 +1,0 @@
-{
-  starTreeManager.registerConfig(config.getCollection(),config);
-  starTreeManager.stub(baseDir,config.getCollection());
-  starTreeManager.open(config.getCollection());
-  StarTree starTree=starTreeManager.getStarTree(config.getCollection());
-  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","*","*")).build(config);
-  StarTreeRecord result=starTree.getAggregate(query);
-  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),0);
-}

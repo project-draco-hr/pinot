@@ -3,52 +3,37 @@ synchronized (sync) {
     if (isInit) {
       return;
     }
+    this.rootDir=rootDir;
     this.isInit=true;
     this.starTreeConfig=starTreeConfig;
     File dimensionStore=new File(rootDir,DIMENSION_STORE);
     File[] dimensionIndexFiles=dimensionStore.listFiles(INDEX_FILE_FILTER);
     if (dimensionIndexFiles != null) {
       for (      File indexFile : dimensionIndexFiles) {
-        List<Object> entries=readObjectFile(indexFile);
-        for (        Object o : entries) {
-          DimensionIndexEntry e=(DimensionIndexEntry)o;
-          dimensionIndex.put(e.getNodeId(),e);
-        }
-        LOG.info("Loaded dimension index {}",indexFile);
+        loadDimensionIndex(indexFile);
       }
     }
     File metricStore=new File(rootDir,METRIC_STORE);
     File[] metricIndexFiles=metricStore.listFiles(INDEX_FILE_FILTER);
     if (metricIndexFiles != null) {
       for (      File indexFile : metricIndexFiles) {
-        List<Object> entries=readObjectFile(indexFile);
-        for (        Object o : entries) {
-          MetricIndexEntry e=(MetricIndexEntry)o;
-          List<MetricIndexEntry> nodeEntries=metricIndex.get(e.getNodeId());
-          if (nodeEntries == null) {
-            nodeEntries=new ArrayList<MetricIndexEntry>();
-            metricIndex.put(e.getNodeId(),nodeEntries);
-          }
-          nodeEntries.add(e);
-        }
-        LOG.info("Loaded metric index {}",indexFile);
+        loadMetricIndex(indexFile);
       }
     }
-    for (    DimensionIndexEntry indexEntry : dimensionIndex.values()) {
-      if (!dimensionSegments.containsKey(indexEntry.getFileId())) {
-        File bufferFile=new File(dimensionStore,indexEntry.getFileId().toString() + BUFFER_SUFFIX);
-        dimensionSegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
-      }
-      if (!dictionarySegments.containsKey(indexEntry.getFileId())) {
-        File bufferFile=new File(dimensionStore,indexEntry.getFileId().toString() + DICT_SUFFIX);
-        dictionarySegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
-      }
+    loadDimensionBuffers(dimensionIndex.values());
+    for (    List<MetricIndexEntry> entryGroup : metricIndex.values()) {
+      loadMetricBuffers(entryGroup);
     }
-    for (    List<MetricIndexEntry> indexEntries : metricIndex.values()) {
-      for (      MetricIndexEntry indexEntry : indexEntries) {
-        File bufferFile=new File(metricStore,indexEntry.getFileId().toString() + BUFFER_SUFFIX);
-        metricSegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
-      }
-    }
+    RefreshWatcher refreshWatcher=new RefreshWatcher();
+    Path dimensionPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),DIMENSION_STORE);
+    refreshWatcher.register(dimensionPath);
+    LOG.info("Registered watch on {}",dimensionPath);
+    Path metricPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),METRIC_STORE);
+    refreshWatcher.register(metricPath);
+    LOG.info("Registered watch on {}",metricPath);
+    Thread watcherThread=new Thread(refreshWatcher);
+    watcherThread.setDaemon(true);
+    watcherThread.start();
+    LOG.info("Started file system watcher in {}",rootDir);
   }
 }

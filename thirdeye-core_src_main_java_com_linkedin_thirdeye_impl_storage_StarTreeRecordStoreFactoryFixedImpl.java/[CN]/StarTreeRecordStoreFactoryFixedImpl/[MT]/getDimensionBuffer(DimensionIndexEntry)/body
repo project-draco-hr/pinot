@@ -1,0 +1,11 @@
+{
+  ByteBuffer dimensionBuffer=dimensionSegments.get(indexEntry.getFileId());
+  if (dimensionBuffer == null) {
+    throw new IllegalStateException("No mapped buffer for file " + indexEntry.getFileId() + BUFFER_SUFFIX);
+  }
+  dimensionBuffer.rewind();
+  dimensionBuffer.position(indexEntry.getBufferStartOffset());
+  ByteBuffer slicedBuffer=dimensionBuffer.slice();
+  slicedBuffer.limit(indexEntry.getBufferLength());
+  return slicedBuffer;
+}

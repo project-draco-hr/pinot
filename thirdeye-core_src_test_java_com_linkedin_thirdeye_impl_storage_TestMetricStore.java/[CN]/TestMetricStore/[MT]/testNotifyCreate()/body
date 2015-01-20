@@ -1,0 +1,16 @@
+{
+  TimeRange timeRange=new TimeRange(0L,3L);
+  Map<TimeRange,ByteBuffer> metricBuffers=new HashMap<TimeRange,ByteBuffer>();
+  metricBuffers.put(timeRange,generateBuffer(timeRange));
+  MetricStore createMetricStore=new MetricStore(config,metricBuffers);
+  MetricTimeSeries timeSeries=createMetricStore.getTimeSeries(getLogicalOffsets(0),new TimeRange(0L,0L));
+  Assert.assertEquals(timeSeries.getMetricSums(),new Number[]{1});
+  timeSeries=createMetricStore.getTimeSeries(getLogicalOffsets(0),new TimeRange(4L,4L));
+  Assert.assertEquals(timeSeries.getMetricSums(),new Number[]{0});
+  timeRange=new TimeRange(4L,7L);
+  createMetricStore.notifyCreate(timeRange,generateBuffer(timeRange));
+  timeSeries=createMetricStore.getTimeSeries(getLogicalOffsets(0),new TimeRange(0L,0L));
+  Assert.assertEquals(timeSeries.getMetricSums(),new Number[]{1});
+  timeSeries=createMetricStore.getTimeSeries(getLogicalOffsets(0),new TimeRange(4L,4L));
+  Assert.assertEquals(timeSeries.getMetricSums(),new Number[]{1});
+}

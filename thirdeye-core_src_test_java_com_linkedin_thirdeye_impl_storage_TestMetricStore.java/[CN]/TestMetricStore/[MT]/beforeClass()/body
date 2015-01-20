@@ -1,5 +1,8 @@
 {
   InputStream inputStream=ClassLoader.getSystemResourceAsStream("sample-config.yml");
   config=StarTreeConfig.decode(inputStream);
-  metricStore=new MetricStore(config,generateBuffer(new TimeRange(0L,3L)));
+  TimeRange timeRange=new TimeRange(0L,3L);
+  Map<TimeRange,ByteBuffer> metricBuffers=new HashMap<TimeRange,ByteBuffer>();
+  metricBuffers.put(timeRange,generateBuffer(timeRange));
+  metricStore=new MetricStore(config,metricBuffers);
 }

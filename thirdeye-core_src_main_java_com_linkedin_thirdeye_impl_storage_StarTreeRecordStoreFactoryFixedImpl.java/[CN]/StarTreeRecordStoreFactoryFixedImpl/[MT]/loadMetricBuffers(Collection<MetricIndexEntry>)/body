@@ -1,0 +1,10 @@
+{
+  File metricStore=new File(rootDir,METRIC_STORE);
+  for (  MetricIndexEntry indexEntry : indexEntries) {
+    if (!metricSegments.containsKey(indexEntry.getFileId())) {
+      File bufferFile=new File(metricStore,indexEntry.getFileId().toString() + BUFFER_SUFFIX);
+      metricSegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
+      LOG.info("Loaded buffer file {}",bufferFile);
+    }
+  }
+}

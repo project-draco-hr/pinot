@@ -1,0 +1,11 @@
+{
+  List<Object> entries=readObjectFile(indexFile);
+  UUID fileId=UUID.fromString(indexFile.getName().substring(0,indexFile.getName().lastIndexOf(INDEX_SUFFIX)));
+  dimensionIndexByFile.put(fileId,new HashSet<DimensionIndexEntry>());
+  for (  Object o : entries) {
+    DimensionIndexEntry e=(DimensionIndexEntry)o;
+    dimensionIndex.put(e.getNodeId(),e);
+    dimensionIndexByFile.get(fileId).add(e);
+  }
+  LOG.info("Loaded dimension index {}",indexFile);
+}

@@ -8,44 +8,15 @@ synchronized (sync) {
     if (metricIndexEntries == null) {
       throw new IllegalArgumentException("No metric index entries for " + nodeId);
     }
-    ByteBuffer dimensionBuffer=dimensionSegments.get(dimensionIndexEntry.getFileId());
-    if (dimensionBuffer == null) {
-      throw new IllegalStateException("No mapped buffer for file " + dimensionIndexEntry.getFileId() + BUFFER_SUFFIX);
-    }
-    ByteBuffer dictionaryBuffer=dictionarySegments.get(dimensionIndexEntry.getFileId());
-    if (dictionaryBuffer == null) {
-      throw new IllegalStateException("No mapped buffer for file " + dimensionIndexEntry.getFileId() + DICT_SUFFIX);
-    }
-    dictionaryBuffer.rewind();
-    dictionaryBuffer.position(dimensionIndexEntry.getDictionaryStartOffset());
-    byte[] dictionaryBytes=new byte[dimensionIndexEntry.getDictionaryLength()];
-    dictionaryBuffer.get(dictionaryBytes);
-    ObjectInputStream ois=new ObjectInputStream(new ByteArrayInputStream(dictionaryBytes));
-    DimensionDictionary dictionary;
-    try {
-      dictionary=(DimensionDictionary)ois.readObject();
-    }
- catch (    ClassNotFoundException e) {
-      throw new IOException(e);
-    }
-    dimensionBuffer.rewind();
-    dimensionBuffer.position(dimensionIndexEntry.getBufferStartOffset());
-    dimensionBuffer=dimensionBuffer.slice();
-    dimensionBuffer.limit(dimensionIndexEntry.getBufferLength());
-    DimensionStore dimensionStore=new DimensionStore(starTreeConfig,dimensionBuffer,dictionary);
+    DimensionDictionary dictionary=getDictionary(dimensionIndexEntry);
+    ByteBuffer dimensionBuffer=getDimensionBuffer(dimensionIndexEntry);
     Map<TimeRange,ByteBuffer> metricBuffers=new HashMap<TimeRange,ByteBuffer>();
     for (    MetricIndexEntry indexEntry : metricIndexEntries) {
-      ByteBuffer metricBuffer=metricSegments.get(indexEntry.getFileId());
-      if (metricBuffer == null) {
-        throw new IllegalStateException("No mapped buffer for file " + indexEntry.getFileId() + BUFFER_SUFFIX);
-      }
-      metricBuffer.rewind();
-      metricBuffer.position(indexEntry.getStartOffset());
-      metricBuffer=metricBuffer.slice();
-      metricBuffer.limit(indexEntry.getLength());
-      metricBuffers.put(indexEntry.getTimeRange(),metricBuffer);
+      metricBuffers.put(indexEntry.getTimeRange(),getMetricBuffer(indexEntry));
     }
+    DimensionStore dimensionStore=new DimensionStore(starTreeConfig,dimensionBuffer,dictionary);
     MetricStore metricStore=new MetricStore(starTreeConfig,metricBuffers);
+    metricStores.put(nodeId,metricStore);
     return new StarTreeRecordStoreFixedImpl(starTreeConfig,dimensionStore,metricStore);
   }
 }
