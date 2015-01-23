@@ -1,0 +1,19 @@
+{
+  StarTreeQuery baselineQuery=UriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(new TimeRange(baselineStart,baselineEnd)).build(starTree.getConfig());
+  StarTreeQuery currentQuery=UriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(new TimeRange(currentStart,currentEnd)).build(starTree.getConfig());
+  boolean foundDimension=false;
+  for (int i=0; i < starTree.getConfig().getDimensions().size(); i++) {
+    if (starTree.getConfig().getDimensions().get(i).getName().equals(dimensionName)) {
+      baselineQuery.getDimensionKey().getDimensionValues()[i]=StarTreeConstants.ALL;
+      currentQuery.getDimensionKey().getDimensionValues()[i]=StarTreeConstants.ALL;
+      foundDimension=true;
+      break;
+    }
+  }
+  if (!foundDimension) {
+    throw new NotFoundException("No dimension " + dimensionName);
+  }
+  Map<String,Number> baseline=getMetricsByDimensionValue(starTree,baselineQuery,uriInfo,metricName,dimensionName);
+  Map<String,Number> current=getMetricsByDimensionValue(starTree,currentQuery,uriInfo,metricName,dimensionName);
+  return ImmutableList.of(baseline,current);
+}

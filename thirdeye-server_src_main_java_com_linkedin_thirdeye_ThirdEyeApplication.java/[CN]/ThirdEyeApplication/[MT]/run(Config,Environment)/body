@@ -1,12 +1,23 @@
 {
   File rootDir=new File(config.getRootDir());
   StarTreeManager starTreeManager=new StarTreeManagerImpl();
-  environment.healthChecks().register(NAME,new ThirdEyeHealthCheck());
-  environment.jersey().register(new ThirdEyeMetricsResource(starTreeManager));
-  environment.jersey().register(new ThirdEyeDimensionsResource(starTreeManager));
-  environment.jersey().register(new ThirdEyeCollectionsResource(starTreeManager));
-  environment.jersey().register(new ThirdEyeTimeSeriesResource(starTreeManager));
-  environment.admin().addTask(new ThirdEyeRestoreTask(starTreeManager,rootDir));
-  environment.admin().addTask(new ThirdEyeDumpTreeTask(starTreeManager));
+  environment.healthChecks().register(NAME,new DefaultHealthCheck());
+  environment.jersey().register(new MetricsResource(starTreeManager));
+  environment.jersey().register(new DimensionsResource(starTreeManager));
+  environment.jersey().register(new CollectionsResource(starTreeManager));
+  environment.jersey().register(new TimeSeriesResource(starTreeManager));
+  environment.jersey().register(new HeatMapResource(starTreeManager));
+  environment.jersey().register(new DashboardResource(starTreeManager));
+  environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
+  environment.admin().addTask(new DumpTreeTask(starTreeManager));
   environment.lifecycle().addLifeCycleListener(new ThirdEyeLifeCycleListener(starTreeManager));
+  if (config.isAutoRestore()) {
+    String[] collections=rootDir.list();
+    if (collections != null) {
+      for (      String collection : collections) {
+        starTreeManager.restore(rootDir,collection);
+        starTreeManager.open(collection);
+      }
+    }
+  }
 }

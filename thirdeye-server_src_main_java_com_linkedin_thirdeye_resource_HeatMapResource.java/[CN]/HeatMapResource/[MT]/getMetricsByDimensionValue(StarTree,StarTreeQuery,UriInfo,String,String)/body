@@ -1,0 +1,32 @@
+{
+  int metricIdx=-1;
+  for (int i=0; i < starTree.getConfig().getMetrics().size(); i++) {
+    if (starTree.getConfig().getMetrics().get(i).getName().equals(metric)) {
+      metricIdx=i;
+      break;
+    }
+  }
+  if (metricIdx == -1) {
+    throw new IllegalArgumentException("No metric for " + starTree.getConfig().getCollection() + ": "+ metric);
+  }
+  int dimensionIdx=-1;
+  for (int i=0; i < starTree.getConfig().getDimensions().size(); i++) {
+    if (starTree.getConfig().getDimensions().get(i).getName().equals(dimension)) {
+      dimensionIdx=i;
+      break;
+    }
+  }
+  if (dimensionIdx == -1) {
+    throw new IllegalArgumentException("No dimension for " + starTree.getConfig().getCollection() + ": "+ dimension);
+  }
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,baseQuery);
+  queries=StarTreeUtils.filterQueries(starTree.getConfig(),queries,uriInfo.getQueryParameters());
+  Map<String,Number> result=new HashMap<String,Number>();
+  for (  StarTreeQuery query : queries) {
+    StarTreeRecord record=starTree.getAggregate(query);
+    Number[] metrics=record.getMetricTimeSeries().getMetricSums();
+    String[] dimensions=record.getDimensionKey().getDimensionValues();
+    result.put(dimensions[dimensionIdx],metrics[metricIdx]);
+  }
+  return result;
+}

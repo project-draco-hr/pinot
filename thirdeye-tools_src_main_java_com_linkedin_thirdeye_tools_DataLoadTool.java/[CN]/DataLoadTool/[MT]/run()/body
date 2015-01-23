@@ -1,0 +1,88 @@
+{
+  try {
+    LoginContext loginContext=login();
+    if ("file".equals(thirdEyeUri.getScheme())) {
+      String uri;
+      HttpRequest req;
+      HttpResponse res;
+      File file;
+      FileOutputStream fos;
+      File collectionDir=new File(thirdEyeUri.getPath(),collection);
+      FileUtils.forceMkdir(collectionDir);
+      uri=createListTimeRequest();
+      req=new HttpGet(uri);
+      res=executePrivileged(loginContext,req);
+      JsonNode timeSegmentResult=OBJECT_MAPPER.readTree(res.getEntity().getContent());
+      EntityUtils.consume(res.getEntity());
+      LOG.info("Target time range {}",globalTimeRange);
+      List<TimeRange> timeRanges=new ArrayList<TimeRange>();
+      for (      JsonNode fileStatus : timeSegmentResult.get("FileStatuses").get("FileStatus")) {
+        String pathSuffix=fileStatus.get("pathSuffix").asText();
+        if (pathSuffix.startsWith("data_")) {
+          String[] tokens=pathSuffix.substring("data_".length(),pathSuffix.length()).split("-");
+          TimeRange timeRange=new TimeRange(Long.valueOf(tokens[0]),Long.valueOf(tokens[1]));
+          if (globalTimeRange.contains(timeRange)) {
+            timeRanges.add(timeRange);
+            LOG.info("Processing {}",pathSuffix);
+          }
+ else           if (!globalTimeRange.isDisjoint(timeRange)) {
+            throw new IllegalArgumentException("Global time range " + globalTimeRange + " does not contain time range "+ timeRange+ " and is not disjoint");
+          }
+ else {
+            LOG.info("Skipping {}",pathSuffix);
+          }
+        }
+      }
+      if (includeConfig) {
+        uri=createConfigRequest();
+        req=new HttpGet(uri);
+        res=executePrivileged(loginContext,req);
+        file=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
+        fos=new FileOutputStream(file);
+        IOUtils.copy(res.getEntity().getContent(),fos);
+        EntityUtils.consume(res.getEntity());
+        fos.flush();
+        fos.close();
+        LOG.info("Copied {} for {} from {} to {}",StarTreeConstants.CONFIG_FILE_NAME,collection,httpHost,file);
+      }
+      for (      TimeRange timeRange : timeRanges) {
+        if (includeStarTree) {
+          uri=createStarTreeRequest(timeRange);
+          req=new HttpGet(uri);
+          res=executePrivileged(loginContext,req);
+          file=new File(collectionDir,StarTreeConstants.TREE_FILE_NAME);
+          fos=new FileOutputStream(file);
+          IOUtils.copy(res.getEntity().getContent(),fos);
+          EntityUtils.consume(res.getEntity());
+          fos.flush();
+          fos.close();
+          LOG.info("Copied {} for {} from {} to {}",StarTreeConstants.TREE_FILE_NAME,collection,httpHost,file);
+        }
+        uri=createListDataRequest(timeRange);
+        req=new HttpGet(uri);
+        res=executePrivileged(loginContext,req);
+        JsonNode dataFiles=OBJECT_MAPPER.readTree(res.getEntity().getContent());
+        EntityUtils.consume(res.getEntity());
+        Set<String> blacklist=includeDimensions ? null : ImmutableSet.of("dimensionStore");
+        file=new File(collectionDir,StarTreeConstants.DATA_DIR_NAME);
+        for (        JsonNode fileStatus : dataFiles.get("FileStatuses").get("FileStatus")) {
+          String pathSuffix=fileStatus.get("pathSuffix").asText();
+          if (pathSuffix.startsWith("task_")) {
+            String dataFileUri=createGetDataRequest(timeRange,pathSuffix);
+            req=new HttpGet(dataFileUri);
+            res=executePrivileged(loginContext,req);
+            TarUtils.extractGzippedTarArchive(res.getEntity().getContent(),file,2,blacklist);
+            EntityUtils.consume(res.getEntity());
+            LOG.info("Copied data archive {}",pathSuffix);
+          }
+        }
+      }
+    }
+ else {
+      throw new IllegalArgumentException("Invalid ThirdEye scheme: " + thirdEyeUri.getScheme());
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

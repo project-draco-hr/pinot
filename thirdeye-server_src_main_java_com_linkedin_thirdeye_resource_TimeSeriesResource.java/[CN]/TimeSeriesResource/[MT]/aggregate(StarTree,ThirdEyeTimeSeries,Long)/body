@@ -1,0 +1,30 @@
+{
+  Map<Long,Number> aggregates=new HashMap<Long,Number>();
+  MetricSpec metricSpec=null;
+  for (  MetricSpec ms : starTree.getConfig().getMetrics()) {
+    if (ms.getName().equals(timeSeries.getLabel())) {
+      metricSpec=ms;
+      break;
+    }
+  }
+  if (metricSpec == null) {
+    throw new IllegalStateException("Could not find metric " + timeSeries.getLabel());
+  }
+  for (  List<Number> point : timeSeries.getData()) {
+    Long bucket=(point.get(0).longValue() / timeWindow) * timeWindow;
+    Number aggregate=aggregates.get(bucket);
+    if (aggregate == null) {
+      aggregate=0;
+    }
+    aggregates.put(bucket,NumberUtils.sum(aggregate,point.get(1),metricSpec.getType()));
+  }
+  List<Long> times=new ArrayList<Long>(aggregates.keySet());
+  Collections.sort(times);
+  ThirdEyeTimeSeries aggregatedTimeSeries=new ThirdEyeTimeSeries();
+  aggregatedTimeSeries.setDimensionValues(timeSeries.getDimensionValues());
+  aggregatedTimeSeries.setLabel(timeSeries.getLabel());
+  for (  Long time : times) {
+    aggregatedTimeSeries.addRecord(time,aggregates.get(time));
+  }
+  return aggregatedTimeSeries;
+}

@@ -1,0 +1,13 @@
+{
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  List<ThirdEyeTimeSeries> result=doQuery(starTree,start,end,metrics.split(","),uriInfo);
+  List<ThirdEyeTimeSeries> aggregatedResult=new ArrayList<ThirdEyeTimeSeries>(result.size());
+  for (  ThirdEyeTimeSeries timeSeries : result) {
+    aggregatedResult.add(aggregate(starTree,timeSeries,timeWindow));
+  }
+  normalize(starTree,aggregatedResult);
+  return aggregatedResult;
+}

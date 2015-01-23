@@ -1,0 +1,26 @@
+{
+  if (args.length != 2) {
+    usage();
+    System.exit(1);
+  }
+  String phaseName=args[0];
+  Properties config=new Properties();
+  config.load(new FileInputStream(args[1]));
+  String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getPropertyName(),config);
+  String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getPropertyName(),config);
+  long minTime=Long.valueOf(getAndCheck(ThirdEyeJobConstants.INPUT_TIME_MIN.getPropertyName(),config));
+  long maxTime=Long.valueOf(getAndCheck(ThirdEyeJobConstants.INPUT_TIME_MAX.getPropertyName(),config));
+  String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getPropertyName(),config);
+  for (  PhaseSpec phase : PhaseSpec.values()) {
+    if (phase.getName().equals(phaseName)) {
+      Properties jobProperties=phase.getJobProperties(root,collection,minTime,maxTime,inputPaths);
+      Constructor<?> constructor=phase.getKlazz().getConstructor(String.class,Properties.class);
+      Object instance=constructor.newInstance(phase.getName(),jobProperties);
+      Method runMethod=instance.getClass().getMethod("run");
+      runMethod.invoke(instance);
+      return;
+    }
+  }
+  usage();
+  System.exit(1);
+}

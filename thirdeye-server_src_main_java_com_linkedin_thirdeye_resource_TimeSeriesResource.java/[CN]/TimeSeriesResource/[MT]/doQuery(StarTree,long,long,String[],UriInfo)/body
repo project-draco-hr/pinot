@@ -1,0 +1,31 @@
+{
+  if (start > end) {
+    throw new WebApplicationException(new IllegalArgumentException("start > end"),400);
+  }
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,UriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(new TimeRange(start,end)).build(starTree.getConfig()));
+  queries=StarTreeUtils.filterQueries(starTree.getConfig(),queries,uriInfo.getQueryParameters());
+  List<ThirdEyeTimeSeries> allResults=new ArrayList<ThirdEyeTimeSeries>(queries.size());
+  for (  StarTreeQuery query : queries) {
+    MetricTimeSeries timeSeries=starTree.getTimeSeries(query);
+    Map<String,String> values=new HashMap<String,String>(query.getDimensionKey().getDimensionValues().length);
+    for (int i=0; i < starTree.getConfig().getDimensions().size(); i++) {
+      values.put(starTree.getConfig().getDimensions().get(i).getName(),query.getDimensionKey().getDimensionValues()[i]);
+    }
+    Map<String,ThirdEyeTimeSeries> result=new HashMap<String,ThirdEyeTimeSeries>(metricNames.length);
+    for (    String metricName : metricNames) {
+      ThirdEyeTimeSeries ts=new ThirdEyeTimeSeries();
+      ts.setLabel(metricName);
+      ts.setDimensionValues(values);
+      result.put(metricName,ts);
+    }
+    List<Long> times=new ArrayList<Long>(timeSeries.getTimeWindowSet());
+    Collections.sort(times);
+    for (    Long time : times) {
+      for (      Map.Entry<String,ThirdEyeTimeSeries> entry : result.entrySet()) {
+        entry.getValue().addRecord(time,timeSeries.get(time,entry.getKey()));
+      }
+    }
+    allResults.addAll(result.values());
+  }
+  return allResults;
+}
