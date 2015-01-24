@@ -1,13 +1,13 @@
 {
   LOGGER.info("Network starting !!");
-  if (_state != State.INIT) {
+  if (_state.get() != State.INIT) {
     LOGGER.warn("Network already initialized. Skipping !!");
     return;
   }
-  _state=State.STARTING;
+  _state.set(State.STARTING);
   _connPool.start();
   _routingTable.start();
-  _state=State.RUNNING;
+  _state.set(State.RUNNING);
   LOGGER.info("Network running !!");
   LOGGER.info("Starting Jetty server !!");
   _server.start();
