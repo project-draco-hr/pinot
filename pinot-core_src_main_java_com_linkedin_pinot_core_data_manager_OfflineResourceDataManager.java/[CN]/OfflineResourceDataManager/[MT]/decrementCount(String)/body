@@ -1,6 +1,6 @@
 {
   if (!_referenceCounts.containsKey(segmentId)) {
-    LOGGER.warn("Received command to delete unexisting segment - " + segmentId);
+    _logger.warn("Received command to delete unexisting segment - " + segmentId);
     return;
   }
   AtomicInteger count=_referenceCounts.get(segmentId);
@@ -18,11 +18,11 @@ synchronized (getGlobalLock()) {
       _currentNumberOfDocuments.dec(segment.getSegment().getSegmentMetadata().getTotalDocs());
       _numDeletedSegments.inc();
     }
-    LOGGER.info("Segment " + segmentId + " has been deleted");
+    _logger.info("Segment " + segmentId + " has been deleted");
     _segmentAsyncExecutorService.execute(new Runnable(){
       @Override public void run(){
         FileUtils.deleteQuietly(new File(_resourceDataDir,segmentId));
-        LOGGER.info("The index directory for the segment " + segmentId + " has been deleted");
+        _logger.info("The index directory for the segment " + segmentId + " has been deleted");
       }
     }
 );

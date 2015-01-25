@@ -5,8 +5,8 @@
   PropertiesConfiguration serverConf=new PropertiesConfiguration();
   serverConf.setDelimiterParsingDisabled(false);
   serverConf.load(new File(configFilePath,PINOT_PROPERTIES));
-  InstanceDataManager instanceDataManager1=InstanceDataManager.getInstanceDataManager();
-  instanceDataManager1.init(new InstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
+  FileBasedInstanceDataManager instanceDataManager1=FileBasedInstanceDataManager.getInstanceDataManager();
+  instanceDataManager1.init(new FileBasedInstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
   instanceDataManager1.start();
   for (int i=0; i < 2; ++i) {
     IndexSegment indexSegment=IndexSegmentUtils.getIndexSegmentWithAscendingOrderValues(20000001,"midas","testTable");

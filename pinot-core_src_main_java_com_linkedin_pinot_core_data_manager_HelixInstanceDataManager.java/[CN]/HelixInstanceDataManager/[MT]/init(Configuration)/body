@@ -1,6 +1,7 @@
 {
   try {
     _instanceDataManagerConfig=new HelixInstanceDataManagerConfig(dataManagerConfig);
+    LOGGER.info("InstanceDataManager Config:" + _instanceDataManagerConfig.toString());
     File instanceDataDir=new File(_instanceDataManagerConfig.getInstanceDataDir());
     if (!instanceDataDir.exists()) {
       instanceDataDir.mkdirs();
@@ -14,15 +15,8 @@
       LOGGER.info("Loaded SegmentMetadataLoader for class name : " + _instanceDataManagerConfig.getSegmentMetadataLoaderClass());
     }
  catch (    Exception e) {
-      LOGGER.error("Cannot initialize SegmentMetadataLoader for class name : " + _instanceDataManagerConfig.getSegmentMetadataLoaderClass());
-      e.printStackTrace();
+      LOGGER.error("Cannot initialize SegmentMetadataLoader for class name : " + _instanceDataManagerConfig.getSegmentMetadataLoaderClass() + "\nStackTrace is : "+ e.getMessage());
     }
-    System.out.println(_instanceDataManagerConfig.getInstanceBootstrapSegmentDir());
-    System.out.println(_instanceDataManagerConfig.getInstanceDataDir());
-    System.out.println(_instanceDataManagerConfig.getInstanceId());
-    System.out.println(_instanceDataManagerConfig.getInstanceSegmentTarDir());
-    System.out.println(_instanceDataManagerConfig.getSegmentMetadataLoaderClass());
-    System.out.println(_instanceDataManagerConfig.getReadMode());
     try {
       bootstrapSegmentsFromLocal();
     }
@@ -33,6 +27,6 @@
   }
  catch (  Exception e) {
     _instanceDataManagerConfig=null;
-    e.printStackTrace();
+    LOGGER.error("Error in initializing HelixDataManager, StackTrace is : " + e.getMessage());
   }
 }

@@ -1,10 +1,10 @@
 {
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BDocIdSetOperator docIdSetOperator=new BDocIdSetOperator(null,_indexSegment,5000);
+  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalDocs(),5000);
   final Map<String,DataSource> dataSourceMap=getDataSourceMap();
   final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
   for (int i=0; i < _numAggregations; ++i) {
-    final MAggregationFunctionGroupByOperator aggregationFunctionGroupByOperator=new MAggregationFunctionGroupByOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator));
+    final MDefaultAggregationFunctionGroupByOperator aggregationFunctionGroupByOperator=new MDefaultAggregationFunctionGroupByOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator));
     aggregationFunctionGroupByOperatorList.add(aggregationFunctionGroupByOperator);
   }
   final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
@@ -14,11 +14,11 @@
     System.out.println(block.getAggregationGroupByOperatorResult().get(i));
   }
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList1=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BDocIdSetOperator docIdSetOperator1=new BDocIdSetOperator(null,_indexSegment,5000);
+  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalDocs(),5000);
   final Map<String,DataSource> dataSourceMap1=getDataSourceMap();
   final MProjectionOperator projectionOperator1=new MProjectionOperator(dataSourceMap1,docIdSetOperator1);
   for (int i=0; i < _numAggregations; ++i) {
-    final MAggregationFunctionGroupByOperator aggregationFunctionGroupByOperator1=new MAggregationFunctionGroupByOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator1));
+    final MDefaultAggregationFunctionGroupByOperator aggregationFunctionGroupByOperator1=new MDefaultAggregationFunctionGroupByOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator1));
     aggregationFunctionGroupByOperatorList1.add(aggregationFunctionGroupByOperator1);
   }
   final MAggregationGroupByOperator aggregationGroupByOperator1=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator1,aggregationFunctionGroupByOperatorList1);

@@ -9,9 +9,9 @@
   }
   final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getResourceDataManager(brokerRequest.getQuerySource().getResourceName()).getExecutorService());
   if (_printQueryPlan) {
-    System.out.println("*********************************** query plan ***********************************");
+    LOGGER.debug("***************************** Query Plan for Request " + instanceRequest.getRequestId() + "***********************************");
     globalQueryPlan.print();
-    System.out.println("*********************************** end query plan ***********************************");
+    LOGGER.debug("*********************************** End Query Plan ***********************************");
   }
   try {
     globalQueryPlan.execute();
@@ -22,8 +22,9 @@
   }
   DataTable instanceResponse=globalQueryPlan.getInstanceResponse();
   long end=System.currentTimeMillis();
-  LOGGER.info("searching instance, browse took: " + (end - start));
-  LOGGER.info(instanceResponse.toString());
+  LOGGER.info("Searching Instance for Request Id - " + instanceRequest.getRequestId() + ", browse took: "+ (end - start));
+  LOGGER.debug("InstanceResponse for Request Id - " + instanceRequest.getRequestId() + " : "+ instanceResponse.toString());
   instanceResponse.getMetadata().put("timeUsedMs",Long.toString((end - start)));
+  instanceResponse.getMetadata().put("requestId",Long.toString(instanceRequest.getRequestId()));
   return instanceResponse;
 }

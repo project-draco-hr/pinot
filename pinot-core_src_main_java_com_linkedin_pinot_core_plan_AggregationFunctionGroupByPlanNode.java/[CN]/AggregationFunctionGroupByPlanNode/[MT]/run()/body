@@ -1,7 +1,7 @@
 {
 switch (_aggregationGroupByImplementationType) {
 case NoDictionary:
-    return new MAggregationFunctionGroupByOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()));
+    return new MDefaultAggregationFunctionGroupByOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()));
 case Dictionary:
   return new MAggregationFunctionGroupByWithDictionaryOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()));
 case DictionaryAndTrie:

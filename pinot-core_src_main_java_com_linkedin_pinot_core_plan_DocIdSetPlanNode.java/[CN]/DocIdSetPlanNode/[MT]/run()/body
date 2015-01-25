@@ -1,10 +1,10 @@
 {
   if (_projectOp == null) {
     if (_filterNode != null) {
-      _projectOp=new BDocIdSetOperator(_filterNode.run(),_indexSegment,_maxDocPerAggregation);
+      _projectOp=new BReusableFilteredDocIdSetOperator(_filterNode.run(),_indexSegment.getSegmentMetadata().getTotalDocs(),_maxDocPerAggregation);
     }
  else {
-      _projectOp=new BDocIdSetOperator(null,_indexSegment,_maxDocPerAggregation);
+      _projectOp=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalDocs(),_maxDocPerAggregation);
     }
     return _projectOp;
   }

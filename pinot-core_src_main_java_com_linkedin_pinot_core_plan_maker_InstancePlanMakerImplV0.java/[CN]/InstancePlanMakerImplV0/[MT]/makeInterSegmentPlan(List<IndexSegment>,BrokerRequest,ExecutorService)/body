@@ -1,6 +1,6 @@
 {
   InstanceResponsePlanNode rootNode=new InstanceResponsePlanNode();
-  CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,_timeOutMs);
+  CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,getResourceTimeOut(brokerRequest));
   rootNode.setPlanNode(combinePlanNode);
   for (  IndexSegment indexSegment : indexSegmentList) {
     combinePlanNode.addPlanNode(makeInnerSegmentPlan(indexSegment,brokerRequest));

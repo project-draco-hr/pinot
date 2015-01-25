@@ -2,9 +2,11 @@
   if (segmentMetadata == null || segmentMetadata.getResourceName() == null) {
     return;
   }
+  LOGGER.info("Trying to add segment with name: " + segmentMetadata.getName());
+  LOGGER.info("Trying to add segment with Metadata: " + segmentMetadata.toString());
   String resourceName=segmentMetadata.getResourceName();
-  System.out.println(segmentMetadata.getName());
   if (!_resourceDataManagerMap.containsKey(resourceName)) {
+    LOGGER.info("Trying to add ResourceDataManager for resource name: " + resourceName);
     addResourceIfNeed(resourceName);
   }
   _resourceDataManagerMap.get(resourceName).addSegment(segmentMetadata);
