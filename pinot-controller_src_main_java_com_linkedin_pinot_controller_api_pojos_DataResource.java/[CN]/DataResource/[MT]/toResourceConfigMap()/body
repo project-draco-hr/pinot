@@ -1,54 +1,54 @@
 {
-  if (requestType.equalsIgnoreCase(CommonConstants.Helix.DataSourceRequestType.CREATE)) {
+  if (requestType.equalsIgnoreCase(Helix.DataSourceRequestType.CREATE)) {
     final Map<String,String> ret=new HashMap<String,String>();
-    ret.put(CommonConstants.Helix.DataSource.RESOURCE_NAME,resourceName);
-    ret.put(CommonConstants.Helix.DataSource.TABLE_NAME,tableName);
-    ret.put(CommonConstants.Helix.DataSource.TIME_COLUMN_NAME,timeColumnName);
-    ret.put(CommonConstants.Helix.DataSource.TIME_TYPE,timeType);
-    ret.put(CommonConstants.Helix.DataSource.NUMBER_OF_DATA_INSTANCES,String.valueOf(numberOfDataInstances));
-    ret.put(CommonConstants.Helix.DataSource.NUMBER_OF_COPIES,String.valueOf(numberOfCopies));
-    ret.put(CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT,retentionTimeUnit);
-    ret.put(CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE,retentionTimeValue);
-    ret.put(CommonConstants.Helix.DataSource.PUSH_FREQUENCY,pushFrequency);
-    ret.put(CommonConstants.Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY,segmentAssignmentStrategy);
-    ret.put(CommonConstants.Helix.DataSource.BROKER_TAG_NAME,brokerTagName);
-    ret.put(CommonConstants.Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,String.valueOf(numberOfBrokerInstances));
+    ret.put(Helix.DataSource.RESOURCE_NAME,resourceName);
+    ret.put(Helix.DataSource.TABLE_NAME,tableName);
+    ret.put(Helix.DataSource.TIME_COLUMN_NAME,timeColumnName);
+    ret.put(Helix.DataSource.TIME_TYPE,timeType);
+    ret.put(Helix.DataSource.NUMBER_OF_DATA_INSTANCES,String.valueOf(numberOfDataInstances));
+    ret.put(Helix.DataSource.NUMBER_OF_COPIES,String.valueOf(numberOfCopies));
+    ret.put(Helix.DataSource.RETENTION_TIME_UNIT,retentionTimeUnit);
+    ret.put(Helix.DataSource.RETENTION_TIME_VALUE,retentionTimeValue);
+    ret.put(Helix.DataSource.PUSH_FREQUENCY,pushFrequency);
+    ret.put(Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY,segmentAssignmentStrategy);
+    ret.put(Helix.DataSource.BROKER_TAG_NAME,brokerTagName);
+    ret.put(Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,String.valueOf(numberOfBrokerInstances));
     setMetaToConfigMap(ret);
     return ret;
   }
- else   if (requestType.equalsIgnoreCase(CommonConstants.Helix.DataSourceRequestType.UPDATE_DATA_RESOURCE)) {
+ else   if (requestType.equalsIgnoreCase(Helix.DataSourceRequestType.UPDATE_DATA_RESOURCE)) {
     final Map<String,String> ret=new HashMap<String,String>();
-    ret.put(CommonConstants.Helix.DataSource.NUMBER_OF_DATA_INSTANCES,String.valueOf(numberOfDataInstances));
-    ret.put(CommonConstants.Helix.DataSource.NUMBER_OF_COPIES,String.valueOf(numberOfCopies));
+    ret.put(Helix.DataSource.NUMBER_OF_DATA_INSTANCES,String.valueOf(numberOfDataInstances));
+    ret.put(Helix.DataSource.NUMBER_OF_COPIES,String.valueOf(numberOfCopies));
     return ret;
   }
- else   if (requestType.equalsIgnoreCase(CommonConstants.Helix.DataSourceRequestType.UPDATE_DATA_RESOURCE_CONFIG)) {
+ else   if (requestType.equalsIgnoreCase(Helix.DataSourceRequestType.UPDATE_DATA_RESOURCE_CONFIG)) {
     final Map<String,String> ret=new HashMap<String,String>();
     if (timeColumnName != null) {
-      ret.put(CommonConstants.Helix.DataSource.TIME_COLUMN_NAME,timeColumnName);
+      ret.put(Helix.DataSource.TIME_COLUMN_NAME,timeColumnName);
     }
     if (timeType != null) {
-      ret.put(CommonConstants.Helix.DataSource.TIME_TYPE,timeType);
+      ret.put(Helix.DataSource.TIME_TYPE,timeType);
     }
     if (retentionTimeUnit != null) {
-      ret.put(CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT,retentionTimeUnit);
+      ret.put(Helix.DataSource.RETENTION_TIME_UNIT,retentionTimeUnit);
     }
     if (retentionTimeValue != null) {
-      ret.put(CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE,retentionTimeValue);
+      ret.put(Helix.DataSource.RETENTION_TIME_VALUE,retentionTimeValue);
     }
     if (pushFrequency != null) {
-      ret.put(CommonConstants.Helix.DataSource.PUSH_FREQUENCY,pushFrequency);
+      ret.put(Helix.DataSource.PUSH_FREQUENCY,pushFrequency);
     }
     if (segmentAssignmentStrategy != null) {
-      ret.put(CommonConstants.Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY,segmentAssignmentStrategy);
+      ret.put(Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY,segmentAssignmentStrategy);
     }
     setMetaToConfigMap(ret);
     return ret;
   }
- else   if (requestType.equalsIgnoreCase(CommonConstants.Helix.DataSourceRequestType.UPDATE_BROKER_RESOURCE)) {
+ else   if (requestType.equalsIgnoreCase(Helix.DataSourceRequestType.UPDATE_BROKER_RESOURCE)) {
     final Map<String,String> ret=new HashMap<String,String>();
-    ret.put(CommonConstants.Helix.DataSource.BROKER_TAG_NAME,brokerTagName);
-    ret.put(CommonConstants.Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,String.valueOf(numberOfBrokerInstances));
+    ret.put(Helix.DataSource.BROKER_TAG_NAME,brokerTagName);
+    ret.put(Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,String.valueOf(numberOfBrokerInstances));
     return ret;
   }
   throw new RuntimeException("Not support request type: " + requestType);

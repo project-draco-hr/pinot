@@ -2,9 +2,9 @@
   JsonNodeFactory factory=JsonNodeFactory.instance;
   ObjectNode objectNode=new ObjectNode(factory);
   for (  String key : props.keySet()) {
-    if (key.startsWith(CommonConstants.Helix.DataSource.METADATA + ".")) {
-      objectNode.put(key.substring(CommonConstants.Helix.DataSource.METADATA.length() + 1),props.get(key));
+    if (key.startsWith(Helix.DataSource.METADATA + ".")) {
+      objectNode.put(key.substring(Helix.DataSource.METADATA.length() + 1),props.get(key));
     }
   }
-  return new DataResource(null,props.get(CommonConstants.Helix.DataSource.RESOURCE_NAME),props.get(CommonConstants.Helix.DataSource.TABLE_NAME),props.get(CommonConstants.Helix.DataSource.TIME_COLUMN_NAME),props.get(CommonConstants.Helix.DataSource.TIME_TYPE),Integer.parseInt(props.get(CommonConstants.Helix.DataSource.NUMBER_OF_DATA_INSTANCES)),Integer.parseInt(props.get(CommonConstants.Helix.DataSource.NUMBER_OF_COPIES)),props.get(CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT),props.get(CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE),props.get(CommonConstants.Helix.DataSource.PUSH_FREQUENCY),props.get(CommonConstants.Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY),props.get(CommonConstants.Helix.DataSource.BROKER_TAG_NAME),Integer.parseInt(props.get(CommonConstants.Helix.DataSource.NUMBER_OF_BROKER_INSTANCES)),objectNode);
+  return new DataResource(null,props.get(Helix.DataSource.RESOURCE_NAME),props.get(Helix.DataSource.TABLE_NAME),props.get(Helix.DataSource.TIME_COLUMN_NAME),props.get(Helix.DataSource.TIME_TYPE),Integer.parseInt(props.get(Helix.DataSource.NUMBER_OF_DATA_INSTANCES)),Integer.parseInt(props.get(Helix.DataSource.NUMBER_OF_COPIES)),props.get(Helix.DataSource.RETENTION_TIME_UNIT),props.get(Helix.DataSource.RETENTION_TIME_VALUE),props.get(Helix.DataSource.PUSH_FREQUENCY),props.get(Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY),props.get(Helix.DataSource.BROKER_TAG_NAME),Integer.parseInt(props.get(Helix.DataSource.NUMBER_OF_BROKER_INSTANCES)),objectNode);
 }

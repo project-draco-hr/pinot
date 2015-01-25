@@ -5,11 +5,11 @@
         final int[] docIds=filteredDocIdsBitMap.toArray();
         int counter=0;
         @Override public int skipTo(        int targetDocId){
-          if (targetDocId < docIds.length) {
-            counter=targetDocId;
-            return counter;
-          }
-          return -1;
+          int entry=Arrays.binarySearch(docIds,targetDocId);
+          if (entry < 0)           entry*=-1;
+          if (entry >= docIds.length)           return Constants.EOF;
+          counter=entry;
+          return counter;
         }
         @Override public int next(){
           if (counter >= docIds.length) {

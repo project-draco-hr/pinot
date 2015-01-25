@@ -84,6 +84,9 @@ rangeEndIndex=Math.max(0,rangeEndIndex - 1);
  else if (!incUpper && !upper.equals("*")) {
 rangeEndIndex-=1;
 }
+if (rangeStartIndex > rangeEndIndex) {
+throw new IllegalAccessException("range start is greater than range end");
+}
 final MutableRoaringBitmap rangeBitmapHolder=invertedIndex.getMutable(rangeStartIndex);
 for (int i=(rangeStartIndex + 1); i <= rangeEndIndex; i++) {
 rangeBitmapHolder.or(invertedIndex.getImmutable(i));
