@@ -9,7 +9,6 @@
     resp.getOutputStream().flush();
     resp.getOutputStream().close();
     logger.error(e.getMessage());
-    System.out.println(e);
-    e.printStackTrace();
+    brokerMetrics.addMeteredValue(null,"uncaughtPostExceptions","exceptions",1);
   }
 }

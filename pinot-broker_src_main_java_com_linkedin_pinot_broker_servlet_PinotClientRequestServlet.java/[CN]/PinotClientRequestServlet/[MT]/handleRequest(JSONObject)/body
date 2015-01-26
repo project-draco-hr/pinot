@@ -1,17 +1,25 @@
 {
   final String pql=request.getString("pql");
-  final long startTime=System.nanoTime();
-  final JSONObject compiled=requestCompiler.compile(pql);
-  final BrokerRequest brokerRequest=convertToBrokerRequest(compiled);
-  final long requestCompilationTime=System.nanoTime() - startTime;
-  brokerMetrics.addPhaseTiming(brokerRequest,"requestCompilation",requestCompilationTime);
-  final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,"queryExecution",new Callable<BrokerResponse>(){
-    @Override public BrokerResponse call() throws Exception {
-      final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
-      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
+  try {
+    final long startTime=System.nanoTime();
+    final JSONObject compiled=requestCompiler.compile(pql);
+    final BrokerRequest brokerRequest=convertToBrokerRequest(compiled);
+    brokerMetrics.addMeteredValue(brokerRequest,"queries","queries",1);
+    final long requestCompilationTime=System.nanoTime() - startTime;
+    brokerMetrics.addPhaseTiming(brokerRequest,"requestCompilation",requestCompilationTime);
+    final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,"queryExecution",new Callable<BrokerResponse>(){
+      @Override public BrokerResponse call() throws Exception {
+        final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
+        return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
+      }
     }
-  }
 );
-  logger.info("Broker Response : " + resp);
-  return resp;
+    logger.info("Broker Response : " + resp);
+    return resp;
+  }
+ catch (  RecognitionException re) {
+    logger.warn("Malformed or unrecognized query " + pql,re);
+    brokerMetrics.addMeteredValue(null,"requestCompilationExceptions","exceptions",1);
+    throw re;
+  }
 }
