@@ -3,24 +3,35 @@
     usage();
     System.exit(1);
   }
-  String phaseName=args[0];
+  PhaseSpec phaseSpec;
+  try {
+    phaseSpec=PhaseSpec.valueOf(args[0].toUpperCase());
+  }
+ catch (  Exception e) {
+    usage();
+    throw e;
+  }
   Properties config=new Properties();
   config.load(new FileInputStream(args[1]));
   String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getPropertyName(),config);
   String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getPropertyName(),config);
-  long minTime=Long.valueOf(getAndCheck(ThirdEyeJobConstants.INPUT_TIME_MIN.getPropertyName(),config));
-  long maxTime=Long.valueOf(getAndCheck(ThirdEyeJobConstants.INPUT_TIME_MAX.getPropertyName(),config));
   String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getPropertyName(),config);
-  for (  PhaseSpec phase : PhaseSpec.values()) {
-    if (phase.getName().equals(phaseName)) {
-      Properties jobProperties=phase.getJobProperties(root,collection,minTime,maxTime,inputPaths);
-      Constructor<?> constructor=phase.getKlazz().getConstructor(String.class,Properties.class);
-      Object instance=constructor.newInstance(phase.getName(),jobProperties);
-      Method runMethod=instance.getClass().getMethod("run");
-      runMethod.invoke(instance);
-      return;
+  long minTime=-1;
+  long maxTime=-1;
+  if (!PhaseSpec.ANALYSIS.equals(phaseSpec)) {
+    FileSystem fileSystem=FileSystem.get(new Configuration());
+    InputStream inputStream=fileSystem.open(new Path(phaseSpec.getAnalysisPath(root,collection),AnalysisJobConstants.ANALYSIS_FILE_NAME.toString()));
+    AnalysisPhaseStats stats=AnalysisPhaseStats.fromBytes(IOUtils.toByteArray(inputStream));
+    inputStream.close();
+    if (!inputPaths.equals(stats.getInputPath())) {
+      throw new IllegalStateException("Last analysis was done for input paths " + stats.getInputPath() + " not "+ inputPaths);
     }
+    minTime=stats.getMinTime();
+    maxTime=stats.getMaxTime();
   }
-  usage();
-  System.exit(1);
+  Properties jobProperties=phaseSpec.getJobProperties(root,collection,minTime,maxTime,inputPaths);
+  Constructor<?> constructor=phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
+  Object instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
+  Method runMethod=instance.getClass().getMethod("run");
+  runMethod.invoke(instance);
 }

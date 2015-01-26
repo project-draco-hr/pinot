@@ -1,0 +1,11 @@
+{
+  Object timeObj=record.datum().get(config.getTime().getColumnName());
+  if (timeObj == null) {
+    throw new IllegalStateException("Record has null value for time column " + config.getTime().getColumnName() + ": "+ record.datum());
+  }
+  Long time=((Number)timeObj).longValue();
+  AnalysisPhaseStats stats=new AnalysisPhaseStats();
+  stats.setMaxTime(time);
+  stats.setMinTime(time);
+  context.write(taskKey,new BytesWritable(stats.toBytes()));
+}
