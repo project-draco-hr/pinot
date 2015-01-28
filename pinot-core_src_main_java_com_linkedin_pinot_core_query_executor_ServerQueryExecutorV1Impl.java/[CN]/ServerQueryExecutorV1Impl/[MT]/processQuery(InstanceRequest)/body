@@ -7,7 +7,7 @@
   if (queryableSegmentDataManagerList.isEmpty()) {
     return null;
   }
-  final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getResourceDataManager(brokerRequest.getQuerySource().getResourceName()).getExecutorService());
+  final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getResourceDataManager(brokerRequest.getQuerySource().getResourceName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
   if (_printQueryPlan) {
     LOGGER.debug("***************************** Query Plan for Request " + instanceRequest.getRequestId() + "***********************************");
     globalQueryPlan.print();

@@ -2,7 +2,7 @@
   PlanMaker instancePlanMaker=new InstancePlanMakerImplV1();
   BrokerRequest brokerRequest=getAggregationGroupByNoFilterBrokerRequest();
   ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
-  Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService,150000);
   globalPlan.print();
   globalPlan.execute();
   DataTable instanceResponse=globalPlan.getInstanceResponse();

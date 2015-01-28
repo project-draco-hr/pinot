@@ -7,11 +7,11 @@
   brokerRequest.getSelections().setOffset(0);
   brokerRequest.getSelections().setSize(20);
   ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
-  Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService,150000);
   globalPlan.print();
   System.out.println("/////////////////////////////////////////////////////////////////////////////");
   brokerRequest=setFilterQuery(brokerRequest);
-  globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService);
+  globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService,150000);
   globalPlan.print();
   globalPlan.execute();
   DataTable instanceResponse=globalPlan.getInstanceResponse();

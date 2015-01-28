@@ -2,15 +2,15 @@
   _queryExecutorConfig=new QueryExecutorConfig(queryExecutorConfig);
   _instanceDataManager=(FileBasedInstanceDataManager)dataManager;
   if (_queryExecutorConfig.getTimeOut() > 0) {
-    _timeOutMs=_queryExecutorConfig.getTimeOut();
+    _defaultTimeOutMs=_queryExecutorConfig.getTimeOut();
   }
-  LOGGER.info("Timeout for query executor : " + _timeOutMs);
+  LOGGER.info("Default timeout for query executor : " + _defaultTimeOutMs);
   LOGGER.info("Trying to build SegmentPrunerService");
   if (_segmentPrunerService == null) {
     _segmentPrunerService=new SegmentPrunerServiceImpl(_queryExecutorConfig.getPrunerConfig());
   }
   LOGGER.info("Trying to build QueryPlanMaker");
-  _planMaker=new InstancePlanMakerImplV2(_timeOutMs);
+  _planMaker=new InstancePlanMakerImplV2();
   LOGGER.info("Trying to build QueryExecutorTimer");
   if (_queryExecutorTimer == null) {
     _queryExecutorTimer=Metrics.newTimer(new MetricName(Domain,"timer","query-executor-time-"),TimeUnit.MILLISECONDS,TimeUnit.SECONDS);
