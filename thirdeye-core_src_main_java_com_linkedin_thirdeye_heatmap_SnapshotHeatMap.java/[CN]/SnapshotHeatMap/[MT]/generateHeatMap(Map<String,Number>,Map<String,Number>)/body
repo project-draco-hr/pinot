@@ -18,7 +18,8 @@
   double currentSum=currentStats.getSum();
   List<HeatMapCell> cells=new ArrayList<HeatMapCell>();
   String resultString=updateRecords();
-  for (  String entryString : resultString.split(",")) {
+  String[] entries=resultString.split(",");
+  for (  String entryString : entries) {
     if (_snapshotDictionary.containsKey(entryString)) {
       double[] valueList=_snapshotDictionary.get(entryString);
       baselineSum=baselineSum - valueList[0];
@@ -26,8 +27,6 @@
     }
   }
   double restRatio=currentSum / baselineSum;
-  HeatMapCell cell=new HeatMapCell("Rest",currentSum,baselineSum,restRatio,0.0,COLOR);
-  cells.add(cell);
   for (  String entryString : resultString.split(",")) {
     if (_snapshotDictionary.containsKey(entryString)) {
       double[] valueList=_snapshotDictionary.get(entryString);
@@ -39,9 +38,13 @@
       if (ratio > restRatio) {
         colorString=UPCOLOR;
       }
-      cell=new HeatMapCell(entryString,valueList[1],valueList[0],ratio,0.0,colorString);
+      HeatMapCell cell=new HeatMapCell(entryString,valueList[1],valueList[0],ratio,1.0,colorString);
       cells.add(cell);
     }
+  }
+  if (entries.length > _maxRecords) {
+    HeatMapCell cell=new HeatMapCell("Rest",currentSum,baselineSum,restRatio,1.0,COLOR);
+    cells.add(cell);
   }
   return cells;
 }

@@ -1,0 +1,13 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.exists()) {
+    FileUtils.forceMkdir(collectionDir);
+  }
+  File dataDir=new File(collectionDir,StarTreeConstants.DATA_DIR_NAME);
+  if (!dataDir.exists()) {
+    FileUtils.forceMkdir(dataDir);
+  }
+  Set<String> blacklist=includeDimensions ? null : ImmutableSet.of("dimensionStore");
+  TarUtils.extractGzippedTarArchive(new ByteArrayInputStream(dataBytes),dataDir,2,blacklist);
+  return Response.ok().build();
+}

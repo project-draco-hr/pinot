@@ -1,10 +1,14 @@
 {
 synchronized (trees) {
+    if (openTrees.contains(collection)) {
+      return;
+    }
     StarTree starTree=trees.get(collection);
     if (starTree == null) {
       throw new IllegalArgumentException("No star tree for collection " + collection);
     }
     starTree.open();
+    openTrees.add(collection);
     LOG.info("Opened tree for collection {}",collection);
   }
 }

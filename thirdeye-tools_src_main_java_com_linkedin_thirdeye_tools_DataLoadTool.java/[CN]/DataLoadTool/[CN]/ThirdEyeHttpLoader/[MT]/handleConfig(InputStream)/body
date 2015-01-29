@@ -1,0 +1,8 @@
+{
+  String uri="/collections/" + URLEncoder.encode(collection,"UTF-8");
+  HttpResponse res=execute(uri,config);
+  if (res.getStatusLine().getStatusCode() != 200) {
+    throw new IOException(res.getStatusLine().toString());
+  }
+  LOG.info("POST {} #=> {}",uri,res.getStatusLine());
+}
