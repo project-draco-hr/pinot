@@ -4,56 +4,54 @@
     return;
   }
   logger.info("Starting validation");
-  List<String> allResourceNames=_pinotHelixResourceManager.getAllResourceNames();
+  List<String> allResourceNames=_pinotHelixResourceManager.getAllPinotResourceNames();
   ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
   for (  String resourceName : allResourceNames) {
-    if (!resourceName.equals(CommonConstants.Helix.BROKER_RESOURCE_INSTANCE)) {
-      List<ZNRecord> segmentRecords=propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
-      Map<String,List<SegmentMetadata>> tableToSegmentMetadata=new HashMap<String,List<SegmentMetadata>>();
-      for (      ZNRecord record : segmentRecords) {
-        SegmentMetadata segmentMetadata=new SegmentMetadataImpl(record);
-        String tableName=segmentMetadata.getTableName();
-        if (tableToSegmentMetadata.containsKey(tableName)) {
-          List<SegmentMetadata> metadataList=tableToSegmentMetadata.get(tableName);
-          metadataList.add(segmentMetadata);
-        }
+    List<ZNRecord> segmentRecords=propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
+    Map<String,List<SegmentMetadata>> tableToSegmentMetadata=new HashMap<String,List<SegmentMetadata>>();
+    for (    ZNRecord record : segmentRecords) {
+      SegmentMetadata segmentMetadata=new SegmentMetadataImpl(record);
+      String tableName=segmentMetadata.getTableName();
+      if (tableToSegmentMetadata.containsKey(tableName)) {
+        List<SegmentMetadata> metadataList=tableToSegmentMetadata.get(tableName);
+        metadataList.add(segmentMetadata);
+      }
  else {
-          List<SegmentMetadata> metadataList=new ArrayList<SegmentMetadata>();
-          metadataList.add(segmentMetadata);
-          tableToSegmentMetadata.put(tableName,metadataList);
+        List<SegmentMetadata> metadataList=new ArrayList<SegmentMetadata>();
+        metadataList.add(segmentMetadata);
+        tableToSegmentMetadata.put(tableName,metadataList);
+      }
+    }
+    for (    Map.Entry<String,List<SegmentMetadata>> stringListEntry : tableToSegmentMetadata.entrySet()) {
+      String tableName=stringListEntry.getKey();
+      List<SegmentMetadata> tableSegmentsMetadata=stringListEntry.getValue();
+      int missingSegmentCount=0;
+      if (2 < tableSegmentsMetadata.size()) {
+        List<Interval> segmentIntervals=new ArrayList<Interval>();
+        for (        SegmentMetadata tableSegmentMetadata : tableSegmentsMetadata) {
+          Interval timeInterval=tableSegmentMetadata.getTimeInterval();
+          if (timeInterval != null)           segmentIntervals.add(timeInterval);
+        }
+        List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,tableSegmentsMetadata.get(0).getTimeGranularity());
+        missingSegmentCount=missingIntervals.size();
+      }
+      _validationMetrics.updateMissingSegmentsGauge(resourceName,tableName,missingSegmentCount);
+      long maxSegmentEndTime=Long.MIN_VALUE;
+      long maxSegmentPushTime=Long.MIN_VALUE;
+      for (      SegmentMetadata segmentMetadata : tableSegmentsMetadata) {
+        Interval segmentInterval=segmentMetadata.getTimeInterval();
+        if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
+          maxSegmentEndTime=segmentInterval.getEndMillis();
+        }
+        long segmentPushTime=segmentMetadata.getPushTime();
+        long segmentRefreshTime=segmentMetadata.getRefreshTime();
+        long segmentUpdateTime=Math.max(segmentPushTime,segmentRefreshTime);
+        if (maxSegmentPushTime < segmentUpdateTime) {
+          maxSegmentPushTime=segmentUpdateTime;
         }
       }
-      for (      Map.Entry<String,List<SegmentMetadata>> stringListEntry : tableToSegmentMetadata.entrySet()) {
-        String tableName=stringListEntry.getKey();
-        List<SegmentMetadata> tableSegmentsMetadata=stringListEntry.getValue();
-        int missingSegmentCount=0;
-        if (2 < tableSegmentsMetadata.size()) {
-          List<Interval> segmentIntervals=new ArrayList<Interval>();
-          for (          SegmentMetadata tableSegmentMetadata : tableSegmentsMetadata) {
-            Interval timeInterval=tableSegmentMetadata.getTimeInterval();
-            if (timeInterval != null)             segmentIntervals.add(timeInterval);
-          }
-          List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,tableSegmentsMetadata.get(0).getTimeGranularity());
-          missingSegmentCount=missingIntervals.size();
-        }
-        _validationMetrics.updateMissingSegmentsGauge(resourceName,tableName,missingSegmentCount);
-        long maxSegmentEndTime=Long.MIN_VALUE;
-        long maxSegmentPushTime=Long.MIN_VALUE;
-        for (        SegmentMetadata segmentMetadata : tableSegmentsMetadata) {
-          Interval segmentInterval=segmentMetadata.getTimeInterval();
-          if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
-            maxSegmentEndTime=segmentInterval.getEndMillis();
-          }
-          long segmentPushTime=segmentMetadata.getPushTime();
-          long segmentRefreshTime=segmentMetadata.getRefreshTime();
-          long segmentUpdateTime=Math.max(segmentPushTime,segmentRefreshTime);
-          if (maxSegmentPushTime < segmentUpdateTime) {
-            maxSegmentPushTime=segmentUpdateTime;
-          }
-        }
-        _validationMetrics.updateOfflineSegmentDelayGauge(resourceName,tableName,maxSegmentEndTime);
-        _validationMetrics.updateLastPushTimeGauge(resourceName,tableName,maxSegmentPushTime);
-      }
+      _validationMetrics.updateOfflineSegmentDelayGauge(resourceName,tableName,maxSegmentEndTime);
+      _validationMetrics.updateLastPushTimeGauge(resourceName,tableName,maxSegmentPushTime);
     }
   }
   logger.info("Validation completed");
