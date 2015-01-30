@@ -1,0 +1,11 @@
+{
+  final String fullMeterName;
+  if (request != null) {
+    fullMeterName=PINOT_BROKER_PREFIX + request.getQuerySource().getResourceName() + "."+ request.getQuerySource().getTableName()+ "."+ brokerMeter.getBrokerMeterName();
+  }
+ else {
+    fullMeterName=PINOT_BROKER_PREFIX + brokerMeter.getBrokerMeterName();
+  }
+  final MetricName metricName=new MetricName(BrokerMetrics.class,fullMeterName);
+  MetricsHelper.newMeter(_metricsRegistry,metricName,brokerMeter.getUnit(),TimeUnit.SECONDS).mark(unitCount);
+}

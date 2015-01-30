@@ -1,0 +1,21 @@
+{
+  int length=text.length();
+  StringBuilder builder=new StringBuilder(length);
+  boolean capitalizeNextChar=false;
+  for (int i=0; i < length; i++) {
+    char theChar=text.charAt(i);
+    if (Character.isLetterOrDigit(theChar) || theChar == '.') {
+      if (capitalizeNextChar) {
+        builder.append(Character.toUpperCase(theChar));
+        capitalizeNextChar=false;
+      }
+ else {
+        builder.append(theChar);
+      }
+    }
+ else {
+      capitalizeNextChar=true;
+    }
+  }
+  return builder.toString();
+}

@@ -4,10 +4,10 @@
     final long startTime=System.nanoTime();
     final JSONObject compiled=requestCompiler.compile(pql);
     final BrokerRequest brokerRequest=convertToBrokerRequest(compiled);
-    brokerMetrics.addMeteredValue(brokerRequest,"queries","queries",1);
+    brokerMetrics.addMeteredValue(brokerRequest,BrokerMetrics.BrokerMeter.QUERIES,1);
     final long requestCompilationTime=System.nanoTime() - startTime;
-    brokerMetrics.addPhaseTiming(brokerRequest,"requestCompilation",requestCompilationTime);
-    final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,"queryExecution",new Callable<BrokerResponse>(){
+    brokerMetrics.addPhaseTiming(brokerRequest,BrokerMetrics.BrokerQueryPhase.REQUEST_COMPILATION,requestCompilationTime);
+    final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,BrokerMetrics.BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
       @Override public BrokerResponse call() throws Exception {
         final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
         return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
@@ -19,7 +19,7 @@
   }
  catch (  RecognitionException re) {
     logger.warn("Malformed or unrecognized query " + pql,re);
-    brokerMetrics.addMeteredValue(null,"requestCompilationExceptions","exceptions",1);
+    brokerMetrics.addMeteredValue(null,BrokerMetrics.BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
     throw re;
   }
 }
