@@ -2,7 +2,7 @@
 synchronized (MetricsHelper.class) {
     String[] listenerClassNames=configuration.getStringArray("metricsRegistryRegistrationListeners");
     if (listenerClassNames.length < 1) {
-      listenerClassNames=new String[]{"com.linkedin.pinot.common.metrics.JmxReporterMetricsRegistryRegistrationListener"};
+      listenerClassNames=new String[]{JmxReporterMetricsRegistryRegistrationListener.class.getName()};
     }
     for (    String listenerClassName : listenerClassNames) {
       try {
