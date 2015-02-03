@@ -1,0 +1,10 @@
+{
+  List<ThirdEyeMetrics> result=new ArrayList<ThirdEyeMetrics>(original.size());
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : original.entrySet()) {
+    ThirdEyeMetrics resultPart=new ThirdEyeMetrics();
+    resultPart.setDimensionValues(QueryUtils.convertDimensionKey(config.getDimensions(),entry.getKey()));
+    resultPart.setMetricValues(QueryUtils.convertMetricValues(config.getMetrics(),entry.getValue()));
+    result.add(resultPart);
+  }
+  return result;
+}

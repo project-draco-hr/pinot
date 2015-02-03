@@ -1,4 +1,14 @@
 {
+  if (baseline.size() != current.size()) {
+    throw new IllegalArgumentException(String.format("two snapshots should have equivalent length, t1 with size %s and t2 with size %s.",baseline.size(),current.size()));
+  }
+  for (  String keyValue : baseline.keySet()) {
+    if (!current.containsKey(keyValue)) {
+      throw new IllegalArgumentException(String.format("two snapshots contains different dimension values. t2 does not contain %s",keyValue));
+    }
+  }
+  _nRecords=baseline.size();
+  _dimensionValue=new String[baseline.size()];
   int keyCount=0;
   Set<Map.Entry<String,Number>> baselineSet=baseline.entrySet();
   for (  Map.Entry<String,Number> baselineEntry : baselineSet) {

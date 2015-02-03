@@ -1,15 +1,16 @@
 {
   StarTreeQueryImpl.Builder queryBuilder=new StarTreeQueryImpl.Builder();
+  queryBuilder.setTimeRange(new TimeRange(0L,100L));
   queryBuilder.setDimensionKey(getDimensionKey("*","*","*"));
-  StarTreeRecord result=starTree.getAggregate(queryBuilder.build(config));
-  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),100 + 1);
+  MetricTimeSeries result=starTree.getTimeSeries(queryBuilder.build(config));
+  Assert.assertEquals(result.getMetricSums()[0].intValue(),100 + 1);
   queryBuilder.setDimensionKey(getDimensionKey("A0","*","*"));
-  result=starTree.getAggregate(queryBuilder.build(config));
-  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),50);
+  result=starTree.getTimeSeries(queryBuilder.build(config));
+  Assert.assertEquals(result.getMetricSums()[0].intValue(),50);
   queryBuilder.setDimensionKey(getDimensionKey("*","B0","*"));
-  result=starTree.getAggregate(queryBuilder.build(config));
-  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),25);
+  result=starTree.getTimeSeries(queryBuilder.build(config));
+  Assert.assertEquals(result.getMetricSums()[0].intValue(),25);
   queryBuilder.setDimensionKey(getDimensionKey("AX","BX","CX"));
-  result=starTree.getAggregate(queryBuilder.build(config));
-  Assert.assertEquals(result.getMetricTimeSeries().getMetricSums()[0].intValue(),1);
+  result=starTree.getTimeSeries(queryBuilder.build(config));
+  Assert.assertEquals(result.getMetricSums()[0].intValue(),1);
 }
