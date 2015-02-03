@@ -1,0 +1,9 @@
+{
+  String liveInstancePath=HelixUtil.getLiveInstancePath(clusterName,instanceName);
+  if (zkClient.exists(liveInstancePath)) {
+    admin.dropInstance(clusterName,getInstanceConfigFor(clusterName,instanceName,admin));
+  }
+ else {
+    throw new RuntimeException("Cannot remove instance from cluster, it's not shut down yet!");
+  }
+}
