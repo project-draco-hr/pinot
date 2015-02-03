@@ -16,7 +16,7 @@
   if (avroDataDir.exists()) {
     FileUtils.deleteDirectory(avroDataDir);
   }
-  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,dataTypes,FileFormat.avro,avroDataDir.getAbsolutePath(),true);
+  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,dataTypes,FileFormat.AVRO,avroDataDir.getAbsolutePath(),true);
   generator=new DataGenerator();
   generator.init(spec);
   generator.generate(100000L,2);
@@ -28,7 +28,7 @@
   int counter=0;
   for (  final File avro : avroDataDir.listFiles()) {
     for (    final String resource : FileBasedServerBrokerStarters.RESOURCE_NAMES) {
-      final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avro,new File(bootstrapDir,"segment-" + counter),"daysSinceEpoch",SegmentTimeUnit.days,resource,resource);
+      final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avro,new File(bootstrapDir,"segment-" + counter),"daysSinceEpoch",TimeUnit.DAYS,resource,resource);
       final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
       driver.init(genConfig);
       driver.build();
