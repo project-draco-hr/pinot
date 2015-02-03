@@ -6,23 +6,27 @@
       JSONArray groupByResultsArray=new JSONArray();
       int groupSize=_groupByColumns.size();
       Map<String,Serializable> reducedGroupByResult=finalAggregationResult.get(i);
-      PriorityQueue priorityQueue=getPriorityQueue(_aggregationFunctionList.get(i),reducedGroupByResult.values().iterator().next());
-      for (      String groupedKey : reducedGroupByResult.keySet()) {
-        priorityQueue.enqueue(new Pair(reducedGroupByResult.get(groupedKey),groupedKey));
-        if (priorityQueue.size() == (_groupByTopN + 1)) {
-          priorityQueue.dequeue();
+      if (!reducedGroupByResult.isEmpty()) {
+        PriorityQueue priorityQueue=getPriorityQueue(_aggregationFunctionList.get(i),reducedGroupByResult.values().iterator().next());
+        if (priorityQueue != null) {
+          for (          String groupedKey : reducedGroupByResult.keySet()) {
+            priorityQueue.enqueue(new Pair(reducedGroupByResult.get(groupedKey),groupedKey));
+            if (priorityQueue.size() == (_groupByTopN + 1)) {
+              priorityQueue.dequeue();
+            }
+          }
+          int realGroupSize=_groupByTopN;
+          if (priorityQueue.size() < _groupByTopN) {
+            realGroupSize=priorityQueue.size();
+          }
+          for (int j=0; j < realGroupSize; ++j) {
+            JSONObject groupByResultObject=new JSONObject();
+            Pair res=(Pair)priorityQueue.dequeue();
+            groupByResultObject.put("group",new JSONArray(((String)res.getSecond()).split(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter.toString(),groupSize)));
+            groupByResultObject.put("value",_aggregationFunctionList.get(i).render((Serializable)res.getFirst()).get("value"));
+            groupByResultsArray.put(realGroupSize - 1 - j,groupByResultObject);
+          }
         }
-      }
-      int realGroupSize=_groupByTopN;
-      if (priorityQueue.size() < _groupByTopN) {
-        realGroupSize=priorityQueue.size();
-      }
-      for (int j=0; j < realGroupSize; ++j) {
-        JSONObject groupByResultObject=new JSONObject();
-        Pair res=(Pair)priorityQueue.dequeue();
-        groupByResultObject.put("group",new JSONArray(((String)res.getSecond()).split(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter.toString(),groupSize)));
-        groupByResultObject.put("value",_aggregationFunctionList.get(i).render((Serializable)res.getFirst()).get("value"));
-        groupByResultsArray.put(realGroupSize - 1 - j,groupByResultObject);
       }
       JSONObject result=new JSONObject();
       result.put("function",_aggregationFunctionList.get(i).getFunctionName());
