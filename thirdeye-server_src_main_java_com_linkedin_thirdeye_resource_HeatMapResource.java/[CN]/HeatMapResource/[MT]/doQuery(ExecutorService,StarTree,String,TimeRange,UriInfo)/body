@@ -13,10 +13,18 @@
   }
   List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,baseQuery);
   queries=StarTreeUtils.filterQueries(starTree.getConfig(),queries,uriInfo.getQueryParameters());
+  Map<StarTreeQuery,Future<MetricTimeSeries>> futures=new HashMap<StarTreeQuery,Future<MetricTimeSeries>>(queries.size());
+  for (  final StarTreeQuery query : queries) {
+    futures.put(query,parallelQueryExecutor.submit(new Callable<MetricTimeSeries>(){
+      @Override public MetricTimeSeries call() throws Exception {
+        return starTree.getTimeSeries(query);
+      }
+    }
+));
+  }
   Map<String,MetricTimeSeries> result=new HashMap<String,MetricTimeSeries>();
-  for (  StarTreeQuery query : queries) {
-    MetricTimeSeries timeSeries=starTree.getTimeSeries(query);
-    result.put(query.getDimensionKey().getDimensionValues()[dimensionIndex],timeSeries);
+  for (  Map.Entry<StarTreeQuery,Future<MetricTimeSeries>> entry : futures.entrySet()) {
+    result.put(entry.getKey().getDimensionKey().getDimensionValues()[dimensionIndex],entry.getValue().get());
   }
   return result;
 }
