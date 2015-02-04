@@ -1,5 +1,6 @@
 {
   File confDir=new File(TestQueryExecutor.class.getClassLoader().getResource("conf").toURI());
+  setupSegmentList(2);
   FileUtils.deleteDirectory(new File("/tmp/pinot/test1"));
   String configFilePath=confDir.getAbsolutePath();
   PropertiesConfiguration serverConf=new PropertiesConfiguration();
@@ -9,9 +10,8 @@
   instanceDataManager1.init(new FileBasedInstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
   instanceDataManager1.start();
   for (int i=0; i < 2; ++i) {
-    IndexSegment indexSegment=IndexSegmentUtils.getIndexSegmentWithAscendingOrderValues(20000001,"midas","testTable");
     instanceDataManager1.getResourceDataManager("midas");
-    instanceDataManager1.getResourceDataManager("midas").addSegment(indexSegment);
+    instanceDataManager1.getResourceDataManager("midas").addSegment(_indexSegmentList.get(i));
   }
   _queryExecutor=new ServerQueryExecutorV1Impl();
   _queryExecutor.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager1);

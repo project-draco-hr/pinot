@@ -5,6 +5,9 @@
   querySource.setTableName("testTable");
   brokerRequest.setQuerySource(querySource);
   InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
+  instanceRequest.setSearchSegments(new ArrayList<String>());
+  instanceRequest.getSearchSegments().add("midas_testTable_0_9_");
+  instanceRequest.getSearchSegments().add("midas_testTable_0_99_");
   Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   try {
     DataTable instanceResponse1=_queryExecutor.processQuery(instanceRequest);

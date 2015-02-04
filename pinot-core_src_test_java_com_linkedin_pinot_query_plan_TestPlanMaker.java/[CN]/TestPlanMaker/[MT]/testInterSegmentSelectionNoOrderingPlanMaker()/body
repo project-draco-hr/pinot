@@ -24,14 +24,10 @@
   System.out.println(brokerResponse.getSelectionResults());
   System.out.println("TimeUsedMs : " + brokerResponse.getTimeUsedMs());
   System.out.println(brokerResponse);
-  double i=0;
   JSONArray selectionResultsArray=brokerResponse.getSelectionResults().getJSONArray("results");
   for (int j=0; j < selectionResultsArray.length(); ++j) {
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getDouble(0),i);
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getDouble(1),i);
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getDouble(2),i);
-    if ((j % 2) == 1) {
-      i++;
-    }
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(0),1);
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(1),1);
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(2),1);
   }
 }

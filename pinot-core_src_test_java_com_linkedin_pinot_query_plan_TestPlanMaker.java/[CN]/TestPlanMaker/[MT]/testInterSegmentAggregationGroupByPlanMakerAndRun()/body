@@ -13,51 +13,51 @@
   int i=0;
   Map<String,Serializable> singleGroupByResult=combinedGroupByResult.get(i);
   for (  String keyString : singleGroupByResult.keySet()) {
-    if (keyString.equals("0.0")) {
+    if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      assertEquals(4000020,((Long)resultList).longValue());
+      assertEquals(400020,((Long)resultList).longValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      assertEquals(4000000,((Long)resultList).longValue());
+      assertEquals(400000,((Long)resultList).longValue());
     }
   }
   i=1;
   singleGroupByResult=combinedGroupByResult.get(i);
   for (  String keyString : singleGroupByResult.keySet()) {
-    if (keyString.equals("0.0")) {
+    if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      double expectedSumValue=(((Double.parseDouble(keyString) + 2000000 + Double.parseDouble(keyString)) * 200001) / 2) * 20;
+      double expectedSumValue=(((Double.parseDouble(keyString) + 200000 + Double.parseDouble(keyString)) * 20001) / 2) * 20;
       assertEquals(expectedSumValue,((Double)resultList).doubleValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      double expectedSumValue=(((Double.parseDouble(keyString) + 2000000) - 10) + Double.parseDouble(keyString)) * 100000 * 20;
+      double expectedSumValue=(((Double.parseDouble(keyString) + 200000) - 10) + Double.parseDouble(keyString)) * 10000 * 20;
       assertEquals(expectedSumValue,((Double)resultList).doubleValue());
     }
   }
   i=2;
   singleGroupByResult=combinedGroupByResult.get(i);
   for (  String keyString : singleGroupByResult.keySet()) {
-    if (keyString.equals("0.0")) {
+    if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      assertEquals(2000000 + Double.parseDouble(keyString),((Double)resultList).doubleValue());
+      assertEquals(200000 + Double.parseDouble(keyString),((Double)resultList).doubleValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      assertEquals((2000000 - 10) + Double.parseDouble(keyString),((Double)resultList).doubleValue());
+      assertEquals((200000 - 10) + Double.parseDouble(keyString),((Double)resultList).doubleValue());
     }
   }
   i=3;
   singleGroupByResult=combinedGroupByResult.get(i);
   for (  String keyString : singleGroupByResult.keySet()) {
-    if (keyString.equals("0.0")) {
+    if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
       assertEquals(Double.parseDouble(keyString),((Double)resultList).doubleValue());
@@ -71,16 +71,16 @@
   i=4;
   singleGroupByResult=combinedGroupByResult.get(i);
   for (  String keyString : singleGroupByResult.keySet()) {
-    if (keyString.equals("0.0")) {
+    if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      double expectedAvgValue=((((Double.parseDouble(keyString) + 2000000 + Double.parseDouble(keyString)) * 200001) / 2) * 20) / 4000020;
+      double expectedAvgValue=((((Double.parseDouble(keyString) + 200000 + Double.parseDouble(keyString)) * 20001) / 2) * 20) / 400020;
       assertEquals(expectedAvgValue,Double.parseDouble((resultList.toString())));
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
       System.out.println("grouped key : " + keyString + ", value : "+ resultList);
-      double expectedAvgValue=((((Double.parseDouble(keyString) + 2000000) - 10) + Double.parseDouble(keyString)) * 100000 * 20) / 4000000;
+      double expectedAvgValue=((((Double.parseDouble(keyString) + 200000) - 10) + Double.parseDouble(keyString)) * 10000 * 20) / 400000;
       assertEquals(expectedAvgValue,Double.parseDouble((resultList.toString())));
     }
   }

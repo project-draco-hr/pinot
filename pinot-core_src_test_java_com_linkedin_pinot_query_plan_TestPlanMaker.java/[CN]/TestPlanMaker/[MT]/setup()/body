@@ -1,8 +1,10 @@
 {
   _brokerRequest=getAggregationNoFilterBrokerRequest();
-  _indexSegment=IndexSegmentUtils.getIndexSegmentWithAscendingOrderValues(20000001);
-  _indexSegmentList=new ArrayList<IndexSegment>();
-  for (int i=0; i < 20; ++i) {
-    _indexSegmentList.add(IndexSegmentUtils.getIndexSegmentWithAscendingOrderValues(2000001));
+  try {
+    setupSegment();
+    setupSegmentList(20);
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
   }
 }
