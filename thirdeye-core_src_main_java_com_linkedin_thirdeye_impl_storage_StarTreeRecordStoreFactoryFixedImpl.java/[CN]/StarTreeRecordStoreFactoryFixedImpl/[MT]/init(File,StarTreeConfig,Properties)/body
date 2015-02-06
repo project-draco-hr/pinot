@@ -6,7 +6,7 @@ synchronized (sync) {
     this.rootDir=rootDir;
     this.isInit=true;
     this.starTreeConfig=starTreeConfig;
-    File dimensionStore=new File(rootDir,DIMENSION_STORE);
+    File dimensionStore=new File(rootDir,StarTreeConstants.DIMENSION_STORE);
     FileUtils.forceMkdir(dimensionStore);
     File[] dimensionIndexFiles=dimensionStore.listFiles(INDEX_FILE_FILTER);
     if (dimensionIndexFiles != null) {
@@ -14,7 +14,7 @@ synchronized (sync) {
         loadDimensionIndex(indexFile);
       }
     }
-    File metricStore=new File(rootDir,METRIC_STORE);
+    File metricStore=new File(rootDir,StarTreeConstants.METRIC_STORE);
     FileUtils.forceMkdir(metricStore);
     File[] metricIndexFiles=metricStore.listFiles(INDEX_FILE_FILTER);
     if (metricIndexFiles != null) {
@@ -27,10 +27,10 @@ synchronized (sync) {
       loadMetricBuffers(entryGroup);
     }
     RefreshWatcher refreshWatcher=new RefreshWatcher();
-    Path dimensionPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),DIMENSION_STORE);
+    Path dimensionPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),StarTreeConstants.DIMENSION_STORE);
     refreshWatcher.register(dimensionPath);
     LOG.info("Registered watch on {}",dimensionPath);
-    Path metricPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),METRIC_STORE);
+    Path metricPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),StarTreeConstants.METRIC_STORE);
     refreshWatcher.register(metricPath);
     LOG.info("Registered watch on {}",metricPath);
     Thread watcherThread=new Thread(refreshWatcher);

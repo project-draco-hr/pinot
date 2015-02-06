@@ -1,0 +1,56 @@
+{
+  Collection<String> collectionParam=params.get("collection");
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No star tree for collection " + collection);
+  }
+  File metricStoreDir=new File(PATH_JOINER.join(rootDir.getAbsolutePath(),collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.METRIC_STORE));
+  File[] metricIndexFiles=metricStoreDir.listFiles(new FileFilter(){
+    @Override public boolean accept(    File pathname){
+      return pathname.getName().endsWith(StarTreeConstants.INDEX_FILE_SUFFIX);
+    }
+  }
+);
+  long retentionPeriod=TimeUnit.MILLISECONDS.convert(starTree.getConfig().getTime().getRetention().getSize(),starTree.getConfig().getTime().getRetention().getUnit());
+  long oldestValidTime=System.currentTimeMillis() - retentionPeriod;
+  if (metricIndexFiles != null) {
+    for (    File metricIndexFile : metricIndexFiles) {
+      List<MetricIndexEntry> indexEntries=StorageUtils.readMetricIndex(metricIndexFile);
+      boolean expired=true;
+      Long minTime=null;
+      Long maxTime=null;
+      for (      MetricIndexEntry indexEntry : indexEntries) {
+        long startTimeMillis=TimeUnit.MILLISECONDS.convert(indexEntry.getTimeRange().getStart(),starTree.getConfig().getTime().getBucket().getUnit());
+        long endTimeMillis=TimeUnit.MILLISECONDS.convert(indexEntry.getTimeRange().getEnd(),starTree.getConfig().getTime().getBucket().getUnit());
+        if (startTimeMillis >= 0 && (minTime == null || startTimeMillis < minTime)) {
+          minTime=startTimeMillis;
+        }
+        if (endTimeMillis >= 0 && (maxTime == null || endTimeMillis > maxTime)) {
+          maxTime=endTimeMillis;
+        }
+        if (endTimeMillis >= oldestValidTime) {
+          expired=false;
+          break;
+        }
+      }
+      if (expired) {
+        FileUtils.forceDelete(metricIndexFile);
+        FileUtils.forceDelete(getBufferFile(metricIndexFile));
+        printWriter.print("Expired metric file ID " + getFileId(metricIndexFile));
+        if (minTime != null && maxTime != null) {
+          printWriter.print("(");
+          printWriter.print(new DateTime(minTime,DateTimeZone.UTC));
+          printWriter.print(", ");
+          printWriter.print(new DateTime(maxTime,DateTimeZone.UTC));
+          printWriter.print(")");
+        }
+        printWriter.println();
+        printWriter.flush();
+      }
+    }
+  }
+}

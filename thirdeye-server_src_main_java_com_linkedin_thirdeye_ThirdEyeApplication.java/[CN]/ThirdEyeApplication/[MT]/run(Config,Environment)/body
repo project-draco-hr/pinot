@@ -30,7 +30,7 @@
     }
   }
 );
-  environment.healthChecks().register(NAME,new DefaultHealthCheck());
+  environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
   environment.jersey().register(new MetricsResource(starTreeManager));
   environment.jersey().register(new DimensionsResource(starTreeManager));
   environment.jersey().register(new CollectionsResource(starTreeManager,rootDir));
@@ -39,5 +39,8 @@
   environment.jersey().register(new PingResource());
   environment.jersey().register(new DashboardResource(starTreeManager));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
-  environment.admin().addTask(new DumpTreeTask(starTreeManager));
+  environment.admin().addTask(new ExpireTask(starTreeManager,rootDir));
+  environment.admin().addTask(new ViewTreeTask(starTreeManager));
+  environment.admin().addTask(new ViewDimensionIndexTask(rootDir));
+  environment.admin().addTask(new ViewMetricIndexTask(rootDir));
 }

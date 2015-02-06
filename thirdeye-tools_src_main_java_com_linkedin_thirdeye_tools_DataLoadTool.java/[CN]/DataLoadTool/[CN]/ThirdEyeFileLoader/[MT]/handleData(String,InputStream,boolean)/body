@@ -3,7 +3,7 @@
   if (!dataDir.exists()) {
     FileUtils.forceMkdir(dataDir);
   }
-  Set<String> blacklist=includeDimensions ? null : ImmutableSet.of("dimensionStore");
+  Set<String> blacklist=includeDimensions ? null : ImmutableSet.of(StarTreeConstants.DIMENSION_STORE);
   TarUtils.extractGzippedTarArchive(data,dataDir,2,blacklist);
   LOG.info("Copied data from {} to data dir {}",fileName,dataDir);
 }

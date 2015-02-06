@@ -18,8 +18,8 @@
       Path child=dir.resolve(name);
       String fileName=name.toFile().getName();
       String storeName=child.getParent().toFile().getName();
-      if (METRIC_STORE.equals(storeName) && fileName.endsWith(INDEX_SUFFIX) && ENTRY_CREATE.equals(event.kind())) {
-        UUID fileId=getFileId(fileName,INDEX_SUFFIX);
+      if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.INDEX_FILE_SUFFIX) && ENTRY_CREATE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.INDEX_FILE_SUFFIX);
 synchronized (sync) {
           try {
             loadMetricIndex(child.toFile());
@@ -38,8 +38,8 @@ synchronized (sync) {
         }
         LOG.info("Loaded metric index {}",fileId);
       }
- else       if (METRIC_STORE.equals(storeName) && fileName.endsWith(INDEX_SUFFIX) && ENTRY_DELETE.equals(event.kind())) {
-        UUID fileId=getFileId(fileName,INDEX_SUFFIX);
+ else       if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.INDEX_FILE_SUFFIX) && ENTRY_DELETE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.INDEX_FILE_SUFFIX);
 synchronized (sync) {
           Set<MetricIndexEntry> indexEntries=metricIndexByFile.remove(fileId);
           if (indexEntries != null) {
@@ -59,12 +59,12 @@ synchronized (sync) {
           LOG.info("Removed metric index {}",fileId);
         }
       }
- else       if (METRIC_STORE.equals(storeName) && fileName.endsWith(BUFFER_SUFFIX) && ENTRY_DELETE.equals(event.kind())) {
-        UUID fileId=getFileId(fileName,BUFFER_SUFFIX);
+ else       if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.BUFFER_FILE_SUFFIX) && ENTRY_DELETE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.BUFFER_FILE_SUFFIX);
         LOG.info("Removed metric buffer {}",fileId);
       }
- else       if (METRIC_STORE.equals(storeName) && fileName.endsWith(BUFFER_SUFFIX) && ENTRY_CREATE.equals(event.kind())) {
-        UUID fileId=getFileId(fileName,BUFFER_SUFFIX);
+ else       if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.BUFFER_FILE_SUFFIX) && ENTRY_CREATE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.BUFFER_FILE_SUFFIX);
         LOG.info("Added metric buffer {}",fileId);
       }
  else {

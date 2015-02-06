@@ -7,7 +7,7 @@
   if (!dataDir.exists()) {
     FileUtils.forceMkdir(dataDir);
   }
-  Set<String> blacklist=includeDimensions ? null : ImmutableSet.of("dimensionStore");
+  Set<String> blacklist=includeDimensions ? null : ImmutableSet.of(StarTreeConstants.DIMENSION_STORE);
   TarUtils.extractGzippedTarArchive(new ByteArrayInputStream(dataBytes),dataDir,2,blacklist);
   return Response.ok().build();
 }

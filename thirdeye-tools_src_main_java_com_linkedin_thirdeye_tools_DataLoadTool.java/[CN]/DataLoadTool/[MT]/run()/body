@@ -17,6 +17,9 @@
     long loadedHighWaterMark=thirdEyeLoader.getLoadedHighWaterMark();
     hdfsReq=new HttpGet(createListTimeRequest());
     hdfsRes=executePrivileged(loginContext,hdfsReq);
+    if (hdfsRes.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException("Request failed " + hdfsReq);
+    }
     JsonNode fileStatuses=OBJECT_MAPPER.readTree(hdfsRes.getEntity().getContent());
     EntityUtils.consume(hdfsRes.getEntity());
     Set<TimeRange> timeRanges=new HashSet<TimeRange>();

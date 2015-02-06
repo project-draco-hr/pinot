@@ -1,5 +1,5 @@
 {
-  File dictDir=new File(outputDir,"dictStore");
+  File dictDir=new File(outputDir,StarTreeConstants.DICT_STORE);
   FileUtils.forceMkdir(dictDir);
   File dictFile=new File(dictDir,nodeId);
   FileOutputStream fos=new FileOutputStream(dictFile);
@@ -15,7 +15,7 @@
     StorageUtils.addToDimensionStore(config,dimensionBuffer,dimensionKey,dictionary);
   }
   dimensionBuffer.flip();
-  File dimensionDir=new File(outputDir,"dimensionStore");
+  File dimensionDir=new File(outputDir,StarTreeConstants.DIMENSION_STORE);
   FileUtils.forceMkdir(dimensionDir);
   FileChannel dimensionFile=new RandomAccessFile(new File(dimensionDir,nodeId),"rw").getChannel();
   dimensionFile.write(dimensionBuffer);
@@ -52,7 +52,7 @@
     }
   }
   metricBuffer.flip();
-  File metricDir=new File(outputDir,"metricStore");
+  File metricDir=new File(outputDir,StarTreeConstants.METRIC_STORE);
   FileUtils.forceMkdir(metricDir);
   FileChannel metricFile=new RandomAccessFile(new File(metricDir,nodeId + "_" + timeRange.getStart()+ ":"+ timeRange.getEnd()),"rw").getChannel();
   metricFile.write(metricBuffer);

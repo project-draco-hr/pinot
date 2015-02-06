@@ -1,16 +1,16 @@
 {
   UUID fileId=UUID.randomUUID();
-  File dimensionStore=new File(outputDir,"dimensionStore");
-  File metricStore=new File(outputDir,"metricStore");
+  File dimensionStore=new File(outputDir,StarTreeConstants.DIMENSION_STORE);
+  File metricStore=new File(outputDir,StarTreeConstants.METRIC_STORE);
   FileUtils.forceMkdir(outputDir);
   FileUtils.forceMkdir(dimensionStore);
   FileUtils.forceMkdir(metricStore);
-  File combinedDictionaryFile=new File(dimensionStore,fileId + ".dict");
-  Map<UUID,List<Long>> dictionaryMetadata=combineFiles(new File(inputDir,"dictStore"),combinedDictionaryFile,false);
-  File combinedDimensionFile=new File(dimensionStore,fileId + ".buf");
-  Map<UUID,List<Long>> dimensionMetadata=combineFiles(new File(inputDir,"dimensionStore"),combinedDimensionFile,false);
-  File combinedMetricFile=new File(metricStore,fileId + ".buf");
-  Map<UUID,List<Long>> metricMetadata=combineFiles(new File(inputDir,"metricStore"),combinedMetricFile,true);
+  File combinedDictionaryFile=new File(dimensionStore,fileId + StarTreeConstants.DICT_FILE_SUFFIX);
+  Map<UUID,List<Long>> dictionaryMetadata=combineFiles(new File(inputDir,StarTreeConstants.DICT_STORE),combinedDictionaryFile,false);
+  File combinedDimensionFile=new File(dimensionStore,fileId + StarTreeConstants.BUFFER_FILE_SUFFIX);
+  Map<UUID,List<Long>> dimensionMetadata=combineFiles(new File(inputDir,StarTreeConstants.DIMENSION_STORE),combinedDimensionFile,false);
+  File combinedMetricFile=new File(metricStore,fileId + StarTreeConstants.BUFFER_FILE_SUFFIX);
+  Map<UUID,List<Long>> metricMetadata=combineFiles(new File(inputDir,StarTreeConstants.METRIC_STORE),combinedMetricFile,true);
   List<DimensionIndexEntry> dimensionIndexEntries=new ArrayList<DimensionIndexEntry>();
   for (  Map.Entry<UUID,List<Long>> entry : dimensionMetadata.entrySet()) {
     UUID nodeId=entry.getKey();
@@ -24,7 +24,7 @@
     int bufferLength=entry.getValue().get(1).intValue();
     dimensionIndexEntries.add(new DimensionIndexEntry(nodeId,fileId,dictionaryStartOffset,dictionaryLength,bufferStartOffset,bufferLength));
   }
-  File dimensionIndexFile=new File(dimensionStore,fileId + ".idx");
+  File dimensionIndexFile=new File(dimensionStore,fileId + StarTreeConstants.INDEX_FILE_SUFFIX);
   writeObjects(dimensionIndexEntries,dimensionIndexFile);
   List<MetricIndexEntry> metricIndexEntries=new ArrayList<MetricIndexEntry>();
   for (  Map.Entry<UUID,List<Long>> entry : metricMetadata.entrySet()) {
@@ -35,6 +35,6 @@
     long maxTime=entry.getValue().get(3);
     metricIndexEntries.add(new MetricIndexEntry(nodeId,fileId,startOffset,length,new TimeRange(minTime,maxTime)));
   }
-  File metricIndexFile=new File(metricStore,fileId + ".idx");
+  File metricIndexFile=new File(metricStore,fileId + StarTreeConstants.INDEX_FILE_SUFFIX);
   writeObjects(metricIndexEntries,metricIndexFile);
 }
