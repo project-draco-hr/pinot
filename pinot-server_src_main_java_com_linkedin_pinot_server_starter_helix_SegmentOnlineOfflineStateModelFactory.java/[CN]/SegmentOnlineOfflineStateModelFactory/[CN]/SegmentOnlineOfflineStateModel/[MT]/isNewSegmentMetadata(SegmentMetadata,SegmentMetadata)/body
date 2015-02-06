@@ -1,11 +1,8 @@
 {
-  if (segmentMetadataFromServer == null) {
+  if (segmentMetadataFromServer == null || segmentMetadataForCheck == null) {
     return true;
   }
-  if (segmentMetadataForCheck.getVersion() != segmentMetadataFromServer.getVersion()) {
-    return false;
-  }
-  if (segmentMetadataFromServer.getCrc() != segmentMetadataForCheck.getCrc()) {
+  if ((!segmentMetadataFromServer.getCrc().equalsIgnoreCase("null")) && (segmentMetadataFromServer.getCrc().equals(segmentMetadataForCheck.getCrc()))) {
     return false;
   }
   return true;

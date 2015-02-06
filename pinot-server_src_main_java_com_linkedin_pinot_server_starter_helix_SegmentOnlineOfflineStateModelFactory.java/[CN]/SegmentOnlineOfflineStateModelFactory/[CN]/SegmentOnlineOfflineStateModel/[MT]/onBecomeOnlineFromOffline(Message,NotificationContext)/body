@@ -16,13 +16,16 @@
         INSTANCE_DATA_MANAGER.addSegment(segmentMetadataFromServer);
       }
     }
-    if (!isNewSegmentMetadata(segmentMetadataFromServer,segmentMetadataForCheck)) {
+    if (isNewSegmentMetadata(segmentMetadataFromServer,segmentMetadataForCheck)) {
+      LOGGER.info("Segment is new, will refresh it.");
+      final String uri=record.getSimpleField(V1Constants.SEGMENT_DOWNLOAD_URL);
+      final String localSegmentDir=downloadSegmentToLocal(uri,resourceName,segmentId);
+      final SegmentMetadata segmentMetadata=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
+      INSTANCE_DATA_MANAGER.addSegment(segmentMetadata);
+    }
+ else {
       LOGGER.info("Segment is already existed, will do nothing.");
     }
-    final String uri=record.getSimpleField(V1Constants.SEGMENT_DOWNLOAD_URL);
-    final String localSegmentDir=downloadSegmentToLocal(uri,resourceName,segmentId);
-    final SegmentMetadata segmentMetadata=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
-    INSTANCE_DATA_MANAGER.addSegment(segmentMetadata);
   }
  catch (  final Exception e) {
     e.printStackTrace();
