@@ -1,0 +1,14 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  MetricType metricType=null;
+  for (  MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+    if (metricSpec.getName().equals(metricName)) {
+      metricType=metricSpec.getType();
+      break;
+    }
+  }
+  return generateHeatMap(new SelfRatioHeatMap(metricType),collection,metricName,dimensionName,baselineStart,baselineEnd,currentStart,currentEnd,movingAverageWindow,uriInfo);
+}

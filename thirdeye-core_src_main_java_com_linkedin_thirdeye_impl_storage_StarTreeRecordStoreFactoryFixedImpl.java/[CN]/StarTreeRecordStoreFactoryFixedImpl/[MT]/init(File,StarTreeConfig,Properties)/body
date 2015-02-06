@@ -7,6 +7,7 @@ synchronized (sync) {
     this.isInit=true;
     this.starTreeConfig=starTreeConfig;
     File dimensionStore=new File(rootDir,DIMENSION_STORE);
+    FileUtils.forceMkdir(dimensionStore);
     File[] dimensionIndexFiles=dimensionStore.listFiles(INDEX_FILE_FILTER);
     if (dimensionIndexFiles != null) {
       for (      File indexFile : dimensionIndexFiles) {
@@ -14,6 +15,7 @@ synchronized (sync) {
       }
     }
     File metricStore=new File(rootDir,METRIC_STORE);
+    FileUtils.forceMkdir(metricStore);
     File[] metricIndexFiles=metricStore.listFiles(INDEX_FILE_FILTER);
     if (metricIndexFiles != null) {
       for (      File indexFile : metricIndexFiles) {

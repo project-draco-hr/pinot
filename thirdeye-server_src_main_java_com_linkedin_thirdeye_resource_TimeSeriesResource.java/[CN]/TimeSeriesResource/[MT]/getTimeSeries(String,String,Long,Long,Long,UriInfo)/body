@@ -3,10 +3,6 @@
   if (starTree == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  List<ThirdEyeTimeSeries> result=doQuery(starTree,start,end,metrics.split(","),uriInfo);
-  List<ThirdEyeTimeSeries> aggregatedResult=new ArrayList<ThirdEyeTimeSeries>(result.size());
-  for (  ThirdEyeTimeSeries timeSeries : result) {
-    aggregatedResult.add(aggregate(starTree,timeSeries,timeWindow));
-  }
-  return aggregatedResult;
+  Map<DimensionKey,MetricTimeSeries> result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+  return convert(starTree.getConfig(),Arrays.asList(metrics.split(",")),timeWindow,result);
 }

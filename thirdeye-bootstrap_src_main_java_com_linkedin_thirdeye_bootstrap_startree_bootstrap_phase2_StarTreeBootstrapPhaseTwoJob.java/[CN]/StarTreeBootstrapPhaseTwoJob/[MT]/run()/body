@@ -22,5 +22,9 @@
     FileInputFormat.addInputPath(job,input);
   }
   FileOutputFormat.setOutputPath(job,new Path(getAndCheck(STAR_TREE_BOOTSTRAP_PHASE2_OUTPUT_PATH.toString())));
+  String thirdEyeUri=props.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+  if (thirdEyeUri != null) {
+    job.getConfiguration().set(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName(),thirdEyeUri);
+  }
   job.waitForCompletion(true);
 }

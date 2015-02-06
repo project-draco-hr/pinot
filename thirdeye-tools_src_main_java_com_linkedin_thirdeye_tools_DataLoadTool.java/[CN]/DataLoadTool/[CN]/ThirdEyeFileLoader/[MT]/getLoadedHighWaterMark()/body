@@ -1,0 +1,21 @@
+{
+  long loadedHighWaterMark=0;
+  File[] metricIndexes=new File(collectionDir + File.separator + StarTreeConstants.DATA_DIR_NAME+ File.separator+ "metricStore").listFiles(new FileFilter(){
+    @Override public boolean accept(    File pathname){
+      return pathname.getName().endsWith("idx");
+    }
+  }
+);
+  if (metricIndexes != null) {
+    for (    File metricIndex : metricIndexes) {
+      List<Object> objects=readObjectFile(metricIndex);
+      for (      Object object : objects) {
+        MetricIndexEntry indexEntry=(MetricIndexEntry)object;
+        if (indexEntry.getTimeRange().getEnd() > loadedHighWaterMark) {
+          loadedHighWaterMark=indexEntry.getTimeRange().getEnd();
+        }
+      }
+    }
+  }
+  return loadedHighWaterMark;
+}

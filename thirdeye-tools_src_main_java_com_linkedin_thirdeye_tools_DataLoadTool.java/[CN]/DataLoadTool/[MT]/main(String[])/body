@@ -5,6 +5,7 @@
   options.addOption("includeStarTree",false,"Copy star tree binary");
   options.addOption("includeConfig",false,"Copy config file");
   options.addOption("includeDimensions",false,"Copy dimension data");
+  options.addOption("overwrite",false,"Overwrite any already loaded time ranges");
   options.addOption("help",false,"Prints this help message");
   options.addOption("minTime",true,"Min time to load");
   options.addOption("maxTime",true,"Max time to load");
@@ -30,5 +31,5 @@
   String password=new String(passwordChars);
   long minTime=commandLine.hasOption("minTime") ? Long.valueOf(commandLine.getOptionValue("minTime")) : 0;
   long maxTime=commandLine.hasOption("maxTime") ? Long.valueOf(commandLine.getOptionValue("maxTime")) : Long.MAX_VALUE;
-  new DataLoadTool(user,password,URI.create(commandLine.getArgs()[0]),URI.create(commandLine.getArgs()[1]),commandLine.getArgs()[2],commandLine.hasOption("includeStarTree"),commandLine.hasOption("includeConfig"),commandLine.hasOption("includeDimensions"),new TimeRange(minTime,maxTime)).run();
+  new DataLoadTool(user,password,URI.create(commandLine.getArgs()[0]),URI.create(commandLine.getArgs()[1]),commandLine.getArgs()[2],commandLine.hasOption("includeStarTree"),commandLine.hasOption("includeConfig"),commandLine.hasOption("includeDimensions"),commandLine.hasOption("overwrite"),new TimeRange(minTime,maxTime)).run();
 }

@@ -3,11 +3,9 @@
   if (starTree == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  List<ThirdEyeTimeSeries> result=doQuery(starTree,start,end,metrics.split(","),uriInfo);
-  List<ThirdEyeTimeSeries> aggregatedResult=new ArrayList<ThirdEyeTimeSeries>(result.size());
-  for (  ThirdEyeTimeSeries timeSeries : result) {
-    aggregatedResult.add(aggregate(starTree,timeSeries,timeWindow));
+  Map<DimensionKey,MetricTimeSeries> result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
+    result.put(entry.getKey(),MetricTimeSeriesUtils.normalize(entry.getValue()));
   }
-  normalize(starTree,aggregatedResult);
-  return aggregatedResult;
+  return convert(starTree.getConfig(),Arrays.asList(metrics.split(",")),timeWindow,result);
 }

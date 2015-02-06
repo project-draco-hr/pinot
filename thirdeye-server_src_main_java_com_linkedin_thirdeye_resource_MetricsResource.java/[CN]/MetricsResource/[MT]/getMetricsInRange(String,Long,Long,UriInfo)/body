@@ -3,5 +3,6 @@
   if (starTree == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  return queryTree(starTree,UriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(new TimeRange(start,end)).build(starTree.getConfig()),uriInfo);
+  Map<DimensionKey,MetricTimeSeries> result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+  return convert(starTree.getConfig(),result);
 }

@@ -1,85 +1,75 @@
 {
   try {
+    HttpRequest hdfsReq;
+    HttpResponse hdfsRes;
     LoginContext loginContext=login();
+    ThirdEyeLoader thirdEyeLoader;
     if ("file".equals(thirdEyeUri.getScheme())) {
-      String uri;
-      HttpRequest req;
-      HttpResponse res;
-      File file;
-      FileOutputStream fos;
-      File collectionDir=new File(thirdEyeUri.getPath(),collection);
-      FileUtils.forceMkdir(collectionDir);
-      uri=createListTimeRequest();
-      req=new HttpGet(uri);
-      res=executePrivileged(loginContext,req);
-      JsonNode timeSegmentResult=OBJECT_MAPPER.readTree(res.getEntity().getContent());
-      EntityUtils.consume(res.getEntity());
-      LOG.info("Target time range {}",globalTimeRange);
-      List<TimeRange> timeRanges=new ArrayList<TimeRange>();
-      for (      JsonNode fileStatus : timeSegmentResult.get("FileStatuses").get("FileStatus")) {
-        String pathSuffix=fileStatus.get("pathSuffix").asText();
-        if (pathSuffix.startsWith("data_")) {
-          String[] tokens=pathSuffix.substring("data_".length(),pathSuffix.length()).split("-");
-          TimeRange timeRange=new TimeRange(Long.valueOf(tokens[0]),Long.valueOf(tokens[1]));
-          if (globalTimeRange.contains(timeRange)) {
-            timeRanges.add(timeRange);
-            LOG.info("Processing {}",pathSuffix);
-          }
- else           if (!globalTimeRange.isDisjoint(timeRange)) {
-            throw new IllegalArgumentException("Global time range " + globalTimeRange + " does not contain time range "+ timeRange+ " and is not disjoint");
-          }
+      thirdEyeLoader=new ThirdEyeFileLoader(new File(thirdEyeUri.getPath(),collection));
+    }
+ else     if ("http".equals(thirdEyeUri.getScheme())) {
+      thirdEyeLoader=new ThirdEyeHttpLoader(new HttpHost(thirdEyeUri.getHost(),thirdEyeUri.getPort()),collection);
+    }
  else {
-            LOG.info("Skipping {}",pathSuffix);
-          }
+      throw new IllegalArgumentException("Unsupported URI type " + thirdEyeUri);
+    }
+    LOG.info("Loading into {}",thirdEyeUri);
+    long loadedHighWaterMark=thirdEyeLoader.getLoadedHighWaterMark();
+    hdfsReq=new HttpGet(createListTimeRequest());
+    hdfsRes=executePrivileged(loginContext,hdfsReq);
+    JsonNode fileStatuses=OBJECT_MAPPER.readTree(hdfsRes.getEntity().getContent());
+    EntityUtils.consume(hdfsRes.getEntity());
+    Set<TimeRange> timeRanges=new HashSet<TimeRange>();
+    for (    JsonNode fileStatus : fileStatuses.get("FileStatuses").get("FileStatus")) {
+      String pathSuffix=fileStatus.get("pathSuffix").asText();
+      if (pathSuffix.startsWith("data_")) {
+        String[] timeRangeTokens=pathSuffix.substring("data_".length(),pathSuffix.length()).split("-");
+        TimeRange timeRange=new TimeRange(Long.valueOf(timeRangeTokens[0]),Long.valueOf(timeRangeTokens[1]));
+        if (globalTimeRange.contains(timeRange)) {
+          timeRanges.add(timeRange);
         }
-      }
-      if (includeConfig) {
-        uri=createConfigRequest();
-        req=new HttpGet(uri);
-        res=executePrivileged(loginContext,req);
-        file=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
-        fos=new FileOutputStream(file);
-        IOUtils.copy(res.getEntity().getContent(),fos);
-        EntityUtils.consume(res.getEntity());
-        fos.flush();
-        fos.close();
-        LOG.info("Copied {} for {} from {} to {}",StarTreeConstants.CONFIG_FILE_NAME,collection,httpHost,file);
-      }
-      for (      TimeRange timeRange : timeRanges) {
-        if (includeStarTree) {
-          uri=createStarTreeRequest(timeRange);
-          req=new HttpGet(uri);
-          res=executePrivileged(loginContext,req);
-          file=new File(collectionDir,StarTreeConstants.TREE_FILE_NAME);
-          fos=new FileOutputStream(file);
-          IOUtils.copy(res.getEntity().getContent(),fos);
-          EntityUtils.consume(res.getEntity());
-          fos.flush();
-          fos.close();
-          LOG.info("Copied {} for {} from {} to {}",StarTreeConstants.TREE_FILE_NAME,collection,httpHost,file);
-        }
-        uri=createListDataRequest(timeRange);
-        req=new HttpGet(uri);
-        res=executePrivileged(loginContext,req);
-        JsonNode dataFiles=OBJECT_MAPPER.readTree(res.getEntity().getContent());
-        EntityUtils.consume(res.getEntity());
-        Set<String> blacklist=includeDimensions ? null : ImmutableSet.of("dimensionStore");
-        file=new File(collectionDir,StarTreeConstants.DATA_DIR_NAME);
-        for (        JsonNode fileStatus : dataFiles.get("FileStatuses").get("FileStatus")) {
-          String pathSuffix=fileStatus.get("pathSuffix").asText();
-          if (pathSuffix.startsWith("task_")) {
-            String dataFileUri=createGetDataRequest(timeRange,pathSuffix);
-            req=new HttpGet(dataFileUri);
-            res=executePrivileged(loginContext,req);
-            TarUtils.extractGzippedTarArchive(res.getEntity().getContent(),file,2,blacklist);
-            EntityUtils.consume(res.getEntity());
-            LOG.info("Copied data archive {}",pathSuffix);
-          }
+ else         if (!globalTimeRange.isDisjoint(timeRange)) {
+          throw new IllegalArgumentException("Global time range " + globalTimeRange + " does not contain time range "+ timeRange+ " and/or is not disjoint");
         }
       }
     }
- else {
-      throw new IllegalArgumentException("Invalid ThirdEye scheme: " + thirdEyeUri.getScheme());
+    if (!overwrite) {
+      Set<TimeRange> filteredTimeRanges=new HashSet<TimeRange>();
+      for (      TimeRange timeRange : timeRanges) {
+        if (timeRange.getStart() > loadedHighWaterMark) {
+          filteredTimeRanges.add(timeRange);
+        }
+      }
+      timeRanges=filteredTimeRanges;
+    }
+    if (includeConfig) {
+      hdfsReq=new HttpGet(createConfigRequest());
+      hdfsRes=executePrivileged(loginContext,hdfsReq);
+      thirdEyeLoader.handleConfig(hdfsRes.getEntity().getContent());
+      EntityUtils.consume(hdfsRes.getEntity());
+    }
+    for (    TimeRange timeRange : timeRanges) {
+      if (includeStarTree) {
+        hdfsReq=new HttpGet(createStarTreeRequest(timeRange));
+        hdfsRes=executePrivileged(loginContext,hdfsReq);
+        if (hdfsRes.getStatusLine().getStatusCode() == 200) {
+          thirdEyeLoader.handleStarTree(hdfsRes.getEntity().getContent());
+        }
+        EntityUtils.consume(hdfsRes.getEntity());
+      }
+      hdfsReq=new HttpGet(createListDataRequest(timeRange));
+      hdfsRes=executePrivileged(loginContext,hdfsReq);
+      fileStatuses=OBJECT_MAPPER.readTree(hdfsRes.getEntity().getContent());
+      EntityUtils.consume(hdfsRes.getEntity());
+      for (      JsonNode fileStatus : fileStatuses.get("FileStatuses").get("FileStatus")) {
+        String pathSuffix=fileStatus.get("pathSuffix").asText();
+        if (pathSuffix.startsWith("task_")) {
+          hdfsReq=new HttpGet(createGetDataRequest(timeRange,pathSuffix));
+          hdfsRes=executePrivileged(loginContext,hdfsReq);
+          thirdEyeLoader.handleData(pathSuffix,hdfsRes.getEntity().getContent(),includeDimensions);
+          EntityUtils.consume(hdfsRes.getEntity());
+        }
+      }
     }
   }
  catch (  Exception e) {
