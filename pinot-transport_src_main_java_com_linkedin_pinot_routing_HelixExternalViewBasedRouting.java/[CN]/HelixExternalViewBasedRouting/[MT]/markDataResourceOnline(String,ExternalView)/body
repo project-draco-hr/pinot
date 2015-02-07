@@ -1,4 +1,12 @@
 {
+  if (_routingTableVersionMap.containsKey(resourceName)) {
+    int currentExternalViewVersion=_routingTableVersionMap.get(resourceName);
+    if (externalView.getRecord().getVersion() == currentExternalViewVersion) {
+      LOGGER.info("No change on routing table version, do nothing for resource: " + resourceName);
+      return;
+    }
+  }
+  _routingTableVersionMap.put(resourceName,externalView.getRecord().getVersion());
   if (!_dataResourceSet.contains(resourceName)) {
     LOGGER.info("Adding a new data resource to broker : " + resourceName);
     _dataResourceSet.add(resourceName);
