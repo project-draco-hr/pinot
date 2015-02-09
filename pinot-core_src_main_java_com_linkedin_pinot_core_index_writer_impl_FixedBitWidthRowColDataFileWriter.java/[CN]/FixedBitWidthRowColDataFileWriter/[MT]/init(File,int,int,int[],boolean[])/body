@@ -1,0 +1,20 @@
+{
+  this.file=file;
+  this.colSizesInBits=new int[cols];
+  this.columnOffsetsInBits=new int[cols];
+  this.offsets=new int[cols];
+  this.rowSizeInBits=0;
+  for (int i=0; i < cols; i++) {
+    this.columnOffsetsInBits[i]=rowSizeInBits;
+    int colSize=columnSizesInBits[i];
+    this.offsets[i]=0;
+    if (signed[i]) {
+      this.offsets[i]=(int)Math.pow(2,colSize) - 1;
+      colSize+=1;
+    }
+    this.rowSizeInBits+=colSize;
+    this.colSizesInBits[i]=colSize;
+  }
+  int totalSizeInBits=rowSizeInBits * rows;
+  this.bytesRequired=(totalSizeInBits + 7) / 8;
+}

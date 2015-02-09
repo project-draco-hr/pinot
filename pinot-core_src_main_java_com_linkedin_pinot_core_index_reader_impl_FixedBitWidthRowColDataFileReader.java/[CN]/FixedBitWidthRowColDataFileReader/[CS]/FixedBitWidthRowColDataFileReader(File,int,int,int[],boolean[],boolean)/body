@@ -1,0 +1,12 @@
+{
+  init(rows,cols,columnSizesInBits,signed);
+  file=new RandomAccessFile(dataFile,"rw");
+  if (isMmap) {
+    byteBuffer=file.getChannel().map(FileChannel.MapMode.READ_ONLY,0,totalSize);
+  }
+ else {
+    byteBuffer=ByteBuffer.allocate(totalSize);
+    file.getChannel().read(byteBuffer);
+  }
+  customBitSet=CustomBitSet.withByteBuffer(totalSize,byteBuffer);
+}

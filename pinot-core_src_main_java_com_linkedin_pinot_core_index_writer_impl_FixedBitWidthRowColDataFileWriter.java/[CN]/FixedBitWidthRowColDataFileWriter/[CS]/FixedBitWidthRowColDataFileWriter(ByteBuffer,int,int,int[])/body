@@ -1,16 +1,4 @@
 {
-  this.rows=rows;
-  this.cols=cols;
-  this.columnSizesInBits=columnSizesInBits;
-  this.columnOffsetsInBits=new int[cols];
-  rowSizeInBits=0;
-  for (int i=0; i < columnSizesInBits.length; i++) {
-    columnOffsetsInBits[i]=rowSizeInBits;
-    int colSize=columnSizesInBits[i];
-    rowSizeInBits+=colSize;
-  }
-  this.byteBuffer=byteBuffer;
-  int totalSizeInBits=rowSizeInBits * rows;
-  int bytesRequired=(totalSizeInBits + 7) / 8;
+  init(file,rows,cols,columnSizesInBits);
   bitSet=CustomBitSet.withByteBuffer(bytesRequired,byteBuffer);
 }

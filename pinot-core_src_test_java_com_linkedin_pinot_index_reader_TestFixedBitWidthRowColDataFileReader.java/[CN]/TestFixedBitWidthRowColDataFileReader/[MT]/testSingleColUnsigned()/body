@@ -24,7 +24,7 @@
       fos.write(byteArray);
       fos.close();
       FixedBitWidthRowColDataFileReader reader;
-      reader=new FixedBitWidthRowColDataFileReader(fileName,numElements,1,new int[]{maxBits});
+      reader=FixedBitWidthRowColDataFileReader.forMmap(file,numElements,1,new int[]{maxBits});
       for (int i=0; i < numElements; i++) {
         int readInt=reader.getInt(i,0);
         System.out.println(i + "  Expected:" + values[i]+ " Actual:"+ readInt);
@@ -32,10 +32,7 @@
       }
       System.out.println("END MAX BITS:" + maxBits);
     }
- catch (    Exception e) {
-      LOG.error(e);
-    }
- finally {
+  finally {
       file.delete();
     }
   }

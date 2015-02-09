@@ -1,5 +1,7 @@
 {
   final int startBitOffset=computeBitOffset(row,col);
-  final int endBitOffset=startBitOffset + columnSizesInBits[col];
-  return customBitSet.readInt(startBitOffset,endBitOffset);
+  final int endBitOffset=startBitOffset + colSizesInBits[col];
+  int ret=customBitSet.readInt(startBitOffset,endBitOffset);
+  ret=ret - offsets[col];
+  return ret;
 }
