@@ -16,7 +16,7 @@
     instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse2);
     BrokerResponse brokerResponse=_reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
     LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
-    Assert.assertEquals(brokerResponse.getAggregationResults().get(0).toString(),"{\"value\":\"100000.00000\",\"function\":\"avg_met\"}");
+    JsonAssert.assertEqualsIgnoreOrder(brokerResponse.getAggregationResults().get(0).toString(),"{\"value\":\"100000.00000\",\"function\":\"avg_met\"}");
     LOGGER.info("Time used for BrokerResponse is " + brokerResponse.getTimeUsedMs());
   }
  catch (  Exception e) {

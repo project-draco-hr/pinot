@@ -1,0 +1,23 @@
+{
+  try {
+    JSONObject actualObject=new JSONObject(actual);
+    JSONObject expectedObject=new JSONObject(expected);
+    Assert.assertTrue(Iterators.elementsEqual(actualObject.sortedKeys(),expectedObject.sortedKeys()),"JSON objects don't have the same keys, expected:<" + Iterators.toString(expectedObject.sortedKeys()) + "> but was:<"+ Iterators.toString(actualObject.sortedKeys())+ ">");
+    Iterator<String> objectKeys=actualObject.keys();
+    while (objectKeys.hasNext()) {
+      String key=objectKeys.next();
+      Object actualValue=actualObject.get(key);
+      Object expectedValue=expectedObject.get(key);
+      Assert.assertTrue(actualValue.getClass().equals(expectedValue.getClass()),"Objects with key " + key + " don't have the same class, expected:<"+ expectedValue+ "> but was:<"+ actualValue+ ">");
+      if (actualValue instanceof JSONObject) {
+        assertEqualsIgnoreOrder(actualValue.toString(),expectedValue.toString());
+      }
+ else {
+        Assert.assertEquals(actualValue.toString(),expectedValue.toString(),"Objects with key " + key + " don't have the same value");
+      }
+    }
+  }
+ catch (  JSONException ex) {
+    throw new RuntimeException(ex);
+  }
+}
