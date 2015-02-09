@@ -9,10 +9,5 @@
   Path dst=dfs.makeQualified(new Path(hdfsOutputDir,leafDataTarGz));
   LOG.info("Copying " + src + " to "+ dst);
   dfs.copyFromLocalFile(src,dst);
-  String thirdEyeUri=context.getConfiguration().get(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
-  if (thirdEyeUri != null) {
-    int responseCode=StarTreeJobUtils.pushToThirdEyeServer(new File(leafDataTarGz),thirdEyeUri,starTreeConfig.getCollection());
-    LOG.info("POST metrics to {} #=> {}",thirdEyeUri,responseCode);
-  }
   LOG.info("END: Clean up");
 }

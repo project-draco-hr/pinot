@@ -29,13 +29,29 @@
     minTime=stats.getMinTime();
     maxTime=stats.getMaxTime();
   }
-  Properties jobProperties=phaseSpec.getJobProperties(root,collection,minTime,maxTime,inputPaths);
-  String thirdEyeServerUri=config.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
-  if (thirdEyeServerUri != null) {
-    jobProperties.setProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName(),thirdEyeServerUri);
+  if (PhaseSpec.SERVER_PUSH.equals(phaseSpec)) {
+    String thirdEyeServerUri=config.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+    if (thirdEyeServerUri == null) {
+      throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
+    }
+    Path dataPath=new Path(PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName());
+    FileSystem fileSystem=FileSystem.get(new Configuration());
+    RemoteIterator<LocatedFileStatus> itr=fileSystem.listFiles(dataPath,false);
+    while (itr.hasNext()) {
+      LocatedFileStatus fileStatus=itr.next();
+      if (fileStatus.getPath().getName().startsWith("task_")) {
+        InputStream leafData=fileSystem.open(fileStatus.getPath());
+        int responseCode=StarTreeJobUtils.pushToThirdEyeServer(leafData,thirdEyeServerUri,collection);
+        leafData.close();
+        LOG.info("POST {} to {} for {} #=> {}",fileStatus.getPath(),thirdEyeServerUri,collection,responseCode);
+      }
+    }
   }
-  Constructor<?> constructor=phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
-  Object instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
-  Method runMethod=instance.getClass().getMethod("run");
-  runMethod.invoke(instance);
+ else {
+    Properties jobProperties=phaseSpec.getJobProperties(root,collection,minTime,maxTime,inputPaths);
+    Constructor<?> constructor=phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
+    Object instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
+    Method runMethod=instance.getClass().getMethod("run");
+    runMethod.invoke(instance);
+  }
 }

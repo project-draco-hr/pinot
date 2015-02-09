@@ -3,7 +3,7 @@
   http.setRequestMethod("POST");
   http.setRequestProperty("Content-Type","application/octet-stream");
   http.setDoOutput(true);
-  FileUtils.copyFile(tarGzFile,http.getOutputStream());
+  IOUtils.copy(leafData,http.getOutputStream());
   http.getOutputStream().flush();
   http.getOutputStream().close();
   return http.getResponseCode();
