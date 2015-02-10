@@ -1,0 +1,13 @@
+{
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  Map<DimensionKey,MetricTimeSeries> result=QueryUtils.doQuery(starTree,start - timeWindow,end,uriInfo);
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
+    MetricTimeSeries movingAverageTimeSeries=MetricTimeSeriesUtils.getSimpleMovingAverage(entry.getValue(),start,end,timeWindow);
+    MetricTimeSeries normalized=normalizingMetricName == null ? MetricTimeSeriesUtils.normalize(movingAverageTimeSeries) : MetricTimeSeriesUtils.normalize(movingAverageTimeSeries,normalizingMetricName);
+    result.put(entry.getKey(),normalized);
+  }
+  return convert(starTree.getConfig(),Arrays.asList(metrics.split(",")),1,result);
+}
