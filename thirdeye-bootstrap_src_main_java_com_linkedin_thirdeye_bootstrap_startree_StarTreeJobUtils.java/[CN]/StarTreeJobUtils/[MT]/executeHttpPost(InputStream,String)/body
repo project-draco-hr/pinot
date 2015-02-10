@@ -1,9 +1,9 @@
 {
-  HttpURLConnection http=(HttpURLConnection)new URL(thirdEyeUri + "/collections/" + URLEncoder.encode(collection,"UTF-8")+ "/data").openConnection();
+  HttpURLConnection http=(HttpURLConnection)new URL(url).openConnection();
   http.setRequestMethod("POST");
   http.setRequestProperty("Content-Type","application/octet-stream");
   http.setDoOutput(true);
-  IOUtils.copy(leafData,http.getOutputStream());
+  IOUtils.copy(data,http.getOutputStream());
   http.getOutputStream().flush();
   http.getOutputStream().close();
   return http.getResponseCode();

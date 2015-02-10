@@ -1,8 +1,7 @@
 {
   Properties config=new Properties();
-  config.setProperty(AnalysisJobConstants.ANALYSIS_INPUT_AVRO_SCHEMA.toString(),getSchemaPath(root,collection));
-  config.setProperty(AnalysisJobConstants.ANALYSIS_CONFIG_PATH.toString(),getConfigPath(root,collection));
-  config.setProperty(AnalysisJobConstants.ANALYSIS_INPUT_PATH.toString(),inputPaths);
-  config.setProperty(AnalysisJobConstants.ANALYSIS_OUTPUT_PATH.toString(),getAnalysisPath(root,collection));
+  config.setProperty(RollupPhaseOneConstants.ROLLUP_PHASE1_CONFIG_PATH.toString(),getConfigPath(root,collection));
+  config.setProperty(RollupPhaseOneConstants.ROLLUP_PHASE1_INPUT_PATH.toString(),getTimeDir(root,collection,minTime,maxTime) + File.separator + AGGREGATION.getName());
+  config.setProperty(RollupPhaseOneConstants.ROLLUP_PHASE1_OUTPUT_PATH.toString(),getTimeDir(root,collection,minTime,maxTime) + File.separator + ROLLUP_PHASE1.getName());
   return config;
 }
