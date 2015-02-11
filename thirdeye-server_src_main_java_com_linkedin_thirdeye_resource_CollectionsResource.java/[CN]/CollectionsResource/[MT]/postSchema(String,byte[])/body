@@ -1,0 +1,9 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.isAbsolute()) {
+    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+  }
+  File schemaFile=new File(collectionDir,StarTreeConstants.SCHEMA_FILE_NAME);
+  FileUtils.writeByteArrayToFile(schemaFile,schemaBytes);
+  return Response.ok().build();
+}

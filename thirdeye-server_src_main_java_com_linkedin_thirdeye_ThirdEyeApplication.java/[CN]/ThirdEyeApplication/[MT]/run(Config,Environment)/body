@@ -36,7 +36,7 @@
   environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
   environment.jersey().register(new MetricsResource(starTreeManager));
   environment.jersey().register(new DimensionsResource(starTreeManager));
-  environment.jersey().register(new CollectionsResource(starTreeManager,rootDir));
+  environment.jersey().register(new CollectionsResource(starTreeManager,environment.metrics(),rootDir));
   environment.jersey().register(new TimeSeriesResource(starTreeManager));
   environment.jersey().register(new HeatMapResource(starTreeManager,parallelQueryExecutor));
   environment.jersey().register(new PingResource());

@@ -26,7 +26,7 @@
     collectionName=config.getCollectionName();
     List<String> splitOrder=config.getSplitOrder();
     int maxRecordStoreEntries=config.getSplitThreshold();
-    StarTreeConfig genConfig=new StarTreeConfig.Builder().setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setCollection(collectionName).setDimensions(dimensionSpecs).setMetrics(metricSpecs).setTime(starTreeConfig.getTime()).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).build();
+    StarTreeConfig genConfig=new StarTreeConfig.Builder().setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setCollection(collectionName).setDimensions(dimensionSpecs).setMetrics(metricSpecs).setTime(starTreeConfig.getTime()).setSplit(new SplitSpec(maxRecordStoreEntries,splitOrder)).setFixed(false).build();
     starTree=new StarTreeImpl(genConfig);
     starTree.open();
     hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString()) + "/" + "star-tree-"+ collectionName;

@@ -1,0 +1,14 @@
+{
+  String maxCardinalityDimension=null;
+  int maxCardinality=-1;
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    if (blacklist == null || !blacklist.contains(dimensionSpec.getName())) {
+      int cardinality=getDimensionValues(dimensionSpec.getName()).size();
+      if (cardinality > maxCardinality) {
+        maxCardinality=cardinality;
+        maxCardinalityDimension=dimensionSpec.getName();
+      }
+    }
+  }
+  return maxCardinalityDimension;
+}

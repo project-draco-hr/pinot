@@ -10,7 +10,7 @@
   }
  catch (  Exception e) {
   }
-  config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).build();
+  config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setFixed(false).build();
   metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
   starTree=new StarTreeImpl(config);
   starTree.open();

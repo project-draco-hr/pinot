@@ -15,7 +15,9 @@
       }
     }
     if (valid) {
-      LOG.info("Added record:{} to node:{}",StarTreeUtils.toDimensionString(record,config.getDimensions()),node.getPath());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Added record:{} to node:{}",StarTreeUtils.toDimensionString(record,config.getDimensions()),node.getPath());
+      }
     }
  else {
       LOG.error("INVALID: Added record:{} to node:{}",StarTreeUtils.toDimensionString(record,config.getDimensions()),node.getPath());
@@ -50,8 +52,7 @@ synchronized (node) {
     String childDimensionValue=record.getDimensionKey().getDimensionValue(config.getDimensions(),childDimensionName);
     StarTreeNode target=node.getChild(childDimensionValue);
     if (target == null) {
-      boolean mapToOtherNode=false;
-      if (mapToOtherNode) {
+      if (config.isFixed()) {
         target=node.getOtherNode();
         String otherDimensionNames=childDimensionName;
         StarTreeRecord aliasOtherRecord=record.aliasOther(otherDimensionNames);

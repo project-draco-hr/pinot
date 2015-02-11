@@ -1,0 +1,11 @@
+{
+  String[] keyValues=new String[dimensions.size()];
+  for (int i=0; i < dimensions.size(); i++) {
+    String value=values.get(dimensions.get(i).getName());
+    if (value == null) {
+      throw new IllegalArgumentException("Must provide value for every dimension " + values);
+    }
+    keyValues[i]=value;
+  }
+  return new DimensionKey(keyValues);
+}

@@ -7,8 +7,14 @@
   ts2.set(0,"M",1000);
   StarTreeRecord second=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("A2","B2","C2")).setMetricTimeSeries(ts2).build(config);
   recordStore.update(second);
+  for (  StarTreeRecord record : recordStore) {
+    System.out.println(record);
+  }
   Iterator<StarTreeRecord> itr=recordStore.iterator();
-  Assert.assertEquals(itr.next(),first);
-  Assert.assertEquals(itr.next(),second);
+  Set<StarTreeRecord> fromStore=new HashSet<StarTreeRecord>();
+  fromStore.add(itr.next());
+  fromStore.add(itr.next());
   Assert.assertFalse(itr.hasNext());
+  Assert.assertTrue(fromStore.contains(first));
+  Assert.assertTrue(fromStore.contains(second));
 }
