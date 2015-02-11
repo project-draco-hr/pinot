@@ -10,7 +10,7 @@
     TimeRange bufferTimeRange=entry.getKey();
     int rowSize=bufferTimeRange.totalBuckets() * (Long.SIZE / 8 + metricSchema.getRowSizeInBytes());
     ByteBuffer buffer=entry.getValue().duplicate();
-    if (timeRange == null || (timeRange.getStart() >= 0 && !bufferTimeRange.isDisjoint(timeRange))) {
+    if (bufferTimeRange.getStart() >= 0 && (timeRange == null || !bufferTimeRange.isDisjoint(timeRange))) {
       for (      Integer logicalOffset : logicalOffsets) {
         buffer.mark();
         buffer.position(logicalOffset * rowSize);
