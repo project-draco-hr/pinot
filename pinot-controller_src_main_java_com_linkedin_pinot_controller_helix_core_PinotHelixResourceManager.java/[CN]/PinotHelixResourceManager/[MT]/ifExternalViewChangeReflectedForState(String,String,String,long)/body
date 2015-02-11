@@ -1,0 +1,23 @@
+{
+  long timeOutTimeStamp=System.currentTimeMillis() + timeOutInMills;
+  boolean isSucess=true;
+  while (System.currentTimeMillis() < timeOutTimeStamp) {
+    try {
+      Thread.sleep(2000);
+    }
+ catch (    InterruptedException e) {
+    }
+    isSucess=true;
+    ExternalView externalView=_helixAdmin.getResourceExternalView(_helixClusterName,resourceName);
+    Map<String,String> segmentStatsMap=externalView.getStateMap(segmentName);
+    for (    String instance : segmentStatsMap.keySet()) {
+      if (!segmentStatsMap.get(instance).equalsIgnoreCase(targerStates)) {
+        isSucess=false;
+      }
+    }
+    if (isSucess) {
+      break;
+    }
+  }
+  return isSucess;
+}

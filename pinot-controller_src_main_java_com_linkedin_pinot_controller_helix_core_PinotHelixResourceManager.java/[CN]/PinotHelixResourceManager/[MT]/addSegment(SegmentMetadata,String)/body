@@ -14,10 +14,9 @@
         record.setSimpleField(V1Constants.SEGMENT_REFRESH_TIME,String.valueOf(System.currentTimeMillis()));
         _propertyStore.set(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata),record,AccessOption.PERSISTENT);
         LOGGER.info("Refresh segment : " + segmentMetadata.getName() + " to Property store");
-        final IdealState idealState=PinotResourceIdealStateBuilder.updateExistedSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName);
-        _helixAdmin.setResourceIdealState(_helixClusterName,segmentMetadata.getResourceName(),idealState);
-        LOGGER.info("Refresh segment : " + segmentMetadata.getName() + " in idealStatus");
-        res.status=STATUS.success;
+        if (updateExistedSegment(segmentMetadata)) {
+          res.status=STATUS.success;
+        }
       }
     }
  else {
