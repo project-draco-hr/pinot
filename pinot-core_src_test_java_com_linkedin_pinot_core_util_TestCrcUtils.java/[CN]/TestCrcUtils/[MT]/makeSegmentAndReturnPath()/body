@@ -1,5 +1,5 @@
 {
-  final String filePath=TestChunkIndexCreationDriverImpl.class.getClassLoader().getResource(AVRO_DATA).getFile();
+  final String filePath=TestUtils.getFileFromResourceUrl(TestChunkIndexCreationDriverImpl.class.getClassLoader().getResource(AVRO_DATA));
   final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.DAYS,"mirror","mirror");
   config.setSegmentNamePostfix("1");
   config.setTimeColumnName("daysSinceEpoch");
