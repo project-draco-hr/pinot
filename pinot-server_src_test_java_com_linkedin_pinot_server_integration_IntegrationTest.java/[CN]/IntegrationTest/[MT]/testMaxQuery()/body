@@ -5,6 +5,7 @@
   querySource.setTableName("testTable");
   brokerRequest.setQuerySource(querySource);
   InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
+  addMidasSearchSegmentsToInstanceRequest(instanceRequest);
   try {
     DataTable instanceResponse=_queryExecutor.processQuery(instanceRequest);
     System.out.println(instanceResponse.getDouble(0,0));
@@ -12,5 +13,6 @@
   }
  catch (  Exception e) {
     e.printStackTrace();
+    throw new RuntimeException(e);
   }
 }

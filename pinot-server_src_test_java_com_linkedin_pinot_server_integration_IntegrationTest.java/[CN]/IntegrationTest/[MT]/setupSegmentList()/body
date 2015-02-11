@@ -1,5 +1,6 @@
 {
-  final String filePath=getClass().getClassLoader().getResource(SMALL_AVRO_DATA).getFile();
+  final URL resource=getClass().getClassLoader().getResource(SMALL_AVRO_DATA);
+  final String filePath=TestUtils.getFileFromResourceUrl(resource);
   _indexSegmentList.clear();
   if (INDEXES_DIR.exists()) {
     FileUtils.deleteQuietly(INDEXES_DIR);

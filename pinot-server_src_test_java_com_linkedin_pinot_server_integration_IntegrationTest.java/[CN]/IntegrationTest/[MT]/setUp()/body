@@ -1,8 +1,7 @@
 {
   FileUtils.deleteDirectory(new File("/tmp/pinot/test1"));
   setupSegmentList();
-  File confDir=new File(InstanceServerStarter.class.getClassLoader().getResource("conf").toURI());
-  File confFile=new File(confDir,PINOT_PROPERTIES);
+  File confFile=new File(TestUtils.getFileFromResourceUrl(InstanceServerStarter.class.getClassLoader().getResource("conf/" + PINOT_PROPERTIES)));
   PropertiesConfiguration serverConf=new PropertiesConfiguration();
   serverConf.setDelimiterParsingDisabled(false);
   serverConf.load(confFile);
