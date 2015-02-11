@@ -10,19 +10,20 @@
     for (int i=0; i < numElements; i++) {
       int value=r.nextInt(max);
       values[i]=value;
-      System.out.println(value);
+      LOG.info(value);
+      StringBuilder sb=new StringBuilder();
       for (int j=maxBits - 1; j >= 0; j--) {
         if ((value & (1 << j)) != 0) {
-          System.out.print("1");
+          sb.append("1");
           customBitSet.setBit(i * maxBits + (maxBits - j - 1));
         }
  else {
-          System.out.print("0");
+          sb.append("0");
         }
       }
-      System.out.println();
+      LOG.info(sb.toString());
     }
-    customBitSet.print();
+    LOG.info("customBitSet: " + customBitSet.toString());
     int bitPos=0;
     for (int i=0; i < numElements; i++) {
       bitPos=i * maxBits;
