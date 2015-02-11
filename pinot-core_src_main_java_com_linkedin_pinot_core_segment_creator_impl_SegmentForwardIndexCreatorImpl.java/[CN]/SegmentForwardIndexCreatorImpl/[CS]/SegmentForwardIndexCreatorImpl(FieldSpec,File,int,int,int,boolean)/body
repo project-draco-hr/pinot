@@ -6,7 +6,7 @@
   this.numDocs=numDocs;
   this.totalNumberOfValues=totalNumberOfValues;
   if (spec.isSingleValueField()) {
-    sVWriter=new FixedBitWidthRowColDataFileWriter(forwardIndexFile,numDocs,1,new int[]{maxNumberOfBits});
+    sVWriter=new FixedBitWidthRowColDataFileWriter(forwardIndexFile,numDocs,1,new int[]{maxNumberOfBits},new boolean[]{hasNulls});
   }
  else {
     mVWriter=new FixedBitWidthSingleColumnMultiValueWriter(forwardIndexFile,numDocs,totalNumberOfValues,maxNumberOfBits);
