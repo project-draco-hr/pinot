@@ -11,5 +11,5 @@
   instanceDataManager.getResourceDataManager("mirror");
   instanceDataManager.getResourceDataManager("mirror").addSegment(indexSegment);
   QUERY_EXECUTOR=new ServerQueryExecutorV1Impl(false);
-  QUERY_EXECUTOR.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager);
+  QUERY_EXECUTOR.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager,new ServerMetrics(new MetricsRegistry()));
 }

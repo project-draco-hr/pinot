@@ -4,7 +4,7 @@
   pinotHelixProperties.addProperty("pinot.server.instance.id",instanceId);
   final ServerConf serverConf=DefaultHelixStarterServerConfig.getDefaultHelixServerConfig(pinotHelixProperties);
   final ServerInstance serverInstance=new ServerInstance();
-  serverInstance.init(serverConf);
+  serverInstance.init(serverConf,new MetricsRegistry());
   serverInstance.start();
   final DataManager instanceDataManager=serverInstance.getInstanceDataManager();
   final File segmentDir0=new File(INDEX_DIR.getAbsolutePath() + "/segment0");

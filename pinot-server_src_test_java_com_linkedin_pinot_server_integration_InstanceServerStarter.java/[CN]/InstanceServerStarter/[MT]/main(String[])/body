@@ -1,7 +1,8 @@
 {
   File confDir=new File(InstanceServerStarter.class.getClassLoader().getResource("conf").toURI());
   logger.info("Trying to build server config");
-  ServerBuilder serverBuilder=new ServerBuilder(confDir.getAbsolutePath());
+  MetricsRegistry metricsRegistry=new MetricsRegistry();
+  ServerBuilder serverBuilder=new ServerBuilder(confDir.getAbsolutePath(),metricsRegistry);
   logger.info("Trying to build InstanceDataManager");
   final DataManager instanceDataManager=serverBuilder.buildInstanceDataManager();
   logger.info("Trying to start InstanceDataManager");

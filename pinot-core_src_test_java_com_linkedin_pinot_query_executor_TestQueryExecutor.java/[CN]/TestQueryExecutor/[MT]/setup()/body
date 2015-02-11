@@ -13,5 +13,5 @@
     instanceDataManager.getResourceDataManager("midas").addSegment(_indexSegmentList.get(i));
   }
   _queryExecutor=new ServerQueryExecutorV1Impl();
-  _queryExecutor.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager);
+  _queryExecutor.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager,new ServerMetrics(new MetricsRegistry()));
 }
