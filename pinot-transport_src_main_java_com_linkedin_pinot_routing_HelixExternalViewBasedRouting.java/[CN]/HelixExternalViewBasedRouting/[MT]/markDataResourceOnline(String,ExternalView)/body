@@ -1,12 +1,18 @@
 {
   if (_routingTableVersionMap.containsKey(resourceName)) {
     int currentExternalViewVersion=_routingTableVersionMap.get(resourceName);
-    if (externalView.getRecord().getVersion() == currentExternalViewVersion) {
+    long recentModifiedTimeStamp=_routingTableModifiedTimeStampMap.get(resourceName);
+    LOGGER.info("ExternalView version for resource: " + resourceName + " is "+ externalView.getRecord().getVersion());
+    LOGGER.info("Current updated version for for resource: " + resourceName + " is "+ currentExternalViewVersion);
+    LOGGER.info("ExternalView modified timestamp for resource: " + resourceName + " is "+ externalView.getRecord().getModifiedTime());
+    LOGGER.info("Recent updated timestamp for for resource: " + resourceName + " is "+ recentModifiedTimeStamp);
+    if (externalView.getRecord().getModifiedTime() <= recentModifiedTimeStamp) {
       LOGGER.info("No change on routing table version, do nothing for resource: " + resourceName);
       return;
     }
   }
   _routingTableVersionMap.put(resourceName,externalView.getRecord().getVersion());
+  _routingTableModifiedTimeStampMap.put(resourceName,externalView.getRecord().getModifiedTime());
   if (!_dataResourceSet.contains(resourceName)) {
     LOGGER.info("Adding a new data resource to broker : " + resourceName);
     _dataResourceSet.add(resourceName);
