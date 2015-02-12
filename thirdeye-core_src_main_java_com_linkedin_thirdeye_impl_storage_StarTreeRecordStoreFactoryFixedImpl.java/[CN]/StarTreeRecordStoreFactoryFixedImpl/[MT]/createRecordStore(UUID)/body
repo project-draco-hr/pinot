@@ -10,7 +10,7 @@ synchronized (sync) {
     }
     DimensionDictionary dictionary=getDictionary(dimensionIndexEntry);
     ByteBuffer dimensionBuffer=getDimensionBuffer(dimensionIndexEntry);
-    Map<TimeRange,ByteBuffer> metricBuffers=new HashMap<TimeRange,ByteBuffer>();
+    ConcurrentMap<TimeRange,ByteBuffer> metricBuffers=new ConcurrentHashMap<TimeRange,ByteBuffer>();
     for (    MetricIndexEntry indexEntry : metricIndexEntries) {
       metricBuffers.put(indexEntry.getTimeRange(),getMetricBuffer(indexEntry));
     }

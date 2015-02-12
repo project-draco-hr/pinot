@@ -1,17 +1,15 @@
 {
-synchronized (sync) {
-    List<DimensionKey> dimensionKeys=new ArrayList<DimensionKey>();
-    buffer.rewind();
-    while (buffer.position() < buffer.limit()) {
-      String[] dimensionValues=new String[config.getDimensions().size()];
-      for (int i=0; i < config.getDimensions().size(); i++) {
-        DimensionSpec dimensionSpec=config.getDimensions().get(i);
-        Integer valueId=buffer.getInt();
-        String dimensionValue=dictionary.getDimensionValue(dimensionSpec.getName(),valueId);
-        dimensionValues[i]=dimensionValue;
-      }
-      dimensionKeys.add(new DimensionKey(dimensionValues));
+  List<DimensionKey> dimensionKeys=new ArrayList<DimensionKey>();
+  ByteBuffer tmpBuffer=buffer.duplicate();
+  while (tmpBuffer.position() < tmpBuffer.limit()) {
+    String[] dimensionValues=new String[config.getDimensions().size()];
+    for (int i=0; i < config.getDimensions().size(); i++) {
+      DimensionSpec dimensionSpec=config.getDimensions().get(i);
+      Integer valueId=tmpBuffer.getInt();
+      String dimensionValue=dictionary.getDimensionValue(dimensionSpec.getName(),valueId);
+      dimensionValues[i]=dimensionValue;
     }
-    return dimensionKeys;
+    dimensionKeys.add(new DimensionKey(dimensionValues));
   }
+  return dimensionKeys;
 }

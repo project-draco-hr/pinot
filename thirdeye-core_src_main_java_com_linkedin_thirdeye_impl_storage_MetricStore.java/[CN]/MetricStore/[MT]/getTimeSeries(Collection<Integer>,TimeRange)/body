@@ -1,34 +1,30 @@
 {
-synchronized (sync) {
-    MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
-    Set<Long> times=getTimes(timeRange);
-    for (    Long time : times) {
-      for (      MetricSpec metricSpec : config.getMetrics()) {
-        timeSeries.set(time,metricSpec.getName(),0);
-      }
+  MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+  Set<Long> times=getTimes(timeRange);
+  for (  Long time : times) {
+    for (    MetricSpec metricSpec : config.getMetrics()) {
+      timeSeries.set(time,metricSpec.getName(),0);
     }
-    for (    Map.Entry<TimeRange,ByteBuffer> entry : buffers.entrySet()) {
-      TimeRange bufferTimeRange=entry.getKey();
-      int rowSize=bufferTimeRange.totalBuckets() * (Long.SIZE / 8 + metricSchema.getRowSizeInBytes());
-      ByteBuffer buffer=entry.getValue();
-      buffer.rewind();
-      if (timeRange == null || !bufferTimeRange.isDisjoint(timeRange)) {
-        for (        Integer logicalOffset : logicalOffsets) {
-          buffer.mark();
-          buffer.position(logicalOffset * rowSize);
-          for (int i=0; i < bufferTimeRange.totalBuckets(); i++) {
-            Long time=buffer.getLong();
-            for (            MetricSpec metricSpec : config.getMetrics()) {
-              Number value=NumberUtils.readFromBuffer(buffer,metricSpec.getType());
-              if (times.contains(time)) {
-                timeSeries.increment(time,metricSpec.getName(),value);
-              }
+  }
+  for (  Map.Entry<TimeRange,ByteBuffer> entry : buffers.entrySet()) {
+    TimeRange bufferTimeRange=entry.getKey();
+    int rowSize=bufferTimeRange.totalBuckets() * (Long.SIZE / 8 + metricSchema.getRowSizeInBytes());
+    ByteBuffer buffer=entry.getValue().duplicate();
+    if (timeRange == null || (timeRange.getStart() >= 0 && !bufferTimeRange.isDisjoint(timeRange))) {
+      for (      Integer logicalOffset : logicalOffsets) {
+        buffer.mark();
+        buffer.position(logicalOffset * rowSize);
+        for (int i=0; i < bufferTimeRange.totalBuckets(); i++) {
+          Long time=buffer.getLong();
+          for (          MetricSpec metricSpec : config.getMetrics()) {
+            Number value=NumberUtils.readFromBuffer(buffer,metricSpec.getType());
+            if (times.contains(time)) {
+              timeSeries.increment(time,metricSpec.getName(),value);
             }
           }
-          buffer.reset();
         }
       }
     }
-    return timeSeries;
   }
+  return timeSeries;
 }
