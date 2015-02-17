@@ -6,7 +6,6 @@
   ExecutorService parallelQueryExecutor=environment.lifecycle().executorService("parallel_query_executor").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
   ScheduledExecutorService anomalyDetectionTaskScheduler=environment.lifecycle().scheduledExecutorService("anomaly_detection_task_scheduler").build();
   final StarTreeManager starTreeManager=new StarTreeManagerImpl();
-  final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval());
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
       if (config.isAutoRestore()) {
@@ -17,7 +16,6 @@
             starTreeManager.open(collection);
           }
         }
-        anomalyDetectionTaskManager.start();
       }
     }
     @Override public void stop() throws Exception {
@@ -33,6 +31,10 @@
     }
   }
 );
+  final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval());
+  environment.lifecycle().manage(anomalyDetectionTaskManager);
+  final KafkaConsumerManager kafkaConsumerManager=new KafkaConsumerManager(starTreeManager,rootDir,config.getKafkaZooKeeperAddress(),config.getKafkaGroupIdSuffix());
+  environment.lifecycle().manage(kafkaConsumerManager);
   environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
   environment.jersey().register(new MetricsResource(starTreeManager));
   environment.jersey().register(new DimensionsResource(starTreeManager));
@@ -41,7 +43,8 @@
   environment.jersey().register(new HeatMapResource(starTreeManager,parallelQueryExecutor));
   environment.jersey().register(new PingResource());
   environment.jersey().register(new DashboardResource(starTreeManager));
-  environment.admin().addTask(new RestoreTask(starTreeManager,anomalyDetectionTaskManager,rootDir));
+  environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
+  environment.admin().addTask(new ResetTask(anomalyDetectionTaskManager,kafkaConsumerManager));
   environment.admin().addTask(new ExpireTask(starTreeManager,rootDir));
   environment.admin().addTask(new ViewTreeTask(starTreeManager));
   environment.admin().addTask(new ViewDimensionIndexTask(rootDir));
