@@ -1,0 +1,41 @@
+{
+  return new BlockMetadata(){
+    @Override public int maxNumberOfMultiValues(){
+      return 0;
+    }
+    @Override public boolean isSparse(){
+      return false;
+    }
+    @Override public boolean isSorted(){
+      return false;
+    }
+    @Override public boolean isSingleValue(){
+      return true;
+    }
+    @Override public boolean hasInvertedIndex(){
+      return true;
+    }
+    @Override public boolean hasDictionary(){
+      return true;
+    }
+    @Override public int getStartDocId(){
+      return 0;
+    }
+    @Override public int getSize(){
+      return docIdSearchableOffset;
+    }
+    @Override public int getLength(){
+      return docIdSearchableOffset;
+    }
+    @Override public int getEndDocId(){
+      return docIdSearchableOffset;
+    }
+    @Override public com.linkedin.pinot.core.segment.index.readers.Dictionary getDictionary(){
+      return dictionary;
+    }
+    @Override public DataType getDataType(){
+      return spec.getDataType();
+    }
+  }
+;
+}

@@ -1,0 +1,7 @@
+{
+  buff.rewind();
+  int[] inBytes=buff.array();
+  ByteBuffer bBuff=ByteBuffer.allocate(buff.array().length * 4);
+  for (  int i : buff.array())   bBuff.putInt(i);
+  return hash64(bBuff.array(),inBytes.length);
+}

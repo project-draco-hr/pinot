@@ -1,0 +1,16 @@
+{
+  if (!blockReturned) {
+    blockReturned=true;
+    if (spec.isSingleValueField()) {
+      Block SvBlock=new RealtimeSingleValueBlock(spec,dictionary,docIdMap,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimensionTupleMap,metricsOffsetMap);
+      if (predicate != null)       SvBlock.applyPredicate(predicate);
+      return SvBlock;
+    }
+ else {
+      Block mvBlock=new RealtimeMultivalueBlock(spec,dictionary,docIdMap,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimensionTupleMap);
+      if (predicate != null)       mvBlock.applyPredicate(predicate);
+      return mvBlock;
+    }
+  }
+  return null;
+}

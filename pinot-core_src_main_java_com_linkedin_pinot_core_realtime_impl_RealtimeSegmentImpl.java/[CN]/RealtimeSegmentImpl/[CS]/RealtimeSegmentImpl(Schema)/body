@@ -1,0 +1,20 @@
+{
+  dataSchema=schema;
+  dictionaryMap=new HashMap<String,MutableDictionaryReader>();
+  for (  String column : dataSchema.getDimensions()) {
+    dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
+  }
+  docIdGenerator=new AtomicInteger(-1);
+  dimemsionTupleMap=new HashMap<Long,DimensionTuple>();
+  metricBuffSizeInBytes=ByteBufferUtils.computeMetricsBuffAllocationSize(dataSchema);
+  timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema.getTimeSpec().getIncominGranularutySpec(),schema.getTimeSpec().getOutgoingGranularitySpec());
+  incomingTimeColumnName=dataSchema.getTimeSpec().getIncomingTimeColumnName();
+  outgoingTimeColumnName=dataSchema.getTimeSpec().getOutGoingTimeColumnName();
+  docIdMap=new HashMap<Object,Pair<Long,Long>>();
+  invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
+  for (  String dimension : schema.getDimensions())   invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
+  for (  String metric : schema.getMetrics())   invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
+  invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
+  metricsOffsetMap=new HashMap<String,Integer>();
+  createMetricsOffsetsMap();
+}

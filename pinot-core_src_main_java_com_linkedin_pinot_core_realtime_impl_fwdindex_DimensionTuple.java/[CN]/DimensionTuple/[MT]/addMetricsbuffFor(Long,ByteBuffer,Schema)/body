@@ -1,0 +1,9 @@
+{
+  if (timeToMetricsBuffMap.containsKey(time)) {
+    ByteBuffer addedMetricsBuff=ByteBufferUtils.addTwoMetricBuffs(schema,timeToMetricsBuffMap.get(time),metricsBuff);
+    timeToMetricsBuffMap.put(time,addedMetricsBuff);
+    return;
+  }
+  metricsBuff.rewind();
+  timeToMetricsBuffMap.put(time,metricsBuff);
+}

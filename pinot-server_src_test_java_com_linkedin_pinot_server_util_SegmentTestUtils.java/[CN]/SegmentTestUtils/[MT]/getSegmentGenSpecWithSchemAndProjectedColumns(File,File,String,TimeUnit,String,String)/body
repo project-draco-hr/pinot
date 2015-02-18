@@ -1,9 +1,7 @@
 {
-  SegmentGeneratorConfig segmentGenSpec=new SegmentGeneratorConfig();
+  SegmentGeneratorConfig segmentGenSpec=new SegmentGeneratorConfig(AvroUtils.extractSchemaFromAvro(inputAvro));
   List<String> projectedColumns=AvroUtils.getAllColumnsInAvroFile(inputAvro);
   segmentGenSpec.setInputFilePath(inputAvro.getAbsolutePath());
-  segmentGenSpec.setProjectedColumns(projectedColumns);
-  segmentGenSpec.setSchema(AvroUtils.extractSchemaFromAvro(inputAvro));
   segmentGenSpec.setTimeUnitForSegment(timeUnit);
   segmentGenSpec.setInputFileFormat(FileFormat.AVRO);
   segmentGenSpec.setSegmentVersion(SegmentVersion.v1);

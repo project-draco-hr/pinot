@@ -4,16 +4,10 @@
   final List<String> projectedColumns=new ArrayList<String>();
   projectedColumns.add("dim_campaignType");
   projectedColumns.add("sort_campaignId");
-  final SegmentGeneratorConfig config=new SegmentGeneratorConfig();
+  final SegmentGeneratorConfig config=new SegmentGeneratorConfig(AvroUtils.extractSchemaFromAvro(new File(filePath)));
   config.setInputFileFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
-  config.setProjectedColumns(projectedColumns);
   config.setSegmentVersion(SegmentVersion.v1);
-  final Schema schema=new Schema();
-  for (  final String column : projectedColumns) {
-    final FieldSpec spec=new FieldSpec(column,FieldType.dimension,null,true);
-    schema.addSchema(column,spec);
-  }
   final AvroRecordReader avroDataPublisher=new AvroRecordReader(FieldExtractorFactory.getPlainFieldExtractor(config),config.getInputFilePath());
   avroDataPublisher.next();
   int cnt=0;

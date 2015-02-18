@@ -1,0 +1,24 @@
+{
+  GenericRow row=new GenericRow();
+  Map<String,Object> rowValues=new HashMap<String,Object>();
+  Pair<Long,Long> dimHashTimePair=docIdMap.get(docId);
+  DimensionTuple tuple=dimemsionTupleMap.get(dimHashTimePair.getLeft());
+  Long timeValue=dimHashTimePair.getRight();
+  IntBuffer dimBuff=tuple.getDimBuff().duplicate();
+  for (  String dimension : dataSchema.getDimensions()) {
+    int[] ret=ByteBufferUtils.extractDicIdFromDimByteBuffFor(dimension,dimBuff,dataSchema);
+    if (ret.length == 1)     rowValues.put(dimension,dictionaryMap.get(dimension).get(ret[0]));
+ else {
+      Object[] mV=new Object[ret.length];
+      for (int i=0; i < ret.length; i++) {
+        mV[i]=dictionaryMap.get(dimension).get(ret[i]);
+      }
+      rowValues.put(dimension,mV);
+    }
+  }
+  ByteBuffer metricBuff=tuple.getMetricsBuffForTime(timeValue).duplicate();
+  for (  String metric : dataSchema.getMetrics())   rowValues.put(metric,ByteBufferUtils.extractMetricValueFrom(metric,metricBuff,dataSchema,metricsOffsetMap));
+  rowValues.put(outgoingTimeColumnName,timeValue);
+  row.init(rowValues);
+  return row;
+}

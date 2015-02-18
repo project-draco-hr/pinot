@@ -1,0 +1,24 @@
+{
+  int listOffset=0;
+  for (  String dimension : schema.getDimensions()) {
+    if (dimension.equals(dimString)) {
+      break;
+    }
+    listOffset+=1;
+    if (!schema.getFieldSpecFor(dimension).isSingleValueField()) {
+      listOffset+=row.get(listOffset);
+    }
+  }
+  if (schema.getFieldSpecFor(dimString).isSingleValueField()) {
+    return new int[]{row.get(listOffset)};
+  }
+ else {
+    int[] ret=new int[row.get(listOffset) + 1];
+    int count=0;
+    for (int i=listOffset + 1; i <= listOffset + 1 + row.get(listOffset); i++) {
+      ret[count]=row.get(i);
+      count++;
+    }
+    return ret;
+  }
+}

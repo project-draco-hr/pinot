@@ -1,0 +1,25 @@
+{
+  List<Integer> rowConvertedToDictionaryId=new LinkedList<Integer>();
+  List<Integer> columnOffsets=new LinkedList<Integer>();
+  int pointer=0;
+  for (int i=0; i < dataSchema.getDimensions().size(); i++) {
+    columnOffsets.add(pointer);
+    if (dataSchema.getFieldSpecFor(dataSchema.getDimensions().get(i)).isSingleValueField()) {
+      rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensions().get(i)).indexOf(row.getValue(dataSchema.getDimensions().get(i))));
+      pointer+=1;
+    }
+ else {
+      Object[] multivalues=(Object[])row.getValue(dataSchema.getDimensions().get(i));
+      Arrays.sort(multivalues);
+      for (      Object multivalue : multivalues)       rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensions().get(i)).indexOf(multivalue));
+      pointer+=multivalues.length;
+    }
+    if (i == dataSchema.getDimensions().size() - 1) {
+      columnOffsets.add(pointer);
+    }
+  }
+  IntBuffer buff=IntBuffer.allocate(columnOffsets.size() + rowConvertedToDictionaryId.size());
+  for (  Integer offset : columnOffsets)   buff.put(offset + columnOffsets.size());
+  for (  Integer dicId : rowConvertedToDictionaryId)   buff.put(dicId);
+  return buff;
+}

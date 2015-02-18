@@ -1,0 +1,23 @@
+{
+  if (rawValue == null)   return;
+  if (rawValue instanceof String) {
+    addToDictionaryBiMap(new Float(Float.parseFloat(rawValue.toString())));
+    return;
+  }
+  if (rawValue instanceof Float) {
+    addToDictionaryBiMap(rawValue);
+    return;
+  }
+  if (rawValue instanceof Object[]) {
+    for (    Object o : (Object[])rawValue) {
+      if (o instanceof String) {
+        addToDictionaryBiMap(new Float(Float.parseFloat(o.toString())));
+        continue;
+      }
+      if (o instanceof Float) {
+        addToDictionaryBiMap(o);
+        continue;
+      }
+    }
+  }
+}

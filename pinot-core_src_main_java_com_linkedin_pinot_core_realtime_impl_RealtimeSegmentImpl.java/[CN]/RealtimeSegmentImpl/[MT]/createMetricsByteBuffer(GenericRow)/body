@@ -1,0 +1,22 @@
+{
+  ByteBuffer metricBuff=ByteBuffer.allocate(metricBuffSizeInBytes);
+  for (  String metric : dataSchema.getMetrics()) {
+    Object entry=row.getValue(metric);
+    FieldSpec spec=dataSchema.getFieldSpecFor(metric);
+switch (spec.getDataType()) {
+case INT:
+      metricBuff.putInt((Integer)entry);
+    break;
+case LONG:
+  metricBuff.putLong((Long)entry);
+break;
+case FLOAT:
+metricBuff.putFloat((Float)entry);
+break;
+case DOUBLE:
+metricBuff.putDouble((Double)entry);
+break;
+}
+}
+return metricBuff;
+}

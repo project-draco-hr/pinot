@@ -11,7 +11,7 @@
       continue;
     }
     if (blocks[j].getMetadata().isSingleValue()) {
-      DictionaryReader dictionaryReader=blocks[j].getMetadata().getDictionary();
+      Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
       BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
       bvIter.skipTo(docId);
 switch (_dataSchema.getColumnType(i)) {
@@ -35,7 +35,7 @@ break;
 }
 }
  else {
-DictionaryReader dictionaryReader=blocks[j].getMetadata().getDictionary();
+Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
 BlockMultiValIterator bvIter=(BlockMultiValIterator)blocks[j].getBlockValueSet().iterator();
 bvIter.skipTo(docId);
 int[] dictIds=new int[blocks[j].getMetadata().maxNumberOfMultiValues()];

@@ -1,0 +1,16 @@
+{
+  realtimeSegmentImpl=realtimeSegment;
+  this.outputPath=outputPath;
+  if (new File(outputPath).exists())   throw new IllegalAccessError("path already exists");
+  this.resourceName=resourceName;
+  this.tableName=tableName;
+  TimeFieldSpec original=schema.getTimeSpec();
+  GranularitySpec incoming=original.getIncominGranularutySpec();
+  incoming.setdType(DataType.LONG);
+  TimeFieldSpec newTimeSpec=new TimeFieldSpec(incoming);
+  Schema newSchema=new Schema();
+  for (  String dimension : schema.getDimensions())   newSchema.addSchema(dimension,schema.getFieldSpecFor(dimension));
+  for (  String metic : schema.getMetrics())   newSchema.addSchema(metic,schema.getFieldSpecFor(metic));
+  newSchema.addSchema(newTimeSpec.getName(),newTimeSpec);
+  this.dataSchema=newSchema;
+}

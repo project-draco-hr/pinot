@@ -3,10 +3,9 @@
   final List<String> projectedColumns=new ArrayList<String>();
   projectedColumns.add("dimension_companySizes");
   projectedColumns.add("dimension_functions");
-  final SegmentGeneratorConfig config=new SegmentGeneratorConfig();
+  final SegmentGeneratorConfig config=new SegmentGeneratorConfig(AvroUtils.extractSchemaFromAvro(new File(filePath)));
   config.setInputFileFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
-  config.setProjectedColumns(projectedColumns);
   config.setSegmentVersion(SegmentVersion.v1);
   AvroRecordReader avroDataPublisher=(AvroRecordReader)RecordReaderFactory.get(config);
   int cnt=0;

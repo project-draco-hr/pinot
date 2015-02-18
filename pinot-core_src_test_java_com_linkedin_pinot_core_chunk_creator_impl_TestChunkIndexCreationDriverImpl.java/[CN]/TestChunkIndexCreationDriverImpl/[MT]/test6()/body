@@ -1,6 +1,6 @@
 {
   final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(new File("/tmp/mirrorTwoDotO/mirror_mirror_16381_16381_1"),ReadMode.mmap);
-  final DictionaryReader d=segment.getDictionaryFor("viewerOccupations");
+  final ImmutableDictionaryReader d=segment.getDictionaryFor("viewerOccupations");
   final List<String> rhs=new ArrayList<String>();
   rhs.add(d.get(new Random().nextInt(d.length())).toString());
   final Predicate p=new Predicate("viewerOccupations",Type.EQ,rhs);

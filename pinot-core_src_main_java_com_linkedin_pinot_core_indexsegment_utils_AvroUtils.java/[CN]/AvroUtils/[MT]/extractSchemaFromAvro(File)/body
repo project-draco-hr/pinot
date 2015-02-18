@@ -3,7 +3,7 @@
   final DataFileStream<GenericRecord> dataStreamReader=getAvroReader(avroFile);
   final org.apache.avro.Schema avroSchema=dataStreamReader.getSchema();
   for (  final Field field : avroSchema.getFields()) {
-    final FieldSpec spec=new FieldSpec();
+    final FieldSpec spec=new DimensionFieldSpec();
     spec.setName(field.name());
     spec.setDataType(AvroRecordReader.getColumnType(field));
     if (field.name().contains("count") || field.name().contains("met")) {

@@ -1,0 +1,24 @@
+{
+  if (rawValue == null)   return;
+  if (rawValue instanceof String) {
+    addToDictionaryBiMap(new Integer(Integer.parseInt(rawValue.toString())));
+    return;
+  }
+  if (rawValue instanceof Integer) {
+    addToDictionaryBiMap(rawValue);
+    return;
+  }
+  if (rawValue instanceof Object[]) {
+    Object[] multivalues=(Object[])rawValue;
+    for (int i=0; i < multivalues.length; i++) {
+      if (multivalues[i] instanceof String) {
+        addToDictionaryBiMap(new Integer(Integer.parseInt(multivalues[i].toString())));
+        continue;
+      }
+      if (multivalues[i] instanceof Integer) {
+        addToDictionaryBiMap(multivalues[i]);
+        continue;
+      }
+    }
+  }
+}

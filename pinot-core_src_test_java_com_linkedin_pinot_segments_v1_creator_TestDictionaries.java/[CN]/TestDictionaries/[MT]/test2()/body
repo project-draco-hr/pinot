@@ -3,8 +3,8 @@
   final IndexSegmentImpl mmapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.mmap);
   final Map<String,ColumnMetadata> metadataMap=((SegmentMetadataImpl)mmapSegment.getSegmentMetadata()).getColumnMetadataMap();
   for (  final String column : metadataMap.keySet()) {
-    final DictionaryReader heapDictionary=heapSegment.getDictionaryFor(column);
-    final DictionaryReader mmapDictionary=mmapSegment.getDictionaryFor(column);
+    final ImmutableDictionaryReader heapDictionary=heapSegment.getDictionaryFor(column);
+    final ImmutableDictionaryReader mmapDictionary=mmapSegment.getDictionaryFor(column);
     final Set<Object> uniques=uniqueEntries.get(column);
     final List<Object> list=Arrays.asList(uniques.toArray());
     Collections.shuffle(list);

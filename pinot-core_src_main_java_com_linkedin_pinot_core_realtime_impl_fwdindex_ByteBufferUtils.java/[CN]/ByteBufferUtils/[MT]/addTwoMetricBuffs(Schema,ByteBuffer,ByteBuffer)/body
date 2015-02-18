@@ -1,0 +1,25 @@
+{
+  ByteBuffer oneCopy=one.duplicate();
+  ByteBuffer twoCopy=two.duplicate();
+  oneCopy.rewind();
+  twoCopy.rewind();
+  ByteBuffer ret=ByteBuffer.allocate(computeMetricsBuffAllocationSize(schema));
+  for (  String metricName : schema.getMetrics()) {
+switch (schema.getDataType(metricName)) {
+case INT:
+      ret.putInt(oneCopy.getInt() + twoCopy.getInt());
+    break;
+case FLOAT:
+  ret.putFloat(oneCopy.getFloat() + twoCopy.getFloat());
+break;
+case LONG:
+ret.putLong(oneCopy.getLong() + twoCopy.getLong());
+break;
+case DOUBLE:
+ret.putDouble(oneCopy.getDouble() + twoCopy.getDouble());
+break;
+}
+}
+ret.rewind();
+return ret;
+}

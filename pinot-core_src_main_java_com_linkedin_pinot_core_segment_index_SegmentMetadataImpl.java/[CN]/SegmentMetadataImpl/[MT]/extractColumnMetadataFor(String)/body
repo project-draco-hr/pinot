@@ -10,5 +10,9 @@
   final boolean insSingleValue=_segmentMetadataPropertiesConfiguration.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.IS_SINGLE_VALUED));
   final int maxNumberOfMultiValues=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.MAX_MULTI_VALUE_ELEMTS));
   final boolean hasNulls=_segmentMetadataPropertiesConfiguration.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.HAS_NULL_VALUE));
-  return new ColumnMetadata(column,cardinality,totalDocs,dataType,bitsPerElement,stringColumnMaxLength,fieldType,isSorted,hasInvertedIndex,insSingleValue,maxNumberOfMultiValues,hasNulls);
+  TimeUnit segmentTimeUnit=TimeUnit.DAYS;
+  if (_segmentMetadataPropertiesConfiguration.containsKey(V1Constants.MetadataKeys.Segment.TIME_UNIT)) {
+    segmentTimeUnit=TimeUnit.valueOf(_segmentMetadataPropertiesConfiguration.getString(V1Constants.MetadataKeys.Segment.TIME_UNIT));
+  }
+  return new ColumnMetadata(column,cardinality,totalDocs,dataType,bitsPerElement,stringColumnMaxLength,fieldType,isSorted,hasInvertedIndex,insSingleValue,maxNumberOfMultiValues,hasNulls,segmentTimeUnit);
 }

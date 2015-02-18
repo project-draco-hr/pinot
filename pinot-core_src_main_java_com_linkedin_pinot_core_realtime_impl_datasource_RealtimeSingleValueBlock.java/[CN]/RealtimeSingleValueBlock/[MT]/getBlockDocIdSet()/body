@@ -1,0 +1,33 @@
+{
+  if (this.p != null)   return new BlockDocIdSet(){
+    @Override public BlockDocIdIterator iterator(){
+      return new BlockDocIdIterator(){
+        private int counter=0;
+        private int max=docIdSearchableOffset;
+        private int[] docIds=filteredBitmap.toArray();
+        @Override public int skipTo(        int targetDocId){
+          int entry=Arrays.binarySearch(docIds,targetDocId);
+          if (entry < 0)           entry*=-1;
+          if (entry >= docIds.length)           return Constants.EOF;
+          counter=entry;
+          return counter;
+        }
+        @Override public int next(){
+          if (counter >= docIds.length) {
+            return Constants.EOF;
+          }
+          return docIds[counter++];
+        }
+        @Override public int currentDocId(){
+          return docIds[counter];
+        }
+      }
+;
+    }
+    @Override public Object getRaw(){
+      return filteredBitmap;
+    }
+  }
+;
+  return null;
+}

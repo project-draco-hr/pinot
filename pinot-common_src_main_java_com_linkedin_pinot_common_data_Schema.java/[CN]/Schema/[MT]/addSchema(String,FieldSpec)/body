@@ -1,5 +1,18 @@
 {
+  if (fieldSpec.getName() == null)   fieldSpec.setName(columnName);
+  if (fieldSpecMap.containsKey(columnName))   return;
   if (columnName != null && fieldSpec != null) {
-    _schema.put(columnName,fieldSpec);
+    fieldSpecMap.put(columnName,fieldSpec);
+    if (fieldSpec.getFieldType() == FieldType.dimension) {
+      dimensions.add(columnName);
+      Collections.sort(dimensions);
+    }
+ else     if (fieldSpec.getFieldType() == FieldType.metric) {
+      metrics.add(columnName);
+      Collections.sort(metrics);
+    }
+ else     if (fieldSpec.getFieldType() == FieldType.time) {
+      timeColumnName=columnName;
+    }
   }
 }

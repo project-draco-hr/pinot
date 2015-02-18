@@ -1,0 +1,19 @@
+{
+  if (arr == null) {
+    return new Object[0];
+  }
+  final Object[] ret=new Object[arr.size()];
+  final Iterator iterator=arr.iterator();
+  int i=0;
+  while (iterator.hasNext()) {
+    Object value=iterator.next();
+    if (value instanceof Record) {
+      value=((Record)value).get(0);
+    }
+    if (value instanceof Utf8) {
+      value=((Utf8)value).toString();
+    }
+    ret[i++]=value;
+  }
+  return ret;
+}

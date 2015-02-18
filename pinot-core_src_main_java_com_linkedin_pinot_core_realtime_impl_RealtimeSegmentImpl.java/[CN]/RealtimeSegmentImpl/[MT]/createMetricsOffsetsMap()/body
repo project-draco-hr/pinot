@@ -1,0 +1,18 @@
+{
+  int offset=0;
+  for (  String metric : dataSchema.getMetrics()) {
+    metricsOffsetMap.put(metric,offset);
+switch (dataSchema.getDataType(metric)) {
+case INT:
+case FLOAT:
+      offset+=4;
+    break;
+case LONG:
+case DOUBLE:
+  offset+=8;
+break;
+default :
+break;
+}
+}
+}

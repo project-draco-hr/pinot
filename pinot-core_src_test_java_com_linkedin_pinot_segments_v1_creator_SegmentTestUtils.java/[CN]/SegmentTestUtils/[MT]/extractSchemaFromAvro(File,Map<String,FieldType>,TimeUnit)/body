@@ -1,0 +1,32 @@
+{
+  DataFileStream<GenericRecord> dataStream=new DataFileStream<GenericRecord>(new FileInputStream(avroFile),new GenericDatumReader<GenericRecord>());
+  Schema schema=new Schema();
+  for (  final Field field : dataStream.getSchema().getFields()) {
+    final String columnName=field.name();
+    if (fieldTypeMap.get(field.name()) == FieldType.time) {
+      final GranularitySpec gSpec=new GranularitySpec(getColumnType(dataStream.getSchema().getField(columnName)),granularity,field.name());
+      final TimeFieldSpec fSpec=new TimeFieldSpec(gSpec);
+      schema.addSchema(columnName,fSpec);
+    }
+ else     if (fieldTypeMap.get(field.name()) == FieldType.dimension) {
+      final FieldSpec fieldSpec=new DimensionFieldSpec();
+      fieldSpec.setName(columnName);
+      fieldSpec.setFieldType(fieldTypeMap.get(field.name()));
+      fieldSpec.setDataType(getColumnType(dataStream.getSchema().getField(columnName)));
+      fieldSpec.setSingleValueField(isSingleValueField(dataStream.getSchema().getField(columnName)));
+      fieldSpec.setDelimeter(",");
+      schema.addSchema(columnName,fieldSpec);
+    }
+ else {
+      final FieldSpec fieldSpec=new MetricFieldSpec();
+      fieldSpec.setName(columnName);
+      fieldSpec.setFieldType(fieldTypeMap.get(field.name()));
+      fieldSpec.setDataType(getColumnType(dataStream.getSchema().getField(columnName)));
+      fieldSpec.setSingleValueField(isSingleValueField(dataStream.getSchema().getField(columnName)));
+      fieldSpec.setDelimeter(",");
+      schema.addSchema(columnName,fieldSpec);
+    }
+  }
+  dataStream.close();
+  return schema;
+}

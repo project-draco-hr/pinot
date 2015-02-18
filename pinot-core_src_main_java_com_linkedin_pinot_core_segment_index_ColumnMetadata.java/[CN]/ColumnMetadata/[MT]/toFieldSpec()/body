@@ -1,3 +1,11 @@
 {
-  return new FieldSpec(columnName,fieldType,dataType,inSingleValue);
+switch (fieldType) {
+case dimension:
+    return new DimensionFieldSpec(columnName,dataType,inSingleValue);
+case time:
+  return new TimeFieldSpec(columnName,dataType,timeunit);
+case metric:
+return new MetricFieldSpec(columnName,dataType);
+}
+return null;
 }

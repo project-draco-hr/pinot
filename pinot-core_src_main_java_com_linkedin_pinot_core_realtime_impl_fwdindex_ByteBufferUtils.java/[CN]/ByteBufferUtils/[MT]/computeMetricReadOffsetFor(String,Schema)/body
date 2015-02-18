@@ -1,0 +1,21 @@
+{
+  int offset=0;
+  for (  String metricName : schema.getMetrics()) {
+    if (metricName.equals(metric)) {
+      return offset;
+    }
+switch (schema.getDataType(metricName)) {
+case INT:
+case FLOAT:
+      offset+=4;
+    break;
+case LONG:
+case DOUBLE:
+  offset+=8;
+break;
+default :
+break;
+}
+}
+return -1;
+}
