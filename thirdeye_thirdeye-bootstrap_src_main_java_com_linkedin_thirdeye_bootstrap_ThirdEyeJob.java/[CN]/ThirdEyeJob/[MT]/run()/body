@@ -1,0 +1,79 @@
+{
+  PhaseSpec phaseSpec;
+  try {
+    phaseSpec=PhaseSpec.valueOf(phaseName.toUpperCase());
+  }
+ catch (  Exception e) {
+    usage();
+    throw e;
+  }
+  String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getPropertyName(),config);
+  String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getPropertyName(),config);
+  String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getPropertyName(),config);
+  long minTime=-1;
+  long maxTime=-1;
+  if (!PhaseSpec.ANALYSIS.equals(phaseSpec)) {
+    FileSystem fileSystem=FileSystem.get(new Configuration());
+    InputStream inputStream=fileSystem.open(new Path(phaseSpec.getAnalysisPath(root,collection),AnalysisJobConstants.ANALYSIS_FILE_NAME.toString()));
+    AnalysisPhaseStats stats=AnalysisPhaseStats.fromBytes(IOUtils.toByteArray(inputStream));
+    inputStream.close();
+    if (!inputPaths.equals(stats.getInputPath())) {
+      throw new IllegalStateException("Last analysis was done for input paths " + stats.getInputPath() + " not "+ inputPaths);
+    }
+    minTime=stats.getMinTime();
+    maxTime=stats.getMaxTime();
+  }
+  if (PhaseSpec.SERVER_UPDATE.equals(phaseSpec)) {
+    String thirdEyeServerUri=config.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+    if (thirdEyeServerUri == null) {
+      throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
+    }
+    FileSystem fileSystem=FileSystem.get(new Configuration());
+    Path dataPath=new Path(PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName());
+    RemoteIterator<LocatedFileStatus> itr=fileSystem.listFiles(dataPath,false);
+    while (itr.hasNext()) {
+      LocatedFileStatus fileStatus=itr.next();
+      if (fileStatus.getPath().getName().startsWith("task_")) {
+        InputStream leafData=fileSystem.open(fileStatus.getPath());
+        int responseCode=StarTreeJobUtils.pushData(leafData,thirdEyeServerUri,collection,false);
+        leafData.close();
+        LOG.info("Load {} #=> {}",fileStatus.getPath(),responseCode);
+      }
+    }
+  }
+ else   if (PhaseSpec.SERVER_BOOTSTRAP.equals(phaseSpec)) {
+    String thirdEyeServerUri=config.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+    if (thirdEyeServerUri == null) {
+      throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
+    }
+    FileSystem fileSystem=FileSystem.get(new Configuration());
+    Path configPath=new Path(root + File.separator + collection+ File.separator+ StarTreeConstants.CONFIG_FILE_NAME);
+    InputStream configData=fileSystem.open(configPath);
+    int responseCode=StarTreeJobUtils.pushConfig(configData,thirdEyeServerUri,collection);
+    configData.close();
+    LOG.info("Load {} #=> {}",configPath,responseCode);
+    Path treePath=new Path(PhaseSpec.STARTREE_GENERATION.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_GENERATION.getName()+ File.separator+ "star-tree-"+ collection+ File.separator+ collection+ "-"+ StarTreeConstants.TREE_FILE_NAME);
+    InputStream treeData=fileSystem.open(treePath);
+    responseCode=StarTreeJobUtils.pushTree(treeData,thirdEyeServerUri,collection);
+    treeData.close();
+    LOG.info("Load {} #=> {}",treePath,responseCode);
+    Path dataPath=new Path(PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName());
+    RemoteIterator<LocatedFileStatus> itr=fileSystem.listFiles(dataPath,false);
+    while (itr.hasNext()) {
+      LocatedFileStatus fileStatus=itr.next();
+      if (fileStatus.getPath().getName().startsWith("task_")) {
+        InputStream leafData=fileSystem.open(fileStatus.getPath());
+        responseCode=StarTreeJobUtils.pushData(leafData,thirdEyeServerUri,collection,true);
+        leafData.close();
+        LOG.info("Load {} #=> {}",fileStatus.getPath(),responseCode);
+      }
+    }
+  }
+ else {
+    Properties jobProperties=phaseSpec.getJobProperties(root,collection,minTime,maxTime,inputPaths);
+    Constructor<?> constructor=phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
+    Object instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
+    Method runMethod=instance.getClass().getMethod("run");
+    runMethod.invoke(instance);
+  }
+}
