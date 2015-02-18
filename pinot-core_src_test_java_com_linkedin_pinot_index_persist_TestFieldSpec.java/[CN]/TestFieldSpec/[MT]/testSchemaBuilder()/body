@@ -1,5 +1,5 @@
 {
-  Schema schema=new Builder().addSingleValueDimension("svDimension",DataType.INT).addMultiValueDimension("mvDimension",DataType.STRING,",").addMetric("metric",DataType.INT).addTime("incomingTime",TimeUnit.DAYS,DataType.LONG).build();
+  Schema schema=new SchemaBuilder().addSingleValueDimension("svDimension",DataType.INT).addMultiValueDimension("mvDimension",DataType.STRING,",").addMetric("metric",DataType.INT).addTime("incomingTime",TimeUnit.DAYS,DataType.LONG).build();
   Assert.assertEquals(schema.getFieldSpecFor("svDimension").isSingleValueField(),true);
   Assert.assertEquals(schema.getFieldSpecFor("svDimension").getDataType(),DataType.INT);
   Assert.assertEquals(schema.getFieldSpecFor("mvDimension").isSingleValueField(),false);
