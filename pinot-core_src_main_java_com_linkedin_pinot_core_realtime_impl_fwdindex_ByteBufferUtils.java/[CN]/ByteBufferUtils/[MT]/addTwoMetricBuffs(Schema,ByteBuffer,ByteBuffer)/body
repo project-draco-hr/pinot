@@ -4,8 +4,8 @@
   oneCopy.rewind();
   twoCopy.rewind();
   ByteBuffer ret=ByteBuffer.allocate(computeMetricsBuffAllocationSize(schema));
-  for (  String metricName : schema.getMetrics()) {
-switch (schema.getDataType(metricName)) {
+  for (  String metricName : schema.getMetricNames()) {
+switch (schema.getFieldSpecFor(metricName).getDataType()) {
 case INT:
       ret.putInt(oneCopy.getInt() + twoCopy.getInt());
     break;

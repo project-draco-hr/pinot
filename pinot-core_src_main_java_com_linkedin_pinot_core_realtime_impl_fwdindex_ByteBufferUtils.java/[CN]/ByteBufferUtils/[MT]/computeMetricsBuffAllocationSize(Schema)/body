@@ -1,14 +1,18 @@
 {
   int ret=0;
-  for (  String metricName : schema.getMetrics()) {
-switch (schema.getDataType(metricName)) {
+  for (  String metricName : schema.getMetricNames()) {
+switch (schema.getFieldSpecFor(metricName).getDataType()) {
 case INT:
-case FLOAT:
-      ret+=4;
+      ret+=Integer.SIZE / Byte.SIZE;
     break;
+case FLOAT:
+  ret+=Float.SIZE / Byte.SIZE;
+break;
 case LONG:
+ret+=Long.SIZE / Byte.SIZE;
+break;
 case DOUBLE:
-  ret+=8;
+ret+=Double.SIZE / Byte.SIZE;
 break;
 default :
 break;

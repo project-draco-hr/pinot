@@ -5,12 +5,12 @@
   this.resourceName=resourceName;
   this.tableName=tableName;
   TimeFieldSpec original=schema.getTimeSpec();
-  GranularitySpec incoming=original.getIncominGranularutySpec();
+  TimeGranularitySpec incoming=original.getIncominGranularutySpec();
   incoming.setdType(DataType.LONG);
   TimeFieldSpec newTimeSpec=new TimeFieldSpec(incoming);
   Schema newSchema=new Schema();
-  for (  String dimension : schema.getDimensions())   newSchema.addSchema(dimension,schema.getFieldSpecFor(dimension));
-  for (  String metic : schema.getMetrics())   newSchema.addSchema(metic,schema.getFieldSpecFor(metic));
+  for (  String dimension : schema.getDimensionNames())   newSchema.addSchema(dimension,schema.getFieldSpecFor(dimension));
+  for (  String metic : schema.getMetricNames())   newSchema.addSchema(metic,schema.getFieldSpecFor(metic));
   newSchema.addSchema(newTimeSpec.getName(),newTimeSpec);
   this.dataSchema=newSchema;
 }

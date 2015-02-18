@@ -1,0 +1,16 @@
+{
+  DataFileStream<GenericRecord> dataStream=new DataFileStream<GenericRecord>(new FileInputStream(avroFile),new GenericDatumReader<GenericRecord>());
+  Schema schema=new Schema();
+  for (  final Field field : dataStream.getSchema().getFields()) {
+    final String columnName=field.name();
+    final FieldSpec fieldSpec=new DimensionFieldSpec();
+    fieldSpec.setName(columnName);
+    fieldSpec.setFieldType(FieldType.dimension);
+    fieldSpec.setDataType(getColumnType(dataStream.getSchema().getField(columnName)));
+    fieldSpec.setSingleValueField(isSingleValueField(dataStream.getSchema().getField(columnName)));
+    fieldSpec.setDelimeter(",");
+    schema.addSchema(columnName,fieldSpec);
+  }
+  dataStream.close();
+  return schema;
+}

@@ -2,19 +2,19 @@
   List<Integer> rowConvertedToDictionaryId=new LinkedList<Integer>();
   List<Integer> columnOffsets=new LinkedList<Integer>();
   int pointer=0;
-  for (int i=0; i < dataSchema.getDimensions().size(); i++) {
+  for (int i=0; i < dataSchema.getDimensionNames().size(); i++) {
     columnOffsets.add(pointer);
-    if (dataSchema.getFieldSpecFor(dataSchema.getDimensions().get(i)).isSingleValueField()) {
-      rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensions().get(i)).indexOf(row.getValue(dataSchema.getDimensions().get(i))));
+    if (dataSchema.getFieldSpecFor(dataSchema.getDimensionNames().get(i)).isSingleValueField()) {
+      rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensionNames().get(i)).indexOf(row.getValue(dataSchema.getDimensionNames().get(i))));
       pointer+=1;
     }
  else {
-      Object[] multivalues=(Object[])row.getValue(dataSchema.getDimensions().get(i));
+      Object[] multivalues=(Object[])row.getValue(dataSchema.getDimensionNames().get(i));
       Arrays.sort(multivalues);
-      for (      Object multivalue : multivalues)       rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensions().get(i)).indexOf(multivalue));
+      for (      Object multivalue : multivalues)       rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensionNames().get(i)).indexOf(multivalue));
       pointer+=multivalues.length;
     }
-    if (i == dataSchema.getDimensions().size() - 1) {
+    if (i == dataSchema.getDimensionNames().size() - 1) {
       columnOffsets.add(pointer);
     }
   }

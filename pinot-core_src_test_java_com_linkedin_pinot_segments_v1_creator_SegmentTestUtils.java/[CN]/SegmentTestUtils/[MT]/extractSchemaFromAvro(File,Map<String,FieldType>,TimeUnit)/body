@@ -4,7 +4,7 @@
   for (  final Field field : dataStream.getSchema().getFields()) {
     final String columnName=field.name();
     if (fieldTypeMap.get(field.name()) == FieldType.time) {
-      final GranularitySpec gSpec=new GranularitySpec(getColumnType(dataStream.getSchema().getField(columnName)),granularity,field.name());
+      final TimeGranularitySpec gSpec=new TimeGranularitySpec(getColumnType(dataStream.getSchema().getField(columnName)),granularity,field.name());
       final TimeFieldSpec fSpec=new TimeFieldSpec(gSpec);
       schema.addSchema(columnName,fSpec);
     }
