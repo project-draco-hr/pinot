@@ -3,4 +3,8 @@
   Path configPath=new Path(context.getConfiguration().get(AnalysisJobConstants.ANALYSIS_CONFIG_PATH.toString()));
   this.config=StarTreeConfig.decode(fileSystem.open(configPath));
   this.taskKey=new BytesWritable(context.getTaskAttemptID().getTaskID().toString().getBytes());
+  this.dimensionNames=new ArrayList<String>();
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    this.dimensionNames.add(dimensionSpec.getName());
+  }
 }
