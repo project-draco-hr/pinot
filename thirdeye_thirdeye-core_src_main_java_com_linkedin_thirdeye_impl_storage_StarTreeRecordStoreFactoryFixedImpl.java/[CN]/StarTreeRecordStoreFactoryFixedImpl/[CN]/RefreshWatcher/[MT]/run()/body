@@ -1,0 +1,82 @@
+{
+  for (; ; ) {
+    WatchKey key;
+    try {
+      key=watchService.take();
+    }
+ catch (    InterruptedException e) {
+      continue;
+    }
+    Path dir=keys.get(key);
+    if (dir == null) {
+      LOG.error("WatchKey not recognized: {}",key);
+      continue;
+    }
+    for (    WatchEvent<?> event : key.pollEvents()) {
+      WatchEvent<Path> ev=(WatchEvent<Path>)event;
+      Path name=ev.context();
+      Path child=dir.resolve(name);
+      String fileName=name.toFile().getName();
+      String storeName=child.getParent().toFile().getName();
+      if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.INDEX_FILE_SUFFIX) && ENTRY_CREATE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.INDEX_FILE_SUFFIX);
+synchronized (sync) {
+          try {
+            loadMetricIndex(child.toFile());
+            Set<MetricIndexEntry> indexEntries=metricIndexByFile.get(fileId);
+            loadMetricBuffers(indexEntries);
+            for (            MetricIndexEntry indexEntry : indexEntries) {
+              MetricStore metricStore=metricStores.get(indexEntry.getNodeId());
+              if (metricStore != null) {
+                metricStore.notifyCreate(indexEntry.getTimeRange(),getMetricBuffer(indexEntry));
+              }
+            }
+          }
+ catch (          IOException e) {
+            LOG.error("Error loading metric index",e);
+          }
+        }
+        LOG.info("Loaded metric index {}",fileId);
+      }
+ else       if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.INDEX_FILE_SUFFIX) && ENTRY_DELETE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.INDEX_FILE_SUFFIX);
+synchronized (sync) {
+          Set<MetricIndexEntry> indexEntries=metricIndexByFile.remove(fileId);
+          if (indexEntries != null) {
+            for (            MetricIndexEntry indexEntry : indexEntries) {
+              metricSegments.remove(indexEntry.getFileId());
+            }
+            for (            List<MetricIndexEntry> nodeEntries : metricIndex.values()) {
+              nodeEntries.removeAll(indexEntries);
+            }
+            for (            MetricIndexEntry indexEntry : indexEntries) {
+              MetricStore metricStore=metricStores.get(indexEntry.getNodeId());
+              if (metricStore != null) {
+                metricStore.notifyDelete(indexEntry.getTimeRange());
+              }
+            }
+          }
+          LOG.info("Removed metric index {}",fileId);
+        }
+      }
+ else       if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.BUFFER_FILE_SUFFIX) && ENTRY_DELETE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.BUFFER_FILE_SUFFIX);
+        LOG.info("Removed metric buffer {}",fileId);
+      }
+ else       if (StarTreeConstants.METRIC_STORE.equals(storeName) && fileName.endsWith(StarTreeConstants.BUFFER_FILE_SUFFIX) && ENTRY_CREATE.equals(event.kind())) {
+        UUID fileId=getFileId(fileName,StarTreeConstants.BUFFER_FILE_SUFFIX);
+        LOG.info("Added metric buffer {}",fileId);
+      }
+ else {
+        LOG.warn("Unrecognized event {}: {}",event.kind().name(),child);
+      }
+    }
+    boolean valid=key.reset();
+    if (!valid) {
+      keys.remove(key);
+      if (keys.isEmpty()) {
+        break;
+      }
+    }
+  }
+}

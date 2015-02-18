@@ -1,0 +1,15 @@
+{
+  if (children.containsKey(dimensionValue)) {
+    return children.get(dimensionValue);
+  }
+  if (dimensionValue.equals(StarTreeConstants.OTHER)) {
+    return otherNode;
+  }
+  if (dimensionValue.equals(StarTreeConstants.STAR)) {
+    return starNode;
+  }
+  StarTreeNode child=new StarTreeNodeImpl(UUID.randomUUID(),splitDimensionName,dimensionValue,nextAncestorDimensionNames,nextAncestorDimensionValues,new HashMap<String,StarTreeNode>(),null,null);
+  child.init(config,recordStoreFactory);
+  children.put(dimensionValue,child);
+  return child;
+}

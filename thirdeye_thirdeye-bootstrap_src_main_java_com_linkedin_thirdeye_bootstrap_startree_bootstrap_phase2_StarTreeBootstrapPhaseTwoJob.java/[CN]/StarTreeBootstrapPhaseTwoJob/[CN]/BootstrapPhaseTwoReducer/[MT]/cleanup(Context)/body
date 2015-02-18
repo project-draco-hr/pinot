@@ -1,0 +1,13 @@
+{
+  LOG.info("START: In clean up");
+  FileSystem dfs=FileSystem.get(context.getConfiguration());
+  String leafDataTarGz=context.getTaskAttemptID().getTaskID() + "-leaf-data.tar.gz";
+  LOG.info("Generating " + leafDataTarGz + " from "+ localOutputDataDir);
+  FixedBufferUtil.combineDataFiles(new File(localTmpDataDir),new File(localOutputDataDir,"data"));
+  TarGzCompressionUtils.createTarGzOfDirectory(localOutputDataDir,leafDataTarGz);
+  Path src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(leafDataTarGz));
+  Path dst=dfs.makeQualified(new Path(hdfsOutputDir,leafDataTarGz));
+  LOG.info("Copying " + src + " to "+ dst);
+  dfs.copyFromLocalFile(src,dst);
+  LOG.info("END: Clean up");
+}

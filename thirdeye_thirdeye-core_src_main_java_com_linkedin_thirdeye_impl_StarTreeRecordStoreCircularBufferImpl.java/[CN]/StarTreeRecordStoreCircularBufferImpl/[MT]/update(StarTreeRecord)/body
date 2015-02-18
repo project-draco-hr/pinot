@@ -1,0 +1,37 @@
+{
+synchronized (sync) {
+    int[] targetDimensions=translateDimensions(record.getDimensionKey());
+    int idx=binarySearch(targetDimensions);
+    if (idx < 0) {
+      buffer.clear();
+      int[] currentDimensions=new int[dimensionSpecs.size()];
+      Integer minOtherIdx=null;
+      Integer minOtherDistance=null;
+      while (buffer.position() < buffer.limit()) {
+        int currentIdx=buffer.position();
+        buffer.mark();
+        getDimensions(currentDimensions);
+        int distance=computeDistance(targetDimensions,currentDimensions);
+        if (minOtherDistance == null || (distance >= 0 && distance < minOtherDistance)) {
+          minOtherDistance=distance;
+          minOtherIdx=currentIdx;
+        }
+        buffer.reset();
+        buffer.position(buffer.position() + entrySize);
+      }
+      if (minOtherIdx == null) {
+        throw new IllegalStateException("Could not find index of record with " + "minimum others in buffer " + nodeId + " for "+ record);
+      }
+      idx=minOtherIdx;
+    }
+    updateMetrics(idx,record);
+    for (    Long time : record.getMetricTimeSeries().getTimeWindowSet()) {
+      if (time < minTime.get()) {
+        minTime.set(time);
+      }
+      if (time > maxTime.get()) {
+        maxTime.set(time);
+      }
+    }
+  }
+}

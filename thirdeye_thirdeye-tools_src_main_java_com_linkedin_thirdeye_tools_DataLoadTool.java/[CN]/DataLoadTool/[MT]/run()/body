@@ -1,0 +1,81 @@
+{
+  try {
+    HttpRequest hdfsReq;
+    HttpResponse hdfsRes;
+    LoginContext loginContext=login();
+    ThirdEyeLoader thirdEyeLoader;
+    if ("file".equals(thirdEyeUri.getScheme())) {
+      thirdEyeLoader=new ThirdEyeFileLoader(new File(thirdEyeUri.getPath(),collection));
+    }
+ else     if ("http".equals(thirdEyeUri.getScheme())) {
+      thirdEyeLoader=new ThirdEyeHttpLoader(new HttpHost(thirdEyeUri.getHost(),thirdEyeUri.getPort()),collection);
+    }
+ else {
+      throw new IllegalArgumentException("Unsupported URI type " + thirdEyeUri);
+    }
+    LOG.info("Loading into {}",thirdEyeUri);
+    long loadedHighWaterMark=thirdEyeLoader.getLoadedHighWaterMark();
+    hdfsReq=new HttpGet(createListTimeRequest());
+    hdfsRes=executePrivileged(loginContext,hdfsReq);
+    if (hdfsRes.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException("Request failed " + hdfsReq);
+    }
+    JsonNode fileStatuses=OBJECT_MAPPER.readTree(hdfsRes.getEntity().getContent());
+    EntityUtils.consume(hdfsRes.getEntity());
+    Set<TimeRange> timeRanges=new HashSet<TimeRange>();
+    for (    JsonNode fileStatus : fileStatuses.get("FileStatuses").get("FileStatus")) {
+      String pathSuffix=fileStatus.get("pathSuffix").asText();
+      if (pathSuffix.startsWith("data_")) {
+        String[] timeRangeTokens=pathSuffix.substring("data_".length(),pathSuffix.length()).split("-");
+        TimeRange timeRange=new TimeRange(Long.valueOf(timeRangeTokens[0]),Long.valueOf(timeRangeTokens[1]));
+        if (globalTimeRange.contains(timeRange)) {
+          timeRanges.add(timeRange);
+        }
+ else         if (!globalTimeRange.isDisjoint(timeRange)) {
+          throw new IllegalArgumentException("Global time range " + globalTimeRange + " does not contain time range "+ timeRange+ " and/or is not disjoint");
+        }
+      }
+    }
+    if (!overwrite) {
+      Set<TimeRange> filteredTimeRanges=new HashSet<TimeRange>();
+      for (      TimeRange timeRange : timeRanges) {
+        if (timeRange.getStart() > loadedHighWaterMark) {
+          filteredTimeRanges.add(timeRange);
+        }
+      }
+      timeRanges=filteredTimeRanges;
+    }
+    if (includeConfig) {
+      hdfsReq=new HttpGet(createConfigRequest());
+      hdfsRes=executePrivileged(loginContext,hdfsReq);
+      thirdEyeLoader.handleConfig(hdfsRes.getEntity().getContent());
+      EntityUtils.consume(hdfsRes.getEntity());
+    }
+    for (    TimeRange timeRange : timeRanges) {
+      if (includeStarTree) {
+        hdfsReq=new HttpGet(createStarTreeRequest(timeRange));
+        hdfsRes=executePrivileged(loginContext,hdfsReq);
+        if (hdfsRes.getStatusLine().getStatusCode() == 200) {
+          thirdEyeLoader.handleStarTree(hdfsRes.getEntity().getContent());
+        }
+        EntityUtils.consume(hdfsRes.getEntity());
+      }
+      hdfsReq=new HttpGet(createListDataRequest(timeRange));
+      hdfsRes=executePrivileged(loginContext,hdfsReq);
+      fileStatuses=OBJECT_MAPPER.readTree(hdfsRes.getEntity().getContent());
+      EntityUtils.consume(hdfsRes.getEntity());
+      for (      JsonNode fileStatus : fileStatuses.get("FileStatuses").get("FileStatus")) {
+        String pathSuffix=fileStatus.get("pathSuffix").asText();
+        if (pathSuffix.startsWith("task_")) {
+          hdfsReq=new HttpGet(createGetDataRequest(timeRange,pathSuffix));
+          hdfsRes=executePrivileged(loginContext,hdfsReq);
+          thirdEyeLoader.handleData(pathSuffix,hdfsRes.getEntity().getContent(),includeDimensions);
+          EntityUtils.consume(hdfsRes.getEntity());
+        }
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

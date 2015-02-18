@@ -1,0 +1,10 @@
+{
+  List<DimensionIndexEntry> entries=StorageUtils.readDimensionIndex(indexFile);
+  UUID fileId=UUID.fromString(indexFile.getName().substring(0,indexFile.getName().lastIndexOf(StarTreeConstants.INDEX_FILE_SUFFIX)));
+  dimensionIndexByFile.put(fileId,new HashSet<DimensionIndexEntry>());
+  for (  DimensionIndexEntry entry : entries) {
+    dimensionIndex.put(entry.getNodeId(),entry);
+    dimensionIndexByFile.get(fileId).add(entry);
+  }
+  LOG.info("Loaded dimension index {}",indexFile);
+}

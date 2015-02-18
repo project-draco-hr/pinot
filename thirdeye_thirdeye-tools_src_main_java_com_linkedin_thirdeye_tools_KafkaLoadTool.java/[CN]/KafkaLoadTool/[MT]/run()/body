@@ -1,0 +1,26 @@
+{
+  Map<String,Object> config=new HashMap<String,Object>();
+  config.put("bootstrap.servers",brokerList);
+  config.put("acks","1");
+  KafkaProducer<byte[],byte[]> kafkaProducer=new KafkaProducer<byte[],byte[]>(config,new ByteArraySerializer(),new ByteArraySerializer());
+  DatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
+  DataFileReader<GenericRecord> fileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
+  DatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(fileReader.getSchema());
+  BinaryEncoder encoder=null;
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  int recordId=0;
+  GenericRecord record=new GenericData.Record(fileReader.getSchema());
+  while (fileReader.hasNext()) {
+    fileReader.next(record);
+    baos.reset();
+    encoder=EncoderFactory.get().binaryEncoder(baos,encoder);
+    datumWriter.write(record,encoder);
+    encoder.flush();
+    byte[] bytes=baos.toByteArray();
+    if (recordId % 1000 == 0) {
+      System.out.println("Producing record " + recordId);
+    }
+    kafkaProducer.send(new ProducerRecord<byte[],byte[]>(topic,String.valueOf(recordId).getBytes(),bytes));
+    recordId++;
+  }
+}

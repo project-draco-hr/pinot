@@ -1,0 +1,32 @@
+{
+  List<HeatMapCell> cells=new ArrayList<HeatMapCell>();
+  Stats baselineStats=getStats(baseline);
+  Map<String,Number> logBaseline=new HashMap<String,Number>(baseline.size());
+  for (  Map.Entry<String,Number> entry : baseline.entrySet()) {
+    double value=entry.getValue().doubleValue();
+    logBaseline.put(entry.getKey(),Math.log(value));
+  }
+  Stats logBaselineStats=getStats(logBaseline);
+  Map<String,Double> alphas=new HashMap<String,Double>();
+  for (  Map.Entry<String,Number> entry : logBaseline.entrySet()) {
+    double score=(entry.getValue().doubleValue() - logBaselineStats.getAverage()) / Math.sqrt(logBaselineStats.getVariance());
+    alphas.put(entry.getKey(),normalCdf(score));
+  }
+  for (  Map.Entry<String,Number> entry : current.entrySet()) {
+    Number currentMetricValue=entry.getValue();
+    Number baselineMetricValue=baseline.get(entry.getKey());
+    if (baselineMetricValue == null || baselineMetricValue.intValue() == 0) {
+      continue;
+    }
+    double ratio=(currentMetricValue.doubleValue() - baselineMetricValue.doubleValue()) / baselineStats.getSum();
+    HeatMapCell cell=new HeatMapCell(entry.getKey(),currentMetricValue,baselineMetricValue,ratio,alphas.get(entry.getKey()),COLOR);
+    cells.add(cell);
+  }
+  Collections.sort(cells,new Comparator<HeatMapCell>(){
+    @Override public int compare(    HeatMapCell o1,    HeatMapCell o2){
+      return (int)(o2.getCurrent().doubleValue() - o1.getCurrent().doubleValue());
+    }
+  }
+);
+  return cells;
+}

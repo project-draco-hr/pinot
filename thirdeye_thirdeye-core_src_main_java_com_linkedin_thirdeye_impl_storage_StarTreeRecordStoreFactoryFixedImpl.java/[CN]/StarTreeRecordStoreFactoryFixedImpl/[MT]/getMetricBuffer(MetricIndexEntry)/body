@@ -1,0 +1,11 @@
+{
+  ByteBuffer metricBuffer=metricSegments.get(indexEntry.getFileId());
+  if (metricBuffer == null) {
+    throw new IllegalStateException("No mapped buffer for file " + indexEntry.getFileId() + StarTreeConstants.BUFFER_FILE_SUFFIX);
+  }
+  metricBuffer.rewind();
+  metricBuffer.position(indexEntry.getStartOffset());
+  ByteBuffer slicedBuffer=metricBuffer.slice();
+  slicedBuffer.limit(indexEntry.getLength());
+  return slicedBuffer;
+}

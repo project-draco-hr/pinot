@@ -1,0 +1,15 @@
+{
+  long[] sums=new long[schema.getNumMetrics()];
+  for (  long timeWindow : series.getTimeWindowSet()) {
+    for (int i=0; i < schema.getNumMetrics(); i++) {
+      String metricName=schema.getMetricName(i);
+      Number number=series.get(timeWindow,metricName);
+      sums[i]+=number.longValue();
+      perTimeWindowHistogram.get(metricName).update(number.longValue());
+    }
+  }
+  for (int i=0; i < schema.getNumMetrics(); i++) {
+    String metricName=schema.getMetricName(i);
+    aggregateHistogram.get(metricName).update(sums[i]);
+  }
+}

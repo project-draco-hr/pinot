@@ -1,0 +1,21 @@
+{
+  StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+  String[] dimensionValues=new String[dimensionSpecs.size()];
+  for (int i=0; i < dimensionSpecs.size(); i++) {
+    String dimensionValue=reverseIndex.get(dimensionSpecs.get(i).getName()).get(buffer.getInt());
+    dimensionValues[i]=dimensionValue;
+  }
+  builder.setDimensionKey(new DimensionKey(dimensionValues));
+  MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+  int numTimes=buffer.getInt();
+  for (int i=0; i < numTimes; i++) {
+    long time=buffer.getLong();
+    for (int j=0; j < metricSpecs.size(); j++) {
+      String metricName=metricSpecs.get(j).getName();
+      Number value=NumberUtils.readFromBuffer(buffer,metricSpecs.get(j).getType());
+      timeSeries.increment(time,metricName,value);
+    }
+  }
+  builder.setMetricTimeSeries(timeSeries);
+  return builder.build(config);
+}

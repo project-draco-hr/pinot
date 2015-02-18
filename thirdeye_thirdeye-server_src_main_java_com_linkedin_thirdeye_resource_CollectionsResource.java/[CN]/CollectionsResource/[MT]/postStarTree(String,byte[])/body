@@ -1,0 +1,9 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.exists()) {
+    FileUtils.forceMkdir(collectionDir);
+  }
+  File configFile=new File(collectionDir,StarTreeConstants.TREE_FILE_NAME);
+  FileUtils.copyInputStreamToFile(new ByteArrayInputStream(starTreeBytes),configFile);
+  return Response.ok().build();
+}

@@ -1,0 +1,68 @@
+{
+  if (kafkaZooKeeperAddress == null) {
+    return;
+  }
+synchronized (sync) {
+    if (!isStarted.getAndSet(true)) {
+      final Map<String,Long> startTimes=new HashMap<String,Long>();
+      final Map<String,DatumReader<GenericRecord>> readers=new HashMap<String,DatumReader<GenericRecord>>();
+      final Map<String,String> kafkaTopics=new HashMap<String,String>();
+      final Map<String,Integer> topicCountMap=new HashMap<String,Integer>();
+      for (      String collection : manager.getCollections()) {
+        File schemaFile=new File(new File(rootDir,collection),StarTreeConstants.SCHEMA_FILE_NAME);
+        if (schemaFile.exists()) {
+          Schema schema=new Schema.Parser().parse(schemaFile);
+          String kafkaTopic=schema.getProp("kafkaTopic");
+          if (kafkaTopic == null) {
+            LOG.warn("Found schema with no kafkaTopic: {}",schemaFile);
+          }
+ else {
+            readers.put(collection,new GenericDatumReader<GenericRecord>(schema));
+            startTimes.put(collection,manager.getStarTree(collection).getStats().getMaxTime());
+            topicCountMap.put(kafkaTopic,1);
+            kafkaTopics.put(kafkaTopic,collection);
+          }
+        }
+      }
+      executorService=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+      Properties props=new Properties();
+      props.put("zookeeper.connect",kafkaZooKeeperAddress);
+      props.put("group.id",kafkaGroupId);
+      props.put("auto.commit.enable","false");
+      props.put("auto.offset.reset","smallest");
+      final ConsumerConnector consumer=Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
+      Map<String,List<KafkaStream<byte[],byte[]>>> streams=consumer.createMessageStreams(topicCountMap);
+      for (      Map.Entry<String,List<KafkaStream<byte[],byte[]>>> entry : streams.entrySet()) {
+        for (        final KafkaStream<byte[],byte[]> stream : entry.getValue()) {
+          executorService.submit(new Runnable(){
+            @Override public void run(){
+              ConsumerIterator<byte[],byte[]> itr=stream.iterator();
+              while (isStarted.get() && itr.hasNext()) {
+                try {
+                  MessageAndMetadata<byte[],byte[]> next=itr.next();
+                  String collection=kafkaTopics.get(next.topic());
+                  StarTree starTree=manager.getStarTree(collection);
+                  DatumReader<GenericRecord> reader=readers.get(collection);
+                  decoderThreadLocal.set(DecoderFactory.get().binaryDecoder(next.message(),decoderThreadLocal.get()));
+                  GenericRecord avroRecord=reader.read(null,decoderThreadLocal.get());
+                  StarTreeRecord record=convert(starTree.getConfig(),avroRecord);
+                  if (!record.getMetricTimeSeries().getTimeWindowSet().isEmpty()) {
+                    Long minTime=Collections.min(record.getMetricTimeSeries().getTimeWindowSet());
+                    if (minTime > startTimes.get(collection)) {
+                      starTree.add(record);
+                    }
+                  }
+                }
+ catch (                IOException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+            }
+          }
+);
+        }
+      }
+      LOG.info("Started kafka consumption");
+    }
+  }
+}

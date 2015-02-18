@@ -1,0 +1,11 @@
+{
+  BootstrapPhaseMapOutputKey key;
+  try {
+    key=BootstrapPhaseMapOutputKey.fromBytes(keyWritable.copyBytes());
+    return (key.nodeId.hashCode() & Integer.MAX_VALUE) % numReducers;
+  }
+ catch (  IOException e) {
+    LOG.error("Error computing partition Id",e);
+  }
+  return 0;
+}

@@ -1,0 +1,13 @@
+{
+  double sum=0;
+  double sumSquares=0;
+  for (  Map.Entry<String,Number> entry : metrics.entrySet()) {
+    if (Double.NEGATIVE_INFINITY != entry.getValue().doubleValue()) {
+      sum+=entry.getValue().doubleValue();
+      sumSquares+=entry.getValue().doubleValue() * entry.getValue().doubleValue();
+    }
+  }
+  double average=sum / metrics.size();
+  double variance=(sumSquares - (sum * sum) / metrics.size()) / (metrics.size() - 1);
+  return new Stats(sum,average,variance);
+}

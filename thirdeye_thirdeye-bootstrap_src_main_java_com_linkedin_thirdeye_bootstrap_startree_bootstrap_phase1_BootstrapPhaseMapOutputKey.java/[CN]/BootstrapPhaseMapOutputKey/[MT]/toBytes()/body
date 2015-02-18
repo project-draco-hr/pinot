@@ -1,0 +1,11 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(baos);
+  byte[] bytes;
+  bytes=nodeId.toString().getBytes();
+  dos.writeInt(bytes.length);
+  dos.write(bytes);
+  dos.writeInt(md5.length);
+  dos.write(md5);
+  return baos.toByteArray();
+}

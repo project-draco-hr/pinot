@@ -1,0 +1,21 @@
+{
+synchronized (sync) {
+    List<StarTreeRecord> list=new LinkedList<StarTreeRecord>();
+    buffer.clear();
+    int[] currentDimensions=new int[dimensionSpecs.size()];
+    Number[] currentMetrics=new Number[metricSpecs.size()];
+    while (buffer.position() < buffer.limit()) {
+      getDimensions(currentDimensions);
+      DimensionKey dimensionKey=translateDimensions(currentDimensions);
+      MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+      for (int i=0; i < numTimeBuckets; i++) {
+        long time=getMetrics(currentMetrics);
+        for (int j=0; j < metricSpecs.size(); j++) {
+          timeSeries.increment(time,metricSpecs.get(j).getName(),currentMetrics[j]);
+        }
+      }
+      list.add(new StarTreeRecordImpl(config,dimensionKey,timeSeries));
+    }
+    return list.iterator();
+  }
+}

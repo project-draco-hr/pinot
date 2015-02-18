@@ -1,0 +1,11 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutput out=new DataOutputStream(baos);
+  out.writeInt(timeseries.size());
+  out.writeInt(schema.getRowSizeInBytes());
+  for (  long time : timeseries.keySet()) {
+    out.writeLong(time);
+    out.write(timeseries.get(time).array());
+  }
+  return baos.toByteArray();
+}

@@ -1,0 +1,16 @@
+{
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(ROLLUP_PHASE4_CONFIG_PATH.toString()));
+  try {
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=RollupPhaseFourConfig.fromStarTreeConfig(starTreeConfig);
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=config.getMetricTypes();
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

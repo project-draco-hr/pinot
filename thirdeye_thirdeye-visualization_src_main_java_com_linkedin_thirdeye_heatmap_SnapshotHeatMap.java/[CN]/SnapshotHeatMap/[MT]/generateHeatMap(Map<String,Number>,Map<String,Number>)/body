@@ -1,0 +1,61 @@
+{
+  if (baseline.size() != current.size()) {
+    throw new IllegalArgumentException(String.format("two snapshots should have equivalent length, t1 with size %s and t2 with size %s.",baseline.size(),current.size()));
+  }
+  for (  String keyValue : baseline.keySet()) {
+    if (!current.containsKey(keyValue)) {
+      throw new IllegalArgumentException(String.format("two snapshots contains different dimension values. t2 does not contain %s",keyValue));
+    }
+  }
+  _nRecords=baseline.size();
+  _dimensionValue=new String[baseline.size()];
+  int keyCount=0;
+  Set<Map.Entry<String,Number>> baselineSet=baseline.entrySet();
+  for (  Map.Entry<String,Number> baselineEntry : baselineSet) {
+    String keyValue=baselineEntry.getKey();
+    double s1=baselineEntry.getValue().doubleValue();
+    double s2=current.get(keyValue).doubleValue();
+    double[] s=new double[2];
+    s[0]=s1;
+    s[1]=s2;
+    _snapshotDictionary.put(keyValue,s);
+    _dimensionValue[keyCount]=keyValue;
+    keyCount=keyCount + 1;
+  }
+  Stats baselineStats=getStats(baseline);
+  Stats currentStats=getStats(current);
+  double baselineSum=baselineStats.getSum();
+  double currentSum=currentStats.getSum();
+  List<HeatMapCell> cells=new ArrayList<HeatMapCell>();
+  String resultString=updateRecords();
+  String[] entries=resultString.split(",");
+  for (  String entryString : entries) {
+    if (_snapshotDictionary.containsKey(entryString)) {
+      double[] valueList=_snapshotDictionary.get(entryString);
+      baselineSum=baselineSum - valueList[0];
+      currentSum=currentSum - valueList[1];
+    }
+  }
+  double restRatio=currentSum / baselineSum - 1;
+  for (  String entryString : resultString.split(",")) {
+    if (_snapshotDictionary.containsKey(entryString)) {
+      double[] valueList=_snapshotDictionary.get(entryString);
+      double ratio=valueList[1] / valueList[0] - 1;
+      String colorString=DOWNCOLOR;
+      if (ratio >= 0) {
+        colorString=UPCOLOR;
+      }
+      HeatMapCell cell=new HeatMapCell(entryString,valueList[1],valueList[0],ratio,1.0,colorString);
+      cells.add(cell);
+    }
+  }
+  if (entries.length > _maxRecords) {
+    String colorString=DOWNCOLOR;
+    if (restRatio >= 0) {
+      colorString=UPCOLOR;
+    }
+    HeatMapCell cell=new HeatMapCell("Rest",currentSum,baselineSum,restRatio,1.0,colorString);
+    cells.add(cell);
+  }
+  return cells;
+}

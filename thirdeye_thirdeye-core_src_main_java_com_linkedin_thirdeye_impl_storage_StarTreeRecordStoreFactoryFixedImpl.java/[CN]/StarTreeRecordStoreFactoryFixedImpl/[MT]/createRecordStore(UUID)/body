@@ -1,0 +1,22 @@
+{
+synchronized (sync) {
+    DimensionIndexEntry dimensionIndexEntry=dimensionIndex.get(nodeId);
+    if (dimensionIndexEntry == null) {
+      throw new IllegalArgumentException("No dimension index entry for " + nodeId);
+    }
+    List<MetricIndexEntry> metricIndexEntries=metricIndex.get(nodeId);
+    if (metricIndexEntries == null) {
+      throw new IllegalArgumentException("No metric index entries for " + nodeId);
+    }
+    DimensionDictionary dictionary=getDictionary(dimensionIndexEntry);
+    ByteBuffer dimensionBuffer=getDimensionBuffer(dimensionIndexEntry);
+    ConcurrentMap<TimeRange,ByteBuffer> metricBuffers=new ConcurrentHashMap<TimeRange,ByteBuffer>();
+    for (    MetricIndexEntry indexEntry : metricIndexEntries) {
+      metricBuffers.put(indexEntry.getTimeRange(),getMetricBuffer(indexEntry));
+    }
+    DimensionStore dimensionStore=new DimensionStore(starTreeConfig,dimensionBuffer,dictionary);
+    MetricStore metricStore=new MetricStore(starTreeConfig,metricBuffers);
+    metricStores.put(nodeId,metricStore);
+    return new StarTreeRecordStoreFixedImpl(starTreeConfig,dimensionStore,metricStore);
+  }
+}

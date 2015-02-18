@@ -1,0 +1,9 @@
+{
+synchronized (sync) {
+    if (isOpen) {
+      isOpen=false;
+      ((MappedByteBuffer)buffer).force();
+      LOG.info("Closed record store {}",nodeId);
+    }
+  }
+}

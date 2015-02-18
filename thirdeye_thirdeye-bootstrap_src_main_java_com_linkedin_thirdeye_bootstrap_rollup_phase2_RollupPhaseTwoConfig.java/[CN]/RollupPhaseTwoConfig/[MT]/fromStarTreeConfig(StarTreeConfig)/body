@@ -1,0 +1,13 @@
+{
+  List<String> metricNames=new ArrayList<String>(config.getMetrics().size());
+  List<MetricType> metricTypes=new ArrayList<MetricType>(config.getMetrics().size());
+  for (  MetricSpec spec : config.getMetrics()) {
+    metricNames.add(spec.getName());
+    metricTypes.add(spec.getType());
+  }
+  List<String> dimensionNames=new ArrayList<String>(config.getDimensions().size());
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    dimensionNames.add(dimensionSpec.getName());
+  }
+  return new RollupPhaseTwoConfig(dimensionNames,metricNames,metricTypes,config.getRollup().getOrder());
+}

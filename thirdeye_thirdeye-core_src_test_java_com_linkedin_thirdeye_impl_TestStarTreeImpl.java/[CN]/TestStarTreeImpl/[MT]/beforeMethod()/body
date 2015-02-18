@@ -1,0 +1,31 @@
+{
+  rootDir=new File(System.getProperty("java.io.tmpdir"),TestStarTreeImpl.class.getName());
+  try {
+    FileUtils.forceDelete(rootDir);
+  }
+ catch (  Exception e) {
+  }
+  try {
+    FileUtils.forceMkdir(rootDir);
+  }
+ catch (  Exception e) {
+  }
+  config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).setFixed(false).build();
+  metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
+  starTree=new StarTreeImpl(config);
+  starTree.open();
+  for (int i=0; i < 100; i++) {
+    MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+    ts.set(i,"M",1);
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+    builder.setDimensionKey(getDimensionKey("A" + (i % 2),"B" + (i % 4),"C" + (i % 8)));
+    builder.setMetricTimeSeries(ts);
+    starTree.add(builder.build(config));
+  }
+  MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+  ts.set(0,"M",1);
+  StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+  builder.setDimensionKey(getDimensionKey("AX","BX","CX"));
+  builder.setMetricTimeSeries(ts);
+  starTree.add(builder.build(config));
+}

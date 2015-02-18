@@ -1,0 +1,24 @@
+{
+  for (  Long time : record.getMetricTimeSeries().getTimeWindowSet()) {
+    int timeBucket=(int)(time % numTimeBuckets);
+    buffer.clear();
+    buffer.position(idx + dimensionSize + timeBucket * timeBucketSize);
+    buffer.mark();
+    Number[] metrics=new Number[metricSpecs.size()];
+    long currentTime=getMetrics(metrics);
+    buffer.reset();
+    buffer.putLong(time);
+    for (int i=0; i < metricSpecs.size(); i++) {
+      String name=metricSpecs.get(i).getName();
+      MetricType type=metricSpecs.get(i).getType();
+      Number metricValue=record.getMetricTimeSeries().get(time,name);
+      if (currentTime == time) {
+        Number sum=NumberUtils.sum(metrics[i],metricValue,type);
+        NumberUtils.addToBuffer(buffer,sum,type);
+      }
+ else {
+        NumberUtils.addToBuffer(buffer,metricValue,type);
+      }
+    }
+  }
+}

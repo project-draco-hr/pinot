@@ -1,0 +1,24 @@
+{
+  buffer.clear();
+  int[] currentDimensions=new int[targetDimensions.length];
+  while (buffer.position() < buffer.limit()) {
+    int idx=((buffer.limit() + buffer.position()) / entrySize / 2) * entrySize;
+    buffer.mark();
+    buffer.position(idx);
+    for (int i=0; i < dimensionSpecs.size(); i++) {
+      currentDimensions[i]=buffer.getInt();
+    }
+    buffer.reset();
+    int compare=COMPARATOR.compare(targetDimensions,currentDimensions);
+    if (compare == 0) {
+      return idx;
+    }
+ else     if (compare < 0) {
+      buffer.limit(idx);
+    }
+ else {
+      buffer.position(idx + entrySize);
+    }
+  }
+  return -1;
+}

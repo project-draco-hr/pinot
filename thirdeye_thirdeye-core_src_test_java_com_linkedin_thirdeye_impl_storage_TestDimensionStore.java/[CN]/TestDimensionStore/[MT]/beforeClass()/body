@@ -1,0 +1,13 @@
+{
+  ObjectMapper objectMapper=new ObjectMapper();
+  InputStream inputStream=ClassLoader.getSystemResourceAsStream("sample-dictionary.json");
+  dictionary=objectMapper.readValue(inputStream,DimensionDictionary.class);
+  inputStream=ClassLoader.getSystemResourceAsStream("sample-config.yml");
+  config=StarTreeConfig.decode(inputStream);
+  ByteBuffer buffer=ByteBuffer.allocate(1024 * 1024);
+  for (  DimensionKey key : generateKeys()) {
+    StorageUtils.addToDimensionStore(config,buffer,key,dictionary);
+  }
+  buffer.flip();
+  dimensionStore=new DimensionStore(config,buffer,dictionary);
+}

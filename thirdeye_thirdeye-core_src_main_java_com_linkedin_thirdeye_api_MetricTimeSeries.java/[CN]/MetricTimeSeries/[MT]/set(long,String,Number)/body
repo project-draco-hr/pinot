@@ -1,0 +1,23 @@
+{
+  initBufferForTimeWindow(timeWindow);
+  ByteBuffer buffer=timeseries.get(timeWindow);
+  buffer.position(schema.getOffset(name));
+  MetricType metricType=schema.getMetricType(name);
+switch (metricType) {
+case SHORT:
+    buffer.putShort(value.shortValue());
+  break;
+case INT:
+buffer.putInt(value.intValue());
+break;
+case LONG:
+buffer.putLong(value.longValue());
+break;
+case FLOAT:
+buffer.putFloat(value.floatValue());
+break;
+case DOUBLE:
+buffer.putDouble(value.doubleValue());
+break;
+}
+}

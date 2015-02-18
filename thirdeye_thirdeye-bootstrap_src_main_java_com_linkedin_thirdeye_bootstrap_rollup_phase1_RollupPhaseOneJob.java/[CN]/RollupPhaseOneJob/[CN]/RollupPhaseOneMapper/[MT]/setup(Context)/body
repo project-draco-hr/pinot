@@ -1,0 +1,21 @@
+{
+  LOG.info("RollupPhaseOneJob.RollupPhaseOneMapper.setup()");
+  mos=new MultipleOutputs<BytesWritable,BytesWritable>(context);
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(ROLLUP_PHASE1_CONFIG_PATH.toString()));
+  try {
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=RollupPhaseOneConfig.fromStarTreeConfig(starTreeConfig);
+    dimensionNames=config.getDimensionNames();
+    metricTypes=config.getMetricTypes();
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    String className=config.getThresholdFuncClassName();
+    Map<String,String> params=config.getThresholdFuncParams();
+    Constructor<?> constructor=Class.forName(className).getConstructor(Map.class);
+    thresholdFunc=(RollupThresholdFunction)constructor.newInstance(params);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

@@ -1,0 +1,18 @@
+{
+  for (int i=0; i < 100; i++) {
+    MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+    ts.set(i / 25,"M",1000);
+    StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("A1","B1","C1")).setMetricTimeSeries(ts).build(config);
+    recordStore.update(record);
+  }
+  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","*","*")).setTimeRange(new TimeRange(0L,4L)).build(config);
+  MetricTimeSeries timeSeries=recordStore.getTimeSeries(query);
+  Assert.assertEquals(timeSeries.getTimeWindowSet().size(),4);
+  query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey("*","*","*")).build(config);
+  try {
+    recordStore.getTimeSeries(query);
+    Assert.fail();
+  }
+ catch (  Exception e) {
+  }
+}

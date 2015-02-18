@@ -1,0 +1,15 @@
+{
+  List<MetricIndexEntry> entries=StorageUtils.readMetricIndex(indexFile);
+  UUID fileId=getFileId(indexFile.getName(),StarTreeConstants.INDEX_FILE_SUFFIX);
+  metricIndexByFile.put(fileId,new HashSet<MetricIndexEntry>());
+  for (  MetricIndexEntry entry : entries) {
+    List<MetricIndexEntry> nodeEntries=metricIndex.get(entry.getNodeId());
+    if (nodeEntries == null) {
+      nodeEntries=new ArrayList<MetricIndexEntry>();
+      metricIndex.put(entry.getNodeId(),nodeEntries);
+    }
+    nodeEntries.add(entry);
+    metricIndexByFile.get(fileId).add(entry);
+  }
+  LOG.info("Loaded metric index {}",indexFile);
+}

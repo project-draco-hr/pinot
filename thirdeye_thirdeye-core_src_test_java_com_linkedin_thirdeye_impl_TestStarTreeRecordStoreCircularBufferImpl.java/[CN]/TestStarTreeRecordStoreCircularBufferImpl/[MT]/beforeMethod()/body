@@ -1,0 +1,20 @@
+{
+  recordStore=recordStoreFactory.createRecordStore(nodeId);
+  List<StarTreeRecord> records=new ArrayList<StarTreeRecord>();
+  for (int i=0; i < numRecords; i++) {
+    DimensionKey dimensionKey=new DimensionKey(new String[]{"A" + (i % 4),"B" + (i % 3),"C" + (i % 2)});
+    MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+    timeSeries.set(i / (numRecords / numTimeBuckets),"M",1);
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder().setDimensionKey(dimensionKey).setMetricTimeSeries(timeSeries);
+    records.add(builder.build(starTreeConfig));
+  }
+  DimensionKey dimensionKey=new DimensionKey(new String[]{StarTreeConstants.OTHER,StarTreeConstants.OTHER,StarTreeConstants.OTHER});
+  MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+  timeSeries.set(0,"M",0);
+  records.add(new StarTreeRecordImpl.Builder().setDimensionKey(dimensionKey).setMetricTimeSeries(timeSeries).build(starTreeConfig));
+  OutputStream outputStream=new FileOutputStream(new File(rootDir,nodeId + StarTreeConstants.BUFFER_FILE_SUFFIX));
+  StarTreeRecordStoreCircularBufferImpl.fillBuffer(outputStream,starTreeConfig,forwardIndex,records,numTimeBuckets,true);
+  outputStream.flush();
+  outputStream.close();
+  recordStore.open();
+}

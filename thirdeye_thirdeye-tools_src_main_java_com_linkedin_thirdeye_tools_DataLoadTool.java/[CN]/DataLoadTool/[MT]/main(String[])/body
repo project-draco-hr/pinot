@@ -1,0 +1,35 @@
+{
+  Options options=new Options();
+  options.addOption("krb5",true,"Path to krb5.conf file (default: ~/.krb5.conf)");
+  options.addOption("debug",false,"Debug logging");
+  options.addOption("includeStarTree",false,"Copy star tree binary");
+  options.addOption("includeConfig",false,"Copy config file");
+  options.addOption("includeDimensions",false,"Copy dimension data");
+  options.addOption("overwrite",false,"Overwrite any already loaded time ranges");
+  options.addOption("help",false,"Prints this help message");
+  options.addOption("minTime",true,"Min time to load");
+  options.addOption("maxTime",true,"Max time to load");
+  CommandLine commandLine=new GnuParser().parse(options,args);
+  if (commandLine.getArgs().length != 3 || commandLine.hasOption("help")) {
+    HelpFormatter helpFormatter=new HelpFormatter();
+    helpFormatter.printHelp(USAGE,options);
+    System.exit(1);
+  }
+  File loginConf=new File(System.getProperty("java.io.tmpdir"),"thirdeye-login.conf." + System.currentTimeMillis());
+  loginConf.deleteOnExit();
+  OutputStream outputStream=new FileOutputStream(loginConf);
+  IOUtils.write(LOGIN_CONF.getBytes(),outputStream);
+  outputStream.flush();
+  outputStream.close();
+  System.setProperty("java.security.auth.login.config",loginConf.getAbsolutePath());
+  System.setProperty("java.security.krb5.conf",commandLine.getOptionValue("krb5",DEFAULT_KRB5_CONF));
+  System.setProperty("javax.security.auth.useSubjectCredsOnly","false");
+  System.setProperty("sun.security.krb5.debug",Boolean.toString(options.hasOption("debug")));
+  Console console=System.console();
+  char[] passwordChars=console.readPassword("password: ");
+  String user=System.getProperty("user.name");
+  String password=new String(passwordChars);
+  long minTime=commandLine.hasOption("minTime") ? Long.valueOf(commandLine.getOptionValue("minTime")) : 0;
+  long maxTime=commandLine.hasOption("maxTime") ? Long.valueOf(commandLine.getOptionValue("maxTime")) : Long.MAX_VALUE;
+  new DataLoadTool(user,password,URI.create(commandLine.getArgs()[0]),URI.create(commandLine.getArgs()[1]),commandLine.getArgs()[2],commandLine.hasOption("includeStarTree"),commandLine.hasOption("includeConfig"),commandLine.hasOption("includeDimensions"),commandLine.hasOption("overwrite"),new TimeRange(minTime,maxTime)).run();
+}

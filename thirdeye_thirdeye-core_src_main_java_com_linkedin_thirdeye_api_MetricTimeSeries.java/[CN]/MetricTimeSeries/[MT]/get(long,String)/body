@@ -1,0 +1,26 @@
+{
+  ByteBuffer buffer=timeseries.get(timeWindow);
+  Number ret=0;
+  if (buffer != null) {
+    MetricType metricType=schema.getMetricType(name);
+    buffer.position(schema.getOffset(name));
+switch (metricType) {
+case SHORT:
+      ret=buffer.getShort();
+    break;
+case INT:
+  ret=buffer.getInt();
+break;
+case LONG:
+ret=buffer.getLong();
+break;
+case FLOAT:
+ret=buffer.getFloat();
+break;
+case DOUBLE:
+ret=buffer.getDouble();
+break;
+}
+}
+return ret;
+}

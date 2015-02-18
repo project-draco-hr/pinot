@@ -1,0 +1,18 @@
+{
+  ToolSpec targetSpec=null;
+  if (args.length > 0) {
+    for (    ToolSpec toolSpec : TOOLS) {
+      if (toolSpec.getName().equals(args[0])) {
+        targetSpec=toolSpec;
+        break;
+      }
+    }
+  }
+  if (targetSpec == null) {
+    usage();
+    System.exit(1);
+  }
+  String[] toolArgs=Arrays.copyOfRange(args,1,args.length);
+  Method toolMain=targetSpec.getKlazz().getDeclaredMethod("main",String[].class);
+  toolMain.invoke(null,(Object)toolArgs);
+}

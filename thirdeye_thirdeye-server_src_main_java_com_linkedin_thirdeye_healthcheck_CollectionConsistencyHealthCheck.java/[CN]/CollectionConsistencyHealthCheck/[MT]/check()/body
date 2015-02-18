@@ -1,0 +1,51 @@
+{
+  for (  String collection : manager.getCollections()) {
+    Set<StarTreeNode> leafNodes=new HashSet<StarTreeNode>();
+    StarTreeUtils.traverseAndGetLeafNodes(leafNodes,manager.getStarTree(collection).getRoot());
+    Map<UUID,NodeStats> allNodeStats=new HashMap<UUID,NodeStats>();
+    for (    StarTreeNode leafNode : leafNodes) {
+      allNodeStats.put(leafNode.getId(),new NodeStats());
+    }
+    File dimensionStoreDir=new File(PATH_JOINER.join(rootDir,collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.DIMENSION_STORE));
+    File[] dimensionIndexFiles=dimensionStoreDir.listFiles(INDEX_FILE_FILTER);
+    if (dimensionIndexFiles != null) {
+      for (      File dimensionIndexFile : dimensionIndexFiles) {
+        List<DimensionIndexEntry> indexEntries=StorageUtils.readDimensionIndex(dimensionIndexFile);
+        for (        DimensionIndexEntry indexEntry : indexEntries) {
+          NodeStats nodeStats=allNodeStats.get(indexEntry.getNodeId());
+          if (nodeStats == null) {
+            throw new IllegalStateException("Found node in dimension index which does not exist in tree: " + "nodeId=" + indexEntry.getNodeId() + "; indexFileId="+ indexEntry.getFileId());
+          }
+          nodeStats.incrementDimensionIndexCount();
+        }
+      }
+    }
+    File metricStoreDir=new File(PATH_JOINER.join(rootDir,collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.METRIC_STORE));
+    File[] metricIndexFiles=metricStoreDir.listFiles(INDEX_FILE_FILTER);
+    if (metricIndexFiles != null) {
+      for (      File metricIndexFile : metricIndexFiles) {
+        List<MetricIndexEntry> indexEntries=StorageUtils.readMetricIndex(metricIndexFile);
+        for (        MetricIndexEntry indexEntry : indexEntries) {
+          NodeStats nodeStats=allNodeStats.get(indexEntry.getNodeId());
+          if (nodeStats == null) {
+            throw new IllegalStateException("Found node in metric index which does not exist in tree: " + "nodeId=" + indexEntry.getNodeId() + "; indexFileId="+ indexEntry.getFileId());
+          }
+          nodeStats.incrementMetricIndexCount();
+        }
+      }
+    }
+    Integer metricIndexCount=null;
+    for (    Map.Entry<UUID,NodeStats> entry : allNodeStats.entrySet()) {
+      if (entry.getValue().getDimensionIndexCount() != 1) {
+        throw new IllegalStateException("There must be one and only one dimension index for node " + entry.getKey());
+      }
+      if (metricIndexCount == null) {
+        metricIndexCount=entry.getValue().getMetricIndexCount();
+      }
+      if (metricIndexCount != entry.getValue().getMetricIndexCount()) {
+        throw new IllegalStateException("There are " + entry.getValue().getMetricIndexCount() + " metric index entries for node "+ entry.getKey()+ ", but expected "+ metricIndexCount+ ". This probably indicates some segments were lost");
+      }
+    }
+  }
+  return Result.healthy();
+}

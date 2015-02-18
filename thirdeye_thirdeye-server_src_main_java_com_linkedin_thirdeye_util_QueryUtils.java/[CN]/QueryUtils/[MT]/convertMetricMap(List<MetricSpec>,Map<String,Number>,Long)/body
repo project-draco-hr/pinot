@@ -1,0 +1,11 @@
+{
+  MetricTimeSeries timeSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(metrics));
+  for (int i=0; i < metrics.size(); i++) {
+    Number value=values.get(metrics.get(i).getName());
+    if (value == null) {
+      value=0;
+    }
+    timeSeries.increment(time,metrics.get(i).getName(),value);
+  }
+  return timeSeries;
+}
