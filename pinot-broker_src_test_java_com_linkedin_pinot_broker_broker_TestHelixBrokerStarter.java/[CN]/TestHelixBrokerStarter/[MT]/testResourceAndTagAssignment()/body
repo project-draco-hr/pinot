@@ -18,14 +18,14 @@
   Assert.assertEquals(idealState.getInstanceSet("company").size(),6);
   Thread.sleep(3000);
   helixExternalViewBasedRouting=helixBrokerStarter.getHelixExternalViewBasedRouting();
-  Assert.assertEquals(Arrays.toString(helixExternalViewBasedRouting.getDataResourceSet().toArray()),"[cap, company]");
+  Assert.assertEquals(Arrays.toString(helixExternalViewBasedRouting.getDataResourceSet().toArray()),"[company]");
   Set<String> serverSet=helixExternalViewBasedRouting.getBrokerRoutingTable().get("company").get(0).getServerSet();
   Assert.assertEquals(helixExternalViewBasedRouting.getBrokerRoutingTable().get("company").get(0).getSegmentSet(serverSet.iterator().next()).size(),5);
   final String dataResource="company";
   addOneSegment(dataResource);
   Thread.sleep(2000);
   helixExternalViewBasedRouting=helixBrokerStarter.getHelixExternalViewBasedRouting();
-  Assert.assertEquals(Arrays.toString(helixExternalViewBasedRouting.getDataResourceSet().toArray()),"[cap, company]");
+  Assert.assertEquals(Arrays.toString(helixExternalViewBasedRouting.getDataResourceSet().toArray()),"[company]");
   serverSet=helixExternalViewBasedRouting.getBrokerRoutingTable().get("company").get(0).getServerSet();
   Assert.assertEquals(helixExternalViewBasedRouting.getBrokerRoutingTable().get("company").get(0).getSegmentSet(serverSet.iterator().next()).size(),6);
 }
