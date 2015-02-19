@@ -1,0 +1,24 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(StarTreeGenerationJob.class);
+  job.setMapperClass(StarTreeGenerationMapper.class);
+  job.setInputFormatClass(SequenceFileInputFormat.class);
+  job.setMapOutputKeyClass(NullWritable.class);
+  job.setMapOutputValueClass(NullWritable.class);
+  job.setNumReduceTasks(0);
+  Configuration configuration=job.getConfiguration();
+  String inputPathDir=getAndSetConfiguration(configuration,StarTreeGenerationConstants.STAR_TREE_GEN_INPUT_PATH);
+  getAndSetConfiguration(configuration,StarTreeGenerationConstants.STAR_TREE_GEN_CONFIG_PATH);
+  getAndSetConfiguration(configuration,StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH);
+  LOG.info("Running star tree generation job");
+  LOG.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOG.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+  LOG.info("Finished running star tree generation job");
+}

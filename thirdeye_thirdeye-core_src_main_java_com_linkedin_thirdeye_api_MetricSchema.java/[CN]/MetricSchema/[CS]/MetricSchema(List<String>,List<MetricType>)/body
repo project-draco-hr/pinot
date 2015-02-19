@@ -1,0 +1,13 @@
+{
+  this.names=names;
+  mapping=new HashMap<String,Integer>();
+  this.types=types;
+  int rowSize=0;
+  coloffsets=new int[names.size()];
+  for (int i=0; i < types.size(); i++) {
+    coloffsets[i]=rowSize;
+    rowSize+=types.get(i).byteSize();
+    mapping.put(names.get(i),i);
+  }
+  this.rowSize=rowSize;
+}

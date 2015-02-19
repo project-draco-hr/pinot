@@ -1,0 +1,8 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  starTree.add(convert(starTree.getConfig(),metrics,time));
+  return Response.ok().build();
+}

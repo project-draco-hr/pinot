@@ -1,0 +1,22 @@
+{
+  StarTreeConfig config=new StarTreeConfig.Builder().setCollection("dummy").setSplit(new SplitSpec(4,null)).setMetrics(Arrays.asList(new MetricSpec("M",MetricType.INT))).setDimensions(Arrays.asList(new DimensionSpec("A"),new DimensionSpec("B"),new DimensionSpec("C"))).setRecordStoreFactoryClass(StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName()).build();
+  StarTree starTree=new StarTreeImpl(config);
+  starTree.open();
+  for (int i=0; i < 100; i++) {
+    MetricTimeSeries ts=new MetricTimeSeries(metricSchema);
+    ts.set(i,"M",1);
+    StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+    builder.setDimensionKey(getDimensionKey("A" + (i % 2),"B" + (i % 4),"C" + (i % 8)));
+    builder.setMetricTimeSeries(ts);
+    starTree.add(builder.build(config));
+  }
+  StarTreeQuery baseQuery=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey(StarTreeConstants.ALL,StarTreeConstants.STAR,StarTreeConstants.STAR)).build(config);
+  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,baseQuery);
+  Assert.assertEquals(queries.size(),2);
+  Map<String,List<String>> filter=new HashMap<String,List<String>>();
+  filter.put("A",Arrays.asList("A0"));
+  List<StarTreeQuery> filteredQueries=StarTreeUtils.filterQueries(config,queries,filter);
+  Assert.assertEquals(filteredQueries.size(),1);
+  Assert.assertEquals(filteredQueries.get(0).getDimensionKey().getDimensionValue(config.getDimensions(),"A"),"A0");
+  starTree.close();
+}

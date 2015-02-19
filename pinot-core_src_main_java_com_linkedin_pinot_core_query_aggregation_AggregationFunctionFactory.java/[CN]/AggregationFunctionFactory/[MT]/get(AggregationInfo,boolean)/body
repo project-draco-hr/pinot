@@ -1,0 +1,18 @@
+{
+  try {
+    String aggregationKey=aggregationInfo.getAggregationType();
+    if (hasDictionary) {
+      AggregationFunction aggregationFunction=AggregationFunctionRegistry.get(aggregationKey);
+      aggregationFunction.init(aggregationInfo);
+      return aggregationFunction;
+    }
+ else {
+      AggregationFunction aggregationFunction=AggregationFunctionRegistry.getAggregationNoDictionaryFunction(aggregationKey);
+      aggregationFunction.init(aggregationInfo);
+      return aggregationFunction;
+    }
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException(ex);
+  }
+}

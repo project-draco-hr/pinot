@@ -1,0 +1,13 @@
+{
+  if (node.isLeaf()) {
+    leafNodes.add(node);
+  }
+ else {
+    Collection<StarTreeNode> children=node.getChildren();
+    for (    StarTreeNode child : children) {
+      traverseAndGetLeafNodes(leafNodes,child);
+    }
+    traverseAndGetLeafNodes(leafNodes,node.getOtherNode());
+    traverseAndGetLeafNodes(leafNodes,node.getStarNode());
+  }
+}

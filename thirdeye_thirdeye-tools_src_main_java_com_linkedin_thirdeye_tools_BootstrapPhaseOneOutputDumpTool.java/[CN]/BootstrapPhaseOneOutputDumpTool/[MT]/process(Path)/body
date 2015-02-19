@@ -1,0 +1,32 @@
+{
+  SequenceFile.Reader reader=new SequenceFile.Reader(new Configuration(),Reader.file(path));
+  System.out.println(reader.getKeyClass());
+  System.out.println(reader.getValueClassName());
+  WritableComparable<?> key=(WritableComparable<?>)reader.getKeyClass().newInstance();
+  Writable val=(Writable)reader.getValueClass().newInstance();
+  ArrayList<String> names=Lists.newArrayList("m1","m2","m3","m4","m5");
+  ArrayList<MetricType> types=Lists.newArrayList(MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT,MetricType.INT);
+  MetricSchema schema=new MetricSchema(names,types);
+  int[] metrics=new int[names.size()];
+  while (reader.next(key,val)) {
+    BytesWritable keyWritable=(BytesWritable)key;
+    BootstrapPhaseMapOutputKey outputKey=BootstrapPhaseMapOutputKey.fromBytes(keyWritable.getBytes());
+    BytesWritable valWritable=(BytesWritable)val;
+    BootstrapPhaseMapOutputValue outputVal=BootstrapPhaseMapOutputValue.fromBytes(valWritable.getBytes(),schema);
+    System.out.println(outputVal.getDimensionKey());
+    MetricTimeSeries metricTimeSeries=outputVal.getMetricTimeSeries();
+    for (    long timeWindow : metricTimeSeries.getTimeWindowSet()) {
+      boolean nonZeroMetric=false;
+      for (int i=0; i < names.size(); i++) {
+        String name=names.get(i);
+        metrics[i]=metricTimeSeries.get(timeWindow,name).intValue();
+        if (metrics[i] > 0) {
+          nonZeroMetric=true;
+        }
+      }
+      if (nonZeroMetric) {
+        System.out.println(timeWindow + ":" + Arrays.toString(metrics));
+      }
+    }
+  }
+}

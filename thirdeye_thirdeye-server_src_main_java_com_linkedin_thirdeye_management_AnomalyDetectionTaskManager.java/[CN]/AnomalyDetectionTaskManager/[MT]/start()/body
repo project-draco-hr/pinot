@@ -1,0 +1,24 @@
+{
+  if (executionInterval == null) {
+    return;
+  }
+synchronized (tasks) {
+    for (    String collection : starTreeManager.getCollections()) {
+      StarTree starTree=starTreeManager.getStarTree(collection);
+      String functionClass=starTree.getConfig().getAnomalyDetectionFunctionClass();
+      if (functionClass != null) {
+        AnomalyDetectionFunction function=(AnomalyDetectionFunction)Class.forName(functionClass).getConstructor().newInstance();
+        function.init(starTree.getConfig(),starTree.getConfig().getAnomalyDetectionFunctionConfig());
+        String handlerClass=starTree.getConfig().getAnomalyHandlerClass();
+        if (handlerClass == null) {
+          handlerClass=AnomalyResultHandlerLoggerImpl.class.getCanonicalName();
+        }
+        AnomalyResultHandler handler=(AnomalyResultHandler)Class.forName(handlerClass).getConstructor().newInstance();
+        handler.init(starTree.getConfig(),starTree.getConfig().getAnomalyHandlerConfig());
+        AnomalyDetectionTask.Mode mode=starTree.getConfig().getAnomalyDetectionMode() == null ? AnomalyDetectionTask.Mode.LEAF_PREFIX : AnomalyDetectionTask.Mode.valueOf(starTree.getConfig().getAnomalyDetectionMode());
+        LOG.info("Starting anomaly detection for {} using function {} and handler {} at interval of {} {}",collection,functionClass,handlerClass,executionInterval.getSize(),executionInterval.getUnit());
+        tasks.add(scheduler.scheduleAtFixedRate(new AnomalyDetectionTask(starTree,function,handler,mode),0,executionInterval.getSize(),executionInterval.getUnit()));
+      }
+    }
+  }
+}

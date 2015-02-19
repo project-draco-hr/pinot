@@ -1,0 +1,22 @@
+{
+  if (node.isLeaf()) {
+    return node;
+  }
+ else {
+    StarTreeNode target;
+    String queryDimensionValue=query.getDimensionKey().getDimensionValue(config.getDimensions(),node.getChildDimensionName());
+    if (StarTreeConstants.STAR.equals(queryDimensionValue)) {
+      target=node.getStarNode();
+    }
+ else     if (StarTreeConstants.OTHER.equals(queryDimensionValue)) {
+      target=node.getOtherNode();
+    }
+ else {
+      target=node.getChild(queryDimensionValue);
+    }
+    if (target == null) {
+      target=node.getOtherNode();
+    }
+    return find(target,query);
+  }
+}

@@ -1,0 +1,28 @@
+{
+  Collection<String> collectionParam=params.get("collection");
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  File metricStoreDir=new File(PATH_JOINER.join(rootDir.getAbsolutePath(),collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.METRIC_STORE));
+  File[] metricIndexFiles=metricStoreDir.listFiles(new FileFilter(){
+    @Override public boolean accept(    File pathname){
+      return pathname.getName().endsWith(StarTreeConstants.INDEX_FILE_SUFFIX);
+    }
+  }
+);
+  if (metricIndexFiles != null) {
+    for (    File metricIndexFile : metricIndexFiles) {
+      List<MetricIndexEntry> indexEntries=StorageUtils.readMetricIndex(metricIndexFile);
+      printSeparator(metricIndexFile,printWriter);
+      printWriter.println(metricIndexFile);
+      printSeparator(metricIndexFile,printWriter);
+      printWriter.println();
+      for (      MetricIndexEntry indexEntry : indexEntries) {
+        printWriter.println(indexEntry);
+      }
+      printWriter.println();
+      printWriter.flush();
+    }
+  }
+}

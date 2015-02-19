@@ -1,0 +1,8 @@
+{
+  byte[] indexBytes=OBJECT_MAPPER.writeValueAsBytes(forwardIndex);
+  File indexFile=new File(outputDir,nodeId + StarTreeConstants.INDEX_FILE_SUFFIX);
+  if (!indexFile.createNewFile()) {
+    throw new IOException(indexFile + " already exists");
+  }
+  IOUtils.copy(new ByteArrayInputStream(indexBytes),new FileOutputStream(indexFile));
+}

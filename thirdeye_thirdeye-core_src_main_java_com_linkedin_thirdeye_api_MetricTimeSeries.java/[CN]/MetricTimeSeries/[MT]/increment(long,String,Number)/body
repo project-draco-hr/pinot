@@ -1,0 +1,32 @@
+{
+  initBufferForTimeWindow(timeWindow);
+  ByteBuffer buffer=timeseries.get(timeWindow);
+  Number newValue;
+  if (buffer != null) {
+    Number oldValue=get(timeWindow,name);
+    MetricType metricType=schema.getMetricType(name);
+switch (metricType) {
+case SHORT:
+      newValue=oldValue.shortValue() + delta.shortValue();
+    break;
+case INT:
+  newValue=oldValue.intValue() + delta.intValue();
+break;
+case LONG:
+newValue=oldValue.longValue() + delta.longValue();
+break;
+case FLOAT:
+newValue=oldValue.floatValue() + delta.floatValue();
+break;
+case DOUBLE:
+newValue=oldValue.doubleValue() + delta.doubleValue();
+break;
+default :
+throw new UnsupportedOperationException("unknown metricType:" + metricType + " for column:"+ name);
+}
+}
+ else {
+newValue=delta;
+}
+set(timeWindow,name,newValue);
+}

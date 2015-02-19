@@ -1,0 +1,9 @@
+{
+  ByteArrayOutputStream os=new ByteArrayOutputStream();
+  ObjectOutputStream oos=new ObjectOutputStream(os);
+  oos.writeObject(dictionary);
+  ByteArrayInputStream is=new ByteArrayInputStream(os.toByteArray());
+  ObjectInputStream ois=new ObjectInputStream(is);
+  DimensionDictionary decodedDictionary=(DimensionDictionary)ois.readObject();
+  Assert.assertEquals(decodedDictionary,dictionary);
+}

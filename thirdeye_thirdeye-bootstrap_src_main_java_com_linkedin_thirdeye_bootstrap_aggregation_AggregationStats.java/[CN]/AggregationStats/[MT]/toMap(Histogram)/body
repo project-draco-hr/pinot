@@ -1,0 +1,17 @@
+{
+  Map<String,Object> map=new LinkedHashMap<String,Object>();
+  Snapshot snapshot=histogram.getSnapshot();
+  map.put("75th",format.format(snapshot.get75thPercentile()));
+  map.put("95th",format.format(snapshot.get95thPercentile()));
+  map.put("98th",format.format(snapshot.get98thPercentile()));
+  map.put("99th",format.format(snapshot.get99thPercentile()));
+  map.put("999th",format.format(snapshot.get999thPercentile()));
+  map.put("Max",format.format(snapshot.getMax()));
+  map.put("Min",format.format(snapshot.getMin()));
+  map.put("StdDev",format.format(snapshot.getStdDev()));
+  map.put("Mean",format.format(snapshot.getMean()));
+  map.put("Median",format.format(snapshot.getMedian()));
+  map.put("size",format.format(snapshot.size()));
+  map.put("count",format.format(histogram.getCount()));
+  return map;
+}

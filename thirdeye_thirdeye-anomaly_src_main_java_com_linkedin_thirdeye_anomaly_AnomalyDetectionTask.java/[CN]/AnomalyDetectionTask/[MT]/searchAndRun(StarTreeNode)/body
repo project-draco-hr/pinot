@@ -1,0 +1,51 @@
+{
+  if (node.isLeaf()) {
+    List<DimensionSpec> dimensions=starTree.getConfig().getDimensions();
+    Set<DimensionKey> combinations;
+switch (mode) {
+case LEAF_PREFIX:
+      DimensionKey prefixCombination=new DimensionKey(new String[dimensions.size()]);
+    for (int i=0; i < dimensions.size(); i++) {
+      String dimensionName=dimensions.get(i).getName();
+      if (node.getAncestorDimensionValues().containsKey(dimensionName)) {
+        prefixCombination.getDimensionValues()[i]=node.getAncestorDimensionValues().get(dimensionName);
+      }
+ else       if (node.getDimensionName().equals(dimensionName)) {
+        prefixCombination.getDimensionValues()[i]=node.getDimensionValue();
+      }
+ else {
+        prefixCombination.getDimensionValues()[i]=StarTreeConstants.STAR;
+      }
+    }
+  combinations=Collections.singleton(prefixCombination);
+break;
+case LEAF_RECORDS:
+default :
+combinations=new HashSet<DimensionKey>();
+for (StarTreeRecord record : node.getRecordStore()) {
+combinations.add(record.getDimensionKey());
+}
+break;
+}
+TimeGranularity window=function.getWindowTimeGranularity();
+Long maxTime=node.getRecordStore().getMaxTime();
+Long minTime=window == null ? node.getRecordStore().getMinTime() : maxTime - starTree.getConfig().getTime().getBucket().getUnit().convert(window.getSize(),window.getUnit());
+for (DimensionKey combination : combinations) {
+MetricTimeSeries timeSeries=starTree.getTimeSeries(new StarTreeQueryImpl(starTree.getConfig(),combination,new TimeRange(minTime,maxTime)));
+AnomalyResult result=function.analyze(combination,timeSeries);
+try {
+handler.handle(combination,result);
+}
+ catch (IOException e) {
+LOG.error("Exception in handing result for {}: {}",combination,e);
+}
+}
+}
+ else {
+for (StarTreeNode child : node.getChildren()) {
+searchAndRun(child);
+}
+searchAndRun(node.getOtherNode());
+searchAndRun(node.getStarNode());
+}
+}

@@ -1,0 +1,16 @@
+{
+  Configuration configuration=context.getConfiguration();
+  fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(AGG_CONFIG_PATH.toString()));
+  try {
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=AggregationJobConfig.fromStarTreeConfig(starTreeConfig);
+    metricTypes=config.getMetricTypes();
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    aggregationStats=new AggregationStats(metricSchema);
+    statOutputDir=configuration.get(AGG_OUTPUT_PATH.toString()) + "_stats/";
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

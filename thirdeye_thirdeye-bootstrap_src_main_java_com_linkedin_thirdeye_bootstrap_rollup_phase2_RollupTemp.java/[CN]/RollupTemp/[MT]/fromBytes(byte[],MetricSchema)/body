@@ -1,0 +1,23 @@
+{
+  DataInputStream dis=new DataInputStream(new ByteArrayInputStream(bytes));
+  int timeSeriesByteLength=dis.readInt();
+  byte[] timeSeriesBytes=new byte[timeSeriesByteLength];
+  dis.read(timeSeriesBytes);
+  MetricTimeSeries timeSeries;
+  timeSeries=MetricTimeSeries.fromBytes(timeSeriesBytes,schema);
+  int mapSize=dis.readInt();
+  RollupTemp wrapper;
+  wrapper=new RollupTemp(timeSeries);
+  for (int i=0; i < mapSize; i++) {
+    int keyLength=dis.readInt();
+    byte[] dimensionKeyBytes=new byte[keyLength];
+    dis.read(dimensionKeyBytes);
+    DimensionKey dimensionKey=DimensionKey.fromBytes(dimensionKeyBytes);
+    int seriesLength=dis.readInt();
+    byte[] seriesBytes=new byte[seriesLength];
+    dis.read(dimensionKeyBytes);
+    MetricTimeSeries series=MetricTimeSeries.fromBytes(seriesBytes,schema);
+    wrapper.add(dimensionKey,series);
+  }
+  return wrapper;
+}

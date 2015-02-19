@@ -1,0 +1,8 @@
+{
+  StarTreeConfig config=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("sample-config.yml"));
+  Assert.assertEquals(config.getCollection(),"myCollection");
+  Assert.assertEquals(config.getDimensions(),DIMENSION_SPECS);
+  Assert.assertEquals(config.getMetrics(),Arrays.asList(new MetricSpec("M",MetricType.INT)));
+  Assert.assertEquals(config.getTime().getColumnName(),"T");
+  Assert.assertEquals(config.getRecordStoreFactoryClass(),StarTreeRecordStoreFactoryCompositeImpl.class.getCanonicalName());
+}

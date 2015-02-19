@@ -1,0 +1,8 @@
+{
+  config=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("sample-config.yml"));
+  metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
+  recordStores=new ArrayList<StarTreeRecordStore>();
+  StarTreeRecordStore bufferStore=new StarTreeRecordStoreLogBufferImpl(UUID.randomUUID(),config,1024,true,0.8);
+  bufferStore.open();
+  recordStores.add(bufferStore);
+}

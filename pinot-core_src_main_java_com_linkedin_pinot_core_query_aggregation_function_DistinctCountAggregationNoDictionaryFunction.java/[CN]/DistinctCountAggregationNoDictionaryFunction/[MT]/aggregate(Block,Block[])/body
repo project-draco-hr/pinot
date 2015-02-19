@@ -1,0 +1,11 @@
+{
+  IntOpenHashSet ret=new IntOpenHashSet();
+  int docId=0;
+  BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    blockValIterator.skipTo(docId);
+    ret.add(blockValIterator.nextIntVal());
+  }
+  return ret;
+}

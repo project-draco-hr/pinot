@@ -1,0 +1,20 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(baos);
+  byte[] bytes;
+  bytes=timeSeries.toBytes();
+  dos.writeInt(bytes.length);
+  dos.write(bytes);
+  dos.writeInt(dimensionMetricTimeSeriesMap.size());
+  for (  Entry<DimensionKey,MetricTimeSeries> entry : dimensionMetricTimeSeriesMap.entrySet()) {
+    bytes=entry.getKey().toBytes();
+    dos.writeInt(bytes.length);
+    dos.write(bytes);
+    bytes=entry.getValue().toBytes();
+    dos.writeInt(bytes.length);
+    dos.write(bytes);
+  }
+  baos.close();
+  dos.close();
+  return baos.toByteArray();
+}

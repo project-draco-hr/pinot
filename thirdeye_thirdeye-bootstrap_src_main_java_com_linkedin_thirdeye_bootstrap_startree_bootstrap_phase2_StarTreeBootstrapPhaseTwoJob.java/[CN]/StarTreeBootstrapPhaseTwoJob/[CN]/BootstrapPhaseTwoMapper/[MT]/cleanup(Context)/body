@@ -1,0 +1,25 @@
+{
+  String[] dimValues=new String[dimensionNames.size()];
+  MetricTimeSeries emptyTimeSeries=new MetricTimeSeries(metricSchema);
+  for (  Entry<UUID,StarTreeNode> entry : leafNodesMap.entrySet()) {
+    UUID uuid=entry.getKey();
+    StarTreeNode node=entry.getValue();
+    byte[] uuidBytes=uuid.toString().getBytes();
+    for (int i=0; i < dimensionNames.size(); i++) {
+      String dimName=dimensionNames.get(i);
+      if (node.getAncestorDimensionNames().contains(dimName)) {
+        dimValues[i]=node.getAncestorDimensionValues().get(dimName);
+      }
+ else       if (node.getDimensionName().equals(dimName)) {
+        dimValues[i]=node.getDimensionValue();
+      }
+ else {
+        dimValues[i]=StarTreeConstants.OTHER;
+      }
+    }
+    DimensionKey dimensionKey=new DimensionKey(dimValues);
+    BootstrapPhaseMapOutputValue value=new BootstrapPhaseMapOutputValue(dimensionKey,emptyTimeSeries);
+    BytesWritable valWritable=new BytesWritable(value.toBytes());
+    context.write(new BytesWritable(uuidBytes),valWritable);
+  }
+}

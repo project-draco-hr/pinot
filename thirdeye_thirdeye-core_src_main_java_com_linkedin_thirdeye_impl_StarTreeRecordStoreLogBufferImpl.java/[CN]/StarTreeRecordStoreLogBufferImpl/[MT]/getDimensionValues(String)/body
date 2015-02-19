@@ -1,0 +1,12 @@
+{
+synchronized (sync) {
+    Map<String,Integer> valueIds=getForwardIndex().get(dimensionName);
+    if (valueIds != null) {
+      Set<String> values=new HashSet<String>(valueIds.keySet());
+      values.remove(StarTreeConstants.STAR);
+      values.remove(StarTreeConstants.OTHER);
+      return values;
+    }
+    return null;
+  }
+}

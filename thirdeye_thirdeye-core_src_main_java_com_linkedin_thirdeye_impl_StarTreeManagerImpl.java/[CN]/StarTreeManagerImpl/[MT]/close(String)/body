@@ -1,0 +1,13 @@
+{
+synchronized (trees) {
+    if (!openTrees.contains(collection)) {
+      return;
+    }
+    StarTree starTree=trees.remove(collection);
+    if (starTree != null) {
+      starTree.close();
+      LOG.info("Closed tree for collection {}",collection);
+    }
+    openTrees.remove(collection);
+  }
+}

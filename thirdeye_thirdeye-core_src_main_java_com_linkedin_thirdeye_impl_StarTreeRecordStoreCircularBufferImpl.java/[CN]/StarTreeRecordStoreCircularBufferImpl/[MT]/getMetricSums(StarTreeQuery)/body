@@ -1,0 +1,28 @@
+{
+synchronized (sync) {
+    Number[] sums=new Number[metricSpecs.size()];
+    Arrays.fill(sums,0);
+    Set<Long> timeBuckets=getTimeBuckets(query);
+    int[] targetDimensions=translateDimensions(query.getDimensionKey());
+    int idx=binarySearch(targetDimensions);
+    if (idx >= 0) {
+      buffer.clear();
+      buffer.position(idx + dimensionSize);
+      updateSums(sums,timeBuckets);
+    }
+ else {
+      buffer.clear();
+      int[] currentDimensions=new int[dimensionSpecs.size()];
+      while (buffer.position() < buffer.limit()) {
+        buffer.mark();
+        getDimensions(currentDimensions);
+        if (matches(targetDimensions,currentDimensions)) {
+          updateSums(sums,timeBuckets);
+        }
+        buffer.reset();
+        buffer.position(buffer.position() + entrySize);
+      }
+    }
+    return sums;
+  }
+}

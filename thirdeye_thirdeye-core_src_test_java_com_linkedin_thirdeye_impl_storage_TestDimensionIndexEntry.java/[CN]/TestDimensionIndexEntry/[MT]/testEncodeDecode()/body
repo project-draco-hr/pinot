@@ -1,0 +1,13 @@
+{
+  ByteArrayOutputStream os=new ByteArrayOutputStream();
+  ObjectOutputStream oos=new ObjectOutputStream(os);
+  for (  DimensionIndexEntry indexEntry : indexEntries) {
+    oos.writeObject(indexEntry);
+  }
+  ByteArrayInputStream is=new ByteArrayInputStream(os.toByteArray());
+  ObjectInputStream ois=new ObjectInputStream(is);
+  for (  DimensionIndexEntry indexEntry : indexEntries) {
+    DimensionIndexEntry decodedEntry=(DimensionIndexEntry)ois.readObject();
+    Assert.assertEquals(decodedEntry,indexEntry);
+  }
+}

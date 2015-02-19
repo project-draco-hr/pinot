@@ -1,0 +1,40 @@
+{
+  final Iterator<GenericRecord> itr=fileReader.iterator();
+  return new Iterator<StarTreeRecord>(){
+    @Override public boolean hasNext(){
+      return itr.hasNext();
+    }
+    @Override public StarTreeRecord next(){
+      StarTreeRecordImpl.Builder builder=new StarTreeRecordImpl.Builder();
+      GenericRecord genericRecord=itr.next();
+      String[] dimensionValues=new String[config.getDimensions().size()];
+      for (int i=0; i < config.getDimensions().size(); i++) {
+        DimensionSpec dimensionSpec=config.getDimensions().get(i);
+        Object o=genericRecord.get(dimensionSpec.getName());
+        if (o == null) {
+          throw new IllegalArgumentException("Found null dimension value in " + genericRecord);
+        }
+        dimensionValues[i]=o.toString();
+      }
+      Object o=genericRecord.get(timeColumnName);
+      if (o == null) {
+        throw new IllegalArgumentException("Found null metric value in " + genericRecord);
+      }
+      Long time=((Number)o).longValue();
+      MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+      for (int i=0; i < config.getMetrics().size(); i++) {
+        String metricName=config.getMetrics().get(i).getName();
+        o=genericRecord.get(metricName);
+        if (o == null) {
+          o=0;
+        }
+        timeSeries.increment(time,metricName,(Number)o);
+      }
+      return builder.setDimensionKey(new DimensionKey(dimensionValues)).setMetricTimeSeries(timeSeries).build(config);
+    }
+    @Override public void remove(){
+      itr.remove();
+    }
+  }
+;
+}

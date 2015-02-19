@@ -1,0 +1,15 @@
+{
+synchronized (trees) {
+    if (!trees.containsKey(collection)) {
+      LOG.info("Creating new startree for {}",collection);
+      File collectionDir=new File(rootDir,collection);
+      File treeFile=new File(collectionDir,StarTreeConstants.TREE_FILE_NAME);
+      ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(treeFile));
+      StarTreeNode root=(StarTreeNode)inputStream.readObject();
+      File configFile=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
+      StarTreeConfig config=StarTreeConfig.decode(new FileInputStream(configFile));
+      StarTree starTree=new StarTreeImpl(config,new File(collectionDir,StarTreeConstants.DATA_DIR_NAME),root);
+      trees.put(collection,starTree);
+    }
+  }
+}

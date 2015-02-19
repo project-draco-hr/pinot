@@ -1,0 +1,13 @@
+{
+  StarTree starTree=manager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No tree for collection " + collection);
+  }
+  manager.close(collection);
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.isAbsolute()) {
+    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+  }
+  FileUtils.forceDelete(collectionDir);
+  return Response.noContent().build();
+}

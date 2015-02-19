@@ -1,0 +1,19 @@
+{
+  Object timeObj=record.datum().get(config.getTime().getColumnName());
+  if (timeObj == null) {
+    throw new IllegalStateException("Record has null value for time column " + config.getTime().getColumnName() + ": "+ record.datum());
+  }
+  Map<String,Set<String>> dimensionValues=new HashMap<String,Set<String>>();
+  for (  String dimension : dimensionNames) {
+    Set<String> val=new HashSet<String>();
+    String dimVal=record.datum().get(dimension) == null ? "" : record.datum().get(dimension).toString();
+    val.add(dimVal);
+    dimensionValues.put(dimension,val);
+  }
+  Long time=((Number)timeObj).longValue();
+  AnalysisPhaseStats stats=new AnalysisPhaseStats();
+  stats.setMaxTime(time);
+  stats.setMinTime(time);
+  stats.setDimensionValues(dimensionValues);
+  context.write(taskKey,new BytesWritable(stats.toBytes()));
+}

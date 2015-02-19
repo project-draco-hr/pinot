@@ -1,0 +1,9 @@
+{
+  Number metricSum=0;
+  for (  StarTreeRecord record : new StarTreeRecordStreamAvroFileImpl(config,avroFile,config.getTime().getColumnName())) {
+    for (    Long timeWindow : record.getMetricTimeSeries().getTimeWindowSet()) {
+      metricSum=NumberUtils.sum(metricSum,record.getMetricTimeSeries().get(timeWindow,"M"),MetricType.INT);
+    }
+  }
+  Assert.assertEquals(metricSum,100);
+}

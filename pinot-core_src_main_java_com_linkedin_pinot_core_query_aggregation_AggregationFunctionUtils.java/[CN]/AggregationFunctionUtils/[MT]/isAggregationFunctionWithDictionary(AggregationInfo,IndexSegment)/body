@@ -1,0 +1,12 @@
+{
+  boolean hasDictionary=true;
+  if (!aggregationInfo.getAggregationType().equalsIgnoreCase("count")) {
+    String[] columns=aggregationInfo.getAggregationParams().get("column").trim().split(",");
+    for (    String column : columns) {
+      if (!indexSegment.getSegmentMetadata().hasDictionary(column)) {
+        hasDictionary=false;
+      }
+    }
+  }
+  return hasDictionary;
+}

@@ -1,0 +1,16 @@
+{
+  this.schema=schema;
+  int maxNameLength="MetricName".length();
+  for (int i=0; i < schema.getNumMetrics(); i++) {
+    String metricName=schema.getMetricName(i);
+    if (metricName.length() > maxNameLength) {
+      maxNameLength=metricName.length();
+    }
+    Histogram histogram=registry.histogram(metricName);
+    perTimeWindowHistogram.put(metricName,histogram);
+    Histogram aggHistogram=registry.histogram(metricName);
+    aggregateHistogram.put(metricName,aggHistogram);
+  }
+  metricNameFormat="%-" + (maxNameLength + 5) + "s";
+  metricValueFormat="%-15s";
+}

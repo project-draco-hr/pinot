@@ -1,0 +1,12 @@
+{
+  DescriptiveStatistics stats=new DescriptiveStatistics();
+  for (  Map.Entry<String,Number> entry : metrics.entrySet()) {
+    if (Double.NEGATIVE_INFINITY != entry.getValue().doubleValue()) {
+      stats.addValue(entry.getValue().doubleValue());
+    }
+  }
+  double sum=stats.getSum();
+  double average=stats.getMean();
+  double variance=stats.getVariance();
+  return new Stats(sum,average,variance);
+}

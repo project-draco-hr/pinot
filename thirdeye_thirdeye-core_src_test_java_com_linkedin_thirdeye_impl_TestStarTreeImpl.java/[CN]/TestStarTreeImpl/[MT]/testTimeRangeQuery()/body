@@ -1,0 +1,7 @@
+{
+  StarTreeQueryImpl.Builder queryBuilder=new StarTreeQueryImpl.Builder();
+  queryBuilder.setDimensionKey(getDimensionKey("*","*","*"));
+  queryBuilder.setTimeRange(new TimeRange(0L,49L));
+  MetricTimeSeries result=starTree.getTimeSeries(queryBuilder.build(config));
+  Assert.assertEquals(result.getMetricSums()[0].intValue(),50 + 1);
+}

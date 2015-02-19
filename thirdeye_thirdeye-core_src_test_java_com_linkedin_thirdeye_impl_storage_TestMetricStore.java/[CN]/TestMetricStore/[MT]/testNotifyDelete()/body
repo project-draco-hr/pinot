@@ -1,0 +1,11 @@
+{
+  TimeRange timeRange=new TimeRange(0L,3L);
+  ConcurrentMap<TimeRange,ByteBuffer> metricBuffers=new ConcurrentHashMap<TimeRange,ByteBuffer>();
+  metricBuffers.put(timeRange,generateBuffer(timeRange));
+  MetricStore deleteMetricStore=new MetricStore(config,metricBuffers);
+  MetricTimeSeries timeSeries=deleteMetricStore.getTimeSeries(getLogicalOffsets(0),new TimeRange(0L,0L));
+  Assert.assertEquals(timeSeries.getMetricSums(),new Number[]{1});
+  deleteMetricStore.notifyDelete(timeRange);
+  timeSeries=deleteMetricStore.getTimeSeries(getLogicalOffsets(0),new TimeRange(0L,0L));
+  Assert.assertEquals(timeSeries.getMetricSums(),new Number[]{0});
+}

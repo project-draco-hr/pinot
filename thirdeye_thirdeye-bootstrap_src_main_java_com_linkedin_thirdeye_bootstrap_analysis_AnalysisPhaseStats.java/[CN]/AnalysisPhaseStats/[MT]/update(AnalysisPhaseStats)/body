@@ -1,0 +1,22 @@
+{
+  if (minTime == null || stats.getMinTime() < minTime) {
+    minTime=stats.getMinTime();
+  }
+  if (maxTime == null || stats.getMaxTime() > maxTime) {
+    maxTime=stats.getMaxTime();
+  }
+  if (dimensionValues != null) {
+    Map<String,Set<String>> tmp=stats.getDimensionValues();
+    for (    Map.Entry<String,Set<String>> entry : tmp.entrySet()) {
+      String dimensionName=entry.getKey();
+      Set<String> partialDimensionValues=entry.getValue();
+      dimensionValues.get(dimensionName).addAll(partialDimensionValues);
+    }
+  }
+ else {
+    dimensionValues=new HashMap<String,Set<String>>();
+    for (    Map.Entry<String,Set<String>> entry : stats.dimensionValues.entrySet()) {
+      dimensionValues.put(entry.getKey(),new HashSet<String>(entry.getValue()));
+    }
+  }
+}

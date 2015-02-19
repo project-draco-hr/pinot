@@ -1,0 +1,28 @@
+{
+  Collection<String> collectionParam=params.get("collection");
+  if (collectionParam == null || collectionParam.isEmpty()) {
+    throw new IllegalArgumentException("Must provide collection");
+  }
+  String collection=collectionParam.iterator().next();
+  File dimensionStoreDir=new File(PATH_JOINER.join(rootDir.getAbsolutePath(),collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.DIMENSION_STORE));
+  File[] dimensionIndexFiles=dimensionStoreDir.listFiles(new FileFilter(){
+    @Override public boolean accept(    File pathname){
+      return pathname.getName().endsWith(StarTreeConstants.INDEX_FILE_SUFFIX);
+    }
+  }
+);
+  if (dimensionIndexFiles != null) {
+    for (    File dimensionIndexFile : dimensionIndexFiles) {
+      List<DimensionIndexEntry> indexEntries=StorageUtils.readDimensionIndex(dimensionIndexFile);
+      printSeparator(dimensionIndexFile,printWriter);
+      printWriter.println(dimensionIndexFile);
+      printSeparator(dimensionIndexFile,printWriter);
+      printWriter.println();
+      for (      DimensionIndexEntry indexEntry : indexEntries) {
+        printWriter.println(indexEntry);
+      }
+      printWriter.println();
+      printWriter.flush();
+    }
+  }
+}

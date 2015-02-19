@@ -1,0 +1,13 @@
+{
+  if (kafkaZooKeeperAddress == null) {
+    return;
+  }
+synchronized (sync) {
+    if (isStarted.getAndSet(false)) {
+      if (executorService != null) {
+        executorService.shutdown();
+      }
+      LOG.info("Shut down kafka consumption");
+    }
+  }
+}

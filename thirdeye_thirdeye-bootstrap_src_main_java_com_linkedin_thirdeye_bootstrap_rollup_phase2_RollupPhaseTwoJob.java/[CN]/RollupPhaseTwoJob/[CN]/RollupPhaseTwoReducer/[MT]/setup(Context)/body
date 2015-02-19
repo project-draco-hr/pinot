@@ -1,0 +1,17 @@
+{
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(ROLLUP_PHASE2_CONFIG_PATH.toString()));
+  try {
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=RollupPhaseTwoConfig.fromStarTreeConfig(starTreeConfig);
+    metricTypes=config.getMetricTypes();
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    keyWritable=new BytesWritable();
+    valWritable=new BytesWritable();
+    map=new HashMap<DimensionKey,MetricTimeSeries>();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

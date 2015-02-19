@@ -1,0 +1,10 @@
+{
+  HttpURLConnection http=(HttpURLConnection)new URL(url).openConnection();
+  http.setRequestMethod("POST");
+  http.setRequestProperty("Content-Type","application/octet-stream");
+  http.setDoOutput(true);
+  IOUtils.copy(data,http.getOutputStream());
+  http.getOutputStream().flush();
+  http.getOutputStream().close();
+  return http.getResponseCode();
+}

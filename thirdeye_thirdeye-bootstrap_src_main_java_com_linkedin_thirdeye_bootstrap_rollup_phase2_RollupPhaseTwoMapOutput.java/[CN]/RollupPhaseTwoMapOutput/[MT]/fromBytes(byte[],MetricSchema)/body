@@ -1,0 +1,21 @@
+{
+  DataInputStream dis=new DataInputStream(new ByteArrayInputStream(buffer));
+  int length;
+  byte[] bytes;
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
+  DimensionKey rollupDimensionKey=DimensionKey.fromBytes(bytes);
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
+  DimensionKey rawDimensionKey=DimensionKey.fromBytes(bytes);
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
+  MetricTimeSeries timeSeries;
+  timeSeries=MetricTimeSeries.fromBytes(bytes,schema);
+  RollupPhaseTwoMapOutput wrapper;
+  wrapper=new RollupPhaseTwoMapOutput(rollupDimensionKey,rawDimensionKey,timeSeries);
+  return wrapper;
+}

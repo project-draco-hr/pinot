@@ -1,0 +1,15 @@
+{
+  double ret=Double.NEGATIVE_INFINITY;
+  double tmp=0;
+  int docId=0;
+  BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    blockValIterator.skipTo(docId);
+    tmp=blockValIterator.nextDoubleVal();
+    if (tmp > ret) {
+      ret=tmp;
+    }
+  }
+  return ret;
+}
