@@ -4,5 +4,5 @@
     throw new NotFoundException("No collection " + collection);
   }
   Map<DimensionKey,MetricTimeSeries> result=QueryUtils.doQuery(starTree,start,end,uriInfo);
-  return convert(starTree.getConfig(),Arrays.asList(metrics.split(",")),timeWindow,result);
+  return ApiUtils.convertTimeSeries(starTree.getConfig(),Arrays.asList(metrics.split(",")),timeWindow,result);
 }

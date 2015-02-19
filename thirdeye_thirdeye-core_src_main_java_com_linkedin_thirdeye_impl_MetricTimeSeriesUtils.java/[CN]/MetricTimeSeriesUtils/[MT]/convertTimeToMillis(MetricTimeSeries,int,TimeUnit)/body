@@ -1,0 +1,11 @@
+{
+  MetricTimeSeries timeSeries=new MetricTimeSeries(original.getSchema());
+  for (  Long time : original.getTimeWindowSet()) {
+    long millis=TimeUnit.MILLISECONDS.convert(time,unit) * size;
+    for (int i=0; i < original.getSchema().getNumMetrics(); i++) {
+      String metricName=original.getSchema().getMetricName(i);
+      timeSeries.set(millis,metricName,original.get(time,metricName));
+    }
+  }
+  return timeSeries;
+}

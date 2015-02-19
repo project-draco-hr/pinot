@@ -1,0 +1,14 @@
+{
+  MetricTimeSeries aggregated=new MetricTimeSeries(original.getSchema());
+  for (  Long time : original.getTimeWindowSet()) {
+    long bucket=(time / timeWindow) * timeWindow;
+    for (int i=0; i < original.getSchema().getNumMetrics(); i++) {
+      String metricName=original.getSchema().getMetricName(i);
+      Number metricValue=original.get(time,metricName);
+      if (metricValue != null && bucket <= limit) {
+        aggregated.increment(bucket,metricName,metricValue);
+      }
+    }
+  }
+  return aggregated;
+}

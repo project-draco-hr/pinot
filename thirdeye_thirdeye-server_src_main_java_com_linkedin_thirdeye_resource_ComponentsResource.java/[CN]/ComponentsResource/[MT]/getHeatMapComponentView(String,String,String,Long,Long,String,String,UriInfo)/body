@@ -1,0 +1,78 @@
+{
+  final StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
+  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  Long aggregateValue="".equals(aggregate) ? null : bucketUnit.convert(Long.valueOf(aggregate.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
+  Long movingAverageValue="".equals(movingAverage) ? null : bucketUnit.convert(Long.valueOf(movingAverage.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
+  long baselineStart=bucketUnit.convert(startMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  long baselineEnd=baselineStart + (aggregateValue == null ? 0 : aggregateValue);
+  long currentStart=bucketUnit.convert(endMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  long currentEnd=currentStart + (aggregateValue == null ? 0 : aggregateValue);
+  if (aggregateValue != null) {
+    baselineStart=(baselineStart / aggregateValue) * aggregateValue;
+    baselineEnd=(baselineEnd / aggregateValue) * aggregateValue;
+    currentStart=(currentStart / aggregateValue) * aggregateValue;
+    currentEnd=(currentEnd / aggregateValue) * aggregateValue;
+  }
+  final TimeRange timeRange;
+  if (movingAverageValue == null && aggregateValue == null) {
+    timeRange=new TimeRange(baselineStart,currentEnd);
+  }
+ else   if (movingAverageValue != null && aggregateValue == null) {
+    timeRange=new TimeRange(baselineStart - movingAverageValue,currentEnd);
+  }
+ else   if (movingAverageValue == null && aggregateValue != null) {
+    timeRange=new TimeRange(baselineStart,currentEnd + aggregateValue);
+  }
+ else {
+    timeRange=new TimeRange(baselineStart - (movingAverageValue / aggregateValue) * aggregateValue,currentEnd + aggregateValue);
+  }
+  Map<String,Map<String,MetricTimeSeries>> data=new HashMap<String,Map<String,MetricTimeSeries>>();
+  for (  DimensionSpec dimension : starTree.getConfig().getDimensions()) {
+    Map<String,MetricTimeSeries> timeSeriesByDimensionValue=QueryUtils.groupByQuery(parallelQueryExecutor,starTree,dimension.getName(),timeRange,uriInfo);
+    for (    Map.Entry<String,MetricTimeSeries> entry : timeSeriesByDimensionValue.entrySet()) {
+      MetricTimeSeries timeSeries=entry.getValue();
+      if (aggregateValue != null) {
+        timeSeries=MetricTimeSeriesUtils.aggregate(timeSeries,aggregateValue,currentEnd);
+      }
+      if (movingAverageValue != null) {
+        timeSeries=MetricTimeSeriesUtils.getSimpleMovingAverage(timeSeries,baselineStart,currentEnd,movingAverageValue);
+      }
+      timeSeriesByDimensionValue.put(entry.getKey(),timeSeries);
+    }
+    if (timeSeriesByDimensionValue.size() > 1) {
+      data.put(dimension.getName(),timeSeriesByDimensionValue);
+    }
+  }
+  MetricType metricType=null;
+  for (  MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+    if (metricSpec.getName().equals(metric)) {
+      metricType=metricSpec.getType();
+      break;
+    }
+  }
+  HeatMap heatMap;
+  if ("volume".equals(type)) {
+    heatMap=new VolumeHeatMap();
+  }
+ else   if ("selfRatio".equals(type)) {
+    heatMap=new SelfRatioHeatMap(metricType);
+  }
+ else   if ("contributionDifference".equals(type)) {
+    heatMap=new ContributionDifferenceHeatMap(metricType);
+  }
+ else   if ("snapshot".equals(type)) {
+    heatMap=new SnapshotHeatMap(2);
+  }
+ else {
+    throw new NotFoundException("No heat map type " + type);
+  }
+  Map<String,List<HeatMapCell>> heatMaps=new HashMap<String,List<HeatMapCell>>();
+  for (  Map.Entry<String,Map<String,MetricTimeSeries>> entry : data.entrySet()) {
+    heatMaps.put(entry.getKey(),heatMap.generateHeatMap(metric,entry.getValue(),new TimeRange(baselineStart,baselineEnd),new TimeRange(currentStart,currentEnd)));
+  }
+  return new HeatMapComponentView(heatMaps);
+}

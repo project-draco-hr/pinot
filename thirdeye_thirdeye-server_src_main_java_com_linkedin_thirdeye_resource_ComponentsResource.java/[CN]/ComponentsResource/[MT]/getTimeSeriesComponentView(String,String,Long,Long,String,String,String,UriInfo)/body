@@ -1,0 +1,73 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
+  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  Long aggregateValue="".equals(aggregate) ? null : bucketUnit.convert(Long.valueOf(aggregate.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
+  Long movingAverageValue="".equals(movingAverage) ? null : bucketUnit.convert(Long.valueOf(movingAverage.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
+  NormalizationMode normalizationMode=null;
+  String normalizationMetric=null;
+  if ("".equals(normalized)) {
+    normalizationMode=NormalizationMode.NONE;
+  }
+ else {
+    String[] tokens=normalized.split("/");
+    if ("*".equals(tokens[2])) {
+      normalizationMode=NormalizationMode.SELF;
+    }
+ else {
+      normalizationMode=NormalizationMode.BASE;
+      normalizationMetric=tokens[2];
+    }
+  }
+  long start=bucketUnit.convert(startMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  long end=bucketUnit.convert(endMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  if (aggregateValue != null) {
+    start=(start / aggregateValue) * aggregateValue;
+    end=(end / aggregateValue) * aggregateValue;
+  }
+  Map<DimensionKey,MetricTimeSeries> result;
+  if (movingAverageValue == null && aggregateValue == null) {
+    result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+  }
+ else   if (movingAverageValue != null && aggregateValue == null) {
+    result=QueryUtils.doQuery(starTree,start - movingAverageValue,end,uriInfo);
+  }
+ else   if (movingAverageValue == null && aggregateValue != null) {
+    result=QueryUtils.doQuery(starTree,start,end + aggregateValue,uriInfo);
+  }
+ else {
+    result=QueryUtils.doQuery(starTree,start - (movingAverageValue / aggregateValue) * aggregateValue,end + aggregateValue,uriInfo);
+  }
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
+    MetricTimeSeries timeSeries=entry.getValue();
+    if (aggregateValue != null) {
+      timeSeries=MetricTimeSeriesUtils.aggregate(timeSeries,aggregateValue,end);
+    }
+    if (movingAverageValue != null) {
+      timeSeries=MetricTimeSeriesUtils.getSimpleMovingAverage(timeSeries,start,end,movingAverageValue);
+    }
+switch (normalizationMode) {
+case SELF:
+      timeSeries=MetricTimeSeriesUtils.normalize(timeSeries);
+    break;
+case BASE:
+  timeSeries=MetricTimeSeriesUtils.normalize(timeSeries,normalizationMetric);
+break;
+case NONE:
+default :
+}
+timeSeries=MetricTimeSeriesUtils.convertTimeToMillis(timeSeries,bucketSize,bucketUnit);
+result.put(entry.getKey(),timeSeries);
+}
+List<String> metricNames;
+if ("*".equals(metrics)) {
+metricNames=null;
+}
+ else {
+metricNames=Arrays.asList(metrics.split(","));
+}
+return new TimeSeriesComponentView(starTree.getConfig(),metricNames,result,TimeUnit.MILLISECONDS.convert(start,bucketUnit),TimeUnit.MILLISECONDS.convert(end,bucketUnit));
+}

@@ -7,5 +7,5 @@
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
     result.put(entry.getKey(),MetricTimeSeriesUtils.getSimpleMovingAverage(entry.getValue(),start,end,timeWindow));
   }
-  return convert(starTree.getConfig(),Arrays.asList(metrics.split(",")),1,result);
+  return ApiUtils.convertTimeSeries(starTree.getConfig(),Arrays.asList(metrics.split(",")),1L,result);
 }

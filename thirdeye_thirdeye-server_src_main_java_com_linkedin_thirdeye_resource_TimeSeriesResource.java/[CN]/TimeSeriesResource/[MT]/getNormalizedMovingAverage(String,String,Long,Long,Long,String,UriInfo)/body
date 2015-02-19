@@ -9,5 +9,5 @@
     MetricTimeSeries normalized=normalizingMetricName == null ? MetricTimeSeriesUtils.normalize(movingAverageTimeSeries) : MetricTimeSeriesUtils.normalize(movingAverageTimeSeries,normalizingMetricName);
     result.put(entry.getKey(),normalized);
   }
-  return convert(starTree.getConfig(),Arrays.asList(metrics.split(",")),1,result);
+  return ApiUtils.convertTimeSeries(starTree.getConfig(),Arrays.asList(metrics.split(",")),1L,result);
 }

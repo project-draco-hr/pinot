@@ -43,6 +43,7 @@
   environment.jersey().register(new HeatMapResource(starTreeManager,parallelQueryExecutor));
   environment.jersey().register(new PingResource());
   environment.jersey().register(new DashboardResource(starTreeManager));
+  environment.jersey().register(new ComponentsResource(starTreeManager,parallelQueryExecutor));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new ResetTask(anomalyDetectionTaskManager,kafkaConsumerManager));
   environment.admin().addTask(new ExpireTask(starTreeManager,rootDir));
