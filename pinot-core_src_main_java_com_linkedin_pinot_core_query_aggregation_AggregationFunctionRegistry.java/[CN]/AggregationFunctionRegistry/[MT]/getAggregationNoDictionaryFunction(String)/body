@@ -1,0 +1,14 @@
+{
+  try {
+    Class<? extends AggregationFunction> cls=keyToFunctionWithoutDictionary.get(aggregationKey.toLowerCase());
+    if (cls != null) {
+      return cls.newInstance();
+    }
+    cls=(Class<? extends AggregationFunction>)Class.forName(aggregationKey);
+    keyToFunctionWithoutDictionary.put(aggregationKey,cls);
+    return cls.newInstance();
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException(ex);
+  }
+}

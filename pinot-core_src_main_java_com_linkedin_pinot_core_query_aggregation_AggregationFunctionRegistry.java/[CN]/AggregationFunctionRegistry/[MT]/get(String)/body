@@ -1,11 +1,11 @@
 {
   try {
-    Class<? extends AggregationFunction> cls=keyToFunction.get(aggregationKey.toLowerCase());
+    Class<? extends AggregationFunction> cls=keyToFunctionWithDictionary.get(aggregationKey.toLowerCase());
     if (cls != null) {
       return cls.newInstance();
     }
     cls=(Class<? extends AggregationFunction>)Class.forName(aggregationKey);
-    keyToFunction.put(aggregationKey,cls);
+    keyToFunctionWithDictionary.put(aggregationKey,cls);
     return cls.newInstance();
   }
  catch (  Exception ex) {

@@ -1,11 +1,11 @@
 {
 switch (_aggregationGroupByImplementationType) {
 case NoDictionary:
-    return new MDefaultAggregationFunctionGroupByOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()));
+    return new MDefaultAggregationFunctionGroupByOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()),_hasDictionary);
 case Dictionary:
-  return new MAggregationFunctionGroupByWithDictionaryOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()));
+  return new MAggregationFunctionGroupByWithDictionaryOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()),_hasDictionary);
 case DictionaryAndTrie:
-return new MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()));
+return new MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator(_aggregationInfo,_groupBy,new UReplicatedProjectionOperator((MProjectionOperator)_projectionPlanNode.run()),_hasDictionary);
 default :
 throw new UnsupportedOperationException("Not Support AggregationGroupBy implmentation: " + _aggregationGroupByImplementationType);
 }
