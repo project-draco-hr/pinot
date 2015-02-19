@@ -1,4 +1,5 @@
 {
+  totalDocs=0;
   while (recordReader.hasNext()) {
     totalDocs++;
     statsCollector.collectRow(recordReader.next());
@@ -7,10 +8,9 @@
   indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
   recordReader.rewind();
   while (recordReader.hasNext()) {
-    indexCreator.index(recordReader.next());
+    indexCreator.indexRow(recordReader.next());
   }
   recordReader.close();
-  final File outputDir=new File(config.getIndexOutputDir());
   final String timeColumn=config.getTimeColumnName();
   if (config.getSegmentName() != null) {
     segmentName=config.getSegmentName();
@@ -27,12 +27,13 @@
   }
   indexCreator.setSegmentName(segmentName);
   indexCreator.seal();
+  final File outputDir=new File(config.getIndexOutputDir());
   final File segmentOutputDir=new File(outputDir,segmentName);
   if (segmentOutputDir.exists()) {
     FileUtils.deleteDirectory(segmentOutputDir);
   }
-  FileUtils.moveDirectory(tempIndexDir,new File(outputDir,segmentName));
+  FileUtils.moveDirectory(tempIndexDir,segmentOutputDir);
   FileUtils.deleteQuietly(tempIndexDir);
-  final long crc=CrcUtils.forAllFilesInFolder(new File(outputDir,segmentName)).computeCrc();
-  persistCreationMeta(new File(outputDir,segmentName),crc);
+  final long crc=CrcUtils.forAllFilesInFolder(segmentOutputDir).computeCrc();
+  persistCreationMeta(segmentOutputDir,crc);
 }
