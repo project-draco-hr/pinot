@@ -8,10 +8,11 @@
   for (int i=0; i < numberOfSegments; ++i) {
     final File segmentDir=new File(INDEXES_DIR,"segment_" + i);
     final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,"time_day",TimeUnit.DAYS,"test","testTable");
+    config.setSegmentNamePostfix(String.valueOf(i));
     final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
     driver.init(config);
     driver.build();
     System.out.println("built at : " + segmentDir.getAbsolutePath());
-    _indexSegmentList.add(ColumnarSegmentLoader.load(new File(segmentDir,SEGMENT_ID),ReadMode.heap));
+    _indexSegmentList.add(ColumnarSegmentLoader.load(new File(segmentDir,"test_testTable_" + String.valueOf(i)),ReadMode.heap));
   }
 }

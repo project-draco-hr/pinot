@@ -6,8 +6,9 @@
   brokerRequest.setQuerySource(querySource);
   InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
   instanceRequest.setSearchSegments(new ArrayList<String>());
-  instanceRequest.getSearchSegments().add("midas_testTable_0_9_");
-  instanceRequest.getSearchSegments().add("midas_testTable_0_99_");
+  for (  IndexSegment segment : _indexSegmentList) {
+    instanceRequest.getSearchSegments().add(segment.getSegmentName());
+  }
   try {
     DataTable instanceResponse=_queryExecutor.processQuery(instanceRequest);
     LOGGER.info("InstanceResponse is " + instanceResponse.getDouble(0,0));

@@ -1,10 +1,8 @@
 {
   final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
   final String jsonPath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(JSON_DATA));
-  final List<String> projectedColumns=new ArrayList<String>();
-  projectedColumns.add("dim_campaignType");
-  projectedColumns.add("sort_campaignId");
-  final SegmentGeneratorConfig config=new SegmentGeneratorConfig(AvroUtils.extractSchemaFromAvro(new File(filePath)));
+  Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("dim_campaignType",DataType.STRING).addSingleValueDimension("sort_campaignId",DataType.STRING).build();
+  final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
   config.setInputFileFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
   config.setSegmentVersion(SegmentVersion.v1);
