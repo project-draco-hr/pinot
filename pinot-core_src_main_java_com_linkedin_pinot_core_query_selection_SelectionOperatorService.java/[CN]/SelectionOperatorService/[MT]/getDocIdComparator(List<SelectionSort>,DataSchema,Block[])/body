@@ -5,25 +5,53 @@
         if ((sortSequence.get(i).getColumn().equals("_segmentId")) || (sortSequence.get(i).getColumn().equals("_docId"))) {
           return (o2 - o1);
         }
-        final BlockSingleValIterator blockValSetIterator=(BlockSingleValIterator)blocks[i].getBlockValueSet().iterator();
-        blockValSetIterator.skipTo(o1);
-        int v1=blockValSetIterator.nextIntVal();
-        blockValSetIterator.skipTo(o2);
-        int v2=blockValSetIterator.nextIntVal();
-        if (v1 > v2) {
-          if (!sortSequence.get(i).isIsAsc()) {
-            return 1;
-          }
+        if (!blocks[i].getMetadata().isSingleValue()) {
+          continue;
+        }
+        if (blocks[i].getMetadata().hasDictionary()) {
+          final BlockSingleValIterator blockValSetIterator=(BlockSingleValIterator)blocks[i].getBlockValueSet().iterator();
+          blockValSetIterator.skipTo(o1);
+          int v1=blockValSetIterator.nextIntVal();
+          blockValSetIterator.skipTo(o2);
+          int v2=blockValSetIterator.nextIntVal();
+          if (v1 > v2) {
+            if (!sortSequence.get(i).isIsAsc()) {
+              return 1;
+            }
  else {
-            return -1;
+              return -1;
+            }
+          }
+          if (v1 < v2) {
+            if (!sortSequence.get(i).isIsAsc()) {
+              return -1;
+            }
+ else {
+              return 1;
+            }
           }
         }
-        if (v1 < v2) {
-          if (!sortSequence.get(i).isIsAsc()) {
-            return -1;
-          }
  else {
-            return 1;
+          final BlockSingleValIterator blockValSetIterator=(BlockSingleValIterator)blocks[i].getBlockValueSet().iterator();
+          blockValSetIterator.skipTo(o1);
+          double v1=blockValSetIterator.nextDoubleVal();
+          blockValSetIterator.skipTo(o2);
+          double v2=blockValSetIterator.nextDoubleVal();
+          if (v1 > v2) {
+            if (!sortSequence.get(i).isIsAsc()) {
+              return 1;
+            }
+ else {
+              return -1;
+            }
+          }
+          if (v1 < v2) {
+            if (!sortSequence.get(i).isIsAsc()) {
+              return -1;
+            }
+ else {
+              return 1;
+            }
           }
         }
       }

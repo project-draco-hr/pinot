@@ -11,18 +11,19 @@
       continue;
     }
     if (blocks[j].getMetadata().isSingleValue()) {
-      Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
-      BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
-      bvIter.skipTo(docId);
+      if (blocks[j].getMetadata().hasDictionary()) {
+        Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
+        BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
+        bvIter.skipTo(docId);
 switch (_dataSchema.getColumnType(i)) {
 case INT:
-        row[i]=((IntDictionary)dictionaryReader).get(bvIter.nextIntVal());
-      break;
+          row[i]=((IntDictionary)dictionaryReader).get(bvIter.nextIntVal());
+        break;
 case FLOAT:
-    row[i]=((FloatDictionary)dictionaryReader).get(bvIter.nextIntVal());
-  break;
+      row[i]=((FloatDictionary)dictionaryReader).get(bvIter.nextIntVal());
+    break;
 case LONG:
-row[i]=((LongDictionary)dictionaryReader).get(bvIter.nextIntVal());
+  row[i]=((LongDictionary)dictionaryReader).get(bvIter.nextIntVal());
 break;
 case DOUBLE:
 row[i]=((DoubleDictionary)dictionaryReader).get(bvIter.nextIntVal());
@@ -32,6 +33,27 @@ row[i]=((StringDictionary)dictionaryReader).get(bvIter.nextIntVal());
 break;
 default :
 break;
+}
+}
+ else {
+BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
+bvIter.skipTo(docId);
+switch (_dataSchema.getColumnType(i)) {
+case INT:
+row[i]=new Integer(bvIter.nextIntVal());
+break;
+case FLOAT:
+row[i]=new Float(bvIter.nextFloatVal());
+break;
+case LONG:
+row[i]=new Long(bvIter.nextLongVal());
+break;
+case DOUBLE:
+row[i]=new Double(bvIter.nextDoubleVal());
+break;
+default :
+break;
+}
 }
 }
  else {
