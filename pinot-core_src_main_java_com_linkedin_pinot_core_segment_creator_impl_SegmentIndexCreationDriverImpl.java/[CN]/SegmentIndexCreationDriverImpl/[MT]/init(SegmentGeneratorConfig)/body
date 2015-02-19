@@ -1,15 +1,3 @@
 {
-  this.config=config;
-  recordReader=RecordReaderFactory.get(config.getInputFileFormat(),config.getInputFilePath(),FieldExtractorFactory.getPlainFieldExtractor(config));
-  recordReader.init();
-  dataSchema=recordReader.getSchema();
-  statsCollector=new SegmentPreIndexStatsCollectorImpl(recordReader.getSchema());
-  statsCollector.init();
-  indexCreationInfoMap=new HashMap<String,ColumnIndexCreationInfo>();
-  indexCreator=new SegmentColumnarIndexCreator();
-  final File indexDir=new File(config.getIndexOutputDir());
-  if (!indexDir.exists()) {
-    indexDir.mkdir();
-  }
-  tempIndexDir=new File(indexDir,com.linkedin.pinot.common.utils.FileUtils.getRandomFileName());
+  init(config,RecordReaderFactory.get(config.getInputFileFormat(),config.getInputFilePath(),FieldExtractorFactory.getPlainFieldExtractor(config)));
 }
