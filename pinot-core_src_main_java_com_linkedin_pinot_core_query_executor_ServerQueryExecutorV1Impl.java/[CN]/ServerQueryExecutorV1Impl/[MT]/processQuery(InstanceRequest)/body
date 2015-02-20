@@ -45,7 +45,9 @@
     instanceResponse=null;
   }
  finally {
-    _instanceDataManager.getResourceDataManager(instanceRequest.getQuery().getQuerySource().getResourceName()).returnSegmentReaders(instanceRequest.getSearchSegments());
+    if (_instanceDataManager.getResourceDataManager(instanceRequest.getQuery().getQuerySource().getResourceName()) != null) {
+      _instanceDataManager.getResourceDataManager(instanceRequest.getQuery().getQuerySource().getResourceName()).returnSegmentReaders(instanceRequest.getSearchSegments());
+    }
   }
   return instanceResponse;
 }
