@@ -1,0 +1,8 @@
+{
+  Client client=new Client(Protocol.HTTP);
+  Request request=new Request(Method.POST,url);
+  request.setEntity(payload,mediaType);
+  Response response=client.handle(request);
+  Assert.assertEquals(response.getStatus(),expectedStatus);
+  return response.getEntityAsText();
+}
