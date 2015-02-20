@@ -10,8 +10,13 @@
     }
  else {
       Object[] multivalues=(Object[])row.getValue(dataSchema.getDimensionNames().get(i));
+      if (maxNumberOfMultivaluesMap.get(dataSchema.getDimensionNames().get(i)) < multivalues.length) {
+        maxNumberOfMultivaluesMap.put(dataSchema.getDimensionNames().get(i),multivalues.length);
+      }
       Arrays.sort(multivalues);
-      for (      Object multivalue : multivalues)       rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensionNames().get(i)).indexOf(multivalue));
+      for (      Object multivalue : multivalues) {
+        rowConvertedToDictionaryId.add(dictionaryMap.get(dataSchema.getDimensionNames().get(i)).indexOf(multivalue));
+      }
       pointer+=multivalues.length;
     }
     if (i == dataSchema.getDimensionNames().size() - 1) {
@@ -19,7 +24,11 @@
     }
   }
   IntBuffer buff=IntBuffer.allocate(columnOffsets.size() + rowConvertedToDictionaryId.size());
-  for (  Integer offset : columnOffsets)   buff.put(offset + columnOffsets.size());
-  for (  Integer dicId : rowConvertedToDictionaryId)   buff.put(dicId);
+  for (  Integer offset : columnOffsets) {
+    buff.put(offset + columnOffsets.size());
+  }
+  for (  Integer dicId : rowConvertedToDictionaryId) {
+    buff.put(dicId);
+  }
   return buff;
 }

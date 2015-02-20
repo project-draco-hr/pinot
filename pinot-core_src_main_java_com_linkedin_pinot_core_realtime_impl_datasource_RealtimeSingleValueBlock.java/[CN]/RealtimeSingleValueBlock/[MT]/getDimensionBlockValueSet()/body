@@ -5,7 +5,9 @@
         private int counter=0;
         private int max=docIdSearchableOffset;
         @Override public boolean skipTo(        int docId){
-          if (docId > max)           return false;
+          if (docId > max) {
+            return false;
+          }
           counter=docId;
           return true;
         }
@@ -21,7 +23,9 @@
           return counter <= max;
         }
         @Override public int nextIntVal(){
-          if (counter >= max)           return Constants.EOF;
+          if (counter >= max) {
+            return Constants.EOF;
+          }
           Pair<Long,Long> documentFinderPair=docIdMap.get(counter);
           long hash64=documentFinderPair.getLeft();
           DimensionTuple tuple=dimemsionTupleMap.get(hash64);

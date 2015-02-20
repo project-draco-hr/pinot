@@ -2,6 +2,7 @@
   dataSchema=schema;
   dictionaryMap=new HashMap<String,MutableDictionaryReader>();
   for (  String column : dataSchema.getDimensionNames()) {
+    maxNumberOfMultivaluesMap.put(column,0);
     dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
   }
   docIdGenerator=new AtomicInteger(-1);
@@ -12,8 +13,12 @@
   outgoingTimeColumnName=dataSchema.getTimeSpec().getOutGoingTimeColumnName();
   docIdMap=new HashMap<Object,Pair<Long,Long>>();
   invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
-  for (  String dimension : schema.getDimensionNames())   invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
-  for (  String metric : schema.getMetricNames())   invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
+  for (  String dimension : schema.getDimensionNames()) {
+    invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
+  }
+  for (  String metric : schema.getMetricNames()) {
+    invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
+  }
   invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
   metricsOffsetMap=new HashMap<String,Integer>();
   createMetricsOffsetsMap();

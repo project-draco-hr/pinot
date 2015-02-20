@@ -8,8 +8,12 @@
   metBuff.rewind();
   long dimesionHash=HashUtil.compute(dimBuff);
   Long timeValue=timeConverter.convert(row.getValue(incomingTimeColumnName));
-  if (minTimeVal > timeValue)   minTimeVal=timeValue;
-  if (maxTimeVal < timeValue)   maxTimeVal=timeValue;
+  if (minTimeVal > timeValue) {
+    minTimeVal=timeValue;
+  }
+  if (maxTimeVal < timeValue) {
+    maxTimeVal=timeValue;
+  }
   Pair<Long,Long> dimHashTimePair=Pair.<Long,Long>of(dimesionHash,timeValue);
   if (!dimemsionTupleMap.containsKey(dimesionHash)) {
     DimensionTuple dimTuple=new DimensionTuple(dimBuff,dimesionHash);

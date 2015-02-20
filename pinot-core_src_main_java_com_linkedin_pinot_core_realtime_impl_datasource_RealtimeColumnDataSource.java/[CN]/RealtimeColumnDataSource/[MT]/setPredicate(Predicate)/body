@@ -9,15 +9,21 @@ case IN:
 MutableRoaringBitmap orBitmapForInQueries=new MutableRoaringBitmap();
 int[] dicIdsToOrTogether=new int[predicate.getRhs().get(0).split(",").length];
 int counter=0;
-for (String rawValueInString : predicate.getRhs().get(0).split(",")) dicIdsToOrTogether[counter++]=dictionary.indexOf(rawValueInString);
-for (int dicId : dicIdsToOrTogether) orBitmapForInQueries.or(invertedINdex.getDocIdSetFor(dicId));
+for (String rawValueInString : predicate.getRhs().get(0).split(",")) {
+dicIdsToOrTogether[counter++]=dictionary.indexOf(rawValueInString);
+}
+for (int dicId : dicIdsToOrTogether) {
+orBitmapForInQueries.or(invertedINdex.getDocIdSetFor(dicId));
+}
 filteredDocIdBitmap=orBitmapForInQueries;
 break;
 case NEQ:
 MutableRoaringBitmap neqBitmap=new MutableRoaringBitmap();
 int valueToExclude=predicate.getRhs().get(0) == null ? 0 : dictionary.indexOf(predicate.getRhs().get(0));
 for (int i=1; i <= dictionary.length(); i++) {
-if (valueToExclude != i) neqBitmap.or(invertedINdex.getDocIdSetFor(i));
+if (valueToExclude != i) {
+neqBitmap.or(invertedINdex.getDocIdSetFor(i));
+}
 }
 filteredDocIdBitmap=neqBitmap;
 break;
@@ -56,15 +62,18 @@ rangeEnd=dictionary.getString(dictionary.length() - 1);
 }
 List<Integer> rangeCollector=new ArrayList<Integer>();
 for (int i=0; i < dictionary.length(); i++) {
-if (dictionary.inRange(rangeStart,rangeEnd,i,incLower,incUpper)) rangeCollector.add(i);
+if (dictionary.inRange(rangeStart,rangeEnd,i,incLower,incUpper)) {
+rangeCollector.add(i);
+}
 }
 MutableRoaringBitmap rangeBitmap=new MutableRoaringBitmap();
-for (Integer dicId : rangeCollector) rangeBitmap.or(invertedINdex.getDocIdSetFor(dicId));
+for (Integer dicId : rangeCollector) {
+rangeBitmap.or(invertedINdex.getDocIdSetFor(dicId));
+}
 filteredDocIdBitmap=rangeBitmap;
 break;
 case REGEX:
 throw new UnsupportedOperationException("regex filter not supported");
 }
-System.out.println(Arrays.toString(filteredDocIdBitmap.toArray()));
-return false;
+return true;
 }

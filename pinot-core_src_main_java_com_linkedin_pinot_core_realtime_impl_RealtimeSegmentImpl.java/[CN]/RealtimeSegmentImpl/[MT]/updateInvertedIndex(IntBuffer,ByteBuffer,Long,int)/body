@@ -2,7 +2,9 @@
   invertedIndexMap.get(outgoingTimeColumnName).add(timeValue,docId);
   for (  String dimension : dataSchema.getDimensionNames()) {
     int[] dicIds=ByteBufferUtils.extractDicIdFromDimByteBuffFor(dimension,dimBuff,dataSchema);
-    for (    int dicId : dicIds)     invertedIndexMap.get(dimension).add(new Integer(dicId),docId);
+    for (    int dicId : dicIds) {
+      invertedIndexMap.get(dimension).add(new Integer(dicId),docId);
+    }
   }
   for (  String metric : dataSchema.getMetricNames()) {
     invertedIndexMap.get(metric).add(ByteBufferUtils.extractMetricValueFrom(metric,metBuff,dataSchema,metricsOffsetMap),docId);
