@@ -1,0 +1,16 @@
+{
+  final ControllerConf conf=new ControllerConf();
+  conf.setControllerHost(CONTROLLER_INSTANCE_NAME);
+  conf.setControllerPort(CONTROLLER_API_PORT);
+  conf.setDataDir(DATA_DIR);
+  conf.setZkStr(ZK_STR);
+  conf.setHelixClusterName(getHelixClusterName());
+  if (ControllerSentinelTest._zkClient.exists("/" + getHelixClusterName())) {
+    ControllerSentinelTest._zkClient.deleteRecursive("/" + getHelixClusterName());
+  }
+  final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_STR);
+  _helixZkManager=HelixSetupUtils.setup(getHelixClusterName(),helixZkURL,CONTROLLER_INSTANCE_NAME);
+  _helixAdmin=_helixZkManager.getClusterManagmentTool();
+  ControllerSentinelTest._controllerStarter=new ControllerStarter(conf);
+  ControllerSentinelTest._controllerStarter.start();
+}
