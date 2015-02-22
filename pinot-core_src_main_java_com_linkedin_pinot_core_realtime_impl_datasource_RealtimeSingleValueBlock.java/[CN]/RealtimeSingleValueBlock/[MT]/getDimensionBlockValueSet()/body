@@ -30,7 +30,7 @@
           long hash64=documentFinderPair.getLeft();
           DimensionTuple tuple=dimemsionTupleMap.get(hash64);
           IntBuffer rawData=tuple.getDimBuff();
-          int vals[]=ByteBufferUtils.extractDicIdFromDimByteBuffFor(columnName,rawData,schema);
+          int vals[]=dimSerDe.deSerializeAndReturnDicIdsFor(columnName,rawData);
           counter++;
           return vals[0];
         }

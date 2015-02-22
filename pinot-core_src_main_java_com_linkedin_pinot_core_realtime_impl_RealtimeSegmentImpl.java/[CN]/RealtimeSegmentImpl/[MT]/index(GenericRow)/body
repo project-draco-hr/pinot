@@ -2,8 +2,8 @@
   for (  String dimension : dataSchema.getDimensionNames()) {
     dictionaryMap.get(dimension).index(row.getValue(dimension));
   }
-  IntBuffer dimBuff=createDimBuff(row);
-  ByteBuffer metBuff=createMetricsByteBuffer(row);
+  IntBuffer dimBuff=dimensionsSerde.serialize(row);
+  ByteBuffer metBuff=metricsSerDe.serialize(row);
   dimBuff.rewind();
   metBuff.rewind();
   long dimesionHash=HashUtil.compute(dimBuff);

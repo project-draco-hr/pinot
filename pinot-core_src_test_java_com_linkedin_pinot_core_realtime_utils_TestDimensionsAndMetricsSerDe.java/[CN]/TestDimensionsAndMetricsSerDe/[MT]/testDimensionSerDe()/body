@@ -22,7 +22,7 @@
         Assert.assertEquals(row.getValue(dimension),dictionaryMap.get(dimension).get(dicId));
       }
     }
-    IntBuffer serialized=dimSerDe.serializeToIntBuffer(row);
+    IntBuffer serialized=dimSerDe.serialize(row);
     GenericRow deSerializedRow=dimSerDe.deSerialize(serialized);
     for (    String dimension : schema.getDimensionNames()) {
       if (schema.getFieldSpecFor(dimension).isSingleValueField()) {

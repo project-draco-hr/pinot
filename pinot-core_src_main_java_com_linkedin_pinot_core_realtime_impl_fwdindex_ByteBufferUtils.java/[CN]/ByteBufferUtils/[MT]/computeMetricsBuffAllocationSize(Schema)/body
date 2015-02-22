@@ -1,22 +1,22 @@
 {
-  int ret=0;
+  int metricBuffSizeInBytes=0;
   for (  String metricName : schema.getMetricNames()) {
 switch (schema.getFieldSpecFor(metricName).getDataType()) {
 case INT:
-      ret+=Integer.SIZE / Byte.SIZE;
+      metricBuffSizeInBytes+=Integer.SIZE / Byte.SIZE;
     break;
 case FLOAT:
-  ret+=Float.SIZE / Byte.SIZE;
+  metricBuffSizeInBytes+=Float.SIZE / Byte.SIZE;
 break;
 case LONG:
-ret+=Long.SIZE / Byte.SIZE;
+metricBuffSizeInBytes+=Long.SIZE / Byte.SIZE;
 break;
 case DOUBLE:
-ret+=Double.SIZE / Byte.SIZE;
+metricBuffSizeInBytes+=Double.SIZE / Byte.SIZE;
 break;
 default :
 break;
 }
 }
-return ret;
+return metricBuffSizeInBytes;
 }

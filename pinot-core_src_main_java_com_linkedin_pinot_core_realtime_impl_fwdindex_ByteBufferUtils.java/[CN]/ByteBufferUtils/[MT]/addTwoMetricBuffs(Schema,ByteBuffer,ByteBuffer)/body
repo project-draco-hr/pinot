@@ -3,7 +3,7 @@
   ByteBuffer twoCopy=two.duplicate();
   oneCopy.rewind();
   twoCopy.rewind();
-  ByteBuffer ret=ByteBuffer.allocate(computeMetricsBuffAllocationSize(schema));
+  ByteBuffer ret=ByteBuffer.allocate(oneCopy.array().length);
   for (  String metricName : schema.getMetricNames()) {
 switch (schema.getFieldSpecFor(metricName).getDataType()) {
 case INT:

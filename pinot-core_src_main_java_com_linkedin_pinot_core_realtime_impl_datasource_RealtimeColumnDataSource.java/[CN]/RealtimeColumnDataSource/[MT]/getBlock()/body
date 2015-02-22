@@ -2,14 +2,14 @@
   if (!blockReturned) {
     blockReturned=true;
     if (spec.isSingleValueField()) {
-      Block SvBlock=new RealtimeSingleValueBlock(spec,dictionary,docIdMap,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimensionTupleMap,metricsOffsetMap);
+      Block SvBlock=new RealtimeSingleValueBlock(spec,dictionary,docIdMap,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimensionTupleMap,dimSerDe,metSerDe);
       if (predicate != null) {
         SvBlock.applyPredicate(predicate);
       }
       return SvBlock;
     }
  else {
-      Block mvBlock=new RealtimeMultivalueBlock(spec,dictionary,docIdMap,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimensionTupleMap,maxNumberOfMultiValuesMap);
+      Block mvBlock=new RealtimeMultivalueBlock(spec,dictionary,docIdMap,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimensionTupleMap,maxNumberOfMultiValuesMap,dimSerDe);
       if (predicate != null) {
         mvBlock.applyPredicate(predicate);
       }

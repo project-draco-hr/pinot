@@ -6,7 +6,7 @@
   Long timeValue=dimHashTimePair.getRight();
   IntBuffer dimBuff=tuple.getDimBuff().duplicate();
   for (  String dimension : dataSchema.getDimensionNames()) {
-    int[] ret=ByteBufferUtils.extractDicIdFromDimByteBuffFor(dimension,dimBuff,dataSchema);
+    int[] ret=dimensionsSerde.deSerializeAndReturnDicIdsFor(dimension,dimBuff);
     if (ret.length == 1) {
       rowValues.put(dimension,dictionaryMap.get(dimension).get(ret[0]));
     }
@@ -20,7 +20,7 @@
   }
   ByteBuffer metricBuff=tuple.getMetricsBuffForTime(timeValue).duplicate();
   for (  String metric : dataSchema.getMetricNames()) {
-    rowValues.put(metric,ByteBufferUtils.extractMetricValueFrom(metric,metricBuff,dataSchema,metricsOffsetMap));
+    rowValues.put(metric,metricsSerDe.getRawValueFor(metric,metricBuff));
   }
   rowValues.put(outgoingTimeColumnName,timeValue);
   row.init(rowValues);
