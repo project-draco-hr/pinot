@@ -1,0 +1,19 @@
+{
+  GenericRow row=new GenericRow();
+  Map<String,Object> rowValues=new HashMap<String,Object>();
+  for (  String dimension : dataSchema.getDimensionNames()) {
+    int[] ret=deSerializeAndReturnDicIdsFor(dimension,buffer);
+    if (dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
+      rowValues.put(dimension,dictionaryMap.get(dimension).get(ret[0]));
+    }
+ else {
+      Object[] mV=new Object[ret.length];
+      for (int i=0; i < ret.length; i++) {
+        mV[i]=dictionaryMap.get(dimension).get(ret[i]);
+      }
+      rowValues.put(dimension,mV);
+    }
+  }
+  row.init(rowValues);
+  return row;
+}

@@ -1,0 +1,40 @@
+{
+  Map<String,MutableDictionaryReader> dictionaryMap=new HashMap<String,MutableDictionaryReader>();
+  for (  String column : schema.getDimensionNames()) {
+    dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(schema.getFieldSpecFor(column)));
+  }
+  RealtimeDimensionsSerDe dimSerDe=new RealtimeDimensionsSerDe(schema.getDimensionNames(),schema,dictionaryMap);
+  while (reader.hasNext()) {
+    GenericRow row=reader.next();
+    for (    String dimension : schema.getDimensionNames()) {
+      dictionaryMap.get(dimension).index(row.getValue(dimension));
+      Object val=row.getValue(dimension);
+      int[] dicIds;
+      if (val instanceof Object[]) {
+        Object[] vals=(Object[])val;
+        for (int i=0; i < vals.length; i++) {
+          int dicId=dictionaryMap.get(dimension).indexOf(vals[i]);
+          Assert.assertEquals(vals[i],dictionaryMap.get(dimension).get(dicId));
+        }
+      }
+ else {
+        int dicId=dictionaryMap.get(dimension).indexOf(val);
+        Assert.assertEquals(row.getValue(dimension),dictionaryMap.get(dimension).get(dicId));
+      }
+    }
+    IntBuffer serialized=dimSerDe.serializeToIntBuffer(row);
+    GenericRow deSerializedRow=dimSerDe.deSerialize(serialized);
+    for (    String dimension : schema.getDimensionNames()) {
+      if (schema.getFieldSpecFor(dimension).isSingleValueField()) {
+        Assert.assertEquals(row.getValue(dimension),deSerializedRow.getValue(dimension));
+      }
+ else {
+        Object[] incoming=(Object[])row.getValue(dimension);
+        Object[] outgoing=(Object[])deSerializedRow.getValue(dimension);
+        Assert.assertEquals(incoming.length,outgoing.length);
+        Assert.assertEquals(incoming,outgoing);
+      }
+    }
+  }
+  reader.close();
+}

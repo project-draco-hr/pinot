@@ -1,0 +1,20 @@
+{
+  Object ret=null;
+switch (schema.getFieldSpecFor(metric).getDataType()) {
+case INT:
+    ret=new Integer(metBuff.getInt(metricsOffsetsMap.get(metric)));
+  break;
+case FLOAT:
+ret=new Float(metBuff.getFloat(metricsOffsetsMap.get(metric)));
+break;
+case LONG:
+ret=new Long(metBuff.getLong(metricsOffsetsMap.get(metric)));
+break;
+case DOUBLE:
+ret=new Double(metBuff.getDouble(metricsOffsetsMap.get(metric)));
+break;
+default :
+return null;
+}
+return ret;
+}

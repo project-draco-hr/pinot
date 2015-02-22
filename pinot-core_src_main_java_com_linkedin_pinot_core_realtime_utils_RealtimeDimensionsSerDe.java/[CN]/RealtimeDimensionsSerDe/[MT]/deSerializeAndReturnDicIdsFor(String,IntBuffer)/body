@@ -1,0 +1,13 @@
+{
+  int ret[]=null;
+  int dimIndex=dataSchema.getDimensionNames().indexOf(column);
+  int start=buffer.get(dimIndex);
+  int end=buffer.get((dimIndex + 1));
+  ret=new int[end - start];
+  int counter=0;
+  for (int i=start; i < end; i++) {
+    ret[counter]=buffer.get(i);
+    counter++;
+  }
+  return ret;
+}

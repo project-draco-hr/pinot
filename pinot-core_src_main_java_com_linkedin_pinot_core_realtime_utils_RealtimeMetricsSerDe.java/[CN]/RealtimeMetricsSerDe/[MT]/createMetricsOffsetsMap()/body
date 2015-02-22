@@ -1,0 +1,22 @@
+{
+  int offset=0;
+  for (  String metric : schema.getMetricNames()) {
+    metricsOffsetsMap.put(metric,offset);
+switch (schema.getFieldSpecFor(metric).getDataType()) {
+case INT:
+      offset+=Integer.SIZE / Byte.SIZE;
+    break;
+case FLOAT:
+  offset+=Float.SIZE / Byte.SIZE;
+break;
+case LONG:
+offset+=Long.SIZE / Byte.SIZE;
+break;
+case DOUBLE:
+offset+=Double.SIZE / Byte.SIZE;
+break;
+default :
+break;
+}
+}
+}
