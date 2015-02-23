@@ -1,4 +1,10 @@
 {
-  this.phaseName=phaseName;
+  String phaseFromConfig=config.getProperty(ThirdEyeJobConstants.THIRDEYE_PHASE.getPropertyName());
+  if (phaseFromConfig != null) {
+    this.phaseName=phaseFromConfig;
+  }
+ else {
+    this.phaseName=jobName;
+  }
   this.config=config;
 }
