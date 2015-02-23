@@ -1,0 +1,11 @@
+{
+  String resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource);
+  propertyStore.set("/" + resourceName,null,AccessOption.PERSISTENT);
+  for (int i=0; i < numSegments; ++i) {
+    String segmentName=resourceName + "_" + System.currentTimeMillis()+ "_"+ i;
+    ZNRecord record=new ZNRecord(segmentName);
+    record.setSimpleField(SEGMENT_TIME_COLUMN,"timestamp");
+    record.setSimpleField(SEGMENT_END_TIME,i + "");
+    propertyStore.create("/" + resourceName + "/"+ segmentName,record,AccessOption.PERSISTENT);
+  }
+}

@@ -1,0 +1,6 @@
+{
+  _zkClient=new ZkClient(StringUtil.join("/",StringUtils.chomp(_zkBaseUrl,"/")),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
+  _zkClient.deleteRecursive("/" + _helixClusterName + "/PROPERTYSTORE");
+  _zkClient.createPersistent("/" + _helixClusterName + "/PROPERTYSTORE",true);
+  _propertyStore=new ZkHelixPropertyStore<ZNRecord>(new ZkBaseDataAccessor<ZNRecord>(_zkClient),"/" + _helixClusterName + "/PROPERTYSTORE",null);
+}
