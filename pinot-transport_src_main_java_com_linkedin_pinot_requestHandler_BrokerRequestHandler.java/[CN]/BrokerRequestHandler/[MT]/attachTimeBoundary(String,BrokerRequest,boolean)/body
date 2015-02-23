@@ -1,0 +1,30 @@
+{
+  TimeBoundaryInfo timeBoundaryInfo=_timeBoundaryService.getTimeBoundaryInfoFor(hybridResourceName);
+  if (timeBoundaryInfo == null || timeBoundaryInfo.getTimeColumn() == null || timeBoundaryInfo.getTimeValue() == null) {
+    return;
+  }
+  FilterQuery timeFilterQuery=new FilterQuery();
+  timeFilterQuery.setOperator(FilterOperator.RANGE);
+  timeFilterQuery.setColumn(timeBoundaryInfo.getTimeColumn());
+  List<String> values=new ArrayList<String>();
+  if (isOfflineRequest) {
+    values.add("(*," + timeBoundaryInfo.getTimeValue() + ")");
+  }
+ else {
+    values.add("[" + timeBoundaryInfo.getTimeValue() + ", *)");
+  }
+  timeFilterQuery.setValue(values);
+  FilterQuery currentFilterQuery=offlineRequest.getFilterQuery();
+  FilterQuery andFilterQuery=new FilterQuery();
+  andFilterQuery.setOperator(FilterOperator.AND);
+  List<Integer> nestedFilterQueryIds=new ArrayList<Integer>();
+  nestedFilterQueryIds.add(currentFilterQuery.getId());
+  nestedFilterQueryIds.add(timeFilterQuery.getId());
+  andFilterQuery.setNestedFilterQueryIds(nestedFilterQueryIds);
+  andFilterQuery.setId(andFilterQuery.hashCode());
+  FilterQueryMap filterSubQueryMap=offlineRequest.getFilterSubQueryMap();
+  filterSubQueryMap.putToFilterQueryMap(timeFilterQuery.getId(),timeFilterQuery);
+  filterSubQueryMap.putToFilterQueryMap(andFilterQuery.getId(),andFilterQuery);
+  offlineRequest.setFilterQuery(andFilterQuery);
+  offlineRequest.setFilterSubQueryMap(filterSubQueryMap);
+}

@@ -1,0 +1,15 @@
+{
+  BrokerRequest realtimeBrokerRequest=getRealtimeBrokerRequest(request);
+  BrokerRequest offlineBrokerRequest=getOfflineBrokerRequest(request);
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  try {
+    Map<ServerInstance,DataTable> realtimeDataTable=getDataTableFromBrokerRequest(realtimeBrokerRequest,null);
+    Map<ServerInstance,DataTable> offlineDataTable=getDataTableFromBrokerRequest(offlineBrokerRequest,null);
+    instanceResponseMap.putAll(realtimeDataTable);
+    instanceResponseMap.putAll(offlineDataTable);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  return reduceInstanceResponseMap(request,instanceResponseMap);
+}

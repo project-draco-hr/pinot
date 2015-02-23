@@ -1,0 +1,8 @@
+{
+  BrokerRequest realtimeRequest=request.deepCopy();
+  String hybridResourceName=request.getQuerySource().getResourceName();
+  String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(hybridResourceName);
+  realtimeRequest.getQuerySource().setResourceName(realtimeResourceName);
+  attachTimeBoundary(hybridResourceName,realtimeRequest,false);
+  return realtimeRequest;
+}
