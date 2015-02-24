@@ -1,6 +1,7 @@
 {
   List<HeatMapCell> cells=new ArrayList<HeatMapCell>();
   Stats baselineStats=getStats(baseline);
+  Stats currentStats=getStats(current);
   Map<String,Number> logBaseline=new HashMap<String,Number>(baseline.size());
   for (  Map.Entry<String,Number> entry : baseline.entrySet()) {
     double value=entry.getValue().doubleValue();
@@ -19,7 +20,16 @@
       continue;
     }
     double ratio=(currentMetricValue.doubleValue() - baselineMetricValue.doubleValue()) / baselineStats.getSum();
-    HeatMapCell cell=new HeatMapCell(entry.getKey(),currentMetricValue,baselineMetricValue,ratio,alphas.get(entry.getKey()),COLOR);
+    StringBuilder label=new StringBuilder();
+    label.append("(baseline=").append(baselineMetricValue).append(", current=").append(currentMetricValue);
+    if (baselineStats.getSum() > 0) {
+      label.append(", baselineRatio=").append(baselineMetricValue.doubleValue() / baselineStats.getSum());
+    }
+    if (currentStats.getSum() > 0) {
+      label.append(", currentRatio=").append(currentMetricValue.doubleValue() / currentStats.getSum());
+    }
+    label.append(")");
+    HeatMapCell cell=new HeatMapCell(entry.getKey(),currentMetricValue,baselineMetricValue,label.toString(),ratio,alphas.get(entry.getKey()),COLOR);
     cells.add(cell);
   }
   Collections.sort(cells,new Comparator<HeatMapCell>(){

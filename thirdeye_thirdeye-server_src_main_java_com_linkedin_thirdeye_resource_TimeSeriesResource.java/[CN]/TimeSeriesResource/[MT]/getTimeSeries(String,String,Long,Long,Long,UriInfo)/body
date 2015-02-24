@@ -1,8 +1,0 @@
-{
-  StarTree starTree=manager.getStarTree(collection);
-  if (starTree == null) {
-    throw new NotFoundException("No collection " + collection);
-  }
-  Map<DimensionKey,MetricTimeSeries> result=QueryUtils.doQuery(starTree,start,end,uriInfo);
-  return ApiUtils.convertTimeSeries(starTree.getConfig(),Arrays.asList(metrics.split(",")),timeWindow,result);
-}

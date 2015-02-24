@@ -1,0 +1,109 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
+  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  Long aggregateValue="".equals(aggregate) ? null : bucketUnit.convert(Long.valueOf(aggregate.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
+  Long movingAverageValue="".equals(movingAverage) ? null : bucketUnit.convert(Long.valueOf(movingAverage.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
+  NormalizationMode normalizationMode=null;
+  String normalizationMetric=null;
+  if ("".equals(normalized)) {
+    normalizationMode=NormalizationMode.NONE;
+  }
+ else {
+    String[] tokens=normalized.split("/");
+    if ("*".equals(tokens[2])) {
+      normalizationMode=NormalizationMode.SELF;
+    }
+ else {
+      normalizationMode=NormalizationMode.BASE;
+      normalizationMetric=tokens[2];
+    }
+  }
+  long start=bucketUnit.convert(startMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  long end=bucketUnit.convert(endMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  if (aggregateValue != null) {
+    start=(start / aggregateValue) * aggregateValue;
+    end=(end / aggregateValue) * aggregateValue;
+  }
+  long adjustedStartMillis=TimeUnit.MILLISECONDS.convert(start * bucketSize,bucketUnit);
+  long adjustedEndMillis=TimeUnit.MILLISECONDS.convert(end * bucketSize,bucketUnit);
+  StarTreeStats stats=starTree.getStats();
+  if (!new TimeRange(stats.getMinTime(),stats.getMaxTime()).contains(new TimeRange(start,end))) {
+    throw new NotFoundException("Query (" + getDateTime(start,bucketSize,bucketUnit) + ", "+ getDateTime(end,bucketSize,bucketUnit)+ ") not in range ("+ getDateTime(stats.getMinTime(),bucketSize,bucketUnit)+ ", "+ getDateTime(stats.getMaxTime(),bucketSize,bucketUnit)+ ")");
+  }
+  Map<DimensionKey,MetricTimeSeries> result;
+  if (movingAverageValue == null && aggregateValue == null) {
+    result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+  }
+ else   if (movingAverageValue != null && aggregateValue == null) {
+    result=QueryUtils.doQuery(starTree,start - movingAverageValue,end,uriInfo);
+  }
+ else   if (movingAverageValue == null && aggregateValue != null) {
+    result=QueryUtils.doQuery(starTree,start,end + aggregateValue,uriInfo);
+  }
+ else {
+    result=QueryUtils.doQuery(starTree,start - (movingAverageValue / aggregateValue) * aggregateValue,end + aggregateValue,uriInfo);
+  }
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
+    MetricTimeSeries timeSeries=entry.getValue();
+    if (aggregateValue != null) {
+      timeSeries=MetricTimeSeriesUtils.aggregate(timeSeries,aggregateValue,end);
+    }
+    if (movingAverageValue != null) {
+      timeSeries=MetricTimeSeriesUtils.getSimpleMovingAverage(timeSeries,start,end,movingAverageValue);
+    }
+switch (normalizationMode) {
+case SELF:
+      timeSeries=MetricTimeSeriesUtils.normalize(timeSeries);
+    break;
+case BASE:
+  timeSeries=MetricTimeSeriesUtils.normalize(timeSeries,normalizationMetric);
+break;
+case NONE:
+default :
+}
+timeSeries=MetricTimeSeriesUtils.convertTimeToMillis(timeSeries,bucketSize,bucketUnit);
+result.put(entry.getKey(),timeSeries);
+}
+Set<String> allMetrics=new HashSet<String>();
+for (MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+allMetrics.add(metricSpec.getName());
+}
+List<String> metricNames;
+if ("*".equals(metrics)) {
+metricNames=new ArrayList<String>(allMetrics);
+Collections.sort(metricNames);
+}
+ else {
+metricNames=Arrays.asList(metrics.split(","));
+for (String metricName : metricNames) {
+if (!allMetrics.contains(metricName)) {
+throw new NotFoundException("Unknown metric " + metricName + ", valid metrics are "+ allMetrics);
+}
+}
+}
+List<FlotTimeSeries> flotSeries=new ArrayList<FlotTimeSeries>();
+for (Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
+List<Long> times=new ArrayList<Long>(entry.getValue().getTimeWindowSet());
+Collections.sort(times);
+for (String metricName : metricNames) {
+Number[][] data=new Number[times.size()][];
+for (int i=0; i < times.size(); i++) {
+long time=times.get(i);
+data[i]=new Number[]{time,entry.getValue().get(time,metricName)};
+}
+Number startValue=entry.getValue().get(adjustedStartMillis,metricName);
+Number endValue=entry.getValue().get(adjustedEndMillis,metricName);
+Double ratio=Double.POSITIVE_INFINITY;
+MetricType metricType=entry.getValue().getSchema().getMetricType(metricName);
+if (!NumberUtils.isZero(startValue,metricType)) {
+ratio=100 * (endValue.doubleValue() - startValue.doubleValue()) / startValue.doubleValue();
+}
+flotSeries.add(new FlotTimeSeries(metricName,String.format("(%.2f)%% %s (%s)",ratio,metricName,entry.getKey()),QueryUtils.convertDimensionKey(starTree.getConfig().getDimensions(),entry.getKey()),data,adjustedStartMillis,adjustedEndMillis));
+}
+}
+return flotSeries;
+}
