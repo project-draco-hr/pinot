@@ -58,5 +58,17 @@
     final long deserializationTime=System.nanoTime() - deserializationStartTime;
     _brokerMetrics.addPhaseTiming(request,BrokerQueryPhase.DESERIALIZATION,deserializationTime);
   }
-  return instanceResponseMap;
+  try {
+    return _brokerMetrics.timePhase(request,BrokerQueryPhase.REDUCE,new Callable<BrokerResponse>(){
+      @Override public BrokerResponse call(){
+        BrokerResponse returnValue=_reduceService.reduceOnDataTable(request,instanceResponseMap);
+        _brokerMetrics.addMeteredValue(request,BrokerMeter.DOCUMENTS_SCANNED,returnValue.getNumDocsScanned());
+        return returnValue;
+      }
+    }
+);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
 }

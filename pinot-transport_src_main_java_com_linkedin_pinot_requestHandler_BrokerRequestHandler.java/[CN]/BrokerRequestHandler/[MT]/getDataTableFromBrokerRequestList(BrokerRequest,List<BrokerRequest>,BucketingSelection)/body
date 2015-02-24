@@ -1,0 +1,86 @@
+{
+  long scatterGatherStartTime=System.nanoTime();
+  long queryRoutingTime=0;
+  Map<BrokerRequest,CompositeFuture<ServerInstance,ByteBuf>> responseFuturesList=new HashMap<BrokerRequest,CompositeFuture<ServerInstance,ByteBuf>>();
+  for (  BrokerRequest request : requests) {
+    final long routingStartTime=System.nanoTime();
+    RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getResourceName());
+    Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
+    if (segmentServices == null) {
+      LOGGER.info("Not found ServerInstances to Segments Mapping:");
+      return null;
+    }
+    LOGGER.info("Find ServerInstances to Segments Mapping:");
+    for (    ServerInstance serverInstance : segmentServices.keySet()) {
+      LOGGER.info(serverInstance + " : " + segmentServices.get(serverInstance));
+    }
+    queryRoutingTime+=System.nanoTime() - routingStartTime;
+    scatterGatherStartTime=System.nanoTime();
+    ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,_requestIdGen.incrementAndGet(),10 * 1000L);
+    responseFuturesList.put(request,_scatterGatherer.scatterGather(scatterRequest));
+  }
+  _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.QUERY_ROUTING,queryRoutingTime);
+  long scatterGatherTime=0;
+  long deserializationTime=0;
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+{
+    for (    BrokerRequest request : responseFuturesList.keySet()) {
+      CompositeFuture<ServerInstance,ByteBuf> response=responseFuturesList.get(request);
+      Map<ServerInstance,ByteBuf> responses=null;
+      try {
+        responses=response.get();
+      }
+ catch (      ExecutionException e) {
+        LOGGER.warn("Caught exception while fetching response",e);
+        _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+      }
+      scatterGatherTime+=System.nanoTime() - scatterGatherStartTime;
+      final long deserializationStartTime=System.nanoTime();
+      Map<ServerInstance,Throwable> errors=response.getError();
+      if (null != responses) {
+        for (        Entry<ServerInstance,ByteBuf> e : responses.entrySet()) {
+          try {
+            ByteBuf b=e.getValue();
+            byte[] b2=new byte[b.readableBytes()];
+            if (b2 == null || b2.length == 0) {
+              continue;
+            }
+            b.readBytes(b2);
+            DataTable r2=new DataTable(b2);
+            ServerInstance decoratedServerInstance=new ServerInstance(e.getKey().getHostname() + "_" + request.hashCode(),e.getKey().getPort());
+            instanceResponseMap.put(decoratedServerInstance,r2);
+          }
+ catch (          Exception ex) {
+            LOGGER.error("Got exceptions in collect query result for instance " + e.getKey() + ", error: "+ ex.getMessage());
+            _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_DESERIALIZATION_EXCEPTIONS,1);
+          }
+        }
+      }
+      if (null != errors) {
+        for (        Entry<ServerInstance,Throwable> e : errors.entrySet()) {
+          DataTable r2=new DataTable();
+          r2.getMetadata().put("exception",new RequestProcessingException(e.getValue()).toString());
+          ServerInstance decoratedServerInstance=new ServerInstance(e.getKey().getHostname() + "_" + request.hashCode(),e.getKey().getPort());
+          instanceResponseMap.put(decoratedServerInstance,r2);
+          _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+        }
+      }
+      deserializationTime+=System.nanoTime() - deserializationStartTime;
+    }
+  }
+  _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.SCATTER_GATHER,scatterGatherTime);
+  _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.DESERIALIZATION,deserializationTime);
+  try {
+    return _brokerMetrics.timePhase(federatedBrokerRequest,BrokerQueryPhase.REDUCE,new Callable<BrokerResponse>(){
+      @Override public BrokerResponse call(){
+        BrokerResponse returnValue=_reduceService.reduceOnDataTable(federatedBrokerRequest,instanceResponseMap);
+        _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.DOCUMENTS_SCANNED,returnValue.getNumDocsScanned());
+        return returnValue;
+      }
+    }
+);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}
