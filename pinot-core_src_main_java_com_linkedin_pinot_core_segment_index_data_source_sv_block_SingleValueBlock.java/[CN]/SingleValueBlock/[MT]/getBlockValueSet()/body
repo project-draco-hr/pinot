@@ -9,8 +9,12 @@
         private int counter=0;
         @Override public boolean skipTo(        int docId){
           int entry=Arrays.binarySearch(docIds,docId);
-          if (entry < 0)           entry*=-1;
-          if (entry >= docIds.length)           return false;
+          if (entry < 0) {
+            entry*=-1;
+          }
+          if (entry >= docIds.length) {
+            return false;
+          }
           counter=entry;
           return true;
         }
@@ -28,7 +32,8 @@
           return true;
         }
         @Override public boolean next(){
-          return false;
+          counter++;
+          return counter < docIds.length;
         }
         @Override public boolean hasNext(){
           return (counter < docIds.length);

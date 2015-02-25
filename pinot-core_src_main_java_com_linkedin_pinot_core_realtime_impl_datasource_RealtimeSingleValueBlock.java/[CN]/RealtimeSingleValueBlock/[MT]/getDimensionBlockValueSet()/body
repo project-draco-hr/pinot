@@ -20,10 +20,10 @@
         }
         @Override public boolean next(){
           counter++;
-          return counter <= max;
+          return counter < max;
         }
         @Override public int nextIntVal(){
-          if (counter >= max) {
+          if (counter > max) {
             return Constants.EOF;
           }
           Pair<Long,Long> documentFinderPair=docIdMap.get(counter);
@@ -35,7 +35,7 @@
           return vals[0];
         }
         @Override public boolean hasNext(){
-          return (counter <= max);
+          return (counter < max);
         }
         @Override public DataType getValueType(){
           return spec.getDataType();

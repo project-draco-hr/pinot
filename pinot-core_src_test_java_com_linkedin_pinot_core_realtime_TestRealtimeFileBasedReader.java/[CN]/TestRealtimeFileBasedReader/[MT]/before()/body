@@ -16,4 +16,20 @@
   fieldTypeMap.put("minutesSinceEpoch",FieldType.time);
   fieldTypeMap.put("count",FieldType.metric);
   schema=SegmentTestUtils.extractSchemaFromAvro(new File(filePath),fieldTypeMap,TimeUnit.MINUTES);
+  StreamProviderConfig config=new FileBasedStreamProviderConfig(FileFormat.AVRO,filePath,schema);
+  StreamProvider provider=new FileBasedStreamProviderImpl();
+  provider.init(config);
+  realtimeSegment=new RealtimeSegmentImpl(schema);
+  GenericRow row=provider.next();
+  while (row != null) {
+    realtimeSegment.index(row);
+    row=provider.next();
+  }
+  provider.shutdown();
+  if (new File("/tmp/realtime").exists()) {
+    FileUtils.deleteQuietly(new File("/tmp/realtime"));
+  }
+  RealtimeSegmentConverter conveter=new RealtimeSegmentConverter(realtimeSegment,"/tmp/realtime",schema,"mirror","mirror");
+  conveter.build();
+  offlineSegment=Loaders.IndexSegment.load(new File("/tmp/realtime").listFiles()[0],ReadMode.mmap);
 }

@@ -6,8 +6,12 @@
         int counter=0;
         @Override public int skipTo(        int targetDocId){
           int entry=Arrays.binarySearch(docIds,targetDocId);
-          if (entry < 0)           entry*=-1;
-          if (entry >= docIds.length)           return Constants.EOF;
+          if (entry < 0) {
+            entry*=-1;
+          }
+          if (entry >= docIds.length) {
+            return Constants.EOF;
+          }
           counter=entry;
           return counter;
         }
