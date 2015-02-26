@@ -1,20 +1,23 @@
 {
   final BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
-  final BrokerDataResource brokerDataResource=new BrokerDataResource(resource.getResourceName(),brokerTagResource);
-  PinotResourceManagerResponse createBrokerResourceResp=null;
-  if (!HelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
-    createBrokerResourceResp=createBrokerResourceTag(brokerTagResource);
-  }
- else   if (HelixHelper.getBrokerTag(_helixAdmin,_helixClusterName,brokerTagResource.getTag()).getNumBrokerInstances() < brokerTagResource.getNumBrokerInstances()) {
-    createBrokerResourceResp=updateBrokerResourceTag(brokerTagResource);
-  }
-  if ((createBrokerResourceResp == null) || createBrokerResourceResp.isSuccessfull()) {
-    createBrokerResourceResp=createBrokerDataResource(brokerDataResource);
-    if (!createBrokerResourceResp.isSuccessfull()) {
-      throw new UnsupportedOperationException("Failed to update broker resource : " + createBrokerResourceResp.errorMessage);
-    }
-  }
- else {
-    throw new UnsupportedOperationException("Failed to create broker resource : " + createBrokerResourceResp.errorMessage);
-  }
+  BrokerDataResource brokerDataResource;
+  ResourceType resourceType=resource.getResourceType();
+switch (resourceType) {
+case OFFLINE:
+    brokerDataResource=new BrokerDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),brokerTagResource);
+  createBrokerDataResource(brokerDataResource,brokerTagResource);
+break;
+case REALTIME:
+brokerDataResource=new BrokerDataResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()),brokerTagResource);
+createBrokerDataResource(brokerDataResource,brokerTagResource);
+break;
+case HYBRID:
+brokerDataResource=new BrokerDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),brokerTagResource);
+createBrokerDataResource(brokerDataResource,brokerTagResource);
+brokerDataResource=new BrokerDataResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()),brokerTagResource);
+createBrokerDataResource(brokerDataResource,brokerTagResource);
+break;
+default :
+break;
+}
 }

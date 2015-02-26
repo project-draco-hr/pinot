@@ -1,8 +1,8 @@
 {
-  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResource(_testResourceName)) {
-    _pinotHelixResourceManager.deleteSegment(_testResourceName,segmentId);
+  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName))) {
+    _pinotHelixResourceManager.deleteSegment(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName),segmentId);
   }
-  while (_helixZkManager.getHelixPropertyStore().getChildNames(PinotHelixUtils.constructPropertyStorePathForResource(_testResourceName),AccessOption.PERSISTENT).size() > 0) {
+  while (_helixZkManager.getHelixPropertyStore().getChildNames(PinotHelixUtils.constructPropertyStorePathForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)),AccessOption.PERSISTENT).size() > 0) {
     Thread.sleep(1000);
   }
 }

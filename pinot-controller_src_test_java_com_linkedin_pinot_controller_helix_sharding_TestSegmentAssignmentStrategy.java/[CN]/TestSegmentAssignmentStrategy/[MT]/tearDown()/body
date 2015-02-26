@@ -1,4 +1,8 @@
 {
   _pinotResourceManager.stop();
+  final String zkPath="/" + HELIX_CLUSTER_NAME;
+  if (_zkClient.exists(zkPath)) {
+    _zkClient.deleteRecursive(zkPath);
+  }
   _zkClient.close();
 }

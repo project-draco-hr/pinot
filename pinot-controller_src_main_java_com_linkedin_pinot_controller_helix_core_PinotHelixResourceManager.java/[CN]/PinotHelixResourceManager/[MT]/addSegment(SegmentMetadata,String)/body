@@ -8,8 +8,11 @@
     }
     if (ifSegmentExisted(segmentMetadata)) {
       if (ifRefreshAnExistedSegment(segmentMetadata)) {
-        final ZNRecord record=new ZNRecord(segmentMetadata.getName());
-        record.setSimpleFields(segmentMetadata.toMap());
+        final ZNRecord record=_propertyStore.get(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata.getResourceName(),segmentMetadata.getName()),null,AccessOption.PERSISTENT);
+        Map<String,String> segmentMetadataMap=segmentMetadata.toMap();
+        for (        String key : segmentMetadataMap.keySet()) {
+          record.setSimpleField(key,segmentMetadataMap.get(key));
+        }
         record.setSimpleField(V1Constants.SEGMENT_DOWNLOAD_URL,downloadUrl);
         record.setSimpleField(V1Constants.SEGMENT_REFRESH_TIME,String.valueOf(System.currentTimeMillis()));
         _propertyStore.set(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata),record,AccessOption.PERSISTENT);

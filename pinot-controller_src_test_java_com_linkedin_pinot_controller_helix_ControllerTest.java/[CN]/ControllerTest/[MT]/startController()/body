@@ -5,8 +5,9 @@
   conf.setDataDir(DATA_DIR);
   conf.setZkStr(ZK_STR);
   conf.setHelixClusterName(getHelixClusterName());
-  if (ControllerSentinelTest._zkClient.exists("/" + getHelixClusterName())) {
-    ControllerSentinelTest._zkClient.deleteRecursive("/" + getHelixClusterName());
+  _zkClient=new ZkClient(ZK_STR);
+  if (_zkClient.exists("/" + getHelixClusterName())) {
+    _zkClient.deleteRecursive("/" + getHelixClusterName());
   }
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_STR);
   _helixZkManager=HelixSetupUtils.setup(getHelixClusterName(),helixZkURL,CONTROLLER_INSTANCE_NAME);

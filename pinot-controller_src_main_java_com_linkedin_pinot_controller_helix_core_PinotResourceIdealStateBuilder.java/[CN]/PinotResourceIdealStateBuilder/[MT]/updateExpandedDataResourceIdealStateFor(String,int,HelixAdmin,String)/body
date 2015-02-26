@@ -1,15 +1,14 @@
 {
-  IdealState idealState=helixAdmin.getResourceIdealState(helixClusterName,resource.getResourceName());
-  if (Integer.parseInt(idealState.getReplicas()) < resource.getNumberOfCopies()) {
+  IdealState idealState=helixAdmin.getResourceIdealState(helixClusterName,resourceName);
+  if (Integer.parseInt(idealState.getReplicas()) < numCopies) {
     Random randomSeed=new Random(System.currentTimeMillis());
-    int replicas=resource.getNumberOfCopies();
     int currentReplicas=Integer.parseInt(idealState.getReplicas());
-    idealState.setReplicas(replicas + "");
+    idealState.setReplicas(numCopies + "");
     Set<String> segmentSet=idealState.getPartitionSet();
-    List<String> instanceList=helixAdmin.getInstancesInClusterWithTag(helixClusterName,resource.getResourceName());
+    List<String> instanceList=helixAdmin.getInstancesInClusterWithTag(helixClusterName,resourceName);
     for (    String segmentName : segmentSet) {
       Set<String> selectedInstanceSet=idealState.getInstanceSet(segmentName);
-      int numInstancesToAssign=replicas - currentReplicas;
+      int numInstancesToAssign=numCopies - currentReplicas;
       int numInstancesAvailable=instanceList.size() - selectedInstanceSet.size();
       for (      String instance : instanceList) {
         if (selectedInstanceSet.contains(instance)) {
@@ -27,8 +26,8 @@
     }
     return idealState;
   }
-  if (Integer.parseInt(idealState.getReplicas()) > resource.getNumberOfCopies()) {
-    int replicas=resource.getNumberOfCopies();
+  if (Integer.parseInt(idealState.getReplicas()) > numCopies) {
+    int replicas=numCopies;
     int currentReplicas=Integer.parseInt(idealState.getReplicas());
     idealState.setReplicas(replicas + "");
     Set<String> segmentSet=idealState.getPartitionSet();

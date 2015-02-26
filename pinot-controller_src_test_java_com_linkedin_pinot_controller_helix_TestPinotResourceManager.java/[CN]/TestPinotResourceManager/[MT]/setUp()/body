@@ -14,7 +14,7 @@
   Thread.sleep(3000);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),_numInstance);
   final DataResource resource=ControllerRequestBuilderUtil.createOfflineClusterCreationConfig(1,1,TEST_RESOURCE_NAME,"BalanceNumSegmentAssignmentStrategy");
-  _pinotResourceManager.createNewDataResource(resource);
+  _pinotResourceManager.createNewOfflineDataResource(resource);
   final DataResource addTableResource=ControllerRequestBuilderUtil.createOfflineClusterAddTableToResource(TEST_RESOURCE_NAME,"testTable");
   _pinotResourceManager.handleAddTableToDataResource(addTableResource);
 }

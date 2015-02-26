@@ -1,9 +1,17 @@
 {
-  final List<String> taggedInstanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,resource.getResourceName());
-  for (  final String instance : taggedInstanceList) {
-    LOGGER.info("untag instance : " + instance.toString());
-    _helixAdmin.removeInstanceTag(_helixClusterName,instance,resource.getResourceName());
-    _helixAdmin.addInstanceTag(_helixClusterName,instance,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
-  }
-  _helixAdmin.dropResource(_helixClusterName,resource.getResourceName());
+  ResourceType resourceType=resource.getResourceType();
+switch (resourceType) {
+case OFFLINE:
+    revertDataResourceFor(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()));
+  break;
+case REALTIME:
+revertDataResourceFor(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()));
+break;
+case HYBRID:
+revertDataResourceFor(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()));
+revertDataResourceFor(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()));
+break;
+default :
+break;
+}
 }

@@ -1,16 +1,31 @@
 {
+  String resourceName=null;
   final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-  final Set<String> tableNames=getAllTableNamesForResource(resource.getResourceName());
-  if (tableNames.contains(resource.getTableName())) {
-    resp.status=STATUS.failure;
-    resp.errorMessage=String.format("Table name (%s) is already existed in resource (%s)",resource.getTableName(),resource.getResourceName());
-    return resp;
-  }
-  tableNames.add(resource.getTableName());
-  final Map<String,String> tableConfig=new HashMap<String,String>();
-  tableConfig.put("tableName",StringUtils.join(tableNames,","));
-  HelixHelper.updateResourceConfigsFor(tableConfig,resource.getResourceName(),_helixClusterName,_helixAdmin);
-  resp.status=STATUS.success;
-  resp.errorMessage=String.format("Adding table name (%s) to resource (%s)",resource.getTableName(),resource.getResourceName());
-  return resp;
+switch (resource.getResourceType()) {
+case OFFLINE:
+    resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
+  break;
+case REALTIME:
+resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+break;
+case HYBRID:
+break;
+default :
+resp.status=STATUS.failure;
+resp.errorMessage=String.format("ResourceType is not valid : (%s)!",resource.getResourceType());
+return resp;
+}
+final Set<String> tableNames=getAllTableNamesForResource(resourceName);
+if (tableNames.contains(resource.getTableName())) {
+resp.status=STATUS.failure;
+resp.errorMessage=String.format("Table name (%s) is already existed in resource (%s)",resource.getTableName(),resource.getResourceName());
+return resp;
+}
+tableNames.add(resource.getTableName());
+final Map<String,String> tableConfig=new HashMap<String,String>();
+tableConfig.put("tableName",StringUtils.join(tableNames,","));
+HelixHelper.updateResourceConfigsFor(tableConfig,resourceName,_helixClusterName,_helixAdmin);
+resp.status=STATUS.success;
+resp.errorMessage=String.format("Adding table name (%s) to resource (%s)",resource.getTableName(),resource.getResourceName());
+return resp;
 }

@@ -1,0 +1,9 @@
+{
+  final List<String> taggedInstanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,resourceName);
+  for (  final String instance : taggedInstanceList) {
+    LOGGER.info("untag instance : " + instance.toString());
+    _helixAdmin.removeInstanceTag(_helixClusterName,instance,resourceName);
+    _helixAdmin.addInstanceTag(_helixClusterName,instance,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+  }
+  _helixAdmin.dropResource(_helixClusterName,resourceName);
+}

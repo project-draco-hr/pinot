@@ -1,0 +1,35 @@
+{
+  final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
+  if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(resourceName)) {
+    resp.status=STATUS.failure;
+    resp.errorMessage=String.format("Resource (%s) does not exist",resourceName);
+    return resp;
+  }
+  final List<String> unTaggedInstanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+  final List<String> alreadyTaggedInstanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,resourceName);
+  if (alreadyTaggedInstanceList.size() > resource.getNumberOfDataInstances()) {
+    resp.status=STATUS.failure;
+    resp.errorMessage=String.format("Reducing cluster size is not supported for now, current number instances for resource (%s) is " + alreadyTaggedInstanceList.size(),resourceName);
+    return resp;
+  }
+  final int numInstanceToUse=resource.getNumberOfDataInstances() - alreadyTaggedInstanceList.size();
+  LOGGER.info("Already used boxes: " + alreadyTaggedInstanceList.size() + " instances.");
+  LOGGER.info("Trying to allocate " + numInstanceToUse + " instances.");
+  LOGGER.info("Current untagged boxes: " + unTaggedInstanceList.size());
+  if (unTaggedInstanceList.size() < numInstanceToUse) {
+    throw new UnsupportedOperationException("Cannot allocate enough hardware resource.");
+  }
+  for (int i=0; i < numInstanceToUse; ++i) {
+    LOGGER.info("tag instance : " + unTaggedInstanceList.get(i).toString() + " to "+ resourceName);
+    _helixAdmin.removeInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+    _helixAdmin.addInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),resourceName);
+  }
+  LOGGER.info("recompute ideal state for resource : " + resourceName);
+  final IdealState idealState=PinotResourceIdealStateBuilder.updateExpandedDataResourceIdealStateFor(resourceName,resource.getNumberOfCopies(),_helixAdmin,_helixClusterName);
+  LOGGER.info("update resource via the admin");
+  _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
+  LOGGER.info("successfully update the resource : " + resourceName + " to the cluster");
+  HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resourceName,_helixClusterName,_helixAdmin);
+  resp.status=STATUS.success;
+  return resp;
+}

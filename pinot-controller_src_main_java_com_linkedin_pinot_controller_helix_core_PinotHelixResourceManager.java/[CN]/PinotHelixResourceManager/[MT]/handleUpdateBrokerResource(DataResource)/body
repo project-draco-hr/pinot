@@ -1,19 +1,32 @@
 {
-  final String currentResourceBrokerTag=HelixHelper.getResourceConfigsFor(_helixClusterName,resource.getResourceName(),_helixAdmin).get(CommonConstants.Helix.DataSource.BROKER_TAG_NAME);
-  ;
-  if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
-    final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-    resp.status=STATUS.failure;
-    resp.errorMessage="Current broker tag for resource : " + resource + " is "+ currentResourceBrokerTag+ ", not match updated request broker tag : "+ resource.getBrokerTagName();
-    return resp;
-  }
-  final BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
-  final PinotResourceManagerResponse updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
-  if (updateBrokerResourceTagResp.isSuccessfull()) {
-    HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resource.getResourceName(),_helixClusterName,_helixAdmin);
-    return createBrokerDataResource(new BrokerDataResource(resource.getResourceName(),brokerTagResource));
-  }
+  String resourceName=null;
+switch (resource.getResourceType()) {
+case OFFLINE:
+    resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
+  break;
+case REALTIME:
+resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+break;
+case HYBRID:
+break;
+default :
+break;
+}
+final String currentResourceBrokerTag=HelixHelper.getResourceConfigsFor(_helixClusterName,resourceName,_helixAdmin).get(CommonConstants.Helix.DataSource.BROKER_TAG_NAME);
+;
+if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
+final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
+resp.status=STATUS.failure;
+resp.errorMessage="Current broker tag for resource : " + resource + " is "+ currentResourceBrokerTag+ ", not match updated request broker tag : "+ resource.getBrokerTagName();
+return resp;
+}
+final BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
+final PinotResourceManagerResponse updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
+if (updateBrokerResourceTagResp.isSuccessfull()) {
+HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resourceName,_helixClusterName,_helixAdmin);
+return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
+}
  else {
-    return updateBrokerResourceTagResp;
-  }
+return updateBrokerResourceTagResp;
+}
 }
