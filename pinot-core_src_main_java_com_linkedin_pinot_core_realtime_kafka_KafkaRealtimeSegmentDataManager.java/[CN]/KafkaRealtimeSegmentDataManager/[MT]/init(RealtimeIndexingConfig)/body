@@ -1,0 +1,8 @@
+{
+  realtimeSegment=createRealtimeSegment(realtimeIndexingConfig);
+  streamProviderConfig=getStreamProviderConfig(realtimeIndexingConfig);
+  kafkaStreamProvider=getStreamProvider(streamProviderConfig);
+  segmentMetadataChangeListener=createMetadataChangeListener();
+  invoker=new SegmentMetadataListenerInvoker(helixManager,segmentMetadataChangeListener);
+  subscribeToSegmentMetadataChanges();
+}

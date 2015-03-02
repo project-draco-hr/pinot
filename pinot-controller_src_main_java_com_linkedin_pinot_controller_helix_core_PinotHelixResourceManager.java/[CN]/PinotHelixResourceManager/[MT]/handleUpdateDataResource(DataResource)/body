@@ -1,35 +1,33 @@
 {
-  final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-  if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(resource.getResourceName())) {
-    resp.status=STATUS.failure;
-    resp.errorMessage=String.format("Resource (%s) does not exist",resource.getResourceName());
-    return resp;
-  }
-  final List<String> unTaggedInstanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
-  final List<String> alreadyTaggedInstanceList=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,resource.getResourceName());
-  if (alreadyTaggedInstanceList.size() > resource.getNumberOfDataInstances()) {
-    resp.status=STATUS.failure;
-    resp.errorMessage=String.format("Reducing cluster size is not supported for now, current number instances for resource (%s) is " + alreadyTaggedInstanceList.size(),resource.getResourceName());
-    return resp;
-  }
-  final int numInstanceToUse=resource.getNumberOfDataInstances() - alreadyTaggedInstanceList.size();
-  LOGGER.info("Already used boxes: " + alreadyTaggedInstanceList.size() + " instances.");
-  LOGGER.info("Trying to allocate " + numInstanceToUse + " instances.");
-  LOGGER.info("Current untagged boxes: " + unTaggedInstanceList.size());
-  if (unTaggedInstanceList.size() < numInstanceToUse) {
-    throw new UnsupportedOperationException("Cannot allocate enough hardware resource.");
-  }
-  for (int i=0; i < numInstanceToUse; ++i) {
-    LOGGER.info("tag instance : " + unTaggedInstanceList.get(i).toString() + " to "+ resource.getResourceName());
-    _helixAdmin.removeInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
-    _helixAdmin.addInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),resource.getResourceName());
-  }
-  LOGGER.info("recompute ideal state for resource : " + resource.getResourceName());
-  final IdealState idealState=PinotResourceIdealStateBuilder.updateExpandedDataResourceIdealStateFor(resource,_helixAdmin,_helixClusterName);
-  LOGGER.info("update resource via the admin");
-  _helixAdmin.setResourceIdealState(_helixClusterName,resource.getResourceName(),idealState);
-  LOGGER.info("successfully update the resource : " + resource.getResourceName() + " to the cluster");
-  HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resource.getResourceName(),_helixClusterName,_helixAdmin);
-  resp.status=STATUS.success;
-  return resp;
+  try {
+    ResourceType resourceType=resource.getResourceType();
+    String resourceName;
+switch (resourceType) {
+case OFFLINE:
+      resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
+    return handleUpdateDataResourceFor(resourceName,resource);
+case REALTIME:
+  resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+return handleUpdateDataResourceFor(resourceName,resource);
+case HYBRID:
+resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
+PinotResourceManagerResponse res=handleUpdateDataResourceFor(resourceName,resource);
+if (res.isSuccessfull()) {
+resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+return handleUpdateDataResourceFor(resourceName,resource);
+}
+ else {
+return res;
+}
+default :
+throw new RuntimeException("Unsupported operation for ResourceType: " + resourceType);
+}
+}
+ catch (Exception e) {
+PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+res.errorMessage="ResourceType has to be REALTIME/OFFLINE/HYBRID : " + e.getMessage();
+res.status=STATUS.failure;
+LOGGER.error(e.toString());
+return res;
+}
 }

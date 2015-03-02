@@ -1,0 +1,7 @@
+{
+  if (_zkClient.exists("/" + HELIX_CLUSTER_NAME)) {
+    _zkClient.deleteRecursive("/" + HELIX_CLUSTER_NAME);
+  }
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_STR,HELIX_CLUSTER_NAME,CONTROLLER_INSTANCE_NAME,null);
+  _pinotHelixResourceManager.start();
+}

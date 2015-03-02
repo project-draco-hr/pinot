@@ -1,0 +1,21 @@
+{
+  StarTree starTree=starTreeManager.getStarTree(collection);
+  if (starTree == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  TimeSeriesComponentView timeSeriesComponentView=timeSeriesResource.getTimeSeriesComponentView(collection,"*",startMillis,endMillis,aggregate,movingAverage,normalized,uriInfo);
+  HeatMapComponentView heatMapComponentView=heatMapResource.getHeatMapComponentView(heatMapType,collection,metric,startMillis,endMillis,aggregate,movingAverage,uriInfo);
+  List<List<String>> disabledDimensions=new ArrayList<List<String>>();
+  List<String> activeDimension=null;
+  String queryString=uriInfo.getRequestUri().getQuery();
+  if (queryString != null && queryString.length() > 0) {
+    String[] queryComponents=queryString.split("&");
+    for (int i=0; i < queryComponents.length - 1; i++) {
+      disabledDimensions.add(Arrays.asList(queryComponents[i].split("=")));
+    }
+    if (queryComponents.length != 0) {
+      activeDimension=Arrays.asList(queryComponents[queryComponents.length - 1].split("="));
+    }
+  }
+  return new DefaultDashboardView(starTree.getConfig(),metric,endMillis,disabledDimensions,activeDimension,timeSeriesComponentView,heatMapComponentView,feedbackAddress);
+}

@@ -1,17 +1,37 @@
 {
   final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  ResourceType resourceType=null;
   try {
-    createNewDataResource(resource);
-    handleBrokerResource(resource);
+    resourceType=resource.getResourceType();
   }
- catch (  final Exception e) {
-    res.errorMessage=e.getMessage();
+ catch (  Exception e) {
+    res.errorMessage="ResourceType has to be REALTIME/OFFLINE/HYBRID : " + e.getMessage();
     res.status=STATUS.failure;
-    e.printStackTrace();
     LOGGER.error(e.toString());
-    revertDataResource(resource);
-    throw new RuntimeException("Error creating cluster, have successfull rolled back",e);
+    throw new RuntimeException("ResourceType has to be REALTIME/OFFLINE/HYBRID.",e);
   }
-  res.status=STATUS.success;
-  return res;
+  try {
+switch (resourceType) {
+case OFFLINE:
+      createNewOfflineDataResource(resource);
+    handleBrokerResource(resource);
+  break;
+case REALTIME:
+break;
+case HYBRID:
+break;
+default :
+break;
+}
+}
+ catch (final Exception e) {
+res.errorMessage=e.getMessage();
+res.status=STATUS.failure;
+e.printStackTrace();
+LOGGER.error(e.toString());
+revertDataResource(resource);
+throw new RuntimeException("Error creating cluster, have successfull rolled back",e);
+}
+res.status=STATUS.success;
+return res;
 }

@@ -1,0 +1,47 @@
+{
+  IdealState idealState=helixAdmin.getResourceIdealState(helixClusterName,resourceName);
+  if (Integer.parseInt(idealState.getReplicas()) < numCopies) {
+    Random randomSeed=new Random(System.currentTimeMillis());
+    int currentReplicas=Integer.parseInt(idealState.getReplicas());
+    idealState.setReplicas(numCopies + "");
+    Set<String> segmentSet=idealState.getPartitionSet();
+    List<String> instanceList=helixAdmin.getInstancesInClusterWithTag(helixClusterName,resourceName);
+    for (    String segmentName : segmentSet) {
+      Set<String> selectedInstanceSet=idealState.getInstanceSet(segmentName);
+      int numInstancesToAssign=numCopies - currentReplicas;
+      int numInstancesAvailable=instanceList.size() - selectedInstanceSet.size();
+      for (      String instance : instanceList) {
+        if (selectedInstanceSet.contains(instance)) {
+          continue;
+        }
+        if (randomSeed.nextInt(numInstancesAvailable) < numInstancesToAssign) {
+          idealState.setPartitionState(segmentName,instance,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+          numInstancesToAssign--;
+        }
+        if (numInstancesToAssign == 0) {
+          break;
+        }
+        numInstancesAvailable--;
+      }
+    }
+    return idealState;
+  }
+  if (Integer.parseInt(idealState.getReplicas()) > numCopies) {
+    int replicas=numCopies;
+    int currentReplicas=Integer.parseInt(idealState.getReplicas());
+    idealState.setReplicas(replicas + "");
+    Set<String> segmentSet=idealState.getPartitionSet();
+    for (    String segmentName : segmentSet) {
+      Set<String> instanceSet=idealState.getInstanceSet(segmentName);
+      int cnt=1;
+      for (      final String instance : instanceSet) {
+        idealState.setPartitionState(segmentName,instance,PinotHelixSegmentOnlineOfflineStateModelGenerator.DROPPED_STATE);
+        if (cnt++ > (currentReplicas - replicas)) {
+          break;
+        }
+      }
+    }
+    return idealState;
+  }
+  return idealState;
+}

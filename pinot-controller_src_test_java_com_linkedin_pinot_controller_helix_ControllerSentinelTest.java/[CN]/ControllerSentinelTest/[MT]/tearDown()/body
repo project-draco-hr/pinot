@@ -1,3 +1,7 @@
 {
   stopController();
+  if (_zkClient.exists("/ControllerSentinelTest")) {
+    _zkClient.deleteRecursive("/ControllerSentinelTest");
+  }
+  _zkClient.close();
 }

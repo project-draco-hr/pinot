@@ -1,0 +1,9 @@
+{
+  long startOffset=0;
+  kafkaStreamProvider.setOffset(startOffset);
+  kafkaStreamProvider.start();
+  while (true) {
+    GenericRow next=kafkaStreamProvider.next();
+    realtimeSegment.index(next);
+  }
+}

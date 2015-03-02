@@ -1,28 +1,3 @@
 {
-  List<Map<String,Object>> flotSeries=new ArrayList<Map<String,Object>>();
-  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : data.entrySet()) {
-    List<Long> times=new ArrayList<Long>(entry.getValue().getTimeWindowSet());
-    Collections.sort(times);
-    for (    String metricName : metricNames) {
-      Number[][] data=new Number[times.size()][];
-      for (int i=0; i < times.size(); i++) {
-        long time=times.get(i);
-        data[i]=new Number[]{time,entry.getValue().get(time,metricName)};
-      }
-      Number startValue=entry.getValue().get(start,metricName);
-      Number endValue=entry.getValue().get(end,metricName);
-      Double ratio=Double.POSITIVE_INFINITY;
-      MetricType metricType=entry.getValue().getSchema().getMetricType(metricName);
-      if (!NumberUtils.isZero(startValue,metricType)) {
-        ratio=100 * (endValue.doubleValue() - startValue.doubleValue()) / startValue.doubleValue();
-      }
-      Map<String,Object> series=new HashMap<String,Object>();
-      series.put("metricName",metricName);
-      series.put("label",String.format("(%.2f)%% %s (%s)",ratio,metricName,entry.getKey()));
-      series.put("dimensionValues",QueryUtils.convertDimensionKey(config.getDimensions(),entry.getKey()));
-      series.put("data",data);
-      flotSeries.add(series);
-    }
-  }
   return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(flotSeries);
 }
