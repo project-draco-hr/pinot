@@ -1,0 +1,9 @@
+{
+  BufferedReader reader=null;
+  reader=new BufferedReader(new InputStreamReader(url.openStream(),"UTF-8"));
+  StringBuilder queryResp=new StringBuilder();
+  for (String respLine; (respLine=reader.readLine()) != null; ) {
+    queryResp.append(respLine);
+  }
+  return org.apache.avro.Schema.parse(queryResp.toString());
+}

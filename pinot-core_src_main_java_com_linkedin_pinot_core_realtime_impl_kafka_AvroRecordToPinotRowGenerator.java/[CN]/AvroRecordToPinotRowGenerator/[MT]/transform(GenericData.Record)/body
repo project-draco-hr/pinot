@@ -1,0 +1,16 @@
+{
+  Map<String,Object> rowEntries=new HashMap<String,Object>();
+  for (  String column : indexingSchema.getColumnNames()) {
+    Object entry=record.get(column);
+    if (entry instanceof Utf8) {
+      entry=((Utf8)entry).toString();
+    }
+    if (entry instanceof Array) {
+      entry=AvroRecordReader.transformAvroArrayToObjectArray((Array)entry);
+    }
+    rowEntries.put(column,entry);
+  }
+  GenericRow row=new GenericRow();
+  row.init(rowEntries);
+  return row;
+}

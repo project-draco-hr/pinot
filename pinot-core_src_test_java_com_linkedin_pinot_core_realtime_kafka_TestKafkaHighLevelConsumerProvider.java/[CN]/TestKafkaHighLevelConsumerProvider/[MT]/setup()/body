@@ -1,0 +1,27 @@
+{
+  filePath=TestRealtimeFileBasedReader.class.getClassLoader().getResource(AVRO_DATA).getFile();
+  fieldTypeMap=new HashMap<String,FieldSpec.FieldType>();
+  fieldTypeMap.put("viewerId",FieldType.dimension);
+  fieldTypeMap.put("vieweeId",FieldType.dimension);
+  fieldTypeMap.put("viewerPrivacySetting",FieldType.dimension);
+  fieldTypeMap.put("vieweePrivacySetting",FieldType.dimension);
+  fieldTypeMap.put("viewerObfuscationType",FieldType.dimension);
+  fieldTypeMap.put("viewerCompanies",FieldType.dimension);
+  fieldTypeMap.put("viewerOccupations",FieldType.dimension);
+  fieldTypeMap.put("viewerRegionCode",FieldType.dimension);
+  fieldTypeMap.put("viewerIndustry",FieldType.dimension);
+  fieldTypeMap.put("viewerSchool",FieldType.dimension);
+  fieldTypeMap.put("weeksSinceEpochSunday",FieldType.dimension);
+  fieldTypeMap.put("daysSinceEpoch",FieldType.dimension);
+  fieldTypeMap.put("minutesSinceEpoch",FieldType.time);
+  fieldTypeMap.put("count",FieldType.metric);
+  schema=SegmentTestUtils.extractSchemaFromAvro(new File(filePath),fieldTypeMap,TimeUnit.MINUTES);
+  Map<String,String> properties=new HashMap<String,String>();
+  properties.put(KafkaProperties.HighLevelConsumer.GROUP_ID,"PinotTestNewHighLevelConsumerMirror_dpatel_local");
+  properties.put(KafkaProperties.HighLevelConsumer.ZK_CONNECTION_STRING,"zk-eat1-kafka.corp.linkedin.com:12913/kafka-aggregate-tracking");
+  properties.put(KafkaProperties.TOPIC_NAME,"MirrorDecoratedProfileViewEvent");
+  properties.put(KafkaProperties.DECODER_CLASS,"com.linkedin.pinot.core.realtime.impl.kafka.KafkaAvroMessageDecoder");
+  properties.put(KafkaProperties.getDecoderPropertyKeyFor(KafkaAvroMessageDecoder.SCHEMA_REGISTRY_REST_URL),"http://eat1-ei2-schema-vip-z.stg.linkedin.com:10252/schemaRegistry/schemas");
+  config=new KafkaHighLevelStreamProviderConfig();
+  config.init(properties,schema);
+}

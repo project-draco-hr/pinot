@@ -1,0 +1,8 @@
+{
+  schemaRegistryBaseUrl=props.get(SCHEMA_REGISTRY_REST_URL);
+  StringUtils.chomp(schemaRegistryBaseUrl,"/");
+  kafkaTopicName=topicName;
+  defaultAvroSchema=fetchSchema(new URL(schemaRegistryBaseUrl + "/latest_with_type=" + kafkaTopicName));
+  this.avroRecordConvetrer=new AvroRecordToPinotRowGenerator(indexingSchema);
+  this.decoderFactory=new DecoderFactory();
+}

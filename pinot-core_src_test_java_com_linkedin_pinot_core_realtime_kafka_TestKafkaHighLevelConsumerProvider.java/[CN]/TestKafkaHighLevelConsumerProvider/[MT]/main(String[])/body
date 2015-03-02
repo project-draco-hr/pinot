@@ -1,0 +1,23 @@
+{
+  setup();
+  KafkaHighLevelConsumerStreamProvider streamProvider=new KafkaHighLevelConsumerStreamProvider();
+  streamProvider.init(config);
+  streamProvider.start();
+  final RealtimeSegmentImpl realtimeSegment=new RealtimeSegmentImpl(schema);
+  Timer timer=new Timer(true);
+  timer.schedule(new TimerTask(){
+    @Override public void run(){
+      System.out.println("numDocsIndexed : " + realtimeSegment.getNumberOfDocumentsIndexed() + " docIds so far : "+ realtimeSegment.getNumberOfDocIds());
+    }
+  }
+,5000,5000);
+  int counter=0;
+  long start=System.currentTimeMillis();
+  while (counter <= 200000) {
+    realtimeSegment.index(streamProvider.next());
+    counter++;
+  }
+  System.out.println("time taken : " + (System.currentTimeMillis() - start));
+  streamProvider.shutdown();
+  timer.cancel();
+}

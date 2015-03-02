@@ -1,0 +1,18 @@
+{
+  if (payload == null || payload.length == 0) {
+    return null;
+  }
+  byte[] md5=new byte[16];
+  md5=Arrays.copyOfRange(payload,1,1 + md5.length);
+  int start=1 + md5.length;
+  int length=payload.length - 1 - md5.length;
+  DatumReader<Record> reader=new GenericDatumReader<Record>(defaultAvroSchema);
+  try {
+    GenericData.Record avroRecord=reader.read(null,decoderFactory.createBinaryDecoder(payload,start,length,null));
+    return avroRecordConvetrer.transform(avroRecord);
+  }
+ catch (  IOException e) {
+    logger.error(e.getMessage());
+    return null;
+  }
+}
