@@ -4,9 +4,23 @@
   }
   byte[] md5=new byte[16];
   md5=Arrays.copyOfRange(payload,1,1 + md5.length);
+  String md5String=hex(md5);
+  org.apache.avro.Schema schema=null;
+  if (md5ToAvroSchemaMap.containsKey(md5String)) {
+    schema=md5ToAvroSchemaMap.get(md5String);
+  }
+ else {
+    try {
+      schema=fetchSchema(new URL(schemaRegistryBaseUrl + "/id=" + md5String));
+    }
+ catch (    Exception e) {
+      schema=defaultAvroSchema;
+      logger.error("error fetching schema from md5 String",e);
+    }
+  }
   int start=1 + md5.length;
   int length=payload.length - 1 - md5.length;
-  DatumReader<Record> reader=new GenericDatumReader<Record>(defaultAvroSchema);
+  DatumReader<Record> reader=new GenericDatumReader<Record>(schema);
   try {
     GenericData.Record avroRecord=reader.read(null,decoderFactory.createBinaryDecoder(payload,start,length,null));
     return avroRecordConvetrer.transform(avroRecord);
