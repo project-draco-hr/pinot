@@ -11,8 +11,11 @@
     metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     sourceTimeUnit=TimeUnit.valueOf(config.getTimeUnit());
-    aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
     dimensionValues=new String[dimensionNames.size()];
+    String className=config.getThresholdFuncClassName();
+    Map<String,String> params=config.getThresholdFuncParams();
+    Constructor<?> constructor=Class.forName(className).getConstructor(Map.class);
+    rollupThresholdFunction=(RollupThresholdFunction)constructor.newInstance(params);
   }
  catch (  Exception e) {
     throw new IOException(e);

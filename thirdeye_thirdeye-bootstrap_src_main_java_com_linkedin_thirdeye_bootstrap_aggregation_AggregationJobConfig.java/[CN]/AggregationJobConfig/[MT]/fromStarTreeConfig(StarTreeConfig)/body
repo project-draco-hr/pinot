@@ -9,5 +9,11 @@
   for (  DimensionSpec dimensionSpec : config.getDimensions()) {
     dimensionNames.add(dimensionSpec.getName());
   }
-  return new AggregationJobConfig(dimensionNames,metricNames,metricTypes,config.getTime().getColumnName(),config.getTime().getInput().getUnit().toString(),config.getTime().getBucket().getUnit().toString());
+  Map<String,String> rollupFunctionConfig=new HashMap<String,String>();
+  if (config.getRollup().getFunctionConfig() != null) {
+    for (    Map.Entry<Object,Object> entry : config.getRollup().getFunctionConfig().entrySet()) {
+      rollupFunctionConfig.put((String)entry.getKey(),(String)entry.getValue());
+    }
+  }
+  return new AggregationJobConfig(dimensionNames,metricNames,metricTypes,config.getTime().getColumnName(),config.getTime().getInput().getUnit().toString(),config.getTime().getBucket().getUnit().toString(),config.getRollup().getFunctionClass(),rollupFunctionConfig);
 }
