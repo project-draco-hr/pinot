@@ -1,35 +1,6 @@
 {
-  return new BlockDocIdSet(){
-    @Override public BlockDocIdIterator iterator(){
-      return new BlockDocIdIterator(){
-        final int[] docIds=filteredDocIdsBitMap.toArray();
-        int counter=0;
-        @Override public int skipTo(        int targetDocId){
-          int entry=Arrays.binarySearch(docIds,targetDocId);
-          if (entry < 0) {
-            entry*=-1;
-          }
-          if (entry >= docIds.length) {
-            return Constants.EOF;
-          }
-          counter=entry;
-          return counter;
-        }
-        @Override public int next(){
-          if (counter >= docIds.length) {
-            return Constants.EOF;
-          }
-          return docIds[counter++];
-        }
-        @Override public int currentDocId(){
-          return docIds[counter];
-        }
-      }
-;
-    }
-    @Override public Object getRaw(){
-      return filteredDocIdsBitMap;
-    }
+  if (filteredDocIdsBitMap == null) {
+    return BlockUtils.getDummyBlockDocIdSet(columnMetadata.getTotalDocs());
   }
-;
+  return BlockUtils.getBLockDocIdSetBackedByBitmap(filteredDocIdsBitMap);
 }
