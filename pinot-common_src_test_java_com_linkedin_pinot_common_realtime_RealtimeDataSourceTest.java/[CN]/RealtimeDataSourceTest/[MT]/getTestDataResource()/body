@@ -1,0 +1,21 @@
+{
+  final Map<String,String> ret=new HashMap<String,String>();
+  ret.put(Helix.DataSource.REQUEST_TYPE,DataSourceRequestType.CREATE);
+  ret.put(Helix.DataSource.RESOURCE_NAME,"testResource");
+  ret.put(Helix.DataSource.RESOURCE_TYPE,ResourceType.REALTIME.toString());
+  ret.put(Helix.DataSource.TABLE_NAME,"testTable");
+  ret.put(Helix.DataSource.TIME_COLUMN_NAME,"daysSinceEpoch");
+  ret.put(Helix.DataSource.TIME_TYPE,"daysSinceEpoch");
+  ret.put(Helix.DataSource.NUMBER_OF_DATA_INSTANCES,String.valueOf(6));
+  ret.put(Helix.DataSource.NUMBER_OF_COPIES,String.valueOf(3));
+  ret.put(Helix.DataSource.RETENTION_TIME_UNIT,"DAYS");
+  ret.put(Helix.DataSource.RETENTION_TIME_VALUE,"7");
+  ret.put(Helix.DataSource.PUSH_FREQUENCY,"daily");
+  ret.put(Helix.DataSource.SEGMENT_ASSIGNMENT_STRATEGY,"Random");
+  ret.put(Helix.DataSource.BROKER_TAG_NAME,"testBroker");
+  ret.put(Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,String.valueOf(2));
+  ret.putAll(getTestSchema().toMap());
+  ret.put(StringUtil.join(".",Helix.DataSource.METADATA,Helix.DataSource.Realtime.STREAM_TYPE),Helix.DataSource.Realtime.StreamType.kafka.toString());
+  ret.putAll(getTestKafkaStreamConfig());
+  return ret;
+}

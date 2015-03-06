@@ -1,0 +1,14 @@
+{
+  ZNRecord record=new ZNRecord("testResource");
+  record.setSimpleFields(getTestDataResource());
+  RealtimeDataResourceMetadata realtimeDataResource=new RealtimeDataResourceMetadata(record);
+  realtimeDataResource.getDataSchema();
+  Assert.assertEquals(realtimeDataResource.getResourceName(),BrokerRequestUtils.getRealtimeResourceNameForResource("testResource"));
+  Assert.assertEquals(realtimeDataResource.getStreamType(),StreamType.kafka);
+  System.out.println(realtimeDataResource.getDataSchema().toString());
+  Assert.assertEquals(realtimeDataResource.getDataSchema().toString(),Schema.getSchemaFromMap(getTestDataResource()).toString());
+  System.out.println(realtimeDataResource.getStreamMetadata().toString());
+  Assert.assertEquals(realtimeDataResource.getStreamMetadata().toString(),new KafkaStreamMetadata(getTestKafkaStreamConfig()).toString());
+  RealtimeDataResourceMetadata replicaRealtimeDataResourceMetadata=new RealtimeDataResourceMetadata(realtimeDataResource.toZnRecord());
+  Assert.assertTrue(realtimeDataResource.equals(replicaRealtimeDataResourceMetadata));
+}

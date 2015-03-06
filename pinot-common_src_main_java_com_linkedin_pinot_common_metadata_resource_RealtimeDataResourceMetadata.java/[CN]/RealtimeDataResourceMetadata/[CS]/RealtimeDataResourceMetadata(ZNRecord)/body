@@ -1,0 +1,12 @@
+{
+  _resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(znRecord.getSimpleField(CommonConstants.Helix.DataSource.RESOURCE_NAME));
+  _streamType=StreamType.valueOf(znRecord.getSimpleField(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,CommonConstants.Helix.DataSource.Realtime.STREAM_TYPE)).toLowerCase());
+  _dataSchema=Schema.getSchemaFromMap(znRecord.getSimpleFields());
+switch (_streamType) {
+case kafka:
+    _streamMetadata=new KafkaStreamMetadata(znRecord.getSimpleFields());
+  break;
+default :
+throw new UnsupportedOperationException("Not support stream type - " + _streamType);
+}
+}

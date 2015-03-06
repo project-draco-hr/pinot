@@ -1,0 +1,20 @@
+{
+  final StringBuilder result=new StringBuilder();
+  String newline="\n";
+  result.append(this.getClass().getName());
+  result.append(" Object {");
+  result.append(newline);
+  String[] keys=_kafkaConfig.keySet().toArray(new String[0]);
+  Arrays.sort(keys);
+  for (  final String key : keys) {
+    if (key.startsWith(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,CommonConstants.Helix.DataSource.KAFKA))) {
+      result.append("  ");
+      result.append(key);
+      result.append(": ");
+      result.append(_kafkaConfig.get(key));
+      result.append(newline);
+    }
+  }
+  result.append("}");
+  return result.toString();
+}
