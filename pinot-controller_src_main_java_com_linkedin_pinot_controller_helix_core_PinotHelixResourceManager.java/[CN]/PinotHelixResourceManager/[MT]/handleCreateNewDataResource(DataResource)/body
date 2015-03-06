@@ -27,8 +27,7 @@ break;
  catch (final Exception e) {
 res.errorMessage=e.getMessage();
 res.status=STATUS.failure;
-e.printStackTrace();
-LOGGER.error(e.toString());
+LOGGER.error("Caught exception while creating cluster with config " + resource.toString(),e);
 revertDataResource(resource);
 throw new RuntimeException("Error creating cluster, have successfull rolled back",e);
 }
