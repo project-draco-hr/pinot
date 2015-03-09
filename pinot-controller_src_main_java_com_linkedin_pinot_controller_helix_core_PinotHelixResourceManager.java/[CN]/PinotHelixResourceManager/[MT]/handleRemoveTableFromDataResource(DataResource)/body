@@ -1,17 +1,28 @@
 {
   final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-  final Set<String> tableNames=getAllTableNamesForResource(resource.getResourceName());
-  if (!tableNames.contains(resource.getTableName())) {
-    resp.status=STATUS.failure;
-    resp.errorMessage=String.format("Table name (%s) is not existed in resource (%s)",resource.getTableName(),resource.getResourceName());
-    return resp;
-  }
-  tableNames.remove(resource.getTableName());
-  final Map<String,String> tableConfig=new HashMap<String,String>();
-  tableConfig.put("tableName",StringUtils.join(tableNames,","));
-  HelixHelper.updateResourceConfigsFor(tableConfig,resource.getResourceName(),_helixClusterName,_helixAdmin);
-  deleteSegmentsInTable(resource.getResourceName(),resource.getTableName());
-  resp.status=STATUS.success;
-  resp.errorMessage=String.format("Removing table name (%s) from resource (%s)",resource.getTableName(),resource.getResourceName());
-  return resp;
+  boolean isSuccess=false;
+switch (resource.getResourceType()) {
+case OFFLINE:
+    isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName());
+  break;
+case REALTIME:
+isSuccess=removeTableToRealtimeDataResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
+break;
+case HYBRID:
+isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName()) && removeTableToRealtimeDataResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
+break;
+default :
+resp.status=STATUS.failure;
+resp.errorMessage=String.format("ResourceType is not valid : (%s)!",resource.getResourceType());
+return resp;
+}
+if (isSuccess) {
+resp.errorMessage=String.format("Removing table name (%s) from resource (%s)",resource.getTableName(),resource.getResourceName());
+return resp;
+}
+ else {
+resp.status=STATUS.failure;
+resp.errorMessage=String.format("Table name (%s) is not existed in resource (%s)",resource.getTableName(),resource.getResourceName());
+return resp;
+}
 }

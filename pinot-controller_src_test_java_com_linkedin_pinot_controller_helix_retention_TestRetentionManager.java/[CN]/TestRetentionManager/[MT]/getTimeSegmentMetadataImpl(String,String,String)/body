@@ -4,7 +4,7 @@
     return getTimeSegmentMetadataImpl(startTimeValue + "",startTimeValue + "",TimeUnit.MILLISECONDS.toString());
   }
   final long creationTime=System.currentTimeMillis();
-  final String segmentName="testResource_O_testTable_" + creationTime;
+  final String segmentName="testResource_testTable_" + creationTime;
   SegmentMetadata segmentMetadata=new SegmentMetadata(){
     TimeUnit segmentTimeUnit=TimeUnit.valueOf(timeUnit);
     Duration _timeGranularity=new Duration(segmentTimeUnit.toMillis(1));
@@ -45,13 +45,13 @@
       return null;
     }
     @Override public String getResourceName(){
-      return "testResource_O";
+      return "testResource";
     }
     @Override public String getName(){
       return segmentName;
     }
     @Override public String getIndexType(){
-      return null;
+      return "offline";
     }
     @Override public String getIndexDir(){
       return null;

@@ -1,0 +1,10 @@
+{
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=HelixHelper.getRealtimeResourceZKMetadata(_zkClient,resourceName);
+  List<String> tableList=realtimeDataResourceZKMetadata.getTableList();
+  if (!tableList.contains(tableName)) {
+    realtimeDataResourceZKMetadata.addToTableList(tableName);
+    HelixHelper.setRealtimeResourceZKMetadata(realtimeDataResourceZKMetadata,_zkClient);
+    return true;
+  }
+  return false;
+}

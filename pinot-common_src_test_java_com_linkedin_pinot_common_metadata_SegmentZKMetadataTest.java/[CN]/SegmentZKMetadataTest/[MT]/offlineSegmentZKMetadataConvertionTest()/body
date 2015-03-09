@@ -1,0 +1,8 @@
+{
+  ZNRecord offlineZNRecord=getTestOfflineSegmentZNRecord();
+  OfflineSegmentZKMetadata offlineSegmentMetadata=getTestOfflineSegmentMetadata();
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(offlineZNRecord,offlineSegmentMetadata.toZNRecord()));
+  Assert.assertTrue(offlineSegmentMetadata.equals(new OfflineSegmentZKMetadata(offlineZNRecord)));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(offlineZNRecord,new OfflineSegmentZKMetadata(offlineZNRecord).toZNRecord()));
+  Assert.assertTrue(offlineSegmentMetadata.equals(new OfflineSegmentZKMetadata(offlineSegmentMetadata.toZNRecord())));
+}

@@ -1,19 +1,49 @@
 {
   String resourceName=null;
+  String currentResourceBrokerTag=null;
 switch (resource.getResourceType()) {
 case OFFLINE:
     resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
-  break;
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=HelixHelper.getOfflineResourceZKMetadata(_zkClient,resource.getResourceName());
+currentResourceBrokerTag=offlineDataResourceZKMetadata.getBrokerTag();
+break;
 case REALTIME:
 resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=HelixHelper.getRealtimeResourceZKMetadata(_zkClient,resource.getResourceName());
+currentResourceBrokerTag=realtimeDataResourceZKMetadata.getBrokerTag();
 break;
 case HYBRID:
-break;
+realtimeDataResourceZKMetadata=HelixHelper.getRealtimeResourceZKMetadata(_zkClient,resource.getResourceName());
+offlineDataResourceZKMetadata=HelixHelper.getOfflineResourceZKMetadata(_zkClient,resource.getResourceName());
+if (!realtimeDataResourceZKMetadata.getBrokerTag().equals(resource.getBrokerTagName()) || !offlineDataResourceZKMetadata.getBrokerTag().equals(resource.getBrokerTagName())) {
+final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
+resp.status=STATUS.failure;
+resp.errorMessage="Current broker tag for resource : " + resource + " is "+ offlineDataResourceZKMetadata.getBrokerTag()+ "(offline) && "+ realtimeDataResourceZKMetadata.getBrokerTag()+ "(realtime), not match updated request broker tag : "+ resource.getBrokerTagName();
+return resp;
+}
+final BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
+final PinotResourceManagerResponse updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
+if (updateBrokerResourceTagResp.isSuccessfull()) {
+resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
+offlineDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
+HelixHelper.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
+PinotResourceManagerResponse resp=createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
+if (resp.isSuccessfull()) {
+resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+realtimeDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
+HelixHelper.setRealtimeResourceZKMetadata(realtimeDataResourceZKMetadata,_zkClient);
+return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
+}
+ else {
+return resp;
+}
+}
+ else {
+return updateBrokerResourceTagResp;
+}
 default :
 break;
 }
-final String currentResourceBrokerTag=HelixHelper.getResourceConfigsFor(_helixClusterName,resourceName,_helixAdmin).get(CommonConstants.Helix.DataSource.BROKER_TAG_NAME);
-;
 if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
 final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
 resp.status=STATUS.failure;

@@ -10,8 +10,11 @@
   }
   DimensionKey key=new DimensionKey(dimensionValues);
   String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
-  long aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
-  aggregationTimeWindow=-1;
+  long aggregationTimeWindow=-1;
+  if (rollupThresholdFunction.getRollupAggregationGranularity() != null) {
+    aggregationTimeUnit=TimeUnit.valueOf(rollupThresholdFunction.getRollupAggregationGranularity().getUnit().toString());
+    aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
+  }
   MetricTimeSeries series=new MetricTimeSeries(metricSchema);
   for (int i=0; i < metricNames.size(); i++) {
     String metricName=metricNames.get(i);

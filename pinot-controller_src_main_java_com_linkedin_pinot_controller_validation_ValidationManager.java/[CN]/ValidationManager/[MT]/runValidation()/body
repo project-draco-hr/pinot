@@ -10,7 +10,7 @@
     List<ZNRecord> segmentRecords=propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
     Map<String,List<SegmentMetadata>> tableToSegmentMetadata=new HashMap<String,List<SegmentMetadata>>();
     for (    ZNRecord record : segmentRecords) {
-      SegmentMetadata segmentMetadata=new SegmentMetadataImpl(record);
+      SegmentMetadata segmentMetadata=new SegmentMetadataImpl(new OfflineSegmentZKMetadata(record));
       String tableName=segmentMetadata.getTableName();
       if (tableToSegmentMetadata.containsKey(tableName)) {
         List<SegmentMetadata> metadataList=tableToSegmentMetadata.get(tableName);

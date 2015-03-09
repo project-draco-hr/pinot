@@ -1,0 +1,46 @@
+{
+  if (!getResourceName().equals(dataResourceMetadata.getResourceName()) || getResourceType() != dataResourceMetadata.getResourceType() || !getTimeColumnName().equals(dataResourceMetadata.getTimeColumnName()) || !getTimeType().equals(dataResourceMetadata.getTimeType()) || getNumDataInstances() != dataResourceMetadata.getNumDataInstances() || getNumDataReplicas() != dataResourceMetadata.getNumDataReplicas() || getNumBrokerInstance() != dataResourceMetadata.getNumBrokerInstance() || getRetentionTimeUnit() != dataResourceMetadata.getRetentionTimeUnit() || getRetentionTimeValue() != dataResourceMetadata.getRetentionTimeValue() || !getBrokerTag().equals(dataResourceMetadata.getBrokerTag())) {
+    return false;
+  }
+  if (getTableList().size() == dataResourceMetadata.getTableList().size()) {
+    if (!getTableList().isEmpty()) {
+      String[] tableArray1=getTableList().toArray(new String[0]);
+      String[] tableArray2=dataResourceMetadata.getTableList().toArray(new String[0]);
+      Arrays.sort(tableArray1);
+      Arrays.sort(tableArray2);
+      for (int i=0; i < tableArray1.length; ++i) {
+        if (!tableArray1[i].equals(tableArray2[i])) {
+          return false;
+        }
+      }
+    }
+  }
+ else {
+    return false;
+  }
+  if (getMetadata().size() == dataResourceMetadata.getMetadata().size()) {
+    if (!getMetadata().isEmpty()) {
+      for (      String key : getMetadata().keySet()) {
+        if (dataResourceMetadata.getMetadata().containsKey(key)) {
+          if (getMetadata().get(key) == null) {
+            if (dataResourceMetadata.getMetadata().get(key) != null) {
+              return false;
+            }
+          }
+ else {
+            if (!getMetadata().get(key).equals(dataResourceMetadata.getMetadata().get(key))) {
+              return false;
+            }
+          }
+        }
+ else {
+          return false;
+        }
+      }
+    }
+  }
+ else {
+    return false;
+  }
+  return true;
+}

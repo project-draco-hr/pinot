@@ -1,0 +1,10 @@
+{
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=HelixHelper.getOfflineResourceZKMetadata(_zkClient,resourceName);
+  List<String> tableList=offlineDataResourceZKMetadata.getTableList();
+  if (!tableList.contains(tableName)) {
+    offlineDataResourceZKMetadata.addToTableList(tableName);
+    HelixHelper.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
+    return true;
+  }
+  return false;
+}

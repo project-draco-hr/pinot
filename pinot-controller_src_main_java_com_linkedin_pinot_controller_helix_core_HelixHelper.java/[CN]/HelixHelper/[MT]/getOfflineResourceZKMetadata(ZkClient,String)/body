@@ -1,0 +1,16 @@
+{
+  String offlineResourceName=null;
+  if (resourceName.endsWith(CommonConstants.Broker.DataResource.OFFLINE_RESOURCE_SUFFIX)) {
+    offlineResourceName=resourceName;
+  }
+ else {
+    offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
+  }
+  List<ZNRecord> znRecords=ZKUtil.getChildren(zkClient,CONFIG_RESOURCE_PATH);
+  for (  ZNRecord znRecord : znRecords) {
+    if (znRecord.getId().equals(offlineResourceName)) {
+      return new OfflineDataResourceZKMetadata(znRecord);
+    }
+  }
+  return null;
+}

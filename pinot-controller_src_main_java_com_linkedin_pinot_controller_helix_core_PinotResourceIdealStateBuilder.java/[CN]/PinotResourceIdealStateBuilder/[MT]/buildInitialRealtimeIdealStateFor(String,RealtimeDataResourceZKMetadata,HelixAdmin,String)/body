@@ -1,0 +1,16 @@
+{
+switch (realtimeDataResource.getStreamType()) {
+case kafka:
+    KafkaStreamMetadata kafkaStreamMetadata=(KafkaStreamMetadata)realtimeDataResource.getStreamMetadata();
+switch (kafkaStreamMetadata.getConsumerType()) {
+case highLevel:
+    return buildInitialKafkaHighLevelConsumerRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,helixAdmin,helixClusterName);
+case simple:
+  return buildInitialKafkaSimpleConsumerRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,helixAdmin,helixClusterName);
+default :
+throw new UnsupportedOperationException("Not support kafka consumer type: " + kafkaStreamMetadata.getConsumerType());
+}
+default :
+throw new UnsupportedOperationException("Not support realtime stream type: " + realtimeDataResource.getStreamType());
+}
+}

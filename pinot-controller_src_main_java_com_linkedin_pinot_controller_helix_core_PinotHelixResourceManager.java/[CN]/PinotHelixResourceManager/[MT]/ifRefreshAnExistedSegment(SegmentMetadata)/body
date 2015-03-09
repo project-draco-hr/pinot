@@ -1,9 +1,9 @@
 {
-  final ZNRecord record=_propertyStore.get(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata),null,AccessOption.PERSISTENT);
-  if (record == null) {
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_propertyStore,segmentMetadata.getResourceName(),segmentMetadata.getName());
+  if (offlineSegmentZKMetadata == null) {
     return false;
   }
-  final SegmentMetadata existedSegmentMetadata=new SegmentMetadataImpl(record);
+  final SegmentMetadata existedSegmentMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   if (segmentMetadata.getIndexCreationTime() <= existedSegmentMetadata.getIndexCreationTime()) {
     return false;
   }

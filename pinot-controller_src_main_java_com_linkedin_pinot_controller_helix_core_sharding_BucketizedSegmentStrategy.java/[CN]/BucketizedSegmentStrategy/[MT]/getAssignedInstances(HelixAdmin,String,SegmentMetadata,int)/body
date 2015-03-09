@@ -1,5 +1,12 @@
 {
-  List<String> allInstances=helixAdmin.getInstancesInClusterWithTag(helixClusterName,segmentMetadata.getResourceName());
+  String resourceName=null;
+  if ("realtime".equalsIgnoreCase(segmentMetadata.getIndexType())) {
+    resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(segmentMetadata.getResourceName());
+  }
+ else {
+    resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(segmentMetadata.getResourceName());
+  }
+  List<String> allInstances=helixAdmin.getInstancesInClusterWithTag(helixClusterName,resourceName);
   List<String> selectedInstanceList=new ArrayList<String>();
   if (segmentMetadata.getShardingKey() != null) {
     for (    String instance : allInstances) {

@@ -1,8 +1,8 @@
 {
-  RealtimeDataResourceMetadata realtimeDataResource=getRealtimeDataResourceMetadata(resource);
-  final List<String> unTaggedInstanceList=getOnlineUnTaggedServerInstanceList();
   final String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
-  final int numInstanceToUse=resource.getNumberOfDataInstances();
+  RealtimeDataResourceZKMetadata realtimeDataResource=ZKMetadataUtils.getRealtimeDataResourceMetadata(resource);
+  final List<String> unTaggedInstanceList=getOnlineUnTaggedServerInstanceList();
+  final int numInstanceToUse=realtimeDataResource.getNumDataInstances();
   LOGGER.info("Trying to allocate " + numInstanceToUse + " instances.");
   LOGGER.info("Current untagged boxes: " + unTaggedInstanceList.size());
   if (unTaggedInstanceList.size() < numInstanceToUse) {
@@ -13,10 +13,11 @@
     _helixAdmin.removeInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
     _helixAdmin.addInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),realtimeResourceName);
   }
+  HelixHelper.setRealtimeResourceZKMetadata(realtimeDataResource,_zkClient);
   LOGGER.info("building empty ideal state for resource : " + realtimeResourceName);
-  final IdealState idealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeResourceName,resource.getNumberOfCopies(),resource.getNumberOfDataInstances(),realtimeDataResource,_helixAdmin,_helixClusterName);
+  final IdealState idealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,_helixAdmin,_helixClusterName);
   LOGGER.info("adding resource via the admin");
   _helixAdmin.addResource(_helixClusterName,realtimeResourceName,idealState);
   LOGGER.info("successfully added the resource : " + realtimeResourceName + " to the cluster");
-  HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),realtimeResourceName,_helixClusterName,_helixAdmin);
+  _propertyStore.create(PinotHelixUtils.constructPropertyStorePathForResource(realtimeResourceName),new ZNRecord(realtimeResourceName),AccessOption.PERSISTENT);
 }

@@ -1,0 +1,45 @@
+{
+  RealtimeDataResourceZKMetadata realtimeDataResourceMetadata=new RealtimeDataResourceZKMetadata();
+  realtimeDataResourceMetadata.setResourceName(resource.getResourceName());
+  realtimeDataResourceMetadata.addToTableList(resource.getTableName());
+  realtimeDataResourceMetadata.setTimeColumnName(resource.getTimeColumnName());
+  realtimeDataResourceMetadata.setTimeType(resource.getTimeType());
+  realtimeDataResourceMetadata.setNumDataInstances(resource.getNumberOfDataInstances());
+  realtimeDataResourceMetadata.setNumDataReplicas(resource.getNumberOfCopies());
+  realtimeDataResourceMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
+  realtimeDataResourceMetadata.setBrokerTag(resource.getBrokerTagName());
+  realtimeDataResourceMetadata.setStreamType(extractStreamTypeFromDataResource(resource));
+  Map<String,String> metadataMap=new HashMap<String,String>();
+  Map<String,String> schemaMap=new HashMap<String,String>();
+  Map<String,String> streamMap=new HashMap<String,String>();
+  Iterator<String> fieldNameIter=resource.getMetadata().fieldNames();
+  while (fieldNameIter.hasNext()) {
+    String fieldName=fieldNameIter.next();
+    if (fieldName.startsWith(CommonConstants.Helix.DataSource.SCHEMA + ".")) {
+      schemaMap.put(fieldName,resource.getMetadata().get(fieldName).textValue());
+      continue;
+    }
+    if (fieldName.startsWith(CommonConstants.Helix.DataSource.STREAM + ".")) {
+      streamMap.put(fieldName,resource.getMetadata().get(fieldName).textValue());
+      continue;
+    }
+    metadataMap.put(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,fieldName),resource.getMetadata().get(fieldName).textValue());
+  }
+  realtimeDataResourceMetadata.setMetadata(metadataMap);
+  realtimeDataResourceMetadata.setDataSchema(Schema.getSchemaFromMap(schemaMap));
+switch (realtimeDataResourceMetadata.getStreamType()) {
+case kafka:
+    realtimeDataResourceMetadata.setStreamMetadata(new KafkaStreamMetadata(streamMap));
+  break;
+default :
+break;
+}
+try {
+realtimeDataResourceMetadata.setRetentionTimeUnit(TimeUnit.valueOf(resource.getRetentionTimeUnit()));
+realtimeDataResourceMetadata.setRetentionTimeValue(Integer.parseInt(resource.getRetentionTimeValue()));
+}
+ catch (Exception e) {
+LOGGER.warn("No retention config for - " + resource);
+}
+return realtimeDataResourceMetadata;
+}

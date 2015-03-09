@@ -1,0 +1,10 @@
+{
+  ZNRecord znRecord=getTestInstanceZNRecord();
+  InstanceZKMetadata instanceMetadataFromZNRecord=new InstanceZKMetadata(znRecord);
+  InstanceZKMetadata instanceMetadata=getTestInstanceMetadata();
+  ZNRecord znRecordFromMetadata=instanceMetadata.toZNRecord();
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(znRecord,znRecordFromMetadata));
+  Assert.assertTrue(instanceMetadata.equals(instanceMetadataFromZNRecord));
+  Assert.assertTrue(instanceMetadata.equals(new InstanceZKMetadata(instanceMetadata.toZNRecord())));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(znRecord,new InstanceZKMetadata(znRecord).toZNRecord()));
+}

@@ -4,10 +4,34 @@
     final String resourceName=(String)getRequest().getAttributes().get("resourceName");
     final String tableName=(String)getRequest().getAttributes().get("tableName");
     if (tableName == null) {
-      presentation=new StringRepresentation(manager.deleteResource(resourceName).toJSON().toString());
+      String respString="";
+      if (HelixHelper.getOfflineResourceZKMetadata(manager.getClusterZkClient(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)) != null) {
+        PinotResourceManagerResponse offlineResp=manager.deleteResource(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName));
+        respString+=offlineResp.toJSON().toString() + "\n";
+      }
+      if (HelixHelper.getRealtimeResourceZKMetadata(manager.getClusterZkClient(),BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)) != null) {
+        PinotResourceManagerResponse realtimeResp=manager.deleteResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName));
+        respString+=realtimeResp.toJSON().toString() + "\n";
+      }
+      if (respString.length() < 1) {
+        respString="No related resource found.\n";
+      }
+      presentation=new StringRepresentation(respString);
     }
  else {
-      presentation=new StringRepresentation(manager.handleRemoveTableFromDataResource(createTableDeletionDataResource(resourceName,tableName)).toJSON().toString());
+      String respString="";
+      if (HelixHelper.getOfflineResourceZKMetadata(manager.getClusterZkClient(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)) != null) {
+        PinotResourceManagerResponse offlineResp=manager.handleRemoveTableFromDataResource(createTableDeletionDataResource(resourceName,tableName,ResourceType.OFFLINE.toString()));
+        respString+=offlineResp.toJSON().toString() + "\n";
+      }
+      if (HelixHelper.getRealtimeResourceZKMetadata(manager.getClusterZkClient(),BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)) != null) {
+        PinotResourceManagerResponse realtimeResp=manager.handleRemoveTableFromDataResource(createTableDeletionDataResource(resourceName,tableName,ResourceType.REALTIME.toString()));
+        respString+=realtimeResp.toJSON().toString() + "\n";
+      }
+      if (respString.length() < 1) {
+        respString="No related resource found.\n";
+      }
+      presentation=new StringRepresentation(respString);
     }
   }
  catch (  final Exception e) {

@@ -1,0 +1,14 @@
+{
+  if (!_instanceName.equals(instanceMetadata.getInstanceName()) || !_instanceType.equals(instanceMetadata.getInstanceType()) || _instancePort != instanceMetadata.getInstancePort()) {
+    return false;
+  }
+  for (  String resourceName : _groupIdMap.keySet()) {
+    if (!getGroupId(resourceName).equals(instanceMetadata.getGroupId(resourceName))) {
+      return false;
+    }
+    if (!getPartition(resourceName).equals(instanceMetadata.getPartition(resourceName))) {
+      return false;
+    }
+  }
+  return true;
+}
