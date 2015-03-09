@@ -2,7 +2,7 @@
   List<SegmentMetadata> segmentMetadataList=new ArrayList<SegmentMetadata>();
   List<ZNRecord> segmentMetadataZnRecords=_propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
   for (  ZNRecord segmentMetaZnRecord : segmentMetadataZnRecords) {
-    segmentMetadataList.add(new SegmentMetadataImpl(segmentMetaZnRecord));
+    segmentMetadataList.add(new SegmentMetadataImpl(new OfflineSegmentZKMetadata(segmentMetaZnRecord)));
   }
   return segmentMetadataList;
 }

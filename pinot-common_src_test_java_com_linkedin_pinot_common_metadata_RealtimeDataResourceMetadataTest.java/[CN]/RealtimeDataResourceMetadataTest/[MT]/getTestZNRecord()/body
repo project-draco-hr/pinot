@@ -1,0 +1,22 @@
+{
+  ZNRecord record=new ZNRecord("testResource_R");
+  Map<String,String> fieldMap=getTestSchema().toMap();
+  fieldMap.putAll(getTestKafkaStreamConfig());
+  record.setSimpleFields(fieldMap);
+  record.setSimpleField(Helix.DataSource.RESOURCE_NAME,"testResource");
+  record.setEnumField(Helix.DataSource.RESOURCE_TYPE,ResourceType.REALTIME);
+  List<String> tableList=new ArrayList<String>();
+  tableList.add("testTable");
+  record.setListField(Helix.DataSource.TABLE_NAME,tableList);
+  record.setSimpleField(Helix.DataSource.TIME_COLUMN_NAME,"daysSinceEpoch");
+  record.setSimpleField(Helix.DataSource.TIME_TYPE,"daysSinceEpoch");
+  record.setIntField(Helix.DataSource.NUMBER_OF_DATA_INSTANCES,6);
+  record.setIntField(Helix.DataSource.NUMBER_OF_COPIES,3);
+  record.setEnumField(Helix.DataSource.RETENTION_TIME_UNIT,TimeUnit.DAYS);
+  record.setIntField(Helix.DataSource.RETENTION_TIME_VALUE,7);
+  record.setSimpleField(Helix.DataSource.BROKER_TAG_NAME,"testBroker");
+  record.setIntField(Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,2);
+  record.setMapField(Helix.DataSource.METADATA,new HashMap<String,String>());
+  record.setEnumField(Helix.DataSource.Realtime.STREAM_TYPE,Helix.DataSource.Realtime.StreamType.kafka);
+  return record;
+}

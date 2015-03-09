@@ -8,29 +8,26 @@
     }
     if (ifSegmentExisted(segmentMetadata)) {
       if (ifRefreshAnExistedSegment(segmentMetadata)) {
-        final ZNRecord record=_propertyStore.get(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata.getResourceName(),segmentMetadata.getName()),null,AccessOption.PERSISTENT);
-        Map<String,String> segmentMetadataMap=segmentMetadata.toMap();
-        for (        String key : segmentMetadataMap.keySet()) {
-          record.setSimpleField(key,segmentMetadataMap.get(key));
-        }
-        record.setSimpleField(V1Constants.SEGMENT_DOWNLOAD_URL,downloadUrl);
-        record.setSimpleField(V1Constants.SEGMENT_REFRESH_TIME,String.valueOf(System.currentTimeMillis()));
-        _propertyStore.set(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata),record,AccessOption.PERSISTENT);
-        LOGGER.info("Refresh segment : " + segmentMetadata.getName() + " to Property store");
-        if (updateExistedSegment(segmentMetadata)) {
+        OfflineSegmentZKMetadata offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_propertyStore,segmentMetadata.getResourceName(),segmentMetadata.getName());
+        offlineSegmentZKMetadata=ZKMetadataUtils.updateSegmentMetadata(offlineSegmentZKMetadata,segmentMetadata);
+        offlineSegmentZKMetadata.setDownloadUrl(downloadUrl);
+        offlineSegmentZKMetadata.setRefreshTime(System.currentTimeMillis());
+        HelixHelper.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
+        LOGGER.info("Refresh segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
+        if (updateExistedSegment(offlineSegmentZKMetadata)) {
           res.status=STATUS.success;
         }
       }
     }
  else {
-      final ZNRecord record=new ZNRecord(segmentMetadata.getName());
-      record.setSimpleFields(segmentMetadata.toMap());
-      record.setSimpleField(V1Constants.SEGMENT_DOWNLOAD_URL,downloadUrl);
-      record.setSimpleField(V1Constants.SEGMENT_PUSH_TIME,String.valueOf(System.currentTimeMillis()));
-      _propertyStore.create(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata),record,AccessOption.PERSISTENT);
-      LOGGER.info("Added segment : " + segmentMetadata.getName() + " to Property store");
-      final IdealState idealState=PinotResourceIdealStateBuilder.addNewSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName);
-      _helixAdmin.setResourceIdealState(_helixClusterName,segmentMetadata.getResourceName(),idealState);
+      OfflineSegmentZKMetadata offlineSegmentZKMetadata=new OfflineSegmentZKMetadata();
+      offlineSegmentZKMetadata=ZKMetadataUtils.updateSegmentMetadata(offlineSegmentZKMetadata,segmentMetadata);
+      offlineSegmentZKMetadata.setDownloadUrl(downloadUrl);
+      offlineSegmentZKMetadata.setPushTime(System.currentTimeMillis());
+      HelixHelper.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
+      LOGGER.info("Added segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
+      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName,_zkClient);
+      _helixAdmin.setResourceIdealState(_helixClusterName,BrokerRequestUtils.getOfflineResourceNameForResource(offlineSegmentZKMetadata.getResourceName()),idealState);
       res.status=STATUS.success;
     }
   }

@@ -1,0 +1,10 @@
+{
+  ZNRecord znRecordRaw=getTestZNRecord();
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadataFromZNRecord=new RealtimeDataResourceZKMetadata(znRecordRaw);
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=getTestRealtimeDataResourceZKMetadata();
+  ZNRecord znRecordFromMetadata=realtimeDataResourceZKMetadata.toZNRecord();
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(znRecordRaw,znRecordFromMetadata));
+  Assert.assertTrue(realtimeDataResourceZKMetadataFromZNRecord.equals(realtimeDataResourceZKMetadata));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(znRecordRaw,new RealtimeDataResourceZKMetadata(znRecordRaw).toZNRecord()));
+  Assert.assertTrue(realtimeDataResourceZKMetadata.equals(new RealtimeDataResourceZKMetadata(realtimeDataResourceZKMetadata.toZNRecord())));
+}

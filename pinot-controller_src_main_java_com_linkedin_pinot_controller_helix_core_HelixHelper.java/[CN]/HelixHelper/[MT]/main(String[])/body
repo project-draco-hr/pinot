@@ -1,0 +1,16 @@
+{
+  ZkClient zkClient=new ZkClient(StringUtil.join("/",StringUtils.chomp("zk-lva1-pinot.corp.linkedin.com:12913","/"),"mpSprintDemoCluster"),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=getOfflineResourceZKMetadata(zkClient,"xlntBeta");
+  offlineDataResourceZKMetadata.setResourceName("testXlnt");
+  offlineDataResourceZKMetadata.setBrokerTag("testXlnt1");
+  setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,zkClient);
+  InstanceZKMetadata instanceZKMetadata=getInstanceZKMetadata(zkClient,"Server_lva1-app0120.corp.linkedin.com_8001");
+  instanceZKMetadata.setGroupId("testResource0","testGroup0");
+  instanceZKMetadata.setPartition("testResource0","testPart0");
+  setInstanceZKMetadata(instanceZKMetadata,zkClient);
+  System.out.println(instanceZKMetadata);
+  InstanceZKMetadata instanceZKMetadata2=new InstanceZKMetadata();
+  instanceZKMetadata2.setInstanceName("lva1-app0120.corp.linkedin.com");
+  instanceZKMetadata2.setInstanceType("Server");
+  instanceZKMetadata2.setInstancePort(8001);
+}

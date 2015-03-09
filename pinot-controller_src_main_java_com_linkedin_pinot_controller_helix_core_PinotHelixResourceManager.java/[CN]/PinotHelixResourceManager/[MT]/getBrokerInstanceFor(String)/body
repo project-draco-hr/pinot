@@ -1,6 +1,12 @@
 {
-  final DataResource ds=getDataResource(resourceName);
-  final List<String> instanceIds=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ds.getBrokerTagName());
+  String brokerTag=null;
+  if (getAllResourceNames().contains(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName))) {
+    brokerTag=HelixHelper.getRealtimeResourceZKMetadata(_zkClient,BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)).getBrokerTag();
+  }
+  if (getAllResourceNames().contains(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName))) {
+    brokerTag=HelixHelper.getOfflineResourceZKMetadata(_zkClient,BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)).getBrokerTag();
+  }
+  final List<String> instanceIds=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag);
   if (instanceIds == null || instanceIds.size() == 0) {
     return null;
   }

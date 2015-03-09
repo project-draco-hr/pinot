@@ -1,0 +1,6 @@
+{
+  if (!resourceName.endsWith(CommonConstants.Broker.DataResource.REALTIME_RESOURCE_SUFFIX)) {
+    resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
+  }
+  return new RealtimeSegmentZKMetadata(propertyStore.get(PinotHelixUtils.constructPropertyStorePathForSegment(resourceName,segmentName),null,AccessOption.PERSISTENT));
+}

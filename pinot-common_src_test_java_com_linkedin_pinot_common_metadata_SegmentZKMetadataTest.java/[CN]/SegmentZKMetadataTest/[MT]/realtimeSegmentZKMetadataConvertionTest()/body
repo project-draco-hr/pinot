@@ -1,0 +1,14 @@
+{
+  ZNRecord inProgressZnRecord=getTestInProgressRealtimeSegmentZNRecord();
+  ZNRecord doneZnRecord=getTestDoneRealtimeSegmentZNRecord();
+  RealtimeSegmentZKMetadata inProgressSegmentMetadata=getTestInProgressRealtimeSegmentMetadata();
+  RealtimeSegmentZKMetadata doneSegmentMetadata=getTestDoneRealtimeSegmentMetadata();
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(inProgressZnRecord,inProgressSegmentMetadata.toZNRecord()));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(doneZnRecord,doneSegmentMetadata.toZNRecord()));
+  Assert.assertTrue(inProgressSegmentMetadata.equals(new RealtimeSegmentZKMetadata(inProgressZnRecord)));
+  Assert.assertTrue(doneSegmentMetadata.equals(new RealtimeSegmentZKMetadata(doneZnRecord)));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(inProgressZnRecord,new RealtimeSegmentZKMetadata(inProgressZnRecord).toZNRecord()));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(doneZnRecord,new RealtimeSegmentZKMetadata(doneZnRecord).toZNRecord()));
+  Assert.assertTrue(inProgressSegmentMetadata.equals(new RealtimeSegmentZKMetadata(inProgressSegmentMetadata.toZNRecord())));
+  Assert.assertTrue(doneSegmentMetadata.equals(new RealtimeSegmentZKMetadata(doneSegmentMetadata.toZNRecord())));
+}

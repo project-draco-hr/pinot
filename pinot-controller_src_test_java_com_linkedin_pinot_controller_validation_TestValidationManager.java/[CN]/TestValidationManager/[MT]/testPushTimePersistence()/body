@@ -6,20 +6,19 @@
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
   DataResource dataResource=new DataResource("create",testResourceName,Helix.ResourceType.OFFLINE.toString(),testTableName,"timestamp","millsSinceEpoch",2,2,"DAYS","5","daily","BalanceNumSegmentAssignmentStrategy","broker_" + testResourceName,2,null);
   _pinotHelixResourceManager.handleCreateNewDataResource(dataResource);
-  DummyMetadata metadata=new DummyMetadata(BrokerRequestUtils.getOfflineResourceNameForResource(testResourceName),testTableName);
-  metadata.setCrc("fakecrc");
+  DummyMetadata metadata=new DummyMetadata(testResourceName,testTableName);
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
-  ZNRecord znRecord=_pinotHelixResourceManager.getPropertyStore().get(PinotHelixUtils.constructPropertyStorePathForSegment(metadata.getResourceName(),metadata.getName()),null,AccessOption.PERSISTENT);
-  SegmentMetadata fetchedMetadata=new SegmentMetadataImpl(znRecord);
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
+  SegmentMetadata fetchedMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   long pushTime=fetchedMetadata.getPushTime();
   Assert.assertTrue(System.currentTimeMillis() - pushTime < 30000);
   Assert.assertEquals(fetchedMetadata.getRefreshTime(),Long.MIN_VALUE);
   metadata.setCrc("anotherfakecrc");
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
-  znRecord=_pinotHelixResourceManager.getPropertyStore().get(PinotHelixUtils.constructPropertyStorePathForSegment(metadata.getResourceName(),metadata.getName()),null,AccessOption.PERSISTENT);
-  fetchedMetadata=new SegmentMetadataImpl(znRecord);
+  offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
+  fetchedMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   Assert.assertEquals(fetchedMetadata.getPushTime(),pushTime);
   Assert.assertTrue(System.currentTimeMillis() - fetchedMetadata.getRefreshTime() < 30000);
 }

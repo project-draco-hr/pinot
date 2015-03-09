@@ -1,0 +1,20 @@
+{
+  offlineSegmentZKMetadata.setSegmentName(segmentMetadata.getName());
+  offlineSegmentZKMetadata.setResourceName(segmentMetadata.getResourceName());
+  offlineSegmentZKMetadata.setTableName(segmentMetadata.getTableName());
+  offlineSegmentZKMetadata.setIndexVersion(segmentMetadata.getVersion());
+  offlineSegmentZKMetadata.setSegmentType(SegmentType.OFFLINE);
+  offlineSegmentZKMetadata.setTimeUnit(extractTimeUnitFromDuration(segmentMetadata.getTimeGranularity()));
+  if (segmentMetadata.getTimeInterval() == null) {
+    offlineSegmentZKMetadata.setStartTime(-1);
+    offlineSegmentZKMetadata.setEndTime(-1);
+  }
+ else {
+    offlineSegmentZKMetadata.setStartTime(offlineSegmentZKMetadata.getTimeUnit().convert(segmentMetadata.getTimeInterval().getStartMillis(),TimeUnit.MILLISECONDS));
+    offlineSegmentZKMetadata.setEndTime(offlineSegmentZKMetadata.getTimeUnit().convert(segmentMetadata.getTimeInterval().getEndMillis(),TimeUnit.MILLISECONDS));
+  }
+  offlineSegmentZKMetadata.setTotalDocs(segmentMetadata.getTotalDocs());
+  offlineSegmentZKMetadata.setCreationTime(segmentMetadata.getIndexCreationTime());
+  offlineSegmentZKMetadata.setCrc(Long.parseLong(segmentMetadata.getCrc()));
+  return offlineSegmentZKMetadata;
+}

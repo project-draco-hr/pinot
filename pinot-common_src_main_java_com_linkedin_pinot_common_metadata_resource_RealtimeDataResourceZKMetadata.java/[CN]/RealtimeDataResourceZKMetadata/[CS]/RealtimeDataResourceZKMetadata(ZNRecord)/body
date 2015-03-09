@@ -1,0 +1,13 @@
+{
+  super(znRecord);
+  setResourceType(ResourceType.REALTIME);
+  _streamType=znRecord.getEnumField(CommonConstants.Helix.DataSource.Realtime.STREAM_TYPE,StreamType.class,null);
+  _dataSchema=Schema.getSchemaFromMap(znRecord.getSimpleFields());
+switch (_streamType) {
+case kafka:
+    _streamMetadata=new KafkaStreamMetadata(znRecord.getSimpleFields());
+  break;
+default :
+throw new UnsupportedOperationException("Not support stream type - " + _streamType);
+}
+}

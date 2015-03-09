@@ -1,0 +1,7 @@
+{
+  BaseJsonNode metadataJson=getMetadataJson();
+  DataResource realtimeDataResource=new DataResource("create","testResource0",ResourceType.OFFLINE.toString(),"testTable0","daysSinceEpoch","daysSinceEpoch",3,2,"DAYS","7","daily","BalanceNumSegmentAssignmentStrategy","testBrokerTag",1,metadataJson);
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataUtils.getRealtimeDataResourceMetadata(realtimeDataResource);
+  Assert.assertEquals(realtimeDataResourceZKMetadata.getStreamType(),StreamType.kafka);
+  Assert.assertEquals(realtimeDataResourceZKMetadata.getDataSchema().toString(),Schema.getSchemaFromMap(realtimeDataResourceZKMetadata.getDataSchema().toMap()).toString());
+}

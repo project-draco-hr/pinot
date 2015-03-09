@@ -1,0 +1,16 @@
+{
+  String realtimeResourceName=null;
+  if (resourceName.endsWith(CommonConstants.Broker.DataResource.REALTIME_RESOURCE_SUFFIX)) {
+    realtimeResourceName=resourceName;
+  }
+ else {
+    realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
+  }
+  List<ZNRecord> znRecords=ZKUtil.getChildren(zkClient,CONFIG_RESOURCE_PATH);
+  for (  ZNRecord znRecord : znRecords) {
+    if (znRecord.getId().equals(realtimeResourceName)) {
+      return new RealtimeDataResourceZKMetadata(znRecord);
+    }
+  }
+  return null;
+}

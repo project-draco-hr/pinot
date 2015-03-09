@@ -3,10 +3,10 @@
   final String segmentId=message.getPartitionName();
   final String resourceName=message.getResourceName();
   final String pathToPropertyStore="/" + StringUtil.join("/",resourceName,segmentId);
-  final ZNRecord record=context.getManager().getHelixPropertyStore().get(pathToPropertyStore,null,AccessOption.PERSISTENT);
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=new OfflineSegmentZKMetadata(context.getManager().getHelixPropertyStore().get(pathToPropertyStore,null,AccessOption.PERSISTENT));
   LOGGER.info("Trying to load segment : " + segmentId + " for resource : "+ resourceName);
   try {
-    SegmentMetadata segmentMetadataForCheck=new SegmentMetadataImpl(record);
+    SegmentMetadata segmentMetadataForCheck=new SegmentMetadataImpl(offlineSegmentZKMetadata);
     SegmentMetadata segmentMetadataFromServer=INSTANCE_DATA_MANAGER.getSegmentMetadata(resourceName,segmentMetadataForCheck.getName());
     if (segmentMetadataFromServer == null) {
       final String localSegmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),resourceName),segmentId).toString();
@@ -40,7 +40,7 @@
  else {
         LOGGER.info("Trying to refresh a segment with new data.");
       }
-      final String uri=record.getSimpleField(V1Constants.SEGMENT_DOWNLOAD_URL);
+      final String uri=offlineSegmentZKMetadata.getDownloadUrl();
       final String localSegmentDir=downloadSegmentToLocal(uri,resourceName,segmentId);
       final SegmentMetadata segmentMetadata=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
       INSTANCE_DATA_MANAGER.addSegment(segmentMetadata);

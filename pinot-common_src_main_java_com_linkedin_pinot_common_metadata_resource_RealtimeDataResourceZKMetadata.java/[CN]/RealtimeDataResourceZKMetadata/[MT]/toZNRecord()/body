@@ -1,0 +1,9 @@
+{
+  ZNRecord znRecord=new ZNRecord(BrokerRequestUtils.getRealtimeResourceNameForResource(getResourceName()));
+  Map<String,String> fieldMap=_dataSchema.toMap();
+  fieldMap.putAll(_streamMetadata.toMap());
+  znRecord.setSimpleFields(fieldMap);
+  znRecord.merge(super.toZNRecord());
+  znRecord.setSimpleField(CommonConstants.Helix.DataSource.Realtime.STREAM_TYPE,_streamType.toString());
+  return znRecord;
+}

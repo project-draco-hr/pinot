@@ -12,7 +12,16 @@
       presentation=new StringRepresentation(ret.toString());
     }
  else {
-      presentation=new StringRepresentation(manager.getDataResource(resourceName).toJSON().toString());
+      final JSONObject ret=new JSONObject();
+      for (      final String resource : manager.getAllResourceNames()) {
+        if (resource.equals(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName))) {
+          ret.put(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),manager.getOfflineDataResourceZKMetadata(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)));
+        }
+        if (resource.equals(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName))) {
+          ret.put(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName),manager.getRealtimeDataResourceZKMetadata(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)));
+        }
+      }
+      presentation=new StringRepresentation(ret.toString());
     }
   }
  catch (  final Exception e) {

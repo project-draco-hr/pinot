@@ -1,0 +1,10 @@
+{
+  ZNRecord znRecordRaw=getTestZNRecord();
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadataFromZNRecord=new OfflineDataResourceZKMetadata(znRecordRaw);
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=getTestOfflineDataResourceZKMetadata();
+  ZNRecord znRecordFromMetadata=offlineDataResourceZKMetadata.toZNRecord();
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(znRecordRaw,znRecordFromMetadata));
+  Assert.assertTrue(offlineDataResourceZKMetadataFromZNRecord.equals(offlineDataResourceZKMetadata));
+  Assert.assertTrue(MetadataUtils.comparisonZNRecords(znRecordRaw,new OfflineDataResourceZKMetadata(znRecordRaw).toZNRecord()));
+  Assert.assertTrue(offlineDataResourceZKMetadata.equals(new OfflineDataResourceZKMetadata(offlineDataResourceZKMetadata.toZNRecord())));
+}
