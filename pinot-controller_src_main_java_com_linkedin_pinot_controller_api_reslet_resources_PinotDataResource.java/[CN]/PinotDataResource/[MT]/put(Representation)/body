@@ -22,8 +22,9 @@
     }
   }
  catch (  final Exception e) {
-    presentation=new StringRepresentation(e.getMessage());
-    logger.error(e);
+    presentation=exceptionToStringRepresentation(e);
+    logger.error("Caught exception while processing put request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;
 }
