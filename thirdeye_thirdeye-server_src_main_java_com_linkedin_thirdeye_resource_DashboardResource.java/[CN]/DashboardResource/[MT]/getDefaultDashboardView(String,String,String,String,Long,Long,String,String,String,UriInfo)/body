@@ -5,6 +5,11 @@
   }
   TimeSeriesComponentView timeSeriesComponentView=timeSeriesResource.getTimeSeriesComponentView(collection,"*",startMillis,endMillis,aggregate,movingAverage,normalized,uriInfo);
   HeatMapComponentView heatMapComponentView=heatMapResource.getHeatMapComponentView(heatMapType,collection,metric,startMillis,endMillis,aggregate,movingAverage,uriInfo);
+  FunnelComponentView funnelComponentView=null;
+  if (!"".equals(funnel)) {
+    String[] funnelTokens=funnel.split(":");
+    funnelComponentView=funnelResource.getFunnelView(funnelTokens[0].substring("/funnel/".length()),collection,funnelTokens[1],startMillis,endMillis,aggregate,movingAverage,uriInfo);
+  }
   List<List<String>> disabledDimensions=new ArrayList<List<String>>();
   List<String> activeDimension=null;
   String queryString=uriInfo.getRequestUri().getQuery();
@@ -17,5 +22,5 @@
       activeDimension=Arrays.asList(queryComponents[queryComponents.length - 1].split("="));
     }
   }
-  return new DefaultDashboardView(starTree.getConfig(),metric,endMillis,disabledDimensions,activeDimension,timeSeriesComponentView,heatMapComponentView,feedbackAddress);
+  return new DefaultDashboardView(starTree.getConfig(),metric,endMillis,disabledDimensions,activeDimension,timeSeriesComponentView,funnelComponentView,heatMapComponentView,feedbackAddress);
 }

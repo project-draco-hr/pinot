@@ -32,7 +32,7 @@
   long adjustedEndMillis=TimeUnit.MILLISECONDS.convert(end * bucketSize,bucketUnit);
   StarTreeStats stats=starTree.getStats();
   if (!new TimeRange(stats.getMinTime(),stats.getMaxTime()).contains(new TimeRange(start,end))) {
-    throw new NotFoundException("Query (" + getDateTime(start,bucketSize,bucketUnit) + ", "+ getDateTime(end,bucketSize,bucketUnit)+ ") not in range ("+ getDateTime(stats.getMinTime(),bucketSize,bucketUnit)+ ", "+ getDateTime(stats.getMaxTime(),bucketSize,bucketUnit)+ ")");
+    throw new NotFoundException("Query (" + QueryUtils.getDateTime(start,bucketSize,bucketUnit) + ", "+ QueryUtils.getDateTime(end,bucketSize,bucketUnit)+ ") not in range ("+ QueryUtils.getDateTime(stats.getMinTime(),bucketSize,bucketUnit)+ ", "+ QueryUtils.getDateTime(stats.getMaxTime(),bucketSize,bucketUnit)+ ")");
   }
   Map<DimensionKey,MetricTimeSeries> result;
   if (movingAverageValue == null && aggregateValue == null) {
