@@ -1,0 +1,16 @@
+{
+  List<String> ret=_helixAdmin.getResourcesInCluster(_helixClusterName);
+  CollectionUtils.filter(ret,new Predicate(){
+    @Override public boolean evaluate(    Object object){
+      if (object == null) {
+        return false;
+      }
+      if (object.toString().endsWith(CommonConstants.Broker.DataResource.REALTIME_RESOURCE_SUFFIX)) {
+        return true;
+      }
+      return false;
+    }
+  }
+);
+  return ret;
+}
