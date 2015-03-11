@@ -29,7 +29,9 @@
     presentation=new StringRepresentation("this is a string");
   }
  catch (  final Exception e) {
-    logger.error(e);
+    presentation=exceptionToStringRepresentation(e);
+    logger.error("Caught exception while processing get request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;
 }

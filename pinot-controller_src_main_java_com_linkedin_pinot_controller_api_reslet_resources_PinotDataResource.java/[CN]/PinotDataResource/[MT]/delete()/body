@@ -35,7 +35,9 @@
     }
   }
  catch (  final Exception e) {
-    logger.error(e);
+    presentation=exceptionToStringRepresentation(e);
+    logger.error("Caught exception while processing delete request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;
 }

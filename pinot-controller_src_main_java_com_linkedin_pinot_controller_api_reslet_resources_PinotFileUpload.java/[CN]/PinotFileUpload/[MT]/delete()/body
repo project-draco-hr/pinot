@@ -1,12 +1,19 @@
 {
   Representation rep=null;
-  final String resourceName=(String)getRequest().getAttributes().get("resourceName");
-  final String segmentName=(String)getRequest().getAttributes().get("segmentName");
-  logger.info("Getting segment deletion request, resourceName: " + resourceName + " segmentName: "+ segmentName);
-  if (resourceName == null || segmentName == null) {
-    throw new RuntimeException("either resource name or segment name is null");
+  try {
+    final String resourceName=(String)getRequest().getAttributes().get("resourceName");
+    final String segmentName=(String)getRequest().getAttributes().get("segmentName");
+    logger.info("Getting segment deletion request, resourceName: " + resourceName + " segmentName: "+ segmentName);
+    if (resourceName == null || segmentName == null) {
+      throw new RuntimeException("either resource name or segment name is null");
+    }
+    final PinotResourceManagerResponse res=manager.deleteSegment(resourceName,segmentName);
+    rep=new StringRepresentation(res.toString());
   }
-  final PinotResourceManagerResponse res=manager.deleteSegment(resourceName,segmentName);
-  rep=new StringRepresentation(res.toString());
+ catch (  final Exception e) {
+    rep=exceptionToStringRepresentation(e);
+    logger.error("Caught exception while processing delete request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
   return rep;
 }

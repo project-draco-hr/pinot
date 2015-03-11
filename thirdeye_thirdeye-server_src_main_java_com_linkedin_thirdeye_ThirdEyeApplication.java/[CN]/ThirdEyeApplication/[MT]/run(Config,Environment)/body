@@ -37,12 +37,14 @@
   environment.lifecycle().manage(kafkaConsumerManager);
   environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
   TimeSeriesResource timeSeriesResource=new TimeSeriesResource(starTreeManager);
+  FunnelResource funnelResource=new FunnelResource(starTreeManager);
   HeatMapResource heatMapResource=new HeatMapResource(starTreeManager,parallelQueryExecutor);
   environment.jersey().register(new CollectionsResource(starTreeManager,environment.metrics(),rootDir));
   environment.jersey().register(new PingResource());
   environment.jersey().register(timeSeriesResource);
+  environment.jersey().register(funnelResource);
   environment.jersey().register(heatMapResource);
-  environment.jersey().register(new DashboardResource(starTreeManager,timeSeriesResource,heatMapResource,config.getFeedbackAddress()));
+  environment.jersey().register(new DashboardResource(starTreeManager,timeSeriesResource,funnelResource,heatMapResource,config.getFeedbackAddress()));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new ResetTask(anomalyDetectionTaskManager,kafkaConsumerManager));
   environment.admin().addTask(new ExpireTask(starTreeManager,rootDir));
