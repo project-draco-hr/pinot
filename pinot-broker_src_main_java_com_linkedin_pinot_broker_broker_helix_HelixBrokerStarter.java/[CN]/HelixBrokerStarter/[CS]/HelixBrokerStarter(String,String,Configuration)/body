@@ -2,11 +2,12 @@
   _pinotHelixProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf(pinotHelixProperties);
   final String brokerId=_pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE + NetUtil.getHostAddress() + "_"+ _pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT));
   _pinotHelixProperties.addProperty("pinot.broker.id",brokerId);
-  RoutingTableBuilder defaultRoutingTableBuilder=getRoutingTableBuilder(_pinotHelixProperties.subset(DEFAULT_ROUTING_TABLE_BUILDER_KEY));
+  RoutingTableBuilder defaultOfflineRoutingTableBuilder=getRoutingTableBuilder(_pinotHelixProperties.subset(DEFAULT_OFFLINE_ROUTING_TABLE_BUILDER_KEY));
+  RoutingTableBuilder defaultRealtimeRoutingTableBuilder=getRoutingTableBuilder(_pinotHelixProperties.subset(DEFAULT_REALTIME_ROUTING_TABLE_BUILDER_KEY));
   Map<String,RoutingTableBuilder> resourceToRoutingTableBuilderMap=getResourceToRoutingTableBuilderMap(_pinotHelixProperties.subset(ROUTING_TABLE_BUILDER_KEY));
   ZkClient zkClient=new ZkClient(StringUtil.join("/",StringUtils.chomp(zkServer,"/"),helixClusterName,"PROPERTYSTORE"),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
   _propertyStore=new ZkHelixPropertyStore<ZNRecord>(new ZkBaseDataAccessor<ZNRecord>(zkClient),"/",null);
-  _helixExternalViewBasedRouting=new HelixExternalViewBasedRouting(defaultRoutingTableBuilder,resourceToRoutingTableBuilderMap,_propertyStore);
+  _helixExternalViewBasedRouting=new HelixExternalViewBasedRouting(defaultOfflineRoutingTableBuilder,defaultRealtimeRoutingTableBuilder,resourceToRoutingTableBuilderMap,_propertyStore);
   _brokerServerBuilder=startBroker(_pinotHelixProperties);
   _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,brokerId,InstanceType.PARTICIPANT,zkServer);
   final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();

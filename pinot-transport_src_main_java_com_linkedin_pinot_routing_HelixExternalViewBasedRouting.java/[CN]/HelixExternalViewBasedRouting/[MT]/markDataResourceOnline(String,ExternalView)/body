@@ -13,12 +13,29 @@
     LOGGER.info("Adding a new data resource to broker : " + resourceName);
     _dataResourceSet.add(resourceName);
   }
-  RoutingTableBuilder routingTableBuilder=_defaultRoutingTableBuilder;
-  if (_routingTableBuilderMap.containsKey(resourceName) && (_routingTableBuilderMap.get(resourceName) != null)) {
-    routingTableBuilder=_routingTableBuilderMap.get(resourceName);
-  }
-  LOGGER.info("Trying to compute routing table for resource : " + resourceName + ",by : "+ routingTableBuilder);
-  List<ServerToSegmentSetMap> serverToSegmentSetMap=routingTableBuilder.computeRoutingTableFromExternalView(resourceName,externalView);
-  _brokerRoutingTable.put(resourceName,serverToSegmentSetMap);
-  _timeBoundaryService.updateTimeBoundaryService(externalView);
+  RoutingTableBuilder routingTableBuilder=null;
+  ResourceType resourceType=BrokerRequestUtils.getResourceTypeFromResourceName(resourceName);
+  if (resourceType != null) {
+switch (resourceType) {
+case REALTIME:
+      routingTableBuilder=_defaultRealtimeRoutingTableBuilder;
+    break;
+case OFFLINE:
+  routingTableBuilder=_defaultOfflineRoutingTableBuilder;
+break;
+default :
+routingTableBuilder=_defaultOfflineRoutingTableBuilder;
+break;
+}
+}
+ else {
+routingTableBuilder=_defaultOfflineRoutingTableBuilder;
+}
+if (_routingTableBuilderMap.containsKey(resourceName) && (_routingTableBuilderMap.get(resourceName) != null)) {
+routingTableBuilder=_routingTableBuilderMap.get(resourceName);
+}
+LOGGER.info("Trying to compute routing table for resource : " + resourceName + ",by : "+ routingTableBuilder);
+List<ServerToSegmentSetMap> serverToSegmentSetMap=routingTableBuilder.computeRoutingTableFromExternalView(resourceName,externalView);
+_brokerRoutingTable.put(resourceName,serverToSegmentSetMap);
+_timeBoundaryService.updateTimeBoundaryService(externalView);
 }

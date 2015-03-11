@@ -6,7 +6,12 @@
  else {
     _defaultOfflineRoutingTableBuilder=new RandomRoutingTableBuilder();
   }
-  _defaultRealtimeRoutingTableBuilder=new KafkaHighLevelConsumerBasedRoutingTableBuilder();
+  if (defaultRealtimeRoutingTableBuilder != null) {
+    _defaultRealtimeRoutingTableBuilder=defaultRealtimeRoutingTableBuilder;
+  }
+ else {
+    _defaultRealtimeRoutingTableBuilder=new RandomRoutingTableBuilder();
+  }
   if (routingTableBuilderMap != null) {
     _routingTableBuilderMap=routingTableBuilderMap;
   }

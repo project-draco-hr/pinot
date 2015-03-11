@@ -1,0 +1,25 @@
+{
+  Set<String> segments=externalView.getPartitionSet();
+  List<ServerToSegmentSetMap> routingTable=new ArrayList<ServerToSegmentSetMap>();
+  Map<String,Map<String,Set<String>>> groupIdToRouting=new HashMap<String,Map<String,Set<String>>>();
+  for (  String segment : segments) {
+    Map<String,String> instanceMap=externalView.getStateMap(segment);
+    for (    String instance : instanceMap.keySet()) {
+      if (instanceMap.get(instance).equals(CommonConstants.Helix.StateModel.SegmentOnlineOfflineStateModel.OFFLINE)) {
+        continue;
+      }
+      String groupId=SegmentNameBuilder.Realtime.extractGroupIdName(segment);
+      if (!groupIdToRouting.containsKey(groupId)) {
+        groupIdToRouting.put(groupId,new HashMap<String,Set<String>>());
+      }
+      if (!groupIdToRouting.get(groupId).containsKey(instance)) {
+        groupIdToRouting.get(groupId).put(instance,new HashSet<String>());
+      }
+      groupIdToRouting.get(groupId).get(instance).add(segment);
+    }
+  }
+  for (  Map<String,Set<String>> replicaRouting : groupIdToRouting.values()) {
+    routingTable.add(new ServerToSegmentSetMap(replicaRouting));
+  }
+  return routingTable;
+}

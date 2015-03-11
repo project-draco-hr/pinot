@@ -1,0 +1,22 @@
+{
+  RoutingTableLookupRequest request=new RoutingTableLookupRequest(resource);
+  Map<ServerInstance,SegmentIdSet> serversMap=routingTable.findServers(request);
+  List<String> selectedSegments=new ArrayList<String>();
+  for (  ServerInstance serverInstance : serversMap.keySet()) {
+    System.out.println(serverInstance);
+    SegmentIdSet segmentIdSet=serversMap.get(serverInstance);
+    System.out.println(segmentIdSet.toString());
+    selectedSegments.addAll(segmentIdSet.getSegmentsNameList());
+  }
+  String[] selectedSegmentArray=selectedSegments.toArray(new String[0]);
+  Arrays.sort(selectedSegmentArray);
+  Assert.assertEquals(selectedSegments.size(),expectedNumSegment);
+  boolean matchedExpectedLists=false;
+  for (  String expectedSegmentList : expectedSegmentLists) {
+    if (expectedSegmentList.equals(Arrays.toString(selectedSegmentArray))) {
+      matchedExpectedLists=true;
+    }
+  }
+  Assert.assertTrue(matchedExpectedLists);
+  System.out.println("********************************");
+}
