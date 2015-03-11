@@ -1,0 +1,10 @@
+{
+  indexDir=new File(resourceConfigs.getDataDir());
+  readMode=ReadMode.valueOf(resourceConfigs.getReadMode());
+  if (!indexDir.exists()) {
+    if (!indexDir.mkdir()) {
+      logger.error("could not create data dir");
+    }
+  }
+  activeIndexedThreadMap=new HashMap<String,Thread>();
+}

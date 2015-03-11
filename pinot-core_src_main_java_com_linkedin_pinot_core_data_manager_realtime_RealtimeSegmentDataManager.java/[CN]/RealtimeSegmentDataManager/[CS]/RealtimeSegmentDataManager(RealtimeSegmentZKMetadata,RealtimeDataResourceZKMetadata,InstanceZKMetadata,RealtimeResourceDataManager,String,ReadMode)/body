@@ -1,0 +1,52 @@
+{
+  this.schema=resourceMetadata.getDataSchema();
+  this.resourceMetadata=resourceMetadata;
+  this.instanceMetadata=instanceMetadata;
+  this.segmentMetatdaZk=segmentMetadata;
+  this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
+  this.kafkaStreamProviderConfig.init(resourceMetadata,instanceMetadata);
+  this.resourceDir=new File(resourceDataDir);
+  this.mode=mode;
+  this.kafkaStreamProvider=new KafkaHighLevelConsumerStreamProvider();
+  this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
+  realtimeSegment=new RealtimeSegmentImpl(schema);
+  ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentName(segmentMetadata.getSegmentName());
+  notifier=realtimeResourceManager;
+  segmentStatusTask=new TimerTask(){
+    @Override public void run(){
+      computeKeepIndexing();
+    }
+  }
+;
+  TimerService.timer.schedule(segmentStatusTask,1000 * 60,1000 * 60 * 30);
+  indexingThread=new Thread(new Runnable(){
+    @Override public void run(){
+      while (index()) {
+      }
+      segmentStatusTask.cancel();
+      String tempFolder="tmp-" + String.valueOf(System.currentTimeMillis());
+      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,"/tmp/" + tempFolder,schema,resourceMetadata.getResourceName(),resourceMetadata.getTableList().get(0),segmentMetadata.getSegmentName());
+      try {
+        conveter.build();
+        FileUtils.moveDirectory(new File("/tmp/" + tempFolder).listFiles()[0],new File(resourceDataDir,segmentMetadata.getSegmentName()));
+        swap();
+        RealtimeSegmentZKMetadata metadaToOverrite=new RealtimeSegmentZKMetadata();
+        metadaToOverrite.setResourceName(resourceMetadata.getResourceName());
+        metadaToOverrite.setTableName(resourceMetadata.getTableList().get(0));
+        metadaToOverrite.setSegmentName(segmentMetadata.getSegmentName());
+        metadaToOverrite.setSegmentType(SegmentType.OFFLINE);
+        metadaToOverrite.setStatus(Status.DONE);
+        metadaToOverrite.setStartTime(((RealtimeSegmentImpl)realtimeSegment).getMinTime());
+        metadaToOverrite.setEndTime(((RealtimeSegmentImpl)realtimeSegment).getMaxTime());
+        notifier.notify(metadaToOverrite);
+        kafkaStreamProvider.commit();
+        kafkaStreamProvider.shutdown();
+      }
+ catch (      Exception e) {
+        logger.error(e);
+      }
+    }
+  }
+);
+  indexingThread.start();
+}

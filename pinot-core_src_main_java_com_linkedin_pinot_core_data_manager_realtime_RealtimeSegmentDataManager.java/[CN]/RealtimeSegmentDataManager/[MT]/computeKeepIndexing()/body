@@ -1,0 +1,11 @@
+{
+  if (!keepIndexing) {
+    return;
+  }
+  if (System.currentTimeMillis() - start >= (60 * 60 * 1000)) {
+    keepIndexing=false;
+  }
+  if (((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() >= 10000000) {
+    keepIndexing=false;
+  }
+}
