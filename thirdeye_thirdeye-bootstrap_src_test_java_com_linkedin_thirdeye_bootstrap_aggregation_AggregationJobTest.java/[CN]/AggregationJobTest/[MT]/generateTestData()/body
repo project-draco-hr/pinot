@@ -1,0 +1,16 @@
+{
+  Schema schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(SCHEMA_FILE));
+  List<GenericRecord> inputRecords=new ArrayList<GenericRecord>();
+  GenericRecord input=new GenericData.Record(schema);
+  for (int i=0; i < 3; i++) {
+    input.put("d1","abc");
+    input.put("d2","pqr");
+    input.put("d1","xyz");
+    input.put("time",generateRandomTime());
+    input.put("hoursSinceEpoch",generateRandomHoursSinceEpoch());
+    input.put("m1",10);
+    input.put("m2",20);
+    inputRecords.add(input);
+  }
+  return inputRecords;
+}

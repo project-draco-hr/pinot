@@ -1,0 +1,23 @@
+{
+  int recordCount=0;
+  List<GenericRecord> inputRecords=generateTestData();
+  for (  GenericRecord record : inputRecords) {
+    AvroKey<GenericRecord> inKey=new AvroKey<GenericRecord>();
+    inKey.datum(record);
+    mapDriver.addInput(new Pair<AvroKey<GenericRecord>,NullWritable>(inKey,NullWritable.get()));
+    recordCount++;
+  }
+  List<Pair<BytesWritable,BytesWritable>> result=mapDriver.run();
+  Assert.assertEquals(recordCount,result.size());
+  BytesWritable reducerKey=result.get(0).getFirst();
+  List<BytesWritable> reducerInputValues=new ArrayList<BytesWritable>();
+  for (  Pair<BytesWritable,BytesWritable> p : result) {
+    reducerInputValues.add(p.getSecond());
+  }
+  reduceDriver.addInput(new Pair<BytesWritable,List<BytesWritable>>(reducerKey,reducerInputValues));
+  List<Pair<BytesWritable,BytesWritable>> r=reduceDriver.run();
+  Assert.assertEquals(1,r.size());
+  MetricTimeSeries series=MetricTimeSeries.fromBytes(r.get(0).getSecond().copyBytes(),metricSchema);
+  Assert.assertEquals(30,series.get(-1,"m1"));
+  Assert.assertEquals(60,series.get(-1,"m2"));
+}

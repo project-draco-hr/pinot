@@ -3,4 +3,5 @@
     AnalysisPhaseStats stats=AnalysisPhaseStats.fromBytes(value.copyBytes());
     aggregatedStats.update(stats);
   }
+  context.write(new BytesWritable(aggregatedStats.toBytes()),NullWritable.get());
 }

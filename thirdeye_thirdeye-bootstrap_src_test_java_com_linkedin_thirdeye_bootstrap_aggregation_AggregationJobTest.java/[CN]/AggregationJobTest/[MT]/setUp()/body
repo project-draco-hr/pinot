@@ -1,0 +1,14 @@
+{
+  AggregationMapper mapper=new AggregationMapper();
+  mapDriver=MapDriver.newMapDriver(mapper);
+  Configuration configuration=mapDriver.getConfiguration();
+  configuration.set("io.serializations","org.apache.hadoop.io.serializer.JavaSerialization," + "org.apache.hadoop.io.serializer.WritableSerialization");
+  configuration.set(AggregationJobConstants.AGG_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  Schema schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(SCHEMA_FILE));
+  setUpAvroSerialization(mapDriver.getConfiguration(),schema);
+  metricSchema=new MetricSchema(metricNames,metricTypes);
+  AggregationReducer reducer=new AggregationReducer();
+  reduceDriver=ReduceDriver.newReduceDriver(reducer);
+  configuration=reduceDriver.getConfiguration();
+  configuration.set(AggregationJobConstants.AGG_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+}
