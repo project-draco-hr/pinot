@@ -1,0 +1,6 @@
+{
+  final String segmentId=message.getPartitionName();
+  final String resourceName=message.getResourceName();
+  SegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(context.getManager().getHelixPropertyStore(),resourceName,segmentId);
+  INSTANCE_DATA_MANAGER.addSegment(realtimeSegmentZKMetadata);
+}

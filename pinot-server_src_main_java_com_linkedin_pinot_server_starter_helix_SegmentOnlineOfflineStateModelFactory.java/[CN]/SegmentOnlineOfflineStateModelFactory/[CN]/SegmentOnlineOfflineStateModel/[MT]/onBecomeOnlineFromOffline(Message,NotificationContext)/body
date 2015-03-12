@@ -1,55 +1,19 @@
 {
   LOGGER.debug("SegmentOnlineOfflineStateModel.onBecomeOnlineFromOffline() : " + message);
-  final String segmentId=message.getPartitionName();
-  final String resourceName=message.getResourceName();
-  final String pathToPropertyStore="/" + StringUtil.join("/",resourceName,segmentId);
-  OfflineSegmentZKMetadata offlineSegmentZKMetadata=new OfflineSegmentZKMetadata(context.getManager().getHelixPropertyStore().get(pathToPropertyStore,null,AccessOption.PERSISTENT));
-  LOGGER.info("Trying to load segment : " + segmentId + " for resource : "+ resourceName);
+  final ResourceType resourceType=BrokerRequestUtils.getResourceTypeFromResourceName(message.getResourceName());
   try {
-    SegmentMetadata segmentMetadataForCheck=new SegmentMetadataImpl(offlineSegmentZKMetadata);
-    SegmentMetadata segmentMetadataFromServer=INSTANCE_DATA_MANAGER.getSegmentMetadata(resourceName,segmentMetadataForCheck.getName());
-    if (segmentMetadataFromServer == null) {
-      final String localSegmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),resourceName),segmentId).toString();
-      if (new File(localSegmentDir).exists()) {
-        try {
-          segmentMetadataFromServer=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
-        }
- catch (        Exception e) {
-          LOGGER.error("Failed to load segment metadata from local: " + localSegmentDir);
-          FileUtils.deleteQuietly(new File(localSegmentDir));
-          segmentMetadataFromServer=null;
-        }
-        try {
-          if (!isNewSegmentMetadata(segmentMetadataFromServer,segmentMetadataForCheck)) {
-            LOGGER.info("Trying to bootstrap segment from local!");
-            INSTANCE_DATA_MANAGER.addSegment(segmentMetadataFromServer);
-            return;
-          }
-        }
- catch (        Exception e) {
-          LOGGER.error("Failed to load segment from local, will try to reload it from controller!");
-          FileUtils.deleteQuietly(new File(localSegmentDir));
-          segmentMetadataFromServer=null;
-        }
-      }
-    }
-    if (isNewSegmentMetadata(segmentMetadataFromServer,segmentMetadataForCheck)) {
-      if (segmentMetadataFromServer == null) {
-        LOGGER.info("Loading new segment from controller - " + segmentMetadataForCheck.getName());
-      }
- else {
-        LOGGER.info("Trying to refresh a segment with new data.");
-      }
-      final String uri=offlineSegmentZKMetadata.getDownloadUrl();
-      final String localSegmentDir=downloadSegmentToLocal(uri,resourceName,segmentId);
-      final SegmentMetadata segmentMetadata=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
-      INSTANCE_DATA_MANAGER.addSegment(segmentMetadata);
-    }
- else {
-      LOGGER.info("Get already loaded segment again, will do nothing.");
-    }
-  }
- catch (  final Exception e) {
-    LOGGER.error("Cannot load segment : " + segmentId + "!\n",e);
-  }
+switch (resourceType) {
+case OFFLINE:
+      onBecomeOnlineFromOfflineForOfflineSegment(message,context);
+    break;
+case REALTIME:
+  onBecomeOnlineFromOfflineForRealtimeSegment(message,context);
+break;
+default :
+throw new RuntimeException("Not supported resource Type for onBecomeOnlineFromOffline message: " + message);
+}
+}
+ catch (Exception e) {
+throw new RuntimeException("Got internal error for adding segment: " + message + "\nException: "+ e.getMessage());
+}
 }
