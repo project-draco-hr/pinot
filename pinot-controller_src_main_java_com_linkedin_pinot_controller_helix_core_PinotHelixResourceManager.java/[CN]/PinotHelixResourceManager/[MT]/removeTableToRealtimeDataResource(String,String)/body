@@ -1,10 +1,10 @@
 {
-  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=HelixHelper.getRealtimeResourceZKMetadata(_zkClient,resourceName);
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(_zkClient,resourceName);
   List<String> tableList=realtimeDataResourceZKMetadata.getTableList();
   if (tableList.contains(tableName)) {
     tableList.remove(tableName);
     realtimeDataResourceZKMetadata.setTableList(tableList);
-    HelixHelper.setRealtimeResourceZKMetadata(realtimeDataResourceZKMetadata,_zkClient);
+    ZKMetadataProvider.setRealtimeResourceZKMetadata(realtimeDataResourceZKMetadata,_zkClient);
     deleteSegmentsInTable(resourceName,tableName);
     return true;
   }

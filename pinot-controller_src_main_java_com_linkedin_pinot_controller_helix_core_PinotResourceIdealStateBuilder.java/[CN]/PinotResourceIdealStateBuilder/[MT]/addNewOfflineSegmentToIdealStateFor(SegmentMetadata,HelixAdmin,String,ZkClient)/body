@@ -2,7 +2,7 @@
   final String resourceName=segmentMetadata.getResourceName();
   final String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(segmentMetadata.getResourceName());
   final String segmentName=segmentMetadata.getName();
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=HelixHelper.getOfflineResourceZKMetadata(zkClient,resourceName);
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(zkClient,resourceName);
   if (!SEGMENT_ASSIGNMENT_STRATEGY_MAP.containsKey(resourceName)) {
     SEGMENT_ASSIGNMENT_STRATEGY_MAP.put(resourceName,SegmentAssignmentStrategyFactory.getSegmentAssignmentStrategy(offlineDataResourceZKMetadata.getSegmentAssignmentStrategy()));
   }

@@ -1,6 +1,14 @@
 {
-  _kafkaConfig=dataResource;
-  _consumerType=ConsumerType.valueOf(dataResource.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.CONSUMER_TYPE)));
-  _kafkaTopicName=dataResource.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.TOPIC_NAME));
-  _decoderClass=dataResource.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_CLASS));
+  _zkBrokerUrl=streamConfigMap.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.ZK_BROKER_URL));
+  _consumerType=ConsumerType.valueOf(streamConfigMap.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.CONSUMER_TYPE)));
+  _kafkaTopicName=streamConfigMap.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.TOPIC_NAME));
+  _decoderClass=streamConfigMap.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM,CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_CLASS));
+  for (  String key : streamConfigMap.keySet()) {
+    if (key.startsWith(CommonConstants.Helix.DataSource.STREAM)) {
+      _streamConfigMap.put(key,streamConfigMap.get(key));
+    }
+    if (key.startsWith(CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_PROPS_PREFIX)) {
+      _decoderProperties.put(CommonConstants.Helix.DataSource.Realtime.Kafka.getDecoderPropertyKey(key),streamConfigMap.get(key));
+    }
+  }
 }

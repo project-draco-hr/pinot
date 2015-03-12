@@ -14,7 +14,7 @@
     this.decodeKlass=properties.get(Helix.DataSource.Realtime.Kafka.DECODER_CLASS);
   }
   if (groupId == null || zkString == null || kafkaTopicName == null || this.decodeKlass == null) {
-    throw new Exception();
+    throw new RuntimeException("Cannot initialize KafkaHighLevelStreamProviderConfig as: " + "groupId = " + groupId + ", zkString = "+ zkString+ ", kafkaTopicName = "+ kafkaTopicName+ ", decodeKlass = "+ decodeKlass);
   }
   for (  String key : properties.keySet()) {
     if (key.startsWith(Helix.DataSource.Realtime.Kafka.DECODER_PROPS_PREFIX)) {

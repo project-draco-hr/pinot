@@ -20,7 +20,7 @@
  else {
       for (      String partition : state.getPartitionSet()) {
         assert(1 == state.getInstanceSet(partition).size());
-        RealtimeSegmentZKMetadata m=HelixHelper.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractResourceName(partition),partition);
+        RealtimeSegmentZKMetadata m=ZKMetadataProvider.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractResourceName(partition),partition);
         if (m != null && m.getStatus() == Status.DONE) {
           String resourceName=SegmentNameBuilder.Realtime.extractResourceName(partition);
           String tableName=SegmentNameBuilder.Realtime.extractTableName(partition);

@@ -9,7 +9,7 @@
   DummyMetadata metadata=new DummyMetadata(testResourceName,testTableName);
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
-  OfflineSegmentZKMetadata offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
   SegmentMetadata fetchedMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   long pushTime=fetchedMetadata.getPushTime();
   Assert.assertTrue(System.currentTimeMillis() - pushTime < 30000);
@@ -17,7 +17,7 @@
   metadata.setCrc("anotherfakecrc");
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
-  offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
+  offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
   fetchedMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   Assert.assertEquals(fetchedMetadata.getPushTime(),pushTime);
   Assert.assertTrue(System.currentTimeMillis() - fetchedMetadata.getRefreshTime() < 30000);

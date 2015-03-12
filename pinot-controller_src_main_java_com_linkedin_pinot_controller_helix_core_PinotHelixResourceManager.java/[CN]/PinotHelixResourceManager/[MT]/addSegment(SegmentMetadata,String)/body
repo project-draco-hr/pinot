@@ -8,11 +8,11 @@
     }
     if (ifSegmentExisted(segmentMetadata)) {
       if (ifRefreshAnExistedSegment(segmentMetadata)) {
-        OfflineSegmentZKMetadata offlineSegmentZKMetadata=HelixHelper.getOfflineSegmentZKMetadata(_propertyStore,segmentMetadata.getResourceName(),segmentMetadata.getName());
+        OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_propertyStore,segmentMetadata.getResourceName(),segmentMetadata.getName());
         offlineSegmentZKMetadata=ZKMetadataUtils.updateSegmentMetadata(offlineSegmentZKMetadata,segmentMetadata);
         offlineSegmentZKMetadata.setDownloadUrl(downloadUrl);
         offlineSegmentZKMetadata.setRefreshTime(System.currentTimeMillis());
-        HelixHelper.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
+        ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
         LOGGER.info("Refresh segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
         if (updateExistedSegment(offlineSegmentZKMetadata)) {
           res.status=STATUS.success;
@@ -24,7 +24,7 @@
       offlineSegmentZKMetadata=ZKMetadataUtils.updateSegmentMetadata(offlineSegmentZKMetadata,segmentMetadata);
       offlineSegmentZKMetadata.setDownloadUrl(downloadUrl);
       offlineSegmentZKMetadata.setPushTime(System.currentTimeMillis());
-      HelixHelper.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
+      ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
       LOGGER.info("Added segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
       final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName,_zkClient);
       _helixAdmin.setResourceIdealState(_helixClusterName,BrokerRequestUtils.getOfflineResourceNameForResource(offlineSegmentZKMetadata.getResourceName()),idealState);

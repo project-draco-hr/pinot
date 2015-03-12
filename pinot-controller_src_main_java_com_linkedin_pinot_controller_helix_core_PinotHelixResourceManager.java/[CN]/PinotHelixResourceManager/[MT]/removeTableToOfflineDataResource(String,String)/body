@@ -1,10 +1,10 @@
 {
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=HelixHelper.getOfflineResourceZKMetadata(_zkClient,resourceName);
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,resourceName);
   List<String> tableList=offlineDataResourceZKMetadata.getTableList();
   if (tableList.contains(tableName)) {
     tableList.remove(tableName);
     offlineDataResourceZKMetadata.setTableList(tableList);
-    HelixHelper.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
+    ZKMetadataProvider.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
     deleteSegmentsInTable(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),tableName);
     return true;
   }
