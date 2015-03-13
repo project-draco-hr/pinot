@@ -1,0 +1,15 @@
+{
+  this.helixPropertyStore=propertyStore;
+  String segmentId=segmentZKMetadata.getSegmentName();
+  if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
+    if (new File(indexDir,segmentId).exists()) {
+      IndexSegment segment=ColumnarSegmentLoader.load(new File(indexDir,segmentId),readMode);
+synchronized (lock) {
+        segmentsMap.put(segmentId,new OfflineSegmentDataManager(segment));
+      }
+    }
+ else {
+      SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,(RealtimeDataResourceZKMetadata)dataResourceZKMetadata,instanceZKMetadata,this,indexDir.getAbsolutePath(),readMode);
+    }
+  }
+}

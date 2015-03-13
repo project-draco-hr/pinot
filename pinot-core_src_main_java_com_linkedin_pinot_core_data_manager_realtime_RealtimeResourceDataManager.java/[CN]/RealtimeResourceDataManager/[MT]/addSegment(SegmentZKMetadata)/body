@@ -1,14 +1,3 @@
 {
-  String segmentId=segmentMetadata.getSegmentName();
-  if (segmentMetadata instanceof RealtimeSegmentZKMetadata) {
-    if (new File(indexDir,segmentId).exists()) {
-      IndexSegment segment=ColumnarSegmentLoader.load(new File(indexDir,segmentId),readMode);
-synchronized (lock) {
-        segmentsMap.put(segmentId,new OfflineSegmentDataManager(segment));
-      }
-    }
- else {
-      SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentMetadata,realtimeResouceMetadata,realtimeInstanceMetadata,this,indexDir.getAbsolutePath(),readMode);
-    }
-  }
+  throw new UnsupportedOperationException("Cannot add realtime segment with just SegmentZKMetadata");
 }

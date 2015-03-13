@@ -1,0 +1,14 @@
+{
+  if (segmentZKMetadata == null || segmentZKMetadata.getResourceName() == null) {
+    throw new RuntimeException("Error: adding invalid SegmentMetadata!");
+  }
+  LOGGER.info("Trying to add segment with name: " + segmentZKMetadata.getSegmentName());
+  LOGGER.debug("Trying to add segment with Metadata: " + segmentZKMetadata.toString());
+  String resourceName=segmentZKMetadata.getResourceName();
+  if (!_resourceDataManagerMap.containsKey(resourceName)) {
+    LOGGER.info("Trying to add ResourceDataManager for resource name: " + resourceName);
+    addResourceIfNeed(resourceName);
+  }
+  _resourceDataManagerMap.get(resourceName).addSegment(propertyStore,dataResourceZKMetadata,instanceZKMetadata,segmentZKMetadata);
+  LOGGER.info("Successfuly added a segment : " + segmentZKMetadata.getSegmentName() + " in HelixInstanceDataManager");
+}

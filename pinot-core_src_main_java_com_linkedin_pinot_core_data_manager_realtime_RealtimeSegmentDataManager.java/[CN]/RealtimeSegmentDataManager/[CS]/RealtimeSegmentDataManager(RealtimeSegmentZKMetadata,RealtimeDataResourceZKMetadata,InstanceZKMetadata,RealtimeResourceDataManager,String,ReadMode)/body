@@ -9,6 +9,7 @@
   this.mode=mode;
   this.kafkaStreamProvider=new KafkaHighLevelConsumerStreamProvider();
   this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
+  this.kafkaStreamProvider.start();
   realtimeSegment=new RealtimeSegmentImpl(schema);
   ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentName(segmentMetadata.getSegmentName());
   notifier=realtimeResourceManager;
