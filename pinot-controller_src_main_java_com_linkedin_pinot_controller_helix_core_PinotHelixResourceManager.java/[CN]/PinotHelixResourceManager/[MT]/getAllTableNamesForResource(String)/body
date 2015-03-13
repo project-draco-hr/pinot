@@ -1,10 +1,10 @@
 {
   final Set<String> tableNameSet=new HashSet<String>();
   if (resourceName.endsWith(CommonConstants.Broker.DataResource.OFFLINE_RESOURCE_SUFFIX)) {
-    tableNameSet.addAll(ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,resourceName).getTableList());
+    tableNameSet.addAll(ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resourceName).getTableList());
   }
   if (resourceName.endsWith(CommonConstants.Broker.DataResource.REALTIME_RESOURCE_SUFFIX)) {
-    tableNameSet.addAll(ZKMetadataProvider.getRealtimeResourceZKMetadata(_zkClient,resourceName).getTableList());
+    tableNameSet.addAll(ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),resourceName).getTableList());
   }
   LOGGER.info("Current holding tables for resource: " + resourceName + " is "+ Arrays.toString(tableNameSet.toArray(new String[0])));
   return tableNameSet;

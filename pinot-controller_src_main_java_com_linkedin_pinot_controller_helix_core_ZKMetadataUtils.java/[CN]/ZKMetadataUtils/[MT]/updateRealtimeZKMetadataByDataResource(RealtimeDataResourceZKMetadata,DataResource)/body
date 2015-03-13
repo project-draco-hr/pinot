@@ -1,0 +1,43 @@
+{
+  realtimeDataResourceZKMetadata.setTimeColumnName(resource.getTimeColumnName());
+  realtimeDataResourceZKMetadata.setTimeType(resource.getTimeType());
+  realtimeDataResourceZKMetadata.setTimeType(resource.getTimeType());
+  realtimeDataResourceZKMetadata.setStreamType(extractStreamTypeFromDataResource(resource));
+  Map<String,String> metadataMap=new HashMap<String,String>();
+  Map<String,String> schemaMap=new HashMap<String,String>();
+  Map<String,String> streamMap=new HashMap<String,String>();
+  Iterator<String> fieldNameIter=resource.getMetadata().fieldNames();
+  while (fieldNameIter.hasNext()) {
+    String fieldName=fieldNameIter.next();
+    if (fieldName.startsWith(CommonConstants.Helix.DataSource.SCHEMA + ".")) {
+      schemaMap.put(fieldName,resource.getMetadata().get(fieldName).textValue());
+      continue;
+    }
+    if (fieldName.startsWith(CommonConstants.Helix.DataSource.STREAM + ".")) {
+      streamMap.put(fieldName,resource.getMetadata().get(fieldName).textValue());
+      continue;
+    }
+    metadataMap.put(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,fieldName),resource.getMetadata().get(fieldName).textValue());
+  }
+  realtimeDataResourceZKMetadata.setMetadata(metadataMap);
+  if (schemaMap.size() > 0) {
+    realtimeDataResourceZKMetadata.setDataSchema(Schema.getSchemaFromMap(schemaMap));
+  }
+  if (streamMap.size() > 0) {
+switch (realtimeDataResourceZKMetadata.getStreamType()) {
+case kafka:
+      realtimeDataResourceZKMetadata.setStreamMetadata(new KafkaStreamMetadata(streamMap));
+    break;
+default :
+  break;
+}
+}
+try {
+realtimeDataResourceZKMetadata.setRetentionTimeUnit(TimeUnit.valueOf(resource.getRetentionTimeUnit()));
+realtimeDataResourceZKMetadata.setRetentionTimeValue(Integer.parseInt(resource.getRetentionTimeValue()));
+}
+ catch (Exception e) {
+LOGGER.warn("No retention config for - " + resource);
+}
+return realtimeDataResourceZKMetadata;
+}

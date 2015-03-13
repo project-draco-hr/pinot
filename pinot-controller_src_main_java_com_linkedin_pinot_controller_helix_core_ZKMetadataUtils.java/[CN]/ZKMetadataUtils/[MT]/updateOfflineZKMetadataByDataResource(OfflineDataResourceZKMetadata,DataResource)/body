@@ -1,0 +1,21 @@
+{
+  offlineDataResourceZKMetadata.setTimeColumnName(resource.getTimeColumnName());
+  offlineDataResourceZKMetadata.setTimeType(resource.getTimeType());
+  offlineDataResourceZKMetadata.setPushFrequency(resource.getPushFrequency());
+  offlineDataResourceZKMetadata.setSegmentAssignmentStrategy(resource.getSegmentAssignmentStrategy());
+  Map<String,String> metadataMap=new HashMap<String,String>();
+  Iterator<String> fieldNameIter=resource.getMetadata().fieldNames();
+  while (fieldNameIter.hasNext()) {
+    String fieldName=fieldNameIter.next();
+    metadataMap.put(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,fieldName),resource.getMetadata().get(fieldName).textValue());
+  }
+  offlineDataResourceZKMetadata.setMetadata(metadataMap);
+  try {
+    offlineDataResourceZKMetadata.setRetentionTimeUnit(TimeUnit.valueOf(resource.getRetentionTimeUnit()));
+    offlineDataResourceZKMetadata.setRetentionTimeValue(Integer.parseInt(resource.getRetentionTimeValue()));
+  }
+ catch (  Exception e) {
+    LOGGER.warn("No retention config for - " + resource);
+  }
+  return offlineDataResourceZKMetadata;
+}

@@ -29,7 +29,22 @@
   LOGGER.info("update resource via the admin");
   _helixAdmin.setResourceIdealState(_helixClusterName,resourceName,idealState);
   LOGGER.info("successfully update the resource : " + resourceName + " to the cluster");
-  HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resourceName,_helixClusterName,_helixAdmin);
-  resp.status=STATUS.success;
-  return resp;
+switch (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName)) {
+case REALTIME:
+    RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),resourceName);
+  realtimeDataResourceZKMetadata.setNumDataInstances(resource.getNumberOfDataInstances());
+realtimeDataResourceZKMetadata.setNumDataReplicas(resource.getNumberOfCopies());
+ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
+break;
+case OFFLINE:
+OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resourceName);
+offlineDataResourceZKMetadata.setNumDataInstances(resource.getNumberOfDataInstances());
+offlineDataResourceZKMetadata.setNumDataReplicas(resource.getNumberOfCopies());
+ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
+break;
+default :
+throw new UnsupportedOperationException("Not supported resource type: " + resource);
+}
+resp.status=STATUS.success;
+return resp;
 }

@@ -1,9 +1,9 @@
 {
-  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(_zkClient,resourceName);
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),resourceName);
   List<String> tableList=realtimeDataResourceZKMetadata.getTableList();
   if (!tableList.contains(tableName)) {
     realtimeDataResourceZKMetadata.addToTableList(tableName);
-    ZKMetadataProvider.setRealtimeResourceZKMetadata(realtimeDataResourceZKMetadata,_zkClient);
+    ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
     return true;
   }
   return false;

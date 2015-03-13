@@ -6,11 +6,9 @@
  else {
     realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
   }
-  List<ZNRecord> znRecords=ZKUtil.getChildren(zkClient,CONFIG_RESOURCE_PATH);
-  for (  ZNRecord znRecord : znRecords) {
-    if (znRecord.getId().equals(realtimeResourceName)) {
-      return new RealtimeDataResourceZKMetadata(znRecord);
-    }
+  ZNRecord znRecord=propertyStore.get(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,realtimeResourceName),null,AccessOption.PERSISTENT);
+  if (znRecord == null) {
+    return null;
   }
-  return null;
+  return new RealtimeDataResourceZKMetadata(znRecord);
 }

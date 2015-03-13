@@ -6,11 +6,9 @@
  else {
     offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
   }
-  List<ZNRecord> znRecords=ZKUtil.getChildren(zkClient,CONFIG_RESOURCE_PATH);
-  for (  ZNRecord znRecord : znRecords) {
-    if (znRecord.getId().equals(offlineResourceName)) {
-      return new OfflineDataResourceZKMetadata(znRecord);
-    }
+  ZNRecord znRecord=propertyStore.get(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,offlineResourceName),null,AccessOption.PERSISTENT);
+  if (znRecord == null) {
+    return null;
   }
-  return null;
+  return new OfflineDataResourceZKMetadata(znRecord);
 }

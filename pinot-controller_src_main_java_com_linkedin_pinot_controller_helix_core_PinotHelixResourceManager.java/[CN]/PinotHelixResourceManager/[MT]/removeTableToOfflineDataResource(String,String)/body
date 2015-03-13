@@ -1,10 +1,10 @@
 {
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,resourceName);
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resourceName);
   List<String> tableList=offlineDataResourceZKMetadata.getTableList();
   if (tableList.contains(tableName)) {
     tableList.remove(tableName);
     offlineDataResourceZKMetadata.setTableList(tableList);
-    ZKMetadataProvider.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
+    ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
     deleteSegmentsInTable(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),tableName);
     return true;
   }

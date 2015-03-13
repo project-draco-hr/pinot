@@ -26,7 +26,7 @@
       offlineSegmentZKMetadata.setPushTime(System.currentTimeMillis());
       ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
       LOGGER.info("Added segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
-      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName,_zkClient);
+      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName,getPropertyStore());
       _helixAdmin.setResourceIdealState(_helixClusterName,BrokerRequestUtils.getOfflineResourceNameForResource(offlineSegmentZKMetadata.getResourceName()),idealState);
       res.status=STATUS.success;
     }

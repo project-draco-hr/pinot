@@ -1,9 +1,9 @@
 {
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,resourceName);
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resourceName);
   List<String> tableList=offlineDataResourceZKMetadata.getTableList();
   if (!tableList.contains(tableName)) {
     offlineDataResourceZKMetadata.addToTableList(tableName);
-    ZKMetadataProvider.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
+    ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
     return true;
   }
   return false;

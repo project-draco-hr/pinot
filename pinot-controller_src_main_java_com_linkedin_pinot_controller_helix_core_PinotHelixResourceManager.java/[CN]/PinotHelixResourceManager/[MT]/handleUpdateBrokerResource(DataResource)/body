@@ -4,34 +4,64 @@
 switch (resource.getResourceType()) {
 case OFFLINE:
     resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,resource.getResourceName());
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resource.getResourceName());
 currentResourceBrokerTag=offlineDataResourceZKMetadata.getBrokerTag();
-break;
+if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
+final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
+resp.status=STATUS.failure;
+resp.errorMessage="Current broker tag for resource : " + resource + " is "+ currentResourceBrokerTag+ ", not match updated request broker tag : "+ resource.getBrokerTagName();
+return resp;
+}
+BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
+PinotResourceManagerResponse updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
+if (updateBrokerResourceTagResp.isSuccessfull()) {
+offlineDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
+ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
+return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
+}
+ else {
+return updateBrokerResourceTagResp;
+}
 case REALTIME:
 resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
-RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(_zkClient,resource.getResourceName());
+RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),resource.getResourceName());
 currentResourceBrokerTag=realtimeDataResourceZKMetadata.getBrokerTag();
-break;
+if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
+final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
+resp.status=STATUS.failure;
+resp.errorMessage="Current broker tag for resource : " + resource + " is "+ currentResourceBrokerTag+ ", not match updated request broker tag : "+ resource.getBrokerTagName();
+return resp;
+}
+brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
+updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
+if (updateBrokerResourceTagResp.isSuccessfull()) {
+realtimeDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
+ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
+return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
+}
+ else {
+return updateBrokerResourceTagResp;
+}
 case HYBRID:
-realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(_zkClient,resource.getResourceName());
-offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,resource.getResourceName());
+realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),resource.getResourceName());
+offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resource.getResourceName());
 if (!realtimeDataResourceZKMetadata.getBrokerTag().equals(resource.getBrokerTagName()) || !offlineDataResourceZKMetadata.getBrokerTag().equals(resource.getBrokerTagName())) {
 final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
 resp.status=STATUS.failure;
 resp.errorMessage="Current broker tag for resource : " + resource + " is "+ offlineDataResourceZKMetadata.getBrokerTag()+ "(offline) && "+ realtimeDataResourceZKMetadata.getBrokerTag()+ "(realtime), not match updated request broker tag : "+ resource.getBrokerTagName();
 return resp;
 }
-final BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
-final PinotResourceManagerResponse updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
+brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
+updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
 if (updateBrokerResourceTagResp.isSuccessfull()) {
 resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
 offlineDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
-ZKMetadataProvider.setOfflineResourceZKMetadata(offlineDataResourceZKMetadata,_zkClient);
+ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
 PinotResourceManagerResponse resp=createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
 if (resp.isSuccessfull()) {
 resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
 realtimeDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
-ZKMetadataProvider.setRealtimeResourceZKMetadata(realtimeDataResourceZKMetadata,_zkClient);
+ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
 return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
 }
  else {
@@ -42,21 +72,6 @@ return resp;
 return updateBrokerResourceTagResp;
 }
 default :
-break;
-}
-if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
-final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-resp.status=STATUS.failure;
-resp.errorMessage="Current broker tag for resource : " + resource + " is "+ currentResourceBrokerTag+ ", not match updated request broker tag : "+ resource.getBrokerTagName();
-return resp;
-}
-final BrokerTagResource brokerTagResource=new BrokerTagResource(resource.getNumberOfBrokerInstances(),resource.getBrokerTagName());
-final PinotResourceManagerResponse updateBrokerResourceTagResp=updateBrokerResourceTag(brokerTagResource);
-if (updateBrokerResourceTagResp.isSuccessfull()) {
-HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resourceName,_helixClusterName,_helixAdmin);
-return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
-}
- else {
-return updateBrokerResourceTagResp;
+throw new RuntimeException("Error in updating broker resource: not supported resource type!");
 }
 }

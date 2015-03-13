@@ -1,7 +1,30 @@
 {
   final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-  HelixHelper.updateResourceConfigsFor(resource.toResourceConfigMap(),resource.getResourceName(),_helixClusterName,_helixAdmin);
-  resp.status=STATUS.success;
-  resp.errorMessage=String.format("Resource (%s) properties have been updated",resource.getResourceName());
-  return resp;
+switch (resource.getResourceType()) {
+case REALTIME:
+    RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()));
+  realtimeDataResourceZKMetadata=ZKMetadataUtils.updateRealtimeZKMetadataByDataResource(realtimeDataResourceZKMetadata,resource);
+ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
+break;
+case OFFLINE:
+OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()));
+offlineDataResourceZKMetadata=ZKMetadataUtils.updateOfflineZKMetadataByDataResource(offlineDataResourceZKMetadata,resource);
+ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
+break;
+case HYBRID:
+realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()));
+realtimeDataResourceZKMetadata=ZKMetadataUtils.updateRealtimeZKMetadataByDataResource(realtimeDataResourceZKMetadata,resource);
+ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
+offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()));
+offlineDataResourceZKMetadata=ZKMetadataUtils.updateOfflineZKMetadataByDataResource(offlineDataResourceZKMetadata,resource);
+ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
+break;
+default :
+resp.status=STATUS.failure;
+resp.errorMessage=String.format("Resource type (%s) is not supported",resource.getRequestType());
+return resp;
+}
+resp.status=STATUS.success;
+resp.errorMessage=String.format("Resource (%s) properties have been updated",resource.getResourceName());
+return resp;
 }

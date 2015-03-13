@@ -1,10 +1,10 @@
 {
   String brokerTag=null;
   if (getAllResourceNames().contains(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName))) {
-    brokerTag=ZKMetadataProvider.getRealtimeResourceZKMetadata(_zkClient,BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)).getBrokerTag();
+    brokerTag=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)).getBrokerTag();
   }
   if (getAllResourceNames().contains(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName))) {
-    brokerTag=ZKMetadataProvider.getOfflineResourceZKMetadata(_zkClient,BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)).getBrokerTag();
+    brokerTag=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)).getBrokerTag();
   }
   final List<String> instanceIds=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag);
   if (instanceIds == null || instanceIds.size() == 0) {
