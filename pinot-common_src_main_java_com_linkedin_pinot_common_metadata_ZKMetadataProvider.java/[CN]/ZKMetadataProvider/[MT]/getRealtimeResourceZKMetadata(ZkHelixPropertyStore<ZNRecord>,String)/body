@@ -1,11 +1,5 @@
 {
-  String realtimeResourceName=null;
-  if (resourceName.endsWith(CommonConstants.Broker.DataResource.REALTIME_RESOURCE_SUFFIX)) {
-    realtimeResourceName=resourceName;
-  }
- else {
-    realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
-  }
+  String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
   ZNRecord znRecord=propertyStore.get(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,realtimeResourceName),null,AccessOption.PERSISTENT);
   if (znRecord == null) {
     return null;

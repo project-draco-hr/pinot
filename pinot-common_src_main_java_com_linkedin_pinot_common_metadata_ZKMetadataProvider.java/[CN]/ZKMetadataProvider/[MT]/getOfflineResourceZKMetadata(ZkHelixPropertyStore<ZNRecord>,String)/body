@@ -1,11 +1,5 @@
 {
-  String offlineResourceName=null;
-  if (resourceName.endsWith(CommonConstants.Broker.DataResource.OFFLINE_RESOURCE_SUFFIX)) {
-    offlineResourceName=resourceName;
-  }
- else {
-    offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
-  }
+  String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
   ZNRecord znRecord=propertyStore.get(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,offlineResourceName),null,AccessOption.PERSISTENT);
   if (znRecord == null) {
     return null;

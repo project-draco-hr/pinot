@@ -1,4 +1,5 @@
 {
   ZNRecord znRecord=offlineDataResource.toZNRecord();
-  propertyStore.set(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,offlineDataResource.getResourceName()),znRecord,AccessOption.PERSISTENT);
+  String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(offlineDataResource.getResourceName());
+  propertyStore.set(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,offlineResourceName),znRecord,AccessOption.PERSISTENT);
 }

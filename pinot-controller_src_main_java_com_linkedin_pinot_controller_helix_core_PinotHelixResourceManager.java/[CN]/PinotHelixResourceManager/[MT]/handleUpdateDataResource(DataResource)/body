@@ -7,13 +7,13 @@ case OFFLINE:
       resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
     return handleUpdateDataResourceFor(resourceName,resource);
 case REALTIME:
-  resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+  resourceName=BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName());
 return handleUpdateDataResourceFor(resourceName,resource);
 case HYBRID:
 resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName());
 PinotResourceManagerResponse res=handleUpdateDataResourceFor(resourceName,resource);
 if (res.isSuccessfull()) {
-resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+resourceName=BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName());
 return handleUpdateDataResourceFor(resourceName,resource);
 }
  else {

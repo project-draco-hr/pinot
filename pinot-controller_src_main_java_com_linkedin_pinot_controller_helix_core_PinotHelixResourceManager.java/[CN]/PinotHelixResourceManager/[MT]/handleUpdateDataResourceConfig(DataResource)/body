@@ -2,7 +2,7 @@
   final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
 switch (resource.getResourceType()) {
 case REALTIME:
-    RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()));
+    RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName()));
   realtimeDataResourceZKMetadata=ZKMetadataUtils.updateRealtimeZKMetadataByDataResource(realtimeDataResourceZKMetadata,resource);
 ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
 break;
@@ -12,7 +12,7 @@ offlineDataResourceZKMetadata=ZKMetadataUtils.updateOfflineZKMetadataByDataResou
 ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
 break;
 case HYBRID:
-realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()));
+realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName()));
 realtimeDataResourceZKMetadata=ZKMetadataUtils.updateRealtimeZKMetadataByDataResource(realtimeDataResourceZKMetadata,resource);
 ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
 offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()));

@@ -23,7 +23,7 @@ return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagRes
 return updateBrokerResourceTagResp;
 }
 case REALTIME:
-resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+resourceName=BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName());
 RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),resource.getResourceName());
 currentResourceBrokerTag=realtimeDataResourceZKMetadata.getBrokerTag();
 if (!currentResourceBrokerTag.equals(resource.getBrokerTagName())) {
@@ -59,7 +59,7 @@ offlineDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerIns
 ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResourceZKMetadata);
 PinotResourceManagerResponse resp=createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));
 if (resp.isSuccessfull()) {
-resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName());
+resourceName=BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName());
 realtimeDataResourceZKMetadata.setNumBrokerInstance(resource.getNumberOfBrokerInstances());
 ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResourceZKMetadata);
 return createBrokerDataResource(new BrokerDataResource(resourceName,brokerTagResource));

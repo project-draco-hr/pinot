@@ -6,10 +6,10 @@ case OFFLINE:
     isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName());
   break;
 case REALTIME:
-isSuccess=removeTableToRealtimeDataResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
+isSuccess=removeTableToRealtimeDataResource(BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
 break;
 case HYBRID:
-isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName()) && removeTableToRealtimeDataResource(BrokerRequestUtils.getRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
+isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName()) && removeTableToRealtimeDataResource(BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
 break;
 default :
 resp.status=STATUS.failure;
