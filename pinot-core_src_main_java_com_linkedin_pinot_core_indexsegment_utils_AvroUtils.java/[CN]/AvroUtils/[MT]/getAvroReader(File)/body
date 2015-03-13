@@ -1,3 +1,4 @@
 {
-  return new DataFileStream<GenericRecord>(new FileInputStream(avroFile),new GenericDatumReader<GenericRecord>());
+  if (avroFile.getName().endsWith("gz"))   return new DataFileStream<GenericRecord>(new GZIPInputStream(new FileInputStream(avroFile)),new GenericDatumReader<GenericRecord>());
+ else   return new DataFileStream<GenericRecord>(new FileInputStream(avroFile),new GenericDatumReader<GenericRecord>());
 }

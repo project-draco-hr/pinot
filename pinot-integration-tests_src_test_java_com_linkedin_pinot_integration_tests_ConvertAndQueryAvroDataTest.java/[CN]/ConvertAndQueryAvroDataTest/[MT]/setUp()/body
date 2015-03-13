@@ -1,0 +1,40 @@
+{
+  startController();
+  startBroker();
+  startOfflineServer();
+  createResource("myresource");
+  addTableToResource("myresource","mytable");
+  _tmpDir.mkdirs();
+  System.out.println("Building 12 segments in parallel");
+  ExecutorService executor=Executors.newCachedThreadPool();
+  for (int i=1; i <= 12; ++i) {
+    final int segmentNumber=i;
+    executor.execute(new Runnable(){
+      @Override public void run(){
+        try {
+          System.out.println("Starting to build segment " + segmentNumber);
+          File outputDir=new File(_tmpDir,"segment-" + segmentNumber);
+          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File("pinot-integration-tests/src/test/resources","On_Time_On_Time_Performance_2014_" + segmentNumber + ".avro.gz"),outputDir,"daysSinceEpoch",TimeUnit.DAYS,"myresource_O","mytable");
+          genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber));
+          final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+          driver.init(genConfig);
+          driver.build();
+          TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/myresource_O_mytable_" + segmentNumber,new File(outputDir.getParent(),"myresource_O_mytable_" + segmentNumber).getAbsolutePath());
+          System.out.println("Completed segment " + segmentNumber);
+        }
+ catch (        Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+);
+  }
+  executor.shutdown();
+  executor.awaitTermination(10,TimeUnit.MINUTES);
+  for (int i=1; i <= 12; ++i) {
+    System.out.println("Uploading segment " + i);
+    File file=new File(_tmpDir,"myresource_O_mytable_" + i);
+    FileUploadUtils.sendFile("localhost","8998","myresource_O_mytable_" + i,new FileInputStream(file),file.length());
+  }
+  Thread.sleep(15000l);
+}

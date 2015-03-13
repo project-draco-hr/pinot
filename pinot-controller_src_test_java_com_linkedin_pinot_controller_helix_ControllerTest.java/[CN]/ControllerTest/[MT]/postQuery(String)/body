@@ -2,7 +2,7 @@
   final JSONObject json=new JSONObject();
   json.put("pql",query);
   final long start=System.currentTimeMillis();
-  final URLConnection conn=url.openConnection();
+  final URLConnection conn=new URL(BROKER_BASE_API_URL + "/query").openConnection();
   conn.setDoOutput(true);
   final BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
   final String reqStr=json.toString();
@@ -17,9 +17,8 @@
   final long stop=System.currentTimeMillis();
   logger.info(" Time take for Request : " + query + " in ms:"+ (stop - start));
   final String res=sb.toString();
+  System.out.println("res: " + res);
   final JSONObject ret=new JSONObject(res);
-  if (ret.opt("totaldocs") != null) {
-  }
   ret.put("totalTime",(stop - start));
   return ret;
 }

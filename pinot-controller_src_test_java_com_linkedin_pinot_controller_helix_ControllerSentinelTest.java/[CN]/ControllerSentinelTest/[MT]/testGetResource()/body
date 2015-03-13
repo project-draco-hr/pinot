@@ -4,16 +4,16 @@
   System.out.println("**************");
   System.out.println(res);
   System.out.println("**************");
-  final String getResponse=senGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceGet("testGetResource"));
+  final String getResponse=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceGet("testGetResource"));
   System.out.println("**************");
   System.out.println(getResponse);
   System.out.println("**************");
   final JSONObject getResJSON=new JSONObject(getResponse);
   Assert.assertEquals("testGetResource",getResJSON.getString(CommonConstants.Helix.DataSource.RESOURCE_NAME));
-  final String getAllResponse=senGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceGet(null));
+  final String getAllResponse=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceGet(null));
   System.out.println("**************");
   System.out.println(getAllResponse);
   System.out.println("**************");
-  Assert.assertEquals(getAllResponse.contains("testGetResource_O"),true);
+  Assert.assertEquals(getAllResponse.contains("testGetResource"),true);
   Assert.assertEquals(getAllResponse.contains(CommonConstants.Helix.BROKER_RESOURCE_INSTANCE),true);
 }
