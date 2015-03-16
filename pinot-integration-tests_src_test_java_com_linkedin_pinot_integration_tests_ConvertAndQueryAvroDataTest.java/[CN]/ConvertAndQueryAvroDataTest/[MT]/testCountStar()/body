@@ -19,6 +19,7 @@
   correctValues.put("WN","1174633");
   Map<String,String> actualValues=new HashMap<String,String>();
   response=postQuery("select count(*) from 'myresource.mytable' group by Carrier");
+  System.out.println(response);
   JSONArray aggregationResults=response.getJSONArray("aggregationResults").getJSONObject(0).getJSONArray("groupByResult");
   for (int i=0; i < aggregationResults.length(); ++i) {
     actualValues.put(aggregationResults.getJSONObject(i).getJSONArray("group").getString(0),aggregationResults.getJSONObject(i).getString("value"));

@@ -2,7 +2,7 @@
   if (brokerRequest.getQuerySource() == null) {
     return true;
   }
-  if (brokerRequest.getQuerySource().getResourceName() == null || !brokerRequest.getQuerySource().getResourceName().startsWith(segment.getSegmentMetadata().getResourceName())) {
+  if (brokerRequest.getQuerySource().getResourceName() == null || (!brokerRequest.getQuerySource().getResourceName().equals(segment.getSegmentMetadata().getResourceName()) && !brokerRequest.getQuerySource().getResourceName().equals(BrokerRequestUtils.getOfflineResourceNameForResource(segment.getSegmentMetadata().getResourceName())))) {
     return true;
   }
   if (brokerRequest.getQuerySource().getTableName() == null || brokerRequest.getQuerySource().getTableName().equals("")) {
