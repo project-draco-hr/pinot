@@ -1,0 +1,6 @@
+{
+  ZkBaseDataAccessor<ZNRecord> baseAccessor=(ZkBaseDataAccessor<ZNRecord>)helixManager.getHelixDataAccessor().getBaseDataAccessor();
+  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,clusterName);
+  ZkHelixPropertyStore<ZNRecord> propertyStore=new ZkHelixPropertyStore<ZNRecord>(baseAccessor,propertyStorePath,Arrays.asList(propertyStorePath));
+  return propertyStore;
+}
