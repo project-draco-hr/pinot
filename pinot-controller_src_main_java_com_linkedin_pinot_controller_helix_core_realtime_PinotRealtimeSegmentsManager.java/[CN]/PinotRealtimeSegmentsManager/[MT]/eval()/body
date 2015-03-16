@@ -49,7 +49,7 @@
       realtimeSegmentMetadataToAdd.setStatus(Status.IN_PROGRESS);
       ZNRecord rec=realtimeSegmentMetadataToAdd.toZNRecord();
       pinotClusterManager.getPropertyStore().create("/" + resourceName + "/"+ segmentId,rec,AccessOption.PERSISTENT);
-      IdealState s=idealStateMap.get(resourceName);
+      IdealState s=PinotResourceIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,idealStateMap.get(resourceName),instanceName);
       pinotClusterManager.getHelixAdmin().setResourceIdealState(pinotClusterManager.getHelixClusterName(),resourceName,PinotResourceIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,s,instanceName));
     }
   }
