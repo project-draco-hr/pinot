@@ -23,11 +23,11 @@
     StringBuilder label=new StringBuilder();
     label.append("(baseline=").append(baselineMetricValue).append(", current=").append(currentMetricValue);
     if (baselineStats.getSum() > 0) {
-      label.append(", baselineRatio=").append(String.format("%.2f",baselineMetricValue.doubleValue() / baselineStats.getSum()));
+      label.append(", baselineRatio=").append(String.format("%.2f",baselineMetricValue.doubleValue() * 100 / baselineStats.getSum())).append("%");
     }
     if (currentStats.getSum() > 0) {
-      String format=String.format("%.2f",currentMetricValue.doubleValue() / currentStats.getSum());
-      label.append(", currentRatio=").append(format);
+      String format=String.format("%.2f",currentMetricValue.doubleValue() * 100 / currentStats.getSum());
+      label.append(", currentRatio=").append(format).append("%");
     }
     label.append(")");
     HeatMapCell cell=new HeatMapCell(entry.getKey(),currentMetricValue,baselineMetricValue,label.toString(),ratio,alphas.get(entry.getKey()),COLOR);
