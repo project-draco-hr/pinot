@@ -16,11 +16,18 @@
       series.set(startHourSinceEpoch + i,name,value);
     }
   }
-  System.out.println(series);
   byte[] bytes=series.toBytes();
   MetricTimeSeries newSeries=MetricTimeSeries.fromBytes(bytes,schema);
-  System.out.println(newSeries);
-  Assert.assertEquals(newSeries.toBytes(),bytes);
+  Set<Long> timeWindowSet=newSeries.getTimeWindowSet();
+  byte[] newBytes=newSeries.toBytes();
+  Assert.assertEquals(bytes.length,newBytes.length);
+  for (  long timeWindow : timeWindowSet) {
+    for (    String name : names) {
+      Number m1=series.get(timeWindow,name);
+      Number m2=newSeries.get(timeWindow,name);
+      Assert.assertEquals(m1,m2);
+    }
+  }
   MetricTimeSeries aggSeries=new MetricTimeSeries(schema);
   aggSeries.aggregate(series);
   aggSeries.aggregate(newSeries);
