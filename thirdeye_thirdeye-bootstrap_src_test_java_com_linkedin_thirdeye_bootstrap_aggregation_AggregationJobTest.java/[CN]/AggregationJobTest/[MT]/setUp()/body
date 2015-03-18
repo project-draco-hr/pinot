@@ -11,4 +11,7 @@
   reduceDriver=ReduceDriver.newReduceDriver(reducer);
   configuration=reduceDriver.getConfiguration();
   configuration.set(AggregationJobConstants.AGG_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  TemporaryPath tmpPath=new TemporaryPath();
+  outputPath=tmpPath.toString();
+  configuration.set(AggregationJobConstants.AGG_OUTPUT_PATH.toString(),outputPath);
 }
