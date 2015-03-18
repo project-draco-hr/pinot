@@ -26,10 +26,7 @@ synchronized (sync) {
     for (    List<MetricIndexEntry> entryGroup : metricIndex.values()) {
       loadMetricBuffers(entryGroup);
     }
-    RefreshWatcher refreshWatcher=new RefreshWatcher();
-    Path dimensionPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),StarTreeConstants.DIMENSION_STORE);
-    refreshWatcher.register(dimensionPath);
-    LOG.info("Registered watch on {}",dimensionPath);
+    MetricStoreRefreshWatcher refreshWatcher=new MetricStoreRefreshWatcher();
     Path metricPath=FileSystems.getDefault().getPath(rootDir.getAbsolutePath(),StarTreeConstants.METRIC_STORE);
     refreshWatcher.register(metricPath);
     LOG.info("Registered watch on {}",metricPath);

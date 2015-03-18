@@ -1,3 +1,16 @@
 {
-  return Collections.max(Arrays.asList(immutableStore.getMaxTime(),mutableStore.getMaxTime()));
+  long fromImmutable=immutableStore.getMaxTime();
+  long fromMutable=mutableStore.getMaxTime();
+  if (fromImmutable == -1 && fromMutable == -1) {
+    return -1L;
+  }
+ else   if (fromImmutable != -1 && fromMutable == -1) {
+    return fromImmutable;
+  }
+ else   if (fromImmutable == -1 && fromMutable != -1) {
+    return fromMutable;
+  }
+ else {
+    return fromImmutable > fromMutable ? fromImmutable : fromMutable;
+  }
 }

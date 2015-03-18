@@ -31,19 +31,32 @@
             throw new IllegalStateException("Found node in metric index which does not exist in tree: " + "nodeId=" + indexEntry.getNodeId() + "; indexFileId="+ indexEntry.getFileId());
           }
           nodeStats.incrementMetricIndexCount();
+          nodeStats.addTimeRange(indexEntry.getTimeRange());
         }
       }
     }
     Integer metricIndexCount=null;
-    for (    Map.Entry<UUID,NodeStats> entry : allNodeStats.entrySet()) {
-      if (entry.getValue().getDimensionIndexCount() != 1) {
-        throw new IllegalStateException("There must be one and only one dimension index for node " + entry.getKey());
+    for (    StarTreeNode leafNode : leafNodes) {
+      NodeStats nodeStats=allNodeStats.get(leafNode.getId());
+      if (nodeStats == null) {
+        throw new IllegalStateException("No node stats for leaf " + leafNode.getId());
       }
       if (metricIndexCount == null) {
-        metricIndexCount=entry.getValue().getMetricIndexCount();
+        metricIndexCount=nodeStats.getMetricIndexCount();
       }
-      if (metricIndexCount != entry.getValue().getMetricIndexCount()) {
-        throw new IllegalStateException("There are " + entry.getValue().getMetricIndexCount() + " metric index entries for node "+ entry.getKey()+ ", but expected "+ metricIndexCount+ ". This probably indicates some segments were lost");
+      if (nodeStats.getDimensionIndexCount() != 1) {
+        throw new IllegalStateException("There must be one and only one dimension index for node " + leafNode.getId());
+      }
+      if (metricIndexCount != nodeStats.getMetricIndexCount()) {
+        throw new IllegalStateException("There are " + nodeStats.getMetricIndexCount() + " metric index entries for node "+ leafNode.getId()+ ", but expected "+ metricIndexCount+ ". This probably indicates some segments were lost");
+      }
+      if (leafNode.getRecordStore().getRecordCountEstimate() > 0) {
+        if (!leafNode.getRecordStore().getMaxTime().equals(nodeStats.getMaxTimeInIndex())) {
+          throw new IllegalStateException("Record store max time differs from that in index: " + leafNode.getRecordStore().getMaxTime() + " vs "+ nodeStats.getMaxTimeInIndex()+ " for node "+ leafNode.getId());
+        }
+        if (!leafNode.getRecordStore().getMinTime().equals(nodeStats.getMinTimeInIndex())) {
+          throw new IllegalStateException("Record store min time differs from that in index: " + leafNode.getRecordStore().getMinTime() + " vs "+ nodeStats.getMinTimeInIndex()+ " for node "+ leafNode.getId());
+        }
       }
     }
   }
