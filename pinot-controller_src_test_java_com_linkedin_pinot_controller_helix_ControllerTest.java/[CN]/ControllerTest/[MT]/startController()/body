@@ -12,6 +12,7 @@
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_STR);
   _helixZkManager=HelixSetupUtils.setup(getHelixClusterName(),helixZkURL,CONTROLLER_INSTANCE_NAME);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
+  _propertyStore=ZkUtils.getZkPropertyStore(_helixZkManager,getHelixClusterName());
   ControllerSentinelTest._controllerStarter=new ControllerStarter(conf);
   ControllerSentinelTest._controllerStarter.start();
 }

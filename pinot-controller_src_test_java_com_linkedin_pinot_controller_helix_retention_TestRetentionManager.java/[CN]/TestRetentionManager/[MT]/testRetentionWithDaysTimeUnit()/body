@@ -10,11 +10,11 @@
     registerSegmentMetadat(segmentMetadata);
     Thread.sleep(100);
   }
-  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames(PinotHelixUtils.constructPropertyStorePathForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)),AccessOption.PERSISTENT).size(),20);
+  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)),AccessOption.PERSISTENT).size(),20);
   Thread.sleep(35000);
   LOGGER.info("Sleeping thread wakes up!");
   Assert.assertEquals(_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)).getPartitionSet().size(),10);
   Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)).getPartitionSet().size(),10);
-  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames(PinotHelixUtils.constructPropertyStorePathForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)),AccessOption.PERSISTENT).size(),10);
+  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)),AccessOption.PERSISTENT).size(),10);
   cleanupSegments();
 }

@@ -1,0 +1,13 @@
+{
+  String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
+  List<OfflineSegmentZKMetadata> resultList=new ArrayList<OfflineSegmentZKMetadata>();
+  if (propertyStore.exists(constructPropertyStorePathForResource(offlineResourceName),AccessOption.PERSISTENT)) {
+    List<ZNRecord> znRecordList=propertyStore.getChildren(constructPropertyStorePathForResource(offlineResourceName),null,AccessOption.PERSISTENT);
+    if (znRecordList != null) {
+      for (      ZNRecord record : znRecordList) {
+        resultList.add(new OfflineSegmentZKMetadata(record));
+      }
+    }
+  }
+  return resultList;
+}

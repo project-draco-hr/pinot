@@ -7,8 +7,18 @@
     if (resourceName == null || segmentName == null) {
       throw new RuntimeException("either resource name or segment name is null");
     }
-    final PinotResourceManagerResponse res=manager.deleteSegment(resourceName,segmentName);
-    rep=new StringRepresentation(res.toString());
+    PinotResourceManagerResponse res=null;
+    if (ZKMetadataProvider.isSegmentExisted(manager.getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),segmentName)) {
+      res=manager.deleteSegment(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),segmentName);
+      rep=new StringRepresentation(res.toString());
+    }
+    if (ZKMetadataProvider.isSegmentExisted(manager.getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName),segmentName)) {
+      res=manager.deleteSegment(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName),segmentName);
+      rep=new StringRepresentation(res.toString());
+    }
+    if (res == null) {
+      rep=new StringRepresentation("Cannot find the segment: " + segmentName + " in resource: "+ resourceName);
+    }
   }
  catch (  final Exception e) {
     rep=exceptionToStringRepresentation(e);

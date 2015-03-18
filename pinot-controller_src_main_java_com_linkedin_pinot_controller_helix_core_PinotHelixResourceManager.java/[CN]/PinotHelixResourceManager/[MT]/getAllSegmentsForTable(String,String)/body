@@ -1,10 +1,22 @@
 {
-  List<ZNRecord> records=_propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
   List<String> segmentsInTable=new ArrayList<String>();
-  for (  ZNRecord record : records) {
-    if (record.getSimpleField(V1Constants.MetadataKeys.Segment.TABLE_NAME).equals(tableName)) {
-      segmentsInTable.add(record.getId());
+switch (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName)) {
+case REALTIME:
+    for (    RealtimeSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getRealtimeResourceZKMetadataListForResource(getPropertyStore(),resourceName)) {
+      if (segmentZKMetadata.getTableName().equals(tableName)) {
+        segmentsInTable.add(segmentZKMetadata.getSegmentName());
+      }
     }
+  break;
+case OFFLINE:
+for (OfflineSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(getPropertyStore(),resourceName)) {
+  if (segmentZKMetadata.getTableName().equals(tableName)) {
+    segmentsInTable.add(segmentZKMetadata.getSegmentName());
   }
-  return segmentsInTable;
+}
+break;
+default :
+break;
+}
+return segmentsInTable;
 }

@@ -1,8 +1,20 @@
 {
-  List<SegmentMetadata> segmentMetadataList=new ArrayList<SegmentMetadata>();
-  List<ZNRecord> segmentMetadataZnRecords=_propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
-  for (  ZNRecord segmentMetaZnRecord : segmentMetadataZnRecords) {
-    segmentMetadataList.add(new SegmentMetadataImpl(new OfflineSegmentZKMetadata(segmentMetaZnRecord)));
+  List<SegmentZKMetadata> segmentMetadataList=new ArrayList<SegmentZKMetadata>();
+switch (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName)) {
+case OFFLINE:
+    List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(_propertyStore,resourceName);
+  for (  OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
+    segmentMetadataList.add(offlineSegmentZKMetadata);
   }
-  return segmentMetadataList;
+break;
+case REALTIME:
+List<RealtimeSegmentZKMetadata> realtimeSegmentZKMetadatas=ZKMetadataProvider.getRealtimeResourceZKMetadataListForResource(_propertyStore,resourceName);
+for (RealtimeSegmentZKMetadata realtimeSegmentZKMetadata : realtimeSegmentZKMetadatas) {
+segmentMetadataList.add(realtimeSegmentZKMetadata);
+}
+break;
+default :
+break;
+}
+return segmentMetadataList;
 }

@@ -7,10 +7,13 @@
   List<String> allResourceNames=_pinotHelixResourceManager.getAllPinotResourceNames();
   ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
   for (  String resourceName : allResourceNames) {
-    List<ZNRecord> segmentRecords=propertyStore.getChildren(PinotHelixUtils.constructPropertyStorePathForResource(resourceName),null,AccessOption.PERSISTENT);
+    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) != ResourceType.OFFLINE) {
+      continue;
+    }
+    List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(propertyStore,resourceName);
     Map<String,List<SegmentMetadata>> tableToSegmentMetadata=new HashMap<String,List<SegmentMetadata>>();
-    for (    ZNRecord record : segmentRecords) {
-      SegmentMetadata segmentMetadata=new SegmentMetadataImpl(new OfflineSegmentZKMetadata(record));
+    for (    OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
+      SegmentMetadata segmentMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
       String tableName=segmentMetadata.getTableName();
       if (tableToSegmentMetadata.containsKey(tableName)) {
         List<SegmentMetadata> metadataList=tableToSegmentMetadata.get(tableName);

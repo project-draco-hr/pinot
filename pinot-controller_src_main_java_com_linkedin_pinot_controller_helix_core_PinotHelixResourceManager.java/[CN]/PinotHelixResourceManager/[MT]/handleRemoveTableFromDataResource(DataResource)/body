@@ -1,28 +1,3 @@
 {
-  final PinotResourceManagerResponse resp=new PinotResourceManagerResponse();
-  boolean isSuccess=false;
-switch (resource.getResourceType()) {
-case OFFLINE:
-    isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName());
-  break;
-case REALTIME:
-isSuccess=removeTableToRealtimeDataResource(BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
-break;
-case HYBRID:
-isSuccess=removeTableToOfflineDataResource(BrokerRequestUtils.getOfflineResourceNameForResource(resource.getResourceName()),resource.getTableName()) && removeTableToRealtimeDataResource(BrokerRequestUtils.buildRealtimeResourceNameForResource(resource.getResourceName()),resource.getTableName());
-break;
-default :
-resp.status=STATUS.failure;
-resp.errorMessage=String.format("ResourceType is not valid : (%s)!",resource.getResourceType());
-return resp;
-}
-if (isSuccess) {
-resp.errorMessage=String.format("Removing table name (%s) from resource (%s)",resource.getTableName(),resource.getResourceName());
-return resp;
-}
- else {
-resp.status=STATUS.failure;
-resp.errorMessage=String.format("Table name (%s) is not existed in resource (%s)",resource.getTableName(),resource.getResourceName());
-return resp;
-}
+  return handleRemoveTableFromDataResource(resource.getResourceName(),resource.getTableName(),resource.getResourceType());
 }

@@ -19,5 +19,5 @@
   LOGGER.info("adding resource via the admin");
   _helixAdmin.addResource(_helixClusterName,realtimeResourceName,idealState);
   LOGGER.info("successfully added the resource : " + realtimeResourceName + " to the cluster");
-  _propertyStore.create(PinotHelixUtils.constructPropertyStorePathForResource(realtimeResourceName),new ZNRecord(realtimeResourceName),AccessOption.PERSISTENT);
+  _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(realtimeResourceName),new ZNRecord(realtimeResourceName),AccessOption.PERSISTENT);
 }

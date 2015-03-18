@@ -19,4 +19,5 @@
   _helixAdmin.addResource(_helixClusterName,offlineResourceName,idealState);
   LOGGER.info("successfully added the resource : " + offlineResourceName + " to the cluster");
   ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResource);
+  _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(offlineResourceName),new ZNRecord(offlineResourceName),AccessOption.PERSISTENT);
 }

@@ -1,0 +1,17 @@
+{
+  if (_retentionDuration == null || _retentionDuration.getMillis() <= 0) {
+    return false;
+  }
+  try {
+    TimeUnit segmentTimeUnit=segmentZKMetadata.getTimeUnit();
+    long endsMills=segmentTimeUnit.toMillis(segmentZKMetadata.getEndTime());
+    Duration segmentTimeUntilNow=new Duration(endsMills,System.currentTimeMillis());
+    if (_retentionDuration.isShorterThan(segmentTimeUntilNow)) {
+      return true;
+    }
+  }
+ catch (  Exception e) {
+    return false;
+  }
+  return false;
+}

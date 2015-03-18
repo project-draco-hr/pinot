@@ -1,6 +1,6 @@
 {
   final IdealState brokerIdealState=HelixHelper.getBrokerIdealStates(_helixAdmin,_helixClusterName);
-  final List<String> dataResourceList=new ArrayList(brokerIdealState.getPartitionSet());
+  final List<String> dataResourceList=new ArrayList<String>(brokerIdealState.getPartitionSet());
   for (  final String dataResource : dataResourceList) {
     final Set<String> instances=brokerIdealState.getInstanceSet(dataResource);
     brokerIdealState.getPartitionSet().remove(dataResource);

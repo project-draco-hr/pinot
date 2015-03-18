@@ -1,21 +1,21 @@
 {
   for (  String resourceName : _segmentMetadataMap.keySet()) {
-    List<SegmentMetadata> segmentMetadataList=_segmentMetadataMap.get(resourceName);
-    for (    SegmentMetadata segmentMetadata : segmentMetadataList) {
+    List<SegmentZKMetadata> segmentZKMetadataList=_segmentMetadataMap.get(resourceName);
+    for (    SegmentZKMetadata segmentZKMetadata : segmentZKMetadataList) {
       RetentionStrategy deletionStrategy;
-      if (_tableDeletionStrategy.containsKey(resourceName + "." + segmentMetadata.getTableName())) {
-        deletionStrategy=_tableDeletionStrategy.get(resourceName + "." + segmentMetadata.getTableName());
+      if (_tableDeletionStrategy.containsKey(resourceName + "." + segmentZKMetadata.getTableName())) {
+        deletionStrategy=_tableDeletionStrategy.get(resourceName + "." + segmentZKMetadata.getTableName());
       }
  else {
         deletionStrategy=_tableDeletionStrategy.get(resourceName + ".*");
       }
       if (deletionStrategy == null) {
-        LOGGER.info("No Retention strategy found for segment: " + segmentMetadata.getName());
+        LOGGER.info("No Retention strategy found for segment: " + segmentZKMetadata.getSegmentName());
         continue;
       }
-      if (deletionStrategy.isPurgeable(segmentMetadata)) {
-        LOGGER.info("Trying to delete segment: " + segmentMetadata.getName());
-        _pinotHelixResourceManager.deleteSegment(resourceName,segmentMetadata.getName());
+      if (deletionStrategy.isPurgeable(segmentZKMetadata)) {
+        LOGGER.info("Trying to delete segment: " + segmentZKMetadata.getSegmentName());
+        _pinotHelixResourceManager.deleteSegment(resourceName,segmentZKMetadata.getSegmentName());
       }
     }
   }

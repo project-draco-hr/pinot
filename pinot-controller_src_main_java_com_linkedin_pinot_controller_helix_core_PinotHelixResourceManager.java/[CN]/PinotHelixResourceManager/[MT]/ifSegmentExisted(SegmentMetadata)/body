@@ -2,5 +2,5 @@
   if (segmentMetadata == null) {
     return false;
   }
-  return _propertyStore.exists(PinotHelixUtils.constructPropertyStorePathForSegment(segmentMetadata),AccessOption.PERSISTENT);
+  return _propertyStore.exists(ZKMetadataProvider.constructPropertyStorePathForSegment(BrokerRequestUtils.getOfflineResourceNameForResource(segmentMetadata.getResourceName()),segmentMetadata.getName()),AccessOption.PERSISTENT);
 }
