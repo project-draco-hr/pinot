@@ -20,7 +20,8 @@
     }
     @Override public void stop() throws Exception {
       try {
-        for (        String collection : starTreeManager.getCollections()) {
+        Set<String> collections=new HashSet<String>(starTreeManager.getCollections());
+        for (        String collection : collections) {
           starTreeManager.close(collection);
         }
         LOG.info("Closed star tree manager");
@@ -33,8 +34,6 @@
 );
   final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval());
   environment.lifecycle().manage(anomalyDetectionTaskManager);
-  final KafkaConsumerManager kafkaConsumerManager=new KafkaConsumerManager(starTreeManager,rootDir,config.getKafkaZooKeeperAddress(),config.getKafkaGroupIdSuffix());
-  environment.lifecycle().manage(kafkaConsumerManager);
   environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
   TimeSeriesResource timeSeriesResource=new TimeSeriesResource(starTreeManager);
   FunnelResource funnelResource=new FunnelResource(starTreeManager);
@@ -47,7 +46,6 @@
   environment.jersey().register(heatMapResource);
   environment.jersey().register(new DashboardResource(starTreeManager,timeSeriesResource,funnelResource,heatMapResource,config.getFeedbackAddress()));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
-  environment.admin().addTask(new ResetTask(anomalyDetectionTaskManager,kafkaConsumerManager));
   environment.admin().addTask(new ExpireTask(starTreeManager,rootDir));
   environment.admin().addTask(new ViewTreeTask(starTreeManager));
   environment.admin().addTask(new ViewDimensionIndexTask(rootDir));
