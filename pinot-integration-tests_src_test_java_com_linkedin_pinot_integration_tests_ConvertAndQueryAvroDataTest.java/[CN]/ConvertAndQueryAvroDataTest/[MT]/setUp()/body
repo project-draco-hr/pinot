@@ -4,6 +4,7 @@
   startOfflineServer();
   createResource("myresource");
   addTableToResource("myresource","mytable");
+  TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(ConvertAndQueryAvroDataTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset.tar.gz"))),new File("/tmp/ConvertAndQueryAvroDataTest"));
   _tmpDir.mkdirs();
   System.out.println("Building 12 segments in parallel");
   ExecutorService executor=Executors.newCachedThreadPool();
@@ -14,7 +15,7 @@
         try {
           System.out.println("Starting to build segment " + segmentNumber);
           File outputDir=new File(_tmpDir,"segment-" + segmentNumber);
-          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File("pinot-integration-tests/src/test/resources","On_Time_On_Time_Performance_2014_" + segmentNumber + ".avro.gz"),outputDir,"daysSinceEpoch",TimeUnit.DAYS,"myresource","mytable");
+          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File("/tmp/ConvertAndQueryAvroDataTest/On_Time_On_Time_Performance_2014_" + segmentNumber + ".avro"),outputDir,"daysSinceEpoch",TimeUnit.DAYS,"myresource","mytable");
           genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber));
           final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
           driver.init(genConfig);
@@ -31,10 +32,36 @@
   }
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
+  final CountDownLatch latch=new CountDownLatch(1);
+  HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZK_STR);
+  manager.connect();
+  manager.addExternalViewChangeListener(new ExternalViewChangeListener(){
+    @Override public void onExternalViewChange(    List<ExternalView> externalViewList,    NotificationContext changeContext){
+      for (      ExternalView externalView : externalViewList) {
+        if (externalView.getId().contains("myresource")) {
+          Set<String> partitionSet=externalView.getPartitionSet();
+          if (partitionSet.size() == 12) {
+            int onlinePartitionCount=0;
+            for (            String partitionId : partitionSet) {
+              Map<String,String> partitionStateMap=externalView.getStateMap(partitionId);
+              if (partitionStateMap.containsValue("ONLINE")) {
+                onlinePartitionCount++;
+              }
+            }
+            if (onlinePartitionCount == 12) {
+              System.out.println("Got 12 online resources, unlatching the main thread");
+              latch.countDown();
+            }
+          }
+        }
+      }
+    }
+  }
+);
   for (int i=1; i <= 12; ++i) {
     System.out.println("Uploading segment " + i);
     File file=new File(_tmpDir,"myresource_mytable_" + i);
     FileUploadUtils.sendFile("localhost","8998","myresource_mytable_" + i,new FileInputStream(file),file.length());
   }
-  Thread.sleep(15000l);
+  latch.await();
 }

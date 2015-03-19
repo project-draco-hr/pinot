@@ -1,0 +1,29 @@
+{
+  JSONObject response=postQuery("select count(*) from 'myresource.mytable'");
+  System.out.println("response = " + response);
+  Assert.assertEquals("100348",response.getJSONArray("aggregationResults").getJSONObject(0).getString("value"));
+  Properties properties=new Properties();
+  properties.load(ConvertAndQueryAvroDataTest.class.getClassLoader().getResourceAsStream("ConvertAndQueryAvroDataTest.properties"));
+  String[] queryNames=properties.getProperty("queries").split(",");
+  for (  String queryName : queryNames) {
+    String pql=properties.getProperty(queryName + ".pql");
+    String result=properties.getProperty(queryName + ".result");
+    System.out.println(pql);
+    Map<String,String> correctValues=new HashMap<String,String>();
+    String[] resultTuples=result.split(", ");
+    for (    String resultTuple : resultTuples) {
+      int commaIndex=resultTuple.indexOf(',');
+      String key=resultTuple.substring(1,commaIndex);
+      String value=resultTuple.substring(commaIndex + 1,resultTuple.length() - 1);
+      correctValues.put(key,value);
+    }
+    Map<String,String> actualValues=new HashMap<String,String>();
+    response=postQuery(pql);
+    JSONArray aggregationResults=response.getJSONArray("aggregationResults").getJSONObject(0).getJSONArray("groupByResult");
+    for (int i=0; i < aggregationResults.length(); ++i) {
+      actualValues.put(aggregationResults.getJSONObject(i).getJSONArray("group").getString(0),Integer.toString((int)Double.parseDouble(aggregationResults.getJSONObject(i).getString("value"))));
+    }
+    System.out.println();
+    Assert.assertEquals(actualValues,correctValues);
+  }
+}

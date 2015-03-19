@@ -1,12 +1,17 @@
 {
   BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
   blockValIterator.skipTo(docId);
-  if (mergedResult == null) {
-    return block[0].getMetadata().getDictionary().getDoubleValue(blockValIterator.nextIntVal());
+  int dictionaryIndex=blockValIterator.nextIntVal();
+  if (dictionaryIndex != Dictionary.NULL_VALUE_INDEX) {
+    double value=block[0].getMetadata().getDictionary().getDoubleValue(dictionaryIndex);
+    if (mergedResult == null) {
+      return value;
+    }
+ else {
+      return Math.max(value,mergedResult);
+    }
   }
-  double tmp=block[0].getMetadata().getDictionary().getDoubleValue(blockValIterator.nextIntVal());
-  if (tmp > mergedResult) {
-    return tmp;
+ else {
+    return mergedResult;
   }
-  return mergedResult;
 }
