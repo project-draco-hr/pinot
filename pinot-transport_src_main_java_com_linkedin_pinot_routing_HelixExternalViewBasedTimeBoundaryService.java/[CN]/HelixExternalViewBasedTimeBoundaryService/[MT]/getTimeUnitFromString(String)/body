@@ -1,0 +1,26 @@
+{
+  TimeUnit timeUnit=null;
+  try {
+    timeUnit=TimeUnit.valueOf(timeTypeString);
+  }
+ catch (  Exception e) {
+  }
+  if (timeUnit == null) {
+    if (timeTypeString.equalsIgnoreCase(DAYS_SINCE_EPOCH)) {
+      timeUnit=TimeUnit.DAYS;
+    }
+    if (timeTypeString.equalsIgnoreCase(HOURS_SINCE_EPOCH)) {
+      timeUnit=TimeUnit.HOURS;
+    }
+    if (timeTypeString.equalsIgnoreCase(MINUTES_SINCE_EPOCH)) {
+      timeUnit=TimeUnit.MINUTES;
+    }
+    if (timeTypeString.equalsIgnoreCase(SECONDS_SINCE_EPOCH)) {
+      timeUnit=TimeUnit.SECONDS;
+    }
+  }
+  if (timeUnit == null) {
+    throw new RuntimeException("Not supported time type for: " + timeTypeString);
+  }
+  return timeUnit;
+}

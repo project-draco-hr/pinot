@@ -5,6 +5,12 @@
   LOGGER.info("Trying to add segment with name: " + segmentMetadata.getName());
   LOGGER.debug("Trying to add segment with Metadata: " + segmentMetadata.toString());
   String resourceName=segmentMetadata.getResourceName();
+  if (segmentMetadata.getIndexType().equalsIgnoreCase("realtime")) {
+    resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
+  }
+ else {
+    resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
+  }
   if (!_resourceDataManagerMap.containsKey(resourceName)) {
     LOGGER.info("Trying to add ResourceDataManager for resource name: " + resourceName);
     addResourceIfNeed(resourceName);

@@ -3,18 +3,21 @@
     return;
   }
   String resourceName=externalView.getResourceName();
-  List<ZNRecord> segmentList=_propertyStore.getChildren("/" + BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),null,AccessOption.PERSISTENT);
-  if (segmentList.get(0).getSimpleFields().containsKey(SEGMENT_TIME_COLUMN) && segmentList.get(0).getSimpleFields().containsKey(SEGMENT_END_TIME)) {
+  List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(_propertyStore,resourceName);
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_propertyStore,resourceName);
+  TimeUnit resourceTimeUnit=getTimeUnitFromString(offlineDataResourceZKMetadata.getTimeType());
+  if (offlineSegmentZKMetadatas.get(0).getTimeUnit() != null) {
     long maxTimeValue=-1;
-    for (    ZNRecord segmentRecord : segmentList) {
-      long endTime=segmentRecord.getLongField(SEGMENT_END_TIME,-1);
+    for (    OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
+      long endTime=resourceTimeUnit.convert(offlineSegmentZKMetadata.getEndTime(),offlineSegmentZKMetadata.getTimeUnit());
       if (maxTimeValue < endTime) {
         maxTimeValue=endTime;
       }
     }
     TimeBoundaryInfo timeBoundaryInfo=new TimeBoundaryInfo();
-    timeBoundaryInfo.setTimeColumn(segmentList.get(0).getSimpleField(SEGMENT_TIME_COLUMN));
-    timeBoundaryInfo.setTimeValue(maxTimeValue + "");
+    offlineDataResourceZKMetadata.getTimeType();
+    timeBoundaryInfo.setTimeColumn(offlineDataResourceZKMetadata.getTimeColumnName());
+    timeBoundaryInfo.setTimeValue(Long.toString(maxTimeValue));
     _timeBoundaryInfoMap.put(resourceName,timeBoundaryInfo);
   }
 }
