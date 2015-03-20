@@ -8,6 +8,11 @@
   if (!collectionDir.isAbsolute()) {
     throw new WebApplicationException(Response.Status.BAD_REQUEST);
   }
-  FileUtils.forceDelete(collectionDir);
+  try {
+    FileUtils.forceDelete(collectionDir);
+  }
+ catch (  FileNotFoundException fe) {
+    throw new WebApplicationException(Response.Status.NOT_FOUND);
+  }
   return Response.noContent().build();
 }
