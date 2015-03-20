@@ -1,4 +1,5 @@
 {
+  startZk();
   startController();
   startBroker();
   startOfflineServer();
@@ -6,9 +7,9 @@
   addTableToResource("myresource","mytable");
   TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(ConvertAndQueryAvroDataTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset.tar.gz"))),new File("/tmp/ConvertAndQueryAvroDataTest"));
   _tmpDir.mkdirs();
-  System.out.println("Building 12 segments in parallel");
+  System.out.println("Building " + SEGMENT_COUNT + " segments in parallel");
   ExecutorService executor=Executors.newCachedThreadPool();
-  for (int i=1; i <= 12; ++i) {
+  for (int i=1; i <= SEGMENT_COUNT; ++i) {
     final int segmentNumber=i;
     executor.execute(new Runnable(){
       @Override public void run(){
@@ -33,14 +34,14 @@
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
   final CountDownLatch latch=new CountDownLatch(1);
-  HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZK_STR);
+  HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZkTestUtils.DEFAULT_ZK_STR);
   manager.connect();
   manager.addExternalViewChangeListener(new ExternalViewChangeListener(){
     @Override public void onExternalViewChange(    List<ExternalView> externalViewList,    NotificationContext changeContext){
       for (      ExternalView externalView : externalViewList) {
         if (externalView.getId().contains("myresource")) {
           Set<String> partitionSet=externalView.getPartitionSet();
-          if (partitionSet.size() == 12) {
+          if (partitionSet.size() == SEGMENT_COUNT) {
             int onlinePartitionCount=0;
             for (            String partitionId : partitionSet) {
               Map<String,String> partitionStateMap=externalView.getStateMap(partitionId);
@@ -48,8 +49,8 @@
                 onlinePartitionCount++;
               }
             }
-            if (onlinePartitionCount == 12) {
-              System.out.println("Got 12 online resources, unlatching the main thread");
+            if (onlinePartitionCount == SEGMENT_COUNT) {
+              System.out.println("Got " + SEGMENT_COUNT + " online resources, unlatching the main thread");
               latch.countDown();
             }
           }
@@ -58,7 +59,7 @@
     }
   }
 );
-  for (int i=1; i <= 12; ++i) {
+  for (int i=1; i <= SEGMENT_COUNT; ++i) {
     System.out.println("Uploading segment " + i);
     File file=new File(_tmpDir,"myresource_mytable_" + i);
     FileUploadUtils.sendFile("localhost","8998","myresource_mytable_" + i,new FileInputStream(file),file.length());

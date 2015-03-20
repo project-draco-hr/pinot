@@ -1,0 +1,30 @@
+{
+  if (_zookeeperServerMain != null) {
+    throw new RuntimeException("Zookeeper server is already started!");
+  }
+  try {
+    _zookeeperServerMain=new PublicZooKeeperServerMain();
+    _zkDataDir=dataDirPath;
+    final String[] args=new String[]{Integer.toString(port),dataDirPath};
+    new Thread(){
+      @Override public void run(){
+        try {
+          _zookeeperServerMain.initializeAndRun(args);
+        }
+ catch (        QuorumPeerConfig.ConfigException e) {
+          e.printStackTrace();
+        }
+catch (        IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+.start();
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  ZkClient client=new ZkClient("localhost:" + port,10000);
+  client.waitUntilConnected(10L,TimeUnit.SECONDS);
+  client.close();
+}

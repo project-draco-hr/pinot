@@ -1,0 +1,14 @@
+{
+  if (_zookeeperServerMain != null) {
+    try {
+      _zookeeperServerMain.shutdown();
+      _zookeeperServerMain=null;
+      if (deleteDataDir) {
+        FileUtils.deleteDirectory(new File(_zkDataDir));
+      }
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+}
