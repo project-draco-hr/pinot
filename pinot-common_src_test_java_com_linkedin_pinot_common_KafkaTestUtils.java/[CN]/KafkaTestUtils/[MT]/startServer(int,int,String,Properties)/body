@@ -1,0 +1,9 @@
+{
+  configuration.put("port",Integer.toString(port));
+  configuration.put("zookeeper.connect",zkStr);
+  configuration.put("broker.id",Integer.toString(brokerId));
+  KafkaConfig config=new KafkaConfig(configuration);
+  KafkaServerStartable serverStartable=new KafkaServerStartable(config);
+  serverStartable.startup();
+  return serverStartable;
+}
