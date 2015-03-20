@@ -1,7 +1,5 @@
 {
   _pinotHelixResourceManager.stop();
-  if (_zkClient.exists("/" + HELIX_CLUSTER_NAME)) {
-    _zkClient.deleteRecursive("/" + HELIX_CLUSTER_NAME);
-  }
   _zkClient.close();
+  ZkTestUtils.stopLocalZkServer();
 }
