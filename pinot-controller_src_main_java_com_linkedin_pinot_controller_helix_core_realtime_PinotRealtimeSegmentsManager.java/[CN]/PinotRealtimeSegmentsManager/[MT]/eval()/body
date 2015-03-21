@@ -11,9 +11,9 @@
       RealtimeDataResourceZKMetadata realtimeDRMetadata=pinotClusterManager.getRealtimeDataResourceZKMetadata(resource);
       String tableName=realtimeDRMetadata.getTableList().get(0);
       for (      String instanceId : instancesInResource) {
-        InstanceZKMetadata m=new InstanceZKMetadata(pinotClusterManager.getHelixAdmin().getInstanceConfig(pinotClusterManager.getHelixClusterName(),instanceId).getRecord());
-        String groupId=m.getGroupId(resource);
-        String partitionId=m.getPartition(resource);
+        InstanceZKMetadata instanceZKMetadata=pinotClusterManager.getInstanceZKMetadata(instanceId);
+        String groupId=instanceZKMetadata.getGroupId(resource);
+        String partitionId=instanceZKMetadata.getPartition(resource);
         listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resource,tableName,instanceId,groupId,partitionId,String.valueOf(System.currentTimeMillis())));
       }
     }
@@ -47,8 +47,8 @@
       realtimeSegmentMetadataToAdd.setTableName(tableName);
       realtimeSegmentMetadataToAdd.setSegmentType(SegmentType.REALTIME);
       realtimeSegmentMetadataToAdd.setStatus(Status.IN_PROGRESS);
-      ZNRecord rec=realtimeSegmentMetadataToAdd.toZNRecord();
-      pinotClusterManager.getPropertyStore().create("/" + resourceName + "/"+ segmentId,rec,AccessOption.PERSISTENT);
+      realtimeSegmentMetadataToAdd.setSegmentName(segmentId);
+      ZKMetadataProvider.setRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),realtimeSegmentMetadataToAdd);
       IdealState s=PinotResourceIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,idealStateMap.get(resourceName),instanceName);
       pinotClusterManager.getHelixAdmin().setResourceIdealState(pinotClusterManager.getHelixClusterName(),resourceName,PinotResourceIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,s,instanceName));
     }

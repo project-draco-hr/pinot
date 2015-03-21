@@ -3,5 +3,6 @@
   customModeIdealStateBuilder.setStateModel(PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL).setNumPartitions(0).setNumReplica(1).setMaxPartitionsPerNode(1);
   final IdealState idealState=customModeIdealStateBuilder.build();
   idealState.setInstanceGroupTag(realtimeResourceName);
+  setupInstanceConfigForKafkaHighLevelConsumer(realtimeResourceName,realtimeDataResource,zkHelixPropertyStore,helixAdmin.getInstancesInClusterWithTag(helixClusterName,realtimeResourceName));
   return idealState;
 }

@@ -1,9 +1,7 @@
 {
   final String segmentId=message.getPartitionName();
   final String resourceName=message.getResourceName();
-  ZkBaseDataAccessor<ZNRecord> baseAccessor=(ZkBaseDataAccessor<ZNRecord>)context.getManager().getHelixDataAccessor().getBaseDataAccessor();
-  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,_helixClusterName);
-  ZkHelixPropertyStore<ZNRecord> propertyStore=new ZkHelixPropertyStore<ZNRecord>(baseAccessor,propertyStorePath,Arrays.asList(propertyStorePath));
+  ZkHelixPropertyStore<ZNRecord> propertyStore=ZkUtils.getZkPropertyStore(context.getManager(),_helixClusterName);
   SegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(propertyStore,resourceName,segmentId);
   InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(propertyStore,_instanceId);
   RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(propertyStore,resourceName);

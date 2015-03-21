@@ -1,6 +1,11 @@
 {
   logger.info("**************************** : data changed : " + path);
-  if (canEval()) {
-    eval();
+  if (path.matches(REALTIME_SEGMENT_PROPERTY_STORE_PATH_PATTERN)) {
+    if (canEval()) {
+      eval();
+    }
+  }
+ else {
+    logger.info("Not matched data change path, do nothing");
   }
 }

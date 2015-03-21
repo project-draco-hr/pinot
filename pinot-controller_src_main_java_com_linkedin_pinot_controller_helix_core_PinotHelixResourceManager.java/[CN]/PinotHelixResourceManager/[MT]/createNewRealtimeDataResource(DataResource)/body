@@ -15,7 +15,7 @@
   }
   ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResource);
   LOGGER.info("building empty ideal state for resource : " + realtimeResourceName);
-  final IdealState idealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,_helixAdmin,_helixClusterName);
+  final IdealState idealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,_helixAdmin,_helixClusterName,getPropertyStore());
   LOGGER.info("adding resource via the admin");
   _helixAdmin.addResource(_helixClusterName,realtimeResourceName,idealState);
   LOGGER.info("successfully added the resource : " + realtimeResourceName + " to the cluster");

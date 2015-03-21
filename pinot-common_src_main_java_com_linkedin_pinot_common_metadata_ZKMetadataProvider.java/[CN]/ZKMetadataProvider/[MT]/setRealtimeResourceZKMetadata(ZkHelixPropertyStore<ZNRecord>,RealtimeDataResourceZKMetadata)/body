@@ -1,4 +1,5 @@
 {
   ZNRecord znRecord=realtimeDataResource.toZNRecord();
-  propertyStore.set(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,realtimeDataResource.getResourceName()),znRecord,AccessOption.PERSISTENT);
+  String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(realtimeDataResource.getResourceName());
+  propertyStore.set(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,realtimeResourceName),znRecord,AccessOption.PERSISTENT);
 }

@@ -1,5 +1,4 @@
 {
-  List<File> uncompressedFiles=null;
   if (uri.startsWith("hdfs:")) {
     throw new UnsupportedOperationException("Not implemented yet");
   }
@@ -10,11 +9,11 @@
       final long httpGetResponseContentLength=FileUploadUtils.getFile(uri,tempFile);
       LOGGER.info("Downloaded file from " + uri + " to "+ tempFile+ "; Http GET response content length: "+ httpGetResponseContentLength+ ", Length of downloaded file : "+ tempFile.length());
       LOGGER.info("Trying to uncompress segment tar file from " + tempFile + " to "+ tempSegmentFile);
-      uncompressedFiles=TarGzCompressionUtils.unTar(tempFile,tempSegmentFile);
+      TarGzCompressionUtils.unTar(tempFile,tempSegmentFile);
       FileUtils.deleteQuietly(tempFile);
     }
  else {
-      uncompressedFiles=TarGzCompressionUtils.unTar(new File(uri),tempSegmentFile);
+      TarGzCompressionUtils.unTar(new File(uri),tempSegmentFile);
     }
     final File segmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),resourceName),segmentId);
     Thread.sleep(1000);

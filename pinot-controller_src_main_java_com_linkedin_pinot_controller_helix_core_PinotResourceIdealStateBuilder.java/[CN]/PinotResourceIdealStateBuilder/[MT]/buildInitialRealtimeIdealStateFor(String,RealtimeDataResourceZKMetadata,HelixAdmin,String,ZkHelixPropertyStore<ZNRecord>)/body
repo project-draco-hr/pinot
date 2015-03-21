@@ -4,9 +4,9 @@ case kafka:
     KafkaStreamMetadata kafkaStreamMetadata=(KafkaStreamMetadata)realtimeDataResource.getStreamMetadata();
 switch (kafkaStreamMetadata.getConsumerType()) {
 case highLevel:
-    return buildInitialKafkaHighLevelConsumerRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,helixAdmin,helixClusterName);
+    return buildInitialKafkaHighLevelConsumerRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,helixAdmin,helixClusterName,zkHelixPropertyStore);
 case simple:
-  return buildInitialKafkaSimpleConsumerRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,helixAdmin,helixClusterName);
+  return buildInitialKafkaSimpleConsumerRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,helixAdmin,helixClusterName,zkHelixPropertyStore);
 default :
 throw new UnsupportedOperationException("Not support kafka consumer type: " + kafkaStreamMetadata.getConsumerType());
 }
