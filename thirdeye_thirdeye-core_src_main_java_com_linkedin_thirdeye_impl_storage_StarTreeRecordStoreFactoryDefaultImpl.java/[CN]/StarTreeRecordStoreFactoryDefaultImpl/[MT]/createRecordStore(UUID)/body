@@ -1,0 +1,34 @@
+{
+synchronized (sync) {
+    DimensionIndexEntry dimensionIndexEntry=dimensionIndex.get(nodeId);
+    if (dimensionIndexEntry == null) {
+      throw new IllegalArgumentException("No dimension index entry for " + nodeId);
+    }
+    DimensionDictionary dictionary=getDictionary(dimensionIndexEntry);
+    ByteBuffer dimensionBuffer=getDimensionBuffer(dimensionIndexEntry);
+    DimensionStore dimensionStore=new DimensionStoreImmutableImpl(starTreeConfig,dimensionBuffer,dictionary);
+    ConcurrentMap<TimeRange,List<ByteBuffer>> metricBuffers=new ConcurrentHashMap<TimeRange,List<ByteBuffer>>();
+    List<MetricIndexEntry> metricIndexEntries=metricIndex.get(nodeId);
+    if (metricIndexEntries != null) {
+      for (      MetricIndexEntry indexEntry : metricIndexEntries) {
+        List<ByteBuffer> bufferList=metricBuffers.get(indexEntry.getTimeRange());
+        if (bufferList == null) {
+          bufferList=new CopyOnWriteArrayList<ByteBuffer>();
+          metricBuffers.put(indexEntry.getTimeRange(),bufferList);
+        }
+        bufferList.add(getMetricBuffer(indexEntry));
+      }
+    }
+    MetricStore metricStore;
+    if (metricStoreMutable) {
+      metricStore=new MetricStoreMutableImpl(starTreeConfig);
+    }
+ else {
+      MetricStoreImmutableImpl immutableStore=new MetricStoreImmutableImpl(starTreeConfig,metricBuffers);
+      metricStoreListeners.put(nodeId,immutableStore);
+      metricStore=immutableStore;
+    }
+    metricStores.put(nodeId,metricStore);
+    return new StarTreeRecordStoreDefaultImpl(starTreeConfig,dimensionStore,metricStore);
+  }
+}

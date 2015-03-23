@@ -1,13 +1,8 @@
 {
-  if (kafkaZooKeeperAddress == null) {
-    return;
-  }
-synchronized (sync) {
-    if (isStarted.getAndSet(false)) {
-      if (executorService != null) {
-        executorService.shutdown();
-      }
-      LOG.info("Shut down kafka consumption");
+synchronized (kafkaConsumers) {
+    for (    String collection : kafkaConsumers.keySet()) {
+      stop(collection);
     }
+    LOG.info("Stopped all kafka consumers");
   }
 }

@@ -1,0 +1,9 @@
+{
+synchronized (kafkaConsumers) {
+    ThirdEyeKafkaConsumer kafkaConsumer=kafkaConsumers.remove(collection);
+    if (kafkaConsumer != null) {
+      kafkaConsumer.shutdown();
+      LOG.info("Stopped kafka consumer for {}",collection);
+    }
+  }
+}

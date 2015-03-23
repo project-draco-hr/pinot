@@ -1,5 +1,8 @@
 {
   if (node.isLeaf()) {
+    if (node.getRecordStore() == null) {
+      throw new IllegalStateException("Node " + node.getId() + " does not have record store. Has tree been opened?");
+    }
     stats.countRecords(node.getRecordStore().getRecordCountEstimate());
     stats.updateMinTime(node.getRecordStore().getMinTime());
     stats.updateMaxTime(node.getRecordStore().getMaxTime());

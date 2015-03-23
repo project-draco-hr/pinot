@@ -5,7 +5,12 @@
   }
   ExecutorService parallelQueryExecutor=environment.lifecycle().executorService("parallel_query_executor").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
   ScheduledExecutorService anomalyDetectionTaskScheduler=environment.lifecycle().scheduledExecutorService("anomaly_detection_task_scheduler").build();
+  ExecutorService kafkaConsumerExecutor=environment.lifecycle().executorService("kafka_consumer_executor").minThreads(Runtime.getRuntime().availableProcessors()).maxThreads(Runtime.getRuntime().availableProcessors()).build();
+  ScheduledExecutorService kafkaPersistScheduler=environment.lifecycle().scheduledExecutorService("kafka_persist_scheduler").build();
   final StarTreeManager starTreeManager=new StarTreeManagerImpl();
+  final KafkaConsumerManager kafkaConsumerManager=new KafkaConsumerManager(starTreeManager,rootDir,kafkaConsumerExecutor,kafkaPersistScheduler,environment.metrics());
+  final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval());
+  environment.lifecycle().manage(anomalyDetectionTaskManager);
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
       if (config.isAutoRestore()) {
@@ -16,10 +21,16 @@
             starTreeManager.open(collection);
           }
         }
+        if (config.isAutoConsume()) {
+          kafkaConsumerManager.start();
+          LOG.info("Started kafka consumer manager");
+        }
       }
     }
     @Override public void stop() throws Exception {
       try {
+        kafkaConsumerManager.stop();
+        LOG.info("Stopped kafka consumer manager");
         Set<String> collections=new HashSet<String>(starTreeManager.getCollections());
         for (        String collection : collections) {
           starTreeManager.close(collection);
@@ -32,9 +43,9 @@
     }
   }
 );
-  final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval());
-  environment.lifecycle().manage(anomalyDetectionTaskManager);
   environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
+  environment.healthChecks().register(KafkaDataLagHealthCheck.NAME,new KafkaDataLagHealthCheck(kafkaConsumerManager));
+  environment.healthChecks().register(KafkaConsumerLagHealthCheck.NAME,new KafkaConsumerLagHealthCheck(kafkaConsumerManager));
   TimeSeriesResource timeSeriesResource=new TimeSeriesResource(starTreeManager);
   FunnelResource funnelResource=new FunnelResource(starTreeManager);
   HeatMapResource heatMapResource=new HeatMapResource(starTreeManager,parallelQueryExecutor);
@@ -50,4 +61,6 @@
   environment.admin().addTask(new ViewTreeTask(starTreeManager));
   environment.admin().addTask(new ViewDimensionIndexTask(rootDir));
   environment.admin().addTask(new ViewMetricIndexTask(rootDir));
+  environment.admin().addTask(new KafkaStartTask(kafkaConsumerManager));
+  environment.admin().addTask(new KafkaStopTask(kafkaConsumerManager));
 }

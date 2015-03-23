@@ -1,0 +1,95 @@
+{
+  if (isShutdown.getAndSet(false)) {
+    final ThirdEyeKafkaDecoder decoder=(ThirdEyeKafkaDecoder)Class.forName(config.getDecoderClass()).getConstructor().newInstance();
+    decoder.init(starTree.getConfig(),config);
+    Properties props=new Properties();
+    props.put("zookeeper.connect",config.getZkAddress());
+    props.put("group.id",config.getGroupId());
+    props.put("auto.commit.enable","false");
+    props.put("auto.offset.reset","smallest");
+    if (config.getConsumerConfig() != null) {
+      props.putAll(config.getConsumerConfig());
+    }
+    final ConsumerConnector consumer=Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
+    Map<String,List<KafkaStream<byte[],byte[]>>> streams=consumer.createMessageStreams(Collections.singletonMap(config.getTopicName(),1));
+    for (    final Map.Entry<String,List<KafkaStream<byte[],byte[]>>> entry : streams.entrySet()) {
+      for (      final KafkaStream<byte[],byte[]> stream : entry.getValue()) {
+        final ThirdEyeKafkaStats stats=new ThirdEyeKafkaStats(starTree.getConfig().getCollection(),entry.getKey(),metricRegistry);
+        streamStats.put(entry.getKey(),stats);
+        final ScheduledFuture persistFuture=persistScheduler.scheduleAtFixedRate(new Runnable(){
+          @Override public void run(){
+            persistLock.writeLock().lock();
+            try {
+              ThirdEyeKafkaPersistenceUtils.persistMetrics(starTree,metricStoreDirectory);
+              stats.getLastPersistTimeMillis().set(System.currentTimeMillis());
+              starTree.clear();
+              consumer.commitOffsets();
+            }
+ catch (            Exception e) {
+              LOG.error("Error persisting data from Kafka",e);
+            }
+ finally {
+              persistLock.writeLock().unlock();
+            }
+          }
+        }
+,config.getPersistIntervalMillis(),config.getPersistIntervalMillis(),TimeUnit.MILLISECONDS);
+        executorService.submit(new Runnable(){
+          @Override public void run(){
+            ConsumerIterator<byte[],byte[]> itr=stream.iterator();
+            while (!isShutdown.get() && itr.hasNext()) {
+              try {
+                MessageAndMetadata<byte[],byte[]> next=itr.next();
+                long currentTime=System.currentTimeMillis();
+                StarTreeRecord record=decoder.decode(next.message());
+                if (record == null) {
+                  stats.getRecordsSkipped().mark();
+                }
+ else {
+                  persistLock.readLock().lock();
+                  try {
+                    starTree.add(record);
+                  }
+  finally {
+                    persistLock.readLock().unlock();
+                  }
+                  stats.getRecordsAdded().mark();
+                  if (!record.getMetricTimeSeries().getTimeWindowSet().isEmpty()) {
+                    long maxTime=Collections.max(record.getMetricTimeSeries().getTimeWindowSet());
+                    long maxTimeMillis=TimeUnit.MILLISECONDS.convert(maxTime * starTree.getConfig().getTime().getInput().getSize(),starTree.getConfig().getTime().getInput().getUnit());
+                    if (maxTimeMillis > stats.getDataTimeMillis().get()) {
+                      stats.getDataTimeMillis().set(maxTimeMillis);
+                    }
+                  }
+                }
+                stats.getBytesRead().mark(next.message().length);
+                stats.getLastConsumedRecordTimeMillis().set(currentTime);
+              }
+ catch (              Exception e) {
+                LOG.error("Error consuming message from kafka for {}",starTree.getConfig().getCollection(),e);
+                stats.getRecordsError().mark();
+              }
+            }
+            persistLock.writeLock().lock();
+            try {
+              persistFuture.cancel(true);
+              ThirdEyeKafkaPersistenceUtils.persistMetrics(starTree,metricStoreDirectory);
+              stats.getLastPersistTimeMillis().set(System.currentTimeMillis());
+              starTree.clear();
+              consumer.commitOffsets();
+              LOG.info("Persisted all data before shutdown for {}",starTree.getConfig().getCollection());
+            }
+ catch (            Exception e) {
+              LOG.error("Error persisting data during shutdown for {}",starTree.getConfig().getCollection(),e);
+            }
+ finally {
+              persistLock.writeLock().unlock();
+            }
+          }
+        }
+);
+      }
+    }
+    LOG.info("Started kafka consumer for {}",starTree.getConfig().getCollection());
+  }
+}

@@ -1,0 +1,12 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.isAbsolute()) {
+    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+  }
+  File kafkaConfigFile=new File(collectionDir,StarTreeConstants.KAFKA_CONFIG_FILE_NAME);
+  if (!kafkaConfigFile.exists()) {
+    throw new NotFoundException();
+  }
+  FileUtils.forceDelete(kafkaConfigFile);
+  return Response.noContent().build();
+}

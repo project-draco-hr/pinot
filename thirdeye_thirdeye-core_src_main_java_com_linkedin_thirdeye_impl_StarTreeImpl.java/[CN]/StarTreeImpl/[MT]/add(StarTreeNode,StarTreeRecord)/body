@@ -15,8 +15,8 @@
       }
     }
     if (valid) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Added record:{} to node:{}",StarTreeUtils.toDimensionString(record,config.getDimensions()),node.getPath());
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Added record:{} to node:{}",StarTreeUtils.toDimensionString(record,config.getDimensions()),node.getPath());
       }
     }
  else {
@@ -54,8 +54,7 @@ synchronized (node) {
     if (target == null) {
       if (config.isFixed()) {
         target=node.getOtherNode();
-        String otherDimensionNames=childDimensionName;
-        StarTreeRecord aliasOtherRecord=record.aliasOther(otherDimensionNames);
+        StarTreeRecord aliasOtherRecord=record.aliasOther(childDimensionName);
         add(target,aliasOtherRecord);
       }
  else {

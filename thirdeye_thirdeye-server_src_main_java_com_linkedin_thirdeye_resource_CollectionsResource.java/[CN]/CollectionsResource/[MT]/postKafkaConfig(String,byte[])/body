@@ -1,0 +1,12 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.exists()) {
+    FileUtils.forceMkdir(collectionDir);
+  }
+  if (!collectionDir.isAbsolute()) {
+    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+  }
+  File configFile=new File(collectionDir,StarTreeConstants.KAFKA_CONFIG_FILE_NAME);
+  FileUtils.copyInputStreamToFile(new ByteArrayInputStream(kafkaConfigBytes),configFile);
+  return Response.ok().build();
+}

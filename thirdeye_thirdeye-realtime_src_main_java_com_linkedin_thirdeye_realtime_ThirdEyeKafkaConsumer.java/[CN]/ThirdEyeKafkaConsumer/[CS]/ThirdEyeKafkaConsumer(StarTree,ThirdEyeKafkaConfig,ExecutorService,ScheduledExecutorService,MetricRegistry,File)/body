@@ -1,0 +1,11 @@
+{
+  this.starTree=starTree;
+  this.config=config;
+  this.executorService=executorService;
+  this.persistScheduler=persistScheduler;
+  this.isShutdown=new AtomicBoolean(true);
+  this.metricRegistry=metricRegistry;
+  this.streamStats=new ConcurrentHashMap<String,ThirdEyeKafkaStats>();
+  this.persistLock=new ReentrantReadWriteLock(true);
+  this.metricStoreDirectory=new File(rootDir.getAbsolutePath() + File.separator + starTree.getConfig().getCollection()+ File.separator+ StarTreeConstants.DATA_DIR_NAME+ File.separator+ StarTreeConstants.METRIC_STORE);
+}

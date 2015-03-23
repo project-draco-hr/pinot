@@ -1,0 +1,10 @@
+{
+  File kafkaConfigFile=new File(new File(rootDir,collection),StarTreeConstants.KAFKA_CONFIG_FILE_NAME);
+  if (!kafkaConfigFile.exists()) {
+    throw new NotFoundException();
+  }
+  if (!kafkaConfigFile.isAbsolute()) {
+    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+  }
+  return FileUtils.readFileToByteArray(kafkaConfigFile);
+}

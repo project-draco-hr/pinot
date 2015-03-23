@@ -2,7 +2,7 @@
   InputStream inputStream=ClassLoader.getSystemResourceAsStream("sample-config.yml");
   config=StarTreeConfig.decode(inputStream);
   TimeRange timeRange=new TimeRange(0L,3L);
-  ConcurrentMap<TimeRange,ByteBuffer> metricBuffers=new ConcurrentHashMap<TimeRange,ByteBuffer>();
-  metricBuffers.put(timeRange,generateBuffer(timeRange));
-  metricStore=new MetricStore(config,metricBuffers);
+  ConcurrentMap<TimeRange,List<ByteBuffer>> metricBuffers=new ConcurrentHashMap<TimeRange,List<ByteBuffer>>();
+  metricBuffers.put(timeRange,Arrays.asList(generateBuffer(timeRange)));
+  metricStore=new MetricStoreImmutableImpl(config,metricBuffers);
 }

@@ -1,0 +1,24 @@
+{
+synchronized (kafkaConsumers) {
+    if (!starTreeManager.getCollections().contains(collection)) {
+      throw new IllegalArgumentException("No collection " + collection);
+    }
+    File collectionDir=new File(rootDir,collection);
+    File kafkaFile=new File(collectionDir,StarTreeConstants.KAFKA_CONFIG_FILE_NAME);
+    if (kafkaFile.exists()) {
+      StarTreeConfig starTreeConfig=OBJECT_MAPPER.readValue(new File(new File(rootDir,collection),StarTreeConstants.CONFIG_FILE_NAME),StarTreeConfig.class);
+      starTreeConfig.getRecordStoreFactoryConfig().setProperty(StarTreeRecordStoreFactoryDefaultImpl.PROP_METRIC_STORE_MUTABLE,"true");
+      ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(new File(collectionDir,StarTreeConstants.TREE_FILE_NAME)));
+      StarTreeNode root=(StarTreeNode)inputStream.readObject();
+      final StarTree mutableStarTree=new StarTreeImpl(starTreeConfig,new File(collectionDir,StarTreeConstants.DATA_DIR_NAME),root);
+      mutableStarTree.open();
+      ThirdEyeKafkaConsumer kafkaConsumer=new ThirdEyeKafkaConsumer(mutableStarTree,OBJECT_MAPPER.readValue(kafkaFile,ThirdEyeKafkaConfig.class),executorService,persistScheduler,metricRegistry,rootDir);
+      kafkaConsumers.put(collection,kafkaConsumer);
+      kafkaConsumer.start();
+      LOG.info("Started kafka consumer for {}",collection);
+    }
+ else {
+      throw new IllegalArgumentException("Could not find " + StarTreeConstants.KAFKA_CONFIG_FILE_NAME + " for collection "+ collection);
+    }
+  }
+}

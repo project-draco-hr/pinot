@@ -1,0 +1,16 @@
+{
+  ByteBuffer dictionaryBuffer=mapBuffer(dictionaryFile);
+  dictionaryBuffer.rewind();
+  dictionaryBuffer.position(indexEntry.getDictionaryStartOffset());
+  byte[] dictionaryBytes=new byte[indexEntry.getDictionaryLength()];
+  dictionaryBuffer.get(dictionaryBytes);
+  ObjectInputStream ois=new ObjectInputStream(new ByteArrayInputStream(dictionaryBytes));
+  DimensionDictionary dictionary;
+  try {
+    dictionary=(DimensionDictionary)ois.readObject();
+  }
+ catch (  ClassNotFoundException e) {
+    throw new IOException(e);
+  }
+  return dictionary;
+}

@@ -1,0 +1,17 @@
+{
+  Collection<String> collections=params.get("collection");
+  if (collections == null || collections.isEmpty()) {
+    printWriter.println("Stopping all collections ...");
+    printWriter.flush();
+    kafkaConsumerManager.stop();
+  }
+ else {
+    for (    String collection : collections) {
+      printWriter.println("Stopping " + collection + " ...");
+      printWriter.flush();
+      kafkaConsumerManager.stop(collection);
+    }
+  }
+  printWriter.println("Done!");
+  printWriter.flush();
+}

@@ -1,0 +1,41 @@
+{
+  Map<DimensionKey,Integer> matchingKeys=new HashMap<DimensionKey,Integer>();
+  int[] translatedKey=dictionary.translate(config.getDimensions(),dimensionKey);
+  int[] currentKey=new int[config.getDimensions().size()];
+  int idx=0;
+  ByteBuffer tmpBuffer=buffer.duplicate();
+  while (tmpBuffer.position() < tmpBuffer.limit()) {
+    boolean matches=true;
+    for (int i=0; i < config.getDimensions().size(); i++) {
+      Integer valueId=tmpBuffer.getInt();
+      currentKey[i]=valueId;
+      if (translatedKey[i] != valueId && translatedKey[i] != StarTreeConstants.STAR_VALUE) {
+        matches=false;
+      }
+    }
+    if (matches) {
+      matchingKeys.put(dictionary.translate(config.getDimensions(),currentKey),idx);
+    }
+    idx++;
+  }
+  if (matchingKeys.isEmpty()) {
+    idx=0;
+    tmpBuffer.rewind();
+    while (tmpBuffer.position() < tmpBuffer.limit()) {
+      boolean matches=true;
+      for (int i=0; i < config.getDimensions().size(); i++) {
+        Integer valueId=tmpBuffer.getInt();
+        currentKey[i]=valueId;
+        if (translatedKey[i] != valueId && valueId != StarTreeConstants.STAR_VALUE && valueId != StarTreeConstants.OTHER_VALUE) {
+          matches=false;
+        }
+      }
+      if (matches) {
+        matchingKeys.put(dictionary.translate(config.getDimensions(),currentKey),idx);
+        break;
+      }
+      idx++;
+    }
+  }
+  return matchingKeys;
+}
