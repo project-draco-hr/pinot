@@ -12,7 +12,10 @@
     FileUtils.forceDelete(collectionDir);
   }
  catch (  FileNotFoundException fe) {
-    throw new WebApplicationException(Response.Status.NOT_FOUND);
+    ResponseBuilderImpl builder=new ResponseBuilderImpl();
+    builder.status(Response.Status.NOT_FOUND);
+    builder.entity("Collection " + collection + " not found");
+    throw new WebApplicationException(builder.build());
   }
   return Response.noContent().build();
 }

@@ -4,6 +4,14 @@
     throw new WebApplicationException(Response.Status.BAD_REQUEST);
   }
   File schemaFile=new File(collectionDir,StarTreeConstants.SCHEMA_FILE_NAME);
-  FileUtils.writeByteArrayToFile(schemaFile,schemaBytes);
+  if (!schemaFile.exists()) {
+    FileUtils.writeByteArrayToFile(schemaFile,schemaBytes);
+  }
+ else {
+    ResponseBuilderImpl builder=new ResponseBuilderImpl();
+    builder.status(Response.Status.CONFLICT);
+    builder.entity(schemaFile.getPath() + " already exists. A DELETE of /collections/{collection} is required first");
+    throw new WebApplicationException(builder.build());
+  }
   return Response.ok().build();
 }

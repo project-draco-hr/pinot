@@ -1,0 +1,17 @@
+{
+  byte[] configBytes=new byte[(int)newConfigFile.length()];
+  FileInputStream configFileInputStream=null;
+  try {
+    configFileInputStream=new FileInputStream(newConfigFile);
+    configFileInputStream.read(configBytes);
+    configFileInputStream.close();
+    Response postConfigResponse=testCollectionsResource.postConfig(collection,configBytes);
+    System.out.println("Post Config Response : " + postConfigResponse.getStatus());
+  }
+ catch (  WebApplicationException e) {
+    System.out.println(e.getResponse().getStatus() + " " + e.getResponse().getEntity().toString());
+  }
+catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

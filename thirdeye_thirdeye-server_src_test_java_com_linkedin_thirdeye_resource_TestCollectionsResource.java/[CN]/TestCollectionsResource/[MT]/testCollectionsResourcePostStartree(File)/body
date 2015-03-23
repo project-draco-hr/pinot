@@ -1,0 +1,17 @@
+{
+  byte[] starTreeBytes=new byte[(int)newStarTreeFile.length()];
+  FileInputStream starTreeFileInputStream=null;
+  try {
+    starTreeFileInputStream=new FileInputStream(newStarTreeFile);
+    starTreeFileInputStream.read(starTreeBytes);
+    starTreeFileInputStream.close();
+    Response postStarTreeResponse=testCollectionsResource.postStarTree(collection,starTreeBytes);
+    System.out.println("Post Star Tree Response : " + postStarTreeResponse.getStatus());
+  }
+ catch (  WebApplicationException e) {
+    System.out.println(e.getResponse().getStatus() + " " + e.getResponse().getEntity().toString());
+  }
+catch (  Exception e) {
+    e.printStackTrace();
+  }
+}
