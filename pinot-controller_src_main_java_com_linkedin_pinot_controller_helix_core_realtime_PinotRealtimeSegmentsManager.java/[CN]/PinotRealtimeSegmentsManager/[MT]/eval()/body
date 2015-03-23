@@ -18,6 +18,14 @@
       }
     }
  else {
+      Set<String> inProgressInstances=new HashSet<String>();
+      for (      String partition : state.getPartitionSet()) {
+        RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractResourceName(partition),partition);
+        if (realtimeSegmentZKMetadata.getStatus() == Status.IN_PROGRESS) {
+          String instanceName=SegmentNameBuilder.Realtime.extractInstanceName(partition);
+          inProgressInstances.add(instanceName);
+        }
+      }
       for (      String partition : state.getPartitionSet()) {
         assert(1 == state.getInstanceSet(partition).size());
         RealtimeSegmentZKMetadata m=ZKMetadataProvider.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractResourceName(partition),partition);
@@ -28,7 +36,9 @@
           String groupId=SegmentNameBuilder.Realtime.extractGroupIdName(partition);
           String partitionId=SegmentNameBuilder.Realtime.extractPartitionName(partition);
           String sequenceNumber=String.valueOf(System.currentTimeMillis());
-          listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resourceName,tableName,instanceName,groupId,partitionId,sequenceNumber));
+          if (!inProgressInstances.contains(instanceName)) {
+            listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resourceName,tableName,instanceName,groupId,partitionId,sequenceNumber));
+          }
         }
  else {
           logger.info("partition : " + partition + " is still in progress");
