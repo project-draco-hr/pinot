@@ -3,8 +3,8 @@ synchronized (getGlobalLock()) {
     OfflineSegmentDataManager segment=_segmentsMap.get(segmentToRefresh.getSegmentName());
     _segmentsMap.put(segmentToRefresh.getSegmentName(),new OfflineSegmentDataManager(segmentToRefresh));
     if (segment != null) {
-      _currentNumberOfDocuments.dec(segment.getSegment().getSegmentMetadata().getTotalDocs());
-      _currentNumberOfDocuments.inc(segmentToRefresh.getSegmentMetadata().getTotalDocs());
+      _currentNumberOfDocuments.dec(segment.getSegment().getTotalDocs());
+      _currentNumberOfDocuments.inc(segmentToRefresh.getTotalDocs());
       segment.getSegment().destroy();
     }
   }

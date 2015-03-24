@@ -5,10 +5,10 @@
     return new ArrayList<IndexSegment>();
   }
   final List<IndexSegment> queryableSegmentDataManagerList=new ArrayList<IndexSegment>();
-  final List<OfflineSegmentDataManager> matchedSegmentDataManagerFromServer=resourceDataManager.getSegments(instanceRequest.getSearchSegments());
+  final List<SegmentDataManager> matchedSegmentDataManagerFromServer=resourceDataManager.getSegments(instanceRequest.getSearchSegments());
   LOGGER.info("InstanceRequest request " + instanceRequest.getSearchSegments().size() + " segments : "+ Arrays.toString(instanceRequest.getSearchSegments().toArray(new String[0])));
-  LOGGER.info("ResourceDataManager found " + matchedSegmentDataManagerFromServer.size() + " segments before pruning : "+ Arrays.toString(matchedSegmentDataManagerFromServer.toArray(new OfflineSegmentDataManager[0])));
-  for (  final OfflineSegmentDataManager segmentDataManager : matchedSegmentDataManagerFromServer) {
+  LOGGER.info("ResourceDataManager found " + matchedSegmentDataManagerFromServer.size() + " segments before pruning : "+ Arrays.toString(matchedSegmentDataManagerFromServer.toArray(new SegmentDataManager[0])));
+  for (  final SegmentDataManager segmentDataManager : matchedSegmentDataManagerFromServer) {
     final IndexSegment indexSegment=segmentDataManager.getSegment();
     if (!_segmentPrunerService.prune(indexSegment,instanceRequest.getQuery())) {
       queryableSegmentDataManagerList.add(indexSegment);

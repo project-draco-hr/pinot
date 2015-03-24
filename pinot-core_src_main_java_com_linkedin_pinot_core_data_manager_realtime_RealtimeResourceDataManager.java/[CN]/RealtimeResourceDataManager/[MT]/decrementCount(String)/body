@@ -1,0 +1,34 @@
+{
+  if (!_referenceCounts.containsKey(segmentId)) {
+    _logger.warn("Received command to delete unexisting segment - " + segmentId);
+    return;
+  }
+  AtomicInteger count=_referenceCounts.get(segmentId);
+  if (count.get() == 1) {
+    SegmentDataManager segment=null;
+synchronized (getGlobalLock()) {
+      if (count.get() == 1) {
+        segment=_segmentsMap.remove(segmentId);
+        _activeSegments.remove(segmentId);
+        _referenceCounts.remove(segmentId);
+      }
+    }
+    if (segment != null) {
+      _currentNumberOfSegments.dec();
+      _currentNumberOfDocuments.dec(segment.getSegment().getTotalDocs());
+      _numDeletedSegments.inc();
+      segment.getSegment().destroy();
+    }
+    _logger.info("Segment " + segmentId + " has been deleted");
+    _segmentAsyncExecutorService.execute(new Runnable(){
+      @Override public void run(){
+        FileUtils.deleteQuietly(new File(_resourceDataDir,segmentId));
+        _logger.info("The index directory for the segment " + segmentId + " has been deleted");
+      }
+    }
+);
+  }
+ else {
+    count.decrementAndGet();
+  }
+}

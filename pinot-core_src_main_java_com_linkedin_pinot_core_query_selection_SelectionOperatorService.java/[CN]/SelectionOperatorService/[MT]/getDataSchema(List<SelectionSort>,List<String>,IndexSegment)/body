@@ -14,8 +14,10 @@
       dataTypes[i]=DataType.INT;
     }
  else {
-      dataTypes[i]=indexSegment.getDataSource(columns.get(i)).nextBlock(new BlockId(0)).getMetadata().getDataType();
-      if (!indexSegment.getDataSource(columns.get(i)).nextBlock().getMetadata().isSingleValue()) {
+      DataSource ds=indexSegment.getDataSource(columns.get(i));
+      Block block=ds.nextBlock(new BlockId(0));
+      dataTypes[i]=block.getMetadata().getDataType();
+      if (!block.getMetadata().isSingleValue()) {
         dataTypes[i]=DataType.valueOf(dataTypes[i] + "_ARRAY");
       }
     }

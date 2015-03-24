@@ -1,0 +1,10 @@
+{
+  _currentNumberOfSegments.inc();
+  if (_segmentsMap.containsKey(segmentId)) {
+    _currentNumberOfDocuments.inc(_segmentsMap.get(segmentId).getSegment().getTotalDocs());
+  }
+  _loadingSegments.remove(segmentId);
+  if (!_activeSegments.contains(segmentId)) {
+    _activeSegments.add(segmentId);
+  }
+}

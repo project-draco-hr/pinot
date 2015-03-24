@@ -1,10 +1,14 @@
 {
-  indexDir=new File(resourceConfigs.getDataDir());
-  readMode=ReadMode.valueOf(resourceConfigs.getReadMode());
-  if (!indexDir.exists()) {
-    if (!indexDir.mkdir()) {
-      logger.error("could not create data dir");
+  if (_isStarted) {
+    _logger.warn("RealtimeResourceDataManager is already started.");
+    return;
+  }
+  _indexDir=new File(_resourceDataManagerConfig.getDataDir());
+  _readMode=ReadMode.valueOf(_resourceDataManagerConfig.getReadMode());
+  if (!_indexDir.exists()) {
+    if (!_indexDir.mkdir()) {
+      _logger.error("could not create data dir");
     }
   }
-  activeIndexedThreadMap=new HashMap<String,Thread>();
+  _isStarted=true;
 }

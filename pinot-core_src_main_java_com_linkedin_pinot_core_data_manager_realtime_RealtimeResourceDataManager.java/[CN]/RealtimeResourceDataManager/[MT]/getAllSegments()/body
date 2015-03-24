@@ -1,3 +1,10 @@
 {
-  return null;
+  List<SegmentDataManager> ret=new ArrayList<SegmentDataManager>();
+synchronized (getGlobalLock()) {
+    for (    SegmentDataManager segment : _segmentsMap.values()) {
+      incrementCount(segment.getSegmentName());
+      ret.add(segment);
+    }
+  }
+  return ret;
 }

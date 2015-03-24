@@ -1,11 +1,11 @@
 {
-  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalDocs(),5000);
+  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getTotalDocs(),5000);
   final Map<String,DataSource> dataSourceMap=getDataSourceMap();
   final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
   final Selection selection=getSelectionQuery();
   final MSelectionOperator selectionOperator=new MSelectionOperator(_indexSegment,selection,projectionOperator);
   final IntermediateResultsBlock block=(IntermediateResultsBlock)selectionOperator.nextBlock();
-  final PriorityQueue pq=block.getSelectionResult();
+  final PriorityQueue<Serializable[]> pq=block.getSelectionResult();
   final DataSchema dataSchema=block.getSelectionDataSchema();
   System.out.println(dataSchema);
   int i=0;

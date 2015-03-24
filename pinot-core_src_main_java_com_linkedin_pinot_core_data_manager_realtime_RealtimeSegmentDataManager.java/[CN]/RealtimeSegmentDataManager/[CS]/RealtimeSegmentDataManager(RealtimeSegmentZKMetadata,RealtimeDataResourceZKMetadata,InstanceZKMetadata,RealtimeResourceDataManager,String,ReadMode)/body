@@ -1,8 +1,7 @@
 {
   this.schema=resourceMetadata.getDataSchema();
-  this.resourceMetadata=resourceMetadata;
-  this.instanceMetadata=instanceMetadata;
   this.segmentMetatdaZk=segmentMetadata;
+  this.segmentName=segmentMetadata.getSegmentName();
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
   this.kafkaStreamProviderConfig.init(resourceMetadata,instanceMetadata);
   this.resourceDir=new File(resourceDataDir);
@@ -12,6 +11,7 @@
   this.kafkaStreamProvider.start();
   realtimeSegment=new RealtimeSegmentImpl(schema);
   ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentName(segmentMetadata.getSegmentName());
+  ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentMetadata(segmentMetadata);
   notifier=realtimeResourceManager;
   segmentStatusTask=new TimerTask(){
     @Override public void run(){

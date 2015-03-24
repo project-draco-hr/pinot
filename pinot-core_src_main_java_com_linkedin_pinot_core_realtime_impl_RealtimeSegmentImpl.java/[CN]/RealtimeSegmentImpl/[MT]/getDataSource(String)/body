@@ -1,4 +1,14 @@
 {
-  DataSource ds=new RealtimeColumnDataSource(dataSchema.getFieldSpecFor(columnName),dictionaryMap.get(columnName),docIdMap,invertedIndexMap.get(columnName),columnName,docIdSearchableOffset,dataSchema,dimemsionTupleMap,maxNumberOfMultivaluesMap.get(columnName),dimensionsSerde,metricsSerDe);
+  FieldSpec fieldSpec=dataSchema.getFieldSpecFor(columnName);
+  DataSource ds=null;
+  if (fieldSpec.getFieldType() == FieldType.metric) {
+    ds=new RealtimeColumnDataSource(fieldSpec,null,docIdMap,null,columnName,docIdSearchableOffset,dataSchema,dimemsionTupleMap,0,dimensionsSerde,metricsSerDe);
+  }
+  if (fieldSpec.getFieldType() == FieldType.dimension) {
+    ds=new RealtimeColumnDataSource(fieldSpec,dictionaryMap.get(columnName),docIdMap,invertedIndexMap.get(columnName),columnName,docIdSearchableOffset,dataSchema,dimemsionTupleMap,maxNumberOfMultivaluesMap.get(columnName),dimensionsSerde,metricsSerDe);
+  }
+  if (fieldSpec.getFieldType() == FieldType.time) {
+    ds=new RealtimeColumnDataSource(fieldSpec,dictionaryMap.get(columnName),docIdMap,invertedIndexMap.get(columnName),columnName,docIdSearchableOffset,dataSchema,dimemsionTupleMap,0,dimensionsSerde,metricsSerDe);
+  }
   return ds;
 }

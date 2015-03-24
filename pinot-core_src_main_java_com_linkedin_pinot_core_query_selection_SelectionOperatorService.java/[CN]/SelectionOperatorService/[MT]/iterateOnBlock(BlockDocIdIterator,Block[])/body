@@ -8,6 +8,9 @@
       _rowDocIdSet.add(docId);
     }
  else {
+      if (!_doOrdering) {
+        break;
+      }
       if (_doOrdering && (_rowDocIdComparator.compare(docId,_rowDocIdSet.peek()) > 0)) {
         _rowDocIdSet.add(docId);
         _rowDocIdSet.poll();
