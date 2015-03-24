@@ -13,7 +13,11 @@
   }
   if (!_resourceDataManagerMap.containsKey(resourceName)) {
     LOGGER.info("Trying to add ResourceDataManager for resource name: " + resourceName);
-    addResourceIfNeed(resourceName);
+synchronized (_globalLock) {
+      if (!_resourceDataManagerMap.containsKey(resourceName)) {
+        addResourceIfNeed(resourceName);
+      }
+    }
   }
   _resourceDataManagerMap.get(resourceName).addSegment(segmentZKMetadata);
   LOGGER.info("Successfuly added a segment : " + segmentZKMetadata.getSegmentName() + " in HelixInstanceDataManager");
