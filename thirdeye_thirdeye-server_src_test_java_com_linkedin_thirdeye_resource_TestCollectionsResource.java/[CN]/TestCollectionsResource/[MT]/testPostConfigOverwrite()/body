@@ -1,0 +1,10 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.exists()) {
+    FileUtils.forceMkdir(collectionDir);
+  }
+  File configFile=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
+  FileUtils.writeByteArrayToFile(configFile,"Dummy existing config file".getBytes());
+  byte[] configBytes="Dummy config file to overwrite".getBytes();
+  Response postConfigResponse=testCollectionsResource.postConfig(collection,configBytes);
+}

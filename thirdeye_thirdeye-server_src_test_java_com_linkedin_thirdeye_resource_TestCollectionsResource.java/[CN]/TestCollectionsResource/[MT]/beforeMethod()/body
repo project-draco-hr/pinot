@@ -1,0 +1,17 @@
+{
+  mockMetricRegistry=mock(MetricRegistry.class);
+  mockStarTreeManager=mock(StarTreeManager.class);
+  rootDir=new File(System.getProperty("java.io.tmpdir"),TestCollectionsResource.class.getName());
+  try {
+    FileUtils.forceDelete(rootDir);
+  }
+ catch (  Exception e) {
+  }
+  try {
+    FileUtils.forceMkdir(rootDir);
+  }
+ catch (  Exception e) {
+  }
+  testCollectionsResource=new CollectionsResource(mockStarTreeManager,mockMetricRegistry,rootDir);
+  collection="dummy";
+}
