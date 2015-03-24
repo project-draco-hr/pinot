@@ -3,12 +3,12 @@
   Schema schema=new Schema();
   for (  final Field field : dataStream.getSchema().getFields()) {
     final String columnName=field.name();
-    if (fieldTypeMap.get(field.name()) == FieldType.time) {
+    if (fieldTypeMap.get(field.name()) == FieldType.TIME) {
       final TimeGranularitySpec gSpec=new TimeGranularitySpec(getColumnType(dataStream.getSchema().getField(columnName)),granularity,field.name());
       final TimeFieldSpec fSpec=new TimeFieldSpec(gSpec);
       schema.addSchema(columnName,fSpec);
     }
- else     if (fieldTypeMap.get(field.name()) == FieldType.dimension) {
+ else     if (fieldTypeMap.get(field.name()) == FieldType.DIMENSION) {
       final FieldSpec fieldSpec=new DimensionFieldSpec();
       fieldSpec.setName(columnName);
       fieldSpec.setFieldType(fieldTypeMap.get(field.name()));

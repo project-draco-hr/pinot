@@ -8,7 +8,7 @@
     FieldType fieldType=FieldType.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.FIELD_TYPE)));
     DataType dataType=DataType.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.DATA_TYPE)));
 switch (fieldType) {
-case dimension:
+case DIMENSION:
       boolean isSingleValueField=Boolean.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.IS_SINGLE_VALUE)));
     if (!isSingleValueField) {
       String delimeter=null;
@@ -25,10 +25,10 @@ case dimension:
       schemaBuilder.addSingleValueDimension(columnName,dataType);
     }
   break;
-case metric:
+case METRIC:
 schemaBuilder.addMetric(columnName,dataType);
 break;
-case time:
+case TIME:
 TimeUnit timeUnit=TimeUnit.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.TIME_UNIT)));
 schemaBuilder.addTime(columnName,timeUnit,dataType);
 break;
