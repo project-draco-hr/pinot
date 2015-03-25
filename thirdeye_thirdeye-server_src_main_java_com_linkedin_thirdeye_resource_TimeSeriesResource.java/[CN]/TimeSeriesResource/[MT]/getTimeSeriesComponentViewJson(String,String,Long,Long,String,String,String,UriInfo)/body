@@ -104,7 +104,9 @@ MetricType metricType=entry.getValue().getSchema().getMetricType(metricName);
 if (!NumberUtils.isZero(startValue,metricType)) {
 ratio=100 * (endValue.doubleValue() - startValue.doubleValue()) / startValue.doubleValue();
 }
-flotSeries.add(new FlotTimeSeries(metricName,String.format("(%.2f)%% %s",ratio,metricName),QueryUtils.convertDimensionKey(starTree.getConfig().getDimensions(),entry.getKey()),data,adjustedStartMillis,adjustedEndMillis));
+String timeSeriesUri=uriInfo.getRequestUri().getPath();
+String dimensionKey=(timeSeriesUri.startsWith("/timeSeries")) ? ("(" + entry.getKey().toString() + ")") : ("");
+flotSeries.add(new FlotTimeSeries(metricName,String.format("(%.2f)%% %s %s",ratio,metricName,dimensionKey),QueryUtils.convertDimensionKey(starTree.getConfig().getDimensions(),entry.getKey()),data,adjustedStartMillis,adjustedEndMillis));
 }
 }
 return flotSeries;
