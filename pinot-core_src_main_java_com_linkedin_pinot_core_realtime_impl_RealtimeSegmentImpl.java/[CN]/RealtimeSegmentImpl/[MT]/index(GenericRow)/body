@@ -28,22 +28,22 @@
   if (maxTimeVal < timeValue) {
     maxTimeVal=timeValue;
   }
-  Pair<Long,Object> dimHashTimePair=Pair.<Long,Object>of(dimesionHash,timeValue);
+  Pair<Long,Object> dimHashTimePair=Pair.<Long,Object>of(dimesionHash,timeValueObj);
   if (!dimemsionTupleMap.containsKey(dimesionHash)) {
     DimensionTuple dimTuple=new DimensionTuple(dimBuff,dimesionHash);
-    dimTuple.addMetricsbuffFor(timeValue,metBuff,dataSchema);
+    dimTuple.addMetricsbuffFor(timeValueObj,metBuff,dataSchema);
     dimemsionTupleMap.put(dimesionHash,dimTuple);
     int docId=docIdGenerator.incrementAndGet();
     docIdMap.put(docId,dimHashTimePair);
-    updateInvertedIndex(dimBuff,metBuff,timeValue,docId);
+    updateInvertedIndex(dimBuff,metBuff,timeValueObj,docId);
   }
  else {
     DimensionTuple tuple=dimemsionTupleMap.get(dimesionHash);
-    if (!tuple.containsTime(timeValue)) {
+    if (!tuple.containsTime(timeValueObj)) {
       int docId=docIdGenerator.incrementAndGet();
       docIdMap.put(docId,dimHashTimePair);
-      updateInvertedIndex(dimBuff,metBuff,timeValue,docId);
+      updateInvertedIndex(dimBuff,metBuff,timeValueObj,docId);
     }
-    tuple.addMetricsbuffFor(timeValue,metBuff,dataSchema);
+    tuple.addMetricsbuffFor(timeValueObj,metBuff,dataSchema);
   }
 }

@@ -3,8 +3,15 @@
   if (!aggregationInfo.getAggregationType().equalsIgnoreCase("count")) {
     String[] columns=aggregationInfo.getAggregationParams().get("column").trim().split(",");
     for (    String column : columns) {
-      if (!indexSegment.getSegmentMetadata().hasDictionary(column)) {
-        hasDictionary=false;
+      if (indexSegment instanceof IndexSegmentImpl) {
+        if (!indexSegment.getSegmentMetadata().hasDictionary(column)) {
+          hasDictionary=false;
+        }
+      }
+ else       if (indexSegment instanceof RealtimeSegmentImpl) {
+        if (!((RealtimeSegmentImpl)indexSegment).getDataSource(column).nextBlock(new BlockId(0)).getMetadata().hasDictionary()) {
+          hasDictionary=false;
+        }
       }
     }
   }

@@ -1,13 +1,33 @@
 {
-  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[0];
-  Dictionary dictionaryReader=_groupByBlocks[0].getMetadata().getDictionary();
-  blockValIterator.skipTo(docId);
-  String groupKey=dictionaryReader.get(blockValIterator.nextIntVal()).toString();
-  for (int i=1; i < _groupByBlockValIterators.length; ++i) {
+  String groupKey="";
+  BlockSingleValIterator blockValIterator;
+  for (int i=0; i < _groupByBlockValIterators.length; ++i) {
+    if (i > 0) {
+      groupKey+=GroupByConstants.GroupByDelimiter.groupByMultiDelimeter;
+    }
     blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[i];
     blockValIterator.skipTo(docId);
-    dictionaryReader=_groupByBlocks[i].getMetadata().getDictionary();
-    groupKey+=(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter + (dictionaryReader.get(blockValIterator.nextIntVal()).toString()));
-  }
-  return groupKey;
+    if (_groupByBlocks[i].getMetadata().hasDictionary()) {
+      groupKey+=((_groupByBlocks[i].getMetadata().getDictionary().get(blockValIterator.nextIntVal()).toString()));
+    }
+ else {
+switch (_groupByBlocks[i].getMetadata().getDataType()) {
+case INT:
+        groupKey+=blockValIterator.nextIntVal();
+      break;
+case FLOAT:
+    groupKey+=blockValIterator.nextFloatVal();
+  break;
+case LONG:
+groupKey+=blockValIterator.nextLongVal();
+break;
+case DOUBLE:
+groupKey+=blockValIterator.nextDoubleVal();
+break;
+default :
+break;
+}
+}
+}
+return groupKey;
 }
