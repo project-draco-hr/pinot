@@ -1,0 +1,26 @@
+{
+  heatMap=new VolumeHeatMap();
+  actualHeatMapCells=heatMap.generateHeatMap(metricName,timeSeriesByDimensionValue,startMillis,endMillis);
+  for (  TimeSeriesByDimensionValue value : values) {
+    double expectedRatio=new Double(value.metric1End - value.metric1Start) / expectedSummationOldValue;
+    HeatMapCell expectedCell=new HeatMapCell(value.dimensionValue,value.metric1End,value.metric1Start,"dummy label",expectedRatio,0,null);
+    expectedCells.add(expectedCell);
+  }
+  Collections.sort(expectedCells,new Comparator<HeatMapCell>(){
+    @Override public int compare(    HeatMapCell o1,    HeatMapCell o2){
+      return (int)(o2.getCurrent().doubleValue() - o1.getCurrent().doubleValue());
+    }
+  }
+);
+  Assert.assertEquals(expectedCells.size(),actualHeatMapCells.size());
+  for (int i=0; i < expectedCells.size(); i++) {
+    Assert.assertEquals(expectedCells.get(i).getRatio(),actualHeatMapCells.get(i).getRatio(),0.0001);
+  }
+  double actualSumOfAllCells=0;
+  double expectedTotalChange=0;
+  for (  HeatMapCell actualCell : actualHeatMapCells) {
+    actualSumOfAllCells+=actualCell.getRatio();
+  }
+  expectedTotalChange=new Double(expectedSummationNewValue - expectedSummationOldValue) / expectedSummationOldValue;
+  Assert.assertEquals(expectedTotalChange,actualSumOfAllCells,0.0001);
+}
