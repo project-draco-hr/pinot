@@ -2,6 +2,12 @@
   numDocsIndexed++;
   for (  String dimension : dataSchema.getDimensionNames()) {
     dictionaryMap.get(dimension).index(row.getValue(dimension));
+    if (!dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
+      Object[] entries=(Object[])row.getValue(dimension);
+      if (maxNumberOfMultivaluesMap.get(dimension) < entries.length) {
+        maxNumberOfMultivaluesMap.put(dimension,entries.length);
+      }
+    }
   }
   IntBuffer dimBuff=dimensionsSerde.serialize(row);
   ByteBuffer metBuff=metricsSerDe.serialize(row);
