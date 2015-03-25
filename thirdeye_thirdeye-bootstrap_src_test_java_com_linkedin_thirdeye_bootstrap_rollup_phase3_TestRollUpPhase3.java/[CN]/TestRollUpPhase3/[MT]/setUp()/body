@@ -1,0 +1,11 @@
+{
+  RollupPhaseThreeReducer reducer=new RollupPhaseThreeReducer();
+  reduceDriver=ReduceDriver.newReduceDriver(reducer);
+  Configuration configuration=reduceDriver.getConfiguration();
+  configuration.set(RollupPhaseThreeConstants.ROLLUP_PHASE3_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  Path configPath=new Path(ClassLoader.getSystemResource(CONF_FILE).toString());
+  FileSystem fileSystem=FileSystem.get(configuration);
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+  rollUpConfig=RollupPhaseThreeConfig.fromStarTreeConfig(starTreeConfig);
+  ROLLUP_THRESHOLD=Integer.parseInt(rollUpConfig.getThresholdFuncParams().get("threshold"));
+}

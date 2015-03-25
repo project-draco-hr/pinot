@@ -2,12 +2,12 @@
   Job job=Job.getInstance(getConf());
   job.setJobName(name);
   job.setJarByClass(RollupPhaseFourJob.class);
-  job.setMapperClass(RollupPhaseThreeMapper.class);
+  job.setMapperClass(RollupPhaseFourMapper.class);
   job.setInputFormatClass(SequenceFileInputFormat.class);
   job.setMapOutputKeyClass(BytesWritable.class);
   job.setMapOutputValueClass(BytesWritable.class);
-  job.setCombinerClass(RollupPhaseThreeReducer.class);
-  job.setReducerClass(RollupPhaseThreeReducer.class);
+  job.setCombinerClass(RollupPhaseFourReducer.class);
+  job.setReducerClass(RollupPhaseFourReducer.class);
   job.setOutputKeyClass(BytesWritable.class);
   job.setOutputValueClass(BytesWritable.class);
   job.setOutputFormatClass(SequenceFileOutputFormat.class);

@@ -1,0 +1,10 @@
+{
+  RollupPhaseFourReducer reducer=new RollupPhaseFourReducer();
+  reduceDriver=ReduceDriver.newReduceDriver(reducer);
+  Configuration configuration=reduceDriver.getConfiguration();
+  configuration.set(RollupPhaseFourConstants.ROLLUP_PHASE4_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  Path configPath=new Path(ClassLoader.getSystemResource(CONF_FILE).toString());
+  FileSystem fileSystem=FileSystem.get(configuration);
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+  rollUpConfig=RollupPhaseFourConfig.fromStarTreeConfig(starTreeConfig);
+}

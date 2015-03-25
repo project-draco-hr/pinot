@@ -1,0 +1,13 @@
+{
+  List<Pair<BytesWritable,BytesWritable>> inputRecords=new ArrayList<Pair<BytesWritable,BytesWritable>>();
+  List<String> dimensionNames=rollUpConfig.getDimensionNames();
+  for (int i=0; i < INPUT_RECORDS; i++) {
+    String[] dimensionValues=TestHelper.generateDimensionValues(dimensionNames.size());
+    DimensionKey key=new DimensionKey(dimensionValues);
+    MetricTimeSeries m=TestHelper.generateRandomMetricTimeSeries(rollUpConfig);
+    byte[] serializedKey=key.toBytes();
+    byte[] serializedMetrics=m.toBytes();
+    inputRecords.add(new Pair<BytesWritable,BytesWritable>(new BytesWritable(serializedKey),new BytesWritable(serializedMetrics)));
+  }
+  return inputRecords;
+}

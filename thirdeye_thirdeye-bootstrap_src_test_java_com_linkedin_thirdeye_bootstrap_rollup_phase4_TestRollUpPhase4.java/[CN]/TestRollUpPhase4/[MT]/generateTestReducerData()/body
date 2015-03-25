@@ -1,0 +1,12 @@
+{
+  List<Pair<BytesWritable,List<BytesWritable>>> inputRecords=new ArrayList<Pair<BytesWritable,List<BytesWritable>>>();
+  List<BytesWritable> list=new ArrayList<BytesWritable>();
+  String[] combination={"?","?","C1"};
+  DimensionKey selectedRollUpKey=new DimensionKey(combination);
+  MetricTimeSeries timeSeries=TestHelper.generateMetricTimeSeries(rollUpConfig,10);
+  list.add(new BytesWritable(timeSeries.toBytes()));
+  timeSeries=TestHelper.generateMetricTimeSeries(rollUpConfig,20);
+  list.add(new BytesWritable(timeSeries.toBytes()));
+  inputRecords.add(new Pair<BytesWritable,List<BytesWritable>>(new BytesWritable(selectedRollUpKey.toBytes()),list));
+  return inputRecords;
+}

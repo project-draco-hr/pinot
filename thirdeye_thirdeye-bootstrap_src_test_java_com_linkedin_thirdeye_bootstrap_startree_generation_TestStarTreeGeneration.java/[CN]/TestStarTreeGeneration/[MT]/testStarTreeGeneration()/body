@@ -1,0 +1,16 @@
+{
+  List<Pair<BytesWritable,BytesWritable>> input=generateTestData();
+  mapDriver.addAll(input);
+  mapDriver.run();
+  String starTreeOutputPath=mapDriver.getConfiguration().get(StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH.toString());
+  String collectionName=starTreeGenerationConfig.getCollectionName();
+  Path pathToTree=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,collectionName + "-tree.bin");
+  FileSystem dfs=FileSystem.get(mapDriver.getConfiguration());
+  InputStream is=dfs.open(pathToTree);
+  StarTreeNode starTreeRootNode=StarTreePersistanceUtil.loadStarTree(is);
+  Assert.assertNotNull(starTreeRootNode);
+  Assert.assertFalse(starTreeRootNode.isLeaf());
+  LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
+  StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
+  Assert.assertEquals(5,leafNodes.size());
+}

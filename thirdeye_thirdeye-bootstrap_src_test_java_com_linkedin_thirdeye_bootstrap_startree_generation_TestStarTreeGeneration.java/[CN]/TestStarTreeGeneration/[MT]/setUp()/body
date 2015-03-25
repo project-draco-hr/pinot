@@ -1,0 +1,12 @@
+{
+  StarTreeGenerationMapper mapper=new StarTreeGenerationMapper();
+  mapDriver=MapDriver.newMapDriver(mapper);
+  Configuration config=mapDriver.getConfiguration();
+  config.set(StarTreeGenerationConstants.STAR_TREE_GEN_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  Path configPath=new Path(ClassLoader.getSystemResource(CONF_FILE).toString());
+  FileSystem fs=FileSystem.get(config);
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fs.open(configPath));
+  starTreeGenerationConfig=StarTreeGenerationConfig.fromStarTreeConfig(starTreeConfig);
+  thirdEyeRoot=System.getProperty("java.io.tmpdir");
+  config.set(StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH.toString(),thirdEyeRoot + File.separator + "startree_generation");
+}

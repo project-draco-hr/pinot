@@ -1,0 +1,32 @@
+{
+  List<Pair<BytesWritable,List<BytesWritable>>> inputRecords=new ArrayList<Pair<BytesWritable,List<BytesWritable>>>();
+  List<BytesWritable> list=new ArrayList<BytesWritable>();
+  String[] input1={"A1","B1","C1"};
+  DimensionKey rawKey=new DimensionKey(input1);
+  MetricTimeSeries rawSeries=TestHelper.generateMetricTimeSeries(rollUpConfig,ROLLUP_THRESHOLD - 10);
+  String[] combination1={"A1","B1","C1"};
+  MetricTimeSeries timeSeries=rawSeries;
+  DimensionKey combinationKey=new DimensionKey(combination1);
+  RollupPhaseTwoReduceOutput output=new RollupPhaseTwoReduceOutput(combinationKey,timeSeries,rawKey,rawSeries);
+  list.add(new BytesWritable(output.toBytes()));
+  String[] combination2={"?","B1","C1"};
+  timeSeries=TestHelper.generateMetricTimeSeries(rollUpConfig,ROLLUP_THRESHOLD - 5);
+  combinationKey=new DimensionKey(combination2);
+  output=new RollupPhaseTwoReduceOutput(combinationKey,timeSeries,rawKey,rawSeries);
+  list.add(new BytesWritable(output.toBytes()));
+  String[] combination3={"?","?","C1"};
+  timeSeries=TestHelper.generateMetricTimeSeries(rollUpConfig,ROLLUP_THRESHOLD + 1);
+  combinationKey=new DimensionKey(combination3);
+  output=new RollupPhaseTwoReduceOutput(combinationKey,timeSeries,rawKey,rawSeries);
+  list.add(new BytesWritable(output.toBytes()));
+  String[] combination4={"?","?","?"};
+  timeSeries=TestHelper.generateMetricTimeSeries(rollUpConfig,ROLLUP_THRESHOLD + 10);
+  combinationKey=new DimensionKey(combination4);
+  output=new RollupPhaseTwoReduceOutput(combinationKey,timeSeries,rawKey,rawSeries);
+  list.add(new BytesWritable(output.toBytes()));
+  BytesWritable keyWritable=new BytesWritable();
+  keyWritable.set(rawKey.toMD5(),0,rawKey.toMD5().length);
+  Pair<BytesWritable,List<BytesWritable>> record=new Pair<BytesWritable,List<BytesWritable>>(keyWritable,list);
+  inputRecords.add(record);
+  return inputRecords;
+}
