@@ -1,0 +1,25 @@
+{
+  LOG.info("GenericAvroJoinJob.GenericJoinMapper.setup()");
+  FileSplit fileSplit=(FileSplit)context.getInputSplit();
+  LOG.info("split name:" + fileSplit.toString());
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  String configFile=configuration.get(JoinPhaseJobConstants.JOIN_CONFIG_PATH.toString());
+  LOG.info("config file:{}",configFile);
+  Path configPath=new Path(configFile);
+  try {
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=JoinPhaseConfig.fromStarTreeConfig(starTreeConfig);
+    sourceName=DelegatingAvroKeyInputFormat.getSourceNameFromPath(fileSplit,configuration);
+    LOG.info("Input: {} belongs to Source:{}",fileSplit,sourceName);
+    JoinSpec joinSpec=config.joinSpec;
+    String joinKeyExtractorClass=joinSpec.getJoinKeyExtractorClass();
+    Map<String,String> params=joinSpec.getJoinKeyExtractorConfig();
+    LOG.info("Initializing JoinKeyExtractorClass:{} with params:{}",joinKeyExtractorClass,params);
+    Constructor<?> constructor=Class.forName(joinKeyExtractorClass).getConstructor(Map.class);
+    joinKeyExtractor=(JoinKeyExtractor)constructor.newInstance(params);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

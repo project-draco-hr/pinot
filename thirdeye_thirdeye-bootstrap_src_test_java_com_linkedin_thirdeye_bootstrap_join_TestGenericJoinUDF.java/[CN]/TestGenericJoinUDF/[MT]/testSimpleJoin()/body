@@ -1,0 +1,61 @@
+{
+  GenericRecord record1=populate(INPUT_SCHEMA_1,input1Dimensions,input1Metrics);
+  GenericRecord record2=populate(INPUT_SCHEMA_2,input2Dimensions,input2Metrics);
+  String joinKeyVal="1234";
+  record1.put("joinKey",joinKeyVal);
+  record2.put("joinKey",joinKeyVal);
+  Map<String,String> params=new HashMap<String,String>();
+  StringBuilder sb=new StringBuilder();
+  String delim="";
+  for (  String dim : outputDimensions) {
+    sb.append(delim).append(dim);
+    if (Arrays.binarySearch(input1Dimensions,dim) > -1) {
+      params.put(dim + ".sources",input1SourceName);
+    }
+ else     if (Arrays.binarySearch(input2Dimensions,dim) > -1) {
+      params.put(dim + ".sources",input2SourceName);
+    }
+ else {
+      System.err.println("dim:" + dim + " not present in the input events");
+    }
+    delim=",";
+  }
+  for (  String met : outputMetrics) {
+    sb.append(delim).append(met);
+    if (Arrays.binarySearch(input1Metrics,met) > -1) {
+      params.put(met + ".sources",input1SourceName);
+    }
+ else     if (Arrays.binarySearch(input2Metrics,met) > -1) {
+      params.put(met + ".sources",input2SourceName);
+    }
+ else {
+      System.err.println("met:" + met + " not present in the input events");
+    }
+    delim=",";
+  }
+  params.put("field.names",sb.toString());
+  GenericJoinUDF udf=new GenericJoinUDF(params);
+  udf.init(OUTPUT_SCHEMA);
+  Map<String,List<GenericRecord>> joinInput=new HashMap<String,List<GenericRecord>>();
+  joinInput.put(input1SourceName,Lists.newArrayList(record1));
+  joinInput.put(input2SourceName,Lists.newArrayList(record2));
+  GenericRecord joinOutputRecord=udf.performJoin(joinKeyVal,joinInput);
+  System.out.println(joinOutputRecord);
+  for (  String dim : outputDimensions) {
+    sb.append(delim).append(dim);
+    if (Arrays.binarySearch(input1Dimensions,dim) > -1) {
+      Assert.assertEquals(joinOutputRecord.get(dim),record1.get(dim));
+    }
+ else     if (Arrays.binarySearch(input2Dimensions,dim) > -1) {
+      Assert.assertEquals(joinOutputRecord.get(dim),record2.get(dim));
+    }
+  }
+  for (  String met : outputMetrics) {
+    if (Arrays.binarySearch(input1Metrics,met) > -1) {
+      Assert.assertEquals(joinOutputRecord.get(met),record1.get(met));
+    }
+ else     if (Arrays.binarySearch(input2Metrics,met) > -1) {
+      Assert.assertEquals(joinOutputRecord.get(met),record2.get(met));
+    }
+  }
+}

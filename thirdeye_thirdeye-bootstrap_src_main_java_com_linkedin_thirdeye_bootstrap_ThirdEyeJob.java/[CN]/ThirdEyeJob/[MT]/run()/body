@@ -7,10 +7,16 @@
     usage();
     throw e;
   }
-  String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getPropertyName(),config);
-  String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getPropertyName(),config);
-  String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getPropertyName(),config);
-  String numberOfReducers=config.getProperty(ThirdEyeJobConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.getPropertyName());
+  if (PhaseSpec.JOIN.equals(phaseSpec)) {
+    JoinPhaseJob job=new JoinPhaseJob("Join Job",inputConfig);
+    job.run();
+    return;
+  }
+  String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getPropertyName(),inputConfig);
+  String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getPropertyName(),inputConfig);
+  String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getPropertyName(),inputConfig);
+  String NUM_REDUCERS_PROP=StarTreeBootstrapPhaseTwoConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.name();
+  String numberOfReducers=inputConfig.getProperty(NUM_REDUCERS_PROP);
   long minTime=-1;
   long maxTime=-1;
   if (!PhaseSpec.ANALYSIS.equals(phaseSpec)) {
@@ -25,7 +31,7 @@
     maxTime=stats.getMaxTime();
   }
   if (PhaseSpec.SERVER_UPDATE.equals(phaseSpec)) {
-    String thirdEyeServerUri=config.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+    String thirdEyeServerUri=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
     if (thirdEyeServerUri == null) {
       throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
     }
@@ -43,7 +49,7 @@
     }
   }
  else   if (PhaseSpec.SERVER_BOOTSTRAP.equals(phaseSpec)) {
-    String thirdEyeServerUri=config.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+    String thirdEyeServerUri=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
     if (thirdEyeServerUri == null) {
       throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
     }
@@ -71,9 +77,9 @@
     }
   }
  else {
-    Properties jobProperties=phaseSpec.getJobProperties(root,collection,minTime,maxTime,inputPaths);
+    Properties jobProperties=phaseSpec.getJobProperties(inputConfig,root,collection,minTime,maxTime,inputPaths);
     if (PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.equals(phaseSpec) && numberOfReducers != null) {
-      jobProperties.setProperty(ThirdEyeJobConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.getPropertyName(),numberOfReducers);
+      jobProperties.setProperty(NUM_REDUCERS_PROP,numberOfReducers);
     }
     Constructor<?> constructor=phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
     Object instance=constructor.newInstance(phaseSpec.getName(),jobProperties);

@@ -1,0 +1,29 @@
+{
+  Map<String,List<GenericRecord>> joinInput=new HashMap<String,List<GenericRecord>>();
+  for (  BytesWritable writable : recordBytesWritable) {
+    byte[] bytes=writable.copyBytes();
+    MapOutputValue mapOutputValue=MapOutputValue.fromBytes(bytes,schemaMap);
+    String schemaName=mapOutputValue.getSchemaName();
+    if (!joinInput.containsKey(schemaName)) {
+      joinInput.put(schemaName,new ArrayList<GenericRecord>());
+    }
+    joinInput.get(schemaName).add(mapOutputValue.getRecord());
+  }
+  int[] exists=new int[sourceNames.size()];
+  for (int i=0; i < sourceNames.size(); i++) {
+    String source=sourceNames.get(i);
+    if (joinInput.containsKey(source)) {
+      exists[i]=1;
+    }
+ else {
+      exists[i]=0;
+    }
+  }
+  String counterName=Arrays.toString(exists);
+  if (!countersMap.containsKey(counterName)) {
+    countersMap.put(counterName,new AtomicInteger(0));
+  }
+  countersMap.get(counterName).incrementAndGet();
+  GenericRecord output=joinUDF.performJoin(new String(joinKeyWritable.copyBytes()),joinInput);
+  context.write(new AvroKey<GenericRecord>(output),NullWritable.get());
+}

@@ -1,0 +1,30 @@
+{
+  Configuration configuration=context.getConfiguration();
+  fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(JoinPhaseJobConstants.JOIN_CONFIG_PATH.toString()));
+  try {
+    StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=JoinPhaseConfig.fromStarTreeConfig(starTreeConfig);
+    Map<String,String> schemaJSONMapping=new ObjectMapper().readValue(context.getConfiguration().get("schema.json.mapping"),MAP_STRING_STRING_TYPE);
+    LOG.info("Schema JSON Mapping: {}",schemaJSONMapping);
+    for (    String sourceName : schemaJSONMapping.keySet()) {
+      Schema schema=new Schema.Parser().parse(schemaJSONMapping.get(sourceName));
+      schemaMap.put(sourceName,schema);
+    }
+    JoinSpec joinSpec=config.joinSpec;
+    sourceNames=joinSpec.getSourceNames();
+    String joinUDFClass=joinSpec.getJoinUDFClass();
+    Map<String,String> params=joinSpec.getJoinUDFConfig();
+    Constructor<?> constructor=Class.forName(joinUDFClass).getConstructor(Map.class);
+    LOG.info("Initializing JoinUDFClass:{} with params:{}",joinUDFClass,params);
+    joinUDF=(JoinUDF)constructor.newInstance(params);
+    String outputSchemaPath=context.getConfiguration().get(JoinPhaseJobConstants.JOIN_OUTPUT_AVRO_SCHEMA.toString());
+    Schema.Parser parser=new Schema.Parser();
+    Schema outputSchema=parser.parse(fileSystem.open(new Path(outputSchemaPath)));
+    LOG.info("Setting outputschema:{}",outputSchema);
+    joinUDF.init(outputSchema);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

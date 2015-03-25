@@ -1,0 +1,12 @@
+{
+  System.out.println(schema);
+  Random r=new Random();
+  GenericRecordBuilder genericRecordBuilder=new GenericRecordBuilder(schema);
+  for (  String dim : dimensions) {
+    genericRecordBuilder.set(dim,dim + "-val" + r.nextInt());
+  }
+  for (  String met : metrics) {
+    genericRecordBuilder.set(met,r.nextLong());
+  }
+  return genericRecordBuilder.build();
+}

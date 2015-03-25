@@ -1,0 +1,15 @@
+{
+  String joinKey=defaultJoinKey;
+  if (joinKeyMap != null && joinKeyMap.containsKey(sourceName)) {
+    joinKey=joinKeyMap.get(sourceName);
+  }
+  String ret="INVALID";
+  if (joinKey != null) {
+    Object object=record.get(joinKey);
+    if (object != null) {
+      ret=object.toString();
+    }
+  }
+  LOG.info("source:{} JoinKey:{} value:{}",sourceName,joinKey,ret);
+  return ret;
+}

@@ -1,0 +1,18 @@
+{
+  DataInputStream dataInputStream=new DataInputStream(new ByteArrayInputStream(bytes));
+  int length=dataInputStream.readInt();
+  byte[] sourceNameBytes=new byte[length];
+  dataInputStream.read(sourceNameBytes);
+  String schemaName=new String(sourceNameBytes);
+  System.out.println("schema name:" + schemaName + "  length:"+ length);
+  int recordDataLength=dataInputStream.readInt();
+  System.out.println("Data Buffer length:" + recordDataLength);
+  byte[] recordBytes=new byte[recordDataLength];
+  dataInputStream.read(recordBytes);
+  Schema schema=schemaMap.get(schemaName);
+  GenericRecord record=new GenericData.Record(schema);
+  binaryDecoder=DecoderFactory.get().binaryDecoder(recordBytes,binaryDecoder);
+  GenericDatumReader<GenericRecord> gdr=new GenericDatumReader<GenericRecord>(schema);
+  gdr.read(record,binaryDecoder);
+  return new MapOutputValue(schemaName,record);
+}
