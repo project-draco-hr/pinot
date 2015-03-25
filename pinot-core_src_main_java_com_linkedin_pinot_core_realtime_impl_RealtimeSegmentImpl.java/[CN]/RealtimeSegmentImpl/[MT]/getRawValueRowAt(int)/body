@@ -1,9 +1,9 @@
 {
   GenericRow row=new GenericRow();
   Map<String,Object> rowValues=new HashMap<String,Object>();
-  Pair<Long,Long> dimHashTimePair=docIdMap.get(docId);
+  Pair<Long,Object> dimHashTimePair=docIdMap.get(docId);
   DimensionTuple tuple=dimemsionTupleMap.get(dimHashTimePair.getLeft());
-  Long timeValue=dimHashTimePair.getRight();
+  Object timeValue=dimHashTimePair.getRight();
   IntBuffer dimBuff=tuple.getDimBuff().duplicate();
   for (  String dimension : dataSchema.getDimensionNames()) {
     int[] ret=dimensionsSerde.deSerializeAndReturnDicIdsFor(dimension,dimBuff);

@@ -14,14 +14,21 @@
   dimBuff.rewind();
   metBuff.rewind();
   long dimesionHash=HashUtil.compute(dimBuff);
-  Long timeValue=timeConverter.convert(row.getValue(incomingTimeColumnName));
+  Object timeValueObj=timeConverter.convert(row.getValue(incomingTimeColumnName));
+  long timeValue=-1;
+  if (timeValueObj instanceof Integer) {
+    timeValue=((Integer)timeValueObj).longValue();
+  }
+ else {
+    timeValue=(Long)timeValueObj;
+  }
   if (minTimeVal > timeValue) {
     minTimeVal=timeValue;
   }
   if (maxTimeVal < timeValue) {
     maxTimeVal=timeValue;
   }
-  Pair<Long,Long> dimHashTimePair=Pair.<Long,Long>of(dimesionHash,timeValue);
+  Pair<Long,Object> dimHashTimePair=Pair.<Long,Object>of(dimesionHash,timeValue);
   if (!dimemsionTupleMap.containsKey(dimesionHash)) {
     DimensionTuple dimTuple=new DimensionTuple(dimBuff,dimesionHash);
     dimTuple.addMetricsbuffFor(timeValue,metBuff,dataSchema);
