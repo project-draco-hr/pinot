@@ -1,0 +1,70 @@
+{
+  return new BlockValSet(){
+    @Override public BlockValIterator iterator(){
+      return new BlockSingleValIterator(){
+        private int counter=0;
+        private int max=docIdSearchableOffset;
+        @Override public boolean skipTo(        int docId){
+          if (docId > max) {
+            return false;
+          }
+          counter=docId;
+          return true;
+        }
+        @Override public int size(){
+          return max;
+        }
+        @Override public boolean reset(){
+          counter=0;
+          return true;
+        }
+        @Override public boolean next(){
+          counter++;
+          return counter > max;
+        }
+        @Override public int nextIntVal(){
+          if (counter >= max) {
+            return Constants.EOF;
+          }
+          Pair<Long,Object> documentFinderPair=docIdMap.get(counter);
+          return (Integer)documentFinderPair.getRight();
+        }
+        @Override public long nextLongVal(){
+          if (counter >= max) {
+            return Constants.EOF;
+          }
+          Pair<Long,Object> documentFinderPair=docIdMap.get(counter);
+          return (Integer)documentFinderPair.getRight();
+        }
+        @Override public float nextFloatVal(){
+          if (counter >= max) {
+            return Constants.EOF;
+          }
+          Pair<Long,Object> documentFinderPair=docIdMap.get(counter);
+          return (Integer)documentFinderPair.getRight();
+        }
+        @Override public double nextDoubleVal(){
+          if (counter >= max) {
+            return Constants.EOF;
+          }
+          Pair<Long,Object> documentFinderPair=docIdMap.get(counter);
+          return (Integer)documentFinderPair.getRight();
+        }
+        @Override public boolean hasNext(){
+          return (counter <= max);
+        }
+        @Override public DataType getValueType(){
+          return spec.getDataType();
+        }
+        @Override public int currentDocId(){
+          return counter;
+        }
+      }
+;
+    }
+    @Override public DataType getValueType(){
+      return spec.getDataType();
+    }
+  }
+;
+}

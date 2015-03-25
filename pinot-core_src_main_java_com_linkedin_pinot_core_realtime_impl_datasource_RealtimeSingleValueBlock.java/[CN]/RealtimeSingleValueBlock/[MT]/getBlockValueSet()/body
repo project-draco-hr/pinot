@@ -3,7 +3,26 @@
     return getDimensionBlockValueSet();
   }
  else   if (spec.getFieldType() == FieldType.METRIC) {
-    return getMetricBlockValueSet();
-  }
-  return getTimeBlockValueSet();
+switch (spec.getDataType()) {
+case INT:
+      return getMetricIntBlockValueSet();
+case LONG:
+    return getMetricLongBlockValueSet();
+case FLOAT:
+  return getMetricFloatBlockValueSet();
+case DOUBLE:
+return getMetricDoubleBlockValueSet();
+default :
+break;
+}
+}
+switch (spec.getDataType()) {
+case INT:
+return getTimeIntBlockValueSet();
+case LONG:
+return getTimeLongBlockValueSet();
+default :
+break;
+}
+return null;
 }
