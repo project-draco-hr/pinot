@@ -4,5 +4,5 @@
       return dimensionValues[i];
     }
   }
-  throw new IllegalArgumentException("No dimension " + dimensionName);
+  throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",dimensionName).entity("No dimension : " + dimensionName).build());
 }
