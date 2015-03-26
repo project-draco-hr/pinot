@@ -14,6 +14,7 @@
   DimensionKey key=new DimensionKey(dimensionValues);
   String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
   long timeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
+  timeWindow=timeWindow / aggregationGranularitySize;
   MetricTimeSeries series=new MetricTimeSeries(metricSchema);
   for (int i=0; i < metricNames.size(); i++) {
     String metricName=metricNames.get(i);
