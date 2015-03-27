@@ -10,4 +10,14 @@
   LOG.info("Copying " + src + " to "+ dst);
   dfs.copyFromLocalFile(src,dst);
   LOG.info("END: Clean up");
+  File f=new File(localInputDataDir);
+  FileUtils.deleteDirectory(f);
+  f=new File(localOutputDataDir);
+  FileUtils.deleteDirectory(f);
+  f=new File(localTmpDataDir);
+  FileUtils.deleteDirectory(f);
+  f=new File(leafDataTarGz);
+  f.delete();
+  f=new File("leaf-data.tar.gz");
+  f.delete();
 }

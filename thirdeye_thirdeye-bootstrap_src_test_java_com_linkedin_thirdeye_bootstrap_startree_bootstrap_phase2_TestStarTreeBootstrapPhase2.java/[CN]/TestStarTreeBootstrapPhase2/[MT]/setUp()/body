@@ -1,0 +1,18 @@
+{
+  BootstrapPhaseTwoMapper mapper=new BootstrapPhaseTwoMapper();
+  mapDriver=MapDriver.newMapDriver(mapper);
+  Configuration config=mapDriver.getConfiguration();
+  config.set(StarTreeBootstrapPhaseTwoConstants.STAR_TREE_BOOTSTRAP_PHASE2_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  Path configPath=new Path(ClassLoader.getSystemResource(CONF_FILE).toString());
+  FileSystem fs=FileSystem.get(config);
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fs.open(configPath));
+  starTreeBootstrapConfig=StarTreeBootstrapPhaseTwoConfig.fromStarTreeConfig(starTreeConfig);
+  thirdEyeRoot=System.getProperty("java.io.tmpdir");
+  config.set(StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH.toString(),thirdEyeRoot + File.separator + "startree_generation");
+  BootstrapPhaseTwoReducer reducer=new BootstrapPhaseTwoReducer();
+  reduceDriver=ReduceDriver.newReduceDriver(reducer);
+  config=reduceDriver.getConfiguration();
+  config.set(StarTreeBootstrapPhaseTwoConstants.STAR_TREE_BOOTSTRAP_PHASE2_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  config.set(StarTreeBootstrapPhaseTwoConstants.STAR_TREE_BOOTSTRAP_PHASE2_OUTPUT_PATH.toString(),thirdEyeRoot + File.separator + "startree_bootstrap_phase2");
+  config.set(StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH.toString(),thirdEyeRoot + File.separator + "startree_generation");
+}

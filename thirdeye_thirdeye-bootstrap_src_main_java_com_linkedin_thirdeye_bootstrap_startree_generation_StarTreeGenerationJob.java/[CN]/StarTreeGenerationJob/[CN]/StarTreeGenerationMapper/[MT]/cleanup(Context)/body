@@ -50,4 +50,8 @@
   dst=dfs.makeQualified(new Path(hdfsOutputPath,"leaf-data.tar.gz"));
   LOG.info("Copying " + src + " to "+ dst);
   dfs.copyFromLocalFile(src,dst);
+  File f=new File(localOutputDir);
+  FileUtils.deleteDirectory(f);
+  f=new File(leafDataTarGz);
+  f.delete();
 }
