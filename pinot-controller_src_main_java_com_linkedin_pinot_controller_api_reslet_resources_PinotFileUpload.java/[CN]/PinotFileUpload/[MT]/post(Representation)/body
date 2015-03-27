@@ -19,7 +19,7 @@
     }
     if (found) {
       rep=new StringRepresentation(dataFile + " sucessfully uploaded",MediaType.TEXT_PLAIN);
-      tmpSegmentDir=new File(tempUntarredPath,dataFile.getName());
+      tmpSegmentDir=new File(tempUntarredPath,dataFile.getName() + "-" + conf.getControllerHost()+ "_"+ conf.getControllerPort()+ "-"+ System.currentTimeMillis());
       logger.info("Untar segment to temp dir: " + tmpSegmentDir);
       if (tmpSegmentDir.exists()) {
         FileUtils.deleteDirectory(tmpSegmentDir);
