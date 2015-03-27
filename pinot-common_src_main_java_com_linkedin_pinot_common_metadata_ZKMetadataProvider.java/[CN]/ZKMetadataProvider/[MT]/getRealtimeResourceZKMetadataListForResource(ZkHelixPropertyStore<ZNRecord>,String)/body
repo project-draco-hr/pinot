@@ -1,6 +1,9 @@
 {
-  String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
   List<RealtimeSegmentZKMetadata> resultList=new ArrayList<RealtimeSegmentZKMetadata>();
+  if (propertyStore == null) {
+    return resultList;
+  }
+  String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
   if (propertyStore.exists(constructPropertyStorePathForResource(realtimeResourceName),AccessOption.PERSISTENT)) {
     List<ZNRecord> znRecordList=propertyStore.getChildren(constructPropertyStorePathForResource(realtimeResourceName),null,AccessOption.PERSISTENT);
     if (znRecordList != null) {

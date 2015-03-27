@@ -53,7 +53,7 @@
     String instanceName=SegmentNameBuilder.Realtime.extractInstanceName(segmentId);
     if (!idealStateMap.get(resourceName).getPartitionSet().contains(segmentId)) {
       RealtimeSegmentZKMetadata realtimeSegmentMetadataToAdd=new RealtimeSegmentZKMetadata();
-      realtimeSegmentMetadataToAdd.setResourceName(resourceName);
+      realtimeSegmentMetadataToAdd.setResourceName(BrokerRequestUtils.getHybridResourceName(resourceName));
       realtimeSegmentMetadataToAdd.setTableName(tableName);
       realtimeSegmentMetadataToAdd.setSegmentType(SegmentType.REALTIME);
       realtimeSegmentMetadataToAdd.setStatus(Status.IN_PROGRESS);

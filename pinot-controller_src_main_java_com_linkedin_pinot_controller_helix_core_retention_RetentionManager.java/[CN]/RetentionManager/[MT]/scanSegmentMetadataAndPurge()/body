@@ -13,6 +13,11 @@
         LOGGER.info("No Retention strategy found for segment: " + segmentZKMetadata.getSegmentName());
         continue;
       }
+      if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
+        if (((RealtimeSegmentZKMetadata)segmentZKMetadata).getStatus() == Status.IN_PROGRESS) {
+          continue;
+        }
+      }
       if (deletionStrategy.isPurgeable(segmentZKMetadata)) {
         LOGGER.info("Trying to delete segment: " + segmentZKMetadata.getSegmentName());
         _pinotHelixResourceManager.deleteSegment(resourceName,segmentZKMetadata.getSegmentName());

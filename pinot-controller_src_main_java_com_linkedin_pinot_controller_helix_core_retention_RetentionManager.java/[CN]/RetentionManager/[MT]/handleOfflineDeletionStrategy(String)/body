@@ -1,0 +1,37 @@
+{
+  Map<String,RetentionStrategy> tableToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
+  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_pinotHelixResourceManager.getPropertyStore(),resourceName);
+  if (offlineDataResourceZKMetadata.getPushFrequency().equalsIgnoreCase(REFRESH)) {
+    LOGGER.info("Resource: " + resourceName + " is a fresh only data resource.");
+    return tableToDeletionStrategyMap;
+  }
+ else {
+    try {
+      TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(offlineDataResourceZKMetadata.getRetentionTimeUnit(),offlineDataResourceZKMetadata.getRetentionTimeValue());
+      tableToDeletionStrategyMap.put(resourceName + ".*",timeRetentionStrategy);
+    }
+ catch (    Exception e) {
+      LOGGER.error("Error creating TimeRetentionStrategy for resource: " + resourceName + ", Exception: "+ e);
+    }
+    for (    String key : offlineDataResourceZKMetadata.getMetadata().keySet()) {
+      if (key.endsWith("." + CommonConstants.Helix.DataSource.PUSH_FREQUENCY)) {
+        String tableName=key.split(".",2)[0];
+        if (!offlineDataResourceZKMetadata.getMetadata().get(key).equalsIgnoreCase(REFRESH)) {
+          LOGGER.info("Resource.table - " + resourceName + "."+ tableName+ " is a fresh only data table.");
+        }
+ else {
+          if (offlineDataResourceZKMetadata.getMetadata().containsKey(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT) && offlineDataResourceZKMetadata.getMetadata().containsKey(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE)) {
+            try {
+              TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(offlineDataResourceZKMetadata.getMetadata().get(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_UNIT),offlineDataResourceZKMetadata.getMetadata().get(tableName + "." + CommonConstants.Helix.DataSource.RETENTION_TIME_VALUE));
+              tableToDeletionStrategyMap.put(resourceName + "." + tableName,timeRetentionStrategy);
+            }
+ catch (            Exception e) {
+              LOGGER.error("Error creating TimeRetentionStrategy for resource.table: " + resourceName + "."+ tableName+ ", Exception: "+ e);
+            }
+          }
+        }
+      }
+    }
+    return tableToDeletionStrategyMap;
+  }
+}

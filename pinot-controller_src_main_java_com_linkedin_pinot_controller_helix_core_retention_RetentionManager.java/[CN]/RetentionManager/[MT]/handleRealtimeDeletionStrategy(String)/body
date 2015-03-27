@@ -1,0 +1,12 @@
+{
+  Map<String,RetentionStrategy> tableToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
+  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(_pinotHelixResourceManager.getPropertyStore(),resourceName);
+  try {
+    TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(realtimeDataResourceZKMetadata.getRetentionTimeUnit(),realtimeDataResourceZKMetadata.getRetentionTimeValue());
+    tableToDeletionStrategyMap.put(resourceName + ".*",timeRetentionStrategy);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Error creating TimeRetentionStrategy for resource: " + resourceName + ", Exception: "+ e);
+  }
+  return tableToDeletionStrategyMap;
+}
