@@ -30,19 +30,9 @@
  else {
     timeRange=new TimeRange(baselineStart - (movingAverageValue / aggregateValue) * aggregateValue,currentEnd + aggregateValue);
   }
-  List<String> allDimensions=new ArrayList<String>();
-  for (  DimensionSpec dimensionSpec : starTree.getConfig().getDimensions()) {
-    allDimensions.add(dimensionSpec.getName());
-  }
-  String query=uriInfo.getRequestUri().getQuery();
-  if (query != null) {
-    String[] dimensionTokens=query.split("&");
-    for (    String dimensionToken : dimensionTokens) {
-      String dimensionName=dimensionToken.split("=")[0];
-      if (!allDimensions.contains(dimensionName)) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",dimensionName).entity("No dimension : " + dimensionName).build());
-      }
-    }
+  String invalidDimension=QueryUtils.checkDimensions(starTree,uriInfo);
+  if (invalidDimension != null) {
+    throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",invalidDimension).entity("No dimension : " + invalidDimension).build());
   }
   Map<String,Map<String,MetricTimeSeries>> data=new HashMap<String,Map<String,MetricTimeSeries>>();
   for (  DimensionSpec dimension : starTree.getConfig().getDimensions()) {

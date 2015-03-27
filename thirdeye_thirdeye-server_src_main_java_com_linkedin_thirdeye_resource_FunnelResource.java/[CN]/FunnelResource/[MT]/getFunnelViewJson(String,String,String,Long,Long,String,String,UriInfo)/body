@@ -39,19 +39,9 @@
   if (!new TimeRange(stats.getMinTime(),stats.getMaxTime()).contains(new TimeRange(start,end))) {
     throw new NotFoundException("Query (" + QueryUtils.getDateTime(start,bucketSize,bucketUnit) + ", "+ QueryUtils.getDateTime(end,bucketSize,bucketUnit)+ ") not in range ("+ QueryUtils.getDateTime(stats.getMinTime(),bucketSize,bucketUnit)+ ", "+ QueryUtils.getDateTime(stats.getMaxTime(),bucketSize,bucketUnit)+ ")");
   }
-  List<String> allDimensions=new ArrayList<String>();
-  for (  DimensionSpec dimensionSpec : starTree.getConfig().getDimensions()) {
-    allDimensions.add(dimensionSpec.getName());
-  }
-  String query=uriInfo.getRequestUri().getQuery();
-  if (query != null) {
-    String[] dimensionTokens=query.split("&");
-    for (    String dimensionToken : dimensionTokens) {
-      String dimensionName=dimensionToken.split("=")[0];
-      if (!allDimensions.contains(dimensionName)) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",dimensionName).entity("No dimension : " + dimensionName).build());
-      }
-    }
+  String invalidDimension=QueryUtils.checkDimensions(starTree,uriInfo);
+  if (invalidDimension != null) {
+    throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",invalidDimension).entity("No dimension : " + invalidDimension).build());
   }
   Map<DimensionKey,MetricTimeSeries> result;
   if (movingAverageValue == null && aggregateValue == null) {
