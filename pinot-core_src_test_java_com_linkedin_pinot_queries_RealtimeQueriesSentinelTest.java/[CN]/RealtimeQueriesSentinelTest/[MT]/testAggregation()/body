@@ -1,0 +1,19 @@
+{
+  int counter=0;
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  final List<TestSimpleAggreationQuery> aggCalls=AVRO_QUERY_GENERATOR.giveMeNSimpleAggregationQueries(10000);
+  for (  final TestSimpleAggreationQuery aggCall : aggCalls) {
+    LOGGER.info("running " + counter + " : "+ aggCall.pql);
+    final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(aggCall.pql));
+    InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
+    instanceRequest.setSearchSegments(new ArrayList<String>());
+    instanceRequest.getSearchSegments().add("mirror_mirror");
+    final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
+    instanceResponseMap.clear();
+    instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
+    final BrokerResponse brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
+    LOGGER.info("Result from avro is : " + aggCall.result);
+    Assert.assertEquals(Double.parseDouble(brokerResponse.getAggregationResults().get(0).getString("value")),aggCall.result);
+  }
+}

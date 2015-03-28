@@ -1,0 +1,18 @@
+{
+  RealtimeSegmentImpl realtimeSegmentImpl=new RealtimeSegmentImpl(PINOT_SCHEMA);
+  try {
+    DataFileStream<GenericRecord> avroReader=AvroUtils.getAvroReader(new File(TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA))));
+    while (avroReader.hasNext()) {
+      GenericRecord avroRecord=avroReader.next();
+      GenericRow genericRow=AVRO_RECORD_TRANSFORMER.transform(avroRecord);
+      realtimeSegmentImpl.index(genericRow);
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  System.out.println("Current raw events indexed: " + realtimeSegmentImpl.getRawDocumentCount() + ", totalDocs = "+ realtimeSegmentImpl.getTotalDocs());
+  realtimeSegmentImpl.setSegmentName("mirror_mirror");
+  realtimeSegmentImpl.setSegmentMetadata(getRealtimeSegmentZKMetadata());
+  return realtimeSegmentImpl;
+}

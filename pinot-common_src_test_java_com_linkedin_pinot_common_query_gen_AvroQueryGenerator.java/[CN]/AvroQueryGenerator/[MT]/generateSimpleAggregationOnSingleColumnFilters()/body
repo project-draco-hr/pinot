@@ -72,22 +72,24 @@
     }
   }
   dataStream.close();
-  for (  final String column : cardinalityCountsMap.keySet()) {
-    for (    final Object entry : cardinalityCountsMap.get(column).keySet()) {
-      final StringBuilder bld=new StringBuilder();
-      bld.append("select count(*) from ");
-      bld.append(resourceName);
-      bld.append(" where ");
-      bld.append(column);
-      bld.append("=");
-      bld.append("'");
-      bld.append(entry);
-      bld.append("'");
-      bld.append(" ");
-      bld.append("limit 0");
-      String queryString=bld.toString();
-      if (!queryString.contains("null")) {
-        aggregationQueries.add(new TestSimpleAggreationQuery(queryString,new Double(cardinalityCountsMap.get(column).get(entry))));
+  if (!isRealtimeSegment) {
+    for (    final String column : cardinalityCountsMap.keySet()) {
+      for (      final Object entry : cardinalityCountsMap.get(column).keySet()) {
+        final StringBuilder bld=new StringBuilder();
+        bld.append("select count(*) from ");
+        bld.append(resourceName);
+        bld.append(" where ");
+        bld.append(column);
+        bld.append("=");
+        bld.append("'");
+        bld.append(entry);
+        bld.append("'");
+        bld.append(" ");
+        bld.append("limit 0");
+        String queryString=bld.toString();
+        if (!queryString.contains("null")) {
+          aggregationQueries.add(new TestSimpleAggreationQuery(queryString,new Double(cardinalityCountsMap.get(column).get(entry))));
+        }
       }
     }
   }
