@@ -20,12 +20,12 @@
       columnOffsets.add(pointer);
     }
   }
-  IntBuffer buff=IntBuffer.allocate(columnOffsets.size() + rowConvertedToDictionaryId.size());
+  ByteBuffer buff=ByteBuffer.allocate((columnOffsets.size() + rowConvertedToDictionaryId.size()) * 4);
   for (  Integer offset : columnOffsets) {
-    buff.put(offset + columnOffsets.size());
+    buff.putInt(offset + columnOffsets.size());
   }
   for (  Integer dicId : rowConvertedToDictionaryId) {
-    buff.put(dicId);
+    buff.putInt(dicId);
   }
   return buff;
 }

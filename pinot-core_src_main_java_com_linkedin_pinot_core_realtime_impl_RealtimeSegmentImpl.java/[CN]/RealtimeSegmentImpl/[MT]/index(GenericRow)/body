@@ -9,7 +9,7 @@
       }
     }
   }
-  IntBuffer dimBuff=dimensionsSerde.serialize(row);
+  ByteBuffer dimBuff=dimensionsSerde.serialize(row);
   ByteBuffer metBuff=metricsSerDe.serialize(row);
   dimBuff.rewind();
   metBuff.rewind();
@@ -22,12 +22,8 @@
  else {
     timeValue=(Long)timeValueObj;
   }
-  if (minTimeVal > timeValue) {
-    minTimeVal=timeValue;
-  }
-  if (maxTimeVal < timeValue) {
-    maxTimeVal=timeValue;
-  }
+  minTimeVal=Math.min(minTimeVal,timeValue);
+  maxTimeVal=Math.max(maxTimeVal,timeValue);
   Pair<Long,Object> dimHashTimePair=Pair.<Long,Object>of(dimesionHash,timeValueObj);
   if (!dimemsionTupleMap.containsKey(dimesionHash)) {
     DimensionTuple dimTuple=new DimensionTuple(dimBuff,dimesionHash);
@@ -46,4 +42,5 @@
     }
     tuple.addMetricsbuffFor(timeValueObj,metBuff,dataSchema);
   }
+  numSuccessIndexed++;
 }

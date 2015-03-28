@@ -25,6 +25,8 @@
       while (index()) {
       }
       segmentStatusTask.cancel();
+      logger.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
+      logger.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
       String tempFolder="tmp-" + String.valueOf(System.currentTimeMillis());
       RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,"/tmp/" + tempFolder,schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName());
       try {
