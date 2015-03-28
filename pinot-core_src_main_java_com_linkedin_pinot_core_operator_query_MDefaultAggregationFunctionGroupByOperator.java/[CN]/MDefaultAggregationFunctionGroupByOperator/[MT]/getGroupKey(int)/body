@@ -8,7 +8,8 @@
     blockValIterator=(BlockSingleValIterator)_groupByBlockValIterators[i];
     blockValIterator.skipTo(docId);
     if (_groupByBlocks[i].getMetadata().hasDictionary()) {
-      groupKey+=((_groupByBlocks[i].getMetadata().getDictionary().get(blockValIterator.nextIntVal()).toString()));
+      int nextIntVal=blockValIterator.nextIntVal();
+      groupKey+=((_groupByBlocks[i].getMetadata().getDictionary().get(nextIntVal).toString()));
     }
  else {
 switch (_groupByBlocks[i].getMetadata().getDataType()) {

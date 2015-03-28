@@ -22,6 +22,8 @@
  else {
     timeValue=(Long)timeValueObj;
   }
+  dictionaryMap.get(outgoingTimeColumnName).index(timeValueObj);
+  int timeValueDictId=dictionaryMap.get(outgoingTimeColumnName).indexOf(timeValueObj);
   minTimeVal=Math.min(minTimeVal,timeValue);
   maxTimeVal=Math.max(maxTimeVal,timeValue);
   Pair<Long,Object> dimHashTimePair=Pair.<Long,Object>of(dimesionHash,timeValueObj);
@@ -31,14 +33,14 @@
     dimemsionTupleMap.put(dimesionHash,dimTuple);
     int docId=docIdGenerator.incrementAndGet();
     docIdMap.put(docId,dimHashTimePair);
-    updateInvertedIndex(dimBuff,metBuff,timeValueObj,docId);
+    updateInvertedIndex(dimBuff,metBuff,timeValueDictId,docId);
   }
  else {
     DimensionTuple tuple=dimemsionTupleMap.get(dimesionHash);
     if (!tuple.containsTime(timeValueObj)) {
       int docId=docIdGenerator.incrementAndGet();
       docIdMap.put(docId,dimHashTimePair);
-      updateInvertedIndex(dimBuff,metBuff,timeValueObj,docId);
+      updateInvertedIndex(dimBuff,metBuff,timeValueDictId,docId);
     }
     tuple.addMetricsbuffFor(timeValueObj,metBuff,dataSchema);
   }

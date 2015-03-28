@@ -1,5 +1,5 @@
 {
-  invertedIndexMap.get(outgoingTimeColumnName).add(timeValue,docId);
+  invertedIndexMap.get(outgoingTimeColumnName).add(timeValueDictId,docId);
   for (  String dimension : dataSchema.getDimensionNames()) {
     int[] dicIds=dimensionsSerde.deSerializeAndReturnDicIdsFor(dimension,dimBuff);
     for (    int dicId : dicIds) {
@@ -9,5 +9,5 @@
   for (  String metric : dataSchema.getMetricNames()) {
     invertedIndexMap.get(metric).add(metricsSerDe.getRawValueFor(metric,metBuff),docId);
   }
-  docIdSearchableOffset=docIdGenerator.get();
+  docIdSearchableOffset=docIdGenerator.get() + 1;
 }

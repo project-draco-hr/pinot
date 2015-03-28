@@ -12,12 +12,14 @@
   while ((docId=blockDocIdIterator.next()) != Constants.EOF) {
     if (!_isGroupByColumnsContainMultiValueColumn) {
       String groupKey=getGroupKey(docId);
-      _aggregateGroupedValue.put(groupKey,_aggregationFunction.aggregate(_aggregateGroupedValue.get(groupKey),docId,_aggregationFunctionBlocks));
+      Serializable aggregate=_aggregationFunction.aggregate(_aggregateGroupedValue.get(groupKey),docId,_aggregationFunctionBlocks);
+      _aggregateGroupedValue.put(groupKey,aggregate);
     }
  else {
       String[] groupKeys=getGroupKeys(docId);
       for (      String groupKey : groupKeys) {
-        _aggregateGroupedValue.put(groupKey,_aggregationFunction.aggregate(_aggregateGroupedValue.get(groupKey),docId,_aggregationFunctionBlocks));
+        Serializable aggregate=_aggregationFunction.aggregate(_aggregateGroupedValue.get(groupKey),docId,_aggregationFunctionBlocks);
+        _aggregateGroupedValue.put(groupKey,aggregate);
       }
     }
   }
