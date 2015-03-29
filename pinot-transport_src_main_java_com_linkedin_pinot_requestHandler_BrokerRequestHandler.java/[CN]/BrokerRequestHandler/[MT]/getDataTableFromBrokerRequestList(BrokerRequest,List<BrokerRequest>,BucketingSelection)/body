@@ -6,11 +6,11 @@
     final long routingStartTime=System.nanoTime();
     RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getResourceName());
     Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
-    if (segmentServices == null) {
-      LOGGER.info("Not found ServerInstances to Segments Mapping:");
-      return null;
+    if (segmentServices == null || segmentServices.isEmpty()) {
+      LOGGER.info("Not found ServerInstances to Segments Mapping for resource - " + rtRequest.getResourceName());
+      continue;
     }
-    LOGGER.info("Find ServerInstances to Segments Mapping:");
+    LOGGER.info("Find ServerInstances to Segments Mapping for resource - " + rtRequest.getResourceName());
     for (    ServerInstance serverInstance : segmentServices.keySet()) {
       LOGGER.info(serverInstance + " : " + segmentServices.get(serverInstance));
     }
@@ -38,6 +38,7 @@
       final long deserializationStartTime=System.nanoTime();
       Map<ServerInstance,Throwable> errors=response.getError();
       if (null != responses) {
+        int responseSeq=0;
         for (        Entry<ServerInstance,ByteBuf> e : responses.entrySet()) {
           try {
             ByteBuf b=e.getValue();
@@ -47,7 +48,7 @@
             }
             b.readBytes(b2);
             DataTable r2=new DataTable(b2);
-            ServerInstance decoratedServerInstance=new ServerInstance(e.getKey().getHostname() + "_" + request.hashCode(),e.getKey().getPort());
+            ServerInstance decoratedServerInstance=new ServerInstance(e.getKey().getHostname(),e.getKey().getPort(),(responseSeq++));
             instanceResponseMap.put(decoratedServerInstance,r2);
           }
  catch (          Exception ex) {

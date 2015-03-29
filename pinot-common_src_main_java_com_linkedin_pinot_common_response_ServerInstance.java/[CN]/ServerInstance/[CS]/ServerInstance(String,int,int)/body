@@ -1,0 +1,15 @@
+{
+  super();
+  InetAddress ipAddr=null;
+  try {
+    ipAddr=InetAddress.getByName(name);
+  }
+ catch (  UnknownHostException e) {
+    LOG.error("Unable to fetch IpAddresses for host:" + name,e);
+    ipAddr=null;
+  }
+  _ipAddress=ipAddr;
+  _hostname=_ipAddress != null ? _ipAddress.getHostName() : name;
+  _port=port;
+  _seq=seq;
+}

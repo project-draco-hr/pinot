@@ -85,7 +85,8 @@ rangeEndIndex=Math.max(0,rangeEndIndex - 1);
 rangeEndIndex-=1;
 }
 if (rangeStartIndex > rangeEndIndex) {
-return false;
+filteredBitmap=new MutableRoaringBitmap();
+return true;
 }
 final MutableRoaringBitmap rangeBitmapHolder=invertedIndex.getMutable(rangeStartIndex);
 for (int i=(rangeStartIndex + 1); i <= rangeEndIndex; i++) {

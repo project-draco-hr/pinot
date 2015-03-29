@@ -2,7 +2,7 @@
   final long routingStartTime=System.nanoTime();
   RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getResourceName());
   Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
-  if (segmentServices == null) {
+  if (segmentServices == null || segmentServices.isEmpty()) {
     LOGGER.info("Not found ServerInstances to Segments Mapping:");
     return null;
   }

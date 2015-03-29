@@ -39,6 +39,7 @@ if (!notInIds.contains(new Integer(i))) {
 notINHolder.or(invertedINdex.getDocIdSetFor(i));
 }
 }
+filteredDocIdBitmap=notINHolder;
 break;
 case RANGE:
 String rangeStart="";
@@ -55,20 +56,24 @@ incUpper=false;
 final String lower=rangeString.split(",")[0].substring(1,rangeString.split(",")[0].length());
 final String upper=rangeString.split(",")[1].substring(0,rangeString.split(",")[1].length() - 1);
 if (lower.equals("*")) {
-rangeStart=dictionary.getString(0);
+rangeStart=dictionary.getString(REALTIME_DICTIONARY_INIT_ID);
+incLower=true;
+}
+ else {
+rangeStart=lower;
 }
 if (upper.equals("*")) {
-rangeEnd=dictionary.getString(dictionary.length() - 1);
+rangeEnd=dictionary.getString(dictionary.length());
+incUpper=true;
 }
-List<Integer> rangeCollector=new ArrayList<Integer>();
-for (int i=0; i < dictionary.length(); i++) {
-if (dictionary.inRange(rangeStart,rangeEnd,i,incLower,incUpper)) {
-rangeCollector.add(i);
-}
+ else {
+rangeEnd=upper;
 }
 MutableRoaringBitmap rangeBitmap=new MutableRoaringBitmap();
-for (Integer dicId : rangeCollector) {
+for (int dicId=1; dicId <= dictionary.length(); dicId++) {
+if (dictionary.inRange(rangeStart,rangeEnd,dicId,incLower,incUpper)) {
 rangeBitmap.or(invertedINdex.getDocIdSetFor(dicId));
+}
 }
 filteredDocIdBitmap=rangeBitmap;
 break;
