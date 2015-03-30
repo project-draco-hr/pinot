@@ -1,7 +1,8 @@
 {
   this.recordsAdded=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_ADDED));
   this.recordsError=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_ERROR));
-  this.recordsSkipped=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED));
+  this.recordsSkippedInvalid=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED_INVALID));
+  this.recordsSkippedExpired=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED_EXPIRED));
   this.bytesRead=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,BYTES_READ));
   metricRegistry.register(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_PERSIST_TIME_MILLIS),new Gauge<Long>(){
     @Override public Long getValue(){

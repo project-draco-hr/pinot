@@ -41,29 +41,33 @@
               try {
                 MessageAndMetadata<byte[],byte[]> next=itr.next();
                 long currentTime=System.currentTimeMillis();
-                StarTreeRecord record=decoder.decode(next.message());
-                if (record == null) {
-                  stats.getRecordsSkipped().mark();
-                }
- else {
-                  persistLock.readLock().lock();
-                  try {
-                    starTree.add(record);
-                  }
-  finally {
-                    persistLock.readLock().unlock();
-                  }
-                  stats.getRecordsAdded().mark();
-                  if (!record.getMetricTimeSeries().getTimeWindowSet().isEmpty()) {
-                    long maxTime=Collections.max(record.getMetricTimeSeries().getTimeWindowSet());
-                    long maxTimeMillis=TimeUnit.MILLISECONDS.convert(maxTime * starTree.getConfig().getTime().getInput().getSize(),starTree.getConfig().getTime().getInput().getUnit());
-                    if (maxTimeMillis > stats.getDataTimeMillis().get()) {
-                      stats.getDataTimeMillis().set(maxTimeMillis);
-                    }
-                  }
-                }
                 stats.getBytesRead().mark(next.message().length);
                 stats.getLastConsumedRecordTimeMillis().set(currentTime);
+                StarTreeRecord record=decoder.decode(next.message());
+                if (record == null) {
+                  stats.getRecordsSkippedInvalid().mark();
+                  continue;
+                }
+                long minTimeMillis=TimeUnit.MILLISECONDS.convert(Collections.min(record.getMetricTimeSeries().getTimeWindowSet()) * starTree.getConfig().getTime().getBucket().getSize(),starTree.getConfig().getTime().getBucket().getUnit());
+                if (minTimeMillis < config.getStartTimeMillis()) {
+                  stats.getRecordsSkippedExpired().mark();
+                  continue;
+                }
+                persistLock.readLock().lock();
+                try {
+                  starTree.add(record);
+                }
+  finally {
+                  persistLock.readLock().unlock();
+                }
+                stats.getRecordsAdded().mark();
+                if (!record.getMetricTimeSeries().getTimeWindowSet().isEmpty()) {
+                  long maxTime=Collections.max(record.getMetricTimeSeries().getTimeWindowSet());
+                  long maxTimeMillis=TimeUnit.MILLISECONDS.convert(maxTime * starTree.getConfig().getTime().getInput().getSize(),starTree.getConfig().getTime().getInput().getUnit());
+                  if (maxTimeMillis > stats.getDataTimeMillis().get()) {
+                    stats.getDataTimeMillis().set(maxTimeMillis);
+                  }
+                }
               }
  catch (              Exception e) {
                 LOG.error("Error consuming message from kafka for {}",starTree.getConfig().getCollection(),e);
