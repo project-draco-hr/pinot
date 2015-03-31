@@ -42,4 +42,9 @@
   }
   FileOutputFormat.setOutputPath(job,new Path(getAndCheck(STAR_TREE_BOOTSTRAP_OUTPUT_PATH.toString())));
   job.waitForCompletion(true);
+  Counters counters=job.getCounters();
+  for (  Enum e : StarTreeBootstrapPhase1Counter.values()) {
+    Counter counter=counters.findCounter(e);
+    LOG.info(counter.getDisplayName() + " : " + counter.getValue());
+  }
 }

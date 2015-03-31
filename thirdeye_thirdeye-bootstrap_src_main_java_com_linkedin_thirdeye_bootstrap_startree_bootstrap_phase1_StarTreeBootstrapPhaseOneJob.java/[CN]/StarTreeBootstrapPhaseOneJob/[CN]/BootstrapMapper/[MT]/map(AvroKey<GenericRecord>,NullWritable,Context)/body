@@ -1,4 +1,22 @@
 {
+  Object timeObj=record.datum().get(config.getTimeColumnName());
+  if (timeObj == null) {
+    LOG.error("Dropping record because " + config.getTimeColumnName() + " is set to null");
+    context.getCounter(StarTreeBootstrapPhase1Counter.NULL_TIME_RECORDS).increment(1);
+    return;
+  }
+  try {
+    Long time=Long.parseLong(timeObj.toString());
+    if (time == 0) {
+      LOG.error("Dropping record because " + config.getTimeColumnName() + " is set to 0");
+      context.getCounter(StarTreeBootstrapPhase1Counter.ZERO_TIME_RECORDS).increment(1);
+      return;
+    }
+    if (time < 0)     throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
+  }
+ catch (  NumberFormatException ex) {
+    throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
+  }
   long start=System.currentTimeMillis();
   Map<String,String> dimensionValuesMap=new HashMap<String,String>();
   for (int i=0; i < dimensionNames.size(); i++) {
