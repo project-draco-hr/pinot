@@ -21,21 +21,33 @@
   if (matchingKeys.isEmpty()) {
     idx=0;
     tmpBuffer.rewind();
+    int leastNumOthers=config.getDimensions().size() + 1;
+    int leastOthersIdx=-1;
+    int[] leastOthersKey=null;
     while (tmpBuffer.position() < tmpBuffer.limit()) {
       boolean matches=true;
+      int currentNumOthers=0;
       for (int i=0; i < config.getDimensions().size(); i++) {
         Integer valueId=tmpBuffer.getInt();
         currentKey[i]=valueId;
         if (translatedKey[i] != valueId && valueId != StarTreeConstants.STAR_VALUE && valueId != StarTreeConstants.OTHER_VALUE) {
           matches=false;
         }
+        if (valueId == StarTreeConstants.OTHER_VALUE) {
+          currentNumOthers++;
+        }
       }
-      if (matches) {
-        matchingKeys.put(dictionary.translate(config.getDimensions(),currentKey),idx);
-        break;
+      if (matches && currentNumOthers < leastNumOthers) {
+        leastOthersKey=Arrays.copyOf(currentKey,currentKey.length);
+        leastNumOthers=currentNumOthers;
+        leastOthersIdx=idx;
       }
       idx++;
     }
+    if (leastOthersKey == null) {
+      throw new IllegalStateException("Could not find alternative dimension combination for " + dimensionKey);
+    }
+    matchingKeys.put(dictionary.translate(config.getDimensions(),leastOthersKey),leastOthersIdx);
   }
   return matchingKeys;
 }
