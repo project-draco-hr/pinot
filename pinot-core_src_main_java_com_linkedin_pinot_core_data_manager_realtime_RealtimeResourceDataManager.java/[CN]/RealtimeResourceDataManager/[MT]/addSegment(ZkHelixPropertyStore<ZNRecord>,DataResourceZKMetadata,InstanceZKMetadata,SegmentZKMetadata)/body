@@ -3,20 +3,28 @@
   String segmentId=segmentZKMetadata.getSegmentName();
   if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
     if (new File(_indexDir,segmentId).exists()) {
-      IndexSegment segment=ColumnarSegmentLoader.load(new File(_indexDir,segmentId),_readMode);
+      if (!_segmentsMap.containsKey(segmentId)) {
 synchronized (getGlobalLock()) {
-        _segmentsMap.put(segmentId,new OfflineSegmentDataManager(segment));
-        markSegmentAsLoaded(segmentId);
-        _referenceCounts.put(segmentId,new AtomicInteger(1));
+          if (!_segmentsMap.containsKey(segmentId)) {
+            IndexSegment segment=ColumnarSegmentLoader.load(new File(_indexDir,segmentId),_readMode);
+            _segmentsMap.put(segmentId,new OfflineSegmentDataManager(segment));
+            markSegmentAsLoaded(segmentId);
+            _referenceCounts.put(segmentId,new AtomicInteger(1));
+          }
+        }
       }
     }
  else {
-      SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,(RealtimeDataResourceZKMetadata)dataResourceZKMetadata,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode);
-      _logger.info("Initialize RealtimeSegmentDataManager - " + segmentId);
+      if (!_segmentsMap.containsKey(segmentId)) {
 synchronized (getGlobalLock()) {
-        _segmentsMap.put(segmentId,manager);
-        _loadingSegments.add(segmentId);
-        _referenceCounts.put(segmentId,new AtomicInteger(1));
+          if (!_segmentsMap.containsKey(segmentId)) {
+            SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,(RealtimeDataResourceZKMetadata)dataResourceZKMetadata,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode);
+            _logger.info("Initialize RealtimeSegmentDataManager - " + segmentId);
+            _segmentsMap.put(segmentId,manager);
+            _loadingSegments.add(segmentId);
+            _referenceCounts.put(segmentId,new AtomicInteger(1));
+          }
+        }
       }
     }
   }
