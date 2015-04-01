@@ -3,7 +3,6 @@
   final ServerCommand<T> serverCommand=new ServerCommand<T>(application);
   final Bootstrap<T> bootstrap=new Bootstrap<T>(application);
   bootstrap.addCommand(serverCommand);
-  application.initialize(bootstrap);
   File tmpConfigFile=new File(System.getProperty("java.io.tmpdir"),config.getClass().getCanonicalName() + "_" + System.currentTimeMillis());
   tmpConfigFile.deleteOnExit();
   bootstrap.getObjectMapper().writeValue(tmpConfigFile,config);
@@ -12,8 +11,6 @@
   builtConfig.getLoggingFactory().configure(bootstrap.getMetricRegistry(),bootstrap.getApplication().getName());
   final Environment environment=new Environment(bootstrap.getApplication().getName(),bootstrap.getObjectMapper(),bootstrap.getValidatorFactory().getValidator(),bootstrap.getMetricRegistry(),bootstrap.getClassLoader());
   builtConfig.getMetricsFactory().configure(environment.lifecycle(),bootstrap.getMetricRegistry());
-  bootstrap.run(builtConfig,environment);
-  application.run(builtConfig,environment);
   final Server server=builtConfig.getServerFactory().build(environment);
   server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener(){
     @Override public void lifeCycleStopped(    LifeCycle event){
@@ -21,5 +18,5 @@
     }
   }
 );
-  return server;
+  return new DropWizardServer(builtConfig,bootstrap,application,environment,server,environment.metrics());
 }

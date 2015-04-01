@@ -1,0 +1,23 @@
+{
+  ThirdEyeApplication.Config config=new ThirdEyeApplication.Config();
+  config.setRootDir(ROOT_DIR.getAbsolutePath());
+  DropWizardApplicationRunner.DropWizardServer server=DropWizardApplicationRunner.createServer(config,ThirdEyeApplication.class);
+  Assert.assertNotNull(server.getMetricRegistry());
+  server.start();
+  long startTime=System.currentTimeMillis();
+  boolean success=false;
+  while (System.currentTimeMillis() - startTime < REQUEST_TIMEOUT_MILLIS) {
+    try {
+      HttpURLConnection conn=(HttpURLConnection)URI.create("http://localhost:8080/admin").toURL().openConnection();
+      byte[] res=IOUtils.toByteArray(conn.getInputStream());
+      if (Arrays.equals(res,"GOOD".getBytes())) {
+        success=true;
+        break;
+      }
+    }
+ catch (    Exception e) {
+    }
+  }
+  Assert.assertTrue(success);
+  server.stop();
+}
