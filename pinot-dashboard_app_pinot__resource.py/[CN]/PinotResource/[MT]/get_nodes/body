@@ -1,0 +1,33 @@
+def get_nodes(self, pinot_zoo):
+    if (not re.match('^[a-zA-Z0-9_]+$', self.resource)):
+        self.logger.error('potentially unsafe resource name: {0}'.format(self.resource))
+        return False
+    zk = pinot_zoo.get_handle()
+    if (not zk):
+        return False
+    root = self.config.get_zk_root(self.fabric)
+    state_path = os.path.join(root, 'IDEALSTATES', self.resource)
+    try:
+        ideal_state = zk.get(state_path)[0]
+    except kazoo.exceptions.NoNodeError:
+        self.logger.exception('Failed getting statefile')
+        pinot_zoo.close()
+        return False
+    host_maps = json.loads(ideal_state)['mapFields']
+    nodes_list = set()
+    for servers in host_maps.itervalues():
+        for hostname in servers.iterkeys():
+            nodes_list.add(hostname)
+    nodes_status = defaultdict(dict)
+    for node in nodes_list:
+        instance_path = os.path.join(root, 'LIVEINSTANCES', node)
+        parts = node.split('_')
+        node = parts[1]
+        nodes_status[node]['helix_port'] = parts[2]
+        nodes_status[node]['type'] = parts[0]
+        if zk.exists(instance_path):
+            nodes_status[node]['online'] = True
+        else:
+            nodes_status[node]['online'] = False
+    pinot_zoo.close()
+    return nodes_status

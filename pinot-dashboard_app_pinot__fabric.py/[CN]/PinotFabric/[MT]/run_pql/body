@@ -1,0 +1,10 @@
+def run_pql(self, pql):
+    host = self.config.get_controller_url(self.fabric)
+    r = requests.get('{0}/pql'.format(host), params={'pql': pql, })
+    success = True
+    try:
+        result = r.json()
+    except ValueError:
+        result = r.text
+        success = False
+    return {'success': success, 'result': result, }

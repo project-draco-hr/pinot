@@ -1,0 +1,10 @@
+import os
+from flask import Flask, jsonify, request
+from pinot_resource import PinotResource
+from pinot_fabric import PinotFabric
+from zk import PinotZk
+from config import ConfigManager
+app = Flask(__name__)
+app.config['DEBUG'] = True
+config = ConfigManager(app.logger)
+config.load()

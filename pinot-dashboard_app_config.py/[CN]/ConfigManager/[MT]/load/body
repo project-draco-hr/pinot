@@ -1,0 +1,11 @@
+def load(self):
+    try:
+        with open(self.path, 'r') as h:
+            contents = h.read()
+    except IOError:
+        self.logger.exception('Failed reading config file')
+        return
+    try:
+        self.config = yaml.load(contents)
+    except yaml.YAMLError:
+        self.logger.exception('Failed parsing config yaml')

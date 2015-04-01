@@ -1,0 +1,17 @@
+def get_info(self):
+    host = self.config.get_controller_url(self.fabric)
+    r = requests.get('{0}/dataresources/{1}'.format(host, self.resource))
+    c = r.json()['config'].values().pop()
+    results = re.findall('\\{(\\w+=[^\\}]+)\\}', c)
+    data = {}
+    for result in results:
+        result = result.split('{')[(-1)]
+        m = re.search('([^=]+)=\\[([^]]+)\\]', result)
+        if m:
+            (k, v) = m.groups()
+            data.update({k: map(string.strip, v.split(',')), })
+        else:
+            m = re.findall('(\\w+)=([^,]+)', result)
+            if m:
+                data.update(dict(m))
+    return data

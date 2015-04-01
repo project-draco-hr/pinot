@@ -1,0 +1,5 @@
+@app.route('/runpql/<string:fabric>')
+def send_pql(fabric):
+    pql = request.args.get('pql')
+    pinot_fabric = PinotFabric(config, fabric)
+    return jsonify(dict(pinot_fabric.run_pql(pql)))

@@ -1,0 +1,5 @@
+@app.route('/cluster/<string:fabric>/<string:cluster>')
+def cluster_info(fabric, cluster):
+    resource = PinotResource(config, app.logger, fabric, cluster)
+    zk = PinotZk(config, fabric)
+    return jsonify(dict(info=resource.get_info(), nodes=resource.get_nodes(zk)))

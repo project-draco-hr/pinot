@@ -1,0 +1,6 @@
+def get_handle(self):
+    if (not self.zk):
+        host = self.config.get_zk_host(self.fabric)
+        self.zk = KazooClient(hosts=host)
+        self.zk.start()
+    return self.zk

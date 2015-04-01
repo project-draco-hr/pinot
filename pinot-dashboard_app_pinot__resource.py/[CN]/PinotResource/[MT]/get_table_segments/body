@@ -1,0 +1,5 @@
+def get_table_segments(self, table):
+    host = self.config.get_controller_url(self.fabric)
+    r = requests.get('{0}/dataresources/{1}/{2}/segments'.format(host, self.resource, table))
+    segments = r.json()['segments']
+    return segments

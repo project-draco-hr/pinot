@@ -1,0 +1,4 @@
+@app.route('/clusters/<string:fabric>')
+def list_resources(fabric):
+    pinot_fabric = PinotFabric(config, fabric)
+    return jsonify(dict(clusters=pinot_fabric.get_resources()))

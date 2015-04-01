@@ -1,0 +1,5 @@
+def get_resources(self):
+    host = self.config.get_controller_url(self.fabric)
+    r = requests.get('{0}/dataresources/'.format(host))
+    data = r.json()
+    return filter((lambda x: (x != 'brokerResource')), data['resources'])
