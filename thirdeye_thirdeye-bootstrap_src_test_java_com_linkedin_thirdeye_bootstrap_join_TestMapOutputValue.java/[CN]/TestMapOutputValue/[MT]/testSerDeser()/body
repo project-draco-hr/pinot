@@ -1,23 +1,7 @@
 {
-  ClassLoader classLoader=Thread.currentThread().getContextClassLoader();
-  InputStream schemaStream1=classLoader.getResourceAsStream("AbookImportContactsEvent.avsc");
-  InputStream event1=classLoader.getResourceAsStream("sample_AbookImportContactsEvent.json");
-  Schema schema1=new Schema.Parser().parse(schemaStream1);
-  System.out.println(schema1);
-  GenericRecord record1=new GenericData.Record(schema1);
-  JsonDecoder jsonDecoder1=null;
-  jsonDecoder1=DecoderFactory.get().jsonDecoder(schema1,event1);
-  GenericDatumReader<GenericRecord> gdr1=new GenericDatumReader<GenericRecord>(schema1);
-  gdr1.read(record1,jsonDecoder1);
-  InputStream schemaStream2=classLoader.getResourceAsStream("AbookImportImpressionEvent.avsc");
-  InputStream event2=classLoader.getResourceAsStream("sample_AbookImportImpressionEvent.json");
-  Schema schema2=new Schema.Parser().parse(schemaStream2);
-  System.out.println(schema2);
-  GenericRecord record2=new GenericData.Record(schema2);
-  JsonDecoder jsonDecoder2=null;
-  jsonDecoder2=DecoderFactory.get().jsonDecoder(schema2,event2);
-  GenericDatumReader<GenericRecord> gdr2=new GenericDatumReader<GenericRecord>(schema2);
-  gdr2.read(record2,jsonDecoder2);
+  Schema schema1=AvroTestUtil.createSchemaFor(input1SourceName,input1Dimensions,input1Metrics);
+  Schema schema2=AvroTestUtil.createSchemaFor(input1SourceName,input2Dimensions,input2Metrics);
+  GenericRecord record1=AvroTestUtil.generateDummyRecord(schema1,input1Dimensions,input1Metrics);
   MapOutputValue valueOrig=new MapOutputValue(schema1.getName(),record1);
   byte[] bytes=valueOrig.toBytes();
   Map<String,Schema> schemaMap=new HashMap<String,Schema>();
