@@ -1,4 +1,33 @@
 {
+  metricName="totalSales";
   heatMap=new SnapshotHeatMap(2);
-  heatMap.generateHeatMap(metricName,timeSeriesByDimensionValue,startMillis,endMillis);
+  actualHeatMapCells=heatMap.generateHeatMap(metricName,timeSeriesByDimensionValue,startMillis,endMillis);
+  double baselineSum=expectedSummationOldValue1;
+  double currentSum=expectedSummationNewValue1;
+  for (  HeatMapCell cell : actualHeatMapCells) {
+    if (!cell.getDimensionValue().equals("Rest")) {
+      TimeSeriesByDimensionValue actualData=data.get(cell.getDimensionValue());
+      Assert.assertEquals(cell.getRatio(),new Double(actualData.metric1End) / new Double(actualData.metric1Start) - 1,0.0001);
+      baselineSum=baselineSum - actualData.metric1Start;
+      currentSum=currentSum - actualData.metric1End;
+    }
+ else {
+      Assert.assertEquals(cell.getRatio(),new Double(currentSum) / baselineSum - 1,0.0001);
+    }
+  }
+  metricName="totalProfit";
+  actualHeatMapCells=heatMap.generateHeatMap(metricName,timeSeriesByDimensionValue,startMillis,endMillis);
+  baselineSum=expectedSummationOldValue2;
+  currentSum=expectedSummationNewValue2;
+  for (  HeatMapCell cell : actualHeatMapCells) {
+    if (!cell.getDimensionValue().equals("Rest")) {
+      TimeSeriesByDimensionValue actualData=data.get(cell.getDimensionValue());
+      Assert.assertEquals(cell.getRatio(),new Double(actualData.metric2End) / new Double(actualData.metric2Start) - 1,0.0001);
+      baselineSum=baselineSum - actualData.metric2Start;
+      currentSum=currentSum - actualData.metric2End;
+    }
+ else {
+      Assert.assertEquals(cell.getRatio(),new Double(currentSum) / baselineSum - 1,0.0001);
+    }
+  }
 }

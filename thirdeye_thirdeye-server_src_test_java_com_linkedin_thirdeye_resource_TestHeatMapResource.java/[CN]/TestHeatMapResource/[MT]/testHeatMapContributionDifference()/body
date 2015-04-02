@@ -1,8 +1,9 @@
 {
+  metricName="totalSales";
   heatMap=new ContributionDifferenceHeatMap(metricSpecs1.getType());
   actualHeatMapCells=heatMap.generateHeatMap(metricName,timeSeriesByDimensionValue,startMillis,endMillis);
-  for (  TimeSeriesByDimensionValue value : values) {
-    double expectedRatio=(new Double(value.metric1End) / expectedSummationNewValue) - (new Double(value.metric1Start) / expectedSummationOldValue);
+  for (  TimeSeriesByDimensionValue value : data.values()) {
+    double expectedRatio=(new Double(value.metric1End) / expectedSummationNewValue1) - (new Double(value.metric1Start) / expectedSummationOldValue1);
     EXPECTED_COLOR=(expectedRatio > 0) ? (UP_COLOR) : (DOWN_COLOR);
     HeatMapCell expectedCell=new HeatMapCell(value.dimensionValue,value.metric1End,value.metric1Start,"dummy label",expectedRatio,0,EXPECTED_COLOR);
     expectedCells.add(expectedCell);

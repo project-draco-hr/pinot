@@ -1,19 +1,18 @@
 {
-  metricName="totalSales";
   startMillis=0;
   endMillis=100000;
-  values=new ArrayList<TimeSeriesByDimensionValue>();
-  values.add(new TimeSeriesByDimensionValue("USA",100,10000,200,30000));
-  values.add(new TimeSeriesByDimensionValue("IND",50,6000,70,10000));
-  values.add(new TimeSeriesByDimensionValue("CAN",60,7000.78,20,2000));
-  values.add(new TimeSeriesByDimensionValue("BRA",70,900,140,20000));
-  values.add(new TimeSeriesByDimensionValue("CHI",20,40000,100,50000));
+  data=new HashMap<>();
+  data.put("USA",new TimeSeriesByDimensionValue("USA",100,0,200,30000));
+  data.put("IND",new TimeSeriesByDimensionValue("IND",50,0,70,0));
+  data.put("CAN",new TimeSeriesByDimensionValue("CAN",60,0,20,6));
+  data.put("BRA",new TimeSeriesByDimensionValue("BRA",70,900,140,20000));
+  data.put("CHI",new TimeSeriesByDimensionValue("CHI",20,0,100,0));
   metricSpecs1=new MetricSpec("totalSales",MetricType.INT);
   metricSpecs2=new MetricSpec("totalProfit",MetricType.FLOAT);
   metricSchema=MetricSchema.fromMetricSpecs(Arrays.asList(metricSpecs1,metricSpecs2));
   timeSeriesByDimensionValue=new HashMap<String,MetricTimeSeries>();
   int dummyMetricValue=50;
-  for (  TimeSeriesByDimensionValue value : values) {
+  for (  TimeSeriesByDimensionValue value : data.values()) {
     metricTimeSeries=new MetricTimeSeries(metricSchema);
     metricTimeSeries.set(startMillis,metricSpecs1.getName(),value.metric1Start);
     metricTimeSeries.set(startMillis + (startMillis + endMillis) / 2,metricSpecs1.getName(),dummyMetricValue);
@@ -22,7 +21,9 @@
     metricTimeSeries.set(startMillis + (startMillis + endMillis) / 2,metricSpecs2.getName(),dummyMetricValue);
     metricTimeSeries.set(endMillis,metricSpecs2.getName(),value.metric2End);
     timeSeriesByDimensionValue.put(value.dimensionValue,metricTimeSeries);
-    expectedSummationOldValue+=value.metric1Start;
-    expectedSummationNewValue+=value.metric1End;
+    expectedSummationOldValue1+=value.metric1Start;
+    expectedSummationNewValue1+=value.metric1End;
+    expectedSummationOldValue2+=value.metric2Start;
+    expectedSummationNewValue2+=value.metric2End;
   }
 }
