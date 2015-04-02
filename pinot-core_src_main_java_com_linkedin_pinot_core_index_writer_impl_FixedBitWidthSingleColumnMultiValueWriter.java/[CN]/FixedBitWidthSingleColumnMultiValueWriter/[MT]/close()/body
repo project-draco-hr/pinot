@@ -1,11 +1,6 @@
 {
-  if (raf != null) {
-    try {
-      raf.close();
-    }
- catch (    IOException e) {
-      return false;
-    }
-  }
-  return false;
+  IOUtils.closeQuietly(raf);
+  raf=null;
+  MmapUtils.unloadByteBuffer(dataBuffer);
+  MmapUtils.unloadByteBuffer(headerBuffer);
 }

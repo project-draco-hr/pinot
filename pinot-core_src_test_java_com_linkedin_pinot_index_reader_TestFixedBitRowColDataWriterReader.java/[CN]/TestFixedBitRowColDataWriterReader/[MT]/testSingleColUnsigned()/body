@@ -17,7 +17,7 @@
       data[i]=r.nextInt(maxValue) * ((Math.random() > .5) ? 1 : -1);
       writer.setInt(i,0,data[i]);
     }
-    writer.saveAndClose();
+    writer.close();
     FixedBitWidthRowColDataFileReader reader=FixedBitWidthRowColDataFileReader.forHeap(file,rows,cols,columnSizesInBits,new boolean[]{true});
     for (int i=0; i < rows; i++) {
       Assert.assertEquals(reader.getInt(i,0),data[i]);

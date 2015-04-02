@@ -1,0 +1,26 @@
+{
+  if (null == buffer)   return;
+  if (!buffer.isDirect())   return;
+  try {
+    Method cleanerMethod=buffer.getClass().getMethod("cleaner");
+    Method cleanMethod=Class.forName("sun.misc.Cleaner").getMethod("clean");
+    cleanerMethod.setAccessible(true);
+    cleanMethod.setAccessible(true);
+    Object cleaner=cleanerMethod.invoke(buffer);
+    if (cleaner != null) {
+      cleanMethod.invoke(cleaner);
+    }
+  }
+ catch (  NoSuchMethodException e) {
+    e.printStackTrace();
+  }
+catch (  ClassNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  InvocationTargetException e) {
+    e.printStackTrace();
+  }
+catch (  IllegalAccessException e) {
+    e.printStackTrace();
+  }
+}
