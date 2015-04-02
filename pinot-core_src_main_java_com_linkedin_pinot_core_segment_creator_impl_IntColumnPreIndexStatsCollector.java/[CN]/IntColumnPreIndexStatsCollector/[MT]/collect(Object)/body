@@ -5,7 +5,12 @@
   }
   if (entry instanceof Object[]) {
     for (    final Object e : (Object[])entry) {
-      intAVLTreeSet.add(((Integer)e).intValue());
+      if (e != null) {
+        intAVLTreeSet.add(((Integer)e).intValue());
+      }
+ else {
+        hasNull=true;
+      }
     }
     if (maxNumberOfMultiValues < ((Object[])entry).length) {
       maxNumberOfMultiValues=((Object[])entry).length;
