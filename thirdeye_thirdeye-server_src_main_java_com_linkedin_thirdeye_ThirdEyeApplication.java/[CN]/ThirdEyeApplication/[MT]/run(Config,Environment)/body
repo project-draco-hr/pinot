@@ -44,6 +44,7 @@
   }
 );
   environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
+  environment.healthChecks().register(TimeRangeHealthCheck.NAME,new TimeRangeHealthCheck(rootDir,starTreeManager));
   environment.healthChecks().register(KafkaDataLagHealthCheck.NAME,new KafkaDataLagHealthCheck(kafkaConsumerManager));
   environment.healthChecks().register(KafkaConsumerLagHealthCheck.NAME,new KafkaConsumerLagHealthCheck(kafkaConsumerManager));
   TimeSeriesResource timeSeriesResource=new TimeSeriesResource(starTreeManager);
