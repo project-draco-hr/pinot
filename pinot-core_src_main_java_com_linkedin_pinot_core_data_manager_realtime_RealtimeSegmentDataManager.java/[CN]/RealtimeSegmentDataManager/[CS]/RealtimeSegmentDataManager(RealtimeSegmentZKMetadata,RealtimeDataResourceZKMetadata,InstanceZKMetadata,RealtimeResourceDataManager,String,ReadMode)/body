@@ -30,8 +30,10 @@
       String tempFolder="tmp-" + String.valueOf(System.currentTimeMillis());
       RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,"/tmp/" + tempFolder,schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName());
       try {
+        logger.info("Trying to build segment!");
         conveter.build();
         FileUtils.moveDirectory(new File("/tmp/" + tempFolder).listFiles()[0],new File(resourceDataDir,segmentMetadata.getSegmentName()));
+        FileUtils.deleteQuietly(new File("/tmp/" + tempFolder));
         long startTime=((RealtimeSegmentImpl)realtimeSegment).getMinTime();
         long endTime=((RealtimeSegmentImpl)realtimeSegment).getMaxTime();
         TimeUnit timeUnit=resourceMetadata.getDataSchema().getTimeSpec().getOutgoingGranularitySpec().getTimeType();

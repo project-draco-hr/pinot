@@ -3,10 +3,12 @@
     return;
   }
   if (System.currentTimeMillis() - start >= (60 * 60 * 1000)) {
+    logger.info("Current time passed the threshold of time consuming, will stop indexing!");
     keepIndexing=false;
   }
   logger.info("Current indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, success = "+ ((RealtimeSegmentImpl)realtimeSegment).getSuccessIndexedCount()+ " docs, total = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs()+ " docs in realtime segment");
   if (((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() >= 10000000) {
+    logger.info("Current indexed docs passed the threshold of time consuming, will stop indexing!");
     keepIndexing=false;
   }
 }
