@@ -6,7 +6,7 @@
     throw new IllegalStateException("Must provide " + PROP_SCHEMA_URI);
   }
   InputStream schemaInputStream=URI.create(schemaUri).toURL().openStream();
-  Schema schema=new Schema.Parser().parse(schemaInputStream);
+  Schema schema=Schema.parse(schemaInputStream);
   schemaInputStream.close();
   this.datumReader=new GenericDatumReader<GenericRecord>(schema);
   String recordOffsetProp=kafkaConfig.getDecoderConfig().getProperty(PROP_RECORD_OFFSET);

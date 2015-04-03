@@ -2,7 +2,7 @@
   if (recordOffset > 0) {
     bytes=Arrays.copyOfRange(bytes,recordOffset,bytes.length);
   }
-  decoderThreadLocal.set(DecoderFactory.get().binaryDecoder(bytes,decoderThreadLocal.get()));
+  decoderThreadLocal.set(DecoderFactory.defaultFactory().createBinaryDecoder(bytes,decoderThreadLocal.get()));
   GenericRecord record=datumReader.read(null,decoderThreadLocal.get());
   return ThirdEyeAvroUtils.convert(starTreeConfig,record);
 }
