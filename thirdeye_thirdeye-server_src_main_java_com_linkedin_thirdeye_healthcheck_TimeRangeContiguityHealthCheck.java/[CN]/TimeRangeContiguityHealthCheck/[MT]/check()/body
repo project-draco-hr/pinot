@@ -1,6 +1,6 @@
 {
   for (  String collection : manager.getCollections()) {
-    List<TimeRange> indexTimeRanges=new ArrayList<TimeRange>();
+    Set<TimeRange> indexTimeRanges=new HashSet<TimeRange>();
     List<TimeRange> missingRanges=new ArrayList<TimeRange>();
     File metricStoreDir=new File(PATH_JOINER.join(rootDir,collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.METRIC_STORE));
     File[] metricIndexFiles=metricStoreDir.listFiles(INDEX_FILE_FILTER);
@@ -15,17 +15,16 @@
       }
     }
     if (indexTimeRanges.size() != 0) {
-      Collections.sort(indexTimeRanges);
-      long minStart=indexTimeRanges.get(0).getStart();
-      long maxEnd=indexTimeRanges.get(0).getEnd();
-      for (      TimeRange timerange : indexTimeRanges) {
-        if (timerange.getStart() <= maxEnd + 1) {
-          maxEnd=(timerange.getEnd() > maxEnd) ? timerange.getEnd() : maxEnd;
+      List<TimeRange> sortedTimeRanges=new ArrayList<TimeRange>(indexTimeRanges);
+      Collections.sort(sortedTimeRanges);
+      long end=sortedTimeRanges.get(0).getEnd();
+      for (int i=1; i < sortedTimeRanges.size(); i++) {
+        if (sortedTimeRanges.get(i).getStart() <= end + 1) {
+          if (sortedTimeRanges.get(i).getEnd() > end)           end=sortedTimeRanges.get(i).getEnd();
         }
  else {
-          missingRanges.add(new TimeRange(maxEnd + 1,timerange.getStart() - 1));
-          minStart=timerange.getStart();
-          maxEnd=timerange.getEnd();
+          missingRanges.add(new TimeRange(end + 1,sortedTimeRanges.get(i).getStart()));
+          end=sortedTimeRanges.get(i).getEnd();
         }
       }
       if (missingRanges.size() != 0) {
