@@ -1,6 +1,13 @@
 {
   if (kafkaIterator.hasNext()) {
-    return decoder.decode(kafkaIterator.next().message());
+    try {
+      GenericRow row=decoder.decode(kafkaIterator.next().message());
+      kafkaEventsConsumedCount.inc();
+      return row;
+    }
+ catch (    Exception e) {
+      kafkaEventsFailedCount.inc();
+    }
   }
   return null;
 }
