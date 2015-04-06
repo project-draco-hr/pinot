@@ -10,10 +10,15 @@
     isSucess=true;
     ExternalView externalView=_helixAdmin.getResourceExternalView(_helixClusterName,resourceName);
     Map<String,String> segmentStatsMap=externalView.getStateMap(segmentName);
-    for (    String instance : segmentStatsMap.keySet()) {
-      if (!segmentStatsMap.get(instance).equalsIgnoreCase(targerStates)) {
-        isSucess=false;
+    if (segmentStatsMap != null) {
+      for (      String instance : segmentStatsMap.keySet()) {
+        if (!segmentStatsMap.get(instance).equalsIgnoreCase(targerStates)) {
+          isSucess=false;
+        }
       }
+    }
+ else {
+      isSucess=false;
     }
     if (isSucess) {
       break;
