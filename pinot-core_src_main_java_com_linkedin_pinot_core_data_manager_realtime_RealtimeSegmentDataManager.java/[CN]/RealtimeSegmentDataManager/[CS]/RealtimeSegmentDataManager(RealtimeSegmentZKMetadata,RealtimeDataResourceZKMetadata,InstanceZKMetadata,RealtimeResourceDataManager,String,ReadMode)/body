@@ -5,6 +5,10 @@
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
   this.kafkaStreamProviderConfig.init(resourceMetadata,instanceMetadata);
   this.resourceDir=new File(resourceDataDir);
+  this.resourceTmpDir=new File(resourceDataDir,"_tmp");
+  if (!resourceTmpDir.exists()) {
+    resourceTmpDir.mkdirs();
+  }
   this.mode=mode;
   this.kafkaStreamProvider=new KafkaHighLevelConsumerStreamProvider();
   this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
@@ -27,13 +31,13 @@
       segmentStatusTask.cancel();
       logger.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
       logger.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
-      String tempFolder="tmp-" + String.valueOf(System.currentTimeMillis());
-      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,"/tmp/" + tempFolder,schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName());
+      File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
+      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName());
       try {
         logger.info("Trying to build segment!");
         conveter.build();
-        FileUtils.moveDirectory(new File("/tmp/" + tempFolder).listFiles()[0],new File(resourceDataDir,segmentMetadata.getSegmentName()));
-        FileUtils.deleteQuietly(new File("/tmp/" + tempFolder));
+        FileUtils.moveDirectory(tempSegmentFolder.listFiles()[0],new File(resourceDataDir,segmentMetadata.getSegmentName()));
+        FileUtils.deleteQuietly(tempSegmentFolder);
         long startTime=((RealtimeSegmentImpl)realtimeSegment).getMinTime();
         long endTime=((RealtimeSegmentImpl)realtimeSegment).getMaxTime();
         TimeUnit timeUnit=resourceMetadata.getDataSchema().getTimeSpec().getOutgoingGranularitySpec().getTimeType();
