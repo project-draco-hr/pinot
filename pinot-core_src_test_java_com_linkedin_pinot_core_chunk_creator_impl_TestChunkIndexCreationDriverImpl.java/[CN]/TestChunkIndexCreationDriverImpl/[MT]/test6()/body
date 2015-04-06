@@ -3,7 +3,7 @@
   final ImmutableDictionaryReader d=segment.getDictionaryFor("viewerOccupations");
   final List<String> rhs=new ArrayList<String>();
   rhs.add(d.get(new Random().nextInt(d.length())).toString());
-  final Predicate p=new Predicate("viewerOccupations",Type.EQ,rhs);
+  final Predicate p=new EqPredicate("viewerOccupations",rhs);
   final DataSource ds=segment.getDataSource("viewerOccupations",p);
   final Block bl=ds.nextBlock();
   final BlockDocIdSet idSet=bl.getBlockDocIdSet();

@@ -28,22 +28,22 @@ Predicate predicate=null;
 final List<String> value=filterQueryTree.getValue();
 switch (filterType) {
 case EQUALITY:
-predicate=new Predicate(column,EQ,value);
+predicate=new EqPredicate(column,value);
 break;
 case RANGE:
-predicate=new Predicate(column,RANGE,value);
+predicate=new RangePredicate(column,value);
 break;
 case REGEX:
-predicate=new Predicate(column,REGEX,value);
+predicate=new RegexPredicate(column,value);
 break;
 case NOT:
-predicate=new Predicate(column,NEQ,value);
+predicate=new NEqPredicate(column,value);
 break;
 case NOT_IN:
-predicate=new Predicate(column,Type.NOT_IN,value);
+predicate=new NotInPredicate(column,value);
 break;
 case IN:
-predicate=new Predicate(column,Type.IN,value);
+predicate=new InPredicate(column,value);
 break;
 }
 DataSource ds;
