@@ -45,6 +45,7 @@
     try {
       Number metricValue=metricTypes.get(i).toNumber(metricValueStr);
       series.increment(timeWindow,metricName,metricValue);
+      context.getCounter(config.getCollectionName(),metricName).increment(metricValue.longValue());
     }
  catch (    NumberFormatException e) {
       throw new NumberFormatException("Exception trying to convert " + metricValueStr + " to "+ metricTypes.get(i)+ " for metricName:"+ metricName);

@@ -47,4 +47,11 @@
     Counter counter=counters.findCounter(e);
     LOG.info(counter.getDisplayName() + " : " + counter.getValue());
   }
+  Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_CONFIG_PATH.toString()));
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fs.open(configPath));
+  StarTreeBootstrapPhaseOneConfig config=StarTreeBootstrapPhaseOneConfig.fromStarTreeConfig(starTreeConfig);
+  for (  String metricName : config.getMetricNames()) {
+    Counter counter=counters.findCounter(config.getCollectionName(),metricName);
+    LOG.info(counter.getDisplayName() + " : " + counter.getValue());
+  }
 }
