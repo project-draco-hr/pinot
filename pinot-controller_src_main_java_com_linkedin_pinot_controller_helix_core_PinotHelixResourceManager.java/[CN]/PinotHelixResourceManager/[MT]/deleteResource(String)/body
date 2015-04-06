@@ -20,7 +20,15 @@
     _helixAdmin.removeInstanceTag(_helixClusterName,instance,resourceTag);
     _helixAdmin.addInstanceTag(_helixClusterName,instance,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
   }
-  _propertyStore.remove("/" + resourceTag,0);
+  ZKMetadataProvider.removeResourceSegmentsFromPropertyStore(getPropertyStore(),resourceTag);
+  ZKMetadataProvider.removeResourceConfigFromPropertyStore(getPropertyStore(),resourceTag);
+  if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceTag) == ResourceType.REALTIME) {
+    for (    String instance : taggedInstanceList) {
+      InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(getPropertyStore(),instance);
+      instanceZKMetadata.removeResource(resourceTag);
+      ZKMetadataProvider.setInstanceZKMetadata(getPropertyStore(),instanceZKMetadata);
+    }
+  }
   _helixAdmin.dropResource(_helixClusterName,resourceTag);
   res.status=STATUS.success;
   return res;

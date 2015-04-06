@@ -1,6 +1,6 @@
 {
   String realtimeResourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
-  ZNRecord znRecord=propertyStore.get(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,realtimeResourceName),null,AccessOption.PERSISTENT);
+  ZNRecord znRecord=propertyStore.get(constructPropertyStorePathForResourceConfig(realtimeResourceName),null,AccessOption.PERSISTENT);
   if (znRecord == null) {
     return null;
   }

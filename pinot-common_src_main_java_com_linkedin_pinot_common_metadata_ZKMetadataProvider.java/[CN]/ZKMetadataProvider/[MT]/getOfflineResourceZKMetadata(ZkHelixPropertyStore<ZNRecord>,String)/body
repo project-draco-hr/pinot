@@ -1,6 +1,6 @@
 {
   String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
-  ZNRecord znRecord=propertyStore.get(StringUtil.join("/",PROPERTYSTORE_RESOURCE_CONFIGS_PREFIX,offlineResourceName),null,AccessOption.PERSISTENT);
+  ZNRecord znRecord=propertyStore.get(constructPropertyStorePathForResourceConfig(offlineResourceName),null,AccessOption.PERSISTENT);
   if (znRecord == null) {
     return null;
   }
