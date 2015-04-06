@@ -8,7 +8,9 @@
   instanceDataManager.init(new FileBasedInstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
   instanceDataManager.start();
   System.out.println("************************** : " + new File(INDEX_DIR,"segment").getAbsolutePath());
-  final IndexSegment indexSegment=ColumnarSegmentLoader.load(new File(INDEX_DIR,"segment").listFiles()[0],ReadMode.heap);
+  File segmentFile=new File(INDEX_DIR,"segment").listFiles()[0];
+  segmentName=segmentFile.getName();
+  final IndexSegment indexSegment=ColumnarSegmentLoader.load(segmentFile,ReadMode.heap);
   instanceDataManager.getResourceDataManager("mirror");
   instanceDataManager.getResourceDataManager("mirror").addSegment(indexSegment);
   QUERY_EXECUTOR=new ServerQueryExecutorV1Impl(false);
