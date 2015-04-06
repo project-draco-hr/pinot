@@ -1,0 +1,13 @@
+{
+  ObjectInputStream inputStream=null;
+  try {
+    inputStream=new ObjectInputStream(fileSystem.open(treePath));
+    StarTreeNode root=(StarTreeNode)inputStream.readObject();
+    return root.getId().toString();
+  }
+  finally {
+    if (inputStream != null) {
+      inputStream.close();
+    }
+  }
+}

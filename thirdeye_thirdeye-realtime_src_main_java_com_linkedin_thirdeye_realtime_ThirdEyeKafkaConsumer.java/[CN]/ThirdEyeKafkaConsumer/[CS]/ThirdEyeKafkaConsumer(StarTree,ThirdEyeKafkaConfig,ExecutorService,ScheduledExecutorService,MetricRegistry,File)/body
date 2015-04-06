@@ -7,5 +7,8 @@
   this.metricRegistry=metricRegistry;
   this.streamStats=new ConcurrentHashMap<String,ThirdEyeKafkaStats>();
   this.persistLock=new ReentrantReadWriteLock(true);
-  this.metricStoreDirectory=new File(rootDir.getAbsolutePath() + File.separator + starTree.getConfig().getCollection()+ File.separator+ StarTreeConstants.DATA_DIR_NAME+ File.separator+ StarTreeConstants.METRIC_STORE);
+  this.schedule=config.getPersistInterval().getSize() + "-" + config.getPersistInterval().getUnit();
+  this.metricStoreDirectory=new File(kafkaDataDir,StarTreeConstants.METRIC_STORE);
+  this.tmpMetricStoreDirectory=new File(kafkaDataDir,TMP_DIR_PREFIX + StarTreeConstants.METRIC_STORE);
+  this.kafkaDataDir=kafkaDataDir;
 }

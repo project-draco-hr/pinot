@@ -1,18 +1,14 @@
 {
-  StarTree starTree=manager.getStarTree(collection);
-  if (starTree == null) {
-    throw new NotFoundException("No tree for collection " + collection);
+  StarTreeConfig config=manager.getConfig(collection);
+  if (config == null) {
+    throw new NotFoundException("No collection " + collection);
   }
-  manager.remove(collection);
-  File collectionDir=new File(rootDir,collection);
-  if (!collectionDir.isAbsolute()) {
-    throw new WebApplicationException(Response.Status.BAD_REQUEST);
-  }
+  manager.close(collection);
   try {
-    FileUtils.forceDelete(collectionDir);
+    dataUpdateManager.deleteCollection(collection);
   }
- catch (  FileNotFoundException fe) {
-    throw new NotFoundException("Collection " + collection + " not found");
+ catch (  FileNotFoundException e) {
+    throw new NotFoundException(e.getMessage());
   }
   return Response.noContent().build();
 }

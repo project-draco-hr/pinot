@@ -1,8 +1,9 @@
 {
-  StarTree starTree=starTreeManager.getStarTree(collection);
-  if (starTree == null) {
+  StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
     throw new NotFoundException("No collection " + collection);
   }
+  Collection<StarTree> starTrees=starTreeManager.getStarTrees(collection).values();
   Funnel.Type funnelType;
   try {
     funnelType=Funnel.Type.valueOf(type.toUpperCase());
@@ -16,7 +17,7 @@
   }
   MetricSpec topMetric=null;
   Map<String,MetricSpec> metricSpecs=new HashMap<String,MetricSpec>();
-  for (  MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+  for (  MetricSpec metricSpec : config.getMetrics()) {
     if (metricSpec.getName().equals(funnelMetrics.get(0))) {
       topMetric=metricSpec;
     }
@@ -25,8 +26,8 @@
   if (topMetric == null) {
     throw new WebApplicationException(new IllegalStateException("Baseline metric not found " + funnelMetrics.get(0)),500);
   }
-  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
-  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  int bucketSize=config.getTime().getBucket().getSize();
+  TimeUnit bucketUnit=config.getTime().getBucket().getUnit();
   Long aggregateValue="".equals(aggregate) ? null : bucketUnit.convert(Long.valueOf(aggregate.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
   Long movingAverageValue="".equals(movingAverage) ? null : bucketUnit.convert(Long.valueOf(movingAverage.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
   long start=bucketUnit.convert(startMillis,TimeUnit.MILLISECONDS) / bucketSize;
@@ -35,26 +36,22 @@
     start=(start / aggregateValue) * aggregateValue;
     end=(end / aggregateValue) * aggregateValue;
   }
-  StarTreeStats stats=starTree.getStats();
-  if (!new TimeRange(stats.getMinTime(),stats.getMaxTime()).contains(new TimeRange(start,end))) {
-    throw new NotFoundException("Query (" + QueryUtils.getDateTime(start,bucketSize,bucketUnit) + ", "+ QueryUtils.getDateTime(end,bucketSize,bucketUnit)+ ") not in range ("+ QueryUtils.getDateTime(stats.getMinTime(),bucketSize,bucketUnit)+ ", "+ QueryUtils.getDateTime(stats.getMaxTime(),bucketSize,bucketUnit)+ ")");
-  }
-  String invalidDimension=QueryUtils.checkDimensions(starTree,uriInfo);
+  String invalidDimension=QueryUtils.checkDimensions(config,uriInfo);
   if (invalidDimension != null) {
     throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",invalidDimension).entity("No dimension : " + invalidDimension).build());
   }
   Map<DimensionKey,MetricTimeSeries> result;
   if (movingAverageValue == null && aggregateValue == null) {
-    result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start,end,uriInfo);
   }
  else   if (movingAverageValue != null && aggregateValue == null) {
-    result=QueryUtils.doQuery(starTree,start - movingAverageValue,end,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start - movingAverageValue,end,uriInfo);
   }
  else   if (movingAverageValue == null && aggregateValue != null) {
-    result=QueryUtils.doQuery(starTree,start,end + aggregateValue,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start,end + aggregateValue,uriInfo);
   }
  else {
-    result=QueryUtils.doQuery(starTree,start - (movingAverageValue / aggregateValue) * aggregateValue,end + aggregateValue,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start - (movingAverageValue / aggregateValue) * aggregateValue,end + aggregateValue,uriInfo);
   }
   List<Funnel> funnels=new ArrayList<Funnel>();
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
@@ -109,7 +106,7 @@ default :
 throw new IllegalArgumentException("Unsupported funnel type " + type);
 }
 }
-funnels.add(new Funnel(QueryUtils.convertDimensionKey(starTree.getConfig().getDimensions(),entry.getKey()),rows));
+funnels.add(new Funnel(QueryUtils.convertDimensionKey(config.getDimensions(),entry.getKey()),rows));
 }
 return funnels;
 }

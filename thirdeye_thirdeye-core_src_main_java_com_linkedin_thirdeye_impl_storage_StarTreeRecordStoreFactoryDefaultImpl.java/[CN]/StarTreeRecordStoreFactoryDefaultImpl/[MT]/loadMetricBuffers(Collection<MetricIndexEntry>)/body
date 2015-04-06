@@ -1,10 +1,16 @@
 {
   File metricStore=new File(rootDir,StarTreeConstants.METRIC_STORE);
   for (  MetricIndexEntry indexEntry : indexEntries) {
+    FileDescriptor associatedDescriptor=indexDescriptors.get(indexEntry.getFileId());
+    if (associatedDescriptor == null) {
+      throw new IllegalStateException("No index descriptor for " + indexEntry);
+    }
     if (!metricSegments.containsKey(indexEntry.getFileId())) {
-      File bufferFile=new File(metricStore,indexEntry.getFileId().toString() + StarTreeConstants.BUFFER_FILE_SUFFIX);
+      File bufferFile=new File(metricStore,associatedDescriptor.toString(StarTreeConstants.BUFFER_FILE_SUFFIX));
       metricSegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
-      LOG.info("Loaded buffer file {}",bufferFile);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Loaded buffer file {}",bufferFile);
+      }
     }
   }
 }

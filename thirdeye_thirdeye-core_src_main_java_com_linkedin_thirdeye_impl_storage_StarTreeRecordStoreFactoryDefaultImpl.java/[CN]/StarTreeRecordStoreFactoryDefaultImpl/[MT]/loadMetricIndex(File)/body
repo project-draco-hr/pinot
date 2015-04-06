@@ -1,7 +1,8 @@
 {
   List<MetricIndexEntry> entries=StorageUtils.readMetricIndex(indexFile);
-  UUID fileId=getFileId(indexFile.getName(),StarTreeConstants.INDEX_FILE_SUFFIX);
-  metricIndexByFile.put(fileId,new HashSet<MetricIndexEntry>());
+  FileDescriptor fileDescriptor=FileDescriptor.fromString(indexFile.getName(),StarTreeConstants.INDEX_FILE_SUFFIX);
+  metricIndexByFile.put(fileDescriptor.getId(),new HashSet<MetricIndexEntry>());
+  indexDescriptors.put(fileDescriptor.getId(),fileDescriptor);
   for (  MetricIndexEntry entry : entries) {
     List<MetricIndexEntry> nodeEntries=metricIndex.get(entry.getNodeId());
     if (nodeEntries == null) {
@@ -9,7 +10,9 @@
       metricIndex.put(entry.getNodeId(),nodeEntries);
     }
     nodeEntries.add(entry);
-    metricIndexByFile.get(fileId).add(entry);
+    metricIndexByFile.get(fileDescriptor.getId()).add(entry);
   }
-  LOG.info("Loaded metric index {}",indexFile);
+  if (LOG.isDebugEnabled()) {
+    LOG.debug("Loaded metric index {}",indexFile);
+  }
 }

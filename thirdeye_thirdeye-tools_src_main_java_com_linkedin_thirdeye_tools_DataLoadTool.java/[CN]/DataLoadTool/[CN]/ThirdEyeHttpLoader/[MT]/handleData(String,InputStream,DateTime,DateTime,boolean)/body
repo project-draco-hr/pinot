@@ -1,0 +1,11 @@
+{
+  String uri="/collections/" + URLEncoder.encode(collection,"UTF-8") + "/data/"+ minTime.getMillis()+ "/"+ maxTime.getMillis();
+  if (includeDimensions) {
+    uri+="?includeDimensions=true";
+  }
+  HttpResponse res=execute(uri,data);
+  if (res.getStatusLine().getStatusCode() != 200) {
+    throw new IOException(res.getStatusLine().toString());
+  }
+  LOG.info("POST ({}) {} #=> {}",fileName,uri,res.getStatusLine());
+}

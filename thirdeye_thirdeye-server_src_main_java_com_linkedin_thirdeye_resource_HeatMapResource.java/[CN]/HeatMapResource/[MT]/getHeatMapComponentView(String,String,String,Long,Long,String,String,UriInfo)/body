@@ -1,3 +1,7 @@
 {
-  return new HeatMapComponentView(getHeatMapComponentViewJson(type,collection,metric,startMillis,endMillis,aggregate,movingAverage,uriInfo),starTreeManager.getStarTree(collection).getConfig().getDimensions());
+  StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  return new HeatMapComponentView(getHeatMapComponentViewJson(type,collection,metric,startMillis,endMillis,aggregate,movingAverage,uriInfo),config.getDimensions());
 }

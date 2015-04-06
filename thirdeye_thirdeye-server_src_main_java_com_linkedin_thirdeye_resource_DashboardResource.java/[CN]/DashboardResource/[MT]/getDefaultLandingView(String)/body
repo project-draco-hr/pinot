@@ -1,7 +1,8 @@
 {
-  StarTree starTree=starTreeManager.getStarTree(collection);
-  if (starTree == null) {
+  StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  return new DefaultLandingView(starTree.getConfig(),feedbackAddress);
+  Range<DateTime> dataTimeRange=QueryUtils.getDataTimeRange(starTreeManager.getStarTrees(collection).values());
+  return new DefaultLandingView(config,feedbackAddress,dataTimeRange.lowerEndpoint(),dataTimeRange.upperEndpoint());
 }

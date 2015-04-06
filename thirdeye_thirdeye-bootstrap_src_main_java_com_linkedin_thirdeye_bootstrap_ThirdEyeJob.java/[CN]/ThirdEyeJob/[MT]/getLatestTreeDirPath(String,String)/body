@@ -1,6 +1,6 @@
 {
   FileSystem fs=FileSystem.get(new Configuration());
-  Path collectionDir=new Path(getCollectionDir(root,collection));
+  Path bootstrapDir=new Path(getCollectionDir(root,collection),FlowSpec.BOOTSTRAP.name());
   PathFilter dataDirFilter=new PathFilter(){
     public boolean accept(    Path path){
       return path.getName().startsWith("data_");
@@ -9,25 +9,30 @@
 ;
   Comparator<FileStatus> dataDirComparator=new Comparator<FileStatus>(){
     public int compare(    FileStatus dataDir1,    FileStatus dataDir2){
-      return getMaxTimeFromPath(dataDir2.getPath().toString()) - getMaxTimeFromPath(dataDir1.getPath().toString());
+      return (int)(getMaxTimeFromPath(dataDir2.getPath().toString()) - getMaxTimeFromPath(dataDir1.getPath().toString()));
     }
-    private int getMaxTimeFromPath(    String path){
-      String[] tokens=path.split("/");
-      String dataDirName=tokens[tokens.length - 1];
-      tokens=dataDirName.split("-");
-      return Integer.parseInt(tokens[tokens.length - 1]);
+    private long getMaxTimeFromPath(    String path){
+      try {
+        String[] pathTokens=path.split(File.separator);
+        String[] dataDirTokens=pathTokens[pathTokens.length - 1].split("_");
+        String maxTimeString=URLDecoder.decode(dataDirTokens[dataDirTokens.length - 1],ENCODING);
+        DateTime maxTime=StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(maxTimeString);
+        return maxTime.getMillis();
+      }
+ catch (      Exception e) {
+        throw new IllegalStateException(e);
+      }
     }
   }
 ;
-  List<FileStatus> listFiles=Arrays.asList(fs.listStatus(collectionDir,dataDirFilter));
+  List<FileStatus> listFiles=Arrays.asList(fs.listStatus(bootstrapDir,dataDirFilter));
   Collections.sort(listFiles,dataDirComparator);
   for (int i=0; i < listFiles.size(); i++) {
-    System.out.println(listFiles.get(i).getPath().toString());
     RemoteIterator<LocatedFileStatus> fileStatusListIterator=fs.listFiles(listFiles.get(i).getPath(),true);
     while (fileStatusListIterator.hasNext()) {
       LocatedFileStatus fileStatus=fileStatusListIterator.next();
       if (fileStatus.getPath().getName().endsWith(TREE_FILE_FORMAT)) {
-        return getCollectionDir(root,collection) + File.separator + listFiles.get(i).getPath().getName();
+        return listFiles.get(i).getPath().toString();
       }
     }
   }

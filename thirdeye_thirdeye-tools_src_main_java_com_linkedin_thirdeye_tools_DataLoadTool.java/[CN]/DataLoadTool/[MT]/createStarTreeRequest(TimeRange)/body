@@ -1,4 +1,6 @@
 {
   String encodedCollection=URLEncoder.encode(collection,ENCODING);
-  return URI_JOINER.join(WEB_HDFS_PREFIX + hdfsUri.getPath(),encodedCollection,"data_" + timeRange.getStart() + "-"+ timeRange.getEnd(),"startree_generation","star-tree-" + encodedCollection,encodedCollection + "-tree.bin?op=OPEN");
+  String encodedStartTime=StarTreeConstants.DATE_TIME_FORMATTER.print(new DateTime(timeRange.getStart()));
+  String encodedEndTime=StarTreeConstants.DATE_TIME_FORMATTER.print(new DateTime(timeRange.getEnd()));
+  return URI_JOINER.join(WEB_HDFS_PREFIX + hdfsUri.getPath(),encodedCollection,mode,"data_" + encodedStartTime + "_"+ encodedEndTime,"startree_generation","star-tree-" + encodedCollection,encodedCollection + "-tree.bin?op=OPEN");
 }

@@ -1,10 +1,11 @@
 {
-  StarTree starTree=starTreeManager.getStarTree(collection);
-  if (starTree == null) {
+  StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
-  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  Collection<StarTree> starTrees=starTreeManager.getStarTrees(collection).values();
+  int bucketSize=config.getTime().getBucket().getSize();
+  TimeUnit bucketUnit=config.getTime().getBucket().getUnit();
   Long aggregateValue="".equals(aggregate) ? null : bucketUnit.convert(Long.valueOf(aggregate.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
   Long movingAverageValue="".equals(movingAverage) ? null : bucketUnit.convert(Long.valueOf(movingAverage.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
   NormalizationMode normalizationMode=null;
@@ -30,26 +31,22 @@
   }
   long adjustedStartMillis=TimeUnit.MILLISECONDS.convert(start * bucketSize,bucketUnit);
   long adjustedEndMillis=TimeUnit.MILLISECONDS.convert(end * bucketSize,bucketUnit);
-  StarTreeStats stats=starTree.getStats();
-  if (!new TimeRange(stats.getMinTime(),stats.getMaxTime()).contains(new TimeRange(start,end))) {
-    throw new NotFoundException("Query (" + QueryUtils.getDateTime(start,bucketSize,bucketUnit) + ", "+ QueryUtils.getDateTime(end,bucketSize,bucketUnit)+ ") not in range ("+ QueryUtils.getDateTime(stats.getMinTime(),bucketSize,bucketUnit)+ ", "+ QueryUtils.getDateTime(stats.getMaxTime(),bucketSize,bucketUnit)+ ")");
-  }
-  String invalidDimension=QueryUtils.checkDimensions(starTree,uriInfo);
+  String invalidDimension=QueryUtils.checkDimensions(config,uriInfo);
   if (invalidDimension != null) {
     throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",invalidDimension).entity("No dimension : " + invalidDimension).build());
   }
   Map<DimensionKey,MetricTimeSeries> result;
   if (movingAverageValue == null && aggregateValue == null) {
-    result=QueryUtils.doQuery(starTree,start,end,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start,end,uriInfo);
   }
  else   if (movingAverageValue != null && aggregateValue == null) {
-    result=QueryUtils.doQuery(starTree,start - movingAverageValue,end,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start - movingAverageValue,end,uriInfo);
   }
  else   if (movingAverageValue == null && aggregateValue != null) {
-    result=QueryUtils.doQuery(starTree,start,end + aggregateValue,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start,end + aggregateValue,uriInfo);
   }
  else {
-    result=QueryUtils.doQuery(starTree,start - (movingAverageValue / aggregateValue) * aggregateValue,end + aggregateValue,uriInfo);
+    result=QueryUtils.doQuery(starTrees,start - (movingAverageValue / aggregateValue) * aggregateValue,end + aggregateValue,uriInfo);
   }
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
     MetricTimeSeries timeSeries=entry.getValue();
@@ -73,7 +70,7 @@ timeSeries=MetricTimeSeriesUtils.convertTimeToMillis(timeSeries,bucketSize,bucke
 result.put(entry.getKey(),timeSeries);
 }
 Set<String> allMetrics=new HashSet<String>();
-for (MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+for (MetricSpec metricSpec : config.getMetrics()) {
 allMetrics.add(metricSpec.getName());
 }
 List<String> metricNames;
@@ -111,7 +108,7 @@ ratio=100 * (endValue.doubleValue() - startValue.doubleValue()) / startValue.dou
 String timeSeriesUri=uriInfo.getRequestUri().getPath();
 String dimensionKey=(timeSeriesUri.startsWith("/timeSeries")) ? ("(" + entry.getKey().toString() + ")") : ("");
 String label=(ratio.isInfinite()) ? (String.format("(NA) %s %s",metricName,dimensionKey)) : (String.format("(%.2f)%% %s %s",ratio,metricName,dimensionKey));
-flotSeries.add(new FlotTimeSeries(metricName,label,QueryUtils.convertDimensionKey(starTree.getConfig().getDimensions(),entry.getKey()),data,adjustedStartMillis,adjustedEndMillis));
+flotSeries.add(new FlotTimeSeries(metricName,label,QueryUtils.convertDimensionKey(config.getDimensions(),entry.getKey()),data,adjustedStartMillis,adjustedEndMillis));
 }
 }
 return flotSeries;

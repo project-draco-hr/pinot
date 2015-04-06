@@ -2,14 +2,35 @@
 synchronized (trees) {
     if (!trees.containsKey(collection)) {
       LOG.info("Creating new startree for {}",collection);
+      trees.put(collection,new ConcurrentHashMap<File,StarTree>());
       File collectionDir=new File(rootDir,collection);
-      File treeFile=new File(collectionDir,StarTreeConstants.TREE_FILE_NAME);
-      ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(treeFile));
-      StarTreeNode root=(StarTreeNode)inputStream.readObject();
+      File[] dataDirs=collectionDir.listFiles(new FilenameFilter(){
+        @Override public boolean accept(        File dir,        String name){
+          return name.startsWith(StorageUtils.getDataDirPrefix());
+        }
+      }
+);
+      if (dataDirs == null) {
+        throw new IllegalArgumentException("No data dirs for collection " + collection);
+      }
       File configFile=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
       StarTreeConfig config=StarTreeConfig.decode(new FileInputStream(configFile));
-      StarTree starTree=new StarTreeImpl(config,new File(collectionDir,StarTreeConstants.DATA_DIR_NAME),root);
-      trees.put(collection,starTree);
+      configs.put(collection,config);
+      for (      File dataDir : dataDirs) {
+        File treeFile=new File(dataDir,StarTreeConstants.TREE_FILE_NAME);
+        ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(treeFile));
+        StarTreeNode root=(StarTreeNode)inputStream.readObject();
+        StarTree starTree=new StarTreeImpl(config,dataDir,root);
+        trees.get(collection).put(dataDir,starTree);
+        starTree.open();
+        openCollections.add(collection);
+        LOG.info("Opened tree {} for collection {}",starTree.getRoot(),collection);
+      }
+      DataRefreshWatcher refreshWatcher=new DataRefreshWatcher(config);
+      refreshWatcher.register(Paths.get(collectionDir.getAbsolutePath()));
+      Thread watcherThread=new Thread(refreshWatcher);
+      watcherThread.setDaemon(true);
+      watcherThread.start();
     }
   }
 }

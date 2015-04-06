@@ -1,0 +1,11 @@
+{
+  File[] files=dir.listFiles();
+  if (files != null) {
+    for (    File file : files) {
+      String minTimeComponent=StarTreeConstants.DATE_TIME_FORMATTER.print(minTime);
+      String maxTimeComponent=StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime);
+      File renamed=new File(file.getParent(),schedule + "_" + minTimeComponent+ "_"+ maxTimeComponent+ "_"+ file.getName());
+      FileUtils.moveFile(file,renamed);
+    }
+  }
+}

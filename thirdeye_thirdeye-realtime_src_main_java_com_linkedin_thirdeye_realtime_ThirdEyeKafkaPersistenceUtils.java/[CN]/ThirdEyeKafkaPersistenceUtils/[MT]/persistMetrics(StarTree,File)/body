@@ -35,8 +35,13 @@
   }
 );
   LOG.info("Wrote leaf buffers to {}",leafBufferDirectory);
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  ObjectOutputStream treeOutputStream=new ObjectOutputStream(baos);
+  treeOutputStream.writeObject(starTree.getRoot());
+  treeOutputStream.flush();
+  InputStream treeInputStream=new ByteArrayInputStream(baos.toByteArray());
   final File combinedBufferDirectory=new File(THIRDEYE_TMP_DIR,COMBINED_BUFFER_DIRECTORY_NAME);
-  FixedBufferUtil.combineDataFiles(leafBufferDirectory,combinedBufferDirectory);
+  FixedBufferUtil.combineDataFiles(treeInputStream,leafBufferDirectory,combinedBufferDirectory);
   LOG.info("Wrote combined leaf buffers for {}",starTree.getConfig().getCollection());
   File tmpMetricBufferDirectory=new File(combinedBufferDirectory,StarTreeConstants.METRIC_STORE);
   File[] metricBuffers=tmpMetricBufferDirectory.listFiles();

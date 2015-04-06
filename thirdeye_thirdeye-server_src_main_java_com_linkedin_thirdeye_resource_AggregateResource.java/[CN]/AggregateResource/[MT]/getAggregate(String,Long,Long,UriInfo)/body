@@ -1,22 +1,22 @@
 {
-  StarTree starTree=starTreeManager.getStarTree(collection);
-  if (starTree == null) {
+  StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
-  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  int bucketSize=config.getTime().getBucket().getSize();
+  TimeUnit bucketUnit=config.getTime().getBucket().getUnit();
   long start=bucketUnit.convert(startMillis,TimeUnit.MILLISECONDS) / bucketSize;
   long end=bucketUnit.convert(endMillis,TimeUnit.MILLISECONDS) / bucketSize;
   long queryStartTime=System.currentTimeMillis();
-  Map<DimensionKey,MetricTimeSeries> queryResult=QueryUtils.doQuery(starTree,start,end,uriInfo);
+  Map<DimensionKey,MetricTimeSeries> queryResult=QueryUtils.doQuery(starTreeManager.getStarTrees(collection).values(),start,end,uriInfo);
   long queryTimeMillis=System.currentTimeMillis() - queryStartTime;
   List<AggregateResult> clientResult=new ArrayList<AggregateResult>(queryResult.size());
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : queryResult.entrySet()) {
-    Map<String,String> dimensionValues=QueryUtils.convertDimensionKey(starTree.getConfig().getDimensions(),entry.getKey());
+    Map<String,String> dimensionValues=QueryUtils.convertDimensionKey(config.getDimensions(),entry.getKey());
     Number[] metricSums=entry.getValue().getMetricSums();
     Map<String,Number> metricValues=new HashMap<String,Number>(metricSums.length);
-    for (int i=0; i < starTree.getConfig().getMetrics().size(); i++) {
-      MetricSpec metricSpec=starTree.getConfig().getMetrics().get(i);
+    for (int i=0; i < config.getMetrics().size(); i++) {
+      MetricSpec metricSpec=config.getMetrics().get(i);
       metricValues.put(metricSpec.getName(),metricSums[i]);
     }
     clientResult.add(new AggregateResult(dimensionValues,metricValues,queryTimeMillis));

@@ -1,10 +1,13 @@
 {
   List<DimensionIndexEntry> entries=StorageUtils.readDimensionIndex(indexFile);
-  UUID fileId=UUID.fromString(indexFile.getName().substring(0,indexFile.getName().lastIndexOf(StarTreeConstants.INDEX_FILE_SUFFIX)));
-  dimensionIndexByFile.put(fileId,new HashSet<DimensionIndexEntry>());
+  FileDescriptor fileDescriptor=FileDescriptor.fromString(indexFile.getName(),StarTreeConstants.INDEX_FILE_SUFFIX);
+  dimensionIndexByFile.put(fileDescriptor.getId(),new HashSet<DimensionIndexEntry>());
+  indexDescriptors.put(fileDescriptor.getId(),fileDescriptor);
   for (  DimensionIndexEntry entry : entries) {
     dimensionIndex.put(entry.getNodeId(),entry);
-    dimensionIndexByFile.get(fileId).add(entry);
+    dimensionIndexByFile.get(fileDescriptor.getId()).add(entry);
   }
-  LOG.info("Loaded dimension index {}",indexFile);
+  if (LOG.isDebugEnabled()) {
+    LOG.debug("Loaded dimension index {}",indexFile);
+  }
 }

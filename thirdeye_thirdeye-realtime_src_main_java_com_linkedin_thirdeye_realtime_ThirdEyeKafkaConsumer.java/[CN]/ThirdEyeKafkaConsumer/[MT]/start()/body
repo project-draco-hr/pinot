@@ -18,22 +18,16 @@
         streamStats.put(entry.getKey(),stats);
         final ScheduledFuture persistFuture=persistScheduler.scheduleAtFixedRate(new Runnable(){
           @Override public void run(){
-            persistLock.writeLock().lock();
             try {
-              ThirdEyeKafkaPersistenceUtils.persistMetrics(starTree,metricStoreDirectory);
-              stats.getLastPersistTimeMillis().set(System.currentTimeMillis());
-              starTree.clear();
+              doPersist(stats);
               consumer.commitOffsets();
             }
  catch (            Exception e) {
-              LOG.error("Error persisting data from Kafka",e);
-            }
- finally {
-              persistLock.writeLock().unlock();
+              LOG.error("{}",e);
             }
           }
         }
-,config.getPersistIntervalMillis(),config.getPersistIntervalMillis(),TimeUnit.MILLISECONDS);
+,config.getPersistInterval().getSize(),config.getPersistInterval().getSize(),config.getPersistInterval().getUnit());
         executorService.submit(new Runnable(){
           @Override public void run(){
             ConsumerIterator<byte[],byte[]> itr=stream.iterator();
@@ -49,7 +43,7 @@
                   continue;
                 }
                 long minTimeMillis=TimeUnit.MILLISECONDS.convert(Collections.min(record.getMetricTimeSeries().getTimeWindowSet()) * starTree.getConfig().getTime().getBucket().getSize(),starTree.getConfig().getTime().getBucket().getUnit());
-                if (minTimeMillis < config.getStartTimeMillis()) {
+                if (minTimeMillis < config.getStartTime().getMillis()) {
                   stats.getRecordsSkippedExpired().mark();
                   continue;
                 }
@@ -74,20 +68,12 @@
                 stats.getRecordsError().mark();
               }
             }
-            persistLock.writeLock().lock();
             try {
-              persistFuture.cancel(true);
-              ThirdEyeKafkaPersistenceUtils.persistMetrics(starTree,metricStoreDirectory);
-              stats.getLastPersistTimeMillis().set(System.currentTimeMillis());
-              starTree.clear();
+              doPersist(stats);
               consumer.commitOffsets();
-              LOG.info("Persisted all data before shutdown for {}",starTree.getConfig().getCollection());
             }
  catch (            Exception e) {
-              LOG.error("Error persisting data during shutdown for {}",starTree.getConfig().getCollection(),e);
-            }
- finally {
-              persistLock.writeLock().unlock();
+              LOG.error("{}",e);
             }
           }
         }

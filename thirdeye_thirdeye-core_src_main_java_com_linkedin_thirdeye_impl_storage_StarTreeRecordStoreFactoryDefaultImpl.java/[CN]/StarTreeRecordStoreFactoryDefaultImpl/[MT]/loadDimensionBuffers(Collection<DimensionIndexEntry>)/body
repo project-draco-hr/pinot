@@ -1,15 +1,23 @@
 {
   File dimensionStore=new File(rootDir,StarTreeConstants.DIMENSION_STORE);
   for (  DimensionIndexEntry indexEntry : indexEntries) {
+    FileDescriptor associatedDescriptor=indexDescriptors.get(indexEntry.getFileId());
+    if (associatedDescriptor == null) {
+      throw new IllegalStateException("No index descriptor for " + indexEntry);
+    }
     if (!dimensionSegments.containsKey(indexEntry.getFileId())) {
-      File bufferFile=new File(dimensionStore,indexEntry.getFileId().toString() + StarTreeConstants.BUFFER_FILE_SUFFIX);
+      File bufferFile=new File(dimensionStore,associatedDescriptor.toString(StarTreeConstants.BUFFER_FILE_SUFFIX));
       dimensionSegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
-      LOG.info("Loaded buffer file {}",bufferFile);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Loaded buffer file {}",bufferFile);
+      }
     }
     if (!dictionarySegments.containsKey(indexEntry.getFileId())) {
-      File bufferFile=new File(dimensionStore,indexEntry.getFileId().toString() + StarTreeConstants.DICT_FILE_SUFFIX);
+      File bufferFile=new File(dimensionStore,associatedDescriptor.toString(StarTreeConstants.DICT_FILE_SUFFIX));
       dictionarySegments.put(indexEntry.getFileId(),mapBuffer(bufferFile));
-      LOG.info("Loaded buffer file {}",bufferFile);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Loaded buffer file {}",bufferFile);
+      }
     }
   }
 }

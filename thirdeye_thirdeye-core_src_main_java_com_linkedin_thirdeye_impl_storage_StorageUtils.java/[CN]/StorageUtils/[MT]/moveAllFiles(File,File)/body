@@ -1,0 +1,21 @@
+{
+  File srcTreeFile=new File(srcDataDir,StarTreeConstants.TREE_FILE_NAME);
+  File dstTreeFile=new File(dstDataDir,StarTreeConstants.TREE_FILE_NAME);
+  if (!dstTreeFile.exists()) {
+    FileUtils.moveFile(srcTreeFile,dstTreeFile);
+  }
+  File[] dimensionFiles=new File(srcDataDir,StarTreeConstants.DIMENSION_STORE).listFiles();
+  File dstDimensionStore=new File(dstDataDir,StarTreeConstants.DIMENSION_STORE);
+  if (dimensionFiles != null) {
+    for (    File file : dimensionFiles) {
+      FileUtils.moveFile(file,new File(dstDimensionStore,file.getName()));
+    }
+  }
+  File[] metricFiles=new File(srcDataDir,StarTreeConstants.METRIC_STORE).listFiles();
+  File dstMetricStore=new File(dstDataDir,StarTreeConstants.METRIC_STORE);
+  if (metricFiles != null) {
+    for (    File file : metricFiles) {
+      FileUtils.moveFile(file,new File(dstMetricStore,file.getName()));
+    }
+  }
+}

@@ -1,10 +1,10 @@
 {
-  final StarTree starTree=starTreeManager.getStarTree(collection);
-  if (starTree == null) {
+  final StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
     throw new NotFoundException("No collection " + collection);
   }
-  int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
-  TimeUnit bucketUnit=starTree.getConfig().getTime().getBucket().getUnit();
+  int bucketSize=config.getTime().getBucket().getSize();
+  TimeUnit bucketUnit=config.getTime().getBucket().getUnit();
   Long aggregateValue="".equals(aggregate) ? null : bucketUnit.convert(Long.valueOf(aggregate.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
   Long movingAverageValue="".equals(movingAverage) ? null : bucketUnit.convert(Long.valueOf(movingAverage.split("/")[2]),TimeUnit.MILLISECONDS) / bucketSize;
   long baselineStart=bucketUnit.convert(startMillis,TimeUnit.MILLISECONDS) / bucketSize;
@@ -30,13 +30,13 @@
  else {
     timeRange=new TimeRange(baselineStart - (movingAverageValue / aggregateValue) * aggregateValue,currentEnd + aggregateValue);
   }
-  String invalidDimension=QueryUtils.checkDimensions(starTree,uriInfo);
+  String invalidDimension=QueryUtils.checkDimensions(config,uriInfo);
   if (invalidDimension != null) {
     throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).header("No dimension ",invalidDimension).entity("No dimension : " + invalidDimension).build());
   }
   Map<String,Map<String,MetricTimeSeries>> data=new HashMap<String,Map<String,MetricTimeSeries>>();
-  for (  DimensionSpec dimension : starTree.getConfig().getDimensions()) {
-    Map<String,MetricTimeSeries> timeSeriesByDimensionValue=QueryUtils.groupByQuery(parallelQueryExecutor,starTree,dimension.getName(),timeRange,uriInfo);
+  for (  DimensionSpec dimension : config.getDimensions()) {
+    Map<String,MetricTimeSeries> timeSeriesByDimensionValue=QueryUtils.groupByQuery(parallelQueryExecutor,starTreeManager.getStarTrees(collection).values(),config,dimension.getName(),timeRange,uriInfo);
     for (    Map.Entry<String,MetricTimeSeries> entry : timeSeriesByDimensionValue.entrySet()) {
       MetricTimeSeries timeSeries=entry.getValue();
       if (aggregateValue != null) {
@@ -52,7 +52,7 @@
     }
   }
   MetricType metricType=null;
-  for (  MetricSpec metricSpec : starTree.getConfig().getMetrics()) {
+  for (  MetricSpec metricSpec : config.getMetrics()) {
     if (metricSpec.getName().equals(metric)) {
       metricType=metricSpec.getType();
       break;

@@ -1,9 +1,0 @@
-{
-  List<StarTreeQuery> queries=StarTreeUtils.expandQueries(starTree,UriUtils.createQueryBuilder(starTree,uriInfo).setTimeRange(new TimeRange(start,end)).build(starTree.getConfig()));
-  queries=StarTreeUtils.filterQueries(starTree.getConfig(),queries,uriInfo.getQueryParameters());
-  Map<DimensionKey,MetricTimeSeries> result=new HashMap<DimensionKey,MetricTimeSeries>(queries.size());
-  for (  StarTreeQuery query : queries) {
-    result.put(query.getDimensionKey(),starTree.getTimeSeries(query));
-  }
-  return result;
-}

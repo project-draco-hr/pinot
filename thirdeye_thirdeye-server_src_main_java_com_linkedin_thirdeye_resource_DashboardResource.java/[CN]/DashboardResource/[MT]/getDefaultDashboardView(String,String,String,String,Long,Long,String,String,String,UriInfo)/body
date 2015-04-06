@@ -1,6 +1,6 @@
 {
-  StarTree starTree=starTreeManager.getStarTree(collection);
-  if (starTree == null) {
+  StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
     throw new NotFoundException("No collection " + collection);
   }
   TimeSeriesComponentView timeSeriesComponentView=timeSeriesResource.getTimeSeriesComponentView(collection,"*",startMillis,endMillis,aggregate,movingAverage,normalized,uriInfo);
@@ -36,5 +36,6 @@
       }
     }
   }
-  return new DefaultDashboardView(starTree.getConfig(),metric,endMillis,disabledDimensions,activeDimension,timeSeriesComponentView,funnelComponentView,heatMapComponentView,feedbackAddress);
+  Range<DateTime> dataTimeRange=QueryUtils.getDataTimeRange(starTreeManager.getStarTrees(collection).values());
+  return new DefaultDashboardView(config,metric,endMillis,disabledDimensions,activeDimension,timeSeriesComponentView,funnelComponentView,heatMapComponentView,feedbackAddress,dataTimeRange.lowerEndpoint(),dataTimeRange.upperEndpoint());
 }

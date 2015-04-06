@@ -1,30 +1,32 @@
 {
   for (  String collection : manager.getCollections()) {
-    Map<UUID,Integer> nodeCount=new HashMap<UUID,Integer>();
-    Set<StarTreeNode> leafNodes=new HashSet<StarTreeNode>();
-    StarTreeUtils.traverseAndGetLeafNodes(leafNodes,manager.getStarTree(collection).getRoot());
-    for (    StarTreeNode leafNode : leafNodes) {
-      nodeCount.put(leafNode.getId(),0);
-    }
-    File dimensionStoreDir=new File(PATH_JOINER.join(rootDir,collection,StarTreeConstants.DATA_DIR_NAME,StarTreeConstants.DIMENSION_STORE));
-    File[] dimensionIndexFiles=dimensionStoreDir.listFiles(INDEX_FILE_FILTER);
-    if (dimensionIndexFiles != null) {
-      for (      File dimensionIndexFile : dimensionIndexFiles) {
-        List<DimensionIndexEntry> indexEntries=StorageUtils.readDimensionIndex(dimensionIndexFile);
-        for (        DimensionIndexEntry indexEntry : indexEntries) {
-          Integer count=nodeCount.get(indexEntry.getNodeId());
-          if (count == null) {
-            throw new IllegalStateException("Found node in dimension index which does not exist in tree: " + "nodeId=" + indexEntry.getNodeId() + "; indexFileId="+ indexEntry.getFileId());
-          }
+    for (    StarTree starTree : manager.getStarTrees(collection).values()) {
+      Map<UUID,Integer> nodeCount=new HashMap<UUID,Integer>();
+      Set<StarTreeNode> leafNodes=new HashSet<StarTreeNode>();
+      StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTree.getRoot());
+      for (      StarTreeNode leafNode : leafNodes) {
+        nodeCount.put(leafNode.getId(),0);
+      }
+      File dimensionStoreDir=new File(PATH_JOINER.join(rootDir,collection,StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DIMENSION_STORE));
+      File[] dimensionIndexFiles=dimensionStoreDir.listFiles(INDEX_FILE_FILTER);
+      if (dimensionIndexFiles != null) {
+        for (        File dimensionIndexFile : dimensionIndexFiles) {
+          List<DimensionIndexEntry> indexEntries=StorageUtils.readDimensionIndex(dimensionIndexFile);
+          for (          DimensionIndexEntry indexEntry : indexEntries) {
+            Integer count=nodeCount.get(indexEntry.getNodeId());
+            if (count == null) {
+              throw new IllegalStateException("Found node in dimension index which does not exist in tree: " + "nodeId=" + indexEntry.getNodeId() + "; indexFileId="+ indexEntry.getFileId());
+            }
  else {
-            nodeCount.put(indexEntry.getNodeId(),count + 1);
+              nodeCount.put(indexEntry.getNodeId(),count + 1);
+            }
           }
         }
       }
-    }
-    for (    StarTreeNode leafNode : leafNodes) {
-      if (nodeCount.get(leafNode.getId()) != 1) {
-        throw new IllegalStateException("There must be one and only one dimension index for node " + leafNode.getId());
+      for (      StarTreeNode leafNode : leafNodes) {
+        if (nodeCount.get(leafNode.getId()) != 1) {
+          throw new IllegalStateException("There must be one and only one dimension index for node " + leafNode.getId());
+        }
       }
     }
   }

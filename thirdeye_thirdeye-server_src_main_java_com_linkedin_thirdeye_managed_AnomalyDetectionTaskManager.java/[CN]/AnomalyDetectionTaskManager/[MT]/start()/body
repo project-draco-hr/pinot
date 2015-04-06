@@ -4,7 +4,21 @@
   }
 synchronized (tasks) {
     for (    String collection : starTreeManager.getCollections()) {
-      StarTree starTree=starTreeManager.getStarTree(collection);
+      Map<File,StarTree> starTrees=starTreeManager.getStarTrees(collection);
+      if (starTrees == null) {
+        LOG.warn("No star trees available for {}",collection);
+        continue;
+      }
+      File latestDataDir=StorageUtils.findLatestDataDir(new File(rootDir,collection));
+      if (latestDataDir == null) {
+        LOG.warn("No latest data dir for {}",collection);
+        continue;
+      }
+      StarTree starTree=starTrees.get(latestDataDir);
+      if (starTree == null) {
+        LOG.error("Manager does not have star tree for data dir {}",latestDataDir);
+        continue;
+      }
       String functionClass=starTree.getConfig().getAnomalyDetectionFunctionClass();
       if (functionClass != null) {
         AnomalyDetectionFunction function=(AnomalyDetectionFunction)Class.forName(functionClass).getConstructor().newInstance();

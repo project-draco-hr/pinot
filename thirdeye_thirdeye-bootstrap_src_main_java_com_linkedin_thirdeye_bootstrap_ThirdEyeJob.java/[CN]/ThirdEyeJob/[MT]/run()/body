@@ -15,40 +15,33 @@
   String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getPropertyName(),inputConfig);
   String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getPropertyName(),inputConfig);
   String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getPropertyName(),inputConfig);
-  String NUM_REDUCERS_PROP=StarTreeBootstrapPhaseTwoConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.name();
-  String numberOfReducers=inputConfig.getProperty(NUM_REDUCERS_PROP);
-  long minTime=-1;
-  long maxTime=-1;
-  if (!PhaseSpec.ANALYSIS.equals(phaseSpec)) {
+  FlowSpec flowSpec=FlowSpec.valueOf(getAndCheck(ThirdEyeJobConstants.THIRDEYE_FLOW.getPropertyName(),inputConfig).toUpperCase());
+  String numberReducersProp=StarTreeBootstrapPhaseTwoConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.name();
+  String numberOfReducers=inputConfig.getProperty(numberReducersProp);
+  DateTime minTime;
+  DateTime maxTime;
+  String minTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getPropertyName());
+  String maxTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getPropertyName());
+  String timePathProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_PATH.getPropertyName());
+  if (minTimeProp != null && maxTimeProp != null) {
+    minTime=ISODateTimeFormat.dateTimeParser().parseDateTime(minTimeProp);
+    maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
+  }
+ else   if (timePathProp != null) {
     FileSystem fileSystem=FileSystem.get(new Configuration());
-    InputStream inputStream=fileSystem.open(new Path(phaseSpec.getAnalysisPath(root,collection),AnalysisJobConstants.ANALYSIS_FILE_NAME.toString()));
-    AnalysisPhaseStats stats=AnalysisPhaseStats.fromBytes(IOUtils.toByteArray(inputStream));
+    InputStream inputStream=fileSystem.open(new Path(timePathProp));
+    Properties timePathProps=new Properties();
+    timePathProps.load(inputStream);
     inputStream.close();
-    if (!inputPaths.equals(stats.getInputPath())) {
-      throw new IllegalStateException("Last analysis was done for input paths " + stats.getInputPath() + " not "+ inputPaths);
-    }
-    minTime=stats.getMinTime();
-    maxTime=stats.getMaxTime();
+    minTimeProp=timePathProps.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getPropertyName());
+    maxTimeProp=timePathProps.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getPropertyName());
+    minTime=ISODateTimeFormat.dateTimeParser().parseDateTime(minTimeProp);
+    maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
   }
-  if (PhaseSpec.SERVER_UPDATE.equals(phaseSpec)) {
-    String thirdEyeServerUri=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
-    if (thirdEyeServerUri == null) {
-      throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
-    }
-    FileSystem fileSystem=FileSystem.get(new Configuration());
-    Path dataPath=new Path(PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName());
-    RemoteIterator<LocatedFileStatus> itr=fileSystem.listFiles(dataPath,false);
-    while (itr.hasNext()) {
-      LocatedFileStatus fileStatus=itr.next();
-      if (fileStatus.getPath().getName().startsWith("task_")) {
-        InputStream leafData=fileSystem.open(fileStatus.getPath());
-        int responseCode=StarTreeJobUtils.pushData(leafData,thirdEyeServerUri,collection,false);
-        leafData.close();
-        LOG.info("Load {} #=> {}",fileStatus.getPath(),responseCode);
-      }
-    }
+ else {
+    throw new IllegalStateException("Must specify either " + ThirdEyeJobConstants.THIRDEYE_TIME_PATH.getPropertyName() + " or "+ ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getPropertyName()+ " and "+ ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getPropertyName());
   }
- else   if (PhaseSpec.SERVER_BOOTSTRAP.equals(phaseSpec)) {
+  if (PhaseSpec.SERVER_PUSH.equals(phaseSpec)) {
     String thirdEyeServerUri=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
     if (thirdEyeServerUri == null) {
       throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName() + " in properties");
@@ -59,27 +52,22 @@
     int responseCode=StarTreeJobUtils.pushConfig(configData,thirdEyeServerUri,collection);
     configData.close();
     LOG.info("Load {} #=> {}",configPath,responseCode);
-    Path treePath=new Path(PhaseSpec.STARTREE_GENERATION.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_GENERATION.getName()+ File.separator+ "star-tree-"+ collection+ File.separator+ collection+ "-"+ StarTreeConstants.TREE_FILE_NAME);
-    InputStream treeData=fileSystem.open(treePath);
-    responseCode=StarTreeJobUtils.pushTree(treeData,thirdEyeServerUri,collection);
-    treeData.close();
-    LOG.info("Load {} #=> {}",treePath,responseCode);
-    Path dataPath=new Path(PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getTimeDir(root,collection,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName());
+    Path dataPath=new Path(PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getTimeDir(root,collection,flowSpec,minTime,maxTime) + File.separator + PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName());
     RemoteIterator<LocatedFileStatus> itr=fileSystem.listFiles(dataPath,false);
     while (itr.hasNext()) {
       LocatedFileStatus fileStatus=itr.next();
       if (fileStatus.getPath().getName().startsWith("task_")) {
         InputStream leafData=fileSystem.open(fileStatus.getPath());
-        responseCode=StarTreeJobUtils.pushData(leafData,thirdEyeServerUri,collection,true);
+        responseCode=StarTreeJobUtils.pushData(leafData,thirdEyeServerUri,collection,minTime,maxTime,inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getPropertyName()));
         leafData.close();
         LOG.info("Load {} #=> {}",fileStatus.getPath(),responseCode);
       }
     }
   }
  else {
-    Properties jobProperties=phaseSpec.getJobProperties(inputConfig,root,collection,minTime,maxTime,inputPaths);
+    Properties jobProperties=phaseSpec.getJobProperties(inputConfig,root,collection,flowSpec,minTime,maxTime,inputPaths);
     if (PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.equals(phaseSpec) && numberOfReducers != null) {
-      jobProperties.setProperty(NUM_REDUCERS_PROP,numberOfReducers);
+      jobProperties.setProperty(numberReducersProp,numberOfReducers);
     }
     Constructor<?> constructor=phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
     Object instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
