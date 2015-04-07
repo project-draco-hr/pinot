@@ -1,0 +1,9 @@
+{
+  final int currentOffset=getOffset(index);
+  final int nextOffset=getOffset(index + 1);
+  final int bufferLength=nextOffset - currentOffset;
+  buffer.position(currentOffset);
+  final ByteBuffer bb=buffer.slice();
+  bb.limit(bufferLength);
+  return new ImmutableRoaringBitmap(bb);
+}
