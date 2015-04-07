@@ -1,0 +1,28 @@
+{
+  Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+  statement.execute(sqlQuery);
+  ResultSet rs=statement.getResultSet();
+  Map<String,String> actualValues=new HashMap<String,String>();
+  JSONObject response=postQuery(pqlQuery);
+  JSONObject aggregationResults=response.getJSONArray("aggregationResults").getJSONObject(0);
+  if (aggregationResults.has("value")) {
+    String value=aggregationResults.getString("value");
+    rs.first();
+    String sqlValue=rs.getString(1);
+    Assert.assertEquals(value,sqlValue);
+  }
+ else   if (aggregationResults.has("groupByResult")) {
+    Map<String,String> correctValues=new HashMap<String,String>();
+    rs.beforeFirst();
+    while (rs.next()) {
+      correctValues.put(rs.getString(1),rs.getString(2));
+    }
+    Assert.assertEquals(actualValues,correctValues);
+    JSONArray groupByResults=aggregationResults.getJSONArray("groupByResult");
+    for (int i=0; i < groupByResults.length(); ++i) {
+      actualValues.put(groupByResults.getJSONObject(i).getJSONArray("group").getString(0),Integer.toString((int)Double.parseDouble(groupByResults.getJSONObject(i).getString("value"))));
+    }
+    Assert.assertEquals(actualValues,correctValues);
+  }
+  System.out.println();
+}
