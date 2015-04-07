@@ -6,14 +6,16 @@
   BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
   if (block[0].getMetadata().getDataType() == DataType.STRING) {
     while ((docId=docIdIterator.next()) != Constants.EOF) {
-      blockValIterator.skipTo(docId);
-      ret.add(dictionaryReader.get(blockValIterator.nextIntVal()).hashCode());
+      if (blockValIterator.skipTo(docId)) {
+        ret.add(dictionaryReader.get(blockValIterator.nextIntVal()).hashCode());
+      }
     }
   }
  else {
     while ((docId=docIdIterator.next()) != Constants.EOF) {
-      blockValIterator.skipTo(docId);
-      ret.add(((Number)dictionaryReader.get(blockValIterator.nextIntVal())).intValue());
+      if (blockValIterator.skipTo(docId)) {
+        ret.add(((Number)dictionaryReader.get(blockValIterator.nextIntVal())).intValue());
+      }
     }
   }
   return ret;

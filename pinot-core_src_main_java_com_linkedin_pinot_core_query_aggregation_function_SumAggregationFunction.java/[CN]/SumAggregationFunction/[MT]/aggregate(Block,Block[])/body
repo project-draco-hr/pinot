@@ -5,8 +5,9 @@
   BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
   BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
   while ((docId=docIdIterator.next()) != Constants.EOF) {
-    blockValIterator.skipTo(docId);
-    ret+=dictionaryReader.getDoubleValue(blockValIterator.nextIntVal());
+    if (blockValIterator.skipTo(docId)) {
+      ret+=dictionaryReader.getDoubleValue(blockValIterator.nextIntVal());
+    }
   }
   return ret;
 }

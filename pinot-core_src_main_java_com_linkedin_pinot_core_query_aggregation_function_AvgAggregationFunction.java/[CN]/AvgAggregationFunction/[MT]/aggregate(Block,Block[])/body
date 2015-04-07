@@ -6,9 +6,10 @@
   BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
   BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
   while ((docId=docIdIterator.next()) != Constants.EOF) {
-    blockValIterator.skipTo(docId);
-    ret+=dictionaryReader.getDoubleValue(blockValIterator.nextIntVal());
-    cnt++;
+    if (blockValIterator.skipTo(docId)) {
+      ret+=dictionaryReader.getDoubleValue(blockValIterator.nextIntVal());
+      cnt++;
+    }
   }
   return new AvgPair(ret,cnt);
 }
