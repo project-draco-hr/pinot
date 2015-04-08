@@ -35,8 +35,18 @@ if (_routingTableBuilderMap.containsKey(resourceName) && (_routingTableBuilderMa
 routingTableBuilder=_routingTableBuilderMap.get(resourceName);
 }
 LOGGER.info("Trying to compute routing table for resource : " + resourceName + ",by : "+ routingTableBuilder);
+try {
 List<ServerToSegmentSetMap> serverToSegmentSetMap=routingTableBuilder.computeRoutingTableFromExternalView(resourceName,externalView);
 _brokerRoutingTable.put(resourceName,serverToSegmentSetMap);
+}
+ catch (Exception e) {
+LOGGER.error("Failed to compute/update the routing table" + e.getCause());
+}
+try {
 LOGGER.info("Trying to compute time boundary service for resource : " + resourceName);
 _timeBoundaryService.updateTimeBoundaryService(externalView);
+}
+ catch (Exception e) {
+LOGGER.error("Failed to update the TimeBoundaryService : " + e.getCause());
+}
 }

@@ -1,0 +1,8 @@
+{
+  ExternalView externalView=new ExternalView(resourceName);
+  List<OfflineSegmentZKMetadata> offlineResourceZKMetadataListForResource=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(_propertyStore,resourceName);
+  for (  OfflineSegmentZKMetadata segmentMetadata : offlineResourceZKMetadataListForResource) {
+    externalView.setState(segmentMetadata.getSegmentName(),"localhost","ONLINE");
+  }
+  return externalView;
+}

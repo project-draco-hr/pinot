@@ -6,14 +6,28 @@
   if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) == ResourceType.REALTIME) {
     return;
   }
-  List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(_propertyStore,resourceName);
+  Set<String> offlineSegmentsServing=externalView.getPartitionSet();
   OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_propertyStore,resourceName);
   TimeUnit resourceTimeUnit=getTimeUnitFromString(offlineDataResourceZKMetadata.getTimeType());
-  if (!offlineSegmentZKMetadatas.isEmpty() && offlineSegmentZKMetadatas.get(0).getTimeUnit() != null) {
+  if (!offlineSegmentsServing.isEmpty() && resourceTimeUnit != null) {
     long maxTimeValue=-1;
-    for (    OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
-      long endTime=resourceTimeUnit.convert(offlineSegmentZKMetadata.getEndTime(),offlineSegmentZKMetadata.getTimeUnit());
-      maxTimeValue=Math.max(maxTimeValue,endTime);
+    for (    String segmentId : offlineSegmentsServing) {
+      try {
+        long endTime=-1;
+        OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_propertyStore,resourceName,segmentId);
+        if (offlineSegmentZKMetadata.getEndTime() > 0) {
+          if (offlineSegmentZKMetadata.getTimeUnit() != null) {
+            endTime=resourceTimeUnit.convert(offlineSegmentZKMetadata.getEndTime(),offlineSegmentZKMetadata.getTimeUnit());
+          }
+ else {
+            endTime=offlineSegmentZKMetadata.getEndTime();
+          }
+        }
+        maxTimeValue=Math.max(maxTimeValue,endTime);
+      }
+ catch (      Exception e) {
+        LOGGER.error("Error during convert end time for segment - " + segmentId + ", exceptions: "+ e);
+      }
     }
     TimeBoundaryInfo timeBoundaryInfo=new TimeBoundaryInfo();
     timeBoundaryInfo.setTimeColumn(offlineDataResourceZKMetadata.getTimeColumnName());
