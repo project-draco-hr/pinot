@@ -1,0 +1,22 @@
+{
+  File schemaFile=new File(_schemaFile);
+  Schema schema=new ObjectMapper().readValue(schemaFile,Schema.class);
+  final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
+  config.setInputFileFormat(FileFormat.AVRO);
+  config.setSegmentVersion(SegmentVersion.v1);
+  config.setIndexOutputDir(_outDir);
+  config.setResourceName(_resourceName);
+  config.setTableName(_tableName);
+  File dir=new File(_dataDir);
+  File[] files=dir.listFiles();
+  int cnt=0;
+  for (  File file : files) {
+    final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+    config.setInputFilePath(file.getAbsolutePath());
+    config.setSegmentName(_segmentName + cnt);
+    driver.init(config);
+    driver.build();
+    cnt=cnt + 1;
+  }
+  return true;
+}

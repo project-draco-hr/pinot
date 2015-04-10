@@ -1,0 +1,24 @@
+{
+  final ControllerConf conf=new ControllerConf();
+  conf.setControllerHost("localhost");
+  conf.setControllerPort(_controllerPort);
+  conf.setDataDir(_dataDir);
+  conf.setZkStr(_zkAddress);
+  conf.setHelixClusterName(_clusterName);
+  conf.setControllerVipHost("localhost");
+  conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
+  conf.setValidationControllerFrequencyInSeconds(3600);
+  final ControllerStarter starter=new ControllerStarter(conf);
+  System.out.println(conf.getQueryConsole());
+  starter.start();
+  if ((_dataDir == null) || (_tableName == null)) {
+    return true;
+  }
+  int numInstances=1;
+  int numReplicas=1;
+  String segmentAssignmentStrategy="BalanceNumSegmentAssignmentStrategy";
+  DataResource dataResource=createDataResource(numInstances,numReplicas,_clusterName,segmentAssignmentStrategy);
+  starter.getHelixResourceManager().handleCreateNewDataResource(dataResource);
+  starter.getHelixResourceManager().handleAddTableToDataResource(dataResource);
+  return true;
+}

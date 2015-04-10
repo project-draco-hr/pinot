@@ -1,0 +1,20 @@
+{
+  File schemaFile=new File(_schemaFile);
+  Schema schema=new ObjectMapper().readValue(schemaFile,Schema.class);
+  List<String> columns=new LinkedList<String>();
+  final Map<String,DataType> dataTypes=new HashMap<String,FieldSpec.DataType>();
+  final Map<String,Integer> cardinality=new HashMap<String,Integer>();
+  for (  final FieldSpec fs : schema.getAllFieldSpecs()) {
+    if (fs.getFieldType() == FieldType.DIMENSION) {
+      String col=fs.getName();
+      columns.add(col);
+      dataTypes.put(col,fs.getDataType());
+      cardinality.put(col,1000);
+    }
+  }
+  final DataGeneratorSpec spec=new DataGeneratorSpec(columns,cardinality,dataTypes,FileFormat.AVRO,_outDir,true);
+  final DataGenerator gen=new DataGenerator();
+  gen.init(spec);
+  gen.generate(_numRecords,_numFiles);
+  return true;
+}

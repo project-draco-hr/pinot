@@ -1,0 +1,8 @@
+{
+  Configuration configuration=new PropertiesConfiguration();
+  String brokerInstanceName=_brokerInstName + "_" + _brokerHostName+ "_"+ _queryPort;
+  configuration.addProperty(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,_queryPort);
+  configuration.setProperty("instanceId",brokerInstanceName);
+  final HelixBrokerStarter pinotHelixBrokerStarter=new HelixBrokerStarter(_clusterName,_zkAddress,configuration);
+  return true;
+}
