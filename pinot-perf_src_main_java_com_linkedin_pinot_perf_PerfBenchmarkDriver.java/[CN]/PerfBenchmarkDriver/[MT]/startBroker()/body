@@ -1,0 +1,10 @@
+{
+  if (!conf.isStartBroker()) {
+    LOGGER.info("Skipping start broker step. Assumes broker is already started");
+    return;
+  }
+  String brokerInstanceName="Broker_localhost_" + CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT;
+  Configuration brokerConfiguration=new PropertiesConfiguration();
+  brokerConfiguration.setProperty("instanceId",brokerInstanceName);
+  HelixBrokerStarter helixBrokerStarter=new HelixBrokerStarter(clusterName,zkAddress,brokerConfiguration);
+}

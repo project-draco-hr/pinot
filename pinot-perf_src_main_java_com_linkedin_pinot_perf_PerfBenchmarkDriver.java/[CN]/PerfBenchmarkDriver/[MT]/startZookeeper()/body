@@ -1,0 +1,9 @@
+{
+  int zkPort=conf.getZkPort();
+  if (!conf.isStartZookeeper()) {
+    LOGGER.info("Skipping start zookeeper step. Assumes zookeeper is already started");
+    return;
+  }
+  ZookeeperLauncher launcher=new ZookeeperLauncher();
+  launcher.start(zkPort);
+}

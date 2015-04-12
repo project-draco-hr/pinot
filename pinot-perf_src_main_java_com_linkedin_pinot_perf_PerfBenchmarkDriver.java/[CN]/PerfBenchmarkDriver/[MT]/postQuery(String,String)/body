@@ -1,0 +1,27 @@
+{
+  final JSONObject json=new JSONObject();
+  json.put("pql",query);
+  final long start=System.currentTimeMillis();
+  final URLConnection conn=new URL(brokerBaseApiUrl + "/query").openConnection();
+  conn.setDoOutput(true);
+  final BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
+  final String reqStr=json.toString();
+  writer.write(reqStr,0,reqStr.length());
+  writer.flush();
+  final BufferedReader reader=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+  final StringBuilder sb=new StringBuilder();
+  String line=null;
+  while ((line=reader.readLine()) != null) {
+    sb.append(line);
+  }
+  final long stop=System.currentTimeMillis();
+  final String res=sb.toString();
+  final JSONObject ret=new JSONObject(res);
+  ret.put("totalTime",(stop - start));
+  if (ret.getLong("numDocsScanned") > 0) {
+    LOGGER.info("reqStr = " + reqStr);
+    LOGGER.info(" Time in ms:" + (stop - start));
+    LOGGER.info("numDocScanned : " + ret.getLong("numDocsScanned"));
+  }
+  return ret;
+}

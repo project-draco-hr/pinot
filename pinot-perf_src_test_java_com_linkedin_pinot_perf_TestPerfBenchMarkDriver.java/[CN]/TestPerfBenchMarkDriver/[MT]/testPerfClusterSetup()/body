@@ -1,0 +1,10 @@
+{
+  PerfBenchmarkDriverConf conf=new PerfBenchmarkDriverConf();
+  PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
+  driver.run();
+  ZKHelixAdmin helixAdmin=new ZKHelixAdmin(conf.getZkHost() + ":" + conf.getZkPort());
+  List<String> instancesInCluster=helixAdmin.getInstancesInCluster(conf.getClusterName());
+  Assert.assertEquals(instancesInCluster.size(),2);
+  List<String> resourcesInCluster=helixAdmin.getResourcesInCluster(conf.getClusterName());
+  Assert.assertTrue(resourcesInCluster.contains("brokerResource"));
+}

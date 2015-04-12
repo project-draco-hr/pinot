@@ -1,0 +1,38 @@
+{
+  startZookeeper();
+  startController();
+  startBroker();
+  startServer();
+  configureResources();
+  uploadIndexSegments();
+  final ZKHelixAdmin helixAdmin=new ZKHelixAdmin(zkAddress);
+  Verifier customVerifier=new Verifier(){
+    @Override public boolean verify(){
+      List<String> resourcesInCluster=helixAdmin.getResourcesInCluster(clusterName);
+      LOGGER.info("Waiting for the cluster to be set up and indexes to be loaded on the servers" + new Timestamp(System.currentTimeMillis()));
+      for (      String resourceName : resourcesInCluster) {
+        IdealState idealState=helixAdmin.getResourceIdealState(clusterName,resourceName);
+        ExternalView externalView=helixAdmin.getResourceExternalView(clusterName,resourceName);
+        if (idealState == null || externalView == null) {
+          return false;
+        }
+        Set<String> partitionSet=idealState.getPartitionSet();
+        for (        String partition : partitionSet) {
+          Map<String,String> instanceStateMapIS=idealState.getInstanceStateMap(partition);
+          Map<String,String> instanceStateMapEV=externalView.getStateMap(partition);
+          if (instanceStateMapIS == null || instanceStateMapEV == null) {
+            return false;
+          }
+          if (!instanceStateMapIS.equals(instanceStateMapEV)) {
+            return false;
+          }
+        }
+      }
+      LOGGER.info("Cluster is ready to serve queries");
+      return true;
+    }
+  }
+;
+  ClusterStateVerifier.verifyByPolling(customVerifier,60 * 1000);
+  postQueries();
+}

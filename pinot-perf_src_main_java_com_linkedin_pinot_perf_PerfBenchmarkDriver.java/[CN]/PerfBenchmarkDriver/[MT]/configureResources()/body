@@ -1,0 +1,14 @@
+{
+  if (!conf.isConfigureResources()) {
+    LOGGER.info("Skipping configure resources step");
+    return;
+  }
+  int numInstances=1;
+  int numReplicas=1;
+  String resourceName="mirrorProfileViewOfflineEvents1";
+  String tableName="default";
+  String segmentAssignmentStrategy="BalanceNumSegmentAssignmentStrategy";
+  DataResource dataResource=createDataResource(numInstances,numReplicas,resourceName,tableName,segmentAssignmentStrategy);
+  controllerStarter.getHelixResourceManager().handleCreateNewDataResource(dataResource);
+  controllerStarter.getHelixResourceManager().handleAddTableToDataResource(dataResource);
+}

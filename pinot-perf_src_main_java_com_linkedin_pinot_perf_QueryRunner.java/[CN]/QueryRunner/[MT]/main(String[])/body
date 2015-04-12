@@ -1,0 +1,15 @@
+{
+  String confFile=args[0];
+  PerfBenchmarkDriverConf conf=(PerfBenchmarkDriverConf)new Yaml().load(new FileInputStream(confFile));
+  if (args.length > 1) {
+    conf.setQueriesDirectory(args[1]);
+  }
+  conf.setStartBroker(false);
+  conf.setStartController(false);
+  conf.setStartServer(false);
+  conf.setStartZookeeper(false);
+  conf.setUploadIndexes(false);
+  conf.setRunQueries(true);
+  PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
+  driver.postQueries();
+}

@@ -1,0 +1,13 @@
+{
+  if (!conf.isUploadIndexes()) {
+    LOGGER.info("Skipping upload Indexes step");
+    return;
+  }
+  String indexDirectory=conf.getIndexDirectory();
+  File file=new File(indexDirectory);
+  File[] listFiles=file.listFiles();
+  for (  File indexFile : listFiles) {
+    LOGGER.info("Uploading index segment " + indexFile.getAbsolutePath());
+    FileUploadUtils.sendFile(controllerHost,"" + controllerPort,indexFile.getName(),new FileInputStream(indexFile),indexFile.length());
+  }
+}
