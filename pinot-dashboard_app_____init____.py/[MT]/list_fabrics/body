@@ -1,3 +1,6 @@
 @app.route('/fabrics')
 def list_fabrics():
-    return jsonify(dict(fabrics=config.get_fabrics()))
+    try:
+        return jsonify(dict(success=True, fabrics=config.get_fabrics()))
+    except PinotException as e:
+        return jsonify(dict(success=False, error_message='Failed getting fabrics: {0}'.format(e)))

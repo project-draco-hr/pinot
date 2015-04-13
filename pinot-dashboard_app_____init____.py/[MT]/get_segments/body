@@ -1,4 +1,4 @@
 @app.route('/segments/<string:fabric>/<string:cluster>/<string:table>')
 def get_segments(fabric, cluster, table):
     resource = PinotResource(config, app.logger, fabric, cluster)
-    return jsonify(dict(segments=resource.get_table_segments(table)))
+    return jsonify(dict(success=True, segments=resource.get_table_segments(table)))

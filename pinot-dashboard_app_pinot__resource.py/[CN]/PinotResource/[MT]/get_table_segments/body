@@ -1,5 +1,15 @@
 def get_table_segments(self, table):
     host = self.config.get_controller_url(self.fabric)
-    r = requests.get('{0}/dataresources/{1}/{2}/segments'.format(host, self.resource, table))
-    segments = r.json()['segments']
+    try:
+        r = requests.get('{0}/dataresources/{1}/{2}/segments'.format(host, self.resource, table))
+    except RequestException:
+        error = 'Failed requesting /dataresources/ endpoint'
+        self.logger.exception(error)
+        raise PinotException(error)
+    try:
+        segments = r.json()['segments']
+    except (ValueError, KeyError):
+        error = 'Failed parsing json data'
+        self.logger.exception(error)
+        raise PinotException(error)
     return segments

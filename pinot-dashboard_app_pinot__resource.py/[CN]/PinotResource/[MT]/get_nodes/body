@@ -1,7 +1,8 @@
 def get_nodes(self, pinot_zoo):
     if (not re.match('^[a-zA-Z0-9_]+$', self.resource)):
-        self.logger.error('potentially unsafe resource name: {0}'.format(self.resource))
-        return False
+        error = 'potentially unsafe resource name: {0}'.format(self.resource)
+        self.logger.error(error)
+        raise PinotException(error)
     zk = pinot_zoo.get_handle()
     if (not zk):
         return False
@@ -10,10 +11,16 @@ def get_nodes(self, pinot_zoo):
     try:
         ideal_state = zk.get(state_path)[0]
     except kazoo.exceptions.NoNodeError:
-        self.logger.exception('Failed getting statefile')
         pinot_zoo.close()
-        return False
-    host_maps = json.loads(ideal_state)['mapFields']
+        error = 'Failed getting statefile'
+        self.logger.exception(error)
+        raise PinotException(error)
+    try:
+        host_maps = json.loads(ideal_state)['mapFields']
+    except (ValueError, KeyError):
+        error = 'Failed parsing JSON IDEALSTATES data'
+        self.logger.exception(error)
+        raise PinotException(error)
     nodes_list = set()
     for servers in host_maps.itervalues():
         for hostname in servers.iterkeys():

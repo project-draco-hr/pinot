@@ -2,4 +2,6 @@ def get_zk_host(self, fabric):
     try:
         return self.config['fabrics'][fabric]['zk_host']
     except KeyError:
-        self.logger.exception('Failed getting zookeeper host from config')
+        error = 'Failed getting zookeeper host from config'
+        self.logger.exception(error)
+        raise PinotException(error)

@@ -1,5 +1,16 @@
 def get_resources(self):
     host = self.config.get_controller_url(self.fabric)
-    r = requests.get('{0}/dataresources/'.format(host))
-    data = r.json()
+    url = '{0}/dataresources/'.format(host)
+    try:
+        r = requests.get(url)
+    except RequestException:
+        error = 'Failed hitting {0}'.format(url)
+        self.logger.exception(error)
+        raise PinotException(error)
+    try:
+        data = r.json()
+    except ValueError:
+        error = 'Failed parsing json data'
+        self.logger.exception(error)
+        raise PinotException(error)
     return filter((lambda x: (x != 'brokerResource')), data['resources'])

@@ -2,4 +2,6 @@ def get_fabrics(self):
     try:
         return self.config['fabrics'].keys()
     except KeyError:
-        self.logger.exception('Failed getting list of fabrics from config')
+        error = 'Failed getting list of fabrics from config'
+        self.logger.exception(error)
+        raise PinotException(error)
