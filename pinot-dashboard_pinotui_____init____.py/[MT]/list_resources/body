@@ -1,7 +1,7 @@
-@app.route('/clusters/<string:fabric>')
+@pinotui.route('/clusters/<string:fabric>')
 def list_resources(fabric):
     try:
-        resources = PinotFabric(config, app.logger, fabric).get_resources()
+        resources = PinotFabric(config, logger, fabric).get_resources()
     except PinotException as e:
         return jsonify(dict(success=False, error_message='Failed getting fabric: {0}'.format(e)))
     return jsonify(dict(success=True, clusters=resources))

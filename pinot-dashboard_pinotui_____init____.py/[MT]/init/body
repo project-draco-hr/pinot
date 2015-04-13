@@ -1,0 +1,8 @@
+@pinotui.record_once
+def init(state):
+    newconf = Dict()
+    for (k, v) in state.app.config.iteritems():
+        m = re.match('fabrics:([^:]+):([^$]+)', k)
+        if m:
+            newconf['fabrics'][m.group(1)][m.group(2)] = v
+    config.update(newconf)

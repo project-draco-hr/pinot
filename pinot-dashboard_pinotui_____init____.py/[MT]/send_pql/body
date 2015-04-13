@@ -1,7 +1,7 @@
-@app.route('/runpql/<string:fabric>')
+@pinotui.route('/runpql/<string:fabric>')
 def send_pql(fabric):
     try:
-        pinot_fabric = PinotFabric(config, app.logger, fabric)
+        pinot_fabric = PinotFabric(config, logger, fabric)
     except PinotException as e:
         return jsonify(dict(success=False, error_message='Failed getting fabric {0}'.format(e)))
     pql = request.args.get('pql')
