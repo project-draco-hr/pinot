@@ -4,47 +4,24 @@
   for (int i=0; i < groupColumnCount; i++) {
     groupColumns.add(pickRandom(_columnNames));
   }
-  String groupByColumns="";
-  for (  String groupColumn : groupColumns) {
-    groupByColumns+=groupColumn + ", ";
-  }
-  String groupByClause;
-  if (groupColumns.isEmpty()) {
-    groupByClause="";
-  }
- else {
-    groupByClause="GROUP BY " + StringUtil.join(", ",groupColumns.toArray(new String[groupColumns.size()]));
-  }
-  String aggregations;
   int aggregationColumnCount=RANDOM.nextInt(10);
   Set<String> aggregationColumns=new HashSet<String>();
   for (int i=0; i < aggregationColumnCount; i++) {
     String randomColumn=pickRandom(_numericalColumnNames);
     if (!groupColumns.contains(randomColumn))     aggregationColumns.add(randomColumn);
   }
+  List<String> aggregationColumnsAndFunctions=new ArrayList<String>();
   if (aggregationColumns.isEmpty()) {
-    aggregations="COUNT(*)";
+    aggregationColumnsAndFunctions.add("COUNT(*)");
   }
  else {
-    List<String> aggregationElements=new ArrayList<String>();
     for (    String aggregationColumn : aggregationColumns) {
       int aggregationFunctionCount=RANDOM.nextInt(aggregationFunctions.size()) + 1;
       for (int i=0; i < aggregationFunctionCount; i++) {
-        aggregationElements.add(pickRandom(aggregationFunctions) + "(" + aggregationColumn+ ")");
+        aggregationColumnsAndFunctions.add(pickRandom(aggregationFunctions) + "(" + aggregationColumn+ ")");
       }
     }
-    if (aggregationElements.size() == 1) {
-      aggregations=aggregationElements.get(0);
-    }
- else {
-      aggregations=StringUtil.join(", ",aggregationElements.toArray(new String[aggregationElements.size()]));
-    }
   }
-  String predicate=generatePredicate();
-  if (groupByColumns.isEmpty() && aggregations.isEmpty()) {
-    return "SELECT COUNT(*) FROM " + _tableName + " "+ predicate;
-  }
- else {
-    return "SELECT " + groupByColumns + aggregations+ " FROM "+ _tableName+ " "+ predicate+ " "+ groupByClause;
-  }
+  QueryFragment predicate=generatePredicate();
+  return new AggregationQuery(new ArrayList<String>(groupColumns),aggregationColumnsAndFunctions,predicate);
 }

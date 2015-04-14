@@ -1,0 +1,9 @@
+{
+  String queryBody="SELECT " + joinWithCommas(_aggregateColumnsAndFunctions) + " FROM "+ _pqlTableName+ " "+ _predicate.generatePql();
+  if (_groupColumns.isEmpty()) {
+    return queryBody;
+  }
+ else {
+    return queryBody + " GROUP BY " + joinWithCommas(_groupColumns);
+  }
+}

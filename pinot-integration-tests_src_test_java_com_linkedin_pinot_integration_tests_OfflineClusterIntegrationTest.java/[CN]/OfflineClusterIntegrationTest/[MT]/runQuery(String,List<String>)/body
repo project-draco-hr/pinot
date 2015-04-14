@@ -1,0 +1,54 @@
+{
+  try {
+    Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    JSONObject response=postQuery(pqlQuery);
+    JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
+    JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
+    if (firstAggregationResult.has("value")) {
+      statement.execute(sqlQueries.get(0));
+      ResultSet rs=statement.getResultSet();
+      String value=firstAggregationResult.getString("value");
+      rs.first();
+      String sqlValue=rs.getString(1);
+      if (value != null && sqlValue != null) {
+        value=value.replaceAll("\\..*","");
+        sqlValue=sqlValue.replaceAll("\\..*","");
+      }
+ else {
+      }
+    }
+ else     if (firstAggregationResult.has("groupByResult")) {
+      for (int aggregationGroupIndex=0; aggregationGroupIndex < aggregationResultsArray.length(); aggregationGroupIndex++) {
+        JSONArray groupByResults=aggregationResultsArray.getJSONObject(aggregationGroupIndex).getJSONArray("groupByResult");
+        if (groupByResults.length() != 0) {
+          int groupKeyCount=groupByResults.getJSONObject(0).getJSONArray("group").length();
+          Map<String,String> actualValues=new HashMap<String,String>();
+          for (int resultIndex=0; resultIndex < groupByResults.length(); ++resultIndex) {
+            JSONArray group=groupByResults.getJSONObject(resultIndex).getJSONArray("group");
+            String pinotGroupKey="";
+            for (int groupKeyIndex=0; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
+              pinotGroupKey+=group.getString(groupKeyIndex) + "\t";
+            }
+            actualValues.put(pinotGroupKey,Integer.toString((int)Double.parseDouble(groupByResults.getJSONObject(resultIndex).getString("value"))));
+          }
+          Map<String,String> correctValues=new HashMap<String,String>();
+          statement.execute(sqlQueries.get(aggregationGroupIndex));
+          ResultSet rs=statement.getResultSet();
+          rs.beforeFirst();
+          while (rs.next()) {
+            String h2GroupKey="";
+            for (int groupKeyIndex=0; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
+              h2GroupKey+=rs.getString(groupKeyIndex + 1) + "\t";
+            }
+            correctValues.put(h2GroupKey,rs.getString(groupKeyCount + 1));
+          }
+        }
+ else {
+        }
+      }
+    }
+  }
+ catch (  JSONException exception) {
+  }
+  System.out.println();
+}

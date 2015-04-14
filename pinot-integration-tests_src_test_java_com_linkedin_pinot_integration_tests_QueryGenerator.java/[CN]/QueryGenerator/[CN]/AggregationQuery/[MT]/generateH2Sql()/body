@@ -1,0 +1,14 @@
+{
+  List<String> queries=new ArrayList<String>();
+  if (_groupColumns.isEmpty()) {
+    for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
+      queries.add("SELECT " + aggregateColumnAndFunction + " FROM "+ _h2TableName+ " "+ _predicate.generatePql());
+    }
+  }
+ else {
+    for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
+      queries.add("SELECT " + joinWithCommas(_groupColumns) + ", "+ aggregateColumnAndFunction+ " FROM "+ _h2TableName+ " "+ _predicate.generatePql()+ " GROUP BY "+ joinWithCommas(_groupColumns));
+    }
+  }
+  return queries;
+}
