@@ -93,6 +93,11 @@ catch (      IOException e) {
   }
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
+  _queryGenerator=new QueryGenerator(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_1.avro"),"'myresource.mytable'");
+  for (int i=1; i <= SEGMENT_COUNT; ++i) {
+    _queryGenerator.addAvroData(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + i+ ".avro"));
+  }
+  _queryGenerator.prepareToGenerateQueries();
   final CountDownLatch latch=new CountDownLatch(1);
   HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZkTestUtils.DEFAULT_ZK_STR);
   manager.connect();

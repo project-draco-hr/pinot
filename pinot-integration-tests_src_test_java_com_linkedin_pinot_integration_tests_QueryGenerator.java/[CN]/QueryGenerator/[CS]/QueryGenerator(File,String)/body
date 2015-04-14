@@ -1,0 +1,28 @@
+{
+  _tableName=tableName;
+  GenericDatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
+  DataFileReader<GenericRecord> fileReader=null;
+  try {
+    fileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
+    Schema schema=fileReader.getSchema();
+    for (    Schema.Field field : schema.getFields()) {
+      try {
+        List<Schema> types=field.schema().getTypes();
+        String name=field.name();
+        _columnNames.add(name);
+        _columnToValues.put(name,new TreeSet<String>());
+        if (types.get(0).getType() != Schema.Type.STRING) {
+          _numericalColumnNames.add(name);
+        }
+      }
+ catch (      Exception e) {
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    IOUtils.closeQuietly(fileReader);
+  }
+}

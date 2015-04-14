@@ -1,0 +1,34 @@
+{
+  GenericDatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
+  DataFileReader<GenericRecord> fileReader=null;
+  try {
+    fileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
+    for (    GenericRecord genericRecord : fileReader) {
+      for (      String columnName : _columnNames) {
+        SortedSet<String> values=_columnToValues.get(columnName);
+        if (values == null) {
+          values=new TreeSet<String>();
+          _columnToValues.put(columnName,values);
+        }
+        String value=null;
+        Object avroValue=genericRecord.get(columnName);
+        if (avroValue == null) {
+          continue;
+        }
+ else         if (avroValue instanceof Utf8) {
+          value="'" + avroValue.toString().replace("'","''") + "'";
+        }
+ else {
+          value=avroValue.toString();
+        }
+        values.add(value);
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    IOUtils.closeQuietly(fileReader);
+  }
+}

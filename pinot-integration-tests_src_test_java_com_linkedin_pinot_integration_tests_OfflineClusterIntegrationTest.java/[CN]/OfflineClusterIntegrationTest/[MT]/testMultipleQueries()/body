@@ -1,9 +1,11 @@
 {
   Properties properties=new Properties();
   properties.load(OfflineClusterIntegrationTest.class.getClassLoader().getResourceAsStream("OfflineClusterIntegrationTest.properties"));
-  String[] queryNames=properties.getProperty("queries").split(",");
-  for (  String queryName : queryNames) {
-    String pql=properties.getProperty(queryName + ".pql");
+  String[] queries=new String[QUERY_COUNT];
+  for (int i=0; i < queries.length; i++) {
+    queries[i]=_queryGenerator.generateQuery();
+  }
+  for (  String pql : queries) {
     System.out.println(pql);
     runQuery(pql,pql.replace("'myresource.mytable'","mytable"));
   }
