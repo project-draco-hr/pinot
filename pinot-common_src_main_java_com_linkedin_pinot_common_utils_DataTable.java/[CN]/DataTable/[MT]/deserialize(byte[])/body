@@ -1,6 +1,6 @@
 {
   final ByteArrayInputStream bais=new ByteArrayInputStream(value);
-  ObjectInput out=null;
+  ObjectInputStream out=null;
   try {
     try {
       out=new ObjectInputStream(bais);
@@ -8,22 +8,12 @@
       return (T)readObject;
     }
  catch (    final Exception e) {
-      e.printStackTrace();
+      LOGGER.error("Caught exception while deserializing DataTable",e);
       return null;
     }
   }
   finally {
-    try {
-      if (out != null) {
-        out.close();
-      }
-    }
- catch (    final IOException ex) {
-    }
-    try {
-      bais.close();
-    }
- catch (    final IOException ex) {
-    }
+    IOUtils.closeQuietly(out);
+    IOUtils.closeQuietly(bais);
   }
 }
