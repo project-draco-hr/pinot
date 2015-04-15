@@ -1,0 +1,27 @@
+{
+  int segmentCount=avroFiles.size();
+  System.out.println("Building " + segmentCount + " segments in parallel");
+  for (int i=1; i <= segmentCount; ++i) {
+    final int segmentIndex=i - 1;
+    final int segmentNumber=i + baseSegmentIndex;
+    executor.execute(new Runnable(){
+      @Override public void run(){
+        try {
+          System.out.println("Starting to build segment " + segmentNumber);
+          File outputDir=new File(baseDirectory,"segment-" + segmentNumber);
+          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avroFiles.get(segmentIndex),outputDir,"daysSinceEpoch",TimeUnit.DAYS,"myresource","mytable");
+          genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber));
+          final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+          driver.init(genConfig);
+          driver.build();
+          TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/myresource_mytable_" + segmentNumber,new File(outputDir.getParent(),"myresource_mytable_" + segmentNumber).getAbsolutePath());
+          System.out.println("Completed segment " + segmentNumber);
+        }
+ catch (        Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+);
+  }
+}

@@ -1,0 +1,51 @@
+{
+  try {
+    File schemaAvroFile=avroFiles.get(0);
+    DatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
+    DataFileReader<GenericRecord> dataFileReader=new DataFileReader<GenericRecord>(schemaAvroFile,datumReader);
+    Schema schema=dataFileReader.getSchema();
+    List<Schema.Field> fields=schema.getFields();
+    String[] columnNamesAndTypes=new String[fields.size()];
+    int index=0;
+    for (    Schema.Field field : fields) {
+      List<Schema> types=field.schema().getTypes();
+      if (types.size() == 1) {
+        columnNamesAndTypes[index]=field.name() + " " + types.get(0).getName()+ " not null";
+      }
+ else {
+        columnNamesAndTypes[index]=field.name() + " " + types.get(0).getName();
+      }
+      columnNamesAndTypes[index]=columnNamesAndTypes[index].replace("string","varchar(128)");
+      ++index;
+    }
+    connection.prepareCall("create table mytable(" + StringUtil.join(",",columnNamesAndTypes) + ")").execute();
+    long start=System.currentTimeMillis();
+    StringBuilder params=new StringBuilder("?");
+    for (int i=0; i < columnNamesAndTypes.length - 1; i++) {
+      params.append(",?");
+    }
+    PreparedStatement statement=connection.prepareStatement("INSERT INTO mytable VALUES (" + params.toString() + ")");
+    dataFileReader.close();
+    for (    File avroFile : avroFiles) {
+      datumReader=new GenericDatumReader<GenericRecord>();
+      dataFileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
+      GenericRecord record=null;
+      while (dataFileReader.hasNext()) {
+        record=dataFileReader.next(record);
+        for (int i=0; i < columnNamesAndTypes.length; i++) {
+          Object value=record.get(i);
+          if (value instanceof Utf8) {
+            value=value.toString();
+          }
+          statement.setObject(i + 1,value);
+        }
+        statement.execute();
+      }
+      dataFileReader.close();
+    }
+    System.out.println("Insertion took " + (System.currentTimeMillis() - start));
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}
