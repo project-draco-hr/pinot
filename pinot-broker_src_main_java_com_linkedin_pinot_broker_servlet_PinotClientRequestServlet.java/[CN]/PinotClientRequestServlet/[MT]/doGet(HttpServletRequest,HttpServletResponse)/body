@@ -8,7 +8,7 @@
     resp.getOutputStream().print(e.getMessage());
     resp.getOutputStream().flush();
     resp.getOutputStream().close();
-    logger.error(e.getMessage());
+    LOGGER.error("Caught exception while processing GET request",e);
     brokerMetrics.addMeteredValue(null,BrokerMeter.UNCAUGHT_GET_EXCEPTIONS,1);
   }
 }

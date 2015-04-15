@@ -14,11 +14,11 @@
       }
     }
 );
-    logger.info("Broker Response : " + resp);
+    LOGGER.info("Broker Response : " + resp);
     return resp;
   }
  catch (  RecognitionException re) {
-    logger.warn("Malformed or unrecognized query " + pql,re);
+    LOGGER.warn("Malformed or unrecognized query " + pql,re);
     brokerMetrics.addMeteredValue(null,BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
     throw re;
   }
