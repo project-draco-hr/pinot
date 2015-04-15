@@ -1,0 +1,9 @@
+{
+  MetricTimeSeries sum=ThirdEyeFunctionUtils.copyBlankSeriesSame(metricNames,timeSeries.getSchema());
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    for (    String metricName : metricNames) {
+      sum.increment(0,metricName,timeSeries.get(time,metricName));
+    }
+  }
+  return sum;
+}

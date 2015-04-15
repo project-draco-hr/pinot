@@ -1,0 +1,24 @@
+{
+  functionMetrics=new ArrayList<>();
+  if (function.getName().startsWith("MOVING_AVERAGE")) {
+    terminalState.push(TerminalState.FUNCTION_MOVING_AVERAGE);
+    function.getParameters().accept(this);
+    TimeGranularity window=parseTimeGranularity(function.getName());
+    query.addFunction(new ThirdEyeMovingAverageFunction(functionMetrics,window));
+  }
+ else   if (function.getName().startsWith("AGGREGATE_")) {
+    terminalState.push(TerminalState.FUNCTION_AGGREGATE);
+    function.getParameters().accept(this);
+    TimeGranularity window=parseTimeGranularity(function.getName());
+    query.addFunction(new ThirdEyeAggregateFunction(functionMetrics,window));
+  }
+ else   if ("SUM".equals(function.getName())) {
+    terminalState.push(TerminalState.FUNCTION_SUM);
+    function.getParameters().accept(this);
+    query.addFunction(new ThirdEyeSumFunction(functionMetrics));
+  }
+ else {
+    throw new IllegalStateException("Invalid SQL: " + sql);
+  }
+  terminalState.pop();
+}

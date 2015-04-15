@@ -1,0 +1,69 @@
+{
+  ThirdEyeQueryResult result=new ThirdEyeQueryResult();
+  final StarTreeConfig config=starTreeManager.getConfig(query.getCollection());
+  if (config == null) {
+    throw new IllegalArgumentException("No collection " + query.getCollection());
+  }
+  result.setMetrics(query.getMetricNames());
+  List<String> dimensionNames=new ArrayList<>(config.getDimensions().size());
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    dimensionNames.add(dimensionSpec.getName());
+  }
+  result.setDimensions(dimensionNames);
+  final TimeRange timeRange=new TimeRange(dateTimeToCollectionTime(config,query.getStart()),dateTimeToCollectionTime(config,query.getEnd()) - 1);
+  if (!query.getGroupByColumns().isEmpty()) {
+    for (    final String groupByColumn : query.getGroupByColumns()) {
+      if (query.getDimensionValues().containsKey(groupByColumn)) {
+        throw new IllegalArgumentException("Cannot fix dimension value in group by: " + groupByColumn);
+      }
+      final Set<Future<Set<String>>> dimensionSetFutures=new HashSet<>();
+      for (      final StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+        dimensionSetFutures.add(executorService.submit(new Callable<Set<String>>(){
+          @Override public Set<String> call() throws Exception {
+            Set<String> collector=new HashSet<>();
+            getGroupByValues(starTree.getRoot(),groupByColumn,null,collector);
+            return collector;
+          }
+        }
+));
+      }
+      Set<String> dimensionSet=new HashSet<>();
+      for (      Future<Set<String>> future : dimensionSetFutures) {
+        dimensionSet.addAll(future.get());
+      }
+      for (      String dimensionValue : dimensionSet) {
+        query.addDimensionValue(groupByColumn,dimensionValue);
+      }
+    }
+  }
+  List<DimensionKey> dimensionKeys=new ArrayList<>();
+  for (  String[] combination : query.getDimensionCombinations(config.getDimensions())) {
+    dimensionKeys.add(new DimensionKey(combination));
+  }
+  Map<StarTree,Map<DimensionKey,Future<MetricTimeSeries>>> timeSeriesFutures=new HashMap<>();
+  for (  final StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    if (timeRange.isDisjoint(fromStats(starTree.getStats()))) {
+      continue;
+    }
+    timeSeriesFutures.put(starTree,new HashMap<DimensionKey,Future<MetricTimeSeries>>());
+    for (    final DimensionKey dimensionKey : dimensionKeys) {
+      timeSeriesFutures.get(starTree).put(dimensionKey,executorService.submit(new Callable<MetricTimeSeries>(){
+        @Override public MetricTimeSeries call() throws Exception {
+          return starTree.getTimeSeries(new StarTreeQueryImpl(config,dimensionKey,timeRange));
+        }
+      }
+));
+    }
+  }
+  for (  Map<DimensionKey,Future<MetricTimeSeries>> treeResult : timeSeriesFutures.values()) {
+    for (    Map.Entry<DimensionKey,Future<MetricTimeSeries>> entry : treeResult.entrySet()) {
+      MetricTimeSeries timeSeries=entry.getValue().get();
+      for (      ThirdEyeFunction function : query.getFunctions()) {
+        timeSeries=function.apply(config,timeSeries);
+      }
+      timeSeries=TO_MILLIS.apply(config,timeSeries);
+      result.addData(entry.getKey(),timeSeries);
+    }
+  }
+  return result;
+}

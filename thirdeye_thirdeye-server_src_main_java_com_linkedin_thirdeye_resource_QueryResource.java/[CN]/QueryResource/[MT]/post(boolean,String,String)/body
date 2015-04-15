@@ -1,0 +1,28 @@
+{
+  ThirdEyeQueryResult result;
+  try {
+    result=queryExecutor.executeQuery(sql);
+  }
+ catch (  IllegalArgumentException|IllegalStateException e) {
+    LOG.error("Malformed SQL {}",sql);
+    throw new WebApplicationException(e,Response.Status.BAD_REQUEST);
+  }
+catch (  Exception e) {
+    LOG.error("Exception executing SQL {}",sql);
+    throw e;
+  }
+  if (LOG.isDebugEnabled()) {
+    LOG.debug("{}",sql);
+  }
+  DateTimeZone timeZone=null;
+  if (timeZoneString != null) {
+    timeZone=DateTimeZone.forID(timeZoneString);
+  }
+  QueryResponse response=new QueryResponse(iso8601,timeZone);
+  response.setDimensions(result.getDimensions());
+  response.setMetrics(result.getMetrics());
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : result.getData().entrySet()) {
+    response.addDatum(entry.getKey(),entry.getValue());
+  }
+  return response;
+}

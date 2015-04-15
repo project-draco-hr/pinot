@@ -64,6 +64,7 @@
   environment.jersey().register(funnelResource);
   environment.jersey().register(heatMapResource);
   environment.jersey().register(new DashboardResource(starTreeManager,timeSeriesResource,funnelResource,heatMapResource,config.getFeedbackAddress()));
+  environment.jersey().register(new QueryResource(new ThirdEyeQueryExecutor(parallelQueryExecutor,starTreeManager)));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new ViewTreeTask(starTreeManager));
   environment.admin().addTask(new ViewDimensionIndexTask(rootDir));

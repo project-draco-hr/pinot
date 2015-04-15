@@ -1,0 +1,25 @@
+{
+switch (terminalState.peek()) {
+case BETWEEN_LEFT:
+    if (!"time".equals(column.getColumnName())) {
+      throw new IllegalStateException("Invalid time column " + column.getColumnName() + " (must be 'time')");
+    }
+  return;
+case SELECT_ITEM:
+query.addMetricName(column.getColumnName());
+return;
+case DIMENSION_EQUALS_LEFT:
+currentDimension=column.getColumnName();
+return;
+case GROUP_BY:
+query.addGroupByColumn(column.getColumnName());
+return;
+case FUNCTION_MOVING_AVERAGE:
+case FUNCTION_AGGREGATE:
+case FUNCTION_SUM:
+query.addMetricName(column.getColumnName());
+functionMetrics.add(column.getColumnName());
+return;
+}
+throw new IllegalStateException("Invalid SQL: " + sql);
+}

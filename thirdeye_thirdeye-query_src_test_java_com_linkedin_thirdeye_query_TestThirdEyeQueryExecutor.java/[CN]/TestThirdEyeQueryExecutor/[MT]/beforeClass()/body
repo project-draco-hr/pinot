@@ -1,0 +1,22 @@
+{
+  config=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("test-config.yml"));
+  start=new DateTime(TimeUnit.MILLISECONDS.convert(0,TimeUnit.HOURS));
+  end=new DateTime(TimeUnit.MILLISECONDS.convert(4,TimeUnit.HOURS));
+  MetricSchema metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
+  StarTree starTree=new StarTreeImpl(config);
+  starTree.open();
+  for (int i=0; i < 1024; i++) {
+    MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+    timeSeries.increment(i / 256,"M",1);
+    starTree.add(new StarTreeRecordImpl(config,new DimensionKey(new String[]{"A" + i % 2,"B" + i % 4,"C" + i % 8}),timeSeries));
+  }
+  PrintWriter printWriter=new PrintWriter(System.out);
+  StarTreeUtils.printNode(printWriter,starTree.getRoot(),0);
+  printWriter.flush();
+  StarTreeManager starTreeManager=mock(StarTreeManager.class);
+  when(starTreeManager.getCollections()).thenReturn(ImmutableSet.of(config.getCollection()));
+  when(starTreeManager.getConfig(config.getCollection())).thenReturn(config);
+  when(starTreeManager.getStarTrees(config.getCollection())).thenReturn(ImmutableMap.of(new File("dummy"),starTree));
+  executorService=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  queryExecutor=new ThirdEyeQueryExecutor(executorService,starTreeManager);
+}

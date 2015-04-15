@@ -1,0 +1,9 @@
+{
+  config=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("test-config.yml"));
+  metricSchema=new MetricSchema(ImmutableList.of("L","D"),ImmutableList.of(MetricType.LONG,MetricType.DOUBLE));
+  timeSeries=new MetricTimeSeries(metricSchema);
+  for (int i=0; i < 16; i++) {
+    timeSeries.increment(i,"L",1);
+    timeSeries.increment(i,"D",1.0);
+  }
+}

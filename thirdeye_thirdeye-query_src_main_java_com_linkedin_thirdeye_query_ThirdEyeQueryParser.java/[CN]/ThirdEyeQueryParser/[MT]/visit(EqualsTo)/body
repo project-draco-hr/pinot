@@ -1,0 +1,9 @@
+{
+  terminalState.push(TerminalState.DIMENSION_EQUALS_LEFT);
+  equalsTo.getLeftExpression().accept(this);
+  terminalState.pop();
+  terminalState.push(TerminalState.DIMENSION_EQUALS_RIGHT);
+  equalsTo.getRightExpression().accept(this);
+  terminalState.pop();
+  query.addDimensionValue(currentDimension,currentValue);
+}
