@@ -1,13 +1,20 @@
 {
+  String limitStatement;
+  if (0 <= _resultLimit) {
+    limitStatement=" LIMIT " + _resultLimit;
+  }
+ else {
+    limitStatement="";
+  }
   List<String> queries=new ArrayList<String>();
   if (_groupColumns.isEmpty()) {
     for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
-      queries.add("SELECT " + aggregateColumnAndFunction + " FROM "+ _h2TableName+ " "+ _predicate.generatePql());
+      queries.add("SELECT " + aggregateColumnAndFunction + " FROM "+ _h2TableName+ " "+ _predicate.generatePql()+ limitStatement);
     }
   }
  else {
     for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
-      queries.add("SELECT " + joinWithCommas(_groupColumns) + ", "+ aggregateColumnAndFunction+ " FROM "+ _h2TableName+ " "+ _predicate.generatePql()+ " GROUP BY "+ joinWithCommas(_groupColumns));
+      queries.add("SELECT " + joinWithCommas(_groupColumns) + ", "+ aggregateColumnAndFunction+ " FROM "+ _h2TableName+ " "+ _predicate.generateH2Sql()+ " GROUP BY "+ joinWithCommas(_groupColumns)+ limitStatement);
     }
   }
   return queries;

@@ -13,6 +13,9 @@
       result.append(field.get(this));
     }
  catch (    final IllegalAccessException ex) {
+      if (LOGGER.isWarnEnabled()) {
+        LOGGER.warn("Caught exception while trying to access field " + field,ex);
+      }
       result.append("ERROR");
     }
     result.append(newLine);

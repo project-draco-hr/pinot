@@ -1,9 +1,16 @@
 {
-  String queryBody="SELECT " + joinWithCommas(_aggregateColumnsAndFunctions) + " FROM "+ _pqlTableName+ " "+ _predicate.generatePql();
-  if (_groupColumns.isEmpty()) {
-    return queryBody;
+  String limitStatement;
+  if (0 <= _resultLimit) {
+    limitStatement=" LIMIT " + _resultLimit;
   }
  else {
-    return queryBody + " GROUP BY " + joinWithCommas(_groupColumns);
+    limitStatement="";
+  }
+  String queryBody="SELECT " + joinWithCommas(_aggregateColumnsAndFunctions) + " FROM "+ _pqlTableName+ " "+ _predicate.generatePql();
+  if (_groupColumns.isEmpty()) {
+    return queryBody + limitStatement;
+  }
+ else {
+    return queryBody + " GROUP BY " + joinWithCommas(_groupColumns)+ limitStatement;
   }
 }
