@@ -1,0 +1,18 @@
+{
+  if (!(instanceMetadata instanceof InstanceZKMetadata)) {
+    return false;
+  }
+  InstanceZKMetadata metadata=(InstanceZKMetadata)instanceMetadata;
+  if (!_instanceName.equals(metadata.getInstanceName()) || !_instanceType.equals(metadata.getInstanceType()) || _instancePort != metadata.getInstancePort()) {
+    return false;
+  }
+  for (  String resourceName : _groupIdMap.keySet()) {
+    if (!getGroupId(resourceName).equals(metadata.getGroupId(resourceName))) {
+      return false;
+    }
+    if (!getPartition(resourceName).equals(metadata.getPartition(resourceName))) {
+      return false;
+    }
+  }
+  return true;
+}

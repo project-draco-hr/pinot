@@ -1,0 +1,10 @@
+{
+  if (!(segmentMetadata instanceof SegmentZKMetadata)) {
+    return false;
+  }
+  SegmentZKMetadata metadata=(SegmentZKMetadata)segmentMetadata;
+  if (!getSegmentName().equals(metadata.getSegmentName()) || !getResourceName().equals(metadata.getResourceName()) || !getTableName().equals(metadata.getTableName())|| !getIndexVersion().equals(metadata.getIndexVersion())|| getTimeUnit() != metadata.getTimeUnit() || getStartTime() != metadata.getStartTime() || getEndTime() != metadata.getEndTime() || getSegmentType() != metadata.getSegmentType() || getTotalDocs() != metadata.getTotalDocs() || getCrc() != metadata.getCrc() || getCreationTime() != metadata.getCreationTime()) {
+    return false;
+  }
+  return true;
+}

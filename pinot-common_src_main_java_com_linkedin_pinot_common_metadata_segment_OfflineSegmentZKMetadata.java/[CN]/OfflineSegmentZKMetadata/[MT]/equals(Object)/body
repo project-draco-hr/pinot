@@ -1,0 +1,13 @@
+{
+  if (!(segmentMetadata instanceof OfflineSegmentZKMetadata)) {
+    return false;
+  }
+  OfflineSegmentZKMetadata metadata=(OfflineSegmentZKMetadata)segmentMetadata;
+  if (!super.equals(metadata)) {
+    return false;
+  }
+  if (getPushTime() != metadata.getPushTime() || getRefreshTime() != metadata.getRefreshTime() || !getDownloadUrl().equals(metadata.getDownloadUrl())) {
+    return false;
+  }
+  return true;
+}
