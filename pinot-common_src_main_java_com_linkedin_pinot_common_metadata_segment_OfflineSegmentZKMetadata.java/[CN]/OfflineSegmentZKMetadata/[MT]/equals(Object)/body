@@ -1,13 +1,10 @@
 {
-  if (!(segmentMetadata instanceof OfflineSegmentZKMetadata)) {
+  if (isSameReference(this,segmentMetadata)) {
+    return true;
+  }
+  if (isNullOrNotSameClass(this,segmentMetadata)) {
     return false;
   }
   OfflineSegmentZKMetadata metadata=(OfflineSegmentZKMetadata)segmentMetadata;
-  if (!super.equals(metadata)) {
-    return false;
-  }
-  if (getPushTime() != metadata.getPushTime() || getRefreshTime() != metadata.getRefreshTime() || !getDownloadUrl().equals(metadata.getDownloadUrl())) {
-    return false;
-  }
-  return true;
+  return super.equals(metadata) && isEqual(_pushTime,metadata._pushTime) && isEqual(_refreshTime,metadata._refreshTime)&& isEqual(_downloadUrl,metadata._downloadUrl);
 }

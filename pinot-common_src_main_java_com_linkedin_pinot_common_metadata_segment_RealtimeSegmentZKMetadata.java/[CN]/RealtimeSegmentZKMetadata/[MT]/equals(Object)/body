@@ -1,13 +1,10 @@
 {
-  if (!(segmentMetadata instanceof RealtimeSegmentZKMetadata)) {
+  if (isSameReference(this,segmentMetadata)) {
+    return true;
+  }
+  if (isNullOrNotSameClass(this,segmentMetadata)) {
     return false;
   }
   RealtimeSegmentZKMetadata metadata=(RealtimeSegmentZKMetadata)segmentMetadata;
-  if (!super.equals(metadata)) {
-    return false;
-  }
-  if (getStatus() != metadata.getStatus()) {
-    return false;
-  }
-  return true;
+  return super.equals(metadata) && isEqual(_status,metadata._status);
 }
