@@ -1,18 +1,10 @@
 {
-  if (!(instanceMetadata instanceof InstanceZKMetadata)) {
+  if (isSameReference(this,instanceMetadata)) {
+    return true;
+  }
+  if (isNullOrNotSameClass(this,instanceMetadata)) {
     return false;
   }
   InstanceZKMetadata metadata=(InstanceZKMetadata)instanceMetadata;
-  if (!_instanceName.equals(metadata.getInstanceName()) || !_instanceType.equals(metadata.getInstanceType()) || _instancePort != metadata.getInstancePort()) {
-    return false;
-  }
-  for (  String resourceName : _groupIdMap.keySet()) {
-    if (!getGroupId(resourceName).equals(metadata.getGroupId(resourceName))) {
-      return false;
-    }
-    if (!getPartition(resourceName).equals(metadata.getPartition(resourceName))) {
-      return false;
-    }
-  }
-  return true;
+  return isEqual(_id,metadata._id) && isEqual(_instanceName,metadata._instanceName) && isEqual(_instanceType,metadata._instanceType)&& isEqual(_instancePort,metadata._instancePort)&& isEqual(_groupIdMap,metadata._groupIdMap)&& isEqual(_partitionMap,metadata._partitionMap);
 }

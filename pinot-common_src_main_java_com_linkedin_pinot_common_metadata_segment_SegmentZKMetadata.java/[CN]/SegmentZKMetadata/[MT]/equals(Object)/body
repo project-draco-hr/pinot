@@ -1,10 +1,10 @@
 {
-  if (!(segmentMetadata instanceof SegmentZKMetadata)) {
+  if (isSameReference(this,segmentMetadata)) {
+    return true;
+  }
+  if (isNullOrNotSameClass(this,segmentMetadata)) {
     return false;
   }
   SegmentZKMetadata metadata=(SegmentZKMetadata)segmentMetadata;
-  if (!getSegmentName().equals(metadata.getSegmentName()) || !getResourceName().equals(metadata.getResourceName()) || !getTableName().equals(metadata.getTableName())|| !getIndexVersion().equals(metadata.getIndexVersion())|| getTimeUnit() != metadata.getTimeUnit() || getStartTime() != metadata.getStartTime() || getEndTime() != metadata.getEndTime() || getSegmentType() != metadata.getSegmentType() || getTotalDocs() != metadata.getTotalDocs() || getCrc() != metadata.getCrc() || getCreationTime() != metadata.getCreationTime()) {
-    return false;
-  }
-  return true;
+  return isEqual(_segmentName,metadata._segmentName) && isEqual(_resourceName,metadata._resourceName) && isEqual(_tableName,metadata._tableName)&& isEqual(_indexVersion,metadata._indexVersion)&& isEqual(_timeUnit,metadata._timeUnit)&& isEqual(_startTime,metadata._startTime)&& isEqual(_endTime,metadata._endTime)&& isEqual(_segmentType,metadata._segmentType)&& isEqual(_totalDocs,metadata._totalDocs)&& isEqual(_crc,metadata._crc)&& isEqual(_creationTime,metadata._creationTime);
 }

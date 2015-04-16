@@ -1,13 +1,10 @@
 {
-  if (!(offlineDataResourceMetadata instanceof OfflineDataResourceZKMetadata)) {
+  if (isSameReference(this,offlineDataResourceMetadata)) {
+    return true;
+  }
+  if (isNullOrNotSameClass(this,offlineDataResourceMetadata)) {
     return false;
   }
   OfflineDataResourceZKMetadata dataResourceMetadata=(OfflineDataResourceZKMetadata)offlineDataResourceMetadata;
-  if (!super.equals(dataResourceMetadata)) {
-    return false;
-  }
-  if (!getPushFrequency().equals(dataResourceMetadata.getPushFrequency()) || !getSegmentAssignmentStrategy().equals(dataResourceMetadata.getSegmentAssignmentStrategy())) {
-    return false;
-  }
-  return true;
+  return super.equals(dataResourceMetadata) && isEqual(_pushFrequency,dataResourceMetadata._pushFrequency) && isEqual(_segmentAssignmentStrategy,dataResourceMetadata._segmentAssignmentStrategy);
 }

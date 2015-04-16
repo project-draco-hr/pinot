@@ -1,13 +1,10 @@
 {
-  if (!(anotherMetadata instanceof RealtimeDataResourceZKMetadata)) {
+  if (isSameReference(this,anotherMetadata)) {
+    return true;
+  }
+  if (isNullOrNotSameClass(this,anotherMetadata)) {
     return false;
   }
   RealtimeDataResourceZKMetadata metadata=(RealtimeDataResourceZKMetadata)anotherMetadata;
-  if (!super.equals(metadata)) {
-    return false;
-  }
-  if (metadata.getStreamType() != _streamType || !metadata.getDataSchema().toString().equals(_dataSchema.toString()) || !metadata.getStreamMetadata().toString().equals(_streamMetadata.toString())) {
-    return false;
-  }
-  return true;
+  return super.equals(metadata) && isEqual(_streamType,metadata._streamType) && isEqual(_dataSchema,metadata._dataSchema)&& isEqual(_streamMetadata,metadata._streamMetadata);
 }
