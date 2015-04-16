@@ -1,3 +1,19 @@
 {
-  throw new RuntimeException("Unimplemented");
+  Set<String> projectionColumns=new HashSet<String>();
+  int projectionColumnCount=RANDOM.nextInt(10);
+  for (int i=0; i < projectionColumnCount; i++) {
+    projectionColumns.add(pickRandom(_columnNames));
+  }
+  if (projectionColumns.isEmpty()) {
+    projectionColumns.add("*");
+  }
+  Set<String> orderByColumns=new HashSet<String>();
+  int orderByColumnCount=RANDOM.nextInt(10);
+  for (int i=0; i < orderByColumnCount; i++) {
+    orderByColumns.add(pickRandom(_columnNames));
+  }
+  QueryFragment predicate=generatePredicate();
+  int resultLimit=RANDOM.nextInt(5500) - 500;
+  LimitQueryFragment limit=new LimitQueryFragment(resultLimit);
+  return new SelectionQuery(projectionColumns,new OrderByQueryFragment(orderByColumns),predicate,limit);
 }

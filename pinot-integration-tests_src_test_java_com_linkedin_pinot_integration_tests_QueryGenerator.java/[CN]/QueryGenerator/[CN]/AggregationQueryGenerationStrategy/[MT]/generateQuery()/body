@@ -24,5 +24,6 @@
   }
   QueryFragment predicate=generatePredicate();
   int resultLimit=RANDOM.nextInt(5500) - 500;
-  return new AggregationQuery(new ArrayList<String>(groupColumns),aggregationColumnsAndFunctions,predicate,resultLimit);
+  LimitQueryFragment limit=new LimitQueryFragment(resultLimit);
+  return new AggregationQuery(new ArrayList<String>(groupColumns),aggregationColumnsAndFunctions,predicate,limit);
 }
