@@ -1,12 +1,7 @@
 {
   this.manager=manager;
   this.rootDir=rootDir;
-  this.lastPostDataMillis=new AtomicLong(-1);
   this.dataUpdateManager=dataUpdateManager;
-  metricRegistry.register(MetricRegistry.name(CollectionsResource.class,LAST_POST_DATA_MILLIS),new Gauge<Long>(){
-    @Override public Long getValue(){
-      return lastPostDataMillis.get();
-    }
-  }
-);
+  this.metricRegistry=metricRegistry;
+  lastPostDataMillis=new ConcurrentHashMap<String,AtomicLong>();
 }

@@ -1,4 +1,17 @@
 {
   dataUpdateManager.updateData(collection,schedule,new DateTime(minTimeMillis),new DateTime(maxTimeMillis),dataBytes);
+  final String collectionName=collection;
+  AtomicLong value=lastPostDataMillis.putIfAbsent(collectionName,new AtomicLong(System.currentTimeMillis()));
+  if (value == null) {
+    metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collectionName,LAST_POST_DATA_MILLIS),new Gauge<Long>(){
+      @Override public Long getValue(){
+        return lastPostDataMillis.get(collectionName).get();
+      }
+    }
+);
+  }
+ else {
+    value.set((System.currentTimeMillis()));
+  }
   return Response.ok().build();
 }
