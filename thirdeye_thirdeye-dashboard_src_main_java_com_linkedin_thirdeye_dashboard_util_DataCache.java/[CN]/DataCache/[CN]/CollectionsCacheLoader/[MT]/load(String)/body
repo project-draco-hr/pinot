@@ -1,0 +1,15 @@
+{
+  List<String> collections;
+  HttpGet httpGet=new HttpGet(URI.create(uri));
+  HttpResponse response=httpClient.execute(httpGet);
+  try {
+    collections=objectMapper.readValue(response.getEntity().getContent(),new TypeReference<List<String>>(){
+    }
+);
+  }
+  finally {
+    EntityUtils.consume(response.getEntity());
+  }
+  LOG.info("Cached collections for {}: {}",uri,collections);
+  return collections;
+}

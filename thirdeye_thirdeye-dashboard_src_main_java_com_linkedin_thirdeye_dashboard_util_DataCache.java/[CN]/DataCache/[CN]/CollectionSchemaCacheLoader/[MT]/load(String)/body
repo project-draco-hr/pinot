@@ -1,0 +1,23 @@
+{
+  CollectionSchema schema=new CollectionSchema();
+  HttpGet httpUriRequest=new HttpGet(URI.create(uri));
+  HttpResponse response=httpClient.execute(httpUriRequest);
+  try {
+    JsonNode json=objectMapper.readTree(response.getEntity().getContent());
+    List<String> dimensions=new ArrayList<>();
+    for (    JsonNode dimension : json.get("dimensions")) {
+      dimensions.add(dimension.get("name").asText());
+    }
+    schema.setDimensions(dimensions);
+    List<String> metrics=new ArrayList<>();
+    for (    JsonNode dimension : json.get("metrics")) {
+      metrics.add(dimension.get("name").asText());
+    }
+    schema.setMetrics(metrics);
+  }
+  finally {
+    EntityUtils.consume(response.getEntity());
+  }
+  LOG.info("Cached schema for {}: {}",uri,schema);
+  return schema;
+}

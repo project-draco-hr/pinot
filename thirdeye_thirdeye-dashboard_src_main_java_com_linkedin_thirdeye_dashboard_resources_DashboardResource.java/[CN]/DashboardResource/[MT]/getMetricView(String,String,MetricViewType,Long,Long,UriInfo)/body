@@ -1,0 +1,19 @@
+{
+  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+switch (metricViewType) {
+case INTRA_DAY:
+    String baselineSql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_DAY_PERIOD),new DateTime(baselineMillis),dimensionValues);
+  LOG.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),baselineSql);
+String currentSql=SqlUtils.getSql(metricFunction,collection,new DateTime(currentMillis - INTRA_DAY_PERIOD),new DateTime(currentMillis),dimensionValues);
+LOG.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),baselineSql);
+Future<QueryResult> baselineFuture=queryCache.getQueryResultAsync(serverUri,baselineSql);
+Future<QueryResult> currentFuture=queryCache.getQueryResultAsync(serverUri,currentSql);
+return new MetricViewTabular(objectMapper,baselineFuture.get(),currentFuture.get(),currentMillis - baselineMillis);
+case TIME_SERIES_FULL:
+case TIME_SERIES_OVERLAY:
+return new MetricViewTimeSeriesFull(schema,dimensionValues);
+default :
+throw new NotFoundException("No metric view implementation for " + metricViewType);
+}
+}

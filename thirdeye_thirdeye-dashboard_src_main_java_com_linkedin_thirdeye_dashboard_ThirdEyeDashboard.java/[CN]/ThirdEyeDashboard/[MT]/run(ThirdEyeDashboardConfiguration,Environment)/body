@@ -1,0 +1,8 @@
+{
+  final HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClientConfiguration()).build(getName());
+  ExecutorService queryExecutor=environment.lifecycle().executorService("query_executor").build();
+  DataCache dataCache=new DataCache(httpClient,environment.getObjectMapper());
+  QueryCache queryCache=new QueryCache(httpClient,environment.getObjectMapper(),queryExecutor);
+  environment.jersey().register(new DashboardResource(config.getServerUri(),dataCache,queryCache,environment.getObjectMapper()));
+  environment.jersey().register(new FlotTimeSeriesResource(config.getServerUri(),queryCache,environment.getObjectMapper()));
+}

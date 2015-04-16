@@ -1,0 +1,8 @@
+{
+  DateTime baseline=new DateTime(baselineMillis);
+  DateTime current=new DateTime(currentMillis);
+  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
+  QueryResult queryResult=queryCache.getQueryResult(serverUri,sql);
+  return FlotTimeSeries.fromQueryResult(objectMapper,queryResult);
+}

@@ -1,0 +1,43 @@
+{
+  List<FlotTimeSeries> allSeries=new ArrayList<>();
+  String dimensionNamesJson=objectMapper.writeValueAsString(queryResult.getDimensions());
+  for (  Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+    Map<String,List<Number[]>> timeSeriesByMetric=new HashMap<>();
+    for (    String metric : queryResult.getMetrics()) {
+      timeSeriesByMetric.put(metric,new ArrayList<Number[]>());
+    }
+    for (    Map.Entry<String,Number[]> timeEntry : entry.getValue().entrySet()) {
+      Long time=Long.valueOf(timeEntry.getKey());
+      for (int i=0; i < queryResult.getMetrics().size(); i++) {
+        String name=queryResult.getMetrics().get(i);
+        Number value=timeEntry.getValue()[i];
+        timeSeriesByMetric.get(name).add(new Number[]{time,value});
+      }
+    }
+    for (    Map.Entry<String,List<Number[]>> metricSeriesEntry : timeSeriesByMetric.entrySet()) {
+      List<Number[]> series=metricSeriesEntry.getValue();
+      Collections.sort(series,COMPARATOR_BY_TIME);
+      StringBuilder label=new StringBuilder();
+      if (labelPrefix != null) {
+        label.append(labelPrefix);
+      }
+      label.append(metricSeriesEntry.getKey());
+      if (queryResult.getData().size() > 1) {
+        label.append(" (").append(entry.getKey()).append(")");
+      }
+      if (!series.isEmpty()) {
+        double baseline=series.get(0)[1].doubleValue();
+        if (baseline > 0) {
+          double current=series.get(series.size() - 1)[1].doubleValue();
+          double percentChange=100 * (current - baseline) / baseline;
+          label.append(String.format(" (%.2f%%)",percentChange));
+        }
+ else {
+          label.append(" (N/A)");
+        }
+      }
+      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),series));
+    }
+  }
+  return allSeries;
+}

@@ -1,0 +1,38 @@
+{
+  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+  DateTime baseline=new DateTime(baselineMillis);
+  DateTime current=new DateTime(currentMillis);
+  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
+switch (dimensionViewType) {
+case MULTI_TIME_SERIES:
+    List<String> multiTimeSeriesDimensions=new ArrayList<>();
+  for (  String dimension : schema.getDimensions()) {
+    if (!dimensionValues.containsKey(dimension)) {
+      dimensionValues.put(dimension,"!");
+      String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
+      LOG.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
+      dimensionValues.remove(dimension);
+      multiTimeSeriesDimensions.add(dimension);
+    }
+  }
+return new DimensionViewMultiTimeSeries(multiTimeSeriesDimensions);
+case HEAT_MAP:
+for (String dimension : schema.getDimensions()) {
+if (!dimensionValues.containsKey(dimension)) {
+  dimensionValues.put(dimension,"!");
+  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
+  LOG.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
+  dimensionValues.remove(dimension);
+  resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
+}
+}
+Map<String,QueryResult> results=new HashMap<>(resultFutures.size());
+for (Map.Entry<String,Future<QueryResult>> entry : resultFutures.entrySet()) {
+results.put(entry.getKey(),entry.getValue().get());
+}
+return new DimensionViewHeatMap(objectMapper,results);
+default :
+throw new NotFoundException("No dimension view implementation for " + dimensionViewType);
+}
+}

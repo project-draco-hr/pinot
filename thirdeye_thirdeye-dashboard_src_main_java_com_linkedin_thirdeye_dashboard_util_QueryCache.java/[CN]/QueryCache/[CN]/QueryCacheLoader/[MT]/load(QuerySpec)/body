@@ -1,0 +1,14 @@
+{
+  URI uri=URI.create(querySpec.getServerUri() + "/query/" + URLEncoder.encode(querySpec.getSql(),"UTF-8"));
+  HttpGet httpGet=new HttpGet(uri);
+  HttpResponse httpResponse=httpClient.execute(httpGet);
+  if (httpResponse.getStatusLine().getStatusCode() != 200) {
+    throw new IllegalStateException(httpResponse.getStatusLine().toString());
+  }
+  try {
+    return objectMapper.readValue(httpResponse.getEntity().getContent(),QueryResult.class);
+  }
+  finally {
+    EntityUtils.consume(httpResponse.getEntity());
+  }
+}

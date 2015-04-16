@@ -1,0 +1,15 @@
+{
+  if (data.isEmpty()) {
+    throw new NotFoundException("No dimension combinations in result");
+  }
+  boolean allEmpty=true;
+  for (  Map<String,Number[]> series : data.values()) {
+    if (!series.isEmpty()) {
+      allEmpty=false;
+      break;
+    }
+  }
+  if (allEmpty) {
+    throw new NotFoundException("No data for any dimension combination");
+  }
+}

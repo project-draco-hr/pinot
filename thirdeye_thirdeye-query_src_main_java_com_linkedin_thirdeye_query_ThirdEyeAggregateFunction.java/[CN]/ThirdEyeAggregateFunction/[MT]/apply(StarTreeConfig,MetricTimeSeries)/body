@@ -1,6 +1,9 @@
 {
   MetricTimeSeries aggregate=ThirdEyeFunctionUtils.copyBlankSeriesSame(metricNames,timeSeries.getSchema());
   long collectionWindow=config.getTime().getBucket().getUnit().convert(window.getSize(),window.getUnit()) / config.getTime().getBucket().getSize();
+  if (collectionWindow == 0) {
+    throw new IllegalArgumentException("Minimum aggregation granularity is " + config.getTime().getBucket().getSize() + " "+ config.getTime().getBucket().getUnit());
+  }
   List<Long> sortedTimes=new ArrayList<>(timeSeries.getTimeWindowSet());
   Collections.sort(sortedTimes);
   long timeRange=sortedTimes.get(sortedTimes.size() - 1) - sortedTimes.get(0) + 1;
