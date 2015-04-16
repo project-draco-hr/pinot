@@ -1,18 +1,18 @@
 {
   SchemaBuilder schemaBuilder=new SchemaBuilder();
   for (  String configKey : schemaConfig.keySet()) {
-    if (!configKey.startsWith(Helix.DataSource.SCHEMA) || !configKey.endsWith(Helix.DataSource.Schema.COLUMN_NAME)) {
+    if (!configKey.startsWith(DataSource.SCHEMA) || !configKey.endsWith(DataSource.Schema.COLUMN_NAME)) {
       continue;
     }
     String columnName=schemaConfig.get(configKey);
-    FieldType fieldType=FieldType.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.FIELD_TYPE)).toUpperCase());
-    DataType dataType=DataType.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.DATA_TYPE)));
+    FieldType fieldType=FieldType.valueOf(schemaConfig.get(StringUtil.join(".",DataSource.SCHEMA,columnName,DataSource.Schema.FIELD_TYPE)).toUpperCase());
+    DataType dataType=DataType.valueOf(schemaConfig.get(StringUtil.join(".",DataSource.SCHEMA,columnName,DataSource.Schema.DATA_TYPE)));
 switch (fieldType) {
 case DIMENSION:
-      boolean isSingleValueField=Boolean.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.IS_SINGLE_VALUE)));
+      boolean isSingleValueField=Boolean.valueOf(schemaConfig.get(StringUtil.join(".",DataSource.SCHEMA,columnName,DataSource.Schema.IS_SINGLE_VALUE)));
     if (!isSingleValueField) {
       String delimeter=null;
-      Object obj=schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.DELIMETER));
+      Object obj=schemaConfig.get(StringUtil.join(".",DataSource.SCHEMA,columnName,DataSource.Schema.DELIMETER));
       if (obj instanceof String) {
         delimeter=(String)obj;
       }
@@ -29,11 +29,11 @@ case METRIC:
 schemaBuilder.addMetric(columnName,dataType);
 break;
 case TIME:
-TimeUnit timeUnit=TimeUnit.valueOf(schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.TIME_UNIT)));
+TimeUnit timeUnit=TimeUnit.valueOf(schemaConfig.get(StringUtil.join(".",DataSource.SCHEMA,columnName,DataSource.Schema.TIME_UNIT)));
 schemaBuilder.addTime(columnName,timeUnit,dataType);
 break;
 default :
-throw new RuntimeException("Unable to recongize field type for column: " + columnName + ", fieldType = "+ schemaConfig.get(StringUtil.join(".",Helix.DataSource.SCHEMA,columnName,CommonConstants.Helix.DataSource.Schema.FIELD_TYPE)));
+throw new RuntimeException("Unable to recongize field type for column: " + columnName + ", fieldType = "+ schemaConfig.get(StringUtil.join(".",DataSource.SCHEMA,columnName,DataSource.Schema.FIELD_TYPE)));
 }
 }
 return schemaBuilder.build();
