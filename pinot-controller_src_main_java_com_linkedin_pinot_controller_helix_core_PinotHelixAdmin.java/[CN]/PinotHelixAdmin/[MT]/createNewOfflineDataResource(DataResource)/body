@@ -18,6 +18,6 @@
   LOGGER.info("adding resource via the admin");
   _helixAdmin.addResource(_helixClusterName,offlineResourceName,idealState);
   LOGGER.info("successfully added the resource : " + offlineResourceName + " to the cluster");
-  ZKMetadataProvider.setOfflineResourceZKMetadata(getPropertyStore(),offlineDataResource);
+  ZKMetadataProvider.setOfflineResourceZKMetadata(_propertyStore,offlineDataResource);
   _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(offlineResourceName),new ZNRecord(offlineResourceName),AccessOption.PERSISTENT);
 }

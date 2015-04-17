@@ -13,9 +13,9 @@
     _helixAdmin.removeInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
     _helixAdmin.addInstanceTag(_helixClusterName,unTaggedInstanceList.get(i),realtimeResourceName);
   }
-  ZKMetadataProvider.setRealtimeResourceZKMetadata(getPropertyStore(),realtimeDataResource);
+  ZKMetadataProvider.setRealtimeResourceZKMetadata(_propertyStore,realtimeDataResource);
   LOGGER.info("building empty ideal state for resource : " + realtimeResourceName);
-  final IdealState idealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,_helixAdmin,_helixClusterName,getPropertyStore());
+  final IdealState idealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeResourceName,realtimeDataResource,_helixAdmin,_helixClusterName,_propertyStore);
   LOGGER.info("adding resource via the admin");
   _helixAdmin.addResource(_helixClusterName,realtimeResourceName,idealState);
   LOGGER.info("successfully added the resource : " + realtimeResourceName + " to the cluster");

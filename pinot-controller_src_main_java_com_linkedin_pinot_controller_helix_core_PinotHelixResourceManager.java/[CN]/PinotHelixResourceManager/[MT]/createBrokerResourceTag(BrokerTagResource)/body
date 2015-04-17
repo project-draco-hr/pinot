@@ -9,7 +9,7 @@
   if (HelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
     return updateBrokerResourceTag(brokerTagResource);
   }
-  final List<String> untaggedBrokerInstances=getOnlineUnTaggedBrokerInstanceList();
+  final List<String> untaggedBrokerInstances=_pinotHelixAdmin.getOnlineUnTaggedBrokerInstanceList();
   if (untaggedBrokerInstances.size() < brokerTagResource.getNumBrokerInstances()) {
     res.status=STATUS.failure;
     res.errorMessage="Failed to create tag : " + brokerTagResource.getTag() + ", Current number of untagged broker instances : "+ untaggedBrokerInstances.size()+ ", required : "+ brokerTagResource.getNumBrokerInstances();

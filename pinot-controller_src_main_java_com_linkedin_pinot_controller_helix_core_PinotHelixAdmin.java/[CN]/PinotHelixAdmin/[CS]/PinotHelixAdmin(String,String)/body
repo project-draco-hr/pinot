@@ -1,0 +1,13 @@
+{
+  this._zkAddress=zkAddress;
+  this._helixClusterName=clusterName;
+  _zkClient=new ZkClient(zkAddress);
+  _zkClient.setZkSerializer(new ZNRecordSerializer());
+  _zkClient.waitUntilConnected(60,TimeUnit.SECONDS);
+  _helixAdmin=new ZKHelixAdmin(_zkClient);
+  ZkBaseDataAccessor<ZNRecord> baseDataAccessor=new ZkBaseDataAccessor<ZNRecord>(_zkClient);
+  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,clusterName);
+  _propertyStore=new ZkHelixPropertyStore<ZNRecord>(baseDataAccessor,propertyStorePath,Arrays.asList(propertyStorePath));
+  _helixDataAccessor=new ZKHelixDataAccessor(clusterName,baseDataAccessor);
+  _helixPropertyKeyBuilder=new PropertyKey.Builder(clusterName);
+}

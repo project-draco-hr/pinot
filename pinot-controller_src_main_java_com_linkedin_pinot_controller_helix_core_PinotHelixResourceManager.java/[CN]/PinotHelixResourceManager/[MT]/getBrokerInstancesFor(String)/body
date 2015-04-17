@@ -7,9 +7,5 @@
     brokerTag=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)).getBrokerTag();
   }
   final List<String> instanceIds=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag);
-  if (instanceIds == null || instanceIds.size() == 0) {
-    return null;
-  }
-  Collections.shuffle(instanceIds);
-  return instanceIds.get(0);
+  return instanceIds;
 }
