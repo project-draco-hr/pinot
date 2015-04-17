@@ -6,6 +6,8 @@
     return IOUtils.toString(httpget.getResponseBodyAsStream());
   }
  catch (  Exception ex) {
-    throw new RuntimeException(ex);
+    LOGGER.error("Caught exception",ex);
+    Utils.rethrowException(ex);
+    throw new AssertionError("Should not reach this");
   }
 }

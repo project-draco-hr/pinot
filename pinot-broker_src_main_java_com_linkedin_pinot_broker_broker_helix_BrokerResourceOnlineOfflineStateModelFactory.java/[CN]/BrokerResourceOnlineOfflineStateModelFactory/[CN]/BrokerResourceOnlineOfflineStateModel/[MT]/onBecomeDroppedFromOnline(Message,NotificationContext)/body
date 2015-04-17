@@ -5,6 +5,8 @@
     _helixExternalViewBasedRouting.markDataResourceOffline(resourceName);
   }
  catch (  Exception e) {
-    LOGGER.error(e);
+    LOGGER.error("Caught exception during ONLINE -> DROPPED transition",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
   }
 }

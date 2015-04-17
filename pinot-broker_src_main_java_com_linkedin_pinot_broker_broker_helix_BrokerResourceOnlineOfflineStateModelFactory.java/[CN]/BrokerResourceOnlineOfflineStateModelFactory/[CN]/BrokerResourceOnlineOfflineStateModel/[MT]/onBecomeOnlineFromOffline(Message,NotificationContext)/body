@@ -5,6 +5,8 @@
     _helixExternalViewBasedRouting.markDataResourceOnline(resourceName,HelixHelper.getExternalViewForResouce(_helixManager.getClusterManagmentTool(),_helixManager.getClusterName(),resourceName));
   }
  catch (  Exception e) {
-    LOGGER.error(e);
+    LOGGER.error("Caught exception during OFFLINE -> ONLINE transition",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
   }
 }

@@ -3,6 +3,8 @@
     return new JSONObject().put("value",finalAggregationResult.toString());
   }
  catch (  JSONException e) {
-    throw new RuntimeException(e);
+    LOGGER.error("Caught exception while rendering aggregation result",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
   }
 }

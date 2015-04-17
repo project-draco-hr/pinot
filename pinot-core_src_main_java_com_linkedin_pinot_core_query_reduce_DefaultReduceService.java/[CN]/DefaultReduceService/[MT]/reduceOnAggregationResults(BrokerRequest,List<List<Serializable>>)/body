@@ -7,7 +7,9 @@
       retAggregationResults.add(aggregationFunctions.get(i).render(retResult).put("function",aggregationFunctions.get(i).getFunctionName()));
     }
  catch (    JSONException e) {
-      throw new RuntimeException(e);
+      LOGGER.error("Caught exception while reducing aggregation results",e);
+      Utils.rethrowException(e);
+      throw new AssertionError("Should not reach this");
     }
   }
   return retAggregationResults;

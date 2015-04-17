@@ -13,6 +13,8 @@
     }
   }
  catch (  Exception ex) {
-    throw new RuntimeException(ex);
+    LOGGER.error("Caught exception while building aggregation function",ex);
+    Utils.rethrowException(ex);
+    throw new AssertionError("Should not reach here");
   }
 }

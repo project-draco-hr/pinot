@@ -37,6 +37,8 @@
     return retJsonResultList;
   }
  catch (  JSONException e) {
-    throw new RuntimeException(e);
+    LOGGER.error("Caught exception while processing group by aggregation",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
   }
 }

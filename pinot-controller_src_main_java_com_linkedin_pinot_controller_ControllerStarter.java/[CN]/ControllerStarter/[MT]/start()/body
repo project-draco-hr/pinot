@@ -22,8 +22,9 @@
     realtimeSegmentsManager.start();
   }
  catch (  final Exception e) {
-    logger.error(e);
-    throw new RuntimeException(e);
+    logger.error("Caught exception while starting controller",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
   }
   MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));
   MetricsHelper.registerMetricsRegistry(_metricsRegistry);

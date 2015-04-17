@@ -9,6 +9,8 @@
     return cls.newInstance();
   }
  catch (  Exception ex) {
-    throw new RuntimeException(ex);
+    LOGGER.error("Caught exception while getting routing table builder",ex);
+    Utils.rethrowException(ex);
+    throw new AssertionError("Should not reach this");
   }
 }

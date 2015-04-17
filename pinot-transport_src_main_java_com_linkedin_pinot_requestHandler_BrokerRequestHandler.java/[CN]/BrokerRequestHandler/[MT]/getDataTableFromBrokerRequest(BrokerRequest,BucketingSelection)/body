@@ -69,6 +69,8 @@
 );
   }
  catch (  Exception e) {
-    throw new RuntimeException(e);
+    LOGGER.error("Caught exception while processing return",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
   }
 }
