@@ -5,7 +5,12 @@
   }
   if (entry instanceof Object[]) {
     for (    final Object e : (Object[])entry) {
-      stringSet.add(((String)e));
+      if (e == null) {
+        hasNull=true;
+      }
+ else {
+        stringSet.add(((String)e));
+      }
     }
     if (maxNumberOfMultiValues < ((Object[])entry).length) {
       maxNumberOfMultiValues=((Object[])entry).length;
