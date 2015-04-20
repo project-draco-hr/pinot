@@ -3,6 +3,9 @@
     if (finalAggregationResult == null) {
       throw new NoSuchElementException("Final result is null!");
     }
+    if (finalAggregationResult.isInfinite()) {
+      return new JSONObject().put("value","null");
+    }
     return new JSONObject().put("value",String.format("%1.5f",finalAggregationResult));
   }
  catch (  JSONException e) {

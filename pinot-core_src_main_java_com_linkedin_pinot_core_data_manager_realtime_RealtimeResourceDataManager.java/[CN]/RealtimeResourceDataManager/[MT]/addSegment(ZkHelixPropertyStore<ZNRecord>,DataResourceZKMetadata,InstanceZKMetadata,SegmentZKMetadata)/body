@@ -2,7 +2,7 @@
   this._helixPropertyStore=propertyStore;
   String segmentId=segmentZKMetadata.getSegmentName();
   if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
-    if (new File(_indexDir,segmentId).exists()) {
+    if (new File(_indexDir,segmentId).exists() && ((RealtimeSegmentZKMetadata)segmentZKMetadata).getStatus() == Status.DONE) {
       if (!_segmentsMap.containsKey(segmentId)) {
 synchronized (getGlobalLock()) {
           if (!_segmentsMap.containsKey(segmentId)) {
