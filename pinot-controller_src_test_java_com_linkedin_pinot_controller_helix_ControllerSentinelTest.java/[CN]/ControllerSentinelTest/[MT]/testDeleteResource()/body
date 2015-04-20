@@ -1,5 +1,5 @@
 {
-  final JSONObject payload=ControllerRequestBuilderUtil.buildCreateResourceJSON("testDeleteResource",2,2);
+  final JSONObject payload=ControllerRequestBuilderUtil.buildCreateOfflineResourceJSON("testDeleteResource",2,2);
   final String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceCreate(),payload.toString());
   Assert.assertEquals(SUCCESS_STATUS,new JSONObject(res).getString("status"));
   while (!_zkClient.exists("/" + getHelixClusterName() + "/EXTERNALVIEW/testDeleteResource_O")) {

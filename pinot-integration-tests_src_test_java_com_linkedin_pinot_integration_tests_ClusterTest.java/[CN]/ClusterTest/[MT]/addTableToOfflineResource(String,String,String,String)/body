@@ -1,5 +1,8 @@
 {
   JSONObject payload=ControllerRequestBuilderUtil.createOfflineClusterAddTableToResource(resourceName,tableName).toJSON();
+  if (timeColumnName != null && timeColumnType != null) {
+    payload=payload.put(DataSource.TIME_COLUMN_NAME,timeColumnName).put(DataSource.TIME_TYPE,timeColumnType);
+  }
   String res=sendPutRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceCreate(),payload.toString());
   Assert.assertEquals(_success,new JSONObject(res).getString("status"));
 }

@@ -1,4 +1,13 @@
 {
+  int indexOfFirstSlash=zkStr.indexOf('/');
+  if (indexOfFirstSlash != -1) {
+    String bareZkUrl=zkStr.substring(0,indexOfFirstSlash);
+    String zkNodePath=zkStr.substring(indexOfFirstSlash);
+    ZkClient client=new ZkClient(bareZkUrl);
+    client.createPersistent(zkNodePath,true);
+    client.createPersistent(zkNodePath + "-tracking",true);
+    client.close();
+  }
   configuration.put("port",Integer.toString(port));
   configuration.put("zookeeper.connect",zkStr);
   configuration.put("broker.id",Integer.toString(brokerId));

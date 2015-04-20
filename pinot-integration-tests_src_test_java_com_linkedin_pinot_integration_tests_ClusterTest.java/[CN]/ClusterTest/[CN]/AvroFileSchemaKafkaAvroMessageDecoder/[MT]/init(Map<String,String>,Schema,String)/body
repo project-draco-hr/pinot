@@ -1,0 +1,7 @@
+{
+  DataFileStream<GenericRecord> reader=AvroUtils.getAvroReader(avroFile);
+  _avroSchema=reader.getSchema();
+  reader.close();
+  _rowGenerator=new AvroRecordToPinotRowGenerator(indexingSchema);
+  _reader=new GenericDatumReader<GenericData.Record>(_avroSchema);
+}
