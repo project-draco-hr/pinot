@@ -1,10 +1,8 @@
 {
   GenericRow row=new GenericRow();
   Map<String,Object> rowValues=new HashMap<String,Object>();
-  Pair<Long,Object> dimHashTimePair=docIdMap.get(docId);
-  DimensionTuple tuple=dimemsionTupleMap.get(dimHashTimePair.getLeft());
-  Object timeValue=dimHashTimePair.getRight();
-  ByteBuffer dimBuff=tuple.getDimBuff().duplicate();
+  Object timeValue=time[docId];
+  ByteBuffer dimBuff=dimensionBuffs[docId];
   for (  String dimension : dataSchema.getDimensionNames()) {
     int[] ret=dimensionsSerde.deSerializeAndReturnDicIdsFor(dimension,dimBuff);
     if (dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
@@ -18,7 +16,7 @@
       rowValues.put(dimension,mV);
     }
   }
-  ByteBuffer metricBuff=tuple.getMetricsBuffForTime(timeValue).duplicate();
+  ByteBuffer metricBuff=metBuffs[docId];
   for (  String metric : dataSchema.getMetricNames()) {
     rowValues.put(metric,metricsSerDe.getRawValueFor(metric,metricBuff));
   }

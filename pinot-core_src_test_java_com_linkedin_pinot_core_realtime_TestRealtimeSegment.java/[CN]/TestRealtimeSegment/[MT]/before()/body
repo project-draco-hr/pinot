@@ -20,7 +20,7 @@
   System.out.println(config);
   StreamProvider provider=new FileBasedStreamProviderImpl();
   provider.init(config);
-  segment=new RealtimeSegmentImpl(schema);
+  segment=new RealtimeSegmentImpl(schema,100000);
   GenericRow row=provider.next();
   while (row != null) {
     segment.index(row);

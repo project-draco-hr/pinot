@@ -1,5 +1,7 @@
 {
-  numDocsIndexed++;
+  if (numDocsIndexed >= capacity) {
+    return false;
+  }
   for (  String dimension : dataSchema.getDimensionNames()) {
     dictionaryMap.get(dimension).index(row.getValue(dimension));
     if (!dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
@@ -13,7 +15,6 @@
   ByteBuffer metBuff=metricsSerDe.serialize(row);
   dimBuff.rewind();
   metBuff.rewind();
-  long dimesionHash=HashUtil.compute(dimBuff);
   Object timeValueObj=timeConverter.convert(row.getValue(incomingTimeColumnName));
   long timeValue=-1;
   if (timeValueObj instanceof Integer) {
@@ -26,23 +27,12 @@
   int timeValueDictId=dictionaryMap.get(outgoingTimeColumnName).indexOf(timeValueObj);
   minTimeVal=Math.min(minTimeVal,timeValue);
   maxTimeVal=Math.max(maxTimeVal,timeValue);
-  Pair<Long,Object> dimHashTimePair=Pair.<Long,Object>of(dimesionHash,timeValueObj);
-  if (!dimemsionTupleMap.containsKey(dimesionHash)) {
-    DimensionTuple dimTuple=new DimensionTuple(dimBuff,dimesionHash);
-    dimTuple.addMetricsbuffFor(timeValueObj,metBuff,dataSchema);
-    dimemsionTupleMap.put(dimesionHash,dimTuple);
-    int docId=docIdGenerator.incrementAndGet();
-    docIdMap.put(docId,dimHashTimePair);
-    updateInvertedIndex(dimBuff,metBuff,timeValueDictId,docId);
-  }
- else {
-    DimensionTuple tuple=dimemsionTupleMap.get(dimesionHash);
-    if (!tuple.containsTime(timeValueObj)) {
-      int docId=docIdGenerator.incrementAndGet();
-      docIdMap.put(docId,dimHashTimePair);
-      updateInvertedIndex(dimBuff,metBuff,timeValueDictId,docId);
-    }
-    tuple.addMetricsbuffFor(timeValueObj,metBuff,dataSchema);
-  }
-  numSuccessIndexed++;
+  int docId=docIdGenerator.incrementAndGet();
+  dimensionBuffs[docId]=dimBuff;
+  metBuffs[docId]=metBuff;
+  time[docId]=timeValueDictId;
+  updateInvertedIndex(dimBuff,metBuff,timeValueDictId,docId);
+  docIdSearchableOffset=docId;
+  numDocsIndexed++;
+  return true;
 }

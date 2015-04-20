@@ -7,12 +7,10 @@
     dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
   }
   docIdGenerator=new AtomicInteger(-1);
-  dimemsionTupleMap=new HashMap<Long,DimensionTuple>();
   timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema.getTimeSpec().getIncominGranularutySpec(),schema.getTimeSpec().getOutgoingGranularitySpec());
   incomingTimeColumnName=dataSchema.getTimeSpec().getIncomingTimeColumnName();
   outgoingTimeColumnName=dataSchema.getTimeSpec().getOutGoingTimeColumnName();
   dictionaryMap.put(outgoingTimeColumnName,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(outgoingTimeColumnName)));
-  docIdMap=new HashMap<Object,Pair<Long,Object>>();
   invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
   for (  String dimension : schema.getDimensionNames()) {
     invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
@@ -23,4 +21,8 @@
   invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
   dimensionsSerde=new RealtimeDimensionsSerDe(schema.getDimensionNames(),dataSchema,dictionaryMap);
   metricsSerDe=new RealtimeMetricsSerDe(dataSchema);
+  dimensionBuffs=new ByteBuffer[capacity];
+  metBuffs=new ByteBuffer[capacity];
+  time=new int[capacity];
+  this.capacity=capacity;
 }

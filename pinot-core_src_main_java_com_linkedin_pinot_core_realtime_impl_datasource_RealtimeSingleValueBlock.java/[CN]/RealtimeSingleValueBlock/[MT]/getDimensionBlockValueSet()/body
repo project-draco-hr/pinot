@@ -26,12 +26,8 @@
           if (counter > max) {
             return Constants.EOF;
           }
-          Pair<Long,Object> documentFinderPair=docIdMap.get(counter);
-          long hash64=documentFinderPair.getLeft();
-          DimensionTuple tuple=dimemsionTupleMap.get(hash64);
-          ByteBuffer rawData=tuple.getDimBuff();
+          ByteBuffer rawData=dimBuffs[counter++];
           int vals[]=dimSerDe.deSerializeAndReturnDicIdsFor(columnName,rawData);
-          counter++;
           return vals[0];
         }
         @Override public boolean hasNext(){
