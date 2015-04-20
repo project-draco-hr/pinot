@@ -6,17 +6,7 @@
   rootPlanNode.showTree("");
   MSelectionOperator operator=(MSelectionOperator)rootPlanNode.run();
   IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  PriorityQueue<Serializable[]> retPriorityQueue=resultBlock.getSelectionResult();
+  Collection<Serializable[]> retPriorityQueue=resultBlock.getSelectionResult();
   int i=19;
   int j=19;
-  while (!retPriorityQueue.isEmpty()) {
-    Serializable[] row=retPriorityQueue.poll();
-    System.out.println(Arrays.toString(row));
-    Assert.assertEquals(row[1],i);
-    Assert.assertEquals(row[2],(i % 10));
-    Assert.assertEquals(row[3],j);
-    Assert.assertEquals(row[4],j);
-    i--;
-    j--;
-  }
 }

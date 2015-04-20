@@ -1,4 +1,8 @@
 {
+  if (!isPredicateEvaluated && predicate != null) {
+    evalPredicate();
+    isPredicateEvaluated=true;
+  }
   if (columnMetadata.isSingleValue()) {
     return new SingleValueBlock(blockId,(FixedBitCompressedSVForwardIndexReader)reader,filteredBitmap,dictionary,columnMetadata);
   }

@@ -1,0 +1,23 @@
+{
+  if (bitMaps.size() == 1) {
+    return bitMaps.get(0);
+  }
+  MutableRoaringBitmap answer=ImmutableRoaringBitmap.and(bitMaps.get(0),bitMaps.get(1));
+  long start=System.currentTimeMillis();
+  for (int i=2; i < bitMaps.size(); i++) {
+    answer.and(bitMaps.get(i));
+  }
+  long end=System.currentTimeMillis();
+  int[] cardinality=new int[bitMaps.size()];
+  int[] sizes=new int[bitMaps.size()];
+  for (int i=0; i < bitMaps.size(); i++) {
+    ImmutableRoaringBitmap immutableRoaringBitmap=bitMaps.get(i);
+    cardinality[i]=immutableRoaringBitmap.getCardinality();
+    sizes[i]=immutableRoaringBitmap.getSizeInBytes();
+  }
+  bitMaps.get(0).getCardinality();
+  System.out.println("AND operation Took " + (end - start));
+  System.out.println("\toutput cardinality:" + answer.getCardinality());
+  System.out.println("\toutout sizes:" + answer.getSizeInBytes());
+  return answer;
+}

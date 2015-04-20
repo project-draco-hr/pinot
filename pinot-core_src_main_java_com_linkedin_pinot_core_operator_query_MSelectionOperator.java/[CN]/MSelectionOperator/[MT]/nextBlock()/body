@@ -13,13 +13,18 @@
       }
       _selectionOperatorService.iterateOnBlock(projectionBlock.getDocIdSetBlock().getBlockDocIdSet().iterator(),_blocks);
       numDocsScanned+=((DocIdSetBlock)(projectionBlock.getDocIdSetBlock())).getSearchableLength();
+      if (_selectionOperatorService.canTerminate()) {
+        break;
+      }
     }
     final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock();
     resultBlock.setSelectionResult(_selectionOperatorService.getRowEventsSet());
     resultBlock.setSelectionDataSchema(_selectionOperatorService.getDataSchema());
     resultBlock.setNumDocsScanned(numDocsScanned);
     resultBlock.setTotalDocs(_indexSegment.getTotalDocs());
-    resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTime);
+    final long endTime=System.currentTimeMillis();
+    resultBlock.setTimeUsedMs(endTime - startTime);
+    LOGGER.info("Time spent in MSelectionOperator:" + (endTime - startTime));
     return resultBlock;
   }
  catch (  Exception e) {

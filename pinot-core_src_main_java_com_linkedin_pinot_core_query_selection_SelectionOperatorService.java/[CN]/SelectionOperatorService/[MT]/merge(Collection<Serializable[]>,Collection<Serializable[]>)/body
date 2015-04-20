@@ -1,0 +1,27 @@
+{
+  if (_doOrdering) {
+    PriorityQueue<Serializable[]> queue1=(PriorityQueue<Serializable[]>)rowEventsSet1;
+    PriorityQueue<Serializable[]> queue2=(PriorityQueue<Serializable[]>)rowEventsSet2;
+    final Iterator<Serializable[]> iterator=queue2.iterator();
+    while (iterator.hasNext()) {
+      final Serializable[] row=iterator.next();
+      if (queue1.size() < _maxRowSize) {
+        queue1.add(row);
+      }
+ else {
+        if (_rowComparator.compare(queue1.peek(),row) < 0) {
+          queue1.add(row);
+          queue1.poll();
+        }
+      }
+    }
+  }
+ else {
+    final Iterator<Serializable[]> iterator=rowEventsSet2.iterator();
+    while (rowEventsSet1.size() < _maxRowSize && iterator.hasNext()) {
+      final Serializable[] row=iterator.next();
+      rowEventsSet1.add(row);
+    }
+  }
+  return rowEventsSet1;
+}

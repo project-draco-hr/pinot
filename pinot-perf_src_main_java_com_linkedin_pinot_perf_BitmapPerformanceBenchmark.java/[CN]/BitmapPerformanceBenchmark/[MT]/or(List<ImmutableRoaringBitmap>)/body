@@ -1,0 +1,16 @@
+{
+  if (bitMaps.size() == 1) {
+    return bitMaps.get(0);
+  }
+  MutableRoaringBitmap answer=ImmutableRoaringBitmap.or(bitMaps.get(0),bitMaps.get(1));
+  long start=System.currentTimeMillis();
+  for (int i=2; i < bitMaps.size(); i++) {
+    answer.or(bitMaps.get(i));
+  }
+  long end=System.currentTimeMillis();
+  bitMaps.get(0).getCardinality();
+  System.out.println("OR operation Took " + (end - start));
+  System.out.println("\toutput cardinality:" + answer.getCardinality());
+  System.out.println("\toutout sizes:" + answer.getSizeInBytes());
+  return answer;
+}

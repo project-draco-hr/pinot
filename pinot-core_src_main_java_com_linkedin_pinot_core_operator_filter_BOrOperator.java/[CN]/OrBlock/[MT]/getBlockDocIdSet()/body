@@ -1,8 +1,11 @@
 {
+  long start=System.currentTimeMillis();
   final MutableRoaringBitmap bit=((ImmutableRoaringBitmap)blocks[0].getBlockDocIdSet().getRaw()).toMutableRoaringBitmap();
   for (int srcId=1; srcId < blocks.length; srcId++) {
     final MutableRoaringBitmap bitToAndWith=((ImmutableRoaringBitmap)blocks[srcId].getBlockDocIdSet().getRaw()).toMutableRoaringBitmap();
     bit.or(bitToAndWith);
   }
+  long end=System.currentTimeMillis();
+  LOGGER.info("And operator took: " + (end - start));
   return new IntBlockDocIdSet(bit);
 }

@@ -12,4 +12,17 @@
   if (conf.getControllerDataDir() != null) {
     controllerDataDir=conf.getControllerDataDir();
   }
+  brokerBaseApiUrl="http://" + conf.getBrokerHost() + ":"+ conf.getBrokerPort();
+  serverInstanceName="Server_localhost_" + CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT;
+  if (conf.getServerInstanceName() != null) {
+    serverInstanceName=conf.getServerInstanceName();
+  }
+  serverInstanceDataDir="/tmp/server/" + serverInstanceName + "/index_data_dir";
+  if (conf.getServerInstanceName() != null) {
+    serverInstanceDataDir=conf.getServerInstanceDataDir();
+  }
+  serverInstanceSegmentTarDir="/tmp/pinot/server/" + serverInstanceName + "/segment_tar_dir";
+  if (conf.getServerInstanceSegmentTarDir() != null) {
+    serverInstanceSegmentTarDir=conf.getServerInstanceSegmentTarDir();
+  }
 }

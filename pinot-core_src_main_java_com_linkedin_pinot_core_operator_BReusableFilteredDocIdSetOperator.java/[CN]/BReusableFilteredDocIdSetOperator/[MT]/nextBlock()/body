@@ -1,4 +1,15 @@
 {
+  if (!inited) {
+    if (_filterOperators == null) {
+      _currentBlock=new MatchEntireSegmentBlock(_docSize);
+    }
+ else {
+      _currentBlock=_filterOperators.nextBlock();
+    }
+    _currentBlockDocIdIterator=_currentBlock.getBlockDocIdSet().iterator();
+    _currentDoc=0;
+    inited=true;
+  }
   _pos=0;
   getNextDoc();
   while (_currentDoc != Constants.EOF) {

@@ -3,7 +3,6 @@
     LOGGER.info("Skipping run queries step");
     return;
   }
-  String brokerBaseApiUrl="http://" + conf.getBrokerHost() + ":"+ conf.getBrokerPort();
   String queriesDirectory=conf.getQueriesDirectory();
   File[] queryFiles=new File(queriesDirectory).listFiles();
   for (  File file : queryFiles) {
@@ -14,7 +13,7 @@
     String query;
     LOGGER.info("Running queries from " + file);
     while ((query=reader.readLine()) != null) {
-      postQuery(query,brokerBaseApiUrl);
+      postQuery(query);
     }
     reader.close();
   }

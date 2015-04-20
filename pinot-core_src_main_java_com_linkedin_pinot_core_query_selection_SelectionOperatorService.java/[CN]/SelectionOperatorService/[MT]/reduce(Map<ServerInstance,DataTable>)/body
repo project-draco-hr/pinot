@@ -1,15 +1,31 @@
 {
   _rowEventsSet.clear();
-  for (  final DataTable dt : selectionResults.values()) {
-    for (int rowId=0; rowId < dt.getNumberOfRows(); ++rowId) {
-      final Serializable[] row=getRowFromDataTable(dt,rowId);
-      if (_rowEventsSet.size() < _maxRowSize) {
-        _rowEventsSet.add(row);
-      }
+  if (_doOrdering) {
+    PriorityQueue<Serializable[]> queue=(PriorityQueue<Serializable[]>)_rowEventsSet;
+    for (    final DataTable dt : selectionResults.values()) {
+      for (int rowId=0; rowId < dt.getNumberOfRows(); ++rowId) {
+        final Serializable[] row=getRowFromDataTable(dt,rowId);
+        if (queue.size() < _maxRowSize) {
+          queue.add(row);
+        }
  else {
-        if (_rowComparator.compare(_rowEventsSet.peek(),row) < 0) {
+          if (_rowComparator.compare(queue.peek(),row) < 0) {
+            queue.add(row);
+            queue.poll();
+          }
+        }
+      }
+    }
+  }
+ else {
+    for (    final DataTable dt : selectionResults.values()) {
+      for (int rowId=0; rowId < dt.getNumberOfRows(); ++rowId) {
+        final Serializable[] row=getRowFromDataTable(dt,rowId);
+        if (_rowEventsSet.size() < _maxRowSize) {
           _rowEventsSet.add(row);
-          _rowEventsSet.poll();
+        }
+ else {
+          break;
         }
       }
     }

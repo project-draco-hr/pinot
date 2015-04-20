@@ -1,3 +1,7 @@
 {
-  return constructPhysicalOperator(RequestUtils.generateFilterQueryTree(_brokerRequest));
+  long start=System.currentTimeMillis();
+  Operator constructPhysicalOperator=constructPhysicalOperator(RequestUtils.generateFilterQueryTree(_brokerRequest));
+  long end=System.currentTimeMillis();
+  _logger.info("FilterPlanNode.run took:" + (end - start));
+  return constructPhysicalOperator;
 }

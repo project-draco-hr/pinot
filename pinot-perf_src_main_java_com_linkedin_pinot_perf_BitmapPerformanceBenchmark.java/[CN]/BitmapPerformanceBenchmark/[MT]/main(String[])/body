@@ -1,18 +1,2 @@
 {
-  String indexDir="";
-  File[] listFiles=new File(indexDir).listFiles();
-  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(new File(indexDir));
-  List<BitmapInvertedIndex> arrayList=new ArrayList<BitmapInvertedIndex>();
-  for (  File file : listFiles) {
-    if (!file.getName().endsWith("bitmap.inv")) {
-      continue;
-    }
-    String column=file.getName().replaceAll(".bitmap.inv","");
-    ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(column);
-    int cardinality=columnMetadata.getCardinality();
-    System.out.println(column + "\t\t\t" + cardinality);
-    BitmapInvertedIndex bitmapInvertedIndex=new BitmapInvertedIndex(file,cardinality,true);
-    System.out.println(column + ":\t" + MemoryUtil.deepMemoryUsageOf(bitmapInvertedIndex));
-    arrayList.add(bitmapInvertedIndex);
-  }
 }
