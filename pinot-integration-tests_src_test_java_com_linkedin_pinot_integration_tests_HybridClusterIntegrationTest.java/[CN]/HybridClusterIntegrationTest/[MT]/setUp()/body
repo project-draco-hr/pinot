@@ -1,0 +1,92 @@
+{
+  startZk();
+  kafkaStarter=KafkaTestUtils.startServer(KafkaTestUtils.DEFAULT_KAFKA_PORT,KafkaTestUtils.DEFAULT_BROKER_ID,KafkaTestUtils.DEFAULT_ZK_STR,KafkaTestUtils.getDefaultKafkaConfiguration());
+  KafkaTestUtils.createTopic(KAFKA_TOPIC,KafkaTestUtils.DEFAULT_ZK_STR);
+  startController();
+  startBroker();
+  startServers(2);
+  TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset.tar.gz"))),_tmpDir);
+  _tmpDir.mkdirs();
+  final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
+  for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
+    avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
+  }
+  createHybridResource("myresource","DaysSinceEpoch","daysSinceEpoch",KafkaTestUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,avroFiles.get(0));
+  addTableToHybridResource("myresource","mytable","DaysSinceEpoch","daysSinceEpoch");
+  final List<File> offlineAvroFiles=new ArrayList<File>(OFFLINE_SEGMENT_COUNT);
+  for (int i=0; i < OFFLINE_SEGMENT_COUNT; i++) {
+    offlineAvroFiles.add(avroFiles.get(i));
+  }
+  final List<File> realtimeAvroFiles=new ArrayList<File>(REALTIME_SEGMENT_COUNT);
+  for (int i=SEGMENT_COUNT - REALTIME_SEGMENT_COUNT; i < SEGMENT_COUNT; i++) {
+    realtimeAvroFiles.add(avroFiles.get(i));
+  }
+  ExecutorService executor=Executors.newCachedThreadPool();
+  Class.forName("org.h2.Driver");
+  _connection=DriverManager.getConnection("jdbc:h2:mem:");
+  executor.execute(new Runnable(){
+    @Override public void run(){
+      createH2SchemaAndInsertAvroFiles(avroFiles,_connection);
+    }
+  }
+);
+  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_tmpDir);
+  executor.execute(new Runnable(){
+    @Override public void run(){
+      _queryGenerator=new QueryGenerator(avroFiles,"'myresource.mytable'","mytable");
+    }
+  }
+);
+  executor.shutdown();
+  executor.awaitTermination(10,TimeUnit.MINUTES);
+  final CountDownLatch latch=new CountDownLatch(1);
+  HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZkTestUtils.DEFAULT_ZK_STR);
+  manager.connect();
+  manager.addExternalViewChangeListener(new ExternalViewChangeListener(){
+    @Override public void onExternalViewChange(    List<ExternalView> externalViewList,    NotificationContext changeContext){
+      for (      ExternalView externalView : externalViewList) {
+        if (externalView.getId().contains("myresource")) {
+          Set<String> partitionSet=externalView.getPartitionSet();
+          if (partitionSet.size() == OFFLINE_SEGMENT_COUNT) {
+            int onlinePartitionCount=0;
+            for (            String partitionId : partitionSet) {
+              Map<String,String> partitionStateMap=externalView.getStateMap(partitionId);
+              if (partitionStateMap.containsValue("ONLINE")) {
+                onlinePartitionCount++;
+              }
+            }
+            if (onlinePartitionCount == OFFLINE_SEGMENT_COUNT) {
+              System.out.println("Got " + OFFLINE_SEGMENT_COUNT + " online resources, unlatching the main thread");
+              latch.countDown();
+            }
+          }
+        }
+      }
+    }
+  }
+);
+  for (int i=1; i <= OFFLINE_SEGMENT_COUNT; ++i) {
+    System.out.println("Uploading segment " + i);
+    File file=new File(_tmpDir,"myresource_mytable_" + i);
+    FileUploadUtils.sendFile("localhost","8998","myresource_mytable_" + i,new FileInputStream(file),file.length());
+  }
+  latch.await();
+  pushAvroIntoKafka(realtimeAvroFiles,KafkaTestUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
+  int pinotRecordCount, h2RecordCount;
+  Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+  do {
+    Thread.sleep(5000L);
+    JSONObject response=postQuery("select count(*) from 'myresource.mytable'");
+    JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
+    JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
+    String pinotValue=firstAggregationResult.getString("value");
+    pinotRecordCount=Integer.parseInt(pinotValue);
+    statement.execute("select count(*) from mytable");
+    ResultSet rs=statement.getResultSet();
+    rs.first();
+    h2RecordCount=rs.getInt(1);
+    rs.close();
+    System.out.println("H2 record count: " + h2RecordCount + "\tPinot record count: "+ pinotRecordCount);
+  }
+ while (h2RecordCount != pinotRecordCount);
+}
