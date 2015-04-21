@@ -4,7 +4,7 @@
   TimerService.timer.scheduleAtFixedRate(new TimerTask(){
     @Override public void run(){
       if (System.currentTimeMillis() - start >= (1000 * 60 * 60)) {
-        System.exit(0);
+        keepOnRunning=false;
       }
     }
   }
@@ -75,6 +75,6 @@
     }
   }
 ,20000,1000 * 5);
-  while (true) {
+  while (keepOnRunning) {
   }
 }
