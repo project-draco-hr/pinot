@@ -1,9 +1,5 @@
 {
-  if (counter % 100000 == 0) {
-    logger.info("indexed : " + counter);
-  }
   if (keepIndexing) {
-    counter++;
     keepIndexing=((RealtimeSegmentImpl)realtimeSegment).index(kafkaStreamProvider.next());
     return keepIndexing;
   }

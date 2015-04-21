@@ -5,7 +5,11 @@
   rootPlanNode.showTree("");
   MSelectionOperator operator=(MSelectionOperator)rootPlanNode.run();
   IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  Collection<Serializable[]> retPriorityQueue=resultBlock.getSelectionResult();
-  int i=1999;
-  int j=1999;
+  PriorityQueue<Serializable[]> retPriorityQueue=(PriorityQueue<Serializable[]>)resultBlock.getSelectionResult();
+  while (!retPriorityQueue.isEmpty()) {
+    Serializable[] row=retPriorityQueue.poll();
+    System.out.println(Arrays.toString(row));
+    Assert.assertEquals(row[0],9);
+    Assert.assertEquals(row[1],99);
+  }
 }

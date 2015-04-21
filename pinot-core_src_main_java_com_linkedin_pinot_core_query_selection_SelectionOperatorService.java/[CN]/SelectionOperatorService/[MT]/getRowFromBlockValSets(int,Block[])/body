@@ -2,14 +2,6 @@
   final Serializable[] row=new Serializable[_dataSchema.size()];
   int j=0;
   for (int i=0; i < _dataSchema.size(); ++i) {
-    if (_dataSchema.getColumnName(i).equals("_segmentId")) {
-      row[i]=_indexSegment.getSegmentName().hashCode();
-      continue;
-    }
-    if (_dataSchema.getColumnName(i).equals("_docId")) {
-      row[i]=docId;
-      continue;
-    }
     if (blocks[j] instanceof RealtimeSingleValueBlock) {
       if (blocks[j].getMetadata().hasDictionary()) {
         Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();

@@ -5,8 +5,13 @@
   final Selection selection=getSelectionQuery();
   final MSelectionOperator selectionOperator=new MSelectionOperator(_indexSegment,selection,projectionOperator);
   final IntermediateResultsBlock block=(IntermediateResultsBlock)selectionOperator.nextBlock();
-  final Collection<Serializable[]> pq=block.getSelectionResult();
+  final PriorityQueue<Serializable[]> pq=(PriorityQueue<Serializable[]>)block.getSelectionResult();
   final DataSchema dataSchema=block.getSelectionDataSchema();
   System.out.println(dataSchema);
   int i=0;
+  while (!pq.isEmpty()) {
+    final Serializable[] row=(Serializable[])pq.poll();
+    System.out.println(SelectionOperatorService.getRowStringFromSerializable(row,dataSchema));
+    Assert.assertEquals(SelectionOperatorService.getRowStringFromSerializable(row,dataSchema),SELECTION_ITERATION_TEST_RESULTS[i++]);
+  }
 }

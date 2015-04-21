@@ -25,8 +25,9 @@
   System.out.println(brokerResponse);
   JSONArray selectionResultsArray=brokerResponse.getSelectionResults().getJSONArray("results");
   for (int j=0; j < selectionResultsArray.length(); ++j) {
+    System.out.println(selectionResultsArray.getJSONArray(j));
     Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(0),1);
     Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(1),91);
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(2),91);
+    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(2) % 100,91);
   }
 }
