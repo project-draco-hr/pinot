@@ -1,0 +1,25 @@
+{
+  for (  FieldSpec spec : schema.getAllFieldSpecs()) {
+    if (!spec.isSingleValueField()) {
+      DataSource offlineDS=offlineSegment.getDataSource(spec.getName());
+      DataSource realtimeDS=realtimeSegment.getDataSource(spec.getName());
+      Block offlineBlock=offlineDS.nextBlock();
+      Block realtimeBlock=realtimeDS.nextBlock();
+      BlockMetadata offlineMetadata=offlineBlock.getMetadata();
+      BlockMetadata realtimeMetadata=realtimeBlock.getMetadata();
+      BlockMultiValIterator offlineValIterator=(BlockMultiValIterator)offlineBlock.getBlockValueSet().iterator();
+      BlockMultiValIterator realtimeValIterator=(BlockMultiValIterator)realtimeBlock.getBlockValueSet().iterator();
+      Assert.assertEquals(offlineSegment.getTotalDocs(),realtimeSegment.getAggregateDocumentCount());
+      while (realtimeValIterator.hasNext()) {
+        int[] offlineIds=new int[offlineBlock.getMetadata().maxNumberOfMultiValues()];
+        int[] realtimeIds=new int[realtimeBlock.getMetadata().maxNumberOfMultiValues()];
+        int Olen=offlineValIterator.nextIntVal(offlineIds);
+        int Rlen=realtimeValIterator.nextIntVal(realtimeIds);
+        Assert.assertEquals(Olen,Rlen);
+        for (int i=0; i < Olen; i++) {
+          Assert.assertEquals(offlineMetadata.getDictionary().get(offlineIds[i]),realtimeMetadata.getDictionary().get(realtimeIds[i]));
+        }
+      }
+    }
+  }
+}

@@ -19,32 +19,31 @@
           return true;
         }
         @Override public boolean next(){
-          counter++;
-          return counter > max;
+          return counter >= max;
         }
         @Override public int nextIntVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
-          return (Integer)dictionary.get(time[counter++]);
+          return time[counter++];
         }
         @Override public long nextLongVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
-          return ((Integer)dictionary.get(time[counter++])).longValue();
+          return time[counter++];
         }
         @Override public float nextFloatVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
-          return ((Integer)dictionary.get(time[counter++])).floatValue();
+          return time[counter++];
         }
         @Override public double nextDoubleVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
-          return ((Integer)dictionary.get(time[counter++])).doubleValue();
+          return time[counter++];
         }
         @Override public boolean hasNext(){
           return (counter <= max);

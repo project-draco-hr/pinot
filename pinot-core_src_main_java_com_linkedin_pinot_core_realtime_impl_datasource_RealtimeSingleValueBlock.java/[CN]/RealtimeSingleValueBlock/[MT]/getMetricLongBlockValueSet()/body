@@ -23,28 +23,28 @@
           return counter > max;
         }
         @Override public int nextIntVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
           ByteBuffer rawData=metBuffs[counter++];
           return (int)metSerDe.getLongVal(columnName,rawData);
         }
         @Override public long nextLongVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
           ByteBuffer rawData=metBuffs[counter++];
           return metSerDe.getLongVal(columnName,rawData);
         }
         @Override public float nextFloatVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
           ByteBuffer rawData=metBuffs[counter++];
           return metSerDe.getLongVal(columnName,rawData);
         }
         @Override public double nextDoubleVal(){
-          if (counter > max) {
+          if (!hasNext()) {
             return Constants.EOF;
           }
           ByteBuffer rawData=metBuffs[counter++];

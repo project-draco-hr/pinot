@@ -1,0 +1,20 @@
+{
+  for (  FieldSpec spec : schema.getAllFieldSpecs()) {
+    if (spec.isSingleValueField() && spec.getFieldType() == FieldType.METRIC) {
+      DataSource offlineDS=offlineSegment.getDataSource(spec.getName());
+      DataSource realtimeDS=realtimeSegment.getDataSource(spec.getName());
+      Block offlineBlock=offlineDS.nextBlock();
+      Block realtimeBlock=realtimeDS.nextBlock();
+      BlockMetadata offlineMetadata=offlineBlock.getMetadata();
+      BlockSingleValIterator offlineValIterator=(BlockSingleValIterator)offlineBlock.getBlockValueSet().iterator();
+      BlockSingleValIterator realtimeValIterator=(BlockSingleValIterator)realtimeBlock.getBlockValueSet().iterator();
+      Assert.assertEquals(offlineSegment.getTotalDocs(),realtimeSegment.getAggregateDocumentCount());
+      while (realtimeValIterator.hasNext()) {
+        int offlineDicId=offlineValIterator.nextIntVal();
+        int realtimeDicId=realtimeValIterator.nextIntVal();
+        Assert.assertEquals(offlineMetadata.getDictionary().get(offlineDicId),realtimeDicId);
+      }
+      Assert.assertEquals(offlineValIterator.hasNext(),realtimeValIterator.hasNext());
+    }
+  }
+}

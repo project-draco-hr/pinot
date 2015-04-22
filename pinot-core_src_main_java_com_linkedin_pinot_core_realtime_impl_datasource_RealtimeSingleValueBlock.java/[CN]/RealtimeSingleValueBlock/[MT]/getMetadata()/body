@@ -1,6 +1,6 @@
 {
-  if (spec.getFieldType() == FieldType.DIMENSION) {
-    return getDimensionBlockMetadata();
+  if (spec.getFieldType() != FieldType.METRIC) {
+    return getDimensionOrTimeBlockMetadata();
   }
-  return getBlockMetadataForMetricsOrTimeColumn();
+  return getBlockMetadataForMetricsColumn();
 }
