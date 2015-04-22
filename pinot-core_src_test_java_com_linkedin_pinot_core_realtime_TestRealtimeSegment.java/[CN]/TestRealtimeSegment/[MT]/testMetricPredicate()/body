@@ -1,0 +1,19 @@
+{
+  DataSource ds=segment.getDataSource("count");
+  List<String> rhs=new ArrayList<String>();
+  rhs.add("1");
+  Predicate predicate=new EqPredicate("count",rhs);
+  ds.setPredicate(predicate);
+  Block b=ds.nextBlock();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)b.getBlockValueSet().iterator();
+  MutableRoaringBitmap mutableRoaringBitmap=(MutableRoaringBitmap)b.getBlockDocIdSet().getRaw();
+  Iterator<Integer> iterator=mutableRoaringBitmap.iterator();
+  int counter=0;
+  while (iterator.hasNext()) {
+    int docId=iterator.next();
+    Assert.assertEquals(docId,counter);
+    Assert.assertEquals(blockValIterator.nextDoubleVal(),1.0);
+    counter++;
+  }
+  Assert.assertEquals(counter,100000);
+}

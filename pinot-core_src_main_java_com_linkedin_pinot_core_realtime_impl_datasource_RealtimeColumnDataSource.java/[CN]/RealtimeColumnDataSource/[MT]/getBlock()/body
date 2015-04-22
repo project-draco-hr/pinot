@@ -1,6 +1,25 @@
 {
   if (!blockReturned) {
     blockReturned=true;
+    if (!isPredicateEvaluated && predicate != null) {
+      if (dictionary != null) {
+        if (invertedINdex != null) {
+          evalPredicateWithDictAndInvIdx();
+        }
+ else {
+          throw new RuntimeException("Found column - " + columnName + " has dictionary, but no inverted index.");
+        }
+      }
+ else {
+        if (invertedINdex != null) {
+          evalPredicateNoDictHasInvIdx();
+        }
+ else {
+          evalPredicateNoDictNoInvIdx();
+        }
+      }
+      isPredicateEvaluated=true;
+    }
     if (spec.isSingleValueField()) {
       Block SvBlock=new RealtimeSingleValueBlock(spec,dictionary,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimSerDe,metSerDe,dimBuffs,metBuffs,time);
       if (predicate != null) {
