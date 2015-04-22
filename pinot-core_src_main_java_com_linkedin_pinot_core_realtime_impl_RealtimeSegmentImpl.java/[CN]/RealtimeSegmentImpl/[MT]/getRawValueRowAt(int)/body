@@ -1,7 +1,7 @@
 {
   GenericRow row=new GenericRow();
   Map<String,Object> rowValues=new HashMap<String,Object>();
-  Object timeValue=time[docId];
+  int timeValue=time[docId];
   ByteBuffer dimBuff=dimensionBuffs[docId];
   for (  String dimension : dataSchema.getDimensionNames()) {
     int[] ret=dimensionsSerde.deSerializeAndReturnDicIdsFor(dimension,dimBuff);
@@ -20,7 +20,7 @@
   for (  String metric : dataSchema.getMetricNames()) {
     rowValues.put(metric,metricsSerDe.getRawValueFor(metric,metricBuff));
   }
-  rowValues.put(outgoingTimeColumnName,timeValue);
+  rowValues.put(outgoingTimeColumnName,dictionaryMap.get(outgoingTimeColumnName).get(timeValue));
   row.init(rowValues);
   return row;
 }

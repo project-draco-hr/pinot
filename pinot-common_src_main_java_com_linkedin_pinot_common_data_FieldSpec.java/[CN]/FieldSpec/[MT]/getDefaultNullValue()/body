@@ -1,0 +1,45 @@
+{
+  if (_defaultNullValue != null) {
+    return _defaultNullValue;
+  }
+switch (_fieldType) {
+case METRIC:
+switch (_dataType) {
+case INT:
+case INT_ARRAY:
+      return DEFAULT_METRIC_NULL_VALUE_OF_INT;
+case LONG:
+case LONG_ARRAY:
+    return DEFAULT_METRIC_NULL_VALUE_OF_LONG;
+case FLOAT:
+case FLOAT_ARRAY:
+  return DEFAULT_METRIC_NULL_VALUE_OF_FLOAT;
+case DOUBLE:
+case DOUBLE_ARRAY:
+return DEFAULT_METRIC_NULL_VALUE_OF_DOUBLE;
+default :
+break;
+}
+default :
+switch (_dataType) {
+case INT:
+case INT_ARRAY:
+return DEFAULT_DIM_NULL_VALUE_OF_INT;
+case LONG:
+case LONG_ARRAY:
+return DEFAULT_DIM_NULL_VALUE_OF_LONG;
+case FLOAT:
+case FLOAT_ARRAY:
+return DEFAULT_DIM_NULL_VALUE_OF_FLOAT;
+case DOUBLE:
+case DOUBLE_ARRAY:
+return DEFAULT_DIM_NULL_VALUE_OF_DOUBLE;
+case STRING:
+case STRING_ARRAY:
+return DEFAULT_DIM_NULL_VALUE_OF_STRING;
+default :
+break;
+}
+}
+throw new UnsupportedOperationException("Not supported data type for null value - " + _dataType);
+}

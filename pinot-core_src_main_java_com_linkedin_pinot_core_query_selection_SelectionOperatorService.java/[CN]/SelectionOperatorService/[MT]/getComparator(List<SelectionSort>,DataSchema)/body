@@ -4,113 +4,47 @@
       for (int i=0; i < sortSequence.size(); ++i) {
 switch (dataSchema.getColumnType(i)) {
 case INT:
-          if (((Integer)o1[i]) > ((Integer)o2[i])) {
-            if (!sortSequence.get(i).isIsAsc()) {
-              return 1;
-            }
- else {
-              return -1;
-            }
-          }
-        if (((Integer)o1[i]) < ((Integer)o2[i])) {
           if (!sortSequence.get(i).isIsAsc()) {
-            return -1;
+            return ((Integer)o1[i]).compareTo((Integer)o2[i]);
           }
  else {
-            return 1;
+            return ((Integer)o2[i]).compareTo((Integer)o1[i]);
           }
-        }
-      break;
 case SHORT:
-    if (((Short)o1[i]) > ((Short)o2[i])) {
-      if (!sortSequence.get(i).isIsAsc()) {
-        return 1;
-      }
+        if (!sortSequence.get(i).isIsAsc()) {
+          return ((Short)o1[i]).compareTo((Short)o2[i]);
+        }
  else {
-        return -1;
-      }
-    }
-  if (((Short)o1[i]) < ((Short)o2[i])) {
-    if (!sortSequence.get(i).isIsAsc()) {
-      return -1;
-    }
- else {
-      return 1;
-    }
-  }
-break;
+          return ((Short)o2[i]).compareTo((Short)o1[i]);
+        }
 case LONG:
-if (((Long)o1[i]) > ((Long)o2[i])) {
-if (!sortSequence.get(i).isIsAsc()) {
-  return 1;
-}
+      if (!sortSequence.get(i).isIsAsc()) {
+        return ((Long)o1[i]).compareTo((Long)o2[i]);
+      }
  else {
-  return -1;
-}
-}
-if (((Long)o1[i]) < ((Long)o2[i])) {
-if (!sortSequence.get(i).isIsAsc()) {
-return -1;
-}
- else {
-return 1;
-}
-}
-break;
+        return ((Long)o2[i]).compareTo((Long)o1[i]);
+      }
 case FLOAT:
-if (((Float)o1[i]) > ((Float)o2[i])) {
-if (!sortSequence.get(i).isIsAsc()) {
-return 1;
-}
+    if (!sortSequence.get(i).isIsAsc()) {
+      return ((Float)o1[i]).compareTo((Float)o2[i]);
+    }
  else {
-return -1;
-}
-}
-if (((Float)o1[i]) < ((Float)o2[i])) {
-if (!sortSequence.get(i).isIsAsc()) {
-return -1;
-}
- else {
-return 1;
-}
-}
-break;
+      return ((Float)o2[i]).compareTo((Float)o1[i]);
+    }
 case DOUBLE:
-if (((Double)o1[i]) > ((Double)o2[i])) {
-if (!sortSequence.get(i).isIsAsc()) {
-return 1;
-}
+  if (!sortSequence.get(i).isIsAsc()) {
+    return ((Double)o1[i]).compareTo((Double)o2[i]);
+  }
  else {
-return -1;
-}
-}
-if (((Double)o1[i]) < ((Double)o2[i])) {
-if (!sortSequence.get(i).isIsAsc()) {
-return -1;
-}
- else {
-return 1;
-}
-}
-break;
+    return ((Double)o2[i]).compareTo((Double)o1[i]);
+  }
 case STRING:
-if (((String)o1[i]).compareTo(((String)o2[i])) > 0) {
 if (!sortSequence.get(i).isIsAsc()) {
-return 1;
+  return ((String)o1[i]).compareTo((String)o2[i]);
 }
  else {
-return -1;
+  return ((String)o2[i]).compareTo((String)o1[i]);
 }
-}
-if (((String)o1[i]).compareTo(((String)o2[i])) < 0) {
-if (!sortSequence.get(i).isIsAsc()) {
-return -1;
-}
- else {
-return 1;
-}
-}
-break;
 default :
 break;
 }

@@ -16,13 +16,8 @@ default :
 break;
 }
 }
-switch (spec.getDataType()) {
-case INT:
-return getTimeIntBlockValueSet();
-case LONG:
-return getTimeLongBlockValueSet();
-default :
-break;
+ else if (spec.getFieldType() == FieldType.TIME) {
+return getTimeBlockValueSet();
 }
-return null;
+throw new UnsupportedOperationException("Not support for getBlockValueSet() on column with field spec - " + spec);
 }
