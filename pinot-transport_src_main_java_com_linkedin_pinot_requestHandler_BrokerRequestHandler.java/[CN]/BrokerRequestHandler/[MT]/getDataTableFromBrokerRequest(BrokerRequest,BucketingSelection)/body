@@ -13,7 +13,7 @@
   final long queryRoutingTime=System.nanoTime() - routingStartTime;
   _brokerMetrics.addPhaseTiming(request,BrokerQueryPhase.QUERY_ROUTING,queryRoutingTime);
   final long scatterGatherStartTime=System.nanoTime();
-  ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,_requestIdGen.incrementAndGet(),10 * 1000L);
+  ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,_requestIdGen.incrementAndGet(),_brokerTimeOut);
   CompositeFuture<ServerInstance,ByteBuf> response=_scatterGatherer.scatterGather(scatterRequest);
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
 {
