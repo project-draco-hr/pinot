@@ -3,12 +3,12 @@
   final long start=System.currentTimeMillis();
   TimerService.timer.scheduleAtFixedRate(new TimerTask(){
     @Override public void run(){
-      if (System.currentTimeMillis() - start >= (1000 * 60 * 60)) {
+      if (System.currentTimeMillis() - start >= (SEGMENT_CONSUMING_TIME)) {
         keepOnRunning=false;
       }
     }
   }
-,1000,1000 * 60 * 10);
+,1000,1000 * 60 * 1);
   TimerService.timer.scheduleAtFixedRate(new TimerTask(){
     @Override public void run(){
       long start=System.currentTimeMillis();
@@ -23,11 +23,11 @@
         }
       }
  catch (      Exception e) {
-        System.out.println("count column exception");
+        LOG.info("count column exception");
         e.printStackTrace();
       }
       long stop=System.currentTimeMillis();
-      System.out.println("time to scan metric col count : " + (stop - start));
+      LOG.info("time to scan metric col count : " + (stop - start));
     }
   }
 ,20000,1000 * 5);
@@ -45,11 +45,11 @@
         }
       }
  catch (      Exception e) {
-        System.out.println("viewerId column exception");
+        LOG.info("viewerId column exception");
         e.printStackTrace();
       }
       long stop=System.currentTimeMillis();
-      System.out.println("time to scan SV dimension col viewerId : " + (stop - start));
+      LOG.info("time to scan SV dimension col viewerId : " + (stop - start));
     }
   }
 ,20000,1000 * 5);
@@ -67,11 +67,11 @@
         }
       }
  catch (      Exception e) {
-        System.out.println("daysSinceEpoch column exception");
+        LOG.info("daysSinceEpoch column exception");
         e.printStackTrace();
       }
       long stop=System.currentTimeMillis();
-      System.out.println("time to scan SV time col daysSinceEpoch : " + (stop - start));
+      LOG.info("time to scan SV time col daysSinceEpoch : " + (stop - start));
     }
   }
 ,20000,1000 * 5);
