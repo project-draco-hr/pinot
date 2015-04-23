@@ -1,0 +1,19 @@
+{
+  List<SchemaAnnotation> saList;
+  if (file == null) {
+    return;
+  }
+  ObjectMapper objectMapper=new ObjectMapper();
+  saList=objectMapper.readValue(new File(file),new TypeReference<List<SchemaAnnotation>>(){
+  }
+);
+  for (  SchemaAnnotation sa : saList) {
+    String column=sa.getColumn();
+    if (sa.isRange()) {
+      range.put(column,new IntRange(sa.getRangeStart(),sa.getRangeEnd()));
+    }
+ else {
+      cardinality.put(column,sa.getCardinality());
+    }
+  }
+}

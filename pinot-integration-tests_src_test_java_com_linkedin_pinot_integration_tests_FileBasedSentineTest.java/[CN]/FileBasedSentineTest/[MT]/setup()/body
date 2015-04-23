@@ -2,7 +2,10 @@
   url=new URL("http://localhost:" + FileBasedServerBrokerStarters.BROKER_CLIENT_PORT + "/query");
   final String[] columns={"dimention1","dimention2","dimention3","dimention4","metric1","daysSinceEpoch"};
   final Map<String,DataType> dataTypes=new HashMap<String,FieldSpec.DataType>();
+  final Map<String,FieldType> fieldTypes=new HashMap<String,FieldType>();
+  final Map<String,TimeUnit> timeUnits=new HashMap<String,TimeUnit>();
   final Map<String,Integer> cardinality=new HashMap<String,Integer>();
+  final Map<String,IntRange> range=new HashMap<String,IntRange>();
   for (  final String col : columns) {
     if (col.equals("dimention1")) {
       dataTypes.put(col,DataType.STRING);
@@ -12,11 +15,12 @@
       dataTypes.put(col,DataType.INT);
       cardinality.put(col,1000);
     }
+    fieldTypes.put(col,FieldType.DIMENSION);
   }
   if (avroDataDir.exists()) {
     FileUtils.deleteDirectory(avroDataDir);
   }
-  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,dataTypes,FileFormat.AVRO,avroDataDir.getAbsolutePath(),true);
+  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,range,dataTypes,fieldTypes,timeUnits,FileFormat.AVRO,avroDataDir.getAbsolutePath(),true);
   generator=new DataGenerator();
   generator.init(spec);
   generator.generate(100000L,2);

@@ -1,0 +1,6 @@
+{
+  JSONObject payload=ControllerRequestBuilderUtil.createOfflineClusterAddTableToResource(_resourceName,_tableName).toJSON();
+  String res=sendPutRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forResourceCreate(),payload.toString());
+  String status=new JSONObject(res).getString("status");
+  return (status == "success");
+}

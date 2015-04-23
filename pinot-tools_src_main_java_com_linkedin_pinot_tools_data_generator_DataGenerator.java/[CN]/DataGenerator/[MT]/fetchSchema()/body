@@ -1,11 +1,7 @@
 {
   final Schema schema=new Schema();
   for (  final String column : genSpec.getColumns()) {
-    final FieldSpec spec=new DimensionFieldSpec();
-    spec.setDataType(genSpec.getDataTypesMap().get(column));
-    spec.setFieldType(FieldType.DIMENSION);
-    spec.setName(column);
-    spec.setSingleValueField(true);
+    final FieldSpec spec=buildSpec(genSpec,column);
     schema.addSchema(column,spec);
   }
   return schema;

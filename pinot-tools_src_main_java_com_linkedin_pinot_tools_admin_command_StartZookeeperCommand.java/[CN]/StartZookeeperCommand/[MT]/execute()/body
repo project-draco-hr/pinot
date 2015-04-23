@@ -1,0 +1,15 @@
+{
+  _tmpdir=createAutoDeleteTempDir();
+  File logdir=new File(_tmpdir + File.separator + "translog");
+  File datadir=new File(_tmpdir + File.separator + "snapshot");
+  IDefaultNameSpace _defaultNameSpace=new IDefaultNameSpace(){
+    @Override public void createDefaultNameSpace(    org.I0Itec.zkclient.ZkClient zkClient){
+    }
+  }
+;
+  ZkServer zkServer=new ZkServer(datadir.getAbsolutePath(),logdir.getAbsolutePath(),_defaultNameSpace,_zkPort,_tickTime,_minSessionTimeout);
+  zkServer.start();
+  LOGGER.info("Start zookeeper at localhost:" + zkServer.getPort() + " in thread "+ Thread.currentThread().getName());
+  savePID("/tmp/.zooKeeper.pid");
+  return true;
+}

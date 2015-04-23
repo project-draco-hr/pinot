@@ -1,12 +1,14 @@
 {
-  File dir=new File(_dataDir);
+  File dir=new File(_segmentDir);
   File[] files=dir.listFiles();
   for (  File file : files) {
+    if (!file.isDirectory())     continue;
     String srcDir=file.getAbsolutePath();
     String outFile=file.getAbsolutePath() + ".tar.gz";
     File tgzFile=new File(outFile);
     TarGzCompressionUtils.createTarGzOfDirectory(srcDir,outFile);
     FileUploadUtils.sendFile(_controllerHost,_controllerPort,tgzFile.getName(),new FileInputStream(tgzFile),tgzFile.length());
+    FileUtils.deleteQuietly(tgzFile);
   }
   return true;
 }

@@ -1,0 +1,26 @@
+{
+  Map<String,String> processes=new HashMap<String,String>();
+  if (_controller) {
+    processes.put("PinotController","/tmp/.pinotAdminController.pid");
+  }
+  if (_server) {
+    processes.put("PinotServer","/tmp/.pinotAdminServer.pid");
+  }
+  if (_broker) {
+    processes.put("PinotBroker","/tmp/.pinotAdminBroker.pid");
+  }
+  if (_zooKeeper) {
+    processes.put("Zookeeper","/tmp/.zooKeeper.pid");
+  }
+  boolean ret=true;
+  for (  Map.Entry<String,String> entry : processes.entrySet()) {
+    try {
+      stopProcess(entry.getValue());
+    }
+ catch (    Exception e) {
+      System.out.println("Failed to stop process: " + entry.getKey() + ": "+ e);
+      ret=false;
+    }
+  }
+  return ret;
+}

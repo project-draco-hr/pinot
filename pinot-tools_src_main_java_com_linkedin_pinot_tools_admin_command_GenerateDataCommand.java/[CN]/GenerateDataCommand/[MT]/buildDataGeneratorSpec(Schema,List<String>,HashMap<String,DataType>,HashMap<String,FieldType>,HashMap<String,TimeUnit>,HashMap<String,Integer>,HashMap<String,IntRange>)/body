@@ -1,0 +1,28 @@
+{
+  for (  final FieldSpec fs : schema.getAllFieldSpecs()) {
+    String col=fs.getName();
+    columns.add(col);
+    dataTypes.put(col,fs.getDataType());
+    fieldTypes.put(col,fs.getFieldType());
+switch (fs.getFieldType()) {
+case DIMENSION:
+      if (cardinality.get(col) == null) {
+        cardinality.put(col,1000);
+      }
+    break;
+case METRIC:
+  if (range.get(col) == null) {
+    range.put(col,new IntRange(1,1000));
+  }
+break;
+case TIME:
+range.put(col,new IntRange(1,1000));
+TimeFieldSpec tfs=(TimeFieldSpec)fs;
+timeUnits.put(col,tfs.getIncomingGranularitySpec().getTimeType());
+break;
+default :
+throw new RuntimeException("Invalid field type.");
+}
+}
+return new DataGeneratorSpec(columns,cardinality,range,dataTypes,fieldTypes,timeUnits,FileFormat.AVRO,_outDir,_overwrite);
+}

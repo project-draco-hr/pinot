@@ -1,0 +1,10 @@
+{
+  SchemaBuilder schemaBuilder=new SchemaBuilder();
+  schemaBuilder.addSingleValueDimension("name",DataType.STRING);
+  schemaBuilder.addSingleValueDimension("age",DataType.INT);
+  schemaBuilder.addMetric("percent",DataType.FLOAT);
+  schemaBuilder.addTime("days",TimeUnit.DAYS,DataType.LONG);
+  Schema schema=schemaBuilder.build();
+  ObjectMapper objectMapper=new ObjectMapper();
+  System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+}

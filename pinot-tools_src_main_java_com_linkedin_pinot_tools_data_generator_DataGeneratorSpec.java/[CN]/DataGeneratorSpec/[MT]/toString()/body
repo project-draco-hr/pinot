@@ -1,7 +1,12 @@
 {
   final StringBuilder builder=new StringBuilder();
   for (  final String column : columns) {
-    builder.append(column + " : " + cardinalityMap.get(column)+ " : "+ dataTypesMap.get(column));
+    if (cardinalityMap.get(column) != null) {
+      builder.append(column + " : " + cardinalityMap.get(column)+ " : "+ dataTypesMap.get(column));
+    }
+ else {
+      builder.append(column + " : " + rangeMap.get(column)+ " : "+ dataTypesMap.get(column));
+    }
   }
   builder.append("output file format : " + outputFileFormat);
   builder.append("output file format : " + outputDir);

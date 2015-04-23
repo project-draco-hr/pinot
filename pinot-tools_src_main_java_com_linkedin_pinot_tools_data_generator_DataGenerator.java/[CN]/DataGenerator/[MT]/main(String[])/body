@@ -1,12 +1,16 @@
 {
   final String[] columns={"column1","column2","column3","column4","column5"};
-  final Map<String,DataType> dataTypes=new HashMap<String,FieldSpec.DataType>();
+  final Map<String,DataType> dataTypes=new HashMap<String,DataType>();
+  final Map<String,FieldType> fieldTypes=new HashMap<String,FieldType>();
+  final Map<String,TimeUnit> timeUnits=new HashMap<String,TimeUnit>();
   final Map<String,Integer> cardinality=new HashMap<String,Integer>();
+  final Map<String,IntRange> range=new HashMap<String,IntRange>();
   for (  final String col : columns) {
     dataTypes.put(col,DataType.INT);
+    fieldTypes.put(col,FieldType.DIMENSION);
     cardinality.put(col,1000);
   }
-  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,dataTypes,FileFormat.AVRO,"/tmp/out",true);
+  final DataGeneratorSpec spec=new DataGeneratorSpec(Arrays.asList(columns),cardinality,range,dataTypes,fieldTypes,timeUnits,FileFormat.AVRO,"/tmp/out",true);
   final DataGenerator gen=new DataGenerator();
   gen.init(spec);
   gen.generate(1000000L,2);

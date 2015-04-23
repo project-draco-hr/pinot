@@ -1,0 +1,9 @@
+{
+  System.out.println("Usage: " + this.getName());
+  for (  Field f : this.getClass().getDeclaredFields()) {
+    if (f.isAnnotationPresent(Option.class)) {
+      Option option=f.getAnnotation(Option.class);
+      System.out.println(String.format("\t%-15s %-15s: %s (reqiured=%s)",option.name(),option.metaVar(),option.usage(),option.required()));
+    }
+  }
+}

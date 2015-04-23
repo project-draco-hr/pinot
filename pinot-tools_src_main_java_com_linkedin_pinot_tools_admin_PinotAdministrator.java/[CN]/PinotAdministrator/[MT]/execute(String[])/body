@@ -1,11 +1,19 @@
 {
-  CmdLineParser parser=new CmdLineParser(this);
   try {
+    CmdLineParser parser=new CmdLineParser(this);
     parser.parseArgument(args);
-    System.out.println("Executing command: " + cmd);
-    cmd.execute();
+    if ((_subCommand == null) || help) {
+      printUsage();
+    }
+ else     if (_subCommand.getHelp()) {
+      _subCommand.printUsage();
+    }
+ else {
+      System.out.println("Executing command: " + _subCommand);
+      _subCommand.execute();
+    }
   }
- catch (  CmdLineException e) {
-    System.out.println(e.getMessage());
+ catch (  Exception e) {
+    System.err.println(e.getMessage());
   }
 }

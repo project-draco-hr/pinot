@@ -10,11 +10,18 @@
   }
   outDir.mkdir();
   for (  final String column : genSpec.getColumns()) {
-    if (!genSpec.getCardinalityMap().containsKey(column)) {
+    DataType dataType=genSpec.getDataTypesMap().get(column);
+    if (genSpec.getCardinalityMap().containsKey(column)) {
+      generators.put(column,GeneratorFactory.getGeneratorFor(dataType,genSpec.getCardinalityMap().get(column)));
+    }
+ else     if (genSpec.getRangeMap().containsKey(column)) {
+      IntRange range=genSpec.getRangeMap().get(column);
+      generators.put(column,GeneratorFactory.getGeneratorFor(dataType,range.getMinimumInteger(),range.getMaximumInteger()));
+    }
+ else {
       logger.error("cardinality for this column does not exist : " + column);
       throw new RuntimeException("cardinality for this column does not exist");
     }
-    generators.put(column,GeneratorFactory.getGeneratorFor(genSpec.getDataTypesMap().get(column),genSpec.getCardinalityMap().get(column)));
     generators.get(column).init();
   }
 }

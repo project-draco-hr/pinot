@@ -1,4 +1,8 @@
 {
+  if (_help) {
+    printUsage();
+    return true;
+  }
   final ControllerConf conf=new ControllerConf();
   conf.setControllerHost("localhost");
   conf.setControllerPort(_controllerPort);
@@ -8,17 +12,14 @@
   conf.setControllerVipHost("localhost");
   conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
   conf.setValidationControllerFrequencyInSeconds(3600);
+  ZkClient zkClient=new ZkClient(_zkAddress);
+  String helixClusterName="/" + _clusterName;
+  if (zkClient.exists(helixClusterName)) {
+    zkClient.deleteRecursive(helixClusterName);
+  }
   final ControllerStarter starter=new ControllerStarter(conf);
   System.out.println(conf.getQueryConsole());
   starter.start();
-  if ((_dataDir == null) || (_tableName == null)) {
-    return true;
-  }
-  int numInstances=1;
-  int numReplicas=1;
-  String segmentAssignmentStrategy="BalanceNumSegmentAssignmentStrategy";
-  DataResource dataResource=createDataResource(numInstances,numReplicas,_clusterName,segmentAssignmentStrategy);
-  starter.getHelixResourceManager().handleCreateNewDataResource(dataResource);
-  starter.getHelixResourceManager().handleAddTableToDataResource(dataResource);
+  savePID("/tmp/.pinotAdminController.pid");
   return true;
 }

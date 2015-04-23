@@ -1,15 +1,30 @@
 {
+  File odir=new File(_outDir);
+  if (odir.exists()) {
+    if (!_overwrite) {
+      throw new IOException("Error: Output directory already exists.");
+    }
+ else {
+      FileUtils.deleteDirectory(odir);
+    }
+  }
   File schemaFile=new File(_schemaFile);
   Schema schema=new ObjectMapper().readValue(schemaFile,Schema.class);
   final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
   config.setInputFileFormat(FileFormat.AVRO);
   config.setSegmentVersion(SegmentVersion.v1);
   config.setIndexOutputDir(_outDir);
+  config.setSegmentName(_segmentName);
   config.setResourceName(_resourceName);
   config.setTableName(_tableName);
+  config.setTimeColumnName(schema.getTimeColumnName());
+  config.setTimeUnitForSegment(schema.getTimeSpec().getIncomingGranularitySpec().getTimeType());
   File dir=new File(_dataDir);
-  File[] files=dir.listFiles();
+  if (!dir.exists() || !dir.isDirectory()) {
+    throw new RuntimeException("Data directory " + _dataDir + " not found.");
+  }
   int cnt=0;
+  File[] files=dir.listFiles();
   for (  File file : files) {
     final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
     config.setInputFilePath(file.getAbsolutePath());

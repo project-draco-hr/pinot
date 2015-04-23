@@ -1,0 +1,23 @@
+{
+  DataType dataType=genSpec.getDataTypesMap().get(column);
+  FieldType fieldType=genSpec.getFieldTypesMap().get(column);
+  FieldSpec spec;
+switch (fieldType) {
+case DIMENSION:
+    spec=new DimensionFieldSpec();
+  break;
+case METRIC:
+spec=new MetricFieldSpec();
+break;
+case TIME:
+spec=new TimeFieldSpec(column,dataType,genSpec.getTimeUnitMap().get(column));
+break;
+default :
+throw new RuntimeException("Invalid Field type.");
+}
+spec.setDataType(dataType);
+spec.setFieldType(fieldType);
+spec.setName(column);
+spec.setSingleValueField(true);
+return spec;
+}
