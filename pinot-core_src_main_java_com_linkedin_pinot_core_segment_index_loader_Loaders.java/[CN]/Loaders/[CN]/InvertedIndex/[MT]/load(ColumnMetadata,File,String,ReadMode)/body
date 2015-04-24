@@ -1,0 +1,6 @@
+{
+  if (metadata.isSorted()) {
+    return new SortedInvertedIndexReader(new File(indexDir,column + V1Constants.Indexes.SORTED_INVERTED_INDEX_FILE_EXTENSION),metadata.getCardinality(),loadMode == ReadMode.mmap);
+  }
+  return new BitmapInvertedIndexReader(new File(indexDir,column + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION),metadata.getCardinality(),loadMode == ReadMode.mmap);
+}

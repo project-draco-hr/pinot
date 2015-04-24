@@ -1,0 +1,10 @@
+{
+  indexFile=file;
+  this.cardinality=cardinality;
+  if (isMmap) {
+    indexReader=FixedByteWidthRowColDataFileReader.forMmap(indexFile,cardinality,2,new int[]{4,4});
+  }
+ else {
+    indexReader=FixedByteWidthRowColDataFileReader.forHeap(indexFile,cardinality,2,new int[]{4,4});
+  }
+}
