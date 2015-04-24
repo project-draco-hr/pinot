@@ -5,18 +5,22 @@
     JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
     JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
     if (firstAggregationResult.has("value")) {
+      LOGGER.info("Trying to execute sql query: " + sqlQueries.get(0));
       statement.execute(sqlQueries.get(0));
       ResultSet rs=statement.getResultSet();
-      String value=firstAggregationResult.getString("value");
+      LOGGER.info("Trying to get result from sql: " + rs);
+      String bqlValue=firstAggregationResult.getString("value");
       rs.first();
       String sqlValue=rs.getString(1);
-      if (value != null && sqlValue != null) {
-        value=value.replaceAll("\\..*","");
+      if (bqlValue != null && sqlValue != null) {
+        bqlValue=bqlValue.replaceAll("\\..*","");
         sqlValue=sqlValue.replaceAll("\\..*","");
-        Assert.assertEquals(value,sqlValue,"Values did not match for query " + pqlQuery);
+        LOGGER.info("bql value: " + bqlValue);
+        LOGGER.info("sql value: " + sqlValue);
+        Assert.assertEquals(bqlValue,sqlValue,"Values did not match for query " + pqlQuery);
       }
  else {
-        Assert.assertEquals(value,sqlValue,"Values did not match for query " + pqlQuery);
+        Assert.assertEquals(bqlValue,sqlValue,"Values did not match for query " + pqlQuery);
       }
     }
  else     if (firstAggregationResult.has("groupByResult")) {
@@ -34,8 +38,10 @@
             actualValues.put(pinotGroupKey,Integer.toString((int)Double.parseDouble(groupByResults.getJSONObject(resultIndex).getString("value"))));
           }
           Map<String,String> correctValues=new HashMap<String,String>();
+          LOGGER.info("Trying to execute sql query: " + sqlQueries.get(aggregationGroupIndex));
           statement.execute(sqlQueries.get(aggregationGroupIndex));
           ResultSet rs=statement.getResultSet();
+          LOGGER.info("Trying to get result from sql: " + rs);
           rs.beforeFirst();
           while (rs.next()) {
             String h2GroupKey="";
@@ -44,7 +50,9 @@
             }
             correctValues.put(h2GroupKey,rs.getString(groupKeyCount + 1));
           }
-          Assert.assertEquals(actualValues,correctValues,"Values did not match while running query " + pqlQuery);
+          LOGGER.info("Trying to compare result from bql: " + actualValues);
+          LOGGER.info("Trying to compare result from sql: " + correctValues);
+          Assert.assertEquals(actualValues,correctValues,"Values did not match while running query : " + pqlQuery + ", sql query: "+ sqlQueries.get(aggregationGroupIndex));
         }
  else {
           statement.execute(sqlQueries.get(aggregationGroupIndex));

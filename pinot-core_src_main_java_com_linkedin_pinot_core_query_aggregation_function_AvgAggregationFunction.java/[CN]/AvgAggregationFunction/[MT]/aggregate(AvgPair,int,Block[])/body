@@ -1,10 +1,13 @@
 {
   BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
   if (blockValIterator.skipTo(docId)) {
-    if (mergedResult == null) {
-      return new AvgPair(block[0].getMetadata().getDictionary().getDoubleValue(blockValIterator.nextIntVal()),(long)1);
+    int dictId=blockValIterator.nextIntVal();
+    if (dictId != Dictionary.NULL_VALUE_INDEX) {
+      if (mergedResult == null) {
+        return new AvgPair(block[0].getMetadata().getDictionary().getDoubleValue(dictId),(long)1);
+      }
+      return new AvgPair(mergedResult.getFirst() + block[0].getMetadata().getDictionary().getDoubleValue(dictId),mergedResult.getSecond() + 1);
     }
-    return new AvgPair(mergedResult.getFirst() + block[0].getMetadata().getDictionary().getDoubleValue(blockValIterator.nextIntVal()),mergedResult.getSecond() + 1);
   }
   return mergedResult;
 }
