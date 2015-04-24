@@ -22,6 +22,9 @@
         }
       }
     }
+    if (entry == null && indexingSchema.getFieldSpecFor(column).isSingleValueField()) {
+      entry=AvroRecordReader.getDefaultNullValue(indexingSchema.getFieldSpecFor(column));
+    }
     rowEntries.put(column,entry);
   }
   GenericRow row=new GenericRow();
