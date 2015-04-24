@@ -10,7 +10,20 @@
     dimensionNames.add(dimensionSpec.getName());
   }
   result.setDimensions(dimensionNames);
-  final TimeRange timeRange=new TimeRange(dateTimeToCollectionTime(config,query.getStart()),dateTimeToCollectionTime(config,query.getEnd()) - 1);
+  long startOffset=0;
+  for (  ThirdEyeFunction function : query.getFunctions()) {
+    if (function instanceof ThirdEyeMovingAverageFunction) {
+      ThirdEyeMovingAverageFunction movingAverageFunction=(ThirdEyeMovingAverageFunction)function;
+      TimeGranularity window=movingAverageFunction.getWindow();
+      long windowMillis=TimeUnit.MILLISECONDS.convert(window.getSize(),window.getUnit());
+      if (windowMillis > startOffset) {
+        startOffset=windowMillis;
+      }
+    }
+  }
+  long startTime=dateTimeToCollectionTime(config,new DateTime(query.getStart().getMillis() - startOffset));
+  long endTime=dateTimeToCollectionTime(config,query.getEnd()) - 1;
+  final TimeRange timeRange=new TimeRange(startTime,endTime);
   if (!query.getGroupByColumns().isEmpty()) {
     for (    final String groupByColumn : query.getGroupByColumns()) {
       if (query.getDimensionValues().containsKey(groupByColumn)) {

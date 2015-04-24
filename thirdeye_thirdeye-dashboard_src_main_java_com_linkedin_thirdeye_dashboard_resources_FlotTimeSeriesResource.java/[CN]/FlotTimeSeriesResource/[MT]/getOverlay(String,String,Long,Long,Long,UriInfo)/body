@@ -1,7 +1,7 @@
 {
   DateTime baselineRangeStart=new DateTime(baselineMillis - windowMillis);
-  DateTime baselineRangeEnd=new DateTime(baselineMillis + windowOffsetMillis);
-  DateTime currentRangeStart=new DateTime(currentMillis - windowMillis - windowOffsetMillis);
+  DateTime baselineRangeEnd=new DateTime(baselineMillis);
+  DateTime currentRangeStart=new DateTime(currentMillis - windowMillis);
   DateTime currentRangeEnd=new DateTime(currentMillis);
   Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
   String baselineSeriesSql=SqlUtils.getSql(metricFunction,collection,baselineRangeStart,baselineRangeEnd,dimensionValues);
@@ -10,9 +10,10 @@
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSeriesSql);
   List<FlotTimeSeries> baselineSeries=FlotTimeSeries.fromQueryResult(objectMapper,baselineResult.get(),BASELINE_LABEL_PREFIX);
   List<FlotTimeSeries> currentSeries=FlotTimeSeries.fromQueryResult(objectMapper,currentResult.get());
+  long offsetMillis=currentMillis - baselineMillis;
   for (  FlotTimeSeries series : baselineSeries) {
     for (    Number[] point : series.getData()) {
-      point[0]=point[0].longValue() + windowMillis;
+      point[0]=point[0].longValue() + offsetMillis;
     }
   }
   List<FlotTimeSeries> combinedSeries=new ArrayList<>(baselineSeries.size() + currentSeries.size());
