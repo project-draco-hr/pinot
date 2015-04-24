@@ -1,8 +1,13 @@
 {
-  MutableRoaringBitmap holder=new MutableRoaringBitmap();
-  for (  Integer id : DictionaryIdFilterUtils.filter(predicate,dictionary)) {
-    holder.or(invertedIndex.getImmutable(id));
+  List<Integer> ids=DictionaryIdFilterUtils.filter(predicate,dictionary);
+  if (ids.size() == 0) {
+    filteredBitmap=new MutableRoaringBitmap();
+    return true;
   }
-  filteredBitmap=holder;
+  ImmutableRoaringBitmap[] bitmaps=new ImmutableRoaringBitmap[ids.size()];
+  for (int i=0; i < ids.size(); i++) {
+    bitmaps[i]=invertedIndex.getImmutable(ids.get(i));
+  }
+  filteredBitmap=BitmapUtils.fastOr(bitmaps);
   return true;
 }
