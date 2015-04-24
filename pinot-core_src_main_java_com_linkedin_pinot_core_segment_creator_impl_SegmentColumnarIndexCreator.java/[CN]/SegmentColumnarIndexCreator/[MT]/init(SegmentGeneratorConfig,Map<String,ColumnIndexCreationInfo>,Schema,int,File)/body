@@ -26,6 +26,11 @@
     dictionaryCreatorMap.get(column).build();
     ColumnIndexCreationInfo indexCreationInfo=indexCreationInfoMap.get(column);
     forwardIndexCreatorMap.put(column,new SegmentForwardIndexCreatorImpl(schema.getFieldSpecFor(column),file,indexCreationInfo.getSortedUniqueElementsArray().length,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
-    invertedIndexCreatorMap.put(column,new SegmentInvertedIndexCreatorImpl(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+    if (indexCreationInfo.isSorted()) {
+      invertedIndexCreatorMap.put(column,new SortedColumnInvertedIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+    }
+ else {
+      invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+    }
   }
 }

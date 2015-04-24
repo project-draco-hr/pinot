@@ -1,0 +1,14 @@
+{
+  File indexFile=new File(indexDir,spec.getName() + V1Constants.Indexes.SORTED_INVERTED_INDEX_FILE_EXTENSION);
+  indexWriter=new FixedByteWidthRowColDataFileWriter(indexFile,cardinality,2,new int[]{4,4});
+  mins=new int[cardinality];
+  maxs=new int[cardinality];
+  for (int i=0; i < mins.length; i++) {
+    mins[i]=Integer.MAX_VALUE;
+  }
+  for (int i=0; i < maxs.length; i++) {
+    maxs[i]=-1;
+  }
+  start=System.currentTimeMillis();
+  this.cardinality=cardinality;
+}

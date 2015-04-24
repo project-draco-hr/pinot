@@ -3,6 +3,7 @@
   if (INDEX_DIR.exists()) {
     FileUtils.deleteQuietly(INDEX_DIR);
   }
+  System.out.println(INDEX_DIR.getAbsolutePath());
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.DAYS,"test","testTable");
   config.setTimeColumnName("daysSinceEpoch");
