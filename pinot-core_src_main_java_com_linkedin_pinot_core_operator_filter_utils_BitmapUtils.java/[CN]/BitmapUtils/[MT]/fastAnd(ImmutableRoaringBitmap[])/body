@@ -1,0 +1,41 @@
+{
+  long start=System.currentTimeMillis();
+  MutableRoaringBitmap answer;
+  if (bitmaps.length == 1) {
+    answer=new MutableRoaringBitmap();
+    answer.and(bitmaps[0]);
+  }
+ else   if (bitmaps.length == 2) {
+    answer=ImmutableRoaringBitmap.and(bitmaps[0],bitmaps[1]);
+  }
+ else {
+    final Integer array[]=new Integer[bitmaps.length];
+    for (int i=0; i < array.length; i++) {
+      array[i]=i;
+    }
+    Arrays.sort(array,new Comparator<Integer>(){
+      @Override public int compare(      Integer o1,      Integer o2){
+        return bitmaps[o1].getSizeInBytes() - bitmaps[o2].getSizeInBytes();
+      }
+    }
+);
+    answer=ImmutableRoaringBitmap.and(bitmaps[0],bitmaps[1]);
+    for (int srcId=2; srcId < bitmaps.length; srcId++) {
+      answer.and(bitmaps[srcId]);
+    }
+  }
+  boolean validate=false;
+  if (validate) {
+    final MutableRoaringBitmap bit=(MutableRoaringBitmap)bitmaps[0];
+    for (int srcId=1; srcId < bitmaps.length; srcId++) {
+      final MutableRoaringBitmap bitToAndWith=(MutableRoaringBitmap)bitmaps[srcId];
+      bit.and(bitToAndWith);
+    }
+    if (!answer.equals(bit)) {
+      logger.error("Optimized result differs from unoptimized solution, \n\t optimized: " + answer + " \n\t unoptimized: "+ bit);
+    }
+  }
+  long end=System.currentTimeMillis();
+  logger.debug("And operator took: " + (end - start));
+  return answer;
+}
