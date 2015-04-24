@@ -1,5 +1,5 @@
 {
-  final HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClientConfiguration()).build(getName());
+  final HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClient()).build(getName());
   ExecutorService queryExecutor=environment.lifecycle().executorService("query_executor").build();
   DataCache dataCache=new DataCache(httpClient,environment.getObjectMapper());
   QueryCache queryCache=new QueryCache(httpClient,environment.getObjectMapper(),queryExecutor);
