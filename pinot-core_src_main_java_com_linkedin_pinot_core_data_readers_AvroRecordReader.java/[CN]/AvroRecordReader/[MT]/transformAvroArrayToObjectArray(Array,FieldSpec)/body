@@ -1,6 +1,6 @@
 {
   if (arr == null) {
-    return new Object[0];
+    return new Object[]{getDefaultNullValue(spec)};
   }
   final Object[] ret=new Object[arr.size()];
   final Iterator iterator=arr.iterator();
@@ -12,6 +12,9 @@
     }
     if (value instanceof Utf8) {
       value=((Utf8)value).toString();
+    }
+    if (value == null) {
+      value=getDefaultNullValue(spec);
     }
     ret[i++]=value;
   }

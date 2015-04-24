@@ -6,7 +6,7 @@
       entry=((Utf8)entry).toString();
     }
     if (entry instanceof Array) {
-      entry=AvroRecordReader.transformAvroArrayToObjectArray((Array)entry);
+      entry=AvroRecordReader.transformAvroArrayToObjectArray((Array)entry,indexingSchema.getFieldSpecFor(column));
     }
     rowEntries.put(column,entry);
   }

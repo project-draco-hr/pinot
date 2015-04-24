@@ -1,11 +1,15 @@
 {
   for (  final Field field : _dataStream.getSchema().getFields()) {
+    FieldSpec spec=_schemaExtractor.getSchema().getFieldSpecFor(field.name());
     Object value=rawRecord.get(field.name());
     if (value instanceof Utf8) {
       value=((Utf8)value).toString();
     }
     if (value instanceof Array) {
-      value=transformAvroArrayToObjectArray((Array)value);
+      value=transformAvroArrayToObjectArray((Array)value,spec);
+    }
+    if (value == null && spec.isSingleValueField()) {
+      value=getDefaultNullValue(spec);
     }
     _fieldMap.put(field.name(),value);
   }

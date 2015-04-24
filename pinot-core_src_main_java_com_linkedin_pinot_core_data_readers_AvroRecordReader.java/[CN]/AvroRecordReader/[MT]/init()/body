@@ -3,7 +3,11 @@
   if (!file.exists()) {
     throw new FileNotFoundException("File is not existed!");
   }
-  if (_fileName.endsWith("gz"))   _dataStream=new DataFileStream<GenericRecord>(new GZIPInputStream(new FileInputStream(file)),new GenericDatumReader<GenericRecord>());
- else   _dataStream=new DataFileStream<GenericRecord>(new FileInputStream(file),new GenericDatumReader<GenericRecord>());
+  if (_fileName.endsWith("gz")) {
+    _dataStream=new DataFileStream<GenericRecord>(new GZIPInputStream(new FileInputStream(file)),new GenericDatumReader<GenericRecord>());
+  }
+ else {
+    _dataStream=new DataFileStream<GenericRecord>(new FileInputStream(file),new GenericDatumReader<GenericRecord>());
+  }
   updateSchema(_schemaExtractor.getSchema());
 }
