@@ -13,7 +13,7 @@
     orderByColumns.add(pickRandom(_columnNames));
   }
   QueryFragment predicate=generatePredicate();
-  int resultLimit=RANDOM.nextInt(30);
+  int resultLimit=RANDOM.nextInt(30) + 1;
   LimitQueryFragment limit=new LimitQueryFragment(resultLimit);
   return new SelectionQuery(projectionColumns,new OrderByQueryFragment(orderByColumns),predicate,limit);
 }
