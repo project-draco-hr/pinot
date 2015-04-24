@@ -1,0 +1,32 @@
+{
+  final BlockDocIdIterator topIter=_blockDocIdIterators[0];
+  final int doc=topIter.currentDocId();
+  int i=0;
+  while (true) {
+    int lchild=(i << 1) + 1;
+    if (lchild >= _size) {
+      break;
+    }
+    BlockDocIdIterator left=_blockDocIdIterators[lchild];
+    int ldoc=left.currentDocId();
+    int rchild=lchild + 1;
+    if (rchild < _size) {
+      BlockDocIdIterator right=_blockDocIdIterators[rchild];
+      int rdoc=right.currentDocId();
+      if (rdoc <= ldoc) {
+        if (doc <= rdoc) {
+          break;
+        }
+        _blockDocIdIterators[i]=right;
+        i=rchild;
+        continue;
+      }
+    }
+    if (doc <= ldoc) {
+      break;
+    }
+    _blockDocIdIterators[i]=left;
+    i=lchild;
+  }
+  _blockDocIdIterators[i]=topIter;
+}

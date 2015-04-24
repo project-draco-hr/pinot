@@ -5,7 +5,21 @@
         final Iterator<Integer> docIds=filteredDocIdsBitMap.iterator();
         int current=0;
         @Override public int skipTo(        int targetDocId){
-          throw new UnsupportedOperationException();
+          if (targetDocId < current) {
+            throw new UnsupportedOperationException("Cannot set docId back for bitmap BlockDocIdSet");
+          }
+ else {
+            if (targetDocId == current) {
+              return current;
+            }
+            while (docIds.hasNext()) {
+              current=docIds.next();
+              if (current >= targetDocId) {
+                return current;
+              }
+            }
+            return (current=Constants.EOF);
+          }
         }
         @Override public int next(){
           if (docIds.hasNext()) {

@@ -1,0 +1,30 @@
+{
+  for (int testId=0; testId < TOTAL_TEST_TIMES; ++testId) {
+    LOGGER.info("Test id - " + testId);
+    int numberOfFilters=RANDOM.nextInt(5) + 2;
+    Block[] scanOnlyBlocks=new Block[numberOfFilters];
+    long[] jumpValues=new long[numberOfFilters];
+    for (int i=0; i < numberOfFilters; ++i) {
+      jumpValues[i]=RANDOM.nextInt(JUMP_VALUE_RANGE) + 1;
+      scanOnlyBlocks[i]=getJumpValueBlock(TOTAL_DOCS,jumpValues[i]);
+    }
+    LOGGER.info("All jump values = " + Arrays.toString(jumpValues));
+    ScanBasedOrBlock scanBasedOrBlock=new ScanBasedOrBlock(scanOnlyBlocks);
+    BlockDocIdIterator scanBasedOrBlockDocIdIterator=scanBasedOrBlock.getBlockDocIdSet().iterator();
+    int docId;
+    int expectedDocId=0;
+    while ((docId=scanBasedOrBlockDocIdIterator.next()) != Constants.EOF) {
+      Assert.assertEquals(docId,expectedDocId);
+      boolean foundNextExpectedDoc=false;
+      while (!foundNextExpectedDoc) {
+        expectedDocId++;
+        foundNextExpectedDoc=false;
+        for (        long jumpValue : jumpValues) {
+          if (expectedDocId % jumpValue == 0) {
+            foundNextExpectedDoc=true;
+          }
+        }
+      }
+    }
+  }
+}

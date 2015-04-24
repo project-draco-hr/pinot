@@ -1,0 +1,23 @@
+{
+  for (int testId=0; testId < TOTAL_TEST_TIMES; ++testId) {
+    LOGGER.info("Test id - " + testId);
+    int numberOfFilters=RANDOM.nextInt(5) + 2;
+    Block[] scanOnlyBlocks=new Block[numberOfFilters];
+    long[] jumpValues=new long[numberOfFilters];
+    for (int i=0; i < numberOfFilters; ++i) {
+      jumpValues[i]=RANDOM.nextInt(JUMP_VALUE_RANGE) + 1;
+      scanOnlyBlocks[i]=getJumpValueBlock(TOTAL_DOCS,jumpValues[i]);
+    }
+    long lcm=lcm(jumpValues);
+    LOGGER.info("All jump values = " + Arrays.toString(jumpValues));
+    LOGGER.info("Lowest Common Multiplier = " + lcm);
+    ScanBasedAndBlock scanBasedAndBlock=new ScanBasedAndBlock(scanOnlyBlocks);
+    BlockDocIdIterator scanBasedAndBlockDocIdIterator=scanBasedAndBlock.getBlockDocIdSet().iterator();
+    int docId;
+    int expectedDocId=0;
+    while ((docId=scanBasedAndBlockDocIdIterator.next()) != Constants.EOF) {
+      Assert.assertEquals(docId,expectedDocId);
+      expectedDocId+=lcm;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  final BlockDocIdSet[] blockDocIdSets=new BlockDocIdSet[_scanBasedBlocks.length];
+  for (int i=0; i < _scanBasedBlocks.length; ++i) {
+    blockDocIdSets[i]=_scanBasedBlocks[i].getBlockDocIdSet();
+  }
+  return new BlockDocIdSet(){
+    @Override public BlockDocIdIterator iterator(){
+      return new OrBlockDocIdIterator(blockDocIdSets);
+    }
+    @Override public Object getRaw(){
+      throw new UnsupportedOperationException("Not support getRaw() in ScanBasedOrBlock.getBlockDocIdSet()");
+    }
+  }
+;
+}
