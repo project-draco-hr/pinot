@@ -1,0 +1,44 @@
+{
+  for (int testId=0; testId < TOTAL_TEST_TIMES; ++testId) {
+    LOGGER.info("Test id - " + testId);
+    int numberOfScanFilters=RANDOM.nextInt(5) + 2;
+    Block[] scanOnlyBlocks=new Block[numberOfScanFilters + 1];
+    long[] scanOnlyJumpValues=new long[numberOfScanFilters];
+    for (int i=0; i < numberOfScanFilters; ++i) {
+      scanOnlyJumpValues[i]=RANDOM.nextInt(JUMP_VALUE_RANGE) + 1;
+      scanOnlyBlocks[i + 1]=getJumpValueBlock(TOTAL_DOCS,scanOnlyJumpValues[i]);
+    }
+    int numberOfBitmapFilters=RANDOM.nextInt(5) + 2;
+    Block[] bitmapOnlyBlocks=new Block[numberOfBitmapFilters];
+    long[] bitmapJumpValues=new long[numberOfBitmapFilters];
+    for (int i=0; i < numberOfBitmapFilters; ++i) {
+      bitmapJumpValues[i]=RANDOM.nextInt(JUMP_VALUE_RANGE) + 1;
+      bitmapOnlyBlocks[i]=getBitmapBlock(TOTAL_DOCS,bitmapJumpValues[i]);
+    }
+    LOGGER.info("All jump values = " + Arrays.toString(scanOnlyJumpValues) + " , "+ Arrays.toString(bitmapJumpValues));
+    BitmapBasedOrBlock bitmapBasedOrBlock=new BitmapBasedOrBlock(bitmapOnlyBlocks);
+    scanOnlyBlocks[0]=bitmapBasedOrBlock;
+    ScanBasedOrBlock scanBasedOrBlock=new ScanBasedOrBlock(scanOnlyBlocks);
+    BlockDocIdIterator scanBasedOrBlockDocIdIterator=scanBasedOrBlock.getBlockDocIdSet().iterator();
+    int docId;
+    int expectedDocId=0;
+    while ((docId=scanBasedOrBlockDocIdIterator.next()) != Constants.EOF) {
+      Assert.assertEquals(docId,expectedDocId);
+      boolean foundNextExpectedDoc=false;
+      while (!foundNextExpectedDoc) {
+        expectedDocId++;
+        foundNextExpectedDoc=false;
+        for (        long jumpValue : scanOnlyJumpValues) {
+          if (expectedDocId % jumpValue == 0) {
+            foundNextExpectedDoc=true;
+          }
+        }
+        for (        long jumpValue : bitmapJumpValues) {
+          if (expectedDocId % jumpValue == 0) {
+            foundNextExpectedDoc=true;
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,20 +5,44 @@
   }
   final List<FilterQueryTree> childFilters=filterQueryTree.getChildren();
   final boolean isLeaf=(childFilters == null) || childFilters.isEmpty();
-  List<Operator> childOperators=null;
   if (!isLeaf) {
-    childOperators=new ArrayList<Operator>();
+    List<Operator> scanBasedOperators=new ArrayList<Operator>();
+    List<Operator> invertedIndexRelatedOperators=new ArrayList<Operator>();
     for (    final FilterQueryTree query : childFilters) {
-      childOperators.add(constructPhysicalOperator(query));
+      Operator childOperator=constructPhysicalOperator(query);
+      if (isOpearatorInvertedIndexInvolved(childOperator)) {
+        invertedIndexRelatedOperators.add(childOperator);
+      }
+ else {
+        scanBasedOperators.add(childOperator);
+      }
     }
     final FilterOperator filterType=filterQueryTree.getOperator();
 switch (filterType) {
 case AND:
-      ret=new BAndOperator(childOperators);
+      if (0 == scanBasedOperators.size()) {
+        ret=new BBitmapOnlyAndOperator(invertedIndexRelatedOperators);
+      }
+ else {
+        Operator bitMapAndOperator=new BBitmapOnlyAndOperator(invertedIndexRelatedOperators);
+        scanBasedOperators.set(scanBasedOperators.size(),scanBasedOperators.get(0));
+        scanBasedOperators.set(0,bitMapAndOperator);
+        ret=new MAndOperator(scanBasedOperators);
+      }
     break;
 case OR:
-  ret=new BOrOperator(childOperators);
+  if (0 == scanBasedOperators.size()) {
+    ret=new BBitmapOnlyOrOperator(invertedIndexRelatedOperators);
+  }
+ else {
+    Operator bitMapOrOperator=new BBitmapOnlyOrOperator(invertedIndexRelatedOperators);
+    scanBasedOperators.set(scanBasedOperators.size(),scanBasedOperators.get(0));
+    scanBasedOperators.set(0,bitMapOrOperator);
+    ret=new MOrOperator(scanBasedOperators);
+  }
 break;
+default :
+throw new UnsupportedOperationException("Not support filter type - " + filterType + " with children operators");
 }
 }
  else {

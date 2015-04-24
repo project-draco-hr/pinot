@@ -1,0 +1,34 @@
+{
+  for (int testId=0; testId < TOTAL_TEST_TIMES; ++testId) {
+    LOGGER.info("Test id - " + testId);
+    int numberOfScanFilters=RANDOM.nextInt(5) + 2;
+    Block[] scanOnlyBlocks=new Block[numberOfScanFilters + 1];
+    long[] scanOnlyJumpValues=new long[numberOfScanFilters];
+    for (int i=0; i < numberOfScanFilters; ++i) {
+      scanOnlyJumpValues[i]=RANDOM.nextInt(JUMP_VALUE_RANGE) + 1;
+      scanOnlyBlocks[i + 1]=getJumpValueBlock(TOTAL_DOCS,scanOnlyJumpValues[i]);
+    }
+    int numberOfBitmapFilters=RANDOM.nextInt(5) + 2;
+    Block[] bitmapOnlyBlocks=new Block[numberOfBitmapFilters];
+    long[] bitmapJumpValues=new long[numberOfBitmapFilters];
+    for (int i=0; i < numberOfBitmapFilters; ++i) {
+      bitmapJumpValues[i]=RANDOM.nextInt(JUMP_VALUE_RANGE) + 1;
+      bitmapOnlyBlocks[i]=getBitmapBlock(TOTAL_DOCS,bitmapJumpValues[i]);
+    }
+    long lcm1=lcm(scanOnlyJumpValues);
+    long lcm2=lcm(bitmapJumpValues);
+    long lcm=lcm(new long[]{lcm1,lcm2});
+    LOGGER.info("All jump values = " + Arrays.toString(scanOnlyJumpValues) + " , "+ Arrays.toString(bitmapJumpValues));
+    LOGGER.info("Lowest Common Multiplier = " + lcm);
+    BitmapBasedAndBlock bitmapBasedAndBlock=new BitmapBasedAndBlock(bitmapOnlyBlocks);
+    scanOnlyBlocks[0]=bitmapBasedAndBlock;
+    ScanBasedAndBlock scanBasedAndBlock=new ScanBasedAndBlock(scanOnlyBlocks);
+    BlockDocIdIterator scanBasedAndBlockDocIdIterator=scanBasedAndBlock.getBlockDocIdSet().iterator();
+    int docId;
+    int expectedDocId=0;
+    while ((docId=scanBasedAndBlockDocIdIterator.next()) != Constants.EOF) {
+      Assert.assertEquals(docId,expectedDocId);
+      expectedDocId+=lcm;
+    }
+  }
+}

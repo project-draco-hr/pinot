@@ -1,0 +1,12 @@
+{
+  if (operator instanceof BBitmapOnlyAndOperator || operator instanceof BBitmapOnlyOrOperator) {
+    return true;
+  }
+ else   if (operator instanceof DataSource) {
+    DataSourceMetadata dsm=((DataSource)operator).getDataSourceMetadata();
+    if (dsm.hasInvertedIndex()) {
+      return true;
+    }
+  }
+  return false;
+}
