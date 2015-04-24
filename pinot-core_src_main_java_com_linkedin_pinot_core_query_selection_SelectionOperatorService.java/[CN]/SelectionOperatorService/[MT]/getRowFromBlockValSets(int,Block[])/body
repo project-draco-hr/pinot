@@ -99,14 +99,15 @@ default :
 break;
 }
 }
- else if (blocks[j] instanceof SingleValueBlockWithBitmapInvertedIndex) {
+ else if (blocks[j] instanceof SingleValueBlockWithBitmapInvertedIndex || blocks[j] instanceof SingleValueBlockWithSortedInvertedIndex) {
 if (blocks[j].getMetadata().hasDictionary()) {
 Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
 BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
 bvIter.skipTo(docId);
 switch (_dataSchema.getColumnType(i)) {
 case INT:
-row[i]=((IntDictionary)dictionaryReader).get(bvIter.nextIntVal());
+int dicId=bvIter.nextIntVal();
+row[i]=((IntDictionary)dictionaryReader).get(dicId);
 break;
 case FLOAT:
 row[i]=((FloatDictionary)dictionaryReader).get(bvIter.nextIntVal());

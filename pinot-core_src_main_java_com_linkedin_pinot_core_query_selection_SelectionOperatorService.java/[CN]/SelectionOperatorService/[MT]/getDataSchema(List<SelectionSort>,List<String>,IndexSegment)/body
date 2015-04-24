@@ -16,9 +16,9 @@
   final DataType[] dataTypes=new DataType[columns.size()];
   for (int i=0; i < dataTypes.length; ++i) {
     DataSource ds=indexSegment.getDataSource(columns.get(i));
-    Block block=ds.nextBlock(new BlockId(0));
-    dataTypes[i]=block.getMetadata().getDataType();
-    if (!block.getMetadata().isSingleValue()) {
+    DataSourceMetadata m=ds.getDataSourceMetadata();
+    dataTypes[i]=m.getDataType();
+    if (!m.isSingleValue()) {
       dataTypes[i]=DataType.valueOf(dataTypes[i] + "_ARRAY");
     }
   }

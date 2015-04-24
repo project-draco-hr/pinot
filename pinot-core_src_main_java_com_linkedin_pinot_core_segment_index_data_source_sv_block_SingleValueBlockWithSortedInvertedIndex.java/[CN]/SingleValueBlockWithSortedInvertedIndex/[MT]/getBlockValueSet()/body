@@ -2,7 +2,7 @@
   if (filteredIds == null) {
     return returnBlockValueSetBackedByFwdIndex();
   }
-  final ImmutableRoaringBitmap orredBitmap=BitmapUtils.getOrBitmap(invertedIndex,filteredIds);
+  final ImmutableRoaringBitmap orredBitmap=DictionaryIdFilterUtils.filter2(p,invertedIndex,dictionary,columnMetadata);
   return new BlockValSet(){
     @Override public BlockValIterator iterator(){
       return new BlockSingleValIterator(){

@@ -1,0 +1,29 @@
+{
+  return new DataSourceMetadata(){
+    @Override public boolean isSorted(){
+      return false;
+    }
+    @Override public boolean hasInvertedIndex(){
+      return invertedINdex != null;
+    }
+    @Override public boolean hasDictionary(){
+      return dictionary != null;
+    }
+    @Override public FieldType getFieldType(){
+      return spec.getFieldType();
+    }
+    @Override public DataType getDataType(){
+      return spec.getDataType();
+    }
+    @Override public int cardinality(){
+      if (dictionary == null) {
+        return Constants.EOF;
+      }
+      return dictionary.length();
+    }
+    @Override public boolean isSingleValue(){
+      return spec.isSingleValueField();
+    }
+  }
+;
+}
