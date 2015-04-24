@@ -1,7 +1,12 @@
 {
   Block b;
   if (columnMetadata.isSingleValue()) {
-    b=new SingleValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
+    if (columnMetadata.isSorted()) {
+      b=new SingleValueBlockWithSortedInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
+    }
+ else {
+      b=new SingleValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
+    }
   }
  else {
     b=new MultiValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedMVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
