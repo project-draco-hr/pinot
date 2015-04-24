@@ -1,0 +1,12 @@
+{
+  ImmutableRoaringBitmap bm;
+  if (idsToOr.size() == 0) {
+    bm=new MutableRoaringBitmap();
+  }
+  ImmutableRoaringBitmap[] bitmaps=new ImmutableRoaringBitmap[idsToOr.size()];
+  for (int i=0; i < idsToOr.size(); i++) {
+    bitmaps[i]=invertedIndex.getImmutable(idsToOr.get(i));
+  }
+  bm=BitmapUtils.fastOr(bitmaps);
+  return bm;
+}

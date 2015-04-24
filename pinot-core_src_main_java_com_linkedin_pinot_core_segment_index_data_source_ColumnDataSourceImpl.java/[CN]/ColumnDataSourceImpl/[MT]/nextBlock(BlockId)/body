@@ -1,12 +1,13 @@
 {
-  if (!isPredicateEvaluated && predicate != null) {
-    evalPredicate();
-    isPredicateEvaluated=true;
-  }
+  Block b;
   if (columnMetadata.isSingleValue()) {
-    return new SingleValueBlock(blockId,(FixedBitCompressedSVForwardIndexReader)reader,filteredBitmap,dictionary,columnMetadata);
+    b=new SingleValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
   }
  else {
-    return new MultiValueBlock(blockId,(FixedBitCompressedMVForwardIndexReader)reader,filteredBitmap,dictionary,columnMetadata);
+    b=new MultiValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedMVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
   }
+  if (predicate != null) {
+    b.applyPredicate(predicate);
+  }
+  return b;
 }

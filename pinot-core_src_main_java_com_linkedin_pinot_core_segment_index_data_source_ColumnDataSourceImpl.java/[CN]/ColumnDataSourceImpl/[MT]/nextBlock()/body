@@ -1,16 +1,7 @@
 {
-  if (!isPredicateEvaluated && predicate != null) {
-    evalPredicate();
-    isPredicateEvaluated=true;
-  }
   blockNextCallCount++;
   if (blockNextCallCount <= 1) {
-    if (columnMetadata.isSingleValue()) {
-      return new SingleValueBlock(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)reader,filteredBitmap,dictionary,columnMetadata);
-    }
- else {
-      return new MultiValueBlock(new BlockId(0),(FixedBitCompressedMVForwardIndexReader)reader,filteredBitmap,dictionary,columnMetadata);
-    }
+    return nextBlock(new BlockId(0));
   }
   return null;
 }

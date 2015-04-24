@@ -1,0 +1,46 @@
+{
+  if (filteredIds != null) {
+    return null;
+  }
+  return new BlockValSet(){
+    @Override public BlockValIterator iterator(){
+      return new BlockMultiValIterator(){
+        private int counter=0;
+        @Override public int nextIntVal(        int[] intArray){
+          return mVReader.getIntArray(counter++,intArray);
+        }
+        @Override public boolean skipTo(        int docId){
+          if (docId >= mVReader.length()) {
+            return false;
+          }
+          counter=docId;
+          return true;
+        }
+        @Override public int size(){
+          return mVReader.length();
+        }
+        @Override public boolean reset(){
+          counter=0;
+          return true;
+        }
+        @Override public boolean next(){
+          return false;
+        }
+        @Override public boolean hasNext(){
+          return (counter < mVReader.length());
+        }
+        @Override public DataType getValueType(){
+          return columnMetadata.getDataType();
+        }
+        @Override public int currentDocId(){
+          return counter;
+        }
+      }
+;
+    }
+    @Override public DataType getValueType(){
+      return columnMetadata.getDataType();
+    }
+  }
+;
+}

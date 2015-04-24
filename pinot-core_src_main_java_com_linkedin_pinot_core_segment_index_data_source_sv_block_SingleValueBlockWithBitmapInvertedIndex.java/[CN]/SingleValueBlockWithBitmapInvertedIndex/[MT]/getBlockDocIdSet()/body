@@ -1,0 +1,6 @@
+{
+  if (filteredIds == null) {
+    return BlockUtils.getDummyBlockDocIdSet(columnMetadata.getTotalDocs());
+  }
+  return BlockUtils.getBLockDocIdSetBackedByBitmap(BitmapUtils.getOrBitmap(invertedIndex,filteredIds));
+}
