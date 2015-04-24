@@ -11,17 +11,8 @@
           if (targetDocId >= columnMetadata.getTotalDocs()) {
             return Constants.EOF;
           }
-          counter=targetDocId;
-          if (filteredIds.contains(indexReader.getInt(counter))) {
-            return counter;
-          }
-          while (counter < columnMetadata.getTotalDocs()) {
-            counter++;
-            if (filteredIds.contains(indexReader.getInt(counter))) {
-              break;
-            }
-          }
-          return counter;
+          counter=targetDocId - 1;
+          return next();
         }
         @Override public int next(){
           counter++;
@@ -30,11 +21,11 @@
           }
           while (counter < columnMetadata.getTotalDocs()) {
             if (filteredIds.contains(indexReader.getInt(counter))) {
-              break;
+              return counter;
             }
             counter++;
           }
-          return counter;
+          return Constants.EOF;
         }
         @Override public int currentDocId(){
           return counter;
