@@ -5,12 +5,14 @@
     String zkNodePath=zkStr.substring(indexOfFirstSlash);
     ZkClient client=new ZkClient(bareZkUrl);
     client.createPersistent(zkNodePath,true);
-    client.createPersistent(zkNodePath + "-tracking",true);
     client.close();
   }
+  File logDir=new File("/tmp/kafka-" + Double.toHexString(Math.random()));
+  logDir.mkdirs();
   configuration.put("port",Integer.toString(port));
   configuration.put("zookeeper.connect",zkStr);
   configuration.put("broker.id",Integer.toString(brokerId));
+  configuration.put("log.dirs",logDir.getAbsolutePath());
   KafkaConfig config=new KafkaConfig(configuration);
   KafkaServerStartable serverStartable=new KafkaServerStartable(config);
   serverStartable.startup();
