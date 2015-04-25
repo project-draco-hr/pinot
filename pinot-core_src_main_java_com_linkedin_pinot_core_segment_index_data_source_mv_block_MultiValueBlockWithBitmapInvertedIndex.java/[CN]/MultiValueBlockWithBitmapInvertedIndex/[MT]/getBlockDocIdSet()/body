@@ -1,6 +1,7 @@
 {
-  if (filteredIds == null) {
+  if (predicate == null) {
     return BlockUtils.getDummyBlockDocIdSet(columnMetadata.getTotalDocs());
   }
-  return BlockUtils.getBLockDocIdSetBackedByBitmap(DictionaryIdFilterUtils.filter2(predicate,invertedIndex,dictionary,columnMetadata));
+  final ImmutableRoaringBitmap b=DictionaryIdFilterUtils.filter2(predicate,invertedIndex,dictionary,columnMetadata);
+  return BlockUtils.getBLockDocIdSetBackedByBitmap(b);
 }

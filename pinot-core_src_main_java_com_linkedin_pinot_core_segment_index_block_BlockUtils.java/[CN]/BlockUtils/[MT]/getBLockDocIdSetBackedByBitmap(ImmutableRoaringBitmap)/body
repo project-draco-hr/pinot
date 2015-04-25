@@ -2,8 +2,8 @@
   return new BlockDocIdSet(){
     @Override public BlockDocIdIterator iterator(){
       return new BlockDocIdIterator(){
-        final Iterator<Integer> docIds=filteredDocIdsBitMap.iterator();
-        int current=0;
+        final IntIterator docIds=filteredDocIdsBitMap.getIntIterator();
+        int current=-1;
         @Override public int skipTo(        int targetDocId){
           if (targetDocId < current) {
             throw new UnsupportedOperationException("Cannot set docId back for bitmap BlockDocIdSet");

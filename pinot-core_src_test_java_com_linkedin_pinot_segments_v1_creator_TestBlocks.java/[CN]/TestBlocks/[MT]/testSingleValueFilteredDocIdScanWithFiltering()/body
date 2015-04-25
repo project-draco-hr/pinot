@@ -1,0 +1,60 @@
+{
+  File segmentDir=INDEX_DIR.listFiles()[0];
+  IndexSegment segment=ColumnarSegmentLoader.load(segmentDir,ReadMode.mmap);
+  SegmentMetadataImpl metadata=(SegmentMetadataImpl)segment.getSegmentMetadata();
+  Schema schema=segment.getSegmentMetadata().getSchema();
+  for (  FieldSpec spec : schema.getAllFieldSpecs()) {
+    if (!spec.isSingleValueField()) {
+      continue;
+    }
+    ColumnMetadata columnMetadata=metadata.getColumnMetadataFor(spec.getName());
+    Dictionary dic=Loaders.Dictionary.load(columnMetadata,new File(segmentDir,spec.getName() + V1Constants.Dict.FILE_EXTENTION),ReadMode.heap);
+    DataFileReader indexReader=Loaders.ForwardIndex.loadFwdIndexForColumn(columnMetadata,new File(segmentDir,spec.getName() + V1Constants.Indexes.UN_SORTED_FWD_IDX_FILE_EXTENTION),ReadMode.heap);
+    InvertedIndexReader reader=Loaders.InvertedIndex.load(columnMetadata,segmentDir,spec.getName(),ReadMode.heap);
+    SingleValueBlockWithoutInvertedIndex fwdIdxBlock=new SingleValueBlockWithoutInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)indexReader,(ImmutableDictionaryReader)dic,columnMetadata);
+    Object e=dic.get(new Random().nextInt(dic.length()));
+    Predicate p=new EqPredicate(spec.getName(),Lists.newArrayList(e.toString()));
+    Block invertedIndexBlock;
+    if (columnMetadata.isSorted()) {
+      invertedIndexBlock=new SingleValueBlockWithSortedInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)indexReader,reader,(ImmutableDictionaryReader)dic,columnMetadata);
+    }
+ else {
+      invertedIndexBlock=new SingleValueBlockWithBitmapInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)indexReader,reader,(ImmutableDictionaryReader)dic,columnMetadata);
+      invertedIndexBlock.applyPredicate(p);
+      fwdIdxBlock.applyPredicate(p);
+    }
+    BlockDocIdIterator it1=invertedIndexBlock.getBlockDocIdSet().iterator();
+    BlockDocIdIterator it2=fwdIdxBlock.getBlockDocIdSet().iterator();
+    int val1=it1.next();
+    int val2=it2.next();
+    while (val1 != Constants.EOF) {
+      try {
+        Assert.assertEquals(val1,val2);
+      }
+ catch (      AssertionError e1) {
+        StringBuilder b=new StringBuilder();
+        for (int i=0; i < dic.length(); i++) {
+          b.append(dic.get(i) + ",");
+        }
+        System.out.println("all values : " + b.toString());
+        System.out.println("looking for : " + e.toString() + " with dictionary id : "+ dic.indexOf(e));
+        System.out.println("val1:" + val1);
+        System.out.println("val2:" + val2);
+        System.out.println("column:" + spec.getName());
+        System.out.println("sorted:" + columnMetadata.isSorted());
+        throw new AssertionError(e1);
+      }
+      val1=it1.next();
+      val2=it2.next();
+    }
+    try {
+      Assert.assertEquals(val1,Constants.EOF);
+      Assert.assertEquals(val2,Constants.EOF);
+    }
+ catch (    AssertionError e1) {
+      System.out.println("val1:" + val1);
+      System.out.println("val2:" + val2);
+      throw new AssertionError(e1);
+    }
+  }
+}
