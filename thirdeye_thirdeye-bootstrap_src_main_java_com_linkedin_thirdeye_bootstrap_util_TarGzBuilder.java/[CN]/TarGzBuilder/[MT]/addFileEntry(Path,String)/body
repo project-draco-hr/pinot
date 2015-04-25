@@ -1,0 +1,10 @@
+{
+  TarArchiveEntry tarEntry;
+  tarEntry=new TarArchiveEntry(entryName);
+  tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+  FileStatus fileStatus=inputFS.getFileStatus(path);
+  tarEntry.setSize(fileStatus.getLen());
+  tOut.putArchiveEntry(tarEntry);
+  IOUtils.copy(inputFS.open(path),tOut);
+  tOut.closeArchiveEntry();
+}

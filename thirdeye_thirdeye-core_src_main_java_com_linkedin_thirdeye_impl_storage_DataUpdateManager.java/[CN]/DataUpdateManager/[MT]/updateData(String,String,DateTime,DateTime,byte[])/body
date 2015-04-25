@@ -17,20 +17,21 @@
     }
     String loadId="load_" + UUID.randomUUID();
     File tmpDir=new File(new File(rootDir,collection),loadId);
-    File tmpMetricStore=new File(tmpDir,StarTreeConstants.METRIC_STORE);
-    File tmpDimensionStore=new File(tmpDir,StarTreeConstants.DIMENSION_STORE);
     try {
       FileUtils.forceMkdir(tmpDir);
-      TarUtils.extractGzippedTarArchive(new ByteArrayInputStream(data),tmpDir,2);
+      File tarGzFile=new File(tmpDir,"data.tar.gz");
+      IOUtils.write(data,new FileOutputStream(tarGzFile));
+      TarGzCompressionUtils.unTar(tarGzFile,tmpDir);
       LOG.info("Extracted data into {}",tmpDir);
-      StorageUtils.prefixFilesWithTime(tmpMetricStore,schedule,minTime,maxTime);
-      StorageUtils.prefixFilesWithTime(tmpDimensionStore,schedule,minTime,maxTime);
       File tmpTreeFile=new File(tmpDir,StarTreeConstants.TREE_FILE_NAME);
       ObjectInputStream treeStream=new ObjectInputStream(new FileInputStream(tmpTreeFile));
       StarTreeNode rootNode=(StarTreeNode)treeStream.readObject();
       String treeId=rootNode.getId().toString();
       LOG.info("Tree ID for {} is {}",loadId,treeId);
       File dataDir=new File(collectionDir,StorageUtils.getDataDirName(treeId,schedule,minTime,maxTime));
+      if (dataDir.exists()) {
+        throw new Exception("Data is already uploaded for timerange:" + minTime + " to "+ maxTime+ ". Please delete the existing data for this range and try again");
+      }
       FileUtils.forceMkdir(dataDir);
       StorageUtils.moveAllFiles(tmpDir,dataDir);
       LOG.info("Moved files from {} to {}",tmpDir,dataDir);

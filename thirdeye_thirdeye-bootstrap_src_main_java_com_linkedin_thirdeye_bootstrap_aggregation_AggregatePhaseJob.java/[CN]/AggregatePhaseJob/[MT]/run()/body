@@ -15,13 +15,21 @@
   job.setOutputKeyClass(BytesWritable.class);
   job.setOutputValueClass(BytesWritable.class);
   job.setOutputFormatClass(SequenceFileOutputFormat.class);
-  job.setNumReduceTasks(10);
+  String numReducers=props.getProperty("num.reducers");
+  if (numReducers != null) {
+    job.setNumReduceTasks(Integer.parseInt(numReducers));
+  }
+ else {
+    job.setNumReduceTasks(10);
+  }
+  LOG.info("Setting number of reducers : " + job.getNumReduceTasks());
   Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,AGG_INPUT_PATH);
   getAndSetConfiguration(configuration,AGG_CONFIG_PATH);
   getAndSetConfiguration(configuration,AGG_OUTPUT_PATH);
   getAndSetConfiguration(configuration,AGG_INPUT_AVRO_SCHEMA);
   LOG.info("Input path dir: " + inputPathDir);
+  FileInputFormat.setInputDirRecursive(job,true);
   for (  String inputPath : inputPathDir.split(",")) {
     Path input=new Path(inputPath);
     FileStatus[] listFiles=fs.listStatus(input);

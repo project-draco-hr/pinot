@@ -18,7 +18,7 @@
   String starTreeOutputPath=context.getConfiguration().get(STAR_TREE_GENERATION_OUTPUT_PATH.toString());
   try {
     collectionName=config.getCollectionName();
-    pathToTree=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,collectionName + "-tree.bin");
+    pathToTree=new Path(starTreeOutputPath + "/" + "tree.bin");
     InputStream is=dfs.open(pathToTree);
     starTreeRootNode=StarTreePersistanceUtil.loadStarTree(is);
     LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
@@ -34,21 +34,14 @@
   }
   try {
     collectionName=config.getCollectionName();
-    String tarGZName="leaf-data.tar.gz";
-    Path pathToLeafData=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,tarGZName);
-    dfs.copyToLocalFile(pathToLeafData,new Path(tarGZName));
+    String tarGZName="dimensionStore.tar.gz";
+    Path pathToDimensionIndexTarGz=new Path(starTreeOutputPath,tarGZName);
+    dfs.copyToLocalFile(pathToDimensionIndexTarGz,new Path(tarGZName));
     new File(localInputDataDir).mkdirs();
     TarGzCompressionUtils.unTar(new File(tarGZName),new File(localInputDataDir));
-    Collection<File> listFiles=FileUtils.listFiles(new File("."),FileFileFilter.FILE,DirectoryFileFilter.DIRECTORY);
-    boolean b=true;
-    for (    File f : listFiles) {
-      LOG.info(f.getAbsolutePath());
-      if (b && f.getName().endsWith("idx")) {
-      }
-    }
   }
  catch (  Exception e) {
     throw new IOException(e);
   }
-  new File(localOutputDataDir + "/data").mkdirs();
+  new File(localOutputDataDir + "/metricStore").mkdirs();
 }

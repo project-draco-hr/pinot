@@ -2,9 +2,9 @@
   String nodeId=new String(keyWritable.copyBytes());
   LOG.info("START: processing {}",nodeId);
   Map<DimensionKey,MetricTimeSeries> records=new HashMap<DimensionKey,MetricTimeSeries>();
-  String dataDir=localInputDataDir + "/data";
-  DimensionDictionary dictionary=new DimensionDictionary(StarTreePersistanceUtil.readForwardIndex(nodeId,dataDir));
-  List<int[]> allCombinations=StarTreePersistanceUtil.readLeafRecords(dataDir,nodeId,starTreeConfig.getDimensions().size());
+  String dimensionStoreIndexDir=localInputDataDir + "/dimensionStore";
+  DimensionDictionary dictionary=new DimensionDictionary(StarTreePersistanceUtil.readForwardIndex(nodeId,dimensionStoreIndexDir));
+  List<int[]> allCombinations=StarTreePersistanceUtil.readLeafRecords(dimensionStoreIndexDir,nodeId,starTreeConfig.getDimensions().size());
   for (  BytesWritable recordBytes : bootstrapMapOutputValueWritableIterable) {
     BootstrapPhaseMapOutputValue record=BootstrapPhaseMapOutputValue.fromBytes(recordBytes.copyBytes(),metricSchema);
     if (!records.containsKey(record.getDimensionKey())) {

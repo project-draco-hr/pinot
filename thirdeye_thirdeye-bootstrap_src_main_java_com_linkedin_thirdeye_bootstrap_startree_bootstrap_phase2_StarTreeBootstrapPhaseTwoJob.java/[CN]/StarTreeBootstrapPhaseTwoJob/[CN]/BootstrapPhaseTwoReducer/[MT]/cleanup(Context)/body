@@ -1,12 +1,34 @@
 {
   LOG.info("START: In clean up");
   FileSystem dfs=FileSystem.get(context.getConfiguration());
-  String leafDataTarGz=context.getTaskAttemptID().getTaskID() + "-leaf-data.tar.gz";
-  LOG.info("Generating " + leafDataTarGz + " from "+ localOutputDataDir);
-  FixedBufferUtil.combineDataFiles(dfs.open(pathToTree),new File(localTmpDataDir),new File(localOutputDataDir,"data"));
-  TarGzCompressionUtils.createTarGzOfDirectory(localOutputDataDir,leafDataTarGz);
-  Path src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(leafDataTarGz));
-  Path dst=dfs.makeQualified(new Path(hdfsOutputDir,leafDataTarGz));
+  String outputTarGz="data-" + context.getTaskAttemptID().getTaskID().getId() + ".tar.gz";
+  LOG.info("Generating " + outputTarGz + " from "+ localOutputDataDir);
+  Collection<File> listFiles=FileUtils.listFiles(new File(localOutputDataDir),null,true);
+  LOG.info("Files under " + localOutputDataDir + " before combining");
+  for (  File f : listFiles) {
+    LOG.info(f.getAbsolutePath());
+  }
+  FixedBufferUtil.combineDataFiles(dfs.open(pathToTree),new File(localTmpDataDir),new File(localOutputDataDir));
+  Collection<File> listFilesAfterCombine=FileUtils.listFiles(new File(localOutputDataDir),null,true);
+  LOG.info("Files under " + localOutputDataDir + " after combining");
+  for (  File f : listFilesAfterCombine) {
+    LOG.info(f.getAbsolutePath());
+  }
+  FileSystem localFS=FileSystem.getLocal(context.getConfiguration());
+  TarGzBuilder builder=new TarGzBuilder(outputTarGz,localFS,localFS);
+  builder.addFileEntry(new Path(localOutputDataDir + "/tree.bin"));
+  Collection<File> dimFiles=FileUtils.listFiles(new File(localOutputDataDir + "/dimensionStore"),null,true);
+  for (  File f : dimFiles) {
+    builder.addFileEntry(new Path(f.getAbsolutePath()),"dimensionStore/" + f.getName());
+  }
+  Collection<File> metricFiles=FileUtils.listFiles(new File(localOutputDataDir + "/metricStore"),null,true);
+  for (  File f : metricFiles) {
+    builder.addFileEntry(new Path(f.getAbsolutePath()),"metricStore/" + f.getName());
+  }
+  builder.finish();
+  Path src, dst;
+  src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(outputTarGz));
+  dst=dfs.makeQualified(new Path(hdfsOutputDir,outputTarGz));
   LOG.info("Copying " + src + " to "+ dst);
   dfs.copyFromLocalFile(src,dst);
   LOG.info("END: Clean up");
@@ -16,8 +38,6 @@
   FileUtils.deleteDirectory(f);
   f=new File(localTmpDataDir);
   FileUtils.deleteDirectory(f);
-  f=new File(leafDataTarGz);
-  f.delete();
-  f=new File("leaf-data.tar.gz");
+  f=new File(outputTarGz);
   f.delete();
 }

@@ -9,12 +9,15 @@
   job.setReducerClass(BootstrapPhaseTwoReducer.class);
   job.setOutputKeyClass(NullWritable.class);
   job.setOutputValueClass(NullWritable.class);
-  int numberOfReducers=10;
-  if (this.props.getProperty(StarTreeBootstrapPhaseTwoConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.name) != null) {
-    numberOfReducers=Integer.parseInt(this.props.getProperty(StarTreeBootstrapPhaseTwoConstants.THIRDEYE_STARTREE_BOOTSTRAP_PHASE2_REDUCERS.name));
+  job.setOutputFormatClass(NullOutputFormat.class);
+  String numReducers=props.getProperty("num.reducers");
+  if (numReducers != null) {
+    job.setNumReduceTasks(Integer.parseInt(numReducers));
   }
-  job.setNumReduceTasks(numberOfReducers);
-  LOG.info("Setting number of reducers : " + numberOfReducers);
+ else {
+    job.setNumReduceTasks(10);
+  }
+  LOG.info("Setting number of reducers : " + job.getNumReduceTasks());
   Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_PHASE2_INPUT_PATH);
   getAndSetConfiguration(configuration,STAR_TREE_GENERATION_OUTPUT_PATH);
@@ -27,9 +30,9 @@
     FileInputFormat.addInputPath(job,input);
   }
   FileOutputFormat.setOutputPath(job,new Path(getAndCheck(STAR_TREE_BOOTSTRAP_PHASE2_OUTPUT_PATH.toString())));
-  String thirdEyeUri=props.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName());
+  String thirdEyeUri=props.getProperty(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getName());
   if (thirdEyeUri != null) {
-    job.getConfiguration().set(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getPropertyName(),thirdEyeUri);
+    job.getConfiguration().set(ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getName(),thirdEyeUri);
   }
   job.waitForCompletion(true);
 }

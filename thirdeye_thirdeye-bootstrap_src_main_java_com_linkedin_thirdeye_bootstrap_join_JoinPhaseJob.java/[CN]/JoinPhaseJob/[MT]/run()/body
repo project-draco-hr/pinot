@@ -30,11 +30,14 @@
   job.setOutputFormatClass(AvroKeyOutputFormat.class);
   job.setOutputKeyClass(AvroKey.class);
   job.setOutputValueClass(NullWritable.class);
-  String numReducers="10";
-  if (props.containsKey(JoinPhaseJobConstants.JOIN_NUM_REDUCERS.name)) {
-    numReducers=props.getProperty(JoinPhaseJobConstants.JOIN_NUM_REDUCERS.name);
+  String numReducers=props.getProperty("num.reducers");
+  if (numReducers != null) {
+    job.setNumReduceTasks(Integer.parseInt(numReducers));
   }
-  job.setNumReduceTasks(Integer.parseInt(numReducers));
+ else {
+    job.setNumReduceTasks(10);
+  }
+  LOG.info("Setting number of reducers : " + job.getNumReduceTasks());
   Map<String,String> schemaMap=new HashMap<String,String>();
   Map<String,String> schemaPathMapping=new HashMap<String,String>();
   for (  String sourceName : sourceNames) {

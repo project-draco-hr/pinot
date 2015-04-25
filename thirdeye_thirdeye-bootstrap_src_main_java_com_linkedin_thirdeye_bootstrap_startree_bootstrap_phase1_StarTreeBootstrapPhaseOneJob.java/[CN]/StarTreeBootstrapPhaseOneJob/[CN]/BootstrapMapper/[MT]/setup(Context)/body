@@ -22,7 +22,7 @@
   String starTreeOutputPath=context.getConfiguration().get(STAR_TREE_GENERATION_OUTPUT_PATH.toString());
   try {
     collectionName=config.getCollectionName();
-    Path pathToTree=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,collectionName + "-tree.bin");
+    Path pathToTree=new Path(starTreeOutputPath + "/" + "tree.bin");
     InputStream is=dfs.open(pathToTree);
     starTreeRootNode=StarTreePersistanceUtil.loadStarTree(is);
   }
@@ -31,11 +31,11 @@
   }
   try {
     collectionName=config.getCollectionName();
-    String tarGZName="leaf-data.tar.gz";
-    Path pathToLeafData=new Path(starTreeOutputPath + "/" + "star-tree-"+ collectionName,tarGZName);
-    dfs.copyToLocalFile(pathToLeafData,new Path(tarGZName));
-    new File(localInputDataDir).mkdirs();
-    TarGzCompressionUtils.unTar(new File(tarGZName),new File(localInputDataDir));
+    String tarGZName="dimensionStore.tar.gz";
+    Path pathToDimensionIndexTarGz=new Path(starTreeOutputPath,tarGZName);
+    dfs.copyToLocalFile(pathToDimensionIndexTarGz,new Path(tarGZName));
+    new File(localStagingDir).mkdirs();
+    TarGzCompressionUtils.unTar(new File(tarGZName),new File(localStagingDir));
     Collection<File> listFiles=FileUtils.listFiles(new File("."),FileFileFilter.FILE,DirectoryFileFilter.DIRECTORY);
     boolean b=true;
     for (    File f : listFiles) {
@@ -56,8 +56,8 @@
   nodeIdToleafRecordsMap=new HashMap<UUID,List<int[]>>();
   for (  StarTreeNode node : leafNodes) {
     UUID uuid=node.getId();
-    Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(uuid.toString(),localInputDataDir + "/data");
-    List<int[]> leafRecords=StarTreePersistanceUtil.readLeafRecords(localInputDataDir + "/data",uuid.toString(),dimensionNames.size());
+    Map<String,Map<String,Integer>> forwardIndex=StarTreePersistanceUtil.readForwardIndex(uuid.toString(),localStagingDir + "/dimensionStore");
+    List<int[]> leafRecords=StarTreePersistanceUtil.readLeafRecords(localStagingDir + "/dimensionStore",uuid.toString(),dimensionNames.size());
     leafNodesMap.put(uuid,node);
     forwardIndexMap.put(uuid,forwardIndex);
     nodeIdToleafRecordsMap.put(uuid,leafRecords);

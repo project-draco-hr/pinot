@@ -1,8 +1,4 @@
 {
-  String[] tokens=fileName.split("_");
-  String schedule=tokens[0];
-  String minTime=tokens[1];
-  String maxTime=tokens[2];
-  UUID id=UUID.fromString(tokens[3].substring(0,tokens[3].lastIndexOf(expectedSuffix)));
-  return new FileDescriptor(schedule,id,minTime,maxTime,expectedSuffix);
+  UUID id=UUID.fromString(fileName.substring(0,fileName.indexOf(expectedSuffix)));
+  return new FileDescriptor(id,expectedSuffix);
 }
