@@ -19,5 +19,15 @@
       }
     }
   }
+  if (brokerRequest.getAggregationsInfo() != null) {
+    for (    AggregationInfo aggregationInfo : brokerRequest.getAggregationsInfo()) {
+      if (aggregationInfo.getAggregationParams().containsKey(COLUMN_KEY)) {
+        String columnName=aggregationInfo.getAggregationParams().get(COLUMN_KEY);
+        if ((!columnName.equalsIgnoreCase("*")) && (!schema.isExisted(columnName))) {
+          return true;
+        }
+      }
+    }
+  }
   return false;
 }

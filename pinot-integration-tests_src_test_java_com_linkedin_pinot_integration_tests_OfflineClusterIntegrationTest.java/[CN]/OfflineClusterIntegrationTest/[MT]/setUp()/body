@@ -62,4 +62,7 @@
     FileUploadUtils.sendFile("localhost","8998","myresource_mytable_" + i,new FileInputStream(file),file.length());
   }
   latch.await();
+  while (getCurrentServingNumDocs() < 115545) {
+    Thread.sleep(1000);
+  }
 }
