@@ -9,7 +9,7 @@
       return res;
     }
     LOGGER.info("Trying to update BrokerDataResource Config!");
-    HelixHelper.updateBrokerDataResource(_helixAdmin,_helixClusterName,brokerDataResource);
+    ControllerHelixHelper.updateBrokerDataResource(_helixAdmin,_helixClusterName,brokerDataResource);
     LOGGER.info("Trying to update BrokerDataResource IdealState!");
     final IdealState idealState=PinotResourceIdealStateBuilder.addBrokerResourceToIdealStateFor(brokerDataResource,_helixAdmin,_helixClusterName);
     if (idealState != null) {

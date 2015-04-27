@@ -8,7 +8,7 @@
     _helixAdmin.addInstanceTag(_helixClusterName,instance,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE);
   }
   HelixHelper.deleteResourceFromBrokerResource(_helixAdmin,_helixClusterName,resourceTag);
-  HelixHelper.deleteBrokerDataResourceConfig(_helixAdmin,_helixClusterName,resourceTag);
+  ControllerHelixHelper.deleteBrokerDataResourceConfig(_helixAdmin,_helixClusterName,resourceTag);
   if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(resourceTag)) {
     res.status=STATUS.failure;
     res.errorMessage=String.format("Resource (%s) does not exist",resourceTag);

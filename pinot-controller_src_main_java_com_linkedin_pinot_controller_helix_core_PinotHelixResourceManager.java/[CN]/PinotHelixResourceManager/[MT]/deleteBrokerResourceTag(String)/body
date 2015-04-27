@@ -1,13 +1,13 @@
 {
   final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
-  if (!HelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTag)) {
+  if (!ControllerHelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTag)) {
     res.status=STATUS.failure;
     res.errorMessage="Broker resource tag is not existed!";
     return res;
   }
   final List<String> taggedBrokerInstances=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag);
   unTagBrokerInstance(taggedBrokerInstances,brokerTag);
-  HelixHelper.deleteBrokerTagFromResourceConfig(_helixAdmin,_helixClusterName,brokerTag);
+  ControllerHelixHelper.deleteBrokerTagFromResourceConfig(_helixAdmin,_helixClusterName,brokerTag);
   res.status=STATUS.success;
   return res;
 }

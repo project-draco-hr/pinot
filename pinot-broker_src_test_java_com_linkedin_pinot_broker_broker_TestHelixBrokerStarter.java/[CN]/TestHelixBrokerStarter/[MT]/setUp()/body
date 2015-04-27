@@ -8,9 +8,11 @@
   _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
   Thread.sleep(3000);
-  _helixBrokerStarters=addHelixBrokerInstancesToAutoJoinHelixCluster(1);
+  final Configuration pinotHelixBrokerProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf();
+  _helixBrokerStarter=new HelixBrokerStarter(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,pinotHelixBrokerProperties);
+  Thread.sleep(1000);
   addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,5);
-  addDataServerInstancesToAutoJoinHelixCluster(1);
+  addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,1);
   _pinotResourceManager.createBrokerResourceTag(createBrokerTagResourceConfig(6,"broker_colocated"));
   final String dataResource="company";
   final DataResource resource=createOfflineClusterConfig(1,1,dataResource,"BalanceNumSegmentAssignmentStrategy");

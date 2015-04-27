@@ -6,7 +6,7 @@
     LOGGER.error(res.errorMessage);
     return res;
   }
-  if (HelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
+  if (ControllerHelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
     return updateBrokerResourceTag(brokerTagResource);
   }
   final List<String> untaggedBrokerInstances=_pinotHelixAdmin.getOnlineUnTaggedBrokerInstanceList();
@@ -20,7 +20,7 @@
     _helixAdmin.removeInstanceTag(_helixClusterName,untaggedBrokerInstances.get(i),CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE);
     _helixAdmin.addInstanceTag(_helixClusterName,untaggedBrokerInstances.get(i),brokerTagResource.getTag());
   }
-  HelixHelper.updateBrokerTag(_helixAdmin,_helixClusterName,brokerTagResource);
+  ControllerHelixHelper.updateBrokerTag(_helixAdmin,_helixClusterName,brokerTagResource);
   res.status=STATUS.success;
   return res;
 }

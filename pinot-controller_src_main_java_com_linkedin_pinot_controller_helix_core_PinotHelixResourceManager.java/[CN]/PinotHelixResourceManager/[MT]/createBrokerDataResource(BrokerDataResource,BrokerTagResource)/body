@@ -1,9 +1,9 @@
 {
   PinotResourceManagerResponse createBrokerResourceResp=null;
-  if (!HelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
+  if (!ControllerHelixHelper.getBrokerTagList(_helixAdmin,_helixClusterName).contains(brokerTagResource.getTag())) {
     createBrokerResourceResp=createBrokerResourceTag(brokerTagResource);
   }
- else   if (HelixHelper.getBrokerTag(_helixAdmin,_helixClusterName,brokerTagResource.getTag()).getNumBrokerInstances() < brokerTagResource.getNumBrokerInstances()) {
+ else   if (ControllerHelixHelper.getBrokerTag(_helixAdmin,_helixClusterName,brokerTagResource.getTag()).getNumBrokerInstances() < brokerTagResource.getNumBrokerInstances()) {
     createBrokerResourceResp=updateBrokerResourceTag(brokerTagResource);
   }
   if ((createBrokerResourceResp == null) || createBrokerResourceResp.isSuccessfull()) {
