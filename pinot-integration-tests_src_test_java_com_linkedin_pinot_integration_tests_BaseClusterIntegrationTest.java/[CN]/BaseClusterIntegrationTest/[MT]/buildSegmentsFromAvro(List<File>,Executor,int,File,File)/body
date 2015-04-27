@@ -14,8 +14,9 @@
           final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
           driver.init(genConfig);
           driver.build();
-          TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/myresource_mytable_" + segmentNumber,new File(outputDir.getParent(),"myresource_mytable_" + segmentNumber).getAbsolutePath());
-          System.out.println("Completed segment " + segmentNumber);
+          String segmentName=outputDir.list()[0];
+          TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/" + segmentName,new File(segmentTarDir,segmentName).getAbsolutePath());
+          System.out.println("Completed segment " + segmentNumber + " : "+ segmentName);
         }
  catch (        Exception e) {
           throw new RuntimeException(e);

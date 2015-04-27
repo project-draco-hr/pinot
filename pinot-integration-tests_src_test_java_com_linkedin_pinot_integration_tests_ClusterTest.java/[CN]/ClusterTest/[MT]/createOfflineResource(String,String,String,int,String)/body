@@ -3,6 +3,10 @@
   if (timeColumnName != null && timeColumnType != null) {
     payload=payload.put(DataSource.TIME_COLUMN_NAME,timeColumnName).put(DataSource.TIME_TYPE,timeColumnType);
   }
+  if (retentionTimeUnit != null) {
+    payload.put(DataSource.RETENTION_TIME_UNIT,retentionTimeUnit);
+    payload.put(DataSource.RETENTION_TIME_VALUE,retentionTimeValue);
+  }
   String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forResourceCreate(),payload.toString().replaceAll("}$",", \"metadata\":{}}"));
   Assert.assertEquals(_success,new JSONObject(res).getString("status"));
 }
