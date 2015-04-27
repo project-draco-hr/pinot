@@ -1,0 +1,62 @@
+{
+  MetricSchema oldSchema=timeSeries.getSchema();
+  List<String> metricNames=new ArrayList<>(oldSchema.getNumMetrics() - 1);
+  List<MetricType> metricTypes=new ArrayList<>(oldSchema.getNumMetrics() - 1);
+  Map<String,Integer> nameCounts=new HashMap<>();
+  if (query != null) {
+    for (    String name : query.getMetricNames()) {
+      Integer count=nameCounts.get(name);
+      if (count == null) {
+        count=0;
+      }
+      nameCounts.put(name,count + 1);
+    }
+  }
+  boolean keepNumerator=nameCounts.get(numerator) != null && nameCounts.get(numerator) > 1;
+  boolean keepDenominator=nameCounts.get(denominator) != null && nameCounts.get(denominator) > 1;
+  MetricType denominatorType=null;
+  for (int i=0; i < oldSchema.getNumMetrics(); i++) {
+    String name=oldSchema.getMetricName(i);
+    if (!name.equals(numerator) && !name.equals(denominator)) {
+      metricNames.add(name);
+      metricTypes.add(oldSchema.getMetricType(i));
+    }
+    if (name.equals(denominator)) {
+      denominatorType=oldSchema.getMetricType(name);
+    }
+  }
+  if (keepNumerator) {
+    metricNames.add(numerator);
+    metricTypes.add(oldSchema.getMetricType(numerator));
+  }
+  if (keepDenominator) {
+    metricNames.add(denominator);
+    metricTypes.add(oldSchema.getMetricType(denominator));
+  }
+  String ratioName=String.format("RATIO(%s,%s)",numerator,denominator);
+  metricNames.add(ratioName);
+  metricTypes.add(MetricType.DOUBLE);
+  MetricSchema newSchema=new MetricSchema(metricNames,metricTypes);
+  MetricTimeSeries newTimeSeries=new MetricTimeSeries(newSchema);
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    for (int i=0; i < oldSchema.getNumMetrics(); i++) {
+      String name=oldSchema.getMetricName(i);
+      if (!name.equals(numerator) && !name.equals(denominator)) {
+        newTimeSeries.increment(time,name,timeSeries.get(time,name));
+      }
+    }
+    if (keepNumerator) {
+      newTimeSeries.increment(time,numerator,timeSeries.get(time,numerator));
+    }
+    if (keepDenominator) {
+      newTimeSeries.increment(time,denominator,timeSeries.get(time,denominator));
+    }
+    Number n=timeSeries.get(time,numerator);
+    Number d=timeSeries.get(time,denominator);
+    if (!NumberUtils.isZero(d,denominatorType)) {
+      double r=n.doubleValue() / d.doubleValue();
+      newTimeSeries.increment(time,ratioName,r);
+    }
+  }
+  return newTimeSeries;
+}

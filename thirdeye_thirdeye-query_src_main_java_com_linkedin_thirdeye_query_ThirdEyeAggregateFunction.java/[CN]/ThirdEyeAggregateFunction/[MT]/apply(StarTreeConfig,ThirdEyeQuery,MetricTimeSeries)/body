@@ -1,5 +1,6 @@
 {
-  MetricTimeSeries aggregate=ThirdEyeFunctionUtils.copyBlankSeriesSame(metricNames,timeSeries.getSchema());
+  Set<String> metricNames=new HashSet<>(query.getMetricNames());
+  MetricTimeSeries aggregate=ThirdEyeFunctionUtils.copyBlankSeriesSame(new ArrayList<String>(metricNames),timeSeries.getSchema());
   long collectionWindow=config.getTime().getBucket().getUnit().convert(window.getSize(),window.getUnit()) / config.getTime().getBucket().getSize();
   if (collectionWindow == 0) {
     throw new IllegalArgumentException("Minimum aggregation granularity is " + config.getTime().getBucket().getSize() + " "+ config.getTime().getBucket().getUnit());
