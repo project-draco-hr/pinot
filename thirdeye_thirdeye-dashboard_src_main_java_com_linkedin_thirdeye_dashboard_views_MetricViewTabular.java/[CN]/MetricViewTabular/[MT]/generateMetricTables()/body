@@ -1,27 +1,21 @@
 {
   List<MetricTable> tables=new ArrayList<>();
-  for (  Map.Entry<String,Map<String,Number[]>> entry : currentResult.getData().entrySet()) {
-    Map<String,Number[]> currentSeries=entry.getValue();
-    Map<String,Number[]> baselineSeries=baselineResult.getData().get(entry.getKey());
-    if (baselineSeries == null) {
-      continue;
+  for (  Map.Entry<String,Map<String,Number[]>> entry : result.getData().entrySet()) {
+    List<MetricTableRow> rows=new LinkedList<>();
+    List<Long> times=getReverseSortedTimes(entry.getValue().keySet());
+    long windowFilled=0;
+    int idx=0;
+    while (windowFilled < intraDayPeriod && idx < times.size() - 1) {
+      long current=times.get(idx);
+      long next=times.get(idx + 1);
+      long baseline=times.get(times.indexOf(current - baselineOffsetMillis) - 1);
+      windowFilled+=(current - next);
+      idx++;
+      Number[] currentData=entry.getValue().get(String.valueOf(current));
+      Number[] baselineData=entry.getValue().get(String.valueOf(baseline));
+      rows.add(0,new MetricTableRow(new DateTime(baseline).toDateTime(DateTimeZone.UTC),baselineData,new DateTime(current).toDateTime(DateTimeZone.UTC),currentData));
     }
-    Map<String,String> dimensionValues=getDimensionValues(entry.getKey());
-    List<Long> times=new ArrayList<>(currentSeries.size());
-    for (    String timeString : entry.getValue().keySet()) {
-      times.add(Long.parseLong(timeString));
-    }
-    Collections.sort(times);
-    List<MetricTableRow> rows=new ArrayList<>();
-    for (    Long time : times) {
-      Number[] current=currentSeries.get(Long.toString(time));
-      Number[] baseline=baselineSeries.get(Long.toString(time - baselineOffsetMillis));
-      if (baseline == null) {
-        throw new IllegalStateException("No baseline for time " + time);
-      }
-      rows.add(new MetricTableRow(new DateTime(time - baselineOffsetMillis).toDateTime(DateTimeZone.UTC),baseline,new DateTime(time).toDateTime(DateTimeZone.UTC),current));
-    }
-    tables.add(new MetricTable(dimensionValues,rows));
+    tables.add(new MetricTable(getDimensionValues(entry.getKey()),rows));
   }
   return tables;
 }
