@@ -39,20 +39,17 @@
           }
           b.readBytes(b2);
           DataTable r2=new DataTable(b2);
+          if (errors != null && errors.containsKey(e.getKey())) {
+            Throwable throwable=errors.get(e.getKey());
+            r2.getMetadata().put("exception",new RequestProcessingException(throwable).toString());
+            _brokerMetrics.addMeteredValue(request,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+          }
           instanceResponseMap.put(e.getKey(),r2);
         }
  catch (        Exception ex) {
           LOGGER.error("Got exceptions in collect query result for instance " + e.getKey() + ", error: "+ ex.getMessage());
           _brokerMetrics.addMeteredValue(request,BrokerMeter.REQUEST_DESERIALIZATION_EXCEPTIONS,1);
         }
-      }
-    }
-    if (null != errors) {
-      for (      Entry<ServerInstance,Throwable> e : errors.entrySet()) {
-        DataTable r2=new DataTable();
-        r2.getMetadata().put("exception",new RequestProcessingException(e.getValue()).toString());
-        instanceResponseMap.put(e.getKey(),r2);
-        _brokerMetrics.addMeteredValue(request,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
       }
     }
     final long deserializationTime=System.nanoTime() - deserializationStartTime;
