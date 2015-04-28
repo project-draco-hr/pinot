@@ -1,0 +1,16 @@
+{
+  FixedByteSingleColumnSingleValueReaderWriter readerWriter;
+  int rows=10;
+  int[] columnSizesInBytes=new int[]{Long.SIZE / 8};
+  readerWriter=new FixedByteSingleColumnSingleValueReaderWriter(rows,columnSizesInBytes);
+  Random r=new Random();
+  long[] data=new long[rows];
+  for (int i=0; i < rows; i++) {
+    data[i]=r.nextLong();
+    readerWriter.setLong(i,data[i]);
+  }
+  for (int i=0; i < rows; i++) {
+    Assert.assertEquals(data[i],readerWriter.getLong(i));
+  }
+  readerWriter.close();
+}

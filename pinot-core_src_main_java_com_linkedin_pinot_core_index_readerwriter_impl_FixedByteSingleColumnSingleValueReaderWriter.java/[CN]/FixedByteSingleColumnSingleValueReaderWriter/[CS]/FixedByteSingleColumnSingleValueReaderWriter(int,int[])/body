@@ -1,0 +1,14 @@
+{
+  this.cols=1;
+  colOffSets=new int[columnSizesInBytes.length];
+  rowSize=0;
+  for (int i=0; i < columnSizesInBytes.length; i++) {
+    colOffSets[i]=rowSize;
+    rowSize+=columnSizesInBytes[i];
+  }
+  final int totalSize=rowSize * rows;
+  ByteBuffer buffer=ByteBuffer.allocateDirect(totalSize);
+  buffer.order(ByteOrder.nativeOrder());
+  reader=new FixedByteWidthRowColDataFileReader(buffer,rows,cols,columnSizesInBytes);
+  writer=new FixedByteWidthRowColDataFileWriter(buffer,rows,cols,columnSizesInBytes);
+}

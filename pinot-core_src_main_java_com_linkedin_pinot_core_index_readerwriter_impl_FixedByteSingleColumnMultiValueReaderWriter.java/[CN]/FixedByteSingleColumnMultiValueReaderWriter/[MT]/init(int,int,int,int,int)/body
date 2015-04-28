@@ -1,0 +1,11 @@
+{
+  this.columnSizeInBytes=columnSizeInBytes;
+  this.maxNumberOfMultiValuesPerRow=maxNumberOfMultiValuesPerRow;
+  headerSize=rows * SIZE_OF_INT * NUM_COLS_IN_HEADER;
+  headerBuffer=ByteBuffer.allocateDirect(headerSize);
+  headerBuffer.order(ByteOrder.nativeOrder());
+  headerWriter=new FixedByteWidthRowColDataFileWriter(headerBuffer,rows,3,new int[]{SIZE_OF_INT,SIZE_OF_INT,SIZE_OF_INT});
+  headerReader=new FixedByteWidthRowColDataFileReader(headerBuffer,rows,3,new int[]{SIZE_OF_INT,SIZE_OF_INT,SIZE_OF_INT});
+  this.incrementalCapacity=incrementalCapacity;
+  addCapacity(initialCapacity);
+}

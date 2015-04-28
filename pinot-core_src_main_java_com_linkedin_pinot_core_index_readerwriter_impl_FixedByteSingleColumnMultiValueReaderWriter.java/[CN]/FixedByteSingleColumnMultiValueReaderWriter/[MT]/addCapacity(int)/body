@@ -1,0 +1,17 @@
+{
+  ByteBuffer dataBuffer;
+  try {
+    dataBuffer=ByteBuffer.allocateDirect(rowCapacity * columnSizeInBytes);
+    dataBuffer.order(ByteOrder.nativeOrder());
+    dataBuffers.add(dataBuffer);
+    currentDataWriter=new FixedByteWidthRowColDataFileWriter(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
+    dataWriters.add(currentDataWriter);
+    FixedByteWidthRowColDataFileReader dataFileReader=new FixedByteWidthRowColDataFileReader(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
+    dataReaders.add(dataFileReader);
+    currentCapacity=rowCapacity;
+    currentDataWriterIndex=currentDataWriterIndex + 1;
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Error while expanding the capacity by allocating additional buffer with capacity:" + rowCapacity,e);
+  }
+}

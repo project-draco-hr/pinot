@@ -1,0 +1,23 @@
+{
+  FixedByteSingleColumnMultiValueReaderWriter readerWriter;
+  int rows=1000;
+  int columnSizeInBytes=Integer.SIZE / 8;
+  int maxNumberOfMultiValuesPerRow=2000;
+  readerWriter=new FixedByteSingleColumnMultiValueReaderWriter(rows,columnSizeInBytes,maxNumberOfMultiValuesPerRow);
+  Random r=new Random();
+  int[][] data=new int[rows][];
+  for (int i=0; i < rows; i++) {
+    data[i]=new int[r.nextInt(maxNumberOfMultiValuesPerRow)];
+    for (int j=0; j < data[i].length; j++) {
+      data[i][j]=r.nextInt();
+    }
+    readerWriter.setIntArray(i,data[i]);
+  }
+  int[] ret=new int[maxNumberOfMultiValuesPerRow];
+  for (int i=0; i < rows; i++) {
+    int length=readerWriter.getIntArray(i,ret);
+    Assert.assertEquals(data[i].length,length);
+    Assert.assertTrue(Arrays.equals(data[i],Arrays.copyOf(ret,length)));
+  }
+  readerWriter.close();
+}
