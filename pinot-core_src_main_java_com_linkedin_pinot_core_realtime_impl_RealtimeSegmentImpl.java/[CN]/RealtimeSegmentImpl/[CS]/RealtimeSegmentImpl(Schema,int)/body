@@ -14,21 +14,21 @@
   dictionaryMap.put(outgoingTimeColumnName,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(outgoingTimeColumnName)));
   docIdGenerator=new AtomicInteger(-1);
   timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema);
-  columnIndexReaderWrtierMap=new HashMap<String,DataFileReader>();
+  columnIndexReaderWriterMap=new HashMap<String,DataFileReader>();
   invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
   for (  String dimension : schema.getDimensionNames()) {
     invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
     if (schema.getFieldSpecFor(dimension).isSingleValueField()) {
-      columnIndexReaderWrtierMap.put(dimension,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
+      columnIndexReaderWriterMap.put(dimension,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
     }
  else {
-      columnIndexReaderWrtierMap.put(dimension,new FixedByteSingleColumnMultiValueReaderWriter(capacity,Integer.SIZE / 8,FixedByteSingleColumnMultiValueReaderWriter.DEFAULT_MAX_NUMBER_OF_MULTIVALUES));
+      columnIndexReaderWriterMap.put(dimension,new FixedByteSingleColumnMultiValueReaderWriter(capacity,Integer.SIZE / 8,FixedByteSingleColumnMultiValueReaderWriter.DEFAULT_MAX_NUMBER_OF_MULTIVALUES));
     }
   }
   for (  String metric : schema.getMetricNames()) {
     invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
-    columnIndexReaderWrtierMap.put(metric,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.getSingleValueColumnSizeFor(schema.getFieldSpecFor(metric))));
+    columnIndexReaderWriterMap.put(metric,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.getSingleValueColumnSizeFor(schema.getFieldSpecFor(metric))));
   }
   invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
-  columnIndexReaderWrtierMap.put(outgoingTimeColumnName,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
+  columnIndexReaderWriterMap.put(outgoingTimeColumnName,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
 }

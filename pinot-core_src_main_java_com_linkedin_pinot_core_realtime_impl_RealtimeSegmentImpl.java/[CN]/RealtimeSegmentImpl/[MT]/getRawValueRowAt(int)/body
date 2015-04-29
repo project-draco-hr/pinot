@@ -3,13 +3,13 @@
   Map<String,Object> rowValues=new HashMap<String,Object>();
   for (  String dimension : dataSchema.getDimensionNames()) {
     if (dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
-      int dicId=((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWrtierMap.get(dimension)).getInt(docId);
+      int dicId=((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(dimension)).getInt(docId);
       Object rawValue=dictionaryMap.get(dimension).get(dicId);
       rowValues.put(dimension,rawValue);
     }
  else {
       int[] dicIds=new int[maxNumberOfMultivaluesMap.get(dimension)];
-      int len=((FixedByteSingleColumnMultiValueReaderWriter)columnIndexReaderWrtierMap.get(dimension)).getIntArray(docId,dicIds);
+      int len=((FixedByteSingleColumnMultiValueReaderWriter)columnIndexReaderWriterMap.get(dimension)).getIntArray(docId,dicIds);
       Object[] rawValues=new Object[len];
       for (int i=0; i < len; i++) {
         rawValues[i]=dictionaryMap.get(dimension).get(dicIds[i]);
@@ -20,22 +20,22 @@
   for (  String metric : dataSchema.getMetricNames()) {
 switch (dataSchema.getFieldSpecFor(metric).getDataType()) {
 case INT:
-      rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWrtierMap.get(metric)).getInt(docId));
+      rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(metric)).getInt(docId));
     break;
 case FLOAT:
-  rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWrtierMap.get(metric)).getFloat(docId));
+  rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(metric)).getFloat(docId));
 break;
 case LONG:
-rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWrtierMap.get(metric)).getLong(docId));
+rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(metric)).getLong(docId));
 break;
 case DOUBLE:
-rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWrtierMap.get(metric)).getDouble(docId));
+rowValues.put(metric,((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(metric)).getDouble(docId));
 break;
 default :
 throw new UnsupportedOperationException("unsopported metric data type");
 }
 }
-rowValues.put(outgoingTimeColumnName,dictionaryMap.get(outgoingTimeColumnName).get(((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWrtierMap.get(outgoingTimeColumnName)).getInt(docId)));
+rowValues.put(outgoingTimeColumnName,dictionaryMap.get(outgoingTimeColumnName).get(((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(outgoingTimeColumnName)).getInt(docId)));
 row.init(rowValues);
 return row;
 }
