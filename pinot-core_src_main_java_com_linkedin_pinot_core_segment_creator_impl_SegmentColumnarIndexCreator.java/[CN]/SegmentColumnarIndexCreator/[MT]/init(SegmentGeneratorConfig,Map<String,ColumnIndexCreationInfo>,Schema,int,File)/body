@@ -3,7 +3,7 @@
   config=segmentCreationSpec;
   this.indexCreationInfoMap=indexCreationInfoMap;
   dictionaryCreatorMap=new HashMap<String,SegmentDictionaryCreator>();
-  forwardIndexCreatorMap=new HashMap<String,SingleValueUnsortedForwardIndexCreator>();
+  forwardIndexCreatorMap=new HashMap<String,ForwardIndexCreator>();
   this.indexCreationInfoMap=indexCreationInfoMap;
   invertedIndexCreatorMap=new HashMap<String,InvertedIndexCreator>();
   file=outDir;
@@ -25,9 +25,14 @@
   for (  final String column : dictionaryCreatorMap.keySet()) {
     dictionaryCreatorMap.get(column).build();
     ColumnIndexCreationInfo indexCreationInfo=indexCreationInfoMap.get(column);
-    forwardIndexCreatorMap.put(column,new SingleValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),file,indexCreationInfo.getSortedUniqueElementsArray().length,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+    if (schema.getFieldSpecFor(column).isSingleValueField()) {
+      forwardIndexCreatorMap.put(column,new SingleValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),file,indexCreationInfo.getSortedUniqueElementsArray().length,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+    }
+ else {
+      forwardIndexCreatorMap.put(column,new MultiValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),file,indexCreationInfo.getSortedUniqueElementsArray().length,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+    }
     if (indexCreationInfo.isSorted()) {
-      invertedIndexCreatorMap.put(column,new SortedColumnInvertedIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+      invertedIndexCreatorMap.put(column,new SingleValueSortedForwardIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
     }
  else {
       invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));

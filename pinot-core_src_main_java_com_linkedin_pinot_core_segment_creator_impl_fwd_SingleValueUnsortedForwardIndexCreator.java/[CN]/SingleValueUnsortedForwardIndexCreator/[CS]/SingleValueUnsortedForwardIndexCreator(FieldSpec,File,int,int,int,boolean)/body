@@ -1,14 +1,7 @@
 {
-  forwardIndexFile=new File(baseIndexDir,spec.getName() + V1Constants.Indexes.UN_SORTED_FWD_IDX_FILE_EXTENTION);
+  forwardIndexFile=new File(baseIndexDir,spec.getName() + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION);
   this.spec=spec;
   FileUtils.touch(forwardIndexFile);
   maxNumberOfBits=getNumOfBits(cardinality);
-  this.numDocs=numDocs;
-  this.totalNumberOfValues=totalNumberOfValues;
-  if (spec.isSingleValueField()) {
-    sVWriter=new FixedBitWidthRowColDataFileWriter(forwardIndexFile,numDocs,1,new int[]{maxNumberOfBits},new boolean[]{hasNulls});
-  }
- else {
-    mVWriter=new FixedBitWidthSingleColumnMultiValueWriter(forwardIndexFile,numDocs,totalNumberOfValues,maxNumberOfBits);
-  }
+  sVWriter=new FixedBitWidthRowColDataFileWriter(forwardIndexFile,numDocs,1,new int[]{maxNumberOfBits},new boolean[]{hasNulls});
 }
