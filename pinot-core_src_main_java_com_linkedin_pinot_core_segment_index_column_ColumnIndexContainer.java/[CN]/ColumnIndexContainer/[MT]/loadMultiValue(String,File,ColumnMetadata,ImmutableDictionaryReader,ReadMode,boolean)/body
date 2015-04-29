@@ -1,0 +1,10 @@
+{
+  File fwdIndexFile=new File(indexDir,column + V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION);
+  File invertedIndexFile=new File(indexDir,column + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
+  FixedBitCompressedMVForwardIndexReader fwdIndexReader=new FixedBitCompressedMVForwardIndexReader(fwdIndexFile,metadata.getTotalDocs(),metadata.getBitsPerElement(),mode == ReadMode.mmap);
+  BitmapInvertedIndexReader invertedIndex=null;
+  if (invertedIndexFile.exists() && loadInverted) {
+    invertedIndex=new BitmapInvertedIndexReader(invertedIndexFile,metadata.getCardinality(),mode == ReadMode.mmap);
+  }
+  return new UnSortedMVColumnIndexContainer(column,metadata,fwdIndexReader,dictionary,invertedIndex);
+}

@@ -1,0 +1,5 @@
+{
+  File fwdIndexFile=new File(indexDir,column + V1Constants.Indexes.SORTED_FWD_IDX_FILE_EXTENTION);
+  FixedByteWidthRowColDataFileReader indexReader=new FixedByteWidthRowColDataFileReader(fwdIndexFile,metadata.getCardinality(),2,new int[]{4,4},mode == ReadMode.mmap);
+  return new SortedSVColumnIndexContainer(column,metadata,indexReader,dictionary);
+}
