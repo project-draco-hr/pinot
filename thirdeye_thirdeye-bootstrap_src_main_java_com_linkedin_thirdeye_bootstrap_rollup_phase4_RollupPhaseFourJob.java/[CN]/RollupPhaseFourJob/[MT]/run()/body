@@ -12,12 +12,7 @@
   job.setOutputValueClass(BytesWritable.class);
   job.setOutputFormatClass(SequenceFileOutputFormat.class);
   String numReducers=props.getProperty("num.reducers");
-  if (numReducers != null) {
-    job.setNumReduceTasks(Integer.parseInt(numReducers));
-  }
- else {
-    job.setNumReduceTasks(10);
-  }
+  job.setNumReduceTasks(1);
   LOG.info("Setting number of reducers : " + job.getNumReduceTasks());
   Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,ROLLUP_PHASE4_INPUT_PATH);
