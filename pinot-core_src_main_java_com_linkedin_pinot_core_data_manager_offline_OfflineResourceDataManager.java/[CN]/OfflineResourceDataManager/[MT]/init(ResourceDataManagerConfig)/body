@@ -17,5 +17,6 @@
     _queryExecutorService=Executors.newCachedThreadPool(new NamedThreadFactory("parallel-query-executor-" + _resourceName));
   }
   _readMode=ReadMode.valueOf(_resourceDataManagerConfig.getReadMode());
+  _indexLoadingConfigMetadata=_resourceDataManagerConfig.getIndexLoadingConfigMetadata();
   _logger.info("Initialized resource : " + _resourceName + " with :\n\tData Directory: "+ _resourceDataDir+ "\n\tRead Mode : "+ _readMode+ "\n\tQuery Exeutor with "+ ((_numberOfResourceQueryExecutorThreads > 0) ? _numberOfResourceQueryExecutorThreads : "cached")+ " threads");
 }

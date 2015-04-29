@@ -1,0 +1,9 @@
+{
+  ResourceDataManagerConfig resourceDataManagerConfig=getDefaultHelixResourceDataManagerConfig(resourceName);
+  if (dataResourceZKMetadata != null) {
+    resourceDataManagerConfig.overrideConfigs(dataResourceZKMetadata.getMetadata());
+  }
+  ResourceDataManager resourceDataManager=ResourceDataManagerProvider.getResourceDataManager(resourceDataManagerConfig);
+  resourceDataManager.start();
+  addResourceDataManager(resourceName,resourceDataManager);
+}

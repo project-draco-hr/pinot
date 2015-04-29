@@ -6,7 +6,7 @@
       if (!_segmentsMap.containsKey(segmentId)) {
 synchronized (getGlobalLock()) {
           if (!_segmentsMap.containsKey(segmentId)) {
-            IndexSegment segment=ColumnarSegmentLoader.load(new File(_indexDir,segmentId),_readMode);
+            IndexSegment segment=ColumnarSegmentLoader.load(new File(_indexDir,segmentId),_readMode,_indexLoadingConfigMetadata);
             _segmentsMap.put(segmentId,new OfflineSegmentDataManager(segment));
             markSegmentAsLoaded(segmentId);
             _referenceCounts.put(segmentId,new AtomicInteger(1));

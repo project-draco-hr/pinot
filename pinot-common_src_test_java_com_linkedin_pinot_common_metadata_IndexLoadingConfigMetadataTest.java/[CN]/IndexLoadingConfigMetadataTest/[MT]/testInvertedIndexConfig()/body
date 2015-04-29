@@ -1,0 +1,21 @@
+{
+  Configuration resourceMetadata=getTestResourceMetadata();
+  IndexLoadingConfigMetadata indexLoadingConfigMetadata=new IndexLoadingConfigMetadata(resourceMetadata);
+  for (int i=0; i < 10; ++i) {
+    String tableName="table" + i;
+    System.out.println("Testing for " + tableName);
+    Set<String> loadingInvertedIndexColumns=indexLoadingConfigMetadata.getLoadingInvertedIndexColumns(tableName);
+    System.out.println("loadingInvertedIndexColumns for table - " + tableName + " is "+ Arrays.toString(loadingInvertedIndexColumns.toArray(new String[0])));
+    Assert.assertEquals(i + 1,loadingInvertedIndexColumns.size());
+    for (int j=0; j < i + 1; ++j) {
+      String columnName="col" + j;
+      System.out.println("\tTesting for " + columnName);
+      Assert.assertEquals(true,indexLoadingConfigMetadata.isLoadingInvertedIndexForColumn(tableName,columnName));
+    }
+    for (int j=i + 1; j < 10; ++j) {
+      String columnName="col" + j;
+      System.out.println("\tTesting for " + columnName);
+      Assert.assertEquals(false,indexLoadingConfigMetadata.isLoadingInvertedIndexForColumn(tableName,columnName));
+    }
+  }
+}

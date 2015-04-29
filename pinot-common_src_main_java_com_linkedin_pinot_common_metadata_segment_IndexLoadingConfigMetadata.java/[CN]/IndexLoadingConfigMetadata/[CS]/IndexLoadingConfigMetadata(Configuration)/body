@@ -1,0 +1,11 @@
+{
+  Iterator<String> keyIter=resourceDataManagerConfig.getKeys(PREFIX_OF_KEY_OF_LOADING_INVERTED_INDEX);
+  while (keyIter.hasNext()) {
+    String key=keyIter.next();
+    String tableName=key.substring(PREFIX_OF_KEY_OF_LOADING_INVERTED_INDEX.length() + 1);
+    List<String> valueOfLoadingInvertedIndexConfig=resourceDataManagerConfig.getList(key,null);
+    if ((valueOfLoadingInvertedIndexConfig != null) && (!valueOfLoadingInvertedIndexConfig.isEmpty())) {
+      initLoadingInvertedIndexColumnSet(tableName,valueOfLoadingInvertedIndexConfig.toArray(new String[0]));
+    }
+  }
+}
