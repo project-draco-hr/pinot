@@ -26,29 +26,25 @@
           if (!hasNext()) {
             return Constants.EOF;
           }
-          ByteBuffer rawData=metBuffs[counter++];
-          return (int)metSerDe.getDoubleVal(columnName,rawData);
+          return (int)reader.getDouble(counter++);
         }
         @Override public long nextLongVal(){
           if (!hasNext()) {
             return Constants.EOF;
           }
-          ByteBuffer rawData=metBuffs[counter++];
-          return (long)metSerDe.getDoubleVal(columnName,rawData);
+          return (long)reader.getDouble(counter++);
         }
         @Override public float nextFloatVal(){
           if (!hasNext()) {
             return Constants.EOF;
           }
-          ByteBuffer rawData=metBuffs[counter++];
-          return (float)metSerDe.getDoubleVal(columnName,rawData);
+          return (float)reader.getDouble(counter++);
         }
         @Override public double nextDoubleVal(){
           if (!hasNext()) {
             return Constants.EOF;
           }
-          ByteBuffer rawData=metBuffs[counter++];
-          return metSerDe.getDoubleVal(columnName,rawData);
+          return reader.getDouble(counter++);
         }
         @Override public boolean hasNext(){
           return (counter < max);

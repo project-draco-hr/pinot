@@ -3,32 +3,27 @@
     blockReturned=true;
     if (!isPredicateEvaluated && predicate != null) {
       if (dictionary != null) {
-        if (invertedINdex != null) {
+        if (invertedIndex != null) {
           evalPredicateWithDictAndInvIdx();
         }
  else {
-          throw new RuntimeException("Found column - " + columnName + " has dictionary, but no inverted index.");
+          throw new RuntimeException("Found column - " + fieldSpec.getName() + " has dictionary, but no inverted index.");
         }
       }
  else {
-        if (invertedINdex != null) {
-          evalPredicateNoDictHasInvIdx();
-        }
- else {
-          evalPredicateNoDictNoInvIdx();
-        }
+        evalPredicateNoDictHasInvIdx();
       }
       isPredicateEvaluated=true;
     }
-    if (spec.isSingleValueField()) {
-      Block SvBlock=new RealtimeSingleValueBlock(spec,dictionary,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,dimSerDe,metSerDe,dimBuffs,metBuffs,time);
+    if (fieldSpec.isSingleValueField()) {
+      Block SvBlock=new RealtimeSingleValueBlock(filteredDocIdBitmap,fieldSpec,dictionary,offset,(FixedByteSingleColumnSingleValueReaderWriter)indexReader);
       if (predicate != null) {
         SvBlock.applyPredicate(predicate);
       }
       return SvBlock;
     }
  else {
-      Block mvBlock=new RealtimeMultivalueBlock(spec,dictionary,filteredDocIdBitmap,columnName,docIdSearchableOffset,schema,maxNumberOfMultiValuesMap,dimSerDe,dimBuffs);
+      Block mvBlock=new RealtimeMultivalueBlock(fieldSpec,dictionary,filteredDocIdBitmap,offset,maxNumberOfMultiValues,(FixedByteSingleColumnMultiValueReaderWriter)indexReader);
       if (predicate != null) {
         mvBlock.applyPredicate(predicate);
       }

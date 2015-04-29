@@ -2,27 +2,33 @@
   dataSchema=schema;
   dictionaryMap=new HashMap<String,MutableDictionaryReader>();
   maxNumberOfMultivaluesMap=new HashMap<String,Integer>();
-  for (  String column : dataSchema.getDimensionNames()) {
-    maxNumberOfMultivaluesMap.put(column,0);
-    dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
-  }
-  docIdGenerator=new AtomicInteger(-1);
-  timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema);
   incomingTimeColumnName=dataSchema.getTimeSpec().getIncomingTimeColumnName();
   outgoingTimeColumnName=dataSchema.getTimeSpec().getOutGoingTimeColumnName();
+  this.capacity=capacity;
+  for (  FieldSpec col : dataSchema.getAllFieldSpecs()) {
+    maxNumberOfMultivaluesMap.put(col.getName(),0);
+  }
+  for (  String column : dataSchema.getDimensionNames()) {
+    dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
+  }
   dictionaryMap.put(outgoingTimeColumnName,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(outgoingTimeColumnName)));
+  docIdGenerator=new AtomicInteger(-1);
+  timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema);
+  columnIndexReaderWrtierMap=new HashMap<String,DataFileReader>();
   invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
   for (  String dimension : schema.getDimensionNames()) {
     invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
+    if (schema.getFieldSpecFor(dimension).isSingleValueField()) {
+      columnIndexReaderWrtierMap.put(dimension,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
+    }
+ else {
+      columnIndexReaderWrtierMap.put(dimension,new FixedByteSingleColumnMultiValueReaderWriter(capacity,Integer.SIZE / 8,FixedByteSingleColumnMultiValueReaderWriter.DEFAULT_MAX_NUMBER_OF_MULTIVALUES));
+    }
   }
   for (  String metric : schema.getMetricNames()) {
     invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
+    columnIndexReaderWrtierMap.put(metric,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.getSingleValueColumnSizeFor(schema.getFieldSpecFor(metric))));
   }
   invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
-  dimensionsSerde=new RealtimeDimensionsSerDe(schema.getDimensionNames(),dataSchema,dictionaryMap);
-  metricsSerDe=new RealtimeMetricsSerDe(dataSchema);
-  dimensionBuffs=new ByteBuffer[capacity];
-  metBuffs=new ByteBuffer[capacity];
-  time=new int[capacity];
-  this.capacity=capacity;
+  columnIndexReaderWrtierMap.put(outgoingTimeColumnName,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
 }

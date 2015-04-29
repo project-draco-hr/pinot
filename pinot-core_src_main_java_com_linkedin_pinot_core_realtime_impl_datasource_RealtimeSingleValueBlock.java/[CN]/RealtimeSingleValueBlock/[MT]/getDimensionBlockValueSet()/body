@@ -19,16 +19,13 @@
           return true;
         }
         @Override public boolean next(){
-          counter++;
-          return counter <= max;
+          return counter < max;
         }
         @Override public int nextIntVal(){
           if (!hasNext()) {
             return Constants.EOF;
           }
-          ByteBuffer rawData=dimBuffs[counter++];
-          int vals[]=dimSerDe.deSerializeAndReturnDicIdsFor(columnName,rawData);
-          return vals[0];
+          return reader.getInt(counter++);
         }
         @Override public boolean hasNext(){
           return (counter < max);

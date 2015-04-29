@@ -3,7 +3,7 @@ switch (predicate.getType()) {
 case EQ:
     String equalsValueToLookup=((EqPredicate)predicate).getEqualsValue();
   if (dictionary.contains(equalsValueToLookup)) {
-    filteredDocIdBitmap=invertedINdex.getDocIdSetFor(dictionary.indexOf(equalsValueToLookup));
+    filteredDocIdBitmap=invertedIndex.getDocIdSetFor(dictionary.indexOf(equalsValueToLookup));
   }
  else {
     filteredDocIdBitmap=new MutableRoaringBitmap();
@@ -15,7 +15,7 @@ String[] inRangeStrings=((InPredicate)predicate).getInRange();
 for (String rawValueInString : inRangeStrings) {
 if (dictionary.contains(rawValueInString)) {
 int dictId=dictionary.indexOf(rawValueInString);
-orBitmapForInQueries.or(invertedINdex.getDocIdSetFor(dictId));
+orBitmapForInQueries.or(invertedIndex.getDocIdSetFor(dictId));
 }
 }
 filteredDocIdBitmap=orBitmapForInQueries;
@@ -32,7 +32,7 @@ valueToExclude=dictionary.indexOf(neqValue);
 }
 for (int i=1; i <= dictionary.length(); i++) {
 if (valueToExclude != i) {
-neqBitmap.or(invertedINdex.getDocIdSetFor(i));
+neqBitmap.or(invertedIndex.getDocIdSetFor(i));
 }
 }
 filteredDocIdBitmap=neqBitmap;
@@ -48,7 +48,7 @@ notInIds.add(dictionary.indexOf(notInValue));
 final MutableRoaringBitmap notINHolder=new MutableRoaringBitmap();
 for (int i=1; i < dictionary.length(); i++) {
 if (!notInIds.contains(new Integer(i))) {
-notINHolder.or(invertedINdex.getDocIdSetFor(i));
+notINHolder.or(invertedIndex.getDocIdSetFor(i));
 }
 }
 filteredDocIdBitmap=notINHolder;
@@ -75,7 +75,7 @@ rangeEnd=upper;
 MutableRoaringBitmap rangeBitmap=new MutableRoaringBitmap();
 for (int dicId=1; dicId <= dictionary.length(); dicId++) {
 if (dictionary.inRange(rangeStart,rangeEnd,dicId,incLower,incUpper)) {
-rangeBitmap.or(invertedINdex.getDocIdSetFor(dicId));
+rangeBitmap.or(invertedIndex.getDocIdSetFor(dicId));
 }
 }
 filteredDocIdBitmap=rangeBitmap;

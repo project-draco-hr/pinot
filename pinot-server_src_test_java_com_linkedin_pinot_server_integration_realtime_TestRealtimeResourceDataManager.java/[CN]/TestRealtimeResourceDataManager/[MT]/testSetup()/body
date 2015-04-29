@@ -12,6 +12,7 @@
   TimerService.timer.scheduleAtFixedRate(new TimerTask(){
     @Override public void run(){
       long start=System.currentTimeMillis();
+      long sum=0;
       try {
         RealtimeSegment segment=(RealtimeSegment)manager.getSegment();
         RealtimeColumnDataSource mDs=(RealtimeColumnDataSource)segment.getDataSource("count");
@@ -20,6 +21,7 @@
         int val=valIt.nextIntVal();
         while (val != Constants.EOF) {
           val=valIt.nextIntVal();
+          sum+=val;
         }
       }
  catch (      Exception e) {
@@ -27,13 +29,14 @@
         e.printStackTrace();
       }
       long stop=System.currentTimeMillis();
-      LOG.info("time to scan metric col count : " + (stop - start));
+      LOG.info("time to scan metric col count : " + (stop - start) + " sum : "+ sum);
     }
   }
 ,20000,1000 * 5);
   TimerService.timer.scheduleAtFixedRate(new TimerTask(){
     @Override public void run(){
       long start=System.currentTimeMillis();
+      long sum=0;
       try {
         RealtimeSegment segment=(RealtimeSegment)manager.getSegment();
         RealtimeColumnDataSource mDs=(RealtimeColumnDataSource)segment.getDataSource("viewerId");
@@ -42,6 +45,7 @@
         int val=valIt.nextIntVal();
         while (val != Constants.EOF) {
           val=valIt.nextIntVal();
+          sum+=val;
         }
       }
  catch (      Exception e) {
@@ -49,13 +53,14 @@
         e.printStackTrace();
       }
       long stop=System.currentTimeMillis();
-      LOG.info("time to scan SV dimension col viewerId : " + (stop - start));
+      LOG.info("time to scan SV dimension col viewerId : " + (stop - start) + " sum : "+ sum);
     }
   }
 ,20000,1000 * 5);
   TimerService.timer.scheduleAtFixedRate(new TimerTask(){
     @Override public void run(){
       long start=System.currentTimeMillis();
+      long sum=0;
       try {
         RealtimeSegment segment=(RealtimeSegment)manager.getSegment();
         RealtimeColumnDataSource mDs=(RealtimeColumnDataSource)segment.getDataSource("daysSinceEpoch");
@@ -64,6 +69,7 @@
         int val=valIt.nextIntVal();
         while (val != Constants.EOF) {
           val=valIt.nextIntVal();
+          sum+=val;
         }
       }
  catch (      Exception e) {
@@ -71,7 +77,40 @@
         e.printStackTrace();
       }
       long stop=System.currentTimeMillis();
-      LOG.info("time to scan SV time col daysSinceEpoch : " + (stop - start));
+      LOG.info("time to scan SV time col daysSinceEpoch : " + (stop - start) + " sum : "+ sum);
+    }
+  }
+,20000,1000 * 5);
+  TimerService.timer.scheduleAtFixedRate(new TimerTask(){
+    @Override public void run(){
+      long start=System.currentTimeMillis();
+      long sum=0;
+      float sumOfLengths=0F;
+      float counter=0F;
+      try {
+        RealtimeSegment segment=(RealtimeSegment)manager.getSegment();
+        RealtimeColumnDataSource mDs=(RealtimeColumnDataSource)segment.getDataSource("viewerCompanies");
+        Block b=mDs.nextBlock();
+        BlockValSet valSet=b.getBlockValueSet();
+        BlockMultiValIterator valIt=(BlockMultiValIterator)valSet.iterator();
+        BlockMetadata m=b.getMetadata();
+        int maxVams=m.maxNumberOfMultiValues();
+        while (valIt.hasNext()) {
+          int[] vals=new int[maxVams];
+          int len=valIt.nextIntVal(vals);
+          for (int i=0; i < len; i++) {
+            sum+=vals[i];
+          }
+          sumOfLengths+=len;
+          counter++;
+        }
+      }
+ catch (      Exception e) {
+        LOG.info("daysSinceEpoch column exception");
+        e.printStackTrace();
+      }
+      long stop=System.currentTimeMillis();
+      LOG.info("time to scan MV col viewerCompanies : " + (stop - start) + " sum : "+ sum+ " average len : "+ (sumOfLengths / counter));
     }
   }
 ,20000,1000 * 5);
