@@ -1,0 +1,8 @@
+{
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(indexDir);
+  Map<String,ColumnIndexContainer> columnIndexContainerMap=new HashMap<String,ColumnIndexContainer>();
+  for (  java.util.Map.Entry<String,ColumnMetadata> entry : segmentMetadata.getColumnMetadataMap().entrySet()) {
+    columnIndexContainerMap.put(entry.getKey(),ColumnIndexContainer.init(segmentMetadata.getTableName(),entry.getKey(),indexDir,entry.getValue(),loadingMetadata,mode));
+  }
+  return new IndexSegmentImplNew(segmentMetadata,columnIndexContainerMap,indexDir);
+}
