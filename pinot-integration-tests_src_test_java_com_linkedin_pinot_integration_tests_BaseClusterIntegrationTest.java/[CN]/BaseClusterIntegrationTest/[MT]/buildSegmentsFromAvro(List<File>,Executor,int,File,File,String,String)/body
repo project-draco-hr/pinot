@@ -9,7 +9,7 @@
         try {
           System.out.println("Starting to build segment " + segmentNumber);
           File outputDir=new File(baseDirectory,"segment-" + segmentNumber);
-          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avroFiles.get(segmentIndex),outputDir,"daysSinceEpoch",TimeUnit.DAYS,"myresource","mytable");
+          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avroFiles.get(segmentIndex),outputDir,TimeUnit.DAYS,resourceName,tableName);
           genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber));
           final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
           driver.init(genConfig);
