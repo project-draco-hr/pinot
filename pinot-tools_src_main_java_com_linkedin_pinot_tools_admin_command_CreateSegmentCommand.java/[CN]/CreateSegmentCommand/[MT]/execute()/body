@@ -1,4 +1,17 @@
 {
+  File dir=new File(_dataDir);
+  if (!dir.exists() || !dir.isDirectory()) {
+    throw new RuntimeException("Data directory " + _dataDir + " not found.");
+  }
+  File[] files=dir.listFiles(new FilenameFilter(){
+    @Override public boolean accept(    File dir,    String name){
+      return name.endsWith("avro");
+    }
+  }
+);
+  if ((files == null) || (files.length == 0)) {
+    throw new RuntimeException("Data directory " + _dataDir + " does not contain AVRO files.");
+  }
   File odir=new File(_outDir);
   if (odir.exists()) {
     if (!_overwrite) {
@@ -8,8 +21,14 @@
       FileUtils.deleteDirectory(odir);
     }
   }
-  File schemaFile=new File(_schemaFile);
-  Schema schema=new ObjectMapper().readValue(schemaFile,Schema.class);
+  Schema schema;
+  if (_schemaFile != null) {
+    File schemaFile=new File(_schemaFile);
+    schema=new ObjectMapper().readValue(schemaFile,Schema.class);
+  }
+ else {
+    schema=AvroUtils.extractSchemaFromAvro(files[0]);
+  }
   final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
   config.setInputFileFormat(FileFormat.AVRO);
   config.setSegmentVersion(SegmentVersion.v1);
@@ -19,12 +38,7 @@
   config.setTableName(_tableName);
   config.setTimeColumnName(schema.getTimeColumnName());
   config.setTimeUnitForSegment(schema.getTimeSpec().getIncomingGranularitySpec().getTimeType());
-  File dir=new File(_dataDir);
-  if (!dir.exists() || !dir.isDirectory()) {
-    throw new RuntimeException("Data directory " + _dataDir + " not found.");
-  }
   int cnt=0;
-  File[] files=dir.listFiles();
   for (  File file : files) {
     final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
     config.setInputFilePath(file.getAbsolutePath());

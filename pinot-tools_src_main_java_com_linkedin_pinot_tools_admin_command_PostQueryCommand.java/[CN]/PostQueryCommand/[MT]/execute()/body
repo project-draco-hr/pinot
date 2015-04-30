@@ -1,18 +1,5 @@
 {
-  final JSONObject json=new JSONObject();
-  json.put("pql",_query);
-  final URLConnection conn=new URL(_brokerUrl + "/query").openConnection();
-  conn.setDoOutput(true);
-  final BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
-  String request=json.toString();
-  writer.write(request,0,request.length());
-  writer.flush();
-  final BufferedReader reader=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
-  final StringBuilder sb=new StringBuilder();
-  String line=null;
-  while ((line=reader.readLine()) != null) {
-    sb.append(line);
-  }
-  System.out.println("Result: " + sb.toString());
+  String result=run();
+  _logger.info("Result: " + result);
   return true;
 }
