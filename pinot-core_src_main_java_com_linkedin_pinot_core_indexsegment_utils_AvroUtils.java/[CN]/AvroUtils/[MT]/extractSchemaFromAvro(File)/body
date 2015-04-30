@@ -4,20 +4,19 @@
   final org.apache.avro.Schema avroSchema=dataStreamReader.getSchema();
   for (  final Field field : avroSchema.getFields()) {
     FieldSpec spec;
+    FieldSpec.DataType columnType=AvroRecordReader.getColumnType(field);
     if (field.name().contains("count") || field.name().contains("met")) {
       spec=new MetricFieldSpec();
-      spec.setFieldType(FieldType.METRIC);
+      spec.setDataType(columnType);
     }
  else     if (field.name().contains("day") || field.name().equalsIgnoreCase("daysSinceEpoch")) {
-      spec=new TimeFieldSpec();
-      spec.setFieldType(FieldType.TIME);
+      spec=new TimeFieldSpec(field.name(),columnType,TimeUnit.DAYS);
     }
  else {
       spec=new DimensionFieldSpec();
-      spec.setFieldType(FieldType.DIMENSION);
+      spec.setDataType(columnType);
     }
     spec.setName(field.name());
-    spec.setDataType(AvroRecordReader.getColumnType(field));
     spec.setSingleValueField(AvroRecordReader.isSingleValueField(field));
     schema.addSchema(spec.getName(),spec);
   }
