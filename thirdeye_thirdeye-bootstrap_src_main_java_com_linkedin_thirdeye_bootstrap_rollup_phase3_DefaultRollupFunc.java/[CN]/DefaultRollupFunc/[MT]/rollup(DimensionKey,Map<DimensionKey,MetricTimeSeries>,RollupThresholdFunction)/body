@@ -23,6 +23,9 @@
     }
   }
   if (selectedRollup == null) {
+    if (possibleRollups.size() < rawDimensionKey.getDimensionValues().length) {
+      throw new IllegalStateException("Some rollup combinations are missing - " + "Rollup order in config could be missing some dimensions");
+    }
     StringBuilder sb=new StringBuilder();
     for (    Entry<DimensionKey,MetricTimeSeries> entry : possibleRollups.entrySet()) {
       sb.append(entry.getKey());
