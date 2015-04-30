@@ -1,0 +1,54 @@
+{
+  final JSONArray jsonArray=new JSONArray();
+  for (int i=0; i < dataSchema.size(); ++i) {
+    if (selectionColumns.contains(dataSchema.getColumnName(i))) {
+      if (dataSchema.getColumnType(i).isSingleValue()) {
+        if (dataSchema.getColumnType(i) == DataType.STRING) {
+          jsonArray.put(poll[i]);
+        }
+ else {
+          jsonArray.put(DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(poll[i]));
+        }
+      }
+ else {
+        JSONArray stringJsonArray=new JSONArray();
+switch (dataSchema.getColumnType(i)) {
+case STRING_ARRAY:
+          String[] stringValues=(String[])poll[i];
+        for (        String s : stringValues) {
+          stringJsonArray.put(s);
+        }
+      break;
+case INT_ARRAY:
+    int[] intValues=(int[])poll[i];
+  for (  int s : intValues) {
+    stringJsonArray.put(DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(s));
+  }
+break;
+case FLOAT_ARRAY:
+float[] floatValues=(float[])poll[i];
+for (float s : floatValues) {
+stringJsonArray.put(DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(s));
+}
+break;
+case LONG_ARRAY:
+long[] longValues=(long[])poll[i];
+for (long s : longValues) {
+stringJsonArray.put(DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(s));
+}
+break;
+case DOUBLE_ARRAY:
+double[] doubleValues=(double[])poll[i];
+for (double s : doubleValues) {
+stringJsonArray.put(DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(s));
+}
+break;
+default :
+break;
+}
+jsonArray.put(stringJsonArray);
+}
+}
+}
+return jsonArray;
+}

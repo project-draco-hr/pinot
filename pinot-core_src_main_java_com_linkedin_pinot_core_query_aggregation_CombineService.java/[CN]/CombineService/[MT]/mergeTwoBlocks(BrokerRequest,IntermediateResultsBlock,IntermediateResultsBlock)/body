@@ -6,7 +6,6 @@
     mergedBlock.getTraceInfo().putAll(blockToMerge.getTraceInfo());
   }
   mergedBlock.setExceptionsList(combineExceptions(mergedBlock.getExceptions(),blockToMerge.getExceptions()));
-  mergedBlock.setRowEvents(combineSelectionResults(brokerRequest,mergedBlock.getRowEvents(),blockToMerge.getRowEvents()));
   if (brokerRequest.isSetAggregationsInfo()) {
     if (brokerRequest.isSetGroupBy()) {
       mergedBlock.setAggregationGroupByResult1(combineAggregationGroupByResults1(brokerRequest,mergedBlock.getAggregationGroupByOperatorResult(),blockToMerge.getAggregationGroupByOperatorResult()));
@@ -18,7 +17,12 @@
     }
   }
  else {
-    SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),mergedBlock.getSelectionDataSchema());
-    mergedBlock.setSelectionResult(selectionService.merge(mergedBlock.getSelectionResult(),blockToMerge.getSelectionResult()));
+    if (brokerRequest.getSelections().isSetSelectionSortSequence()) {
+      SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),mergedBlock.getSelectionDataSchema());
+      mergedBlock.setSelectionResult(selectionService.merge(mergedBlock.getSelectionResult(),blockToMerge.getSelectionResult()));
+    }
+ else {
+      mergedBlock.setSelectionResult(SelectionOperatorUtils.merge(mergedBlock.getSelectionResult(),blockToMerge.getSelectionResult(),brokerRequest.getSelections().getSize()));
+    }
   }
 }

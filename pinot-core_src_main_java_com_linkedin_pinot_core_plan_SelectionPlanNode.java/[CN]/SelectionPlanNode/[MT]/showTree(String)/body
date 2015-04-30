@@ -1,6 +1,11 @@
 {
   _logger.debug(prefix + "Inner-Segment Plan Node :");
-  _logger.debug(prefix + "Operator: MSelectionOperator");
+  if (_brokerRequest.getSelections().isSetSelectionSortSequence()) {
+    _logger.debug(prefix + "Operator: MSelectionOrderByOperator");
+  }
+ else {
+    _logger.debug(prefix + "Operator: MSelectionOnlyOperator");
+  }
   _logger.debug(prefix + "Argument 0: IndexSegment - " + _indexSegment.getSegmentName());
   _logger.debug(prefix + "Argument 1: Selections - " + _brokerRequest.getSelections());
   _logger.debug(prefix + "Argument 2: Projection - ");

@@ -1,0 +1,10 @@
+{
+  _indexSegment=indexSegment;
+  _selection=selection;
+  _limitDocs=_selection.getSize();
+  _projectionOperator=projectionOperator;
+  _selectionColumns=SelectionOperatorUtils.extractSelectionRelatedColumns(_selection,_indexSegment);
+  _dataSchema=SelectionOperatorUtils.extractDataSchema(_selectionColumns,indexSegment);
+  _blocks=new Block[_selectionColumns.length];
+  _rowEvents=new ArrayList<Serializable[]>();
+}

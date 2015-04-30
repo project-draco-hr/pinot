@@ -4,7 +4,7 @@
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV0();
   final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  final MSelectionOperator operator=(MSelectionOperator)rootPlanNode.run();
+  final MSelectionOrderByOperator operator=(MSelectionOrderByOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
   System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());

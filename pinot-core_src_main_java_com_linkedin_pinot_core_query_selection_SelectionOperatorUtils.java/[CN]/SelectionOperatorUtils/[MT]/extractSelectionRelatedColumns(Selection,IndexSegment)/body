@@ -1,0 +1,14 @@
+{
+  Set<String> selectionColumns=new HashSet<String>();
+  selectionColumns.addAll(selection.getSelectionColumns());
+  if ((selectionColumns.size() == 1) && ((selectionColumns.toArray(new String[0]))[0].equals("*"))) {
+    selectionColumns.clear();
+    selectionColumns.addAll(Arrays.asList(indexSegment.getColumnNames()));
+  }
+  if (selection.getSelectionSortSequence() != null) {
+    for (    SelectionSort selectionSort : selection.getSelectionSortSequence()) {
+      selectionColumns.add(selectionSort.getColumn());
+    }
+  }
+  return selectionColumns.toArray(new String[0]);
+}

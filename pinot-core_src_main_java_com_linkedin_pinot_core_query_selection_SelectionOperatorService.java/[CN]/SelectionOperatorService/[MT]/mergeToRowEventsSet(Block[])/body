@@ -1,21 +1,10 @@
 {
-  if (_doOrdering) {
-    final PriorityQueue<Serializable[]> rowEventsPriorityQueue=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
-    PriorityQueue<Integer> queue=(PriorityQueue<Integer>)_rowDocIdSet;
-    while (!queue.isEmpty()) {
-      Serializable[] rowFromBlockValSets=getRowFromBlockValSets(queue.poll(),blocks);
-      rowEventsPriorityQueue.add(rowFromBlockValSets);
-    }
-    merge(_rowEventsSet,rowEventsPriorityQueue);
+  final PriorityQueue<Serializable[]> rowEventsPriorityQueue=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
+  PriorityQueue<Integer> queue=(PriorityQueue<Integer>)_rowDocIdSet;
+  while (!queue.isEmpty()) {
+    Serializable[] rowFromBlockValSets=SelectionOperatorUtils.collectRowFromBlockValSets(queue.poll(),blocks,_dataSchema);
+    rowEventsPriorityQueue.add(rowFromBlockValSets);
   }
- else {
-    final List<Serializable[]> rowEventsList=new ArrayList<Serializable[]>(_maxRowSize);
-    List<Integer> list=(List<Integer>)_rowDocIdSet;
-    for (int i=0; i < Math.min(_maxRowSize,list.size()); i++) {
-      Serializable[] rowFromBlockValSets=getRowFromBlockValSets(list.get(i),blocks);
-      rowEventsList.add(rowFromBlockValSets);
-    }
-    merge(_rowEventsSet,rowEventsList);
-  }
+  merge(_rowEventsSet,rowEventsPriorityQueue);
   return _rowEventsSet;
 }

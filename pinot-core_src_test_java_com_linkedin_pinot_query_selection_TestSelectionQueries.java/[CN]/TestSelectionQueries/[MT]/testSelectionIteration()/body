@@ -3,7 +3,7 @@
   final Map<String,DataSource> dataSourceMap=getDataSourceMap();
   final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
   final Selection selection=getSelectionQuery();
-  final MSelectionOperator selectionOperator=new MSelectionOperator(_indexSegment,selection,projectionOperator);
+  final MSelectionOrderByOperator selectionOperator=new MSelectionOrderByOperator(_indexSegment,selection,projectionOperator);
   final IntermediateResultsBlock block=(IntermediateResultsBlock)selectionOperator.nextBlock();
   final PriorityQueue<Serializable[]> pq=(PriorityQueue<Serializable[]>)block.getSelectionResult();
   final DataSchema dataSchema=block.getSelectionDataSchema();
@@ -11,7 +11,7 @@
   int i=0;
   while (!pq.isEmpty()) {
     final Serializable[] row=(Serializable[])pq.poll();
-    System.out.println(SelectionOperatorService.getRowStringFromSerializable(row,dataSchema));
-    Assert.assertEquals(SelectionOperatorService.getRowStringFromSerializable(row,dataSchema),SELECTION_ITERATION_TEST_RESULTS[i++]);
+    System.out.println(SelectionOperatorUtils.getRowStringFromSerializable(row,dataSchema));
+    Assert.assertEquals(SelectionOperatorUtils.getRowStringFromSerializable(row,dataSchema),SELECTION_ITERATION_TEST_RESULTS[i++]);
   }
 }

@@ -4,7 +4,7 @@
   PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
   PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  MSelectionOperator operator=(MSelectionOperator)rootPlanNode.run();
+  MSelectionOnlyOperator operator=(MSelectionOnlyOperator)rootPlanNode.run();
   IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   ArrayList<Serializable[]> retList=(ArrayList<Serializable[]>)resultBlock.getSelectionResult();
   int i=0;

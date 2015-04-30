@@ -7,5 +7,5 @@
     maxDocPerNextCall=Math.min(_selection.getOffset() + _selection.getSize(),maxDocPerNextCall);
   }
   DocIdSetPlanNode docIdSetPlanNode=new DocIdSetPlanNode(_indexSegment,_brokerRequest,maxDocPerNextCall);
-  _projectionPlanNode=new ProjectionPlanNode(_indexSegment,getSelectionRelatedColumns(indexSegment),docIdSetPlanNode);
+  _projectionPlanNode=new ProjectionPlanNode(_indexSegment,SelectionOperatorUtils.extractSelectionRelatedColumns(_selection,indexSegment),docIdSetPlanNode);
 }

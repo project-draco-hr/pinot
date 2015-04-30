@@ -1,0 +1,29 @@
+{
+  setupSegment();
+  final BrokerRequest brokerRequest=getSelectionNoFilterBrokerRequest();
+  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV0();
+  final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  final MSelectionOnlyOperator operator=(MSelectionOnlyOperator)rootPlanNode.run();
+  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
+  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
+  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getDataTable());
+  final Collection<Serializable[]> reducedResults=SelectionOperatorUtils.reduce(instanceResponseMap,brokerRequest.getSelections().getSize());
+  List<String> selectionColumns=SelectionOperatorUtils.getSelectionColumns(brokerRequest.getSelections().getSelectionColumns(),_indexSegment);
+  DataSchema dataSchema=resultBlock.getSelectionDataSchema();
+  final JSONObject jsonResult=SelectionOperatorUtils.render(reducedResults,selectionColumns,dataSchema);
+  System.out.println(jsonResult);
+  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"results\":[[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]]," + "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]]," + "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"1\",[\"2147483647\"],\"26770944\",\"OCCUPATION_COMPANY\",[\"2147483647\"]],"+ "[\"1\",\"5\",[\"593959\"],\"75329042\",\"COMPANY\",[\"225\"]]],"+ "\"columns\":[\"count\",\"vieweeId\",\"viewerCompanies\",\"viewerId\",\"viewerObfuscationType\",\"viewerOccupations\"]}");
+}

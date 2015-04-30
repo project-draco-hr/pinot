@@ -1,0 +1,16 @@
+{
+  final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
+  if (INDEXES_DIR.exists()) {
+    FileUtils.deleteQuietly(INDEXES_DIR);
+  }
+  INDEXES_DIR.mkdir();
+  for (int i=0; i < numberOfSegments; ++i) {
+    final File segmentDir=new File(INDEXES_DIR,"segment_" + i);
+    final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,"time_day",TimeUnit.DAYS,"test","testTable");
+    final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+    driver.init(config);
+    driver.build();
+    System.out.println("built at : " + segmentDir.getAbsolutePath());
+    _indexSegmentList.add(ColumnarSegmentLoader.load(new File(segmentDir,driver.getSegmentName()),ReadMode.heap));
+  }
+}

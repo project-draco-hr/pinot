@@ -1,31 +1,16 @@
 {
   _rowEventsSet.clear();
-  if (_doOrdering) {
-    PriorityQueue<Serializable[]> queue=(PriorityQueue<Serializable[]>)_rowEventsSet;
-    for (    final DataTable dt : selectionResults.values()) {
-      for (int rowId=0; rowId < dt.getNumberOfRows(); ++rowId) {
-        final Serializable[] row=getRowFromDataTable(dt,rowId);
-        if (queue.size() < _maxRowSize) {
-          queue.add(row);
-        }
- else {
-          if (_rowComparator.compare(queue.peek(),row) < 0) {
-            queue.add(row);
-            queue.poll();
-          }
-        }
+  PriorityQueue<Serializable[]> queue=(PriorityQueue<Serializable[]>)_rowEventsSet;
+  for (  final DataTable dt : selectionResults.values()) {
+    for (int rowId=0; rowId < dt.getNumberOfRows(); ++rowId) {
+      final Serializable[] row=SelectionOperatorUtils.extractRowFromDataTable(dt,rowId);
+      if (queue.size() < _maxRowSize) {
+        queue.add(row);
       }
-    }
-  }
  else {
-    for (    final DataTable dt : selectionResults.values()) {
-      for (int rowId=0; rowId < dt.getNumberOfRows(); ++rowId) {
-        final Serializable[] row=getRowFromDataTable(dt,rowId);
-        if (_rowEventsSet.size() < _maxRowSize) {
-          _rowEventsSet.add(row);
-        }
- else {
-          break;
+        if (_rowComparator.compare(queue.peek(),row) < 0) {
+          queue.add(row);
+          queue.poll();
         }
       }
     }

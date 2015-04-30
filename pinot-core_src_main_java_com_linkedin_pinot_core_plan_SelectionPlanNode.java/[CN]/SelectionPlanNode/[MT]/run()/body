@@ -1,4 +1,8 @@
 {
-  Map<String,Operator> columnarReaderDataSourceMap=new HashMap<String,Operator>();
-  return new MSelectionOperator(_indexSegment,_selection,_projectionPlanNode.run());
+  if (_selection.isSetSelectionSortSequence()) {
+    return new MSelectionOrderByOperator(_indexSegment,_selection,_projectionPlanNode.run());
+  }
+ else {
+    return new MSelectionOnlyOperator(_indexSegment,_selection,_projectionPlanNode.run());
+  }
 }
