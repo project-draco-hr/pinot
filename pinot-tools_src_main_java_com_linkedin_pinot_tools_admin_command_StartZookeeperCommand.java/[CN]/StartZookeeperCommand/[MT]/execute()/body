@@ -10,6 +10,6 @@
   ZkServer zkServer=new ZkServer(datadir.getAbsolutePath(),logdir.getAbsolutePath(),_defaultNameSpace,_zkPort,_tickTime,_minSessionTimeout);
   zkServer.start();
   LOGGER.info("Start zookeeper at localhost:" + zkServer.getPort() + " in thread "+ Thread.currentThread().getName());
-  savePID("/tmp/.zooKeeper.pid");
+  savePID(System.getProperty("java.io.tmpdir") + File.separator + ".zooKeeper.pid");
   return true;
 }
