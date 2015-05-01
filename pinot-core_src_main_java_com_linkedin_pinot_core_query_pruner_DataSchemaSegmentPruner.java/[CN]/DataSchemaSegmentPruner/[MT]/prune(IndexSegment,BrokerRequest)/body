@@ -1,5 +1,23 @@
 {
   Schema schema=segment.getSegmentMetadata().getSchema();
+  if (brokerRequest.getAggregationsInfo() != null) {
+    for (    AggregationInfo aggregationInfo : brokerRequest.getAggregationsInfo()) {
+      if (aggregationInfo.getAggregationParams().containsKey(COLUMN_KEY)) {
+        String columnName=aggregationInfo.getAggregationParams().get(COLUMN_KEY);
+        if ((!aggregationInfo.getAggregationType().toLowerCase().equals("count")) && (!schema.isExisted(columnName))) {
+          return true;
+        }
+      }
+    }
+    if ((brokerRequest.getGroupBy() != null) && (brokerRequest.getGroupBy().getColumns() != null)) {
+      for (      String columnName : brokerRequest.getGroupBy().getColumns()) {
+        if (!schema.isExisted(columnName)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
   if (brokerRequest.getSelections() != null) {
     if (brokerRequest.getSelections().getSelectionColumns() != null) {
       for (      String columnName : brokerRequest.getSelections().getSelectionColumns()) {
@@ -15,23 +33,7 @@
         }
       }
     }
+    return false;
   }
-  if ((brokerRequest.getGroupBy() != null) && (brokerRequest.getGroupBy().getColumns() != null)) {
-    for (    String columnName : brokerRequest.getGroupBy().getColumns()) {
-      if (!schema.isExisted(columnName)) {
-        return true;
-      }
-    }
-  }
-  if (brokerRequest.getAggregationsInfo() != null) {
-    for (    AggregationInfo aggregationInfo : brokerRequest.getAggregationsInfo()) {
-      if (aggregationInfo.getAggregationParams().containsKey(COLUMN_KEY)) {
-        String columnName=aggregationInfo.getAggregationParams().get(COLUMN_KEY);
-        if ((!columnName.equalsIgnoreCase("*")) && (!schema.isExisted(columnName))) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
+  return true;
 }

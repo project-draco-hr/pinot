@@ -68,7 +68,8 @@
     FileUploadUtils.sendFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
   }
   latch.await();
-  while (getCurrentServingNumDocs() < 115545) {
+  TOTAL_DOCS=115545;
+  while (getCurrentServingNumDocs() < TOTAL_DOCS) {
     Thread.sleep(1000);
   }
 }
