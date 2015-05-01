@@ -4,6 +4,11 @@
   if (!dstTreeFile.exists()) {
     FileUtils.moveFile(srcTreeFile,dstTreeFile);
   }
+  File srcMetadataFile=new File(srcDataDir,StarTreeConstants.METADATA_FILE_NAME);
+  File dstMetadataFile=new File(dstDataDir,StarTreeConstants.METADATA_FILE_NAME);
+  if (!dstMetadataFile.exists()) {
+    FileUtils.moveFile(srcMetadataFile,dstMetadataFile);
+  }
   File[] dimensionFiles=new File(srcDataDir,StarTreeConstants.DIMENSION_STORE).listFiles();
   File dstDimensionStore=new File(dstDataDir,StarTreeConstants.DIMENSION_STORE);
   if (dimensionFiles != null) {

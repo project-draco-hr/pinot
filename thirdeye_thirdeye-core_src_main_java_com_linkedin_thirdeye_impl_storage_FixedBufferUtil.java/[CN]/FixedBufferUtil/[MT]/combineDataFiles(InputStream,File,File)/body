@@ -2,7 +2,9 @@
   UUID fileId=UUID.randomUUID();
   File dimensionStore=new File(outputDir,StarTreeConstants.DIMENSION_STORE);
   File metricStore=new File(outputDir,StarTreeConstants.METRIC_STORE);
-  FileUtils.forceMkdir(outputDir);
+  if (!outputDir.exists()) {
+    FileUtils.forceMkdir(outputDir);
+  }
   FileUtils.forceMkdir(dimensionStore);
   FileUtils.forceMkdir(metricStore);
   File starTreeFile=new File(outputDir,StarTreeConstants.TREE_FILE_NAME);

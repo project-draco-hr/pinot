@@ -17,6 +17,8 @@
   FileSystem localFS=FileSystem.getLocal(context.getConfiguration());
   TarGzBuilder builder=new TarGzBuilder(outputTarGz,localFS,localFS);
   builder.addFileEntry(new Path(localOutputDataDir + "/tree.bin"));
+  FixedBufferUtil.writeMetadata(metadata,new File(localOutputDataDir));
+  builder.addFileEntry(new Path(localOutputDataDir + "/metadata.txt"));
   Collection<File> dimFiles=FileUtils.listFiles(new File(localOutputDataDir + "/dimensionStore"),null,true);
   for (  File f : dimFiles) {
     builder.addFileEntry(new Path(f.getAbsolutePath()),"dimensionStore/" + f.getName());

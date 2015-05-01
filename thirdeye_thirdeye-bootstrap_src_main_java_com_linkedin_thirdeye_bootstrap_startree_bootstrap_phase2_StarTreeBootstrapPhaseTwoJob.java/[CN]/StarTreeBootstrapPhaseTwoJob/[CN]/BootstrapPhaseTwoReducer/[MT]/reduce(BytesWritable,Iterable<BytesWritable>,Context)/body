@@ -13,6 +13,18 @@
  else {
       records.get(record.getDimensionKey()).aggregate(record.getMetricTimeSeries());
     }
+    List<Long> timeWindowSet=new ArrayList<Long>(record.getMetricTimeSeries().getTimeWindowSet());
+    if (timeWindowSet != null && timeWindowSet.size() != 0) {
+      Collections.sort(timeWindowSet);
+      long recordMin=timeWindowSet.get(0);
+      long recordMax=timeWindowSet.get(timeWindowSet.size() - 1);
+      if (recordMin < minTime) {
+        minTime=recordMin;
+      }
+      if (recordMax > maxTime) {
+        maxTime=recordMax;
+      }
+    }
   }
   for (  int[] combination : allCombinations) {
     DimensionKey dimensionKey=dictionary.translate(starTreeConfig.getDimensions(),combination);
@@ -22,5 +34,8 @@
     }
   }
   FixedBufferUtil.createLeafBufferFiles(new File(localTmpDataDir),nodeId,starTreeConfig,records,dictionary);
+  metadata=new HashMap<String,String>();
+  metadata.put("mintime",Long.toString(minTime));
+  metadata.put("maxtime",Long.toString(maxTime));
   LOG.info("END: processing {}",nodeId);
 }
