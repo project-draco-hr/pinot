@@ -1,0 +1,16 @@
+{
+  Long min=Long.MAX_VALUE;
+  Long max=0L;
+  IndexMetadata mergedIndexMetadata=new IndexMetadata();
+  for (  IndexMetadata indexMetadata : indexMetdataList) {
+    if (indexMetadata.getMinDataTime() < min) {
+      min=indexMetadata.getMinDataTime();
+    }
+    if (indexMetadata.getMaxDataTime() > max) {
+      max=indexMetadata.getMaxDataTime();
+    }
+  }
+  mergedIndexMetadata.setMaxDataTime(max);
+  mergedIndexMetadata.setMinDataTime(min);
+  return mergedIndexMetadata;
+}

@@ -79,10 +79,19 @@ if (!fileSystem.exists(outputTarGzFilePath)) {
 LOG.info("START: Creating output {} to upload to server ",outputTarGzFilePath.getName());
 TarGzBuilder builder=new TarGzBuilder(outputTarGzFile,fileSystem,fileSystem);
 RemoteIterator<LocatedFileStatus> listFiles=fileSystem.listFiles(dataPath,false);
+List<IndexMetadata> indexMetadataList=new ArrayList<IndexMetadata>();
+while (listFiles.hasNext()) {
+Path path=listFiles.next().getPath();
+indexMetadataList.add(builder.getMetadataObject(path));
+}
+Path metadataPath=new Path(bootstrapPhase2Output,StarTreeConstants.METADATA_FILE_NAME);
+IndexMetadata mergedIndexMetadata=mergeIndexMetadata(indexMetadataList);
+writeMergedIndexMetadata(fileSystem,metadataPath,mergedIndexMetadata);
+listFiles=fileSystem.listFiles(dataPath,false);
 while (listFiles.hasNext()) {
 Path path=listFiles.next().getPath();
 LOG.info("Adding {}, to {}",path,outputTarGzFile);
-if (path.getName().equals("tree.bin") || path.getName().equals("metadata.txt")) {
+if (path.getName().equals(StarTreeConstants.TREE_FILE_NAME) || path.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
 builder.addFileEntry(path);
 }
  else {

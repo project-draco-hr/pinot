@@ -11,6 +11,9 @@
         LOG.info("Skipping entry:{} since it was already added",entry.getName());
         continue;
       }
+      if (entry.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
+        continue;
+      }
       LOG.info("Adding entry:" + entry.getName());
       if (entry.isDirectory()) {
         tarEntry=new TarArchiveEntry(entry.getName());

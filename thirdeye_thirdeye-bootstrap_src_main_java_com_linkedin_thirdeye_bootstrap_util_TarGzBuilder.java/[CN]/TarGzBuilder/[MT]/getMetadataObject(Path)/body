@@ -1,0 +1,28 @@
+{
+  TarArchiveInputStream debInputStream=null;
+  InputStream is=null;
+  IndexMetadata localIndexMetadata=null;
+  try {
+    is=new GzipCompressorInputStream(inputFS.open(path));
+    debInputStream=(TarArchiveInputStream)new ArchiveStreamFactory().createArchiveInputStream("tar",is);
+    TarArchiveEntry entry=null;
+    while ((entry=(TarArchiveEntry)debInputStream.getNextEntry()) != null) {
+      if (entry.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
+        byte[] content=new byte[(int)entry.getSize()];
+        debInputStream.read(content,0,content.length);
+        InputStream inputStream=new ByteArrayInputStream(content);
+        ObjectInputStream ois=new ObjectInputStream(inputStream);
+        localIndexMetadata=(IndexMetadata)ois.readObject();
+        break;
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw e;
+  }
+ finally {
+    IOUtils.closeQuietly(debInputStream);
+    IOUtils.closeQuietly(is);
+  }
+  return localIndexMetadata;
+}
