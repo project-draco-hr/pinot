@@ -1,0 +1,29 @@
+{
+  final Map<Operator,Integer> operatorPriorityMap=new HashMap<Operator,Integer>();
+  for (  Operator operator : operators) {
+    Integer priority=Integer.MAX_VALUE;
+    if (operator instanceof SortedInvertedIndexBasedFilterOperator) {
+      priority=0;
+    }
+ else     if (operator instanceof AndOperator) {
+      priority=1;
+    }
+ else     if (operator instanceof InvertedIndexBasedFilterOperator) {
+      priority=2;
+    }
+ else     if (operator instanceof ScanBasedFilterOperator) {
+      priority=3;
+    }
+ else     if (operator instanceof OrOperator) {
+      priority=4;
+    }
+    operatorPriorityMap.put(operator,priority);
+  }
+  Comparator<? super Operator> comparator=new Comparator<Operator>(){
+    @Override public int compare(    Operator o1,    Operator o2){
+      return Integer.compare(operatorPriorityMap.get(o1),operatorPriorityMap.get(o2));
+    }
+  }
+;
+  Collections.sort(operators,comparator);
+}

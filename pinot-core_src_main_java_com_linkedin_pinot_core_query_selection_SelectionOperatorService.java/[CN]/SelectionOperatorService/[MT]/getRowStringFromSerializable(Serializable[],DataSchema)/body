@@ -1,0 +1,76 @@
+{
+  String rowString="";
+  if (dataSchema.getColumnType(0).isSingleValue()) {
+    if (dataSchema.getColumnType(0) == DataType.STRING) {
+      rowString+=(String)row[0];
+    }
+ else {
+      rowString+=row[0];
+    }
+  }
+ else {
+    rowString+="[ ";
+    if (dataSchema.getColumnType(0) == DataType.STRING) {
+      String[] values=(String[])row[0];
+      for (int i=0; i < values.length; ++i) {
+        rowString+=values[i];
+      }
+    }
+ else {
+      Serializable[] values=(Serializable[])row[0];
+      for (int i=0; i < values.length; ++i) {
+        rowString+=values[i];
+      }
+    }
+    rowString+=" ]";
+  }
+  for (int i=1; i < row.length; ++i) {
+    if (dataSchema.getColumnType(i).isSingleValue()) {
+      if (dataSchema.getColumnType(i) == DataType.STRING) {
+        rowString+=" : " + (String)row[i];
+      }
+ else {
+        rowString+=" : " + row[i];
+      }
+    }
+ else {
+      rowString+=" : [ ";
+switch (dataSchema.getColumnType(i)) {
+case STRING_ARRAY:
+        String[] stringValues=(String[])row[i];
+      for (int j=0; j < stringValues.length; ++j) {
+        rowString+=stringValues[j] + " ";
+      }
+    break;
+case INT_ARRAY:
+  int[] intValues=(int[])row[i];
+for (int j=0; j < intValues.length; ++j) {
+  rowString+=intValues[j] + " ";
+}
+break;
+case FLOAT_ARRAY:
+float[] floatValues=(float[])row[i];
+for (int j=0; j < floatValues.length; ++j) {
+rowString+=floatValues[j] + " ";
+}
+break;
+case LONG_ARRAY:
+long[] longValues=(long[])row[i];
+for (int j=0; j < longValues.length; ++j) {
+rowString+=longValues[j] + " ";
+}
+break;
+case DOUBLE_ARRAY:
+double[] doubleValues=(double[])row[i];
+for (int j=0; j < doubleValues.length; ++j) {
+rowString+=doubleValues[j] + " ";
+}
+break;
+default :
+break;
+}
+rowString+="]";
+}
+}
+return rowString;
+}

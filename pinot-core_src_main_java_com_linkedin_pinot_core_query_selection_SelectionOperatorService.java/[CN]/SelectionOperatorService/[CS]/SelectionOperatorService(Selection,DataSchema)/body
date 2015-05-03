@@ -1,5 +1,11 @@
 {
   _indexSegment=null;
+  if ((selections.getSelectionSortSequence() == null) || selections.getSelectionSortSequence().isEmpty()) {
+    _doOrdering=false;
+  }
+ else {
+    _doOrdering=true;
+  }
   _sortSequence=selections.getSelectionSortSequence();
   _selectionColumns=getSelectionColumns(selections.getSelectionColumns(),dataSchema);
   _selectionSize=selections.getSize();
@@ -7,7 +13,12 @@
   _maxRowSize=_selectionOffset + _selectionSize;
   _dataSchema=dataSchema;
   _rowComparator=getComparator(_sortSequence,_dataSchema);
-  _rowEventsSet=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
+  if (_doOrdering) {
+    _rowEventsSet=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
+  }
+ else {
+    _rowEventsSet=new ArrayList<Serializable[]>(_maxRowSize);
+  }
   _rowDocIdComparator=null;
   _rowDocIdSet=null;
 }

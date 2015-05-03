@@ -1,0 +1,47 @@
+{
+  this.blockDocIdSets=blockDocIdSets;
+  final int[] docIdPointers=new int[blockDocIdSets.size()];
+  final BlockDocIdIterator[] docIdIterators=new BlockDocIdIterator[blockDocIdSets.size()];
+  for (int srcId=0; srcId < blockDocIdSets.size(); srcId++) {
+    docIdIterators[srcId]=blockDocIdSets.get(srcId).iterator();
+  }
+  Arrays.fill(docIdPointers,-1);
+  this.docIdIterators=docIdIterators;
+  this.docIdPointers=docIdPointers;
+  minDocId=Integer.MIN_VALUE;
+  maxDocId=Integer.MAX_VALUE;
+  for (  BlockDocIdSet blockDocIdSet : blockDocIdSets) {
+    if (blockDocIdSet instanceof SortedDocIdSet) {
+      SortedDocIdSet sortedDocIdSet=(SortedDocIdSet)blockDocIdSet;
+      minDocId=Math.max(minDocId,sortedDocIdSet.getMinDocId());
+      maxDocId=Math.min(maxDocId,sortedDocIdSet.getMaxDocId());
+    }
+ else     if (blockDocIdSet instanceof AndBlockDocIdSet) {
+      AndBlockDocIdSet andBlockDocIdSet=(AndBlockDocIdSet)blockDocIdSet;
+      minDocId=Math.max(minDocId,andBlockDocIdSet.getMinDocId());
+      maxDocId=Math.min(maxDocId,andBlockDocIdSet.getMaxDocId());
+    }
+  }
+  for (  BlockDocIdSet blockDocIdSet : blockDocIdSets) {
+    if (blockDocIdSet instanceof SortedDocIdSet) {
+      SortedDocIdSet sortedDocIdSet=(SortedDocIdSet)blockDocIdSet;
+      sortedDocIdSet.setStartDocId(minDocId);
+      sortedDocIdSet.setEndDocId(maxDocId);
+    }
+ else     if (blockDocIdSet instanceof OrBlockDocIdSet) {
+      OrBlockDocIdSet orBlockDocIdSet=(OrBlockDocIdSet)blockDocIdSet;
+      orBlockDocIdSet.setStartDocId(minDocId);
+      orBlockDocIdSet.setEndDocId(maxDocId);
+    }
+ else     if (blockDocIdSet instanceof ScanBasedSingleValueDocIdSet) {
+      ScanBasedSingleValueDocIdSet scanBasedSingleValueDocIdSet=(ScanBasedSingleValueDocIdSet)blockDocIdSet;
+      scanBasedSingleValueDocIdSet.setStartDocId(minDocId);
+      scanBasedSingleValueDocIdSet.setEndDocId(maxDocId);
+    }
+ else     if (blockDocIdSet instanceof ScanBasedMultiValueDocIdSet) {
+      ScanBasedMultiValueDocIdSet scanBasedMultiValueDocIdSet=(ScanBasedMultiValueDocIdSet)blockDocIdSet;
+      scanBasedMultiValueDocIdSet.setStartDocId(minDocId);
+      scanBasedMultiValueDocIdSet.setEndDocId(maxDocId);
+    }
+  }
+}

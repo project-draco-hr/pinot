@@ -1,0 +1,29 @@
+{
+  while (valueIterator.hasNext() && counter <= endDocId) {
+    int length=valueIterator.nextIntVal(intArray);
+    boolean found=false;
+    if (dictIds.length < length) {
+      for (int i=0; i < dictIds.length; i++) {
+        int dictIdIndex=Arrays.binarySearch(intArray,0,length,dictIds[i]);
+        if (dictIdIndex >= 0) {
+          found=true;
+          break;
+        }
+      }
+    }
+ else {
+      for (int i=0; i < length; i++) {
+        int dictIdIndex=Arrays.binarySearch(dictIds,intArray[i]);
+        if (dictIdIndex >= 0) {
+          found=true;
+          break;
+        }
+      }
+    }
+    if (found) {
+      return counter;
+    }
+    counter=counter + 1;
+  }
+  return (counter=Constants.EOF);
+}

@@ -1,0 +1,76 @@
+{
+  return new BlockDocIdIterator(){
+    final PriorityQueue<IntPair> queue=new PriorityQueue<IntPair>(docIdIterators.length,new Pairs.AscendingIntPairComparator());
+    final boolean[] exists=new boolean[docIdIterators.length];
+    int currentDocId=0;
+    @Override public int advance(    int targetDocId){
+      if (currentDocId == Constants.EOF) {
+        return Constants.EOF;
+      }
+      long start=System.nanoTime();
+      Iterator<IntPair> iterator=queue.iterator();
+      while (iterator.hasNext()) {
+        IntPair pair=iterator.next();
+        if (pair.getA() < targetDocId) {
+          iterator.remove();
+          exists[pair.getB()]=false;
+        }
+      }
+      for (int i=0; i < docIdIterators.length; i++) {
+        if (!exists[i]) {
+          int next=docIdIterators[i].advance(targetDocId);
+          if (next != Constants.EOF) {
+            queue.add(new IntPair(next,i));
+          }
+          exists[i]=true;
+        }
+      }
+      if (queue.size() > 0) {
+        IntPair pair=queue.remove();
+        exists[pair.getB()]=false;
+        currentDocId=pair.getA();
+        while (queue.size() > 0 && queue.peek().getA() == currentDocId) {
+          IntPair remove=queue.remove();
+          exists[remove.getB()]=false;
+        }
+      }
+ else {
+        currentDocId=Constants.EOF;
+      }
+      long end=System.nanoTime();
+      timeMeasure.addAndGet(end - start);
+      return currentDocId;
+    }
+    @Override public int next(){
+      long start=System.nanoTime();
+      for (int i=0; i < docIdIterators.length; i++) {
+        if (!exists[i]) {
+          int next=docIdIterators[i].next();
+          if (next != Constants.EOF) {
+            queue.add(new IntPair(next,i));
+          }
+          exists[i]=true;
+        }
+      }
+      if (queue.size() > 0) {
+        IntPair pair=queue.remove();
+        exists[pair.getB()]=false;
+        currentDocId=pair.getA();
+        while (queue.size() > 0 && queue.peek().getA() == currentDocId) {
+          pair=queue.remove();
+          exists[pair.getB()]=false;
+        }
+      }
+ else {
+        currentDocId=Constants.EOF;
+      }
+      long end=System.nanoTime();
+      timeMeasure.addAndGet(end - start);
+      return currentDocId;
+    }
+    @Override public int currentDocId(){
+      return currentDocId;
+    }
+  }
+;
+}

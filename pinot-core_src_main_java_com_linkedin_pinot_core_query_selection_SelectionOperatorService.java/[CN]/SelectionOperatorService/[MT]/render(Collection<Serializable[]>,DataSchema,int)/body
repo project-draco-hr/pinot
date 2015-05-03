@@ -3,13 +3,13 @@
   if (finalResults instanceof PriorityQueue<?>) {
     PriorityQueue<Serializable[]> queue=(PriorityQueue<Serializable[]>)finalResults;
     while (finalResults.size() > offset) {
-      rowEventsJSonList.addFirst(SelectionOperatorUtils.getJSonArrayFromRow(queue.poll(),_selectionColumns,dataSchema));
+      rowEventsJSonList.addFirst(getJSonArrayFromRow(queue.poll(),dataSchema));
     }
   }
  else   if (finalResults instanceof ArrayList<?>) {
     List<Serializable[]> list=(List<Serializable[]>)finalResults;
     for (int i=offset; i < list.size(); i++) {
-      rowEventsJSonList.add(SelectionOperatorUtils.getJSonArrayFromRow(list.get(i),_selectionColumns,dataSchema));
+      rowEventsJSonList.add(getJSonArrayFromRow(list.get(i),dataSchema));
     }
   }
  else {

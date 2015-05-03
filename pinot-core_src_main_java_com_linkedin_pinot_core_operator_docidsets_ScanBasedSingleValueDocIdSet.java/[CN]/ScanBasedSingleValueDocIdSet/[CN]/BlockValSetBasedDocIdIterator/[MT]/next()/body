@@ -1,0 +1,11 @@
+{
+  while (valueIterator.hasNext() && currentDocId <= endDocId) {
+    int next=valueIterator.nextIntVal();
+    int dictIdIndex=Arrays.binarySearch(dictIds,next);
+    if (dictIdIndex >= 0) {
+      return currentDocId++;
+    }
+    currentDocId=currentDocId + 1;
+  }
+  return Constants.EOF;
+}

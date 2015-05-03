@@ -1,0 +1,14 @@
+{
+  List<Pair<Integer,Integer>> pairs=new ArrayList<Pair<Integer,Integer>>();
+  pairs.add(Pair.of(90,99));
+  pairs.add(Pair.of(100,109));
+  SortedDocIdSet sortedDocIdSet=new SortedDocIdSet(pairs);
+  BlockDocIdIterator iterator=sortedDocIdSet.iterator();
+  List<Integer> result=new ArrayList<Integer>();
+  int docId;
+  while ((docId=iterator.next()) != Constants.EOF) {
+    result.add(docId);
+  }
+  System.out.println(result);
+  Assert.assertEquals(20,result.size());
+}

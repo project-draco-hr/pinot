@@ -1,0 +1,67 @@
+{
+  int numBitMaps=5;
+  final int numDocs=1000;
+  List<ImmutableRoaringBitmap> list=new ArrayList<ImmutableRoaringBitmap>();
+  Random r=new Random();
+  TreeSet<Integer> originalSet=new TreeSet<Integer>();
+  for (int i=0; i < numBitMaps; i++) {
+    MutableRoaringBitmap mutableRoaringBitmap=new MutableRoaringBitmap();
+    int length=r.nextInt(numDocs);
+    for (int j=0; j < length; j++) {
+      int docId=r.nextInt(numDocs);
+      originalSet.add(docId);
+      mutableRoaringBitmap.add(docId);
+    }
+    list.add(mutableRoaringBitmap);
+  }
+  MutableRoaringBitmap[] bitmaps=new MutableRoaringBitmap[list.size()];
+  list.toArray(bitmaps);
+  BlockMetadata blockMetadata=new BlockMetadata(){
+    @Override public boolean isSparse(){
+      return false;
+    }
+    @Override public boolean isSorted(){
+      return false;
+    }
+    @Override public boolean isSingleValue(){
+      return false;
+    }
+    @Override public boolean hasInvertedIndex(){
+      return false;
+    }
+    @Override public boolean hasDictionary(){
+      return false;
+    }
+    @Override public int getStartDocId(){
+      return 0;
+    }
+    @Override public int getSize(){
+      return 0;
+    }
+    @Override public int getMaxNumberOfMultiValues(){
+      return 0;
+    }
+    @Override public int getLength(){
+      return numDocs;
+    }
+    @Override public int getEndDocId(){
+      return numDocs;
+    }
+    @Override public Dictionary getDictionary(){
+      return null;
+    }
+    @Override public DataType getDataType(){
+      return null;
+    }
+  }
+;
+  BitmapDocIdSet bitmapDocIdSet=new BitmapDocIdSet(blockMetadata,bitmaps);
+  BlockDocIdIterator iterator=bitmapDocIdSet.iterator();
+  int docId;
+  TreeSet<Integer> result=new TreeSet<Integer>();
+  while ((docId=iterator.next()) != Constants.EOF) {
+    result.add(docId);
+  }
+  Assert.assertEquals(originalSet.size(),result.size());
+  Assert.assertEquals(originalSet,result);
+}

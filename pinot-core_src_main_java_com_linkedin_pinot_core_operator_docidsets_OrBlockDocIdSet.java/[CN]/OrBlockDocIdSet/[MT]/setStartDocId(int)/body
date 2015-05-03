@@ -1,0 +1,16 @@
+{
+  for (  BlockDocIdSet blockDocIdSet : docIdSets) {
+    if (blockDocIdSet instanceof ScanBasedSingleValueDocIdSet) {
+      ScanBasedSingleValueDocIdSet scanBasedSingleValueDocIdSet=(ScanBasedSingleValueDocIdSet)blockDocIdSet;
+      scanBasedSingleValueDocIdSet.setStartDocId(startDocId);
+    }
+    if (blockDocIdSet instanceof ScanBasedMultiValueDocIdSet) {
+      ScanBasedMultiValueDocIdSet scanBasedMultiValueDocIdSet=(ScanBasedMultiValueDocIdSet)blockDocIdSet;
+      scanBasedMultiValueDocIdSet.setStartDocId(startDocId);
+    }
+    if (blockDocIdSet instanceof BitmapDocIdSet) {
+      BitmapDocIdSet bitmapDocIdSet=(BitmapDocIdSet)blockDocIdSet;
+      bitmapDocIdSet.setStartDocId(startDocId);
+    }
+  }
+}

@@ -1,13 +1,24 @@
 {
   _indexSegment=indexSegment;
+  if ((selections.getSelectionSortSequence() == null) || selections.getSelectionSortSequence().isEmpty()) {
+    _doOrdering=false;
+  }
+ else {
+    _doOrdering=true;
+  }
   _sortSequence=selections.getSelectionSortSequence();
   _selectionColumns=getSelectionColumns(selections.getSelectionColumns());
   _selectionSize=selections.getSize();
   _selectionOffset=selections.getOffset();
   _maxRowSize=_selectionOffset + _selectionSize;
-  _dataSchema=SelectionOperatorUtils.extractDataSchema(_sortSequence,_selectionColumns,_indexSegment);
+  _dataSchema=getDataSchema(_sortSequence,_selectionColumns,_indexSegment);
   _rowComparator=getComparator(_sortSequence,_dataSchema);
-  _rowEventsSet=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
+  if (_doOrdering) {
+    _rowEventsSet=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
+  }
+ else {
+    _rowEventsSet=new ArrayList<Serializable[]>(_maxRowSize);
+  }
   _rowDocIdComparator=null;
   _rowDocIdSet=null;
 }

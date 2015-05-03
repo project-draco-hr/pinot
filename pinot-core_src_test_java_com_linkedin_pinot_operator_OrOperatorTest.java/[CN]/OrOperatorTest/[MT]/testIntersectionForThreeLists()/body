@@ -1,0 +1,26 @@
+{
+  int[] list1=new int[]{2,3,6,10,15,16,28};
+  int[] list2=new int[]{3,6,8,20,28};
+  int[] list3=new int[]{1,2,3,6,30};
+  List<Operator> operators=new ArrayList<Operator>();
+  operators.add(makeOperator(list1));
+  operators.add(makeOperator(list2));
+  operators.add(makeOperator(list3));
+  final OrOperator orOperator=new OrOperator(operators);
+  orOperator.open();
+  Block block;
+  TreeSet<Integer> set=new TreeSet<Integer>();
+  set.addAll(Lists.newArrayList(ArrayUtils.toObject(list1)));
+  set.addAll(Lists.newArrayList(ArrayUtils.toObject(list2)));
+  set.addAll(Lists.newArrayList(ArrayUtils.toObject(list3)));
+  Iterator<Integer> expectedIterator=set.iterator();
+  while ((block=orOperator.nextBlock()) != null) {
+    final BlockDocIdSet blockDocIdSet=block.getBlockDocIdSet();
+    final BlockDocIdIterator iterator=blockDocIdSet.iterator();
+    int docId;
+    while ((docId=iterator.next()) != Constants.EOF) {
+      Assert.assertEquals(expectedIterator.next().intValue(),docId);
+    }
+  }
+  orOperator.close();
+}

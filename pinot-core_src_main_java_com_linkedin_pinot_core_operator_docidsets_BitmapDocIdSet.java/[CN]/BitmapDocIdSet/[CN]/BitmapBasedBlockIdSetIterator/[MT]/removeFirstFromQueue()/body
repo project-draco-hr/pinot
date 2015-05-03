@@ -1,0 +1,14 @@
+{
+  if (queue.size() > 0) {
+    IntPair pair=queue.remove();
+    exists[pair.getB()]=false;
+    counter=pair.getA();
+    while (queue.size() > 0 && queue.peek().getA() == counter) {
+      pair=queue.remove();
+      exists[pair.getB()]=false;
+    }
+  }
+ else {
+    counter=Constants.EOF;
+  }
+}

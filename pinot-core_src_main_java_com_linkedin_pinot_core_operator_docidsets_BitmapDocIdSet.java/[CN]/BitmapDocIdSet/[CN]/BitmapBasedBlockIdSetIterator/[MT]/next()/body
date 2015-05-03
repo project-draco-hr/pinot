@@ -1,0 +1,22 @@
+{
+  long start=System.nanoTime();
+  for (int i=0; i < iterators.length; i++) {
+    if (!exists[i]) {
+      while (iterators[i].hasNext()) {
+        int next=iterators[i].next();
+        if (next >= startDocId && next <= endDocId) {
+          queue.add(new IntPair(next,i));
+          break;
+        }
+        if (next > endDocId) {
+          break;
+        }
+      }
+      exists[i]=true;
+    }
+  }
+  removeFirstFromQueue();
+  long end=System.nanoTime();
+  timeMeasure.addAndGet(end - start);
+  return counter;
+}

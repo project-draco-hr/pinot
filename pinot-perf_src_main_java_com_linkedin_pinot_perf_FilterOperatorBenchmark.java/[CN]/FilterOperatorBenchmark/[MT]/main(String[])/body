@@ -1,0 +1,27 @@
+{
+  String rootDir=args[0];
+  File[] segmentDirs=new File(rootDir).listFiles();
+  String query=args[1];
+  for (  File indexSegmentDir : segmentDirs) {
+    IndexSegmentImpl indexSegmentImpl=new IndexSegmentImpl(indexSegmentDir,ReadMode.heap);
+    PQLCompiler compiler=new PQLCompiler(new HashMap<String,String[]>());
+    JSONObject jsonObject=compiler.compile(query);
+    BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
+    int runCount=0;
+    while (runCount < 2) {
+      FilterPlanNode planNode=new FilterPlanNode(indexSegmentImpl,brokerRequest);
+      Operator operator=planNode.run();
+      operator.open();
+      Block block=operator.nextBlock();
+      BlockDocIdIterator iterator=block.getBlockDocIdSet().iterator();
+      int docId;
+      int count=0;
+      while ((docId=iterator.next()) != Constants.EOF) {
+        count=count + 1;
+      }
+      System.out.println("Matched Count" + count);
+      operator.close();
+      runCount=runCount + 1;
+    }
+  }
+}

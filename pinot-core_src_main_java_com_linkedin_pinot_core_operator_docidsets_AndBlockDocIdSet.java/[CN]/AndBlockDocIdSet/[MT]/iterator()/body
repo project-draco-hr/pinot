@@ -1,0 +1,79 @@
+{
+  return new BlockDocIdIterator(){
+    int currentMax=0;
+    @Override public int advance(    int targetDocId){
+      if (currentDocId == Constants.EOF) {
+        return currentDocId;
+      }
+      long start=System.nanoTime();
+      for (int srcId=0; srcId < docIdIterators.length; srcId++) {
+        docIdPointers[srcId]=docIdIterators[srcId].advance(targetDocId);
+        if (docIdPointers[srcId] == Constants.EOF) {
+          reachedEnd=true;
+          break;
+        }
+        if (docIdPointers[srcId] > currentMax) {
+          currentMax=docIdPointers[srcId];
+        }
+      }
+      findNextMatch();
+      long end=System.nanoTime();
+      timeMeasure.addAndGet(end - start);
+      return currentDocId;
+    }
+    @Override public int next(){
+      long start=System.nanoTime();
+      for (int i=0; i < docIdIterators.length; i++) {
+        docIdPointers[i]=docIdIterators[i].advance(currentMax);
+        if (docIdPointers[i] == Constants.EOF) {
+          reachedEnd=true;
+          currentDocId=Constants.EOF;
+          break;
+        }
+        if (docIdPointers[i] > currentMax) {
+          currentMax=docIdPointers[i];
+        }
+      }
+      findNextMatch();
+      long end=System.nanoTime();
+      timeMeasure.addAndGet(end - start);
+      if (currentDocId == Constants.EOF) {
+        logger.info("AND operator took:" + timeMeasure.get());
+      }
+      return currentDocId;
+    }
+    private void findNextMatch(){
+      boolean found=false;
+      while (!found && !reachedEnd) {
+        found=true;
+        for (int i=0; i < docIdIterators.length; i++) {
+          if (docIdPointers[i] != currentMax) {
+            found=false;
+            docIdPointers[i]=docIdIterators[i].advance(currentMax);
+            if (docIdPointers[i] == Constants.EOF) {
+              reachedEnd=true;
+              currentDocId=Constants.EOF;
+              maxDocId=currentDocId;
+              break;
+            }
+            if (docIdPointers[i] > currentMax) {
+              currentMax=docIdPointers[i];
+              break;
+            }
+ else             if (docIdPointers[i] != currentMax) {
+              throw new RuntimeException("DocIdIterator returning invalid result:" + docIdPointers[i] + " after invoking skipTo:"+ currentMax);
+            }
+          }
+        }
+        if (found) {
+          currentDocId=currentMax;
+          currentMax=currentMax + 1;
+        }
+      }
+    }
+    @Override public int currentDocId(){
+      return currentDocId;
+    }
+  }
+;
+}

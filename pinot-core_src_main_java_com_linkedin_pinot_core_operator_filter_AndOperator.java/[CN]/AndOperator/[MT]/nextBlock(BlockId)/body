@@ -1,0 +1,10 @@
+{
+  List<BlockDocIdSet> blockDocIdSets=new ArrayList<BlockDocIdSet>();
+  for (  Operator operator : operators) {
+    Block block=operator.nextBlock();
+    BlockDocIdSet blockDocIdSet=block.getBlockDocIdSet();
+    blockDocIdSets.add(blockDocIdSet);
+  }
+  andBlock=new AndBlock(blockDocIdSets);
+  return andBlock;
+}

@@ -23,6 +23,7 @@
       }
     }
  catch (    InterruptedException e) {
+      LOG.error("InterruptedException ",e);
       if (_mergedBlock == null) {
         _mergedBlock=new IntermediateResultsBlock(e);
       }
@@ -36,6 +37,7 @@
       _mergedBlock.setExceptionsList(exceptions);
     }
 catch (    ExecutionException e) {
+      LOG.error("Execution Exception",e);
       if (_mergedBlock == null) {
         _mergedBlock=new IntermediateResultsBlock(e);
       }
@@ -49,6 +51,7 @@ catch (    ExecutionException e) {
       _mergedBlock.setExceptionsList(exceptions);
     }
 catch (    TimeoutException e) {
+      LOG.error("TimeoutException ",e);
       if (_mergedBlock == null) {
         _mergedBlock=new IntermediateResultsBlock(e);
       }
@@ -82,6 +85,6 @@ catch (    TimeoutException e) {
     trimToSize(_brokerRequest,_mergedBlock);
   }
   long end=System.currentTimeMillis();
-  LOG.debug("Time spent in MCombineOperator:" + (end - start));
+  LOG.info("Time spent in MCombineOperator:" + (end - start));
   return _mergedBlock;
 }

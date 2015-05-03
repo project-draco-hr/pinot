@@ -1,0 +1,203 @@
+{
+  final Serializable[] row=new Serializable[_dataSchema.size()];
+  int j=0;
+  for (int i=0; i < _dataSchema.size(); ++i) {
+    if (blocks[j] instanceof RealtimeSingleValueBlock) {
+      if (blocks[j].getMetadata().hasDictionary()) {
+        Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
+        BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
+        bvIter.skipTo(docId);
+switch (_dataSchema.getColumnType(i)) {
+case INT:
+          row[i]=(Integer)((IntMutableDictionary)dictionaryReader).get(bvIter.nextIntVal());
+        break;
+case FLOAT:
+      row[i]=(Float)((FloatMutableDictionary)dictionaryReader).get(bvIter.nextIntVal());
+    break;
+case LONG:
+  row[i]=(Long)((LongMutableDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+case DOUBLE:
+row[i]=(Double)((DoubleMutableDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+case STRING:
+row[i]=(String)((StringMutableDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+default :
+break;
+}
+}
+ else {
+BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
+bvIter.skipTo(docId);
+switch (_dataSchema.getColumnType(i)) {
+case INT:
+row[i]=bvIter.nextIntVal();
+break;
+case FLOAT:
+row[i]=bvIter.nextFloatVal();
+break;
+case LONG:
+row[i]=bvIter.nextLongVal();
+break;
+case DOUBLE:
+row[i]=bvIter.nextDoubleVal();
+break;
+default :
+break;
+}
+}
+}
+ else if (blocks[j] instanceof RealtimeMultiValueBlock) {
+Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
+BlockMultiValIterator bvIter=(BlockMultiValIterator)blocks[j].getBlockValueSet().iterator();
+bvIter.skipTo(docId);
+int[] dictIds=new int[blocks[j].getMetadata().getMaxNumberOfMultiValues()];
+int dictSize;
+switch (_dataSchema.getColumnType(i)) {
+case INT_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+int[] rawIntRow=new int[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawIntRow[dictIdx]=(Integer)((IntMutableDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawIntRow;
+break;
+case FLOAT_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+Float[] rawFloatRow=new Float[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawFloatRow[dictIdx]=(Float)((FloatMutableDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawFloatRow;
+break;
+case LONG_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+Long[] rawLongRow=new Long[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawLongRow[dictIdx]=(Long)((LongMutableDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawLongRow;
+break;
+case DOUBLE_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+Double[] rawDoubleRow=new Double[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawDoubleRow[dictIdx]=(Double)((DoubleMutableDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawDoubleRow;
+break;
+case STRING_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+String[] rawStringRow=new String[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawStringRow[dictIdx]=(String)(((StringMutableDictionary)dictionaryReader).get(dictIds[dictIdx]));
+}
+row[i]=rawStringRow;
+break;
+default :
+break;
+}
+}
+ else if (blocks[j] instanceof SingleValueBlockWithBitmapInvertedIndex || blocks[j] instanceof SingleValueBlockWithSortedInvertedIndex) {
+if (blocks[j].getMetadata().hasDictionary()) {
+Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
+BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
+bvIter.skipTo(docId);
+switch (_dataSchema.getColumnType(i)) {
+case INT:
+int dicId=bvIter.nextIntVal();
+row[i]=((IntDictionary)dictionaryReader).get(dicId);
+break;
+case FLOAT:
+row[i]=((FloatDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+case LONG:
+row[i]=((LongDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+case DOUBLE:
+row[i]=((DoubleDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+case STRING:
+row[i]=((StringDictionary)dictionaryReader).get(bvIter.nextIntVal());
+break;
+default :
+break;
+}
+}
+ else {
+BlockSingleValIterator bvIter=(BlockSingleValIterator)blocks[j].getBlockValueSet().iterator();
+bvIter.skipTo(docId);
+switch (_dataSchema.getColumnType(i)) {
+case INT:
+row[i]=new Integer(bvIter.nextIntVal());
+break;
+case FLOAT:
+row[i]=new Float(bvIter.nextFloatVal());
+break;
+case LONG:
+row[i]=new Long(bvIter.nextLongVal());
+break;
+case DOUBLE:
+row[i]=new Double(bvIter.nextDoubleVal());
+break;
+default :
+break;
+}
+}
+}
+ else if (blocks[j] instanceof MultiValueBlockWithBitmapInvertedIndex) {
+Dictionary dictionaryReader=blocks[j].getMetadata().getDictionary();
+BlockMultiValIterator bvIter=(BlockMultiValIterator)blocks[j].getBlockValueSet().iterator();
+bvIter.skipTo(docId);
+int[] dictIds=new int[blocks[j].getMetadata().getMaxNumberOfMultiValues()];
+int dictSize;
+switch (_dataSchema.getColumnType(i)) {
+case INT_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+int[] rawIntRow=new int[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawIntRow[dictIdx]=((IntDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawIntRow;
+break;
+case FLOAT_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+Float[] rawFloatRow=new Float[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawFloatRow[dictIdx]=((FloatDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawFloatRow;
+break;
+case LONG_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+Long[] rawLongRow=new Long[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawLongRow[dictIdx]=((LongDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawLongRow;
+break;
+case DOUBLE_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+Double[] rawDoubleRow=new Double[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawDoubleRow[dictIdx]=((DoubleDictionary)dictionaryReader).get(dictIds[dictIdx]);
+}
+row[i]=rawDoubleRow;
+break;
+case STRING_ARRAY:
+dictSize=bvIter.nextIntVal(dictIds);
+String[] rawStringRow=new String[dictSize];
+for (int dictIdx=0; dictIdx < dictSize; ++dictIdx) {
+rawStringRow[dictIdx]=(((StringDictionary)dictionaryReader).get(dictIds[dictIdx]));
+}
+row[i]=rawStringRow;
+break;
+default :
+break;
+}
+}
+j++;
+}
+return row;
+}

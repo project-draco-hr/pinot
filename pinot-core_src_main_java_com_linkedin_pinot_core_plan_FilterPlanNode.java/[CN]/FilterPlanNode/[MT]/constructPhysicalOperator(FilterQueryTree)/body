@@ -6,40 +6,20 @@
   final List<FilterQueryTree> childFilters=filterQueryTree.getChildren();
   final boolean isLeaf=(childFilters == null) || childFilters.isEmpty();
   if (!isLeaf) {
-    List<Operator> scanBasedOperators=new ArrayList<Operator>();
-    List<Operator> invertedIndexRelatedOperators=new ArrayList<Operator>();
+    List<Operator> operators=new ArrayList<Operator>();
     for (    final FilterQueryTree query : childFilters) {
       Operator childOperator=constructPhysicalOperator(query);
-      if (isOpearatorInvertedIndexInvolved(childOperator)) {
-        invertedIndexRelatedOperators.add(childOperator);
-      }
- else {
-        scanBasedOperators.add(childOperator);
-      }
+      operators.add(childOperator);
     }
     final FilterOperator filterType=filterQueryTree.getOperator();
 switch (filterType) {
 case AND:
-      if (0 == scanBasedOperators.size()) {
-        ret=new BBitmapOnlyAndOperator(invertedIndexRelatedOperators);
-      }
- else {
-        Operator bitMapAndOperator=new BBitmapOnlyAndOperator(invertedIndexRelatedOperators);
-        scanBasedOperators.set(scanBasedOperators.size(),scanBasedOperators.get(0));
-        scanBasedOperators.set(0,bitMapAndOperator);
-        ret=new MAndOperator(scanBasedOperators);
-      }
-    break;
+      reorder(operators);
+    ret=new AndOperator(operators);
+  break;
 case OR:
-  if (0 == scanBasedOperators.size()) {
-    ret=new BBitmapOnlyOrOperator(invertedIndexRelatedOperators);
-  }
- else {
-    Operator bitMapOrOperator=new BBitmapOnlyOrOperator(invertedIndexRelatedOperators);
-    scanBasedOperators.set(scanBasedOperators.size(),scanBasedOperators.get(0));
-    scanBasedOperators.set(0,bitMapOrOperator);
-    ret=new MOrOperator(scanBasedOperators);
-  }
+reorder(operators);
+ret=new OrOperator(operators);
 break;
 default :
 throw new UnsupportedOperationException("Not support filter type - " + filterType + " with children operators");
@@ -69,15 +49,26 @@ break;
 case IN:
 predicate=new InPredicate(column,value);
 break;
+default :
+throw new UnsupportedOperationException("Unsupported filterType:" + filterType);
 }
 DataSource ds;
-if (predicate != null) {
-ds=_segment.getDataSource(column,predicate);
+ds=_segment.getDataSource(column);
+DataSourceMetadata dataSourceMetadata=ds.getDataSourceMetadata();
+BaseFilterOperator baseFilterOperator;
+if (dataSourceMetadata.hasInvertedIndex()) {
+if (dataSourceMetadata.isSingleValue() && dataSourceMetadata.isSorted()) {
+baseFilterOperator=new SortedInvertedIndexBasedFilterOperator(ds);
 }
  else {
-ds=_segment.getDataSource(column);
+baseFilterOperator=new ScanBasedFilterOperator(ds);
 }
-ret=ds;
+}
+ else {
+baseFilterOperator=new ScanBasedFilterOperator(ds);
+}
+baseFilterOperator.setPredicate(predicate);
+ret=baseFilterOperator;
 }
 return ret;
 }
