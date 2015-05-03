@@ -8,9 +8,10 @@
       continue;
     }
     ColumnMetadata columnMetadata=metadata.getColumnMetadataFor(spec.getName());
-    Dictionary dic=Loaders.Dictionary.load(columnMetadata,new File(segmentDir,spec.getName() + V1Constants.Dict.FILE_EXTENTION),ReadMode.heap);
-    DataFileReader indexReader=Loaders.ForwardIndex.loadFwdIndexForColumn(columnMetadata,new File(segmentDir,spec.getName() + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION),ReadMode.heap);
-    InvertedIndexReader reader=Loaders.InvertedIndex.load(columnMetadata,segmentDir,spec.getName(),ReadMode.heap);
+    ColumnIndexContainer container=ColumnIndexContainer.init(metadata.getTableName(),spec.getName(),INDEX_DIR,columnMetadata,null,ReadMode.heap);
+    Dictionary dic=container.getDictionary();
+    DataFileReader indexReader=container.getForwardIndex();
+    InvertedIndexReader reader=container.getInvertedIndex();
     MultiValueBlockWithoutInvertedIndex fwdIdxBlock=new MultiValueBlockWithoutInvertedIndex(new BlockId(0),(FixedBitCompressedMVForwardIndexReader)indexReader,(ImmutableDictionaryReader)dic,columnMetadata);
     Object e=dic.get(new Random().nextInt(dic.length()));
     Predicate p=new EqPredicate(spec.getName(),Lists.newArrayList(e.toString()));

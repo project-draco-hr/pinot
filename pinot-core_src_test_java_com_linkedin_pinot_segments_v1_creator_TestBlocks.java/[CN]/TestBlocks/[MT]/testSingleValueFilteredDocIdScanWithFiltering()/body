@@ -7,19 +7,19 @@
     if (!spec.isSingleValueField()) {
       continue;
     }
+    System.out.println(" column : " + spec.getName());
     ColumnMetadata columnMetadata=metadata.getColumnMetadataFor(spec.getName());
-    Dictionary dic=Loaders.Dictionary.load(columnMetadata,new File(segmentDir,spec.getName() + V1Constants.Dict.FILE_EXTENTION),ReadMode.heap);
-    DataFileReader indexReader=Loaders.ForwardIndex.loadFwdIndexForColumn(columnMetadata,new File(segmentDir,spec.getName() + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION),ReadMode.heap);
-    InvertedIndexReader reader=Loaders.InvertedIndex.load(columnMetadata,segmentDir,spec.getName(),ReadMode.heap);
-    SingleValueBlockWithoutInvertedIndex fwdIdxBlock=new SingleValueBlockWithoutInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)indexReader,(ImmutableDictionaryReader)dic,columnMetadata);
+    ColumnIndexContainer container=ColumnIndexContainer.init(metadata.getTableName(),spec.getName(),INDEX_DIR,columnMetadata,null,ReadMode.heap);
+    SingleValueBlockWithoutInvertedIndex fwdIdxBlock=new SingleValueBlockWithoutInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)container.getForwardIndex(),container.getDictionary(),columnMetadata);
+    ImmutableDictionaryReader dic=container.getDictionary();
     Object e=dic.get(new Random().nextInt(dic.length()));
     Predicate p=new EqPredicate(spec.getName(),Lists.newArrayList(e.toString()));
     Block invertedIndexBlock;
     if (columnMetadata.isSorted()) {
-      invertedIndexBlock=new SingleValueBlockWithSortedInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)indexReader,reader,(ImmutableDictionaryReader)dic,columnMetadata);
+      invertedIndexBlock=new SingleValueBlockWithSortedInvertedIndex(new BlockId(0),(SortedForwardIndexReader)container.getForwardIndex(),container.getInvertedIndex(),dic,columnMetadata);
     }
  else {
-      invertedIndexBlock=new SingleValueBlockWithBitmapInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)indexReader,reader,(ImmutableDictionaryReader)dic,columnMetadata);
+      invertedIndexBlock=new SingleValueBlockWithBitmapInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)container.getForwardIndex(),container.getInvertedIndex(),dic,columnMetadata);
       invertedIndexBlock.applyPredicate(p);
       fwdIdxBlock.applyPredicate(p);
     }

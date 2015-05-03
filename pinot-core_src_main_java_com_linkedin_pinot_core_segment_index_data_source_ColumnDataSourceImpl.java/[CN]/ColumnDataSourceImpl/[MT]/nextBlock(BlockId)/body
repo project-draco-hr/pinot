@@ -1,15 +1,15 @@
 {
   Block b=null;
-  if (columnMetadata.isSingleValue()) {
-    if (columnMetadata.isSorted()) {
-      b=new SingleValueBlockWithSortedInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
+  if (indexContainer.getColumnMetadata().isSingleValue()) {
+    if (indexContainer.getColumnMetadata().isSorted()) {
+      b=new SingleValueBlockWithSortedInvertedIndex(blockId,(SortedForwardIndexReader)indexContainer.getForwardIndex(),indexContainer.getInvertedIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
     }
  else {
-      b=new SingleValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
+      b=new SingleValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedSVForwardIndexReader)indexContainer.getForwardIndex(),indexContainer.getInvertedIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
     }
   }
  else {
-    b=new MultiValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedMVForwardIndexReader)reader,invertedIndex,dictionary,columnMetadata);
+    b=new MultiValueBlockWithBitmapInvertedIndex(blockId,(FixedBitCompressedMVForwardIndexReader)indexContainer.getForwardIndex(),indexContainer.getInvertedIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
   }
   if (predicate != null) {
     b.applyPredicate(predicate);

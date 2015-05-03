@@ -1,25 +1,25 @@
 {
   return new DataSourceMetadata(){
     @Override public boolean isSorted(){
-      return columnMetadata.isSorted();
+      return indexContainer.getColumnMetadata().isSorted();
     }
     @Override public boolean hasInvertedIndex(){
-      return columnMetadata.isHasInvertedIndex();
+      return indexContainer.getColumnMetadata().isHasInvertedIndex() && indexContainer.getInvertedIndex() != null;
     }
     @Override public boolean hasDictionary(){
-      return columnMetadata.hasDictionary();
+      return indexContainer.getColumnMetadata().hasDictionary();
     }
     @Override public FieldType getFieldType(){
-      return columnMetadata.getFieldType();
+      return indexContainer.getColumnMetadata().getFieldType();
     }
     @Override public DataType getDataType(){
-      return columnMetadata.getDataType();
+      return indexContainer.getColumnMetadata().getDataType();
     }
     @Override public int cardinality(){
-      return columnMetadata.getCardinality();
+      return indexContainer.getColumnMetadata().getCardinality();
     }
     @Override public boolean isSingleValue(){
-      return columnMetadata.isSingleValue();
+      return indexContainer.getColumnMetadata().isSingleValue();
     }
   }
 ;

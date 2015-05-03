@@ -1,3 +1,8 @@
 {
-  return new IndexSegmentImpl(indexDir,readMode,indexLoadingConfigMetadata);
+  SegmentMetadataImpl metadata=new SegmentMetadataImpl(indexDir);
+  Map<String,ColumnIndexContainer> indexContainerMap=new HashMap<String,ColumnIndexContainer>();
+  for (  String column : metadata.getColumnMetadataMap().keySet()) {
+    indexContainerMap.put(column,ColumnIndexContainer.init(metadata.getTableName(),column,indexDir,metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata,readMode));
+  }
+  return new IndexSegmentImpl(indexDir,metadata,indexContainerMap);
 }

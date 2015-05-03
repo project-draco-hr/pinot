@@ -1,25 +1,23 @@
 {
-  for (  String column : forwardIndexMap.keySet()) {
+  for (  String column : indexContainerMap.keySet()) {
     try {
-      dictionaryMap.get(column).close();
+      indexContainerMap.get(column).getDictionary().close();
     }
  catch (    Exception e) {
       LOGGER.error("Error when close dictionary index for column : " + column + ", StackTrace: "+ e);
     }
     try {
-      forwardIndexMap.get(column).close();
+      indexContainerMap.get(column).getForwardIndex().close();
     }
  catch (    Exception e) {
       LOGGER.error("Error when close forward index for column : " + column + ", StackTrace: "+ e);
     }
     try {
-      invertedIndexMap.get(column).close();
+      indexContainerMap.get(column).getInvertedIndex().close();
     }
  catch (    Exception e) {
       LOGGER.error("Error when close inverted index for column : " + column + ", StackTrace: "+ e);
     }
   }
-  dictionaryMap.clear();
-  forwardIndexMap.clear();
-  invertedIndexMap.clear();
+  indexContainerMap.clear();
 }

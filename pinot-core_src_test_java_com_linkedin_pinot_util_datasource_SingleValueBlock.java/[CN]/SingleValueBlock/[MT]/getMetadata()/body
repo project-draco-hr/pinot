@@ -1,0 +1,46 @@
+{
+  return new BlockMetadata(){
+    @Override public int maxNumberOfMultiValues(){
+      return 0;
+    }
+    @Override public boolean isSparse(){
+      return true;
+    }
+    @Override public boolean isSorted(){
+      return false;
+    }
+    @Override public boolean isSingleValue(){
+      return true;
+    }
+    @Override public boolean hasInvertedIndex(){
+      return true;
+    }
+    @Override public boolean hasDictionary(){
+      return true;
+    }
+    @Override public int getStartDocId(){
+      return 0;
+    }
+    @Override public int getSize(){
+      return values.length;
+    }
+    @Override public int getLength(){
+      return values.length;
+    }
+    @Override public int getEndDocId(){
+      return values.length - 1;
+    }
+    @Override public Dictionary getDictionary(){
+      try {
+        return new IntArrayBackedImmutableDictionary(null,dictionary.length,1,true,dictionary);
+      }
+ catch (      Exception e) {
+      }
+      return null;
+    }
+    @Override public DataType getDataType(){
+      return DataType.INT;
+    }
+  }
+;
+}
