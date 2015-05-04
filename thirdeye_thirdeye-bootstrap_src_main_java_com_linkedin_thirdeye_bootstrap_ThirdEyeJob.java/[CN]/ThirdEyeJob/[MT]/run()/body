@@ -82,7 +82,10 @@ RemoteIterator<LocatedFileStatus> listFiles=fileSystem.listFiles(dataPath,false)
 List<IndexMetadata> indexMetadataList=new ArrayList<IndexMetadata>();
 while (listFiles.hasNext()) {
 Path path=listFiles.next().getPath();
-indexMetadataList.add(builder.getMetadataObject(path));
+IndexMetadata localIndexMetadata=builder.getMetadataObject(path);
+if (localIndexMetadata != null) {
+indexMetadataList.add(localIndexMetadata);
+}
 }
 Path metadataPath=new Path(bootstrapPhase2Output,StarTreeConstants.METADATA_FILE_NAME);
 IndexMetadata mergedIndexMetadata=mergeIndexMetadata(indexMetadataList);

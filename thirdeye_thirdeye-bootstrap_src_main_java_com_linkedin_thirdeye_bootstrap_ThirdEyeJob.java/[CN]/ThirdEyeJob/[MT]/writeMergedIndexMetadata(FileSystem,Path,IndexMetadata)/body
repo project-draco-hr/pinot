@@ -1,13 +1,11 @@
 {
   OutputStream os=null;
-  ObjectOutputStream oos=null;
   try {
     os=fileSystem.create(metadataPath);
-    oos=new ObjectOutputStream(os);
-    oos.writeObject(mergedIndexMetadata);
+    Properties mergedProperties=mergedIndexMetadata.toProperties();
+    mergedProperties.store(os,"Merged index metadata properties");
   }
   finally {
-    if (oos != null)     oos.close();
     if (os != null)     os.close();
   }
 }

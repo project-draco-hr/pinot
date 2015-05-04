@@ -1,6 +1,6 @@
 {
   File indexMetadataFile=new File(outputDir,StarTreeConstants.METADATA_FILE_NAME);
-  List<IndexMetadata> indexMetadataList=new ArrayList<IndexMetadata>();
-  indexMetadataList.add(indexMetadata);
-  writeObjects(indexMetadataList,indexMetadataFile);
+  OutputStream os=new FileOutputStream(indexMetadataFile);
+  Properties indexMetadataProperties=indexMetadata.toProperties();
+  indexMetadataProperties.store(os,"Index Metadata Properties");
 }

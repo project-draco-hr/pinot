@@ -10,9 +10,10 @@
       if (entry.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
         byte[] content=new byte[(int)entry.getSize()];
         debInputStream.read(content,0,content.length);
-        InputStream inputStream=new ByteArrayInputStream(content);
-        ObjectInputStream ois=new ObjectInputStream(inputStream);
-        localIndexMetadata=(IndexMetadata)ois.readObject();
+        ByteArrayInputStream inputStream=new ByteArrayInputStream(content);
+        Properties localProperties=new Properties();
+        localProperties.load(inputStream);
+        localIndexMetadata=IndexMetadata.fromProperties(localProperties);
         break;
       }
     }

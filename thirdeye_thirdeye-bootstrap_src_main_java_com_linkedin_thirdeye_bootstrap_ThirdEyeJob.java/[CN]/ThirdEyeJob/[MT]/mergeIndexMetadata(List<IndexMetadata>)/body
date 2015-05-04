@@ -3,10 +3,10 @@
   Long max=0L;
   IndexMetadata mergedIndexMetadata=new IndexMetadata();
   for (  IndexMetadata indexMetadata : indexMetdataList) {
-    if (indexMetadata.getMinDataTime() < min) {
+    if (indexMetadata.getMinDataTime() != null && indexMetadata.getMinDataTime() < min) {
       min=indexMetadata.getMinDataTime();
     }
-    if (indexMetadata.getMaxDataTime() > max) {
+    if (indexMetadata.getMaxDataTime() != null && indexMetadata.getMaxDataTime() > max) {
       max=indexMetadata.getMaxDataTime();
     }
   }
