@@ -1,0 +1,16 @@
+{
+  Map<String,Integer> forward=dictionary.get(name);
+  if (forward == null) {
+    dictionary.putIfAbsent(name,new HashMap<String,Integer>());
+    forward=dictionary.get(name);
+  }
+  Integer existing=forward.putIfAbsent(value,valueId);
+  if (existing == null) {
+    Map<Integer,String> reverse=reverseDictionary.get(name);
+    if (reverse == null) {
+      reverseDictionary.putIfAbsent(name,new HashMap<Integer,String>());
+      reverse=reverseDictionary.get(name);
+    }
+    reverse.put(valueId,value);
+  }
+}

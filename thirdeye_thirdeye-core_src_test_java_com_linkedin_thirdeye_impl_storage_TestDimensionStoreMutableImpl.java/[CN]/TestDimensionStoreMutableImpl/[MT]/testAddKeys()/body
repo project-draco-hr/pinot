@@ -1,0 +1,13 @@
+{
+  DimensionStore dimensionStore=new DimensionStoreMutableImpl(config.getDimensions());
+  Assert.assertEquals(dimensionStore.getDimensionKeyCount(),0);
+  DimensionKey key=DimensionKey.make("A1","B1","C1");
+  dimensionStore.findMatchingKeys(key);
+  Assert.assertEquals(dimensionStore.getDimensionKeys(),Arrays.asList(key));
+  Assert.assertEquals(dimensionStore.getDimensionKeyCount(),1);
+  key=DimensionKey.make("A2","B2","C2");
+  dimensionStore.findMatchingKeys(key);
+  Assert.assertEquals(dimensionStore.getDimensionKeyCount(),2);
+  dimensionStore.findMatchingKeys(key);
+  Assert.assertEquals(dimensionStore.getDimensionKeyCount(),2);
+}

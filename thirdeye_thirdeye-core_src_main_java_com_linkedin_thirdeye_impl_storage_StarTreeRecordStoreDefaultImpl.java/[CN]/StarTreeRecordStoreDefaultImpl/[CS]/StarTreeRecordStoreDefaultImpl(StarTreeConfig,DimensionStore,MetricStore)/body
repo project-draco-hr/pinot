@@ -2,16 +2,4 @@
   this.config=config;
   this.dimensionStore=dimensionStore;
   this.metricStore=metricStore;
-  this.dimensionValues=new HashMap<String,Set<String>>();
-  List<DimensionKey> dimensionKeys=dimensionStore.getDimensionKeys();
-  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
-    dimensionValues.put(dimensionSpec.getName(),new HashSet<String>());
-  }
-  for (  DimensionKey dimensionKey : dimensionKeys) {
-    for (int i=0; i < config.getDimensions().size(); i++) {
-      String dimensionName=config.getDimensions().get(i).getName();
-      dimensionValues.get(dimensionName).add(dimensionKey.getDimensionValues()[i]);
-    }
-  }
-  this.recordCount=dimensionKeys.size();
 }

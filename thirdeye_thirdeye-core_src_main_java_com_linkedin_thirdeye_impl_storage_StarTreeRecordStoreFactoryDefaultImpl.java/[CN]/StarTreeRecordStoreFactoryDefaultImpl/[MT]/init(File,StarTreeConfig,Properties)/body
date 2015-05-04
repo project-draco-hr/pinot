@@ -16,6 +16,15 @@ synchronized (sync) {
           this.metricStoreMutable=(Boolean)metricStoreMutableProp;
         }
       }
+      Object dimensionStoreMutableProp=recordStoreConfig.get(PROP_DIMENSION_STORE_MUTABLE);
+      if (dimensionStoreMutableProp != null) {
+        if (dimensionStoreMutableProp instanceof String) {
+          this.dimensionStoreMutable=Boolean.valueOf((String)dimensionStoreMutableProp);
+        }
+ else {
+          this.dimensionStoreMutable=(Boolean)dimensionStoreMutableProp;
+        }
+      }
     }
     File dimensionStore=new File(rootDir,StarTreeConstants.DIMENSION_STORE);
     FileUtils.forceMkdir(dimensionStore);

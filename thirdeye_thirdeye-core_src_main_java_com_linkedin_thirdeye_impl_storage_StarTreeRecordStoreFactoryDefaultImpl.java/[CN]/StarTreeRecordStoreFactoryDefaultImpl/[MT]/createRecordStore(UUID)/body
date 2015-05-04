@@ -1,12 +1,18 @@
 {
 synchronized (sync) {
-    DimensionIndexEntry dimensionIndexEntry=dimensionIndex.get(nodeId);
-    if (dimensionIndexEntry == null) {
-      throw new IllegalArgumentException("No dimension index entry for " + nodeId);
+    DimensionStore dimensionStore;
+    if (dimensionStoreMutable) {
+      dimensionStore=new DimensionStoreMutableImpl(starTreeConfig.getDimensions());
     }
-    DimensionDictionary dictionary=getDictionary(dimensionIndexEntry);
-    ByteBuffer dimensionBuffer=getDimensionBuffer(dimensionIndexEntry);
-    DimensionStore dimensionStore=new DimensionStoreImmutableImpl(starTreeConfig,dimensionBuffer,dictionary);
+ else {
+      DimensionIndexEntry dimensionIndexEntry=dimensionIndex.get(nodeId);
+      if (dimensionIndexEntry == null) {
+        throw new IllegalArgumentException("No dimension index entry for " + nodeId);
+      }
+      DimensionDictionary dictionary=getDictionary(dimensionIndexEntry);
+      ByteBuffer dimensionBuffer=getDimensionBuffer(dimensionIndexEntry);
+      dimensionStore=new DimensionStoreImmutableImpl(starTreeConfig,dimensionBuffer,dictionary);
+    }
     ConcurrentMap<TimeRange,List<ByteBuffer>> metricBuffers=new ConcurrentHashMap<TimeRange,List<ByteBuffer>>();
     List<MetricIndexEntry> metricIndexEntries=metricIndex.get(nodeId);
     if (metricIndexEntries != null) {
