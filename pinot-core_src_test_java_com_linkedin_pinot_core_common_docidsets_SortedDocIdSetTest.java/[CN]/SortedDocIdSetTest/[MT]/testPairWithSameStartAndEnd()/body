@@ -1,5 +1,6 @@
 {
   List<Pair<Integer,Integer>> pairs=new ArrayList<Pair<Integer,Integer>>();
+  pairs.add(Pair.of(1,1));
   SortedDocIdSet sortedDocIdSet=new SortedDocIdSet(pairs);
   BlockDocIdIterator iterator=sortedDocIdSet.iterator();
   List<Integer> result=new ArrayList<Integer>();
@@ -7,5 +8,6 @@
   while ((docId=iterator.next()) != Constants.EOF) {
     result.add(docId);
   }
-  Assert.assertTrue(result.isEmpty(),"Expected empty result set but got:" + result);
+  System.out.println(result);
+  Assert.assertEquals(1,result.size());
 }

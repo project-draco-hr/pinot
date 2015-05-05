@@ -1,0 +1,26 @@
+{
+  String trim=rangeString.replace('[',' ').replace(']',' ').replace('(',' ').replace(')',' ').replaceAll("[\\s]+","");
+  System.out.println("'" + trim + "'");
+  String[] splits=trim.split(",");
+  Assert.assertTrue(splits.length % 2 == 0);
+  List<Integer> expectedList=new ArrayList<Integer>();
+  List<Pair<Integer,Integer>> pairs=new ArrayList<Pair<Integer,Integer>>();
+  for (int i=0; i < splits.length; i+=2) {
+    int start=Integer.parseInt(splits[i]);
+    int end=Integer.parseInt(splits[i + 1]);
+    for (int val=start; val <= end; val++) {
+      expectedList.add(val);
+    }
+    pairs.add(Pair.of(start,end));
+  }
+  SortedDocIdSet sortedDocIdSet=new SortedDocIdSet(pairs);
+  BlockDocIdIterator iterator=sortedDocIdSet.iterator();
+  List<Integer> result=new ArrayList<Integer>();
+  int docId;
+  while ((docId=iterator.next()) != Constants.EOF) {
+    result.add(docId);
+  }
+  Assert.assertEquals(result.size(),expectedList.size());
+  Assert.assertEquals(result,expectedList);
+  System.out.println(result.size());
+}
