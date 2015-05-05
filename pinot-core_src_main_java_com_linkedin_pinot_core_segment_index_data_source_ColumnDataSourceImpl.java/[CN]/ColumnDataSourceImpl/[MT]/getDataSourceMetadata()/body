@@ -4,6 +4,9 @@
       return indexContainer.getColumnMetadata().isSorted();
     }
     @Override public boolean hasInvertedIndex(){
+      if (indexContainer.getColumnMetadata().isSorted()) {
+        return true;
+      }
       return indexContainer.getColumnMetadata().isHasInvertedIndex() && indexContainer.getInvertedIndex() != null;
     }
     @Override public boolean hasDictionary(){

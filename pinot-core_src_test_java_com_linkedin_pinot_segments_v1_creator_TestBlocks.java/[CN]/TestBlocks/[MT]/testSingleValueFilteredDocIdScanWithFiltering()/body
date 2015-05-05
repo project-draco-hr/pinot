@@ -16,10 +16,10 @@
     Predicate p=new EqPredicate(spec.getName(),Lists.newArrayList(e.toString()));
     Block invertedIndexBlock;
     if (columnMetadata.isSorted()) {
-      invertedIndexBlock=new SingleValueBlockWithSortedInvertedIndex(new BlockId(0),(SortedForwardIndexReader)container.getForwardIndex(),container.getInvertedIndex(),dic,columnMetadata);
+      invertedIndexBlock=new SortedSingleValueBlock(new BlockId(0),(SortedForwardIndexReader)container.getForwardIndex(),dic,columnMetadata);
     }
  else {
-      invertedIndexBlock=new SingleValueBlockWithBitmapInvertedIndex(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)container.getForwardIndex(),container.getInvertedIndex(),dic,columnMetadata);
+      invertedIndexBlock=new UnSortedSingleValueBlock(new BlockId(0),(FixedBitCompressedSVForwardIndexReader)container.getForwardIndex(),dic,columnMetadata);
       invertedIndexBlock.applyPredicate(p);
       fwdIdxBlock.applyPredicate(p);
     }

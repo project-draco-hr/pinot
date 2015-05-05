@@ -1,7 +1,9 @@
 {
-  boolean loadInverted=true;
+  boolean loadInverted=false;
   if (indexLoadingConfigMetadata != null) {
-    loadInverted=indexLoadingConfigMetadata.getLoadingInvertedIndexColumns(segmentTableName).contains(column);
+    if (indexLoadingConfigMetadata.getLoadingInvertedIndexColumns(segmentTableName) != null) {
+      loadInverted=indexLoadingConfigMetadata.getLoadingInvertedIndexColumns(segmentTableName).contains(column);
+    }
   }
   File dictionaryFile=new File(indexDir,column + V1Constants.Dict.FILE_EXTENTION);
   ImmutableDictionaryReader dictionary=load(metadata,dictionaryFile,mode);

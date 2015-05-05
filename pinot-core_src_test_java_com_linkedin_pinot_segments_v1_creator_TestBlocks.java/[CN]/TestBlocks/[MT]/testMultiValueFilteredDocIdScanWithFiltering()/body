@@ -15,7 +15,7 @@
     MultiValueBlockWithoutInvertedIndex fwdIdxBlock=new MultiValueBlockWithoutInvertedIndex(new BlockId(0),(FixedBitCompressedMVForwardIndexReader)indexReader,(ImmutableDictionaryReader)dic,columnMetadata);
     Object e=dic.get(new Random().nextInt(dic.length()));
     Predicate p=new EqPredicate(spec.getName(),Lists.newArrayList(e.toString()));
-    Block invertedIndexBlock=new MultiValueBlockWithBitmapInvertedIndex(new BlockId(0),(FixedBitCompressedMVForwardIndexReader)indexReader,reader,(ImmutableDictionaryReader)dic,columnMetadata);
+    Block invertedIndexBlock=new MultiValueBlock(new BlockId(0),(FixedBitCompressedMVForwardIndexReader)indexReader,(ImmutableDictionaryReader)dic,columnMetadata);
     invertedIndexBlock.applyPredicate(p);
     fwdIdxBlock.applyPredicate(p);
     BlockDocIdIterator it1=invertedIndexBlock.getBlockDocIdSet().iterator();
