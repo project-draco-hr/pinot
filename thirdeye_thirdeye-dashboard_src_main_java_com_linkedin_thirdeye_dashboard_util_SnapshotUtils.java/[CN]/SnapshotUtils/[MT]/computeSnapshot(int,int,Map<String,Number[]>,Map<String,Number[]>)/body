@@ -1,0 +1,23 @@
+{
+  double[] ratios=getInitialRatios(numMetrics,baseline,current);
+  String[][] records=new String[numMetrics][];
+  for (int i=0; i < numMetrics; i++) {
+    double ratio=ratios[i];
+    double lo=ratio / 2;
+    double hi=2 * ratio;
+    int steps=25;
+    double stepSize=(hi - lo) / steps;
+    double minCost=computeOneSnapshot(i,maxRecords,lo,baseline,current).getCost();
+    double minRatio=lo;
+    for (int j=1; j < steps; j++) {
+      double currentRatio=lo + i * stepSize;
+      double currentCost=computeOneSnapshot(i,maxRecords,currentRatio,baseline,current).getCost();
+      if (currentCost < minCost) {
+        minCost=currentCost;
+        minRatio=currentRatio;
+      }
+    }
+    records[i]=computeOneSnapshot(i,maxRecords,minRatio,baseline,current).getRecords();
+  }
+  return records;
+}

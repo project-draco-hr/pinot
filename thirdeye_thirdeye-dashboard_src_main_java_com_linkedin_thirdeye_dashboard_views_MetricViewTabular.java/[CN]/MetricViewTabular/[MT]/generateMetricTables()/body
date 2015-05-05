@@ -8,9 +8,13 @@
     while (windowFilled < intraDayPeriod && idx < times.size() - 1) {
       long current=times.get(idx);
       long next=times.get(idx + 1);
+      idx++;
+      int timeIndex=times.indexOf(current - baselineOffsetMillis);
+      if (timeIndex < 0) {
+        continue;
+      }
       long baseline=times.get(times.indexOf(current - baselineOffsetMillis) - 1);
       windowFilled+=(current - next);
-      idx++;
       Number[] currentData=entry.getValue().get(String.valueOf(current));
       Number[] baselineData=entry.getValue().get(String.valueOf(baseline));
       rows.add(0,new MetricTableRow(new DateTime(baseline).toDateTime(DateTimeZone.UTC),baselineData,new DateTime(current).toDateTime(DateTimeZone.UTC),currentData));

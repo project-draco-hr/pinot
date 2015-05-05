@@ -1,0 +1,17 @@
+{
+  Map<String,Number[]> baseline=new HashMap<>(queryResult.getData().size());
+  Map<String,Number[]> current=new HashMap<>(queryResult.getData().size());
+  for (  Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+    List<Long> times=new ArrayList<>(entry.getValue().size());
+    for (    String timeString : entry.getValue().keySet()) {
+      times.add(Long.valueOf(timeString));
+    }
+    Long baselineTime=Collections.min(times);
+    Long currentTime=Collections.max(times);
+    Number[] baselineData=entry.getValue().get(Long.toString(baselineTime));
+    Number[] currentData=entry.getValue().get(Long.toString(currentTime));
+    baseline.put(entry.getKey(),baselineData);
+    current.put(entry.getKey(),currentData);
+  }
+  return computeSnapshot(maxRecords,queryResult.getMetrics().size(),baseline,current);
+}

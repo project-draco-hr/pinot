@@ -1,0 +1,18 @@
+{
+  if (metricsByDimension.isEmpty()) {
+    throw new IllegalArgumentException("Cannot calculate statistics for no metrics");
+  }
+  DescriptiveStatistics[] stats=new DescriptiveStatistics[numMetrics];
+  for (int i=0; i < numMetrics; i++) {
+    stats[i]=new DescriptiveStatistics();
+  }
+  for (  Map.Entry<String,Number[]> entry : metricsByDimension.entrySet()) {
+    Number[] metrics=entry.getValue();
+    for (int i=0; i < metrics.length; i++) {
+      if (metrics[i].doubleValue() != Double.NEGATIVE_INFINITY) {
+        stats[i].addValue(metrics[i].doubleValue());
+      }
+    }
+  }
+  return stats;
+}

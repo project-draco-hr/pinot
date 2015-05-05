@@ -8,8 +8,8 @@
   String currentSeriesSql=SqlUtils.getSql(metricFunction,collection,currentRangeStart,currentRangeEnd,dimensionValues);
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSeriesSql);
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSeriesSql);
-  List<FlotTimeSeries> baselineSeries=FlotTimeSeries.fromQueryResult(objectMapper,baselineResult.get(),BASELINE_LABEL_PREFIX);
-  List<FlotTimeSeries> currentSeries=FlotTimeSeries.fromQueryResult(objectMapper,currentResult.get());
+  List<FlotTimeSeries> baselineSeries=FlotTimeSeries.fromQueryResult(objectMapper,baselineResult.get().checkEmpty(),BASELINE_LABEL_PREFIX);
+  List<FlotTimeSeries> currentSeries=FlotTimeSeries.fromQueryResult(objectMapper,currentResult.get().checkEmpty());
   long offsetMillis=currentMillis - baselineMillis;
   for (  FlotTimeSeries series : baselineSeries) {
     for (    Number[] point : series.getData()) {

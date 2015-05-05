@@ -1,0 +1,19 @@
+{
+  double[] ratios=new double[numMetrics];
+  for (int i=0; i < numMetrics; i++) {
+    double valueT1=0.0;
+    double valueT2=0.0;
+    for (    Map.Entry<String,Number[]> entry : baseline.entrySet()) {
+      String combination=entry.getKey();
+      Number[] baselineData=entry.getValue();
+      Number[] currentData=current.get(combination);
+      if (currentData == null) {
+        continue;
+      }
+      valueT1+=baselineData[i].doubleValue();
+      valueT2+=currentData[i].doubleValue();
+    }
+    ratios[i]=valueT2 / valueT1;
+  }
+  return ratios;
+}
