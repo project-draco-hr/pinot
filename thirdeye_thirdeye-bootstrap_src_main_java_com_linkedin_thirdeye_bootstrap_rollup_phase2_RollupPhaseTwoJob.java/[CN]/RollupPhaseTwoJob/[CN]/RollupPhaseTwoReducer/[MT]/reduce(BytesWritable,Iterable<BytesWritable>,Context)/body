@@ -11,7 +11,7 @@
     map.put(temp.rawDimensionKey,temp.getRawTimeSeries());
     rollupTimeSeries.aggregate(temp.getRawTimeSeries());
   }
-  if (LOG.isDebugEnabled()) {
+  if (LOGGER.isDebugEnabled()) {
     LOGGER.debug(String.format("processing key :%s, size:%d",rollupDimensionKeyMD5Writable.toString(),map.size()));
   }
   for (  Entry<DimensionKey,MetricTimeSeries> entry : map.entrySet()) {
@@ -23,7 +23,7 @@
     valWritable.set(outBytes,0,outBytes.length);
     context.write(keyWritable,valWritable);
   }
-  if (LOG.isDebugEnabled()) {
+  if (LOGGER.isDebugEnabled()) {
     LOGGER.debug(String.format("end processing key :%s",rollupDimensionKeyMD5Writable.toString()));
   }
 }
