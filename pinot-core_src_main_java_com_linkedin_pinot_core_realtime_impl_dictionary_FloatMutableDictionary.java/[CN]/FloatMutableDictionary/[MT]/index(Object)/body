@@ -4,21 +4,26 @@
     return;
   }
   if (rawValue instanceof String) {
-    addToDictionaryBiMap(new Float(Float.parseFloat(rawValue.toString())));
+    Float e=new Float(Float.parseFloat(rawValue.toString()));
+    addToDictionaryBiMap(e);
+    updateMinMax(e);
     return;
   }
   if (rawValue instanceof Float) {
     addToDictionaryBiMap(rawValue);
+    updateMinMax((Float)rawValue);
     return;
   }
   if (rawValue instanceof Object[]) {
     for (    Object o : (Object[])rawValue) {
       if (o instanceof String) {
         addToDictionaryBiMap(new Float(Float.parseFloat(o.toString())));
+        updateMinMax(new Float(Float.parseFloat(o.toString())));
         continue;
       }
       if (o instanceof Float) {
         addToDictionaryBiMap(o);
+        updateMinMax((Float)o);
         continue;
       }
     }

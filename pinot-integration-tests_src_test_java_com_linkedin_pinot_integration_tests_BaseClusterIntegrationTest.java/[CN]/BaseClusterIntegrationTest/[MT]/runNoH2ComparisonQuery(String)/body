@@ -2,6 +2,14 @@
   JSONObject ret=postQuery(pqlQuery);
   ret.put("pql",pqlQuery);
   System.out.println(ret.toString(1));
-  Assert.assertEquals(ret.getJSONArray("exceptions").length(),0);
-  Assert.assertEquals(ret.getLong("totalDocs"),TOTAL_DOCS);
+  try {
+    Assert.assertEquals(ret.getJSONArray("exceptions").length(),0);
+    Assert.assertEquals(ret.getLong("totalDocs"),TOTAL_DOCS);
+  }
+ catch (  AssertionError e) {
+    System.out.println("**********************************");
+    System.out.println(ret.toString(1));
+    System.out.println("**********************************");
+    throw e;
+  }
 }

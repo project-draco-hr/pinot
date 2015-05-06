@@ -22,6 +22,7 @@ case IN:
 final String[] inValues=((InPredicate)predicate).getInRange();
 for (final String value : inValues) {
 final int index=dictionary.indexOf(value);
+System.out.println(index);
 if (index >= 0) {
 dictIds.add(index);
 }
@@ -40,12 +41,18 @@ dictIds.add(i);
 }
 break;
 case RANGE:
+if (dictionary instanceof ImmutableDictionaryReader) {
 int[] rangeStartEndIndex=RangePredicateEvaluator.get().evalStartEndIndex(dictionary,(RangePredicate)predicate);
 int rangeStartIndex=rangeStartEndIndex[0];
 int rangeEndIndex=rangeStartEndIndex[1];
 LOGGER.info("rangeStartIndex:{}, rangeEndIndex:{}",rangeStartIndex,rangeEndIndex);
 for (int i=rangeStartIndex; i <= rangeEndIndex; i++) {
 dictIds.add(i);
+}
+}
+ else {
+dictIds=RangePredicateEvaluator.get().evalRangeDicIdsFromMutableDictionary((MutableDictionaryReader)dictionary,(RangePredicate)predicate);
+Collections.sort(dictIds);
 }
 break;
 default :
