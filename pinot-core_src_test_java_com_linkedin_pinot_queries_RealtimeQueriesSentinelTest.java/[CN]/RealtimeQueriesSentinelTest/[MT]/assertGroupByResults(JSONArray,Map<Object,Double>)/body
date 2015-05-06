@@ -22,6 +22,17 @@
     }
     final double actual=groupResultsFromQuery.get(keyString);
     final double expected=groupResultsFromAvro.get(key);
-    Assert.assertEquals(actual,expected);
+    try {
+      Assert.assertEquals(actual,expected);
+    }
+ catch (    AssertionError e) {
+      System.out.println("*************************");
+      System.out.println("key : " + key);
+      System.out.println("keyString : " + keyString);
+      System.out.println("actual : " + actual);
+      System.out.println("expected : " + expected);
+      System.out.println("*************************");
+      throw e;
+    }
   }
 }

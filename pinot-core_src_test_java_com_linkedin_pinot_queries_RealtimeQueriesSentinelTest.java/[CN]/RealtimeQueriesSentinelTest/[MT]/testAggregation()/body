@@ -1,7 +1,7 @@
 {
   int counter=0;
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
-  final List<TestSimpleAggreationQuery> aggCalls=AVRO_QUERY_GENERATOR.giveMeNSimpleAggregationQueries(100000);
+  final List<TestSimpleAggreationQuery> aggCalls=AVRO_QUERY_GENERATOR.giveMeNSimpleAggregationQueries(10000);
   for (  final TestSimpleAggreationQuery aggCall : aggCalls) {
     LOGGER.info("running " + counter + " : "+ aggCall.pql);
     final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(aggCall.pql));
@@ -16,6 +16,16 @@
     LOGGER.info("Result from avro is : " + aggCall.result);
     Double actual=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getString("value"));
     Double expected=aggCall.result;
-    Assert.assertEquals(actual,expected);
+    try {
+      Assert.assertEquals(actual,expected);
+    }
+ catch (    AssertionError e) {
+      System.out.println("********************************");
+      System.out.println("query : " + aggCall.pql);
+      System.out.println("actual : " + actual);
+      System.out.println("expected : " + aggCall.result);
+      System.out.println("********************************");
+      throw e;
+    }
   }
 }

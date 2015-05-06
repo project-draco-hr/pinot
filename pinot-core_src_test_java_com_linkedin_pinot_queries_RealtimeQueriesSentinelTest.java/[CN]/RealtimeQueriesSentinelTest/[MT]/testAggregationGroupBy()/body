@@ -16,6 +16,16 @@
     BrokerResponse brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
     LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
     JSONArray actual=brokerResponse.getAggregationResults().get(0).getJSONArray("groupByResult");
-    assertGroupByResults(actual,expected);
+    try {
+      assertGroupByResults(actual,expected);
+    }
+ catch (    AssertionError e) {
+      System.out.println("***************************************");
+      System.out.println("query : " + groupBy.pql);
+      System.out.println("actual : " + actual.toString(1));
+      System.out.println("expected : " + groupBy.groupResults);
+      System.out.println("***************************************");
+      throw e;
+    }
   }
 }
