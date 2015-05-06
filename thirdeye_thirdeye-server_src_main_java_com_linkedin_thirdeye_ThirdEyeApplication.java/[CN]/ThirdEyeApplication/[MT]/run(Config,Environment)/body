@@ -23,27 +23,27 @@
         }
         if (config.isAutoConsume()) {
           kafkaConsumerManager.start();
-          LOG.info("Started kafka consumer manager");
+          LOGGER.info("Started kafka consumer manager");
         }
       }
     }
     @Override public void stop() throws Exception {
       try {
         kafkaConsumerManager.stop();
-        LOG.info("Stopped kafka consumer manager");
+        LOGGER.info("Stopped kafka consumer manager");
       }
  catch (      Exception e) {
-        LOG.error("{}",e);
+        LOGGER.error("{}",e);
       }
       try {
         Set<String> collections=new HashSet<String>(starTreeManager.getCollections());
         for (        String collection : collections) {
           starTreeManager.close(collection);
         }
-        LOG.info("Closed star tree manager");
+        LOGGER.info("Closed star tree manager");
       }
  catch (      Exception e) {
-        LOG.error("{}",e);
+        LOGGER.error("{}",e);
       }
     }
   }

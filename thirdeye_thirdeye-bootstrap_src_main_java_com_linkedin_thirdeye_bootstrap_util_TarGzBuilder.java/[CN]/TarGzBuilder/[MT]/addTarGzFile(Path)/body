@@ -8,13 +8,13 @@
     TarArchiveEntry entry=null;
     while ((entry=(TarArchiveEntry)debInputStream.getNextEntry()) != null) {
       if (entries.contains(entry.getName())) {
-        LOG.info("Skipping entry:{} since it was already added",entry.getName());
+        LOGGER.info("Skipping entry:{} since it was already added",entry.getName());
         continue;
       }
       if (entry.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
         continue;
       }
-      LOG.info("Adding entry:" + entry.getName());
+      LOGGER.info("Adding entry:" + entry.getName());
       if (entry.isDirectory()) {
         tarEntry=new TarArchiveEntry(entry.getName());
         tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);

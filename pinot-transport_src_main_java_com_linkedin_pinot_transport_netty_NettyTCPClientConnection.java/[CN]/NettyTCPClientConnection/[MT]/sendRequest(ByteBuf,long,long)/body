@@ -18,7 +18,7 @@ synchronized (_handler) {
         _connState=State.REQUEST_SENT;
       }
  else {
-        LOG.info("Response/Error already arrived !! Checking-in/destroying the connection");
+        LOGGER.info("Response/Error already arrived !! Checking-in/destroying the connection");
         if (_connState == State.GOT_RESPONSE) {
           if (null != _requestCallback) {
             _requestCallback.onSuccess(null);
@@ -36,7 +36,7 @@ synchronized (_handler) {
     }
   }
  catch (  Exception e) {
-    LOG.error("Got exception sending the request to server (" + _server + ") id :"+ _connId,e);
+    LOGGER.error("Got exception sending the request to server (" + _server + ") id :"+ _connId,e);
     _outstandingFuture.get().onError(e);
     if (null != _requestCallback) {
       _requestCallback.onError(e);

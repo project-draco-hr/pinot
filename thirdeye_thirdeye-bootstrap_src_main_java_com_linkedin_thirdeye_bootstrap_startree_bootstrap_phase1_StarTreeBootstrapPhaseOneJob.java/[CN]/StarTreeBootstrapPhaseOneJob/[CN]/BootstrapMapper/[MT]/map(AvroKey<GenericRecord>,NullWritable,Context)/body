@@ -1,14 +1,14 @@
 {
   Object timeObj=record.datum().get(config.getTimeColumnName());
   if (timeObj == null) {
-    LOG.error("Dropping record because " + config.getTimeColumnName() + " is set to null");
+    LOGGER.error("Dropping record because " + config.getTimeColumnName() + " is set to null");
     context.getCounter(StarTreeBootstrapPhase1Counter.NULL_TIME_RECORDS).increment(1);
     return;
   }
   try {
     Long time=Long.parseLong(timeObj.toString());
     if (time == 0) {
-      LOG.error("Dropping record because " + config.getTimeColumnName() + " is set to 0");
+      LOGGER.error("Dropping record because " + config.getTimeColumnName() + " is set to 0");
       context.getCounter(StarTreeBootstrapPhase1Counter.ZERO_TIME_RECORDS).increment(1);
       return;
     }
@@ -56,13 +56,13 @@
   StarTreeRecord starTreeRecord=new StarTreeRecordImpl(starTreeConfig,key,emptyTimeSeries);
   StarTreeJobUtils.collectRecords(starTreeConfig,starTreeRootNode,starTreeRecord,collector);
   if (debug) {
-    LOG.info("processing {}",key);
-    LOG.info("times series {}",series);
+    LOGGER.info("processing {}",key);
+    LOGGER.info("times series {}",series);
   }
   for (  UUID uuid : collector.keySet()) {
     if (!leafNodesMap.containsKey(uuid)) {
       String msg="Got a mapping to non existant leaf node:" + uuid + " - "+ collector.get(uuid)+ " input :"+ starTreeRecord;
-      LOG.error(msg);
+      LOGGER.error(msg);
       throw new RuntimeException(msg);
     }
     List<int[]> leafRecords=nodeIdToleafRecordsMap.get(uuid);
@@ -72,7 +72,7 @@
     String[] dimValues=StarTreeUtils.convertToStringValue(reverseForwardIndex,bestMatch,dimensionNames);
     DimensionKey matchedDimensionKey=new DimensionKey(dimValues);
     if (debug) {
-      LOG.info("Match: {} under {}",matchedDimensionKey,leafNodesMap.get(uuid).getPath());
+      LOGGER.info("Match: {} under {}",matchedDimensionKey,leafNodesMap.get(uuid).getPath());
     }
     BootstrapPhaseMapOutputKey outputKey=new BootstrapPhaseMapOutputKey(uuid,matchedDimensionKey.toMD5());
     BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,series);
@@ -85,6 +85,6 @@
   outputCount=outputCount + collector.size();
   totalTime=totalTime + (end - start);
   if (inputCount % 5000 == 0) {
-    LOG.info("Processed {} in {}. avg time {} avg Fan out:{}",inputCount,totalTime,totalTime / inputCount,(outputCount / inputCount));
+    LOGGER.info("Processed {} in {}. avg time {} avg Fan out:{}",inputCount,totalTime,totalTime / inputCount,(outputCount / inputCount));
   }
 }

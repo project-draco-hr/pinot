@@ -7,12 +7,12 @@
   invertedIndexMap=new HashMap<String,InvertedIndexReader>();
   String tableName=segmentMetadata.getTableName();
   for (  final String column : segmentMetadata.getAllColumns()) {
-    logger.debug("loading dictionary, forwardIndex, inverted index for column : " + column);
+    LOGGER.debug("loading dictionary, forwardIndex, inverted index for column : " + column);
     dictionaryMap.put(column,Loaders.Dictionary.load(segmentMetadata.getColumnMetadataFor(column),new File(indexDir,column + V1Constants.Dict.FILE_EXTENTION),loadMode));
     forwardIndexMap.put(column,Loaders.ForwardIndex.loadFwdIndexForColumn(segmentMetadata.getColumnMetadataFor(column),new File(indexDir,column + V1Constants.Indexes.UN_SORTED_FWD_IDX_FILE_EXTENTION),loadMode));
     if (indexLoadingConfigMetadata == null || (!indexLoadingConfigMetadata.containsTable(tableName)) || indexLoadingConfigMetadata.isLoadingInvertedIndexForColumn(tableName,column)) {
       invertedIndexMap.put(column,Loaders.InvertedIndex.load(segmentMetadata.getColumnMetadataFor(column),indexDir,column,loadMode));
     }
   }
-  logger.info("successfully loaded the index segment : " + indexDir.getName());
+  LOGGER.info("successfully loaded the index segment : " + indexDir.getName());
 }

@@ -1,6 +1,6 @@
 {
   String nodeId=new String(keyWritable.copyBytes());
-  LOG.info("START: processing {}",nodeId);
+  LOGGER.info("START: processing {}",nodeId);
   Map<DimensionKey,MetricTimeSeries> records=new HashMap<DimensionKey,MetricTimeSeries>();
   String dimensionStoreIndexDir=localInputDataDir + "/dimensionStore";
   DimensionDictionary dictionary=new DimensionDictionary(StarTreePersistanceUtil.readForwardIndex(nodeId,dimensionStoreIndexDir));
@@ -35,5 +35,5 @@
   }
   FixedBufferUtil.createLeafBufferFiles(new File(localTmpDataDir),nodeId,starTreeConfig,records,dictionary);
   indexMetadata=new IndexMetadata(minDataTime,maxDataTime);
-  LOG.info("END: processing {}",nodeId);
+  LOGGER.info("END: processing {}",nodeId);
 }

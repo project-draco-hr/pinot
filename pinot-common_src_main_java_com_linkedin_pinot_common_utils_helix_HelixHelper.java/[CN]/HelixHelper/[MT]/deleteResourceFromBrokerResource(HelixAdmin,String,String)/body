@@ -1,5 +1,5 @@
 {
-  logger.info("Trying to mark instance to dropped state");
+  LOGGER.info("Trying to mark instance to dropped state");
   IdealState brokerIdealState=helixAdmin.getResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
   if (brokerIdealState.getPartitionSet().contains(resourceTag)) {
     Map<String,String> instanceStateMap=brokerIdealState.getInstanceStateMap(resourceTag);
@@ -8,7 +8,7 @@
     }
     helixAdmin.setResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,brokerIdealState);
   }
-  logger.info("Trying to remove resource from idealstats");
+  LOGGER.info("Trying to remove resource from idealstats");
   if (brokerIdealState.getPartitionSet().contains(resourceTag)) {
     brokerIdealState.getPartitionSet().remove(resourceTag);
     helixAdmin.setResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,brokerIdealState);

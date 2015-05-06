@@ -1,9 +1,9 @@
 {
   if (!_pinotHelixResourceManager.isLeader()) {
-    logger.info("Skipping validation, not leader!");
+    LOGGER.info("Skipping validation, not leader!");
     return;
   }
-  logger.info("Starting validation");
+  LOGGER.info("Starting validation");
   List<String> allResourceNames=_pinotHelixResourceManager.getAllPinotResourceNames();
   ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
   for (  String resourceName : allResourceNames) {
@@ -57,5 +57,5 @@
       _validationMetrics.updateLastPushTimeGauge(resourceName,tableName,maxSegmentPushTime);
     }
   }
-  logger.info("Validation completed");
+  LOGGER.info("Validation completed");
 }

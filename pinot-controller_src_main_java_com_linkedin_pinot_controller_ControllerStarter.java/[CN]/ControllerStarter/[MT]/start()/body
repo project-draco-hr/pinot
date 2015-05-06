@@ -4,25 +4,25 @@
   component.getClients().add(Protocol.JAR);
   component.getClients().add(Protocol.WAR);
   final Context applicationContext=component.getContext().createChildContext();
-  logger.info("injecting conf and resource manager to the api context");
+  LOGGER.info("injecting conf and resource manager to the api context");
   applicationContext.getAttributes().put(ControllerConf.class.toString(),config);
   applicationContext.getAttributes().put(PinotHelixResourceManager.class.toString(),helixResourceManager);
   controllerRestApp.setContext(applicationContext);
   component.getDefaultHost().attach(controllerRestApp);
   try {
-    logger.info("starting pinot helix resource manager");
+    LOGGER.info("starting pinot helix resource manager");
     helixResourceManager.start();
-    logger.info("starting api component");
+    LOGGER.info("starting api component");
     component.start();
-    logger.info("starting retention manager");
+    LOGGER.info("starting retention manager");
     retentionManager.start();
-    logger.info("starting validation manager");
+    LOGGER.info("starting validation manager");
     validationManager.start();
-    logger.info("starting realtime segments manager");
+    LOGGER.info("starting realtime segments manager");
     realtimeSegmentsManager.start();
   }
  catch (  final Exception e) {
-    logger.error("Caught exception while starting controller",e);
+    LOGGER.error("Caught exception while starting controller",e);
     Utils.rethrowException(e);
     throw new AssertionError("Should not reach this");
   }

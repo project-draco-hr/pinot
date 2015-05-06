@@ -5,7 +5,7 @@
     lock=collectionLocks.get(collection);
   }
   lock.lock();
-  LOG.info("Locked collection {} using lock {} for data delete",collection,lock);
+  LOGGER.info("Locked collection {} using lock {} for data delete",collection,lock);
   try {
     final String dataDirPrefix=StorageUtils.getDataDirPrefix(schedule,minTime,maxTime);
     File collectionDir=new File(rootDir,collection);
@@ -20,11 +20,11 @@
     }
     for (    File dataDir : matchingDirs) {
       FileUtils.forceDelete(dataDir);
-      LOG.info("Deleted {}",dataDir);
+      LOGGER.info("Deleted {}",dataDir);
     }
   }
   finally {
     lock.unlock();
-    LOG.info("Unlocked collection {} using lock {} for data delete",collection,lock);
+    LOGGER.info("Unlocked collection {} using lock {} for data delete",collection,lock);
   }
 }

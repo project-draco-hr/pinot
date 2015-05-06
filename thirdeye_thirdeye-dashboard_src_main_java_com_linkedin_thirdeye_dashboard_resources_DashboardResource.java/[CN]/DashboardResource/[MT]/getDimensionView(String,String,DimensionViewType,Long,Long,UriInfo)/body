@@ -11,7 +11,7 @@ case MULTI_TIME_SERIES:
     if (!dimensionValues.containsKey(dimension)) {
       dimensionValues.put(dimension,"!");
       String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
-      LOG.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
+      LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
       dimensionValues.remove(dimension);
       multiTimeSeriesDimensions.add(dimension);
     }
@@ -22,7 +22,7 @@ for (String dimension : schema.getDimensions()) {
 if (!dimensionValues.containsKey(dimension)) {
   dimensionValues.put(dimension,"!");
   String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
-  LOG.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
+  LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
   dimensionValues.remove(dimension);
   resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
 }

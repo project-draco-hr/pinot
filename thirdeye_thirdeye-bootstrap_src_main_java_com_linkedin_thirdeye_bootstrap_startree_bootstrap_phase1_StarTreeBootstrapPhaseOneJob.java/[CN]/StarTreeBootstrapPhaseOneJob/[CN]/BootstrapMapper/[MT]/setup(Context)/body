@@ -1,5 +1,5 @@
 {
-  LOG.info("StarTreeBootstrapPhaseOneJob.BootstrapMapper.setup()");
+  LOGGER.info("StarTreeBootstrapPhaseOneJob.BootstrapMapper.setup()");
   Configuration configuration=context.getConfiguration();
   FileSystem dfs=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(STAR_TREE_BOOTSTRAP_CONFIG_PATH.toString()));
@@ -39,9 +39,9 @@
     Collection<File> listFiles=FileUtils.listFiles(new File("."),FileFileFilter.FILE,DirectoryFileFilter.DIRECTORY);
     boolean b=true;
     for (    File f : listFiles) {
-      LOG.info(f.getAbsolutePath());
+      LOGGER.info(f.getAbsolutePath());
       if (b && f.getName().endsWith("idx")) {
-        LOG.info(FileUtils.readFileToString(f));
+        LOGGER.info(FileUtils.readFileToString(f));
       }
     }
   }
@@ -50,7 +50,7 @@
   }
   LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTreeRootNode);
-  LOG.info("Num leaf Nodes in star tree:" + leafNodes.size());
+  LOGGER.info("Num leaf Nodes in star tree:" + leafNodes.size());
   leafNodesMap=new HashMap<UUID,StarTreeNode>();
   forwardIndexMap=new HashMap<UUID,Map<String,Map<String,Integer>>>();
   nodeIdToleafRecordsMap=new HashMap<UUID,List<int[]>>();

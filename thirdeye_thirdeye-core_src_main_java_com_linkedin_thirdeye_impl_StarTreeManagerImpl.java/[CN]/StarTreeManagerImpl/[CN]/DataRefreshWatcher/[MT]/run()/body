@@ -10,18 +10,18 @@
       }
       Path dir=keys.get(key);
       if (dir == null) {
-        LOG.error("WatchKey not recognized: {}",key);
+        LOGGER.error("WatchKey not recognized: {}",key);
         continue;
       }
       for (      WatchEvent<?> event : key.pollEvents()) {
         if (event.kind() == OVERFLOW) {
-          LOG.info("Received a overflow event");
+          LOGGER.info("Received a overflow event");
           continue;
         }
         WatchEvent<Path> ev=(WatchEvent<Path>)event;
         Path path=dir.resolve(ev.context());
         File file=path.toFile();
-        LOG.info("{} {}",ev.kind(),path);
+        LOGGER.info("{} {}",ev.kind(),path);
         if (file.getName().startsWith(StorageUtils.getDataDirPrefix())) {
           StorageUtils.waitForModifications(file,REFRESH_WAIT_SLEEP_MILLIS,REFRESH_WAIT_TIMEOUT_MILLIS);
 synchronized (trees) {
@@ -30,23 +30,23 @@ synchronized (trees) {
             StarTreeNode root=(StarTreeNode)inputStream.readObject();
             Map<File,StarTree> existingTrees=trees.get(config.getCollection());
             if (existingTrees == null) {
-              LOG.error("There is a watch on collection {} but no open trees!",config.getCollection());
+              LOGGER.error("There is a watch on collection {} but no open trees!",config.getCollection());
             }
  else {
               StarTree existingTree=existingTrees.get(file);
               if (existingTree != null) {
                 existingTree.close();
-                LOG.info("Closed existing tree {} in {}",existingTree.getRoot().getId(),file);
+                LOGGER.info("Closed existing tree {} in {}",existingTree.getRoot().getId(),file);
               }
               try {
                 StarTree starTree=new StarTreeImpl(config,file,root);
                 starTree.open();
                 trees.get(config.getCollection()).put(file,starTree);
-                LOG.info("Opened tree {} from {}",starTree.getRoot().getId(),file);
+                LOGGER.info("Opened tree {} from {}",starTree.getRoot().getId(),file);
               }
  catch (              Exception e) {
                 if (LOG.isDebugEnabled()) {
-                  LOG.debug("{}",e);
+                  LOGGER.debug("{}",e);
                 }
               }
             }
@@ -55,7 +55,7 @@ synchronized (trees) {
       }
     }
  catch (    Exception e) {
-      LOG.error("{}",e);
+      LOGGER.error("{}",e);
     }
     if (key != null) {
       boolean valid=key.reset();
@@ -71,6 +71,6 @@ synchronized (trees) {
     watchService.close();
   }
  catch (  IOException e) {
-    LOG.warn("Failed to close watcher service ",e);
+    LOGGER.warn("Failed to close watcher service ",e);
   }
 }

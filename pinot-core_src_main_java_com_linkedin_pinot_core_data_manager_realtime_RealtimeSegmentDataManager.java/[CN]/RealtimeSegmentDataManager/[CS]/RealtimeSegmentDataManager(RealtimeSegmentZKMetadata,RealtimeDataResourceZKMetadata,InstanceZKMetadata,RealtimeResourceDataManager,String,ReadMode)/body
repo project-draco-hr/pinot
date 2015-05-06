@@ -46,12 +46,12 @@
       while (index()) {
       }
       segmentStatusTask.cancel();
-      logger.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
-      logger.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
+      LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
+      LOGGER.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
       File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
       RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName());
       try {
-        logger.info("Trying to build segment!");
+        LOGGER.info("Trying to build segment!");
         conveter.build();
         File destDir=new File(resourceDataDir,segmentMetadata.getSegmentName());
         FileUtils.deleteQuietly(destDir);
@@ -76,7 +76,7 @@
         kafkaStreamProvider.shutdown();
       }
  catch (      Exception e) {
-        logger.error("Caught exception in the realtime indexing thread",e);
+        LOGGER.error("Caught exception in the realtime indexing thread",e);
       }
     }
   }

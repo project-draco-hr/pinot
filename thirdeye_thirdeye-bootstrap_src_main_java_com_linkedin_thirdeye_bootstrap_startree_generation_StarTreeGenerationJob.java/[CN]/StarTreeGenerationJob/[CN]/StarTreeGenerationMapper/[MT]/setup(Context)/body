@@ -1,5 +1,5 @@
 {
-  LOG.info("StarTreeGenerationJob.StarTreeGenerationMapper.setup()");
+  LOGGER.info("StarTreeGenerationJob.StarTreeGenerationMapper.setup()");
   mos=new MultipleOutputs<BytesWritable,BytesWritable>(context);
   Configuration configuration=context.getConfiguration();
   FileSystem fileSystem=FileSystem.get(configuration);
@@ -30,7 +30,7 @@
     starTree=new StarTreeImpl(genConfig);
     starTree.open();
     hdfsOutputPath=context.getConfiguration().get(STAR_TREE_GEN_OUTPUT_PATH.toString());
-    LOG.info(genConfig.encode());
+    LOGGER.info(genConfig.encode());
     emptyTimeSeries=new MetricTimeSeries(metricSchema);
   }
  catch (  Exception e) {

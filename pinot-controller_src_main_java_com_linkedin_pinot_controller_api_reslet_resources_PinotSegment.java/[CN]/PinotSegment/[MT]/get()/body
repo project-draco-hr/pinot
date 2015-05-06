@@ -35,7 +35,7 @@
         presentation=new StringRepresentation(ret.toString());
       }
  catch (      Exception e) {
-        logger.warn("Caught exception while fetching offline segment metadata",e);
+        LOGGER.warn("Caught exception while fetching offline segment metadata",e);
         presentation=null;
       }
       try {
@@ -52,14 +52,14 @@
         }
       }
  catch (      Exception e) {
-        logger.warn("Caught exception while fetching realtime segment metadata",e);
+        LOGGER.warn("Caught exception while fetching realtime segment metadata",e);
         throw new RuntimeException("Cannot get matched segment from realtime and offline data resource!",e);
       }
     }
   }
  catch (  final Exception e) {
     presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
-    logger.error("Caught exception while processing get request",e);
+    LOGGER.error("Caught exception while processing get request",e);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;

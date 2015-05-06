@@ -20,7 +20,7 @@
     if (found) {
       rep=new StringRepresentation(dataFile + " sucessfully uploaded",MediaType.TEXT_PLAIN);
       tmpSegmentDir=new File(tempUntarredPath,dataFile.getName() + "-" + conf.getControllerHost()+ "_"+ conf.getControllerPort()+ "-"+ System.currentTimeMillis());
-      logger.info("Untar segment to temp dir: " + tmpSegmentDir);
+      LOGGER.info("Untar segment to temp dir: " + tmpSegmentDir);
       if (tmpSegmentDir.exists()) {
         FileUtils.deleteDirectory(tmpSegmentDir);
       }
@@ -39,19 +39,19 @@
       if (!res.isSuccessfull()) {
         rep=new StringRepresentation(res.errorMessage,MediaType.TEXT_PLAIN);
         setStatus(Status.SERVER_ERROR_INTERNAL);
-        logger.error("Resource manager failed to add segment: " + res.errorMessage);
+        LOGGER.error("Resource manager failed to add segment: " + res.errorMessage);
         FileUtils.deleteQuietly(new File(resourceDir,dataFile.getName()));
       }
     }
  else {
       rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);
-      logger.warn("No file was uploaded");
+      LOGGER.warn("No file was uploaded");
       setStatus(Status.SERVER_ERROR_INTERNAL);
     }
   }
  catch (  final Exception e) {
     rep=exceptionToStringRepresentation(e);
-    logger.error("Caught exception in file upload",e);
+    LOGGER.error("Caught exception in file upload",e);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
  finally {
@@ -60,7 +60,7 @@
         FileUtils.deleteDirectory(tmpSegmentDir);
       }
  catch (      final IOException e) {
-        logger.error("Caught exception in file upload",e);
+        LOGGER.error("Caught exception in file upload",e);
       }
     }
     if ((dataFile != null) && dataFile.exists()) {

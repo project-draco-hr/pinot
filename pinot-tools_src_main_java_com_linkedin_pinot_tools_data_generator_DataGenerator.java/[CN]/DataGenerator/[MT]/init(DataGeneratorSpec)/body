@@ -2,7 +2,7 @@
   genSpec=spec;
   outDir=new File(genSpec.getOutputDir());
   if (outDir.exists() && !genSpec.isOverrideOutDir()) {
-    logger.error("output directory already exists, and override is set to false");
+    LOGGER.error("output directory already exists, and override is set to false");
     throw new RuntimeException("output directory exists");
   }
   if (outDir.exists()) {
@@ -19,7 +19,7 @@
       generators.put(column,GeneratorFactory.getGeneratorFor(dataType,range.getMinimumInteger(),range.getMaximumInteger()));
     }
  else {
-      logger.error("cardinality for this column does not exist : " + column);
+      LOGGER.error("cardinality for this column does not exist : " + column);
       throw new RuntimeException("cardinality for this column does not exist");
     }
     generators.get(column).init();

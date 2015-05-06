@@ -1,12 +1,12 @@
 {
   final String pqlString=getQuery().getValues("pql");
-  logger.info("*** found pql : " + pqlString);
+  LOGGER.info("*** found pql : " + pqlString);
   JSONObject compiledJSON;
   try {
     compiledJSON=compiler.compile(pqlString);
   }
  catch (  final RecognitionException e) {
-    logger.error("Caught exception while processing get request",e);
+    LOGGER.error("Caught exception while processing get request",e);
     return new StringRepresentation(QueryException.PQL_PARSING_ERROR.toString());
   }
   if (!compiledJSON.has("collection")) {
@@ -18,7 +18,7 @@
     resource=collection.substring(0,collection.indexOf("."));
   }
  catch (  final JSONException e) {
-    logger.error("Caught exception while processing get request",e);
+    LOGGER.error("Caught exception while processing get request",e);
     return new StringRepresentation(QueryException.BROKER_RESOURCE_MISSING_ERROR.toString());
   }
   String instanceId=null;
@@ -30,7 +30,7 @@
     }
   }
  catch (  final Exception e) {
-    logger.error("Caught exception while processing get request",e);
+    LOGGER.error("Caught exception while processing get request",e);
     return new StringRepresentation(QueryException.BROKER_INSTANCE_MISSING_ERROR.toString());
   }
   if (instanceId == null) {

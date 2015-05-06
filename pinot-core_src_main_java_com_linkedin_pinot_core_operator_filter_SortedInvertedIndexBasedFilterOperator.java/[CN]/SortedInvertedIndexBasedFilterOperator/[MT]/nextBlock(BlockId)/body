@@ -48,7 +48,7 @@ case RANGE:
 int[] rangeStartEndIndex=RangePredicateEvaluator.get().evalStartEndIndex(dictionary,(RangePredicate)predicate);
 int rangeStartIndex=rangeStartEndIndex[0];
 int rangeEndIndex=rangeStartEndIndex[1];
-LOG.info("rangeStartIndex:{}, rangeEndIndex:{}",rangeStartIndex,rangeEndIndex);
+LOGGER.info("rangeStartIndex:{}, rangeEndIndex:{}",rangeStartIndex,rangeEndIndex);
 for (int i=rangeStartIndex; i <= rangeEndIndex; i++) {
 int[] minMax=invertedIndex.getMinMaxRangeFor(i);
 pairs.add(ImmutablePair.of(minMax[0],minMax[1]));
@@ -57,7 +57,7 @@ break;
 case REGEX:
 throw new UnsupportedOperationException("Regex not supported");
 }
-LOG.info("Creating a Sorted Block with pairs: {}",pairs);
+LOGGER.info("Creating a Sorted Block with pairs: {}",pairs);
 sortedBlock=new SortedBlock(pairs);
 return sortedBlock;
 }

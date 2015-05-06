@@ -1,14 +1,14 @@
 {
-  _logger.info("Trying to add a new segment to resource : " + _resourceName);
+  LOGGER.info("Trying to add a new segment to resource : " + _resourceName);
 synchronized (getGlobalLock()) {
     if (!_segmentsMap.containsKey(indexSegmentToAdd.getSegmentName())) {
-      _logger.info("Trying to add segment - " + indexSegmentToAdd.getSegmentName());
+      LOGGER.info("Trying to add segment - " + indexSegmentToAdd.getSegmentName());
       _segmentsMap.put(indexSegmentToAdd.getSegmentName(),new OfflineSegmentDataManager(indexSegmentToAdd));
       markSegmentAsLoaded(indexSegmentToAdd.getSegmentName());
       _referenceCounts.put(indexSegmentToAdd.getSegmentName(),new AtomicInteger(1));
     }
  else {
-      _logger.info("Trying to refresh segment - " + indexSegmentToAdd.getSegmentName());
+      LOGGER.info("Trying to refresh segment - " + indexSegmentToAdd.getSegmentName());
       OfflineSegmentDataManager segment=_segmentsMap.get(indexSegmentToAdd.getSegmentName());
       _segmentsMap.put(indexSegmentToAdd.getSegmentName(),new OfflineSegmentDataManager(indexSegmentToAdd));
       if (segment != null) {

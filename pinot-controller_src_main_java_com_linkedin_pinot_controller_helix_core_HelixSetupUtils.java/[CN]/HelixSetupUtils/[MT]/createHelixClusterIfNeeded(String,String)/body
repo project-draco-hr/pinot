@@ -1,23 +1,23 @@
 {
   final HelixAdmin admin=new ZKHelixAdmin(zkPath);
   if (admin.getClusters().contains(helixClusterName)) {
-    logger.info("cluster already exist, skipping it.. ********************************************* ");
+    LOGGER.info("cluster already exist, skipping it.. ********************************************* ");
     return;
   }
-  logger.info("Creating a new cluster, as the helix cluster : " + helixClusterName + " was not found ********************************************* ");
+  LOGGER.info("Creating a new cluster, as the helix cluster : " + helixClusterName + " was not found ********************************************* ");
   admin.addCluster(helixClusterName,false);
-  logger.info("Enable auto join.");
+  LOGGER.info("Enable auto join.");
   final HelixConfigScope scope=new HelixConfigScopeBuilder(ConfigScopeProperty.CLUSTER).forCluster(helixClusterName).build();
   final Map<String,String> props=new HashMap<String,String>();
   props.put(ZKHelixManager.ALLOW_PARTICIPANT_AUTO_JOIN,String.valueOf(true));
   admin.setConfig(scope,props);
-  logger.info("Adding state model definition named : " + PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL + " generated using : "+ PinotHelixSegmentOnlineOfflineStateModelGenerator.class.toString()+ " ********************************************** ");
+  LOGGER.info("Adding state model definition named : " + PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL + " generated using : "+ PinotHelixSegmentOnlineOfflineStateModelGenerator.class.toString()+ " ********************************************** ");
   admin.addStateModelDef(helixClusterName,PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL,PinotHelixSegmentOnlineOfflineStateModelGenerator.generatePinotStateModelDefinition());
-  logger.info("Adding state model definition named : " + PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.PINOT_BROKER_RESOURCE_ONLINE_OFFLINE_STATE_MODEL + " generated using : "+ PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.class.toString()+ " ********************************************** ");
+  LOGGER.info("Adding state model definition named : " + PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.PINOT_BROKER_RESOURCE_ONLINE_OFFLINE_STATE_MODEL + " generated using : "+ PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.class.toString()+ " ********************************************** ");
   admin.addStateModelDef(helixClusterName,PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.PINOT_BROKER_RESOURCE_ONLINE_OFFLINE_STATE_MODEL,PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.generatePinotStateModelDefinition());
-  logger.info("Adding empty ideal state for Broker!");
+  LOGGER.info("Adding empty ideal state for Broker!");
   HelixHelper.updateResourceConfigsFor(new HashMap<String,String>(),CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,helixClusterName,admin);
   IdealState idealState=PinotResourceIdealStateBuilder.buildEmptyIdealStateForBrokerResource(admin,helixClusterName);
   admin.setResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,idealState);
-  logger.info("New Cluster setup completed... ********************************************** ");
+  LOGGER.info("New Cluster setup completed... ********************************************** ");
 }

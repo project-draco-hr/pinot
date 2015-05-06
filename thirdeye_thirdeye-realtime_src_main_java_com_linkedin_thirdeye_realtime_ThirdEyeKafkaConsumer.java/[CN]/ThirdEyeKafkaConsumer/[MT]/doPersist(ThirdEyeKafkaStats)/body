@@ -16,11 +16,11 @@
     stats.getLastPersistTimeMillis().set(persistTime);
     starTree.clear();
     if (!kafkaDataDir.setLastModified(stats.getLastPersistTimeMillis().get())) {
-      LOG.warn("Could not trigger watch on collection dir {}",kafkaDataDir.getParentFile());
+      LOGGER.warn("Could not trigger watch on collection dir {}",kafkaDataDir.getParentFile());
     }
   }
  catch (  Exception e) {
-    LOG.error("Error persisting data from Kafka",e);
+    LOGGER.error("Error persisting data from Kafka",e);
   }
  finally {
     persistLock.writeLock().unlock();

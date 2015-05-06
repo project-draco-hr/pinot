@@ -11,13 +11,13 @@
   ServerInstance server=new ServerInstance("localhost",port);
   EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
   NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server,eventLoopGroup,timer,metric);
-  LOG.info("About to connect the client !!");
+  LOGGER.info("About to connect the client !!");
   boolean connected=clientConn.connect();
-  LOG.info("Client connected !!");
+  LOGGER.info("Client connected !!");
   AssertJUnit.assertTrue("connected",connected);
   Thread.sleep(1000);
   String request="dummy request";
-  LOG.info("Sending the request !!");
+  LOGGER.info("Sending the request !!");
   ResponseFuture serverRespFuture=clientConn.sendRequest(Unpooled.wrappedBuffer(request.getBytes()),1L,5000L);
   ByteBuf serverResp=serverRespFuture.getOne();
   clientConn.close();

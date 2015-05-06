@@ -1,7 +1,7 @@
 {
 synchronized (trees) {
     if (!trees.containsKey(collection)) {
-      LOG.info("Creating new startree for {}",collection);
+      LOGGER.info("Creating new startree for {}",collection);
       trees.put(collection,new ConcurrentHashMap<File,StarTree>());
       File collectionDir=new File(rootDir,collection);
       File[] dataDirs=collectionDir.listFiles(new FilenameFilter(){
@@ -23,16 +23,16 @@ synchronized (trees) {
         StarTree starTree=new StarTreeImpl(config,dataDir,root);
         trees.get(collection).put(dataDir,starTree);
         starTree.open();
-        LOG.info("Opened tree {} for collection {}",starTree.getRoot(),collection);
+        LOGGER.info("Opened tree {} for collection {}",starTree.getRoot(),collection);
       }
       openCollections.add(collection);
-      LOG.info("Opened {} trees for collection {}",dataDirs.length,collection);
+      LOGGER.info("Opened {} trees for collection {}",dataDirs.length,collection);
       DataRefreshWatcher refreshWatcher=new DataRefreshWatcher(config);
       refreshWatcher.register(Paths.get(collectionDir.getAbsolutePath()));
       Thread watcherThread=new Thread(refreshWatcher);
       watcherThread.setDaemon(true);
       watcherThread.start();
-      LOG.info("Started watcher on {}",collectionDir.getAbsolutePath());
+      LOGGER.info("Started watcher on {}",collectionDir.getAbsolutePath());
     }
   }
 }

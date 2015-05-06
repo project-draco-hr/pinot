@@ -23,7 +23,7 @@
               consumer.commitOffsets();
             }
  catch (            Exception e) {
-              LOG.error("{}",e);
+              LOGGER.error("{}",e);
             }
           }
         }
@@ -64,7 +64,7 @@
                 }
               }
  catch (              Exception e) {
-                LOG.error("Error consuming message from kafka for {}",starTree.getConfig().getCollection(),e);
+                LOGGER.error("Error consuming message from kafka for {}",starTree.getConfig().getCollection(),e);
                 stats.getRecordsError().mark();
               }
             }
@@ -73,13 +73,13 @@
               consumer.commitOffsets();
             }
  catch (            Exception e) {
-              LOG.error("{}",e);
+              LOGGER.error("{}",e);
             }
           }
         }
 );
       }
     }
-    LOG.info("Started kafka consumer for {}",starTree.getConfig().getCollection());
+    LOGGER.info("Started kafka consumer for {}",starTree.getConfig().getCollection());
   }
 }

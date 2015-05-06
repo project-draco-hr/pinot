@@ -1,13 +1,13 @@
 {
   if (_isStarted) {
-    _logger.warn("RealtimeResourceDataManager is already started.");
+    LOGGER.warn("RealtimeResourceDataManager is already started.");
     return;
   }
   _indexDir=new File(_resourceDataManagerConfig.getDataDir());
   _readMode=ReadMode.valueOf(_resourceDataManagerConfig.getReadMode());
   if (!_indexDir.exists()) {
     if (!_indexDir.mkdir()) {
-      _logger.error("could not create data dir");
+      LOGGER.error("could not create data dir");
     }
   }
   _isStarted=true;

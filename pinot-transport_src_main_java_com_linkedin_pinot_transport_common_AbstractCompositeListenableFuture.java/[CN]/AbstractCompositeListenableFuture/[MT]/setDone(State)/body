@@ -1,5 +1,5 @@
 {
-  LOG.debug("Setting state to :" + state + ", Current State :"+ _state);
+  LOGGER.debug("Setting state to :" + state + ", Current State :"+ _state);
   try {
     _futureLock.lock();
     _state=state;
@@ -12,7 +12,7 @@
     _futureLock.unlock();
   }
   for (int i=0; i < _pendingRunnable.size(); i++) {
-    LOG.info("Running pending runnable :" + i);
+    LOGGER.info("Running pending runnable :" + i);
     Executor e=_pendingRunnableExecutors.get(i);
     if (null != e) {
       e.execute(_pendingRunnable.get(i));

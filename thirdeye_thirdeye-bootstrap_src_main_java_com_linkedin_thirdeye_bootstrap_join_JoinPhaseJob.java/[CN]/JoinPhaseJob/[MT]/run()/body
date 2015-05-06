@@ -5,17 +5,17 @@
   job.setJarByClass(JoinPhaseJob.class);
   FileSystem fs=FileSystem.get(conf);
   String configFilePath=getAndSetConfiguration(conf,JoinPhaseJobConstants.JOIN_CONFIG_PATH);
-  LOG.info("Config File:{}",configFilePath);
+  LOGGER.info("Config File:{}",configFilePath);
   String outputSchemaPath=getAndSetConfiguration(conf,JoinPhaseJobConstants.JOIN_OUTPUT_AVRO_SCHEMA);
   Schema.Parser parser=new Schema.Parser();
   Schema outputSchema=parser.parse(fs.open(new Path(outputSchemaPath)));
-  LOG.info("{}",outputSchema);
+  LOGGER.info("{}",outputSchema);
   Path configPath=new Path(configFilePath);
   JoinPhaseConfig joinPhaseConfig;
   try {
     StarTreeConfig starTreeConfig=StarTreeConfig.decode(fs.open(configPath));
     joinPhaseConfig=JoinPhaseConfig.fromStarTreeConfig(starTreeConfig);
-    LOG.info("Loaded config {}:" + starTreeConfig.encode());
+    LOGGER.info("Loaded config {}:" + starTreeConfig.encode());
   }
  catch (  Exception e) {
     throw new IOException(e);
@@ -37,17 +37,17 @@
  else {
     job.setNumReduceTasks(10);
   }
-  LOG.info("Setting number of reducers : " + job.getNumReduceTasks());
+  LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
   Map<String,String> schemaMap=new HashMap<String,String>();
   Map<String,String> schemaPathMapping=new HashMap<String,String>();
   for (  String sourceName : sourceNames) {
-    LOG.info("Loading Schema for {}",sourceName);
+    LOGGER.info("Loading Schema for {}",sourceName);
     FSDataInputStream schemaStream=fs.open(new Path(getAndCheck(sourceName + "." + JOIN_INPUT_AVRO_SCHEMA.toString())));
     Schema schema=new Schema.Parser().parse(schemaStream);
     schemaMap.put(sourceName,schema.toString());
-    LOG.info("Schema for {}:  \n{}",sourceName,schema);
+    LOGGER.info("Schema for {}:  \n{}",sourceName,schema);
     String inputPathDir=getAndCheck(sourceName + "." + JOIN_INPUT_PATH.toString());
-    LOG.info("Input path dir for " + sourceName + ": "+ inputPathDir);
+    LOGGER.info("Input path dir for " + sourceName + ": "+ inputPathDir);
     for (    String inputPath : inputPathDir.split(",")) {
       Path input=new Path(inputPath);
       FileStatus[] listFiles=fs.listStatus(input);
@@ -56,13 +56,13 @@
         if (fileStatus.isDirectory()) {
           isNested=true;
           Path path=fileStatus.getPath();
-          LOG.info("Adding input:" + path);
+          LOGGER.info("Adding input:" + path);
           FileInputFormat.addInputPath(job,path);
           schemaPathMapping.put(path.toString(),sourceName);
         }
       }
       if (!isNested) {
-        LOG.info("Adding input:" + inputPath);
+        LOGGER.info("Adding input:" + inputPath);
         FileInputFormat.addInputPath(job,input);
         schemaPathMapping.put(input.toString(),sourceName);
       }

@@ -4,11 +4,11 @@
     final JSONObject bqlJson=new JSONObject().put("pql",pqlRequest);
     final String pinotResultString=sendPostRaw(url,bqlJson.toString(),null);
     final long bqlQueryTime=System.currentTimeMillis() - startTime;
-    logger.info("BQL: " + pqlRequest + " Time: "+ bqlQueryTime);
+    LOGGER.info("BQL: " + pqlRequest + " Time: "+ bqlQueryTime);
     return pinotResultString;
   }
  catch (  final Exception ex) {
-    logger.error("Caught exception in sendPQLRaw",ex);
+    LOGGER.error("Caught exception in sendPQLRaw",ex);
     Utils.rethrowException(ex);
     throw new AssertionError("Should not reach this");
   }

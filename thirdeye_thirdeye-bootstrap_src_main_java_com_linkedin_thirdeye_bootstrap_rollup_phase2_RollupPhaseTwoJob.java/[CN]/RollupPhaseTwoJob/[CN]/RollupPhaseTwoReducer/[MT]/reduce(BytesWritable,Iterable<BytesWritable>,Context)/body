@@ -12,7 +12,7 @@
     rollupTimeSeries.aggregate(temp.getRawTimeSeries());
   }
   if (LOG.isDebugEnabled()) {
-    LOG.debug(String.format("processing key :%s, size:%d",rollupDimensionKeyMD5Writable.toString(),map.size()));
+    LOGGER.debug(String.format("processing key :%s, size:%d",rollupDimensionKeyMD5Writable.toString(),map.size()));
   }
   for (  Entry<DimensionKey,MetricTimeSeries> entry : map.entrySet()) {
     RollupPhaseTwoReduceOutput output;
@@ -24,6 +24,6 @@
     context.write(keyWritable,valWritable);
   }
   if (LOG.isDebugEnabled()) {
-    LOG.debug(String.format("end processing key :%s",rollupDimensionKeyMD5Writable.toString()));
+    LOGGER.debug(String.format("end processing key :%s",rollupDimensionKeyMD5Writable.toString()));
   }
 }

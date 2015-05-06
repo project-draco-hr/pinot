@@ -1,11 +1,11 @@
 {
-  LOG.info("DelegatingAvroKeyInputFormat.createRecordReader()  for split:{}",split);
+  LOGGER.info("DelegatingAvroKeyInputFormat.createRecordReader()  for split:{}",split);
   FileSplit fileSplit=(FileSplit)split;
   Configuration configuration=context.getConfiguration();
   String sourceName=getSourceNameFromPath(fileSplit,configuration);
-  LOG.info("Source Name for path {} : {}",fileSplit.getPath(),sourceName);
+  LOGGER.info("Source Name for path {} : {}",fileSplit.getPath(),sourceName);
   Map<String,String> schemaJSONMapping=new ObjectMapper().readValue(configuration.get("schema.json.mapping"),MAP_STRING_STRING_TYPE);
-  LOG.info("Schema JSON Mapping: {}",schemaJSONMapping);
+  LOGGER.info("Schema JSON Mapping: {}",schemaJSONMapping);
   String sourceSchemaJSON=schemaJSONMapping.get(sourceName);
   Schema schema=new Schema.Parser().parse(sourceSchemaJSON);
   return new AvroKeyRecordReader<T>(schema);

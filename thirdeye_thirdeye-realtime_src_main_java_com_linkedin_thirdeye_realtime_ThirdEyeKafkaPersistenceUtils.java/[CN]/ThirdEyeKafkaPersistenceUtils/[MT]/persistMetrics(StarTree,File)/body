@@ -4,7 +4,7 @@
   }
   FileUtils.forceMkdir(THIRDEYE_TMP_DIR);
   final File leafBufferDirectory=new File(THIRDEYE_TMP_DIR,LEAF_BUFFER_DIRECTORY_NAME);
-  LOG.info("Persisting leaf buffers for {}",starTree.getConfig().getCollection());
+  LOGGER.info("Persisting leaf buffers for {}",starTree.getConfig().getCollection());
   starTree.eachLeaf(new StarTreeCallback(){
     @Override public void call(    StarTreeNode node){
       if (node.getRecordStore() == null) {
@@ -20,7 +20,7 @@
       }
       if (!hasData) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("No data for node {} will not write buffer",node.getId());
+          LOGGER.debug("No data for node {} will not write buffer",node.getId());
         }
         return;
       }
@@ -34,7 +34,7 @@
     }
   }
 );
-  LOG.info("Wrote leaf buffers to {}",leafBufferDirectory);
+  LOGGER.info("Wrote leaf buffers to {}",leafBufferDirectory);
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   ObjectOutputStream treeOutputStream=new ObjectOutputStream(baos);
   treeOutputStream.writeObject(starTree.getRoot());
@@ -42,17 +42,17 @@
   InputStream treeInputStream=new ByteArrayInputStream(baos.toByteArray());
   final File combinedBufferDirectory=new File(THIRDEYE_TMP_DIR,COMBINED_BUFFER_DIRECTORY_NAME);
   FixedBufferUtil.combineDataFiles(treeInputStream,leafBufferDirectory,combinedBufferDirectory);
-  LOG.info("Wrote combined leaf buffers for {}",starTree.getConfig().getCollection());
+  LOGGER.info("Wrote combined leaf buffers for {}",starTree.getConfig().getCollection());
   File tmpMetricBufferDirectory=new File(combinedBufferDirectory,StarTreeConstants.METRIC_STORE);
   File[] metricBuffers=tmpMetricBufferDirectory.listFiles();
   if (metricBuffers == null || metricBuffers.length == 0) {
-    LOG.warn("There were no metric buffers in {}",tmpMetricBufferDirectory);
+    LOGGER.warn("There were no metric buffers in {}",tmpMetricBufferDirectory);
   }
  else {
     for (    File metricBuffer : metricBuffers) {
       FileUtils.copyFileToDirectory(metricBuffer,metricStoreDirectory);
-      LOG.info("Copied {} to {}",metricBuffer,metricStoreDirectory);
+      LOGGER.info("Copied {} to {}",metricBuffer,metricStoreDirectory);
     }
-    LOG.info("Successfully persisted metrics for {}",starTree.getConfig().getCollection());
+    LOGGER.info("Successfully persisted metrics for {}",starTree.getConfig().getCollection());
   }
 }

@@ -2,6 +2,6 @@
   GenericRecord record=recordWrapper.datum();
   MapOutputValue mapOutputValue=new MapOutputValue(record.getSchema().getName(),record);
   String joinKeyValue=joinKeyExtractor.extractJoinKey(sourceName,record);
-  LOG.info("Join Key:{}",joinKeyValue);
+  LOGGER.info("Join Key:{}",joinKeyValue);
   context.write(new BytesWritable(joinKeyValue.toString().getBytes()),new BytesWritable(mapOutputValue.toBytes()));
 }

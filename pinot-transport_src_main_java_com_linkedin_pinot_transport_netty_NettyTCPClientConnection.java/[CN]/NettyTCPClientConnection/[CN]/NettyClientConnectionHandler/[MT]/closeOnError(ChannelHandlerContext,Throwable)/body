@@ -8,7 +8,7 @@
     }
     _clientMetric.addRequestResponseStats(_lastRequsetSizeInBytes,1,_lastResponseSizeInBytes,true,(null == _lastSendRequestLatency) ? 0 : _lastSendRequestLatency.getLatencyMs(),(null == _lastSendRequestLatency) ? 0 : _lastResponseLatency.getLatencyMs());
     if ((null != _requestCallback) && (_connState == State.REQUEST_SENT)) {
-      LOG.info("Discarding the connection !!");
+      LOGGER.info("Discarding the connection !!");
       _requestCallback.onError(cause);
     }
     _connState=State.ERROR;

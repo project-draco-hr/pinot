@@ -17,18 +17,18 @@ synchronized (kafkaConsumers) {
       FileInputStream fis=new FileInputStream(new File(latestDataDir,StarTreeConstants.TREE_FILE_NAME));
       ObjectInputStream ois=new ObjectInputStream(fis);
       StarTreeNode root=(StarTreeNode)ois.readObject();
-      LOG.info("Using tree {} from {} for collection {}",root.getId(),latestDataDir,collection);
+      LOGGER.info("Using tree {} from {} for collection {}",root.getId(),latestDataDir,collection);
       File kafkaDataDir=new File(collectionDir,StorageUtils.getDataDirName(root.getId().toString(),"KAFKA",new DateTime(),null));
       FileUtils.forceMkdir(kafkaDataDir);
       FileUtils.copyFile(starTreeFile,new File(kafkaDataDir,StarTreeConstants.TREE_FILE_NAME));
       FileUtils.copyDirectory(new File(latestDataDir,StarTreeConstants.DIMENSION_STORE),new File(kafkaDataDir,StarTreeConstants.DIMENSION_STORE));
-      LOG.info("Bootstrapped {} with tree / dimension store from {}",kafkaDataDir,latestDataDir);
+      LOGGER.info("Bootstrapped {} with tree / dimension store from {}",kafkaDataDir,latestDataDir);
       StarTree mutableTree=new StarTreeImpl(starTreeConfig,kafkaDataDir,root);
       mutableTree.open();
       ThirdEyeKafkaConsumer kafkaConsumer=new ThirdEyeKafkaConsumer(mutableTree,kafkaConfig,executorService,persistScheduler,metricRegistry,kafkaDataDir);
       kafkaConsumers.put(collection,kafkaConsumer);
       kafkaConsumer.start();
-      LOG.info("Started kafka consumer for {}",collection);
+      LOGGER.info("Started kafka consumer for {}",collection);
     }
  else {
       throw new IllegalArgumentException("Could not find " + StarTreeConstants.KAFKA_CONFIG_FILE_NAME + " for collection "+ collection);

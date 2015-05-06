@@ -1,5 +1,5 @@
 {
-  LOG.info("START: serializing star tree and the leaf record dimension store");
+  LOGGER.info("START: serializing star tree and the leaf record dimension store");
   String localOutputDir="./staging";
   LinkedList<StarTreeNode> leafNodes=new LinkedList<StarTreeNode>();
   starTree.close();
@@ -7,7 +7,7 @@
   int prevLeafNodes;
   do {
     prevLeafNodes=leafNodes.size();
-    LOG.info("Number of leaf Nodes" + prevLeafNodes);
+    LOGGER.info("Number of leaf Nodes" + prevLeafNodes);
     for (    StarTreeNode node : leafNodes) {
       String[] values=new String[starTreeConfig.getDimensions().size()];
       for (int i=0; i < starTreeConfig.getDimensions().size(); i++) {
@@ -27,7 +27,7 @@
     }
     leafNodes.clear();
     StarTreeUtils.traverseAndGetLeafNodes(leafNodes,starTree.getRoot());
-    LOG.info("Number of leaf Nodes" + prevLeafNodes);
+    LOGGER.info("Number of leaf Nodes" + prevLeafNodes);
   }
  while (prevLeafNodes != leafNodes.size());
   starTree.close();
@@ -37,18 +37,18 @@
   String treeOutputFileName=collectionName + "-tree.bin";
   src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(localOutputDir + "/" + treeOutputFileName));
   dst=dfs.makeQualified(new Path(hdfsOutputPath,"tree.bin"));
-  LOG.info("Copying " + src + " to "+ dst);
+  LOGGER.info("Copying " + src + " to "+ dst);
   dfs.copyFromLocalFile(src,dst);
   String dimensionStoreOutputDir=localOutputDir + "/" + "dimensionStore";
   new File(dimensionStoreOutputDir).mkdirs();
   StarTreePersistanceUtil.saveLeafDimensionData(starTree,dimensionStoreOutputDir);
-  LOG.info("END: serializing the leaf record dimension store");
+  LOGGER.info("END: serializing the leaf record dimension store");
   String dimensionStoreTarGz=localOutputDir + "/dimensionStore.tar.gz";
-  LOG.info("Generating " + dimensionStoreTarGz + " from "+ dimensionStoreOutputDir);
+  LOGGER.info("Generating " + dimensionStoreTarGz + " from "+ dimensionStoreOutputDir);
   TarGzCompressionUtils.createTarGzOfDirectory(dimensionStoreOutputDir,dimensionStoreTarGz);
   src=FileSystem.getLocal(new Configuration()).makeQualified(new Path(dimensionStoreTarGz));
   dst=dfs.makeQualified(new Path(hdfsOutputPath,"dimensionStore.tar.gz"));
-  LOG.info("Copying " + src + " to "+ dst);
+  LOGGER.info("Copying " + src + " to "+ dst);
   dfs.copyFromLocalFile(src,dst);
   File f=new File(localOutputDir);
   FileUtils.deleteDirectory(f);

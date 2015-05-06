@@ -19,7 +19,7 @@ synchronized (getGlobalLock()) {
 synchronized (getGlobalLock()) {
           if (!_segmentsMap.containsKey(segmentId)) {
             SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,(RealtimeDataResourceZKMetadata)dataResourceZKMetadata,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode);
-            _logger.info("Initialize RealtimeSegmentDataManager - " + segmentId);
+            LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);
             _segmentsMap.put(segmentId,manager);
             _loadingSegments.add(segmentId);
             _referenceCounts.put(segmentId,new AtomicInteger(1));

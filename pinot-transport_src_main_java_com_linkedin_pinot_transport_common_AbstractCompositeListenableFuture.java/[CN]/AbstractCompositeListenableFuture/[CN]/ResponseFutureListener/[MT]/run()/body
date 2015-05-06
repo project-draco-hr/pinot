@@ -1,5 +1,5 @@
 {
-  LOG.debug("Running Future Listener for underlying future for {}",_future.getName());
+  LOGGER.debug("Running Future Listener for underlying future for {}",_future.getName());
   try {
     _futureLock.lock();
     if (_state.isCompleted()) {
@@ -14,10 +14,10 @@
     response=_future.get();
   }
  catch (  InterruptedException e) {
-    LOG.info("Got interrupted waiting for response",e);
+    LOGGER.info("Got interrupted waiting for response",e);
   }
 catch (  ExecutionException e) {
-    LOG.info("Got execution exception waiting for response",e);
+    LOGGER.info("Got execution exception waiting for response",e);
   }
   Map<K,Throwable> error=_future.getError();
   boolean done=processFutureResult(_future.getName(),response,error);

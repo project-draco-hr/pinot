@@ -2,7 +2,7 @@
   KafkaSegmentMetadata kafkaSegmentMetadata=(KafkaSegmentMetadata)segmentMetadata;
   long startOffset=kafkaSegmentMetadata.getStartOffset();
   long endOffset=kafkaSegmentMetadata.getEndOffset();
-  LOG.info("KafkaSegmentMetadataChangeListener.onChange()");
+  LOGGER.info("KafkaSegmentMetadataChangeListener.onChange()");
   if (endOffset > 0) {
     if (realtimeSegmentmanager.hasStarted() && !realtimeSegmentmanager.isClosed()) {
       realtimeSegmentmanager.pause();

@@ -17,14 +17,14 @@
  else {
     job.setNumReduceTasks(10);
   }
-  LOG.info("Setting number of reducers : " + job.getNumReduceTasks());
+  LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
   Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,ROLLUP_PHASE2_INPUT_PATH);
   getAndSetConfiguration(configuration,ROLLUP_PHASE2_CONFIG_PATH);
   getAndSetConfiguration(configuration,ROLLUP_PHASE2_OUTPUT_PATH);
-  LOG.info("Input path dir: " + inputPathDir);
+  LOGGER.info("Input path dir: " + inputPathDir);
   for (  String inputPath : inputPathDir.split(",")) {
-    LOG.info("Adding input:" + inputPath);
+    LOGGER.info("Adding input:" + inputPath);
     Path input=new Path(inputPath);
     FileInputFormat.addInputPath(job,input);
   }
