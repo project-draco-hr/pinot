@@ -5,11 +5,8 @@
   _tmpDir.mkdirs();
   _segmentDir.mkdirs();
   _tarDir.mkdirs();
-  startZk();
-  startController();
-  startBroker();
-  startServer();
-  createOfflineResource("myresource","DaysSinceEpoch","daysSinceEpoch",3000,"DAYS");
+  startCluster();
+  createResource();
   addTableToOfflineResource("myresource","mytable","DaysSinceEpoch","daysSinceEpoch");
   TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset.tar.gz"))),_tmpDir);
   _tmpDir.mkdirs();
@@ -69,7 +66,15 @@
   }
   latch.await();
   TOTAL_DOCS=115545;
-  while (getCurrentServingNumDocs() < TOTAL_DOCS) {
-    Thread.sleep(1000);
+  long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;
+  long numDocs;
+  while ((numDocs=getCurrentServingNumDocs()) < TOTAL_DOCS) {
+    System.out.println("Current number of documents: " + numDocs);
+    if (System.currentTimeMillis() < timeInTwoMinutes) {
+      Thread.sleep(1000);
+    }
+ else {
+      Assert.fail("Segments were not completely loaded within two minutes");
+    }
   }
 }

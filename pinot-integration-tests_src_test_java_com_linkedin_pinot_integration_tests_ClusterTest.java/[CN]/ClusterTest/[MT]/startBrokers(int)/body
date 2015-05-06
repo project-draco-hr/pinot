@@ -1,0 +1,15 @@
+{
+  try {
+    for (int i=0; i < brokerCount; ++i) {
+      final String helixClusterName=getHelixClusterName();
+      Configuration configuration=BrokerTestUtils.getDefaultBrokerConfiguration();
+      configuration.setProperty("pinot.broker.time.out",100 * 1000L);
+      configuration.setProperty("pinot.broker.client.queryPort",Integer.toString(18099 + i));
+      overrideBrokerConf(configuration);
+      _brokerStarters.add(BrokerTestUtils.startBroker(helixClusterName,ZkTestUtils.DEFAULT_ZK_STR,configuration));
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

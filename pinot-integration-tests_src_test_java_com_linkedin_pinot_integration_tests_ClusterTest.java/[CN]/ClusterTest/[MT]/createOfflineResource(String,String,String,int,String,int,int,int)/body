@@ -1,8 +1,9 @@
 {
-  JSONObject payload=ControllerRequestBuilderUtil.buildCreateOfflineResourceJSON(resourceName,1,1);
+  JSONObject payload=ControllerRequestBuilderUtil.buildCreateOfflineResourceJSON(resourceName,instanceCount,replicaCount);
   if (timeColumnName != null && timeColumnType != null) {
     payload=payload.put(DataSource.TIME_COLUMN_NAME,timeColumnName).put(DataSource.TIME_TYPE,timeColumnType);
   }
+  payload.put(DataSource.NUMBER_OF_BROKER_INSTANCES,Integer.toString(brokerCount));
   if (retentionTimeUnit != null) {
     payload.put(DataSource.RETENTION_TIME_UNIT,retentionTimeUnit);
     payload.put(DataSource.RETENTION_TIME_VALUE,retentionTimeValue);
