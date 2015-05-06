@@ -24,10 +24,10 @@ throw new RuntimeException("Unsupported operation for ResourceType: " + resource
 }
 }
  catch (Exception e) {
+LOGGER.error("Caught exception while handling data resource update",e);
 PinotResourceManagerResponse res=new PinotResourceManagerResponse();
 res.errorMessage="ResourceType has to be REALTIME/OFFLINE/HYBRID : " + e.getMessage();
 res.status=STATUS.failure;
-LOGGER.error(e.toString());
 return res;
 }
 }

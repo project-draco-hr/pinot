@@ -8,22 +8,14 @@
       out.writeObject(value);
     }
  catch (    IOException e) {
+      LOGGER.error("Caught exception",e);
+      Utils.rethrowException(e);
     }
     bytes=bos.toByteArray();
   }
   finally {
-    try {
-      if (out != null) {
-        out.close();
-      }
-    }
- catch (    IOException ex) {
-    }
-    try {
-      bos.close();
-    }
- catch (    IOException ex) {
-    }
+    IOUtils.closeQuietly((Closeable)out);
+    IOUtils.closeQuietly(bos);
   }
   return bytes;
 }
