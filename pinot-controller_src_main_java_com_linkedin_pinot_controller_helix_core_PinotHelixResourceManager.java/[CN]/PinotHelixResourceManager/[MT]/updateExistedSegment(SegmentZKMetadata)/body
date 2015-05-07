@@ -19,6 +19,14 @@
     updateSuccessful=helixDataAccessor.updateProperty(idealStatePropertyKey,idealState);
   }
  while (!updateSuccessful);
+  IdealState updatedIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName);
+  Map<String,String> instanceStateMap=updatedIdealState.getInstanceStateMap(segmentName);
+  for (  String state : instanceStateMap.values()) {
+    if (!"OFFLINE".equals(state)) {
+      LOGGER.error("Failed to write OFFLINE ideal state!");
+      return false;
+    }
+  }
   LOGGER.info("Wait until segment - " + segmentName + " to be OFFLINE in ExternalView");
   if (!ifExternalViewChangeReflectedForState(resourceName,segmentName,"OFFLINE",_externalViewOnlineToOfflineTimeout)) {
     LOGGER.error("Cannot get OFFLINE state to be reflected on ExternalView changed for segment: " + segmentName);
@@ -33,6 +41,14 @@
     updateSuccessful=helixDataAccessor.updateProperty(idealStatePropertyKey,idealState);
   }
  while (!updateSuccessful);
+  updatedIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName);
+  instanceStateMap=updatedIdealState.getInstanceStateMap(segmentName);
+  for (  String state : instanceStateMap.values()) {
+    if (!"ONLINE".equals(state)) {
+      LOGGER.error("Failed to write ONLINE ideal state!");
+      return false;
+    }
+  }
   LOGGER.info("Refresh is done for segment - " + segmentName);
   return true;
 }

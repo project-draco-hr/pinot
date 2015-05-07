@@ -17,6 +17,12 @@
         if (updateExistedSegment(offlineSegmentZKMetadata)) {
           res.status=STATUS.success;
         }
+ else {
+          LOGGER.error("Failed to refresh segment {}, marking crc and creation time as invalid",offlineSegmentZKMetadata.getSegmentName());
+          offlineSegmentZKMetadata.setCrc(-1L);
+          offlineSegmentZKMetadata.setCreationTime(-1L);
+          ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
+        }
       }
  else {
         String msg="Not refreshing identical segment " + segmentMetadata.getName() + " with creation time "+ segmentMetadata.getIndexCreationTime()+ " and crc "+ segmentMetadata.getCrc();
