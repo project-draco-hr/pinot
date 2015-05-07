@@ -1,0 +1,15 @@
+{
+  List<SegmentDescriptor> descriptors;
+  HttpGet httpGet=new HttpGet(URI.create(uri));
+  HttpResponse response=httpClient.execute(httpGet);
+  try {
+    descriptors=objectMapper.readValue(response.getEntity().getContent(),new TypeReference<List<SegmentDescriptor>>(){
+    }
+);
+  }
+  finally {
+    EntityUtils.consume(response.getEntity());
+  }
+  LOGGER.info("Cached segment descriptors for {}: {}",uri,descriptors);
+  return descriptors;
+}

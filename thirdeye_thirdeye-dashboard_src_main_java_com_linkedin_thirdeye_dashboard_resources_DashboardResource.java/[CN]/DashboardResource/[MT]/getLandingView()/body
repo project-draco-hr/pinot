@@ -1,4 +1,7 @@
 {
   List<String> collections=dataCache.getCollections(serverUri);
+  if (collections.isEmpty()) {
+    throw new NotFoundException("No collections loaded into " + serverUri);
+  }
   return new LandingView(collections);
 }

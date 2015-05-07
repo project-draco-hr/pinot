@@ -5,10 +5,24 @@
       throw new WebApplicationException(new IllegalArgumentException("No group by dimensions allowed"),Response.Status.BAD_REQUEST);
     }
   }
+  List<SegmentDescriptor> segments=dataCache.getSegmentDescriptors(serverUri,collection);
+  if (segments.isEmpty()) {
+    throw new NotFoundException("No data loaded in server for " + collection);
+  }
+  DateTime earliestDataTime=null;
+  DateTime latestDataTime=null;
+  for (  SegmentDescriptor segment : segments) {
+    if (earliestDataTime == null || segment.getStartDataTime().compareTo(earliestDataTime) < 0) {
+      earliestDataTime=segment.getStartDataTime();
+    }
+    if (latestDataTime == null || segment.getEndDataTime().compareTo(latestDataTime) > 0) {
+      latestDataTime=segment.getEndDataTime();
+    }
+  }
   try {
     View metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
     View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,uriInfo);
-    return new DashboardView(dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType));
+    return new DashboardView(dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime);
   }
  catch (  Exception e) {
     if (e instanceof WebApplicationException) {

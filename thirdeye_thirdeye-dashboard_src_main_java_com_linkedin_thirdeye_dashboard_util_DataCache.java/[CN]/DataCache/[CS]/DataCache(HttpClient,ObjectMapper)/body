@@ -1,4 +1,5 @@
 {
   this.schemas=CacheBuilder.newBuilder().expireAfterWrite(5,TimeUnit.SECONDS).build(new CollectionSchemaCacheLoader(httpClient,objectMapper));
   this.collections=CacheBuilder.newBuilder().expireAfterWrite(5,TimeUnit.SECONDS).build(new CollectionsCacheLoader(httpClient,objectMapper));
+  this.segments=CacheBuilder.newBuilder().expireAfterAccess(5,TimeUnit.MINUTES).build(new SegmentsCacheLoader(httpClient,objectMapper));
 }

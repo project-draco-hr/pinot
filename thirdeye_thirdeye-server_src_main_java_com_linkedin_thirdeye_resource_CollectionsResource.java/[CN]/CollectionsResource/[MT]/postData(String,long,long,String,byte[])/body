@@ -1,5 +1,8 @@
 {
-  dataUpdateManager.updateData(collection,schedule,new DateTime(minTimeMillis),new DateTime(maxTimeMillis),dataBytes);
+  DateTime minTime=new DateTime(minTimeMillis,DateTimeZone.UTC);
+  DateTime maxTime=new DateTime(maxTimeMillis,DateTimeZone.UTC);
+  LOG.info("Received data for {} in {} to {}",collection,minTime,maxTime);
+  dataUpdateManager.updateData(collection,schedule,minTime,maxTime,dataBytes);
   final String collectionName=collection;
   AtomicLong value=lastPostDataMillis.putIfAbsent(collectionName,new AtomicLong(System.currentTimeMillis()));
   if (value == null) {

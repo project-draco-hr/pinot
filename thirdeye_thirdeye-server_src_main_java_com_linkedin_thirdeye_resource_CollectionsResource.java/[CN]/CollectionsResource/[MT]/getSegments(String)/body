@@ -1,0 +1,53 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  if (!collectionDir.exists()) {
+    throw new NotFoundException("No collection " + collection);
+  }
+  StarTreeConfig config=manager.getConfig(collection);
+  if (config == null) {
+    throw new NotFoundException("No config for " + collection);
+  }
+  File[] dataDirs=collectionDir.listFiles(new FilenameFilter(){
+    @Override public boolean accept(    File dir,    String name){
+      return name.startsWith(StorageUtils.getDataDirPrefix());
+    }
+  }
+);
+  List<SegmentDescriptor> descriptors=new ArrayList<>();
+  if (dataDirs != null) {
+    for (    File dataDir : dataDirs) {
+      String[] tokens=dataDir.getName().split("_");
+      DateTime startWallTime=StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(tokens[2]);
+      DateTime endWallTime=StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(tokens[3]);
+      File metadataFile=new File(dataDir,StarTreeConstants.METADATA_FILE_NAME);
+      Properties metadata=new Properties();
+      InputStream inputStream=new FileInputStream(metadataFile);
+      try {
+        metadata.load(inputStream);
+      }
+  finally {
+        inputStream.close();
+      }
+      DateTime minDataTime=null;
+      String minDataTimeProp=metadata.getProperty(StarTreeMetadataProperties.MIN_DATA_TIME);
+      if (minDataTimeProp != null) {
+        long collectionTime=Long.valueOf(minDataTimeProp);
+        long size=config.getTime().getBucket().getSize();
+        TimeUnit unit=config.getTime().getBucket().getUnit();
+        long minTimeMillis=TimeUnit.MILLISECONDS.convert(collectionTime * size,unit);
+        minDataTime=new DateTime(minTimeMillis,DateTimeZone.UTC);
+      }
+      DateTime maxDataTime=null;
+      String maxDataTimeProp=metadata.getProperty(StarTreeMetadataProperties.MAX_DATA_TIME);
+      if (maxDataTimeProp != null) {
+        long collectionTime=Long.valueOf(maxDataTimeProp);
+        long size=config.getTime().getBucket().getSize();
+        TimeUnit unit=config.getTime().getBucket().getUnit();
+        long maxTimeMillis=TimeUnit.MILLISECONDS.convert(collectionTime * size,unit);
+        maxDataTime=new DateTime(maxTimeMillis,DateTimeZone.UTC);
+      }
+      descriptors.add(new SegmentDescriptor(dataDir,startWallTime,endWallTime,minDataTime,maxDataTime));
+    }
+  }
+  return descriptors;
+}
