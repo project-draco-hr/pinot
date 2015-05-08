@@ -13,7 +13,15 @@
       while (realtimeValIterator.hasNext()) {
         int offlineDicId=offlineValIterator.nextIntVal();
         int realtimeDicId=realtimeValIterator.nextIntVal();
-        Assert.assertEquals(offlineMetadata.getDictionary().get(offlineDicId),realtimeMetadata.getDictionary().get(realtimeDicId));
+        try {
+          Assert.assertEquals(offlineMetadata.getDictionary().get(offlineDicId),realtimeMetadata.getDictionary().get(realtimeDicId));
+        }
+ catch (        AssertionError e) {
+          LOGGER.info("column : {}",spec.getName());
+          LOGGER.info("realtimeDicId : {}, rawValue : {}",realtimeDicId,realtimeMetadata.getDictionary().get(realtimeDicId));
+          LOGGER.info("offlineDicId : {}, rawValue : {}",offlineDicId,offlineMetadata.getDictionary().get(offlineDicId));
+          throw e;
+        }
       }
       Assert.assertEquals(offlineValIterator.hasNext(),realtimeValIterator.hasNext());
     }

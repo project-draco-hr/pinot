@@ -1,5 +1,9 @@
 {
-  GenericRow row=realtimeSegment.getRawValueRowAt(counter);
-  counter++;
-  return row;
+  if (docIdIterator == null) {
+    GenericRow row=realtimeSegment.getRawValueRowAt(counter);
+    counter++;
+    return row;
+  }
+  int docId=docIdIterator.next();
+  return realtimeSegment.getRawValueRowAt(docId);
 }

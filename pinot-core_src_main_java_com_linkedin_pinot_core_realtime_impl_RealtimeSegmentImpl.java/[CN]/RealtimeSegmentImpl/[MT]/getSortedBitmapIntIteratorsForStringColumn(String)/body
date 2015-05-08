@@ -1,0 +1,16 @@
+{
+  final RealtimeInvertedIndex index=invertedIndexMap.get(columnToSortOn);
+  final MutableDictionaryReader dictionary=dictionaryMap.get(columnToSortOn);
+  final IntIterator[] intIterators=new IntIterator[dictionary.length()];
+  final List<String> rawValues=new ArrayList<String>();
+  for (int i=0; i < dictionary.length(); i++) {
+    rawValues.add((String)dictionary.get(i));
+  }
+  long start=System.currentTimeMillis();
+  Collections.sort(rawValues);
+  LOGGER.info("dictionary len : {}, time to sort : {} ",dictionary.length(),(System.currentTimeMillis() - start));
+  for (int i=0; i < rawValues.size(); i++) {
+    intIterators[i]=index.getDocIdSetFor(dictionary.indexOf(rawValues.get(i))).getIntIterator();
+  }
+  return intIterators;
+}

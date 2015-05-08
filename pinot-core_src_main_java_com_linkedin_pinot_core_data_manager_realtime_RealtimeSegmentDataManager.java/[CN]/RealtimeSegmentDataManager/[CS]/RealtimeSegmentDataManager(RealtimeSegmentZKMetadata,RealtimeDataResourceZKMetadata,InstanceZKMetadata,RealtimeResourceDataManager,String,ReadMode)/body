@@ -49,7 +49,7 @@
       LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
       LOGGER.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
       File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
-      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName());
+      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),null);
       try {
         LOGGER.info("Trying to build segment!");
         conveter.build();

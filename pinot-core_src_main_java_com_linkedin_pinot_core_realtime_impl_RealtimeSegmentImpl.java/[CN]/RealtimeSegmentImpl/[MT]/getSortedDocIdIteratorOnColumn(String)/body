@@ -1,0 +1,42 @@
+{
+  IntIterator[] iterators=null;
+switch (dataSchema.getFieldSpecFor(columnToSortOn).getDataType()) {
+case INT:
+    iterators=getSortedBitmapIntIteratorsForIntegerColumn(columnToSortOn);
+  break;
+case LONG:
+iterators=getSortedBitmapIntIteratorsForLongColumn(columnToSortOn);
+break;
+case FLOAT:
+iterators=getSortedBitmapIntIteratorsForFloatColumn(columnToSortOn);
+break;
+case DOUBLE:
+iterators=getSortedBitmapIntIteratorsForDoubleColumn(columnToSortOn);
+break;
+case STRING:
+case BOOLEAN:
+iterators=getSortedBitmapIntIteratorsForStringColumn(columnToSortOn);
+break;
+default :
+iterators=null;
+break;
+}
+final IntIterator[] intIterators=iterators;
+return new Iterator<Integer>(){
+int arrayIndex=0;
+@Override public boolean hasNext(){
+return intIterators[intIterators.length - 1].hasNext();
+}
+@Override public Integer next(){
+if (intIterators[arrayIndex].hasNext()) {
+return intIterators[arrayIndex].next();
+}
+arrayIndex+=1;
+return intIterators[arrayIndex].next();
+}
+@Override public void remove(){
+throw new UnsupportedOperationException("remove not supported");
+}
+}
+;
+}
