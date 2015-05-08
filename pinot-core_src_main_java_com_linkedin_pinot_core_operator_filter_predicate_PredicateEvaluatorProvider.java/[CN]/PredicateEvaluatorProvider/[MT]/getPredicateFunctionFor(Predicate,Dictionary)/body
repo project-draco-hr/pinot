@@ -1,0 +1,23 @@
+{
+switch (predicate.getType()) {
+case EQ:
+    return new EqualsPredicateEvaluator((EqPredicate)predicate,dictionary);
+case NEQ:
+  return new NotEqualsPredicateEvaluator((NEqPredicate)predicate,dictionary);
+case IN:
+return new InPredicateEvaluator((InPredicate)predicate,dictionary);
+case NOT_IN:
+return new NotInPredicateEvaluator((NotInPredicate)predicate,dictionary);
+case RANGE:
+if (dictionary instanceof ImmutableDictionaryReader) {
+return new RangeOfflineDictionaryPredicateEvaluator((RangePredicate)predicate,(ImmutableDictionaryReader)dictionary);
+}
+ else {
+return new RangeRealtimeDictionaryPredicateEvaluator((RangePredicate)predicate,(MutableDictionaryReader)dictionary);
+}
+case REGEX:
+throw new UnsupportedOperationException("regex is not supported");
+default :
+throw new UnsupportedOperationException("UnKnown predicate type");
+}
+}
