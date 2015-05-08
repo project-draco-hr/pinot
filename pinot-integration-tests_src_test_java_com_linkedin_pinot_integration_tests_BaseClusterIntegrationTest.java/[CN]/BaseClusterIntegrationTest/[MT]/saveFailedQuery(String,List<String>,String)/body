@@ -1,0 +1,24 @@
+{
+  failedQueryCount++;
+  File file=new File(getClass().getSimpleName() + "-failed.txt");
+  PrintWriter out=null;
+  try {
+    out=new PrintWriter(new FileWriter(file,true));
+    for (    String message : messages) {
+      out.print("# ");
+      out.println(message);
+      LOGGER.warn(message);
+    }
+    out.print(pqlQuery);
+    out.print("\t");
+    out.println(StringUtil.join("\t",sqlQueries.toArray(new String[sqlQueries.size()])));
+    out.println();
+    out.close();
+  }
+ catch (  IOException e) {
+    LOGGER.warn("Failed to write to failed queries file",e);
+  }
+ finally {
+    IOUtils.closeQuietly(out);
+  }
+}

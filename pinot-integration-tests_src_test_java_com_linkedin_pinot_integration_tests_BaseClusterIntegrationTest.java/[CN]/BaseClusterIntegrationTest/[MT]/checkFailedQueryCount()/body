@@ -1,0 +1,18 @@
+{
+  if (GATHER_FAILED_QUERIES && failedQueryCount != 0) {
+    File file=new File(getClass().getSimpleName() + "-failed.txt");
+    PrintWriter out=null;
+    try {
+      out=new PrintWriter(new FileWriter(file,true));
+      out.println("# " + failedQueryCount + "/"+ queryCount+ " queries did not match with H2");
+      out.close();
+    }
+ catch (    IOException e) {
+      LOGGER.warn("Failed to write to failed queries file",e);
+    }
+ finally {
+      IOUtils.closeQuietly(out);
+    }
+  }
+  Assert.assertTrue(failedQueryCount == 0,"Queries have failed during this test.");
+}

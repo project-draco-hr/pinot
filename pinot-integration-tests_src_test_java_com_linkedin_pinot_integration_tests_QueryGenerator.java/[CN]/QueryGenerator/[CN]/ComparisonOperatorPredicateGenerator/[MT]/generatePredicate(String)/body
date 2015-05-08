@@ -1,4 +1,6 @@
 {
   List<String> columnValues=_columnToValueList.get(columnName);
-  return new StringQueryFragment(columnName + " " + pickRandom(_comparisonOperators)+ " "+ pickRandom(columnValues));
+  ValueQueryFragment value=new ValueQueryFragment(pickRandom(columnValues));
+  String comparisonOperator=pickRandom(_comparisonOperators);
+  return new StringQueryFragment(columnName + " " + comparisonOperator+ " "+ value.generatePql(),columnName + " " + comparisonOperator+ " "+ value.generateH2Sql());
 }

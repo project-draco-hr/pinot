@@ -2,12 +2,12 @@
   List<String> queries=new ArrayList<String>();
   if (_groupColumns.isEmpty()) {
     for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
-      queries.add(joinWithSpaces("SELECT",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generatePql(),_limit.generatePql()));
+      queries.add(joinWithSpaces("SELECT",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generateH2Sql(),_limit.generateH2Sql()));
     }
   }
  else {
     for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
-      queries.add(joinWithSpaces("SELECT",joinWithCommas(_groupColumns) + ",",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generatePql(),"GROUP BY",joinWithCommas(_groupColumns),_limit.generatePql()));
+      queries.add(joinWithSpaces("SELECT",joinWithCommas(_groupColumns) + ",",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generateH2Sql(),"GROUP BY",joinWithCommas(_groupColumns),_limit.generateH2Sql()));
     }
   }
   return queries;

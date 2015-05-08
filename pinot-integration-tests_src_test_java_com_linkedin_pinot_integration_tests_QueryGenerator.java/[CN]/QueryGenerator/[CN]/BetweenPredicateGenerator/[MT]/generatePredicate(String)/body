@@ -1,4 +1,6 @@
 {
   List<String> columnValues=_columnToValueList.get(columnName);
-  return new StringQueryFragment(columnName + " BETWEEN " + pickRandom(columnValues)+ " AND "+ pickRandom(columnValues));
+  ValueQueryFragment leftValue=new ValueQueryFragment(pickRandom(columnValues));
+  ValueQueryFragment rightValue=new ValueQueryFragment(pickRandom(columnValues));
+  return new StringQueryFragment(columnName + " BETWEEN " + leftValue.generatePql()+ " AND "+ rightValue.generatePql(),columnName + " BETWEEN " + leftValue.generateH2Sql()+ " AND "+ rightValue.generateH2Sql());
 }

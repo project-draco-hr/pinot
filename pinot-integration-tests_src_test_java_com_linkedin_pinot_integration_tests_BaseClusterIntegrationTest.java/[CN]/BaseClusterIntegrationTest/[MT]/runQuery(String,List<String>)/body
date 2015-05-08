@@ -1,5 +1,6 @@
 {
   try {
+    queryCount++;
     Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
     JSONObject response=postQuery(pqlQuery);
     JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
@@ -15,9 +16,13 @@
       if (bqlValue != null && sqlValue != null) {
         bqlValue=bqlValue.replaceAll("\\..*","");
         sqlValue=sqlValue.replaceAll("\\..*","");
-        LOGGER.info("bql value: " + bqlValue);
-        LOGGER.info("sql value: " + sqlValue);
-        Assert.assertEquals(bqlValue,sqlValue,"Values did not match for query " + pqlQuery);
+      }
+      LOGGER.info("bql value: " + bqlValue);
+      LOGGER.info("sql value: " + sqlValue);
+      if (GATHER_FAILED_QUERIES) {
+        if (!EqualityUtils.isEqual(bqlValue,sqlValue)) {
+          saveFailedQuery(pqlQuery,sqlQueries,"Values did not match for query " + pqlQuery + ", expected "+ sqlValue+ ", got "+ bqlValue);
+        }
       }
  else {
         Assert.assertEquals(bqlValue,sqlValue,"Values did not match for query " + pqlQuery);
@@ -28,42 +33,81 @@
         JSONArray groupByResults=aggregationResultsArray.getJSONObject(aggregationGroupIndex).getJSONArray("groupByResult");
         if (groupByResults.length() != 0) {
           int groupKeyCount=groupByResults.getJSONObject(0).getJSONArray("group").length();
-          Map<String,String> actualValues=new HashMap<String,String>();
+          Map<String,String> actualValues=new TreeMap<String,String>(new NullableStringComparator());
           for (int resultIndex=0; resultIndex < groupByResults.length(); ++resultIndex) {
             JSONArray group=groupByResults.getJSONObject(resultIndex).getJSONArray("group");
-            String pinotGroupKey="";
-            for (int groupKeyIndex=0; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
-              pinotGroupKey+=group.getString(groupKeyIndex) + "\t";
+            String pinotGroupKey=group.getString(0);
+            for (int groupKeyIndex=1; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
+              pinotGroupKey+="\t" + group.getString(groupKeyIndex);
             }
             actualValues.put(pinotGroupKey,Integer.toString((int)Double.parseDouble(groupByResults.getJSONObject(resultIndex).getString("value"))));
           }
-          Map<String,String> correctValues=new HashMap<String,String>();
+          Map<String,String> correctValues=new TreeMap<String,String>(new NullableStringComparator());
           LOGGER.info("Trying to execute sql query: " + sqlQueries.get(aggregationGroupIndex));
           statement.execute(sqlQueries.get(aggregationGroupIndex));
           ResultSet rs=statement.getResultSet();
           LOGGER.info("Trying to get result from sql: " + rs);
           rs.beforeFirst();
           while (rs.next()) {
-            String h2GroupKey="";
-            for (int groupKeyIndex=0; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
-              h2GroupKey+=rs.getString(groupKeyIndex + 1) + "\t";
+            String h2GroupKey=rs.getString(1);
+            for (int groupKeyIndex=1; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
+              h2GroupKey+="\t" + rs.getString(groupKeyIndex + 1);
             }
             correctValues.put(h2GroupKey,rs.getString(groupKeyCount + 1));
           }
           LOGGER.info("Trying to compare result from bql: " + actualValues);
           LOGGER.info("Trying to compare result from sql: " + correctValues);
-          Assert.assertEquals(actualValues,correctValues,"Values did not match while running query : " + pqlQuery + ", sql query: "+ sqlQueries.get(aggregationGroupIndex));
+          if (correctValues.size() < 10000) {
+            Set<String> pinotKeys=actualValues.keySet();
+            for (            String pinotKey : pinotKeys) {
+              if (GATHER_FAILED_QUERIES) {
+                if (!correctValues.containsKey((pinotKey))) {
+                  saveFailedQuery(pqlQuery,sqlQueries,"Result group '" + pinotKey + "' returned by Pinot was not returned by H2 for query "+ pqlQuery,"Bql values: " + actualValues,"Sql values: " + correctValues);
+                  break;
+                }
+ else                 if (!EqualityUtils.isEqual(actualValues.get(pinotKey),correctValues.get(pinotKey))) {
+                  saveFailedQuery(pqlQuery,sqlQueries,"Results differ between Pinot and H2 for query " + pqlQuery + ", expected "+ correctValues.get(pinotKey)+ ", got "+ actualValues.get(pinotKey)+ " for group "+ pinotKey,"Bql values: " + actualValues,"Sql values: " + correctValues);
+                  break;
+                }
+              }
+ else {
+                Assert.assertTrue(correctValues.containsKey(pinotKey),"Result group '" + pinotKey + "' returned by Pinot was not returned by H2 for query "+ pqlQuery);
+                Assert.assertEquals(actualValues.get(pinotKey),correctValues.get(pinotKey),"Results differ between Pinot and H2 for query " + pqlQuery + " and group "+ pinotKey);
+              }
+            }
+          }
+ else {
+            LOGGER.warn("SQL query returned more than 10k rows, skipping comparison");
+            queryCount--;
+          }
         }
  else {
           statement.execute(sqlQueries.get(aggregationGroupIndex));
           ResultSet rs=statement.getResultSet();
-          Assert.assertTrue(rs.isLast(),"Pinot did not return any results while results were expected for query " + pqlQuery);
+          rs.beforeFirst();
+          int rowCount=0;
+          while (rs.next()) {
+            rowCount++;
+          }
+          if (rowCount != 0) {
+            if (GATHER_FAILED_QUERIES) {
+              saveFailedQuery(pqlQuery,sqlQueries,"Pinot did not return any results while " + rowCount + " rows were expected for query "+ pqlQuery);
+            }
+ else {
+              Assert.fail("Pinot did not return any results while " + rowCount + " results were expected for query "+ pqlQuery);
+            }
+          }
         }
       }
     }
   }
  catch (  JSONException exception) {
-    Assert.fail("Query did not return valid JSON while running query " + pqlQuery);
+    if (GATHER_FAILED_QUERIES) {
+      saveFailedQuery(pqlQuery,sqlQueries,"Query did not return valid JSON while running query " + pqlQuery);
+    }
+ else {
+      Assert.fail("Query did not return valid JSON while running query " + pqlQuery);
+    }
   }
   System.out.println();
 }

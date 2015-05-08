@@ -16,7 +16,12 @@
           continue;
         }
  else {
-          value="'" + avroValue.toString().replace("'","''") + "'";
+          if (avroValue instanceof Number) {
+            value=avroValue.toString();
+          }
+ else {
+            value="'" + avroValue.toString().replace("'","''") + "'";
+          }
         }
         values.add(value);
       }

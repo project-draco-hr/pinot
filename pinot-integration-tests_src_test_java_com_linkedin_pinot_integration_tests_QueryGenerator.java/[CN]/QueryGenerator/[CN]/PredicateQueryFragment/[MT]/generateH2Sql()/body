@@ -1,3 +1,15 @@
 {
-  return generatePql();
+  if (_predicates.isEmpty()) {
+    return "";
+  }
+ else   if (_predicates.size() == 1) {
+    return " WHERE " + _predicates.get(0).generateH2Sql();
+  }
+  String h2sql=" WHERE ";
+  int operatorCount=_operators.size();
+  for (int i=0; i < operatorCount; i++) {
+    h2sql+=_predicates.get(i).generateH2Sql() + " " + _operators.get(i).generateH2Sql()+ " ";
+  }
+  h2sql+=_predicates.get(operatorCount).generateH2Sql();
+  return h2sql;
 }
