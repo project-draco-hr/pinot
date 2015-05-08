@@ -61,12 +61,7 @@ if (dataSourceMetadata.isSingleValue() && dataSourceMetadata.isSorted()) {
 baseFilterOperator=new SortedInvertedIndexBasedFilterOperator(ds);
 }
  else {
-if (dataSourceMetadata.hasDictionary()) {
 baseFilterOperator=new ScanBasedFilterOperator(ds);
-}
- else {
-baseFilterOperator=new BitmapBasedFilterOperatorWithoutDictionary(ds);
-}
 }
 }
  else {
