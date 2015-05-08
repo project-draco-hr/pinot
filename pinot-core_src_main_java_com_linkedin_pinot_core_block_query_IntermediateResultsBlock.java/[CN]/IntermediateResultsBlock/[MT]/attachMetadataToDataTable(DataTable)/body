@@ -3,5 +3,10 @@
   dataTable.getMetadata().put(NUM_DOCS_SCANNED,_numDocsScanned + "");
   dataTable.getMetadata().put(TIME_USED_MS,_timeUsedMs + "");
   dataTable.getMetadata().put(TOTAL_DOCS,_totalDocs + "");
+  if (_processingExceptions != null && _processingExceptions.size() > 0) {
+    for (int i=0; i < _processingExceptions.size(); ++i) {
+      dataTable.addException(_processingExceptions.get(i));
+    }
+  }
   return dataTable;
 }

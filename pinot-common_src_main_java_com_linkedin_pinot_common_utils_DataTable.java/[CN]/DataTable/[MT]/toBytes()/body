@@ -18,14 +18,28 @@
   out.writeInt(schemaBytes.length);
   baseOffset+=schemaBytes.length;
   out.writeInt(baseOffset);
-  out.writeInt(fixedSizeDataBytes.length);
-  baseOffset+=fixedSizeDataBytes.length;
+  if (fixedSizeDataBytes == null) {
+    out.writeInt(0);
+  }
+ else {
+    out.writeInt(fixedSizeDataBytes.length);
+    baseOffset+=fixedSizeDataBytes.length;
+  }
   out.writeInt(baseOffset);
-  out.writeInt(variableSizeDataBytes.length);
+  if (variableSizeDataBytes == null) {
+    out.writeInt(0);
+  }
+ else {
+    out.writeInt(variableSizeDataBytes.length);
+  }
   out.write(dictionaryBytes);
   out.write(metadataBytes);
   out.write(schemaBytes);
-  out.write(fixedSizeDataBytes);
-  out.write(variableSizeDataBytes);
+  if (fixedSizeDataBytes != null) {
+    out.write(fixedSizeDataBytes);
+  }
+  if (variableSizeDataBytes != null) {
+    out.write(variableSizeDataBytes);
+  }
   return baos.toByteArray();
 }

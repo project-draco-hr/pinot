@@ -1,0 +1,11 @@
+{
+  Exception exception=new UnsupportedOperationException("msg 0");
+  ProcessingException processingException=QueryException.EXECUTION_TIMEOUT_ERROR.deepCopy();
+  processingException.setMessage(exception.toString());
+  DataTable dataTable=new DataTable();
+  dataTable.addException(processingException);
+  byte[] bytes=dataTable.toBytes();
+  DataTable desDataTable=new DataTable(bytes);
+  String exceptionMsg=desDataTable.getMetadata().get("Exception" + QueryException.EXECUTION_TIMEOUT_ERROR.getErrorCode());
+  org.testng.Assert.assertEquals(exceptionMsg,exception.toString());
+}

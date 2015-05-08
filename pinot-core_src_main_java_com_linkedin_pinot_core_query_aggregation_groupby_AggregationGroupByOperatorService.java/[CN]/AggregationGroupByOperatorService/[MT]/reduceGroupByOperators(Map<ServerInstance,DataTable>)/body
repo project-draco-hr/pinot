@@ -5,7 +5,9 @@
   List<Map<String,Serializable>> reducedResult=null;
   for (  DataTable toBeReducedGroupByResults : instanceResponseMap.values()) {
     if (reducedResult == null) {
-      reducedResult=transformDataTableToGroupByResult(toBeReducedGroupByResults);
+      if (toBeReducedGroupByResults != null) {
+        reducedResult=transformDataTableToGroupByResult(toBeReducedGroupByResults);
+      }
     }
  else {
       List<Map<String,Serializable>> toBeReducedResult=transformDataTableToGroupByResult(toBeReducedGroupByResults);
@@ -21,11 +23,13 @@
       }
     }
   }
-  for (int i=0; i < reducedResult.size(); ++i) {
-    Map<String,Serializable> functionLevelReducedResult=reducedResult.get(i);
-    for (    String key : functionLevelReducedResult.keySet()) {
-      if (functionLevelReducedResult.get(key) != null) {
-        functionLevelReducedResult.put(key,_aggregationFunctionList.get(i).reduce(Arrays.asList(functionLevelReducedResult.get(key))));
+  if (reducedResult != null) {
+    for (int i=0; i < reducedResult.size(); ++i) {
+      Map<String,Serializable> functionLevelReducedResult=reducedResult.get(i);
+      for (      String key : functionLevelReducedResult.keySet()) {
+        if (functionLevelReducedResult.get(key) != null) {
+          functionLevelReducedResult.put(key,_aggregationFunctionList.get(i).reduce(Arrays.asList(functionLevelReducedResult.get(key))));
+        }
       }
     }
   }

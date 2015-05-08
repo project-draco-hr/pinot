@@ -7,6 +7,9 @@
   for (  ServerInstance serverInstance : instanceResponseMap.keySet()) {
     DataTable instanceResponse=instanceResponseMap.get(serverInstance);
     aggregationResultSchema=instanceResponse.getDataSchema();
+    if (aggregationResultSchema == null) {
+      continue;
+    }
     for (int rowId=0; rowId < instanceResponse.getNumberOfRows(); ++rowId) {
       for (int colId=0; colId < brokerRequest.getAggregationsInfoSize(); ++colId) {
 switch (aggregationResultSchema.getColumnType(colId)) {

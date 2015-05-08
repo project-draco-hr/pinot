@@ -3,28 +3,49 @@
   if (instanceResponseMap == null || instanceResponseMap.size() == 0) {
     return BrokerResponse.EMPTY_RESULT;
   }
-  for (  ServerInstance serverInstance : instanceResponseMap.keySet()) {
+  for (  ServerInstance serverInstance : instanceResponseMap.keySet().toArray(new ServerInstance[instanceResponseMap.size()])) {
     DataTable instanceResponse=instanceResponseMap.get(serverInstance);
+    if (instanceResponse == null) {
+      continue;
+    }
+    if (instanceResponse.getDataSchema() == null && instanceResponse.getMetadata() != null) {
+      for (      String key : instanceResponse.getMetadata().keySet()) {
+        if (key.startsWith("Exception")) {
+          ProcessingException processingException=new ProcessingException();
+          processingException.setErrorCode(Integer.parseInt(key.substring(9)));
+          processingException.setMessage(instanceResponse.getMetadata().get(key));
+          brokerResponse.addToExceptions(processingException);
+        }
+      }
+      instanceResponseMap.remove(serverInstance);
+      continue;
+    }
     brokerResponse.setNumDocsScanned(brokerResponse.getNumDocsScanned() + Long.parseLong(instanceResponse.getMetadata().get(NUM_DOCS_SCANNED)));
     brokerResponse.setTotalDocs(brokerResponse.getTotalDocs() + Long.parseLong(instanceResponse.getMetadata().get(TOTAL_DOCS)));
     if (Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)) > brokerResponse.getTimeUsedMs()) {
       brokerResponse.setTimeUsedMs(Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)));
     }
   }
-  if (brokerRequest.isSetSelections() && (brokerRequest.getSelections().getSelectionColumns() != null) && (brokerRequest.getSelections().getSelectionColumns().size() >= 0)) {
-    JSONObject selectionRet=reduceOnSelectionResults(brokerRequest,instanceResponseMap);
-    brokerResponse.setSelectionResults(selectionRet);
-    return brokerResponse;
-  }
-  if (brokerRequest.isSetAggregationsInfo()) {
-    if (!brokerRequest.isSetGroupBy()) {
-      List<List<Serializable>> aggregationResultsList=getShuffledAggregationResults(brokerRequest,instanceResponseMap);
-      brokerResponse.setAggregationResults(reduceOnAggregationResults(brokerRequest,aggregationResultsList));
+  try {
+    if (brokerRequest.isSetSelections() && (brokerRequest.getSelections().getSelectionColumns() != null) && (brokerRequest.getSelections().getSelectionColumns().size() >= 0)) {
+      JSONObject selectionRet=reduceOnSelectionResults(brokerRequest,instanceResponseMap);
+      brokerResponse.setSelectionResults(selectionRet);
+      return brokerResponse;
     }
+    if (brokerRequest.isSetAggregationsInfo()) {
+      if (!brokerRequest.isSetGroupBy()) {
+        List<List<Serializable>> aggregationResultsList=getShuffledAggregationResults(brokerRequest,instanceResponseMap);
+        brokerResponse.setAggregationResults(reduceOnAggregationResults(brokerRequest,aggregationResultsList));
+      }
  else {
-      AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(brokerRequest.getAggregationsInfo(),brokerRequest.getGroupBy());
-      brokerResponse.setAggregationResults(reduceOnAggregationGroupByOperatorResults(aggregationGroupByOperatorService,instanceResponseMap));
+        AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(brokerRequest.getAggregationsInfo(),brokerRequest.getGroupBy());
+        brokerResponse.setAggregationResults(reduceOnAggregationGroupByOperatorResults(aggregationGroupByOperatorService,instanceResponseMap));
+      }
+      return brokerResponse;
     }
+  }
+ catch (  Exception e) {
+    brokerResponse.addToExceptions(QueryException.getException(QueryException.BROKER_GATHER_ERROR,e));
     return brokerResponse;
   }
   throw new UnsupportedOperationException("Should not reach here, the query has no attributes of selection or aggregation!");

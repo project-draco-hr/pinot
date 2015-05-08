@@ -1,0 +1,12 @@
+{
+  final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
+  if (INDEX_DIR.exists()) {
+    FileUtils.deleteQuietly(INDEX_DIR);
+  }
+  INDEX_DIR.mkdir();
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),new File(INDEX_DIR,"segment"),"daysSinceEpoch",TimeUnit.DAYS,resource,resource);
+  final SegmentIndexCreationDriver driver=new SegmentIndexCreationDriverImpl();
+  driver.init(config);
+  driver.build();
+  System.out.println("built at : " + INDEX_DIR.getAbsolutePath());
+}

@@ -1,0 +1,15 @@
+{
+  String query="select sudm(blablaa) from mirror where viewerId='24516187'";
+  LOGGER.info("running  : " + query);
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(query));
+  InstanceRequest instanceRequest=new InstanceRequest(1,brokerRequest);
+  instanceRequest.setSearchSegments(new ArrayList<String>());
+  instanceRequest.getSearchSegments().add(segmentName);
+  final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
+  instanceResponseMap.clear();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
+  final BrokerResponse brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  LOGGER.info("BrokerResponse is {}",brokerResponse);
+  Assert.assertTrue(brokerResponse.getExceptionsSize() > 0);
+}

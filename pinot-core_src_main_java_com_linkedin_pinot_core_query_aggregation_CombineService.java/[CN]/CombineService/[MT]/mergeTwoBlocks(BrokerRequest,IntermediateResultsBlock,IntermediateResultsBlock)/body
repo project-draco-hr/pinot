@@ -1,4 +1,11 @@
 {
+  if (blockToMerge == null) {
+    return;
+  }
+  if (mergedBlock == null) {
+    mergedBlock=blockToMerge;
+    return;
+  }
   mergedBlock.setNumDocsScanned(mergedBlock.getNumDocsScanned() + blockToMerge.getNumDocsScanned());
   mergedBlock.setTotalDocs(mergedBlock.getTotalDocs() + blockToMerge.getTotalDocs());
   if (brokerRequest.isEnableTrace()) {
