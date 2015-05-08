@@ -1,0 +1,11 @@
+@pinotui.route('/authinfo')
+def authinfo():
+    try:
+        is_authenticated = g.identity._is_authenticated
+        try:
+            username = g.identity.get_username()
+        except:
+            username = None
+        return jsonify(dict(success=True, supported=True, authed=is_authenticated, username=username))
+    except:
+        return jsonify(dict(success=True, supported=False))
