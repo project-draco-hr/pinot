@@ -1,32 +1,13 @@
 {
   if (!blockReturned) {
     blockReturned=true;
-    if (!isPredicateEvaluated && predicate != null) {
-      if (dictionary != null) {
-        if (invertedIndex != null) {
-          evalPredicateWithDictAndInvIdx();
-        }
- else {
-          throw new RuntimeException("Found column - " + fieldSpec.getName() + " has dictionary, but no inverted index.");
-        }
-      }
- else {
-        evalPredicateNoDictHasInvIdx();
-      }
-      isPredicateEvaluated=true;
-    }
+    isPredicateEvaluated=true;
     if (fieldSpec.isSingleValueField()) {
       Block SvBlock=new RealtimeSingleValueBlock(filteredDocIdBitmap,fieldSpec,dictionary,offset,(FixedByteSingleColumnSingleValueReaderWriter)indexReader);
-      if (predicate != null) {
-        SvBlock.applyPredicate(predicate);
-      }
       return SvBlock;
     }
  else {
       Block mvBlock=new RealtimeMultiValueBlock(fieldSpec,dictionary,filteredDocIdBitmap,offset,maxNumberOfMultiValues,(FixedByteSingleColumnMultiValueReaderWriter)indexReader);
-      if (predicate != null) {
-        mvBlock.applyPredicate(predicate);
-      }
       return mvBlock;
     }
   }
