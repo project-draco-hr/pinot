@@ -12,6 +12,9 @@
     dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
   }
   dictionaryMap.put(outgoingTimeColumnName,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(outgoingTimeColumnName)));
+  for (  String metric : dataSchema.getMetricNames()) {
+    dictionaryMap.put(metric,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(metric)));
+  }
   docIdGenerator=new AtomicInteger(-1);
   timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema);
   columnIndexReaderWriterMap=new HashMap<String,DataFileReader>();
@@ -27,7 +30,7 @@
   }
   for (  String metric : schema.getMetricNames()) {
     invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
-    columnIndexReaderWriterMap.put(metric,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.getSingleValueColumnSizeFor(schema.getFieldSpecFor(metric))));
+    columnIndexReaderWriterMap.put(metric,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
   }
   invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
   columnIndexReaderWriterMap.put(outgoingTimeColumnName,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));

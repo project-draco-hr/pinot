@@ -1,7 +1,7 @@
 {
   FieldSpec fieldSpec=dataSchema.getFieldSpecFor(columnName);
   if (fieldSpec.getFieldType() == FieldType.METRIC) {
-    return new RealtimeColumnDataSource(fieldSpec,columnIndexReaderWriterMap.get(columnName),invertedIndexMap.get(columnName),docIdSearchableOffset,-1,dataSchema,null);
+    return new RealtimeColumnDataSource(fieldSpec,columnIndexReaderWriterMap.get(columnName),invertedIndexMap.get(columnName),docIdSearchableOffset,-1,dataSchema,dictionaryMap.get(columnName));
   }
   return new RealtimeColumnDataSource(fieldSpec,columnIndexReaderWriterMap.get(columnName),invertedIndexMap.get(columnName),docIdSearchableOffset,maxNumberOfMultivaluesMap.get(columnName),dataSchema,dictionaryMap.get(columnName));
 }
