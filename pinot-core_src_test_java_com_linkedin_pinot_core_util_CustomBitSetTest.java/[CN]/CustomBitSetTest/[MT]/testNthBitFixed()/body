@@ -1,0 +1,14 @@
+{
+  final int LENGTH=256;
+  int setBitIndex=8;
+  int searchStartIndex=1;
+  CustomBitSet customBitSet=CustomBitSet.withBitLength(LENGTH);
+  customBitSet.setBit(setBitIndex);
+  int foundSetBitIndex=customBitSet.nextSetBit(searchStartIndex);
+  if (searchStartIndex <= setBitIndex) {
+    Assert.assertEquals(foundSetBitIndex,setBitIndex,"Found bit at index " + foundSetBitIndex + " while it was set at "+ setBitIndex+ " searching from "+ searchStartIndex);
+  }
+ else {
+    Assert.assertEquals(foundSetBitIndex,-1,"Found bit at index " + foundSetBitIndex + " while it was set at "+ setBitIndex+ " searching from "+ searchStartIndex);
+  }
+}

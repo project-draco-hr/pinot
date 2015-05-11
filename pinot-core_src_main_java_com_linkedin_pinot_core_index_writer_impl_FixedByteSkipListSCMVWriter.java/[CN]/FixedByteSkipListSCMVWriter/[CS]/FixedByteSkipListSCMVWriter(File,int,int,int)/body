@@ -1,0 +1,16 @@
+{
+  float averageValuesPerDoc=totalNumValues / numDocs;
+  this.docsPerChunk=(int)(Math.ceil(PREFERRED_NUM_VALUES_PER_CHUNK / averageValuesPerDoc));
+  this.numChunks=(numDocs + docsPerChunk - 1) / docsPerChunk;
+  chunkOffsetHeaderSize=numChunks * SIZE_OF_INT * NUM_COLS_IN_HEADER;
+  bitsetSize=(totalNumValues + 7) / 8;
+  rawDataSize=totalNumValues * columnSizeInBytes;
+  totalSize=chunkOffsetHeaderSize + bitsetSize + rawDataSize;
+  raf=new RandomAccessFile(file,"rw");
+  chunkOffsetsBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,chunkOffsetHeaderSize);
+  bitsetBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize,bitsetSize);
+  rawDataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize + bitsetSize,rawDataSize);
+  chunkOffsetsWriter=new FixedByteWidthRowColDataFileWriter(chunkOffsetsBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT});
+  customBitSet=CustomBitSet.withByteBuffer(bitsetSize,bitsetBuffer);
+  rawDataWriter=new FixedByteWidthRowColDataFileWriter(rawDataBuffer,totalNumValues,1,new int[]{columnSizeInBytes});
+}

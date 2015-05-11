@@ -1,0 +1,30 @@
+{
+  this.totalNumValues=totalNumValues;
+  float averageValuesPerDoc=totalNumValues / numDocs;
+  this.docsPerChunk=(int)(Math.ceil(PREFERRED_NUM_VALUES_PER_CHUNK / averageValuesPerDoc));
+  this.numChunks=(numDocs + docsPerChunk - 1) / docsPerChunk;
+  chunkOffsetHeaderSize=numChunks * SIZE_OF_INT * NUM_COLS_IN_HEADER;
+  bitsetSize=(totalNumValues + 7) / 8;
+  rawDataSize=totalNumValues * columnSizeInBytes;
+  totalSize=chunkOffsetHeaderSize + bitsetSize + rawDataSize;
+  raf=new RandomAccessFile(file,"rw");
+  if (isMmap) {
+    chunkOffsetsBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,chunkOffsetHeaderSize);
+    chunkOffsetsReader=new FixedByteWidthRowColDataFileReader(chunkOffsetsBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT});
+    bitsetBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize,bitsetSize);
+    customBitSet=CustomBitSet.withByteBuffer(bitsetSize,bitsetBuffer);
+    rawDataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize + bitsetSize,rawDataSize);
+    rawDataReader=new FixedByteWidthRowColDataFileReader(rawDataBuffer,totalNumValues,1,new int[]{columnSizeInBytes});
+  }
+ else {
+    chunkOffsetsBuffer=ByteBuffer.allocate(chunkOffsetHeaderSize);
+    raf.getChannel().read(chunkOffsetsBuffer);
+    chunkOffsetsReader=new FixedByteWidthRowColDataFileReader(chunkOffsetsBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT});
+    bitsetBuffer=ByteBuffer.allocate(bitsetSize);
+    raf.getChannel().read(bitsetBuffer);
+    customBitSet=CustomBitSet.withByteBuffer(bitsetSize,bitsetBuffer);
+    rawDataBuffer=ByteBuffer.allocate(rawDataSize);
+    raf.getChannel().read(rawDataBuffer);
+    rawDataReader=new FixedByteWidthRowColDataFileReader(rawDataBuffer,totalNumValues,1,new int[]{columnSizeInBytes});
+  }
+}

@@ -1,0 +1,9 @@
+{
+  int chunkId=row / docsPerChunk;
+  int chunkIdOffset=chunkOffsetsReader.getInt(chunkId,0);
+  if (row % docsPerChunk == 0) {
+    return chunkIdOffset;
+  }
+  int rowOffSetStart=customBitSet.findNthBitSetAfter(chunkIdOffset,row - chunkId * docsPerChunk);
+  return rowOffSetStart;
+}
