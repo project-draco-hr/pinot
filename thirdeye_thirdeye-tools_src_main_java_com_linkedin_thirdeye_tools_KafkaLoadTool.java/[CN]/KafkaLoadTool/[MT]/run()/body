@@ -13,7 +13,7 @@
   while (fileReader.hasNext()) {
     fileReader.next(record);
     baos.reset();
-    encoder=EncoderFactory.get().binaryEncoder(baos,encoder);
+    encoder=new BinaryEncoder(baos);
     datumWriter.write(record,encoder);
     encoder.flush();
     byte[] bytes=baos.toByteArray();

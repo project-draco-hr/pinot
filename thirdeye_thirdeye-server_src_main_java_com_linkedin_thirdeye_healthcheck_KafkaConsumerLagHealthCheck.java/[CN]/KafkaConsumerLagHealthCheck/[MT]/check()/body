@@ -1,13 +1,11 @@
 {
-  Map<String,Map<String,ThirdEyeKafkaStats>> stats=kafkaConsumerManager.getStats();
+  Map<String,ThirdEyeKafkaStats> stats=kafkaConsumerManager.getStats();
   StringBuilder errorMessage=new StringBuilder();
-  for (  Map.Entry<String,Map<String,ThirdEyeKafkaStats>> collectionEntry : stats.entrySet()) {
-    for (    Map.Entry<String,ThirdEyeKafkaStats> streamEntry : collectionEntry.getValue().entrySet()) {
-      long currentTimeMillis=System.currentTimeMillis();
-      long consumerTimeMillis=streamEntry.getValue().getLastConsumedRecordTimeMillis().get();
-      if (currentTimeMillis - consumerTimeMillis > MINIMUM_ACCEPTABLE_CONSUMER_LAG_MILLIS) {
-        errorMessage.append("collection=").append(collectionEntry.getKey()).append(" kafkaTopic=").append(streamEntry.getKey()).append(" currentTimeMillis=").append(currentTimeMillis).append(" consumerTimeMillis=").append(consumerTimeMillis).append(" difference of ").append(currentTimeMillis - consumerTimeMillis).append(" is greater than acceptable data lag of ").append(MINIMUM_ACCEPTABLE_CONSUMER_LAG_MILLIS).append("\n");
-      }
+  for (  Map.Entry<String,ThirdEyeKafkaStats> entry : stats.entrySet()) {
+    long currentTimeMillis=System.currentTimeMillis();
+    long consumerTimeMillis=entry.getValue().getLastConsumedRecordTimeMillis().get();
+    if (currentTimeMillis - consumerTimeMillis > MINIMUM_ACCEPTABLE_CONSUMER_LAG_MILLIS) {
+      errorMessage.append("collection=").append(entry.getKey()).append(" currentTimeMillis=").append(currentTimeMillis).append(" consumerTimeMillis=").append(consumerTimeMillis).append(" difference of ").append(currentTimeMillis - consumerTimeMillis).append(" is greater than acceptable data lag of ").append(MINIMUM_ACCEPTABLE_CONSUMER_LAG_MILLIS).append("\n");
     }
   }
   if (errorMessage.length() > 0) {

@@ -1,0 +1,36 @@
+{
+  File collectionDir=new File(rootDir,collection);
+  File configFile=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
+  FileUtils.forceMkdir(collectionDir);
+  ObjectMapper objectMapper=new ObjectMapper();
+  objectMapper.writeValue(configFile,baseConfig);
+  StarTree starTree=new StarTreeImpl(config);
+  starTree.open();
+  for (int i=0; i < 10000; i++) {
+    String[] combination=new String[]{"A" + (i % 2),"B" + (i % 4),"C" + (i % 8)};
+    MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+    for (int j=0; j < 4; j++) {
+      timeSeries.increment(j,"M",1);
+    }
+    StarTreeRecord record=new StarTreeRecordImpl(config,new DimensionKey(combination),timeSeries);
+    starTree.add(record);
+  }
+  StarTreeQuery query=new StarTreeQueryImpl(config,new DimensionKey(new String[]{"*","*","*"}),new TimeRange(0L,0L));
+  MetricTimeSeries result=starTree.getTimeSeries(query);
+  Assert.assertEquals(result.get(0,"M"),10000);
+  String collection=config.getCollection();
+  String schedule="ONCE";
+  DateTime minTime=new DateTime(0);
+  DateTime maxTime=new DateTime(4);
+  String treeId=starTree.getRoot().getId().toString();
+  dataUpdateManager.persistTree(collection,schedule,minTime,maxTime,starTree);
+  File dataDir=new File(collectionDir,StorageUtils.getDataDirName(treeId,schedule,minTime,maxTime));
+  Assert.assertTrue(dataDir.exists());
+  StarTreeManager manager=new StarTreeManagerImpl();
+  manager.restore(rootDir,collection);
+  Map<File,StarTree> starTrees=manager.getStarTrees(collection);
+  Assert.assertEquals(starTrees.size(),1);
+  StarTree restoredTree=starTrees.values().iterator().next();
+  result=restoredTree.getTimeSeries(query);
+  Assert.assertEquals(result.get(0,"M"),10000);
+}

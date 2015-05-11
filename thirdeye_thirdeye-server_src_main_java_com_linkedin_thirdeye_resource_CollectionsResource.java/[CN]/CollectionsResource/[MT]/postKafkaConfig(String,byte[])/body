@@ -7,6 +7,6 @@
     throw new WebApplicationException(Response.Status.BAD_REQUEST);
   }
   File configFile=new File(collectionDir,StarTreeConstants.KAFKA_CONFIG_FILE_NAME);
-  FileUtils.copyInputStreamToFile(new ByteArrayInputStream(kafkaConfigBytes),configFile);
+  IOUtils.copy(new ByteArrayInputStream(kafkaConfigBytes),new FileOutputStream(configFile));
   return Response.ok().build();
 }

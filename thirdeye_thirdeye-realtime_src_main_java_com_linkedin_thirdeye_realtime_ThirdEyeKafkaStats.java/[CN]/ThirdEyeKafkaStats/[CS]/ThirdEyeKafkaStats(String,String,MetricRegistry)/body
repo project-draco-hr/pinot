@@ -1,28 +1,46 @@
 {
-  this.recordsAdded=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_ADDED));
-  this.recordsError=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_ERROR));
-  this.recordsSkippedInvalid=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED_INVALID));
-  this.recordsSkippedExpired=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED_EXPIRED));
-  this.bytesRead=metricRegistry.meter(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,BYTES_READ));
-  metricRegistry.register(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_PERSIST_TIME_MILLIS),new Gauge<Long>(){
+  String recordsAddedName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_ADDED);
+  metricRegistry.remove(recordsAddedName);
+  this.recordsAdded=metricRegistry.meter(recordsAddedName);
+  String recordsErrorName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_ERROR);
+  metricRegistry.remove(recordsErrorName);
+  this.recordsError=metricRegistry.meter(recordsErrorName);
+  String recordsSkippedInvalidName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED_INVALID);
+  metricRegistry.remove(recordsSkippedInvalidName);
+  this.recordsSkippedInvalid=metricRegistry.meter(recordsSkippedInvalidName);
+  String recordsSkippedExpiredName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,RECORDS_SKIPPED_EXPIRED);
+  metricRegistry.remove(recordsSkippedExpiredName);
+  this.recordsSkippedExpired=metricRegistry.meter(recordsSkippedExpiredName);
+  String bytesReadName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,BYTES_READ);
+  metricRegistry.remove(bytesReadName);
+  this.bytesRead=metricRegistry.meter(bytesReadName);
+  String lastPersistTimeMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_PERSIST_TIME_MILLIS);
+  metricRegistry.remove(lastPersistTimeMillisName);
+  metricRegistry.register(lastPersistTimeMillisName,new Gauge<Long>(){
     @Override public Long getValue(){
       return lastPersistTimeMillis.get();
     }
   }
 );
-  metricRegistry.register(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_CONSUMED_RECORD_TIME_MILLIS),new Gauge<Long>(){
+  String lastConsumedRecordTimeMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_CONSUMED_RECORD_TIME_MILLIS);
+  metricRegistry.remove(lastConsumedRecordTimeMillisName);
+  metricRegistry.register(lastConsumedRecordTimeMillisName,new Gauge<Long>(){
     @Override public Long getValue(){
       return lastConsumedRecordTimeMillis.get();
     }
   }
 );
-  metricRegistry.register(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,DATA_TIME_MILLIS),new Gauge<Long>(){
+  String dataTimeMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,DATA_TIME_MILLIS);
+  metricRegistry.remove(dataTimeMillisName);
+  metricRegistry.register(dataTimeMillisName,new Gauge<Long>(){
     @Override public Long getValue(){
       return dataTimeMillis.get();
     }
   }
 );
-  metricRegistry.register(MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,DATA_LAG_MILLIS),new Gauge<Long>(){
+  String dataLagMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,DATA_LAG_MILLIS);
+  metricRegistry.remove(dataLagMillisName);
+  metricRegistry.register(dataLagMillisName,new Gauge<Long>(){
     @Override public Long getValue(){
       return System.currentTimeMillis() - dataTimeMillis.get();
     }

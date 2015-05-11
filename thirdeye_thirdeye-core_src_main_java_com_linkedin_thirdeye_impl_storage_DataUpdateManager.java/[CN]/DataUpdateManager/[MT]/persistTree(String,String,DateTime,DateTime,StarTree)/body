@@ -1,0 +1,95 @@
+{
+  Lock lock=collectionLocks.get(collection);
+  if (lock == null) {
+    collectionLocks.putIfAbsent(collection,new ReentrantLock());
+    lock=collectionLocks.get(collection);
+  }
+  lock.lock();
+  LOGGER.info("Locked collection {} using lock {} for persist tree",collection,lock);
+  try {
+    File collectionDir=new File(rootDir,collection);
+    if (!collectionDir.exists()) {
+      FileUtils.forceMkdir(collectionDir);
+      LOGGER.info("Created {}",collectionDir);
+    }
+    if (schedule.contains("_")) {
+      throw new IOException("schedule cannot contain '_'");
+    }
+    String persistId="persist_" + UUID.randomUUID();
+    final File tmpDir=new File(new File(rootDir,collection),persistId);
+    final File leafBufferDir=new File(tmpDir,"leafBuffers");
+    final File segmentBufferDir=new File(tmpDir,"segmentBuffers");
+    LOGGER.info("Beginning persist {}",persistId);
+    LOGGER.info("Creating leaf buffer files in {}",leafBufferDir);
+    final AtomicLong minDataTime=new AtomicLong(-1);
+    final AtomicLong maxDataTime=new AtomicLong(-1);
+    starTree.eachLeaf(new StarTreeCallback(){
+      @Override public void call(      StarTreeNode node){
+        try {
+          Map<DimensionKey,MetricTimeSeries> records=new HashMap<>();
+          for (          StarTreeRecord record : node.getRecordStore()) {
+            MetricTimeSeries timeSeries=record.getMetricTimeSeries();
+            for (            Long time : timeSeries.getTimeWindowSet()) {
+              if (minDataTime.get() == -1 || minDataTime.get() > time) {
+                minDataTime.set(time);
+              }
+              if (maxDataTime.get() == -1 || maxDataTime.get() < time) {
+                maxDataTime.set(time);
+              }
+            }
+            records.put(record.getDimensionKey(),timeSeries);
+          }
+          List<DimensionSpec> dimensions=starTree.getConfig().getDimensions();
+          String[] catchAll=new String[dimensions.size()];
+          Arrays.fill(catchAll,StarTreeConstants.OTHER);
+          for (int i=0; i < dimensions.size(); i++) {
+            String name=dimensions.get(i).getName();
+            String value=node.getAncestorDimensionValues().get(name);
+            if (value != null) {
+              catchAll[i]=value;
+            }
+          }
+          DimensionKey catchAllKey=new DimensionKey(catchAll);
+          List<MetricSpec> metrics=starTree.getConfig().getMetrics();
+          MetricTimeSeries timeSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(metrics));
+          if (!records.containsKey(catchAllKey)) {
+            records.put(catchAllKey,timeSeries);
+          }
+          DimensionDictionary dictionary=new DimensionDictionary(node.getRecordStore().getForwardIndex());
+          FixedBufferUtil.createLeafBufferFiles(leafBufferDir,node.getId().toString(),starTree.getConfig(),records,dictionary);
+        }
+ catch (        Exception e) {
+          throw new IllegalStateException("Error creating leaf buffer files for " + node.getId(),e);
+        }
+      }
+    }
+);
+    ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    ObjectOutputStream oos=new ObjectOutputStream(baos);
+    oos.writeObject(starTree.getRoot());
+    oos.flush();
+    InputStream treeStream=new ByteArrayInputStream(baos.toByteArray());
+    LOGGER.info("Combining data files into {}",segmentBufferDir);
+    FixedBufferUtil.combineDataFiles(treeStream,leafBufferDir,segmentBufferDir);
+    IndexMetadata metadata=new IndexMetadata(minDataTime.get(),maxDataTime.get());
+    OutputStream metadataStream=new FileOutputStream(new File(segmentBufferDir,StarTreeConstants.METADATA_FILE_NAME));
+    metadata.toProperties().store(metadataStream,"This segment was created via DataUpdateManager#persistTree");
+    metadataStream.close();
+    String treeId=starTree.getRoot().getId().toString();
+    File dataDir=new File(collectionDir,StorageUtils.getDataDirName(treeId,schedule,minTime,maxTime));
+    if (dataDir.exists()) {
+      throw new Exception("Data is already persisted for timerange:" + minTime + " to "+ maxTime);
+    }
+    LOGGER.info("Moving segments into {}",dataDir);
+    FileUtils.forceMkdir(dataDir);
+    StorageUtils.moveAllFiles(segmentBufferDir,dataDir);
+    if (!dataDir.setLastModified(System.currentTimeMillis())) {
+      LOGGER.warn("setLastModified on dataDir failed - watch service will not be triggered!");
+    }
+    FileUtils.forceDelete(tmpDir);
+  }
+  finally {
+    lock.unlock();
+    LOGGER.info("Unlocked collection {} using lock {} for persist tree",collection,lock);
+  }
+}

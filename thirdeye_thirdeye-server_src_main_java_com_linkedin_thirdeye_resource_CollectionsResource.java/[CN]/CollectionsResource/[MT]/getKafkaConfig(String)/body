@@ -6,5 +6,5 @@
   if (!kafkaConfigFile.isAbsolute()) {
     throw new WebApplicationException(Response.Status.BAD_REQUEST);
   }
-  return FileUtils.readFileToByteArray(kafkaConfigFile);
+  return IOUtils.toByteArray(new FileInputStream(kafkaConfigFile));
 }

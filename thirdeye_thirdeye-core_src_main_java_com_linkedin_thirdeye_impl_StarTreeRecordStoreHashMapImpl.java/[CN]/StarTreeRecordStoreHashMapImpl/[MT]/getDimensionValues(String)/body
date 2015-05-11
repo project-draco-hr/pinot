@@ -1,0 +1,17 @@
+{
+  int dimensionIndex=-1;
+  for (int i=0; i < config.getDimensions().size(); i++) {
+    if (config.getDimensions().get(i).getName().equals(dimensionName)) {
+      dimensionIndex=i;
+      break;
+    }
+  }
+  if (dimensionIndex == -1) {
+    throw new IllegalArgumentException("No such dimension " + dimensionName);
+  }
+  Set<String> values=new HashSet<>();
+  for (  DimensionKey key : store.keySet()) {
+    values.add(key.getDimensionValues()[dimensionIndex]);
+  }
+  return values;
+}

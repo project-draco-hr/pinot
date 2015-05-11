@@ -1,85 +1,38 @@
 {
-  if (isShutdown.getAndSet(false)) {
-    final ThirdEyeKafkaDecoder decoder=(ThirdEyeKafkaDecoder)Class.forName(config.getDecoderClass()).getConstructor().newInstance();
-    decoder.init(starTree.getConfig(),config);
+  if (!isStarted.getAndSet(true)) {
+    LOG.info("Creating in-memory star tree");
+    StarTreeConfig inMemoryConfig=new StarTreeConfig(starTreeConfig.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),starTreeConfig.getAnomalyDetectionFunctionClass(),starTreeConfig.getAnomalyDetectionFunctionConfig(),starTreeConfig.getAnomalyHandlerClass(),starTreeConfig.getAnomalyHandlerConfig(),starTreeConfig.getAnomalyDetectionMode(),starTreeConfig.getDimensions(),starTreeConfig.getMetrics(),starTreeConfig.getTime(),starTreeConfig.getJoinSpec(),starTreeConfig.getRollup(),starTreeConfig.getSplit(),false);
+    final StarTree starTree=new StarTreeImpl(inMemoryConfig);
+    starTree.open();
+    LOG.info("Constructing decoder {}",kafkaConfig.getDecoderClass());
+    Class<?> decoderClass=Class.forName(kafkaConfig.getDecoderClass());
+    ThirdEyeKafkaDecoder decoder=(ThirdEyeKafkaDecoder)decoderClass.getConstructor().newInstance();
+    decoder.init(starTreeConfig,kafkaConfig);
     Properties props=new Properties();
-    props.put("zookeeper.connect",config.getZkAddress());
-    props.put("group.id",config.getGroupId());
+    props.put("zookeeper.connect",kafkaConfig.getZkAddress());
+    props.put("group.id",kafkaConfig.getGroupId());
     props.put("auto.commit.enable","false");
     props.put("auto.offset.reset","smallest");
-    if (config.getConsumerConfig() != null) {
-      props.putAll(config.getConsumerConfig());
+    kafka.consumer.ConsumerConfig consumerConfig=new ConsumerConfig(props);
+    ConsumerConnector consumer=Consumer.createJavaConsumerConnector(consumerConfig);
+    LOG.info("Configuring kafka with {}",props);
+    LOG.info("Creating Kafka message streams");
+    Map<String,Integer> topicMap=Collections.singletonMap(kafkaConfig.getTopicName(),1);
+    Map<String,List<KafkaStream<byte[],byte[]>>> streams=consumer.createMessageStreams(topicMap);
+    if (streams.size() != 1) {
+      throw new IllegalStateException("Can only consume one stream for " + kafkaConfig.getTopicName());
     }
-    final ConsumerConnector consumer=Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
-    Map<String,List<KafkaStream<byte[],byte[]>>> streams=consumer.createMessageStreams(Collections.singletonMap(config.getTopicName(),1));
-    for (    final Map.Entry<String,List<KafkaStream<byte[],byte[]>>> entry : streams.entrySet()) {
-      for (      final KafkaStream<byte[],byte[]> stream : entry.getValue()) {
-        final ThirdEyeKafkaStats stats=new ThirdEyeKafkaStats(starTree.getConfig().getCollection(),entry.getKey(),metricRegistry);
-        streamStats.put(entry.getKey(),stats);
-        final ScheduledFuture persistFuture=persistScheduler.scheduleAtFixedRate(new Runnable(){
-          @Override public void run(){
-            try {
-              doPersist(stats);
-              consumer.commitOffsets();
-            }
- catch (            Exception e) {
-              LOGGER.error("{}",e);
-            }
-          }
-        }
-,config.getPersistInterval().getSize(),config.getPersistInterval().getSize(),config.getPersistInterval().getUnit());
-        executorService.submit(new Runnable(){
-          @Override public void run(){
-            ConsumerIterator<byte[],byte[]> itr=stream.iterator();
-            while (!isShutdown.get() && itr.hasNext()) {
-              try {
-                MessageAndMetadata<byte[],byte[]> next=itr.next();
-                long currentTime=System.currentTimeMillis();
-                stats.getBytesRead().mark(next.message().length);
-                stats.getLastConsumedRecordTimeMillis().set(currentTime);
-                StarTreeRecord record=decoder.decode(next.message());
-                if (record == null) {
-                  stats.getRecordsSkippedInvalid().mark();
-                  continue;
-                }
-                long minTimeMillis=TimeUnit.MILLISECONDS.convert(Collections.min(record.getMetricTimeSeries().getTimeWindowSet()) * starTree.getConfig().getTime().getBucket().getSize(),starTree.getConfig().getTime().getBucket().getUnit());
-                if (minTimeMillis < config.getStartTime().getMillis()) {
-                  stats.getRecordsSkippedExpired().mark();
-                  continue;
-                }
-                persistLock.readLock().lock();
-                try {
-                  starTree.add(record);
-                }
-  finally {
-                  persistLock.readLock().unlock();
-                }
-                stats.getRecordsAdded().mark();
-                if (!record.getMetricTimeSeries().getTimeWindowSet().isEmpty()) {
-                  long maxTime=Collections.max(record.getMetricTimeSeries().getTimeWindowSet());
-                  long maxTimeMillis=TimeUnit.MILLISECONDS.convert(maxTime * starTree.getConfig().getTime().getInput().getSize(),starTree.getConfig().getTime().getInput().getUnit());
-                  if (maxTimeMillis > stats.getDataTimeMillis().get()) {
-                    stats.getDataTimeMillis().set(maxTimeMillis);
-                  }
-                }
-              }
- catch (              Exception e) {
-                LOGGER.error("Error consuming message from kafka for {}",starTree.getConfig().getCollection(),e);
-                stats.getRecordsError().mark();
-              }
-            }
-            try {
-              doPersist(stats);
-              consumer.commitOffsets();
-            }
- catch (            Exception e) {
-              LOGGER.error("{}",e);
-            }
-          }
-        }
-);
-      }
+    List<KafkaStream<byte[],byte[]>> topicStreams=streams.values().iterator().next();
+    if (topicStreams.size() != 1) {
+      throw new IllegalStateException("Can only consume one stream for " + kafkaConfig.getTopicName());
     }
-    LOGGER.info("Started kafka consumer for {}",starTree.getConfig().getCollection());
+    KafkaStream<byte[],byte[]> stream=topicStreams.get(0);
+    LOG.info("Starting event iterator for topic {}",kafkaConfig.getTopicName());
+    EventIterator eventIterator=new EventIterator(starTree,decoder,stream);
+    consumerExecutors.submit(eventIterator);
+    persistTask.set(new PersistTask(consumer,starTree));
+    TimeGranularity interval=kafkaConfig.getPersistInterval();
+    LOG.info("Scheduling persist task at {}",interval);
+    taskScheduler.scheduleAtFixedRate(persistTask.get(),interval.getSize(),interval.getSize(),interval.getUnit());
   }
 }

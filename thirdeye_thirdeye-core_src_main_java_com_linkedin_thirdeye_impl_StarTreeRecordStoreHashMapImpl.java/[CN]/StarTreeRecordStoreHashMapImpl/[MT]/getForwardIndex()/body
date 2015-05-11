@@ -1,0 +1,22 @@
+{
+  Map<String,Map<String,Integer>> forwardIndex=new HashMap<>();
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    Map<String,Integer> dimensionIndex=new HashMap<>();
+    dimensionIndex.put(StarTreeConstants.STAR,StarTreeConstants.STAR_VALUE);
+    dimensionIndex.put(StarTreeConstants.OTHER,StarTreeConstants.OTHER_VALUE);
+    forwardIndex.put(dimensionSpec.getName(),dimensionIndex);
+  }
+  int currentId=StarTreeConstants.FIRST_VALUE;
+  for (  DimensionKey key : store.keySet()) {
+    for (int i=0; i < config.getDimensions().size(); i++) {
+      String name=config.getDimensions().get(i).getName();
+      String value=key.getDimensionValues()[i];
+      Integer id=forwardIndex.get(name).get(value);
+      if (id == null) {
+        forwardIndex.get(name).put(value,currentId);
+        currentId++;
+      }
+    }
+  }
+  return forwardIndex;
+}
