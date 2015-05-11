@@ -26,6 +26,18 @@
  else {
     return false;
   }
+  if (getSortedColumns().size() == resourceMetadata.getSortedColumns().size()) {
+    if (!getSortedColumns().isEmpty()) {
+      for (int i=0; i < getSortedColumns().size(); ++i) {
+        if (!getSortedColumns().get(i).equals(resourceMetadata.getSortedColumns().get(i))) {
+          return false;
+        }
+      }
+    }
+  }
+ else {
+    return false;
+  }
   if (getMetadata().size() == resourceMetadata.getMetadata().size()) {
     if (!getMetadata().isEmpty()) {
       for (      String key : getMetadata().keySet()) {

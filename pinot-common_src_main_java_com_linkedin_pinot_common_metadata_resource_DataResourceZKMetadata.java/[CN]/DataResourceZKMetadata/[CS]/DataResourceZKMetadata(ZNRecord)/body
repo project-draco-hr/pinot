@@ -11,4 +11,7 @@
   _brokerTag=znRecord.getSimpleField(Helix.DataSource.BROKER_TAG_NAME);
   _numBrokerInstance=znRecord.getIntField(Helix.DataSource.NUMBER_OF_BROKER_INSTANCES,-1);
   _metadata=znRecord.getMapField(Helix.DataSource.METADATA);
+  if (znRecord.getListFields().containsKey(Helix.DataSource.SORTED_COLUMN_LIST)) {
+    _sortedColumnList.addAll(znRecord.getListField(Helix.DataSource.SORTED_COLUMN_LIST));
+  }
 }
