@@ -36,6 +36,8 @@
  else {
       forwardIndexCreatorMap.put(column,new MultiValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),file,indexCreationInfo.getSortedUniqueElementsArray().length,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
     }
-    invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+    if (config.createInvertedIndexEnabled()) {
+      invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+    }
   }
 }

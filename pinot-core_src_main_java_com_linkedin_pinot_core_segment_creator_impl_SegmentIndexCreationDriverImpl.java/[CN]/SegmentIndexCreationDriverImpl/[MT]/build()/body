@@ -2,13 +2,25 @@
   totalDocs=0;
   while (recordReader.hasNext()) {
     totalDocs++;
-    statsCollector.collectRow(recordReader.next());
+    long start=System.currentTimeMillis();
+    GenericRow row=recordReader.next();
+    long stop=System.currentTimeMillis();
+    statsCollector.collectRow(row);
+    long stop1=System.currentTimeMillis();
+    totalRecordReadTime+=(stop - start);
+    totalStatsCollectorTime+=(stop1 - stop);
   }
   buildIndexCreationInfo();
   indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
   recordReader.rewind();
   while (recordReader.hasNext()) {
-    indexCreator.indexRow(recordReader.next());
+    long start=System.currentTimeMillis();
+    GenericRow row=recordReader.next();
+    long stop=System.currentTimeMillis();
+    indexCreator.indexRow(row);
+    long stop1=System.currentTimeMillis();
+    totalRecordReadTime+=(stop - start);
+    totalIndexTime+=(stop1 - stop);
   }
   recordReader.close();
   final String timeColumn=config.getTimeColumnName();
@@ -36,4 +48,7 @@
   FileUtils.deleteQuietly(tempIndexDir);
   final long crc=CrcUtils.forAllFilesInFolder(segmentOutputDir).computeCrc();
   persistCreationMeta(segmentOutputDir,crc);
+  LOGGER.info("Driver, record read time : {}",totalRecordReadTime);
+  LOGGER.info("Driver, stats collector time : {}",totalStatsCollectorTime);
+  LOGGER.info("Driver, indexing time : {}",totalIndexTime);
 }
