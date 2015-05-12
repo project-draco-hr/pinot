@@ -1,11 +1,4 @@
 {
-  try {
-    if (raf != null) {
-      raf.close();
-    }
-  }
- catch (  final IOException e) {
-    LOGGER.error("Caught exception while closing reader",e);
-    throw e;
-  }
+  IOUtils.closeQuietly(raf);
+  MmapUtils.unloadByteBuffer(dataBuffer);
 }

@@ -15,7 +15,6 @@
   final int length=headerSectionReader.getInt(numDocs - 1,1);
   totalNumValues=startIndex + length;
   final int dataSizeInBytes=((totalNumValues * columnSizeInBits) + 7) / 8;
-  ByteBuffer dataBuffer;
   if (isMMap) {
     dataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,headerSize,dataSizeInBytes);
   }
