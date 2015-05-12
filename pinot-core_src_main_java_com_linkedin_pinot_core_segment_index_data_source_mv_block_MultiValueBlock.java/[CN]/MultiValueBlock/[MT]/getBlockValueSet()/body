@@ -7,14 +7,14 @@
           return mVReader.getIntArray(counter++,intArray);
         }
         @Override public boolean skipTo(        int docId){
-          if (docId >= mVReader.length()) {
+          if (docId >= columnMetadata.getTotalDocs()) {
             return false;
           }
           counter=docId;
           return true;
         }
         @Override public int size(){
-          return mVReader.length();
+          return columnMetadata.getTotalDocs();
         }
         @Override public boolean reset(){
           counter=0;
@@ -24,7 +24,7 @@
           return false;
         }
         @Override public boolean hasNext(){
-          return (counter < mVReader.length());
+          return (counter < columnMetadata.getTotalDocs());
         }
         @Override public DataType getValueType(){
           return columnMetadata.getDataType();

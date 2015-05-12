@@ -1,9 +1,14 @@
 {
-  SegmentGeneratorConfig segmentGenSpec=new SegmentGeneratorConfig(AvroUtils.extractSchemaFromAvro(inputAvro));
+  Schema schema=AvroUtils.extractSchemaFromAvro(inputAvro);
+  SegmentGeneratorConfig segmentGenSpec=new SegmentGeneratorConfig(schema);
   segmentGenSpec.setInputFilePath(inputAvro.getAbsolutePath());
   segmentGenSpec.setTimeUnitForSegment(timeUnit);
-  if (inputAvro.getName().endsWith("gz"))   segmentGenSpec.setInputFileFormat(FileFormat.GZIPPED_AVRO);
- else   segmentGenSpec.setInputFileFormat(FileFormat.AVRO);
+  if (inputAvro.getName().endsWith("gz")) {
+    segmentGenSpec.setInputFileFormat(FileFormat.GZIPPED_AVRO);
+  }
+ else {
+    segmentGenSpec.setInputFileFormat(FileFormat.AVRO);
+  }
   segmentGenSpec.setSegmentVersion(SegmentVersion.v1);
   segmentGenSpec.setResourceName(clusterName);
   segmentGenSpec.setTableName(tableName);
