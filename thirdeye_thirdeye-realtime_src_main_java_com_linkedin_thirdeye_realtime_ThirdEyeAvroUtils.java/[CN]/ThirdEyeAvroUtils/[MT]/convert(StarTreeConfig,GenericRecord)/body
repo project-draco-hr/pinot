@@ -2,21 +2,15 @@
   String[] dimensionValues=new String[config.getDimensions().size()];
   for (int i=0; i < config.getDimensions().size(); i++) {
     String dimensionName=config.getDimensions().get(i).getName();
-    Object dimensionObj=record.get(dimensionName);
-    if (dimensionObj == null) {
-      dimensionObj="";
-    }
-    dimensionValues[i]=dimensionObj.toString();
+    dimensionValues[i]=getRecordValue(dimensionName,record);
   }
   DimensionKey dimensionKey=new DimensionKey(dimensionValues);
-  Object timeObj=record.get(config.getTime().getColumnName());
-  if (timeObj == null) {
-    throw new IllegalArgumentException("Record has null time " + config.getTime().getColumnName() + ": "+ record);
+  String timeColumnName=config.getTime().getColumnName();
+  String timeStr=getRecordValue(timeColumnName,record);
+  if (timeStr == null) {
+    throw new IllegalArgumentException("Record has null time " + timeColumnName + ": "+ record);
   }
-  if (!(timeObj instanceof Number)) {
-    throw new IllegalArgumentException("Time must be numeric (it is " + timeObj.getClass() + ")");
-  }
-  Long time=((Number)timeObj).longValue();
+  Long time=Long.valueOf(timeStr);
   if (time <= 0) {
     LOGGER.warn("Skipping because zero or negative time {}",record);
     return null;
@@ -27,11 +21,7 @@
   MetricTimeSeries timeSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(config.getMetrics()));
   for (int i=0; i < config.getMetrics().size(); i++) {
     MetricSpec metricSpec=config.getMetrics().get(i);
-    Object metricObj=record.get(metricSpec.getName());
-    if (metricObj == null) {
-      metricObj=0;
-    }
-    Number metricValue=NumberUtils.valueOf(metricObj.toString(),metricSpec.getType());
+    Number metricValue=getMetricValue(metricSpec,record);
     timeSeries.increment(time,metricSpec.getName(),metricValue);
   }
   return new StarTreeRecordImpl(config,dimensionKey,timeSeries);
