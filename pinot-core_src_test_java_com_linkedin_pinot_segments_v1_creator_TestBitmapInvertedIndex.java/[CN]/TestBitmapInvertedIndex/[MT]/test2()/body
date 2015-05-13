@@ -10,13 +10,13 @@
         entry=((Utf8)entry).toString();
       }
       final int dicId=mmapSegment.getDictionaryFor(column).indexOf(entry);
-      AssertJUnit.assertEquals(mmapSegment.getInvertedIndexFor(column).getImmutable(dicId).contains(docId),true);
+      Assert.assertEquals(true,mmapSegment.getInvertedIndexFor(column).getImmutable(dicId).contains(docId));
       final int size=mmapSegment.getDictionaryFor(column).length();
       for (int i=0; i < size; ++i) {
         if (i == dicId) {
           continue;
         }
-        AssertJUnit.assertEquals(mmapSegment.getInvertedIndexFor(column).getImmutable(i).contains(docId),false);
+        Assert.assertEquals(false,mmapSegment.getInvertedIndexFor(column).getImmutable(i).contains(docId));
       }
     }
     ++docId;

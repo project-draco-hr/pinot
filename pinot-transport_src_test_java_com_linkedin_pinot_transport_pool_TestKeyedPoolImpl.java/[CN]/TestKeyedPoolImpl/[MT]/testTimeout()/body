@@ -22,14 +22,14 @@
   }
   latch.await();
   s.refresh();
-  AssertJUnit.assertEquals(5,s.getTotalTimedOut());
+  Assert.assertEquals(s.getTotalTimedOut(),5);
   Map<String,List<String>> destroyedMap=rm.getDestroyedMap();
-  AssertJUnit.assertEquals(numKeys,destroyedMap.keySet().size());
+  Assert.assertEquals(destroyedMap.keySet().size(),numKeys);
   for (int i=0; i < numKeys; i++) {
     List<String> r=destroyedMap.get(getKey(i));
-    AssertJUnit.assertEquals("Resource for Key (" + getKey(i) + ")",numResourcesPerKey,r.size());
+    Assert.assertEquals(r.size(),numResourcesPerKey,"Resource for Key (" + getKey(i) + ")");
     for (int j=0; j < numResourcesPerKey; j++) {
-      AssertJUnit.assertTrue(r.contains(getResource(i,j)));
+      Assert.assertTrue(r.contains(getResource(i,j)));
     }
   }
   Future<Map<String,NoneType>> f=kPool.shutdown();

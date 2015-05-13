@@ -26,23 +26,23 @@
     expectedMessages.put(k,message);
   }
   runner.waitForDone();
-  AssertJUnit.assertFalse("Composite Cancelled ?",runner.isCancelled());
-  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
-  AssertJUnit.assertTrue("Composite No Error :",runner.getError().isEmpty());
+  Assert.assertFalse(runner.isCancelled(),"Composite Cancelled ?");
+  Assert.assertTrue(runner.isDone(),"Composite Is Done ? ");
+  Assert.assertTrue(runner.getError().isEmpty(),"Composite No Error :");
   Map<String,String> runnerResponse=runner.getMessage();
   Map<String,String> listenerResponse=listener.getMessage();
   for (int i=0; i < numFutures; i++) {
     String k="key_" + i;
     AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
-    AssertJUnit.assertFalse("Cancelled ?",future.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
-    AssertJUnit.assertEquals("Reponse :",expectedMessages.get(k),future.getOne());
+    Assert.assertFalse(future.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(future.isDone(),"Is Done ? ");
+    Assert.assertEquals(future.getOne(),expectedMessages.get(k),"Reponse :");
     AssertJUnit.assertNull("No Error :",future.getError());
-    AssertJUnit.assertEquals("Message_" + i,expectedMessages.get(k),runnerResponse.get(k));
-    AssertJUnit.assertEquals("Message_" + i,expectedMessages.get(k),listenerResponse.get(k));
+    Assert.assertEquals(runnerResponse.get(k),expectedMessages.get(k),"Message_" + i);
+    Assert.assertEquals(listenerResponse.get(k),expectedMessages.get(k),"Message_" + i);
   }
-  AssertJUnit.assertFalse("listener Cancelled ?",listener.isCancelled());
-  AssertJUnit.assertTrue("listener Is Done ? ",listener.isDone());
-  AssertJUnit.assertTrue("listener No Error :",listener.getError().isEmpty());
+  Assert.assertFalse(listener.isCancelled(),"listener Cancelled ?");
+  Assert.assertTrue(listener.isDone(),"listener Is Done ? ");
+  Assert.assertTrue(listener.getError().isEmpty(),"listener No Error :");
   executor.shutdown();
 }

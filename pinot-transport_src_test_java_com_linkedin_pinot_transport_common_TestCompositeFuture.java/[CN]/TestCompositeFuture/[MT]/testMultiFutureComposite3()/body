@@ -32,21 +32,21 @@
     future.onError(expectedError);
   }
   runner.waitForDone();
-  AssertJUnit.assertTrue("Composite Cancelled ?",runner.isCancelled());
-  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
-  AssertJUnit.assertTrue("Composite No Reponse :",runner.getMessage().isEmpty());
-  AssertJUnit.assertTrue("Composite No Error :",runner.getError().isEmpty());
+  Assert.assertTrue(runner.isCancelled(),"Composite Cancelled ?");
+  Assert.assertTrue(runner.isDone(),"Composite Is Done ? ");
+  Assert.assertTrue(runner.getMessage().isEmpty(),"Composite No Reponse :");
+  Assert.assertTrue(runner.getError().isEmpty(),"Composite No Error :");
   for (int i=0; i < numFutures; i++) {
     String k="key_" + i;
     AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
-    AssertJUnit.assertTrue("Cancelled ?",future.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
+    Assert.assertTrue(future.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(future.isDone(),"Is Done ? ");
     AssertJUnit.assertNull("No Reponse :",future.get());
     AssertJUnit.assertNull("No Error :",future.getError());
   }
-  AssertJUnit.assertTrue("listener Cancelled ?",listener.isCancelled());
-  AssertJUnit.assertTrue("listener Is Done ? ",listener.isDone());
-  AssertJUnit.assertTrue("listener No Reponse :",listener.getMessage().isEmpty());
-  AssertJUnit.assertTrue("listener No Error :",listener.getError().isEmpty());
+  Assert.assertTrue(listener.isCancelled(),"listener Cancelled ?");
+  Assert.assertTrue(listener.isDone(),"listener Is Done ? ");
+  Assert.assertTrue(listener.getMessage().isEmpty(),"listener No Reponse :");
+  Assert.assertTrue(listener.getError().isEmpty(),"listener No Error :");
   executor.shutdown();
 }

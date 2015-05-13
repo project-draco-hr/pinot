@@ -7,29 +7,29 @@
 switch (((SegmentMetadataImpl)mmapSegment.getSegmentMetadata()).getColumnMetadataMap().get(column).getDataType()) {
 case BOOLEAN:
 case STRING:
-      AssertJUnit.assertEquals(heapDictionary instanceof StringDictionary,true);
-    AssertJUnit.assertEquals(mmapDictionary instanceof StringDictionary,true);
+      Assert.assertEquals(true,heapDictionary instanceof StringDictionary);
+    Assert.assertEquals(true,mmapDictionary instanceof StringDictionary);
   break;
 case DOUBLE:
-AssertJUnit.assertEquals(heapDictionary instanceof DoubleDictionary,true);
-AssertJUnit.assertEquals(mmapDictionary instanceof DoubleDictionary,true);
+Assert.assertEquals(true,heapDictionary instanceof DoubleDictionary);
+Assert.assertEquals(true,mmapDictionary instanceof DoubleDictionary);
 break;
 case FLOAT:
-AssertJUnit.assertEquals(heapDictionary instanceof FloatDictionary,true);
-AssertJUnit.assertEquals(mmapDictionary instanceof FloatDictionary,true);
+Assert.assertEquals(true,heapDictionary instanceof FloatDictionary);
+Assert.assertEquals(true,mmapDictionary instanceof FloatDictionary);
 break;
 case LONG:
-AssertJUnit.assertEquals(heapDictionary instanceof LongDictionary,true);
-AssertJUnit.assertEquals(mmapDictionary instanceof LongDictionary,true);
+Assert.assertEquals(true,heapDictionary instanceof LongDictionary);
+Assert.assertEquals(true,mmapDictionary instanceof LongDictionary);
 break;
 case INT:
-AssertJUnit.assertEquals(heapDictionary instanceof IntDictionary,true);
-AssertJUnit.assertEquals(mmapDictionary instanceof IntDictionary,true);
+Assert.assertEquals(true,heapDictionary instanceof IntDictionary);
+Assert.assertEquals(true,mmapDictionary instanceof IntDictionary);
 break;
 }
-AssertJUnit.assertEquals(heapDictionary.length(),mmapDictionary.length());
+Assert.assertEquals(mmapDictionary.length(),heapDictionary.length());
 for (int i=0; i < heapDictionary.length(); i++) {
-AssertJUnit.assertEquals(heapDictionary.get(i),mmapDictionary.get(i));
+Assert.assertEquals(mmapDictionary.get(i),heapDictionary.get(i));
 }
 }
 }

@@ -15,7 +15,7 @@
   LOGGER.info("About to connect the client !!");
   boolean connected=clientConn.connect();
   LOGGER.info("Client connected !!");
-  AssertJUnit.assertTrue("connected",connected);
+  Assert.assertTrue(connected,"connected");
   Thread.sleep(1000);
   String request="dummy request";
   LOGGER.info("Sending the request !!");
@@ -24,7 +24,7 @@
   latch.countDown();
   ByteBuf serverResp=serverRespFuture.getOne();
   AssertJUnit.assertNull(serverResp);
-  AssertJUnit.assertTrue("Is Cancelled",serverRespFuture.isCancelled());
+  Assert.assertTrue(serverRespFuture.isCancelled(),"Is Cancelled");
   clientConn.close();
   serverConn.shutdownGracefully();
 }

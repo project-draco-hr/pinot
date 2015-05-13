@@ -9,8 +9,8 @@
     Thread.sleep(100);
     f.cancel(false);
     runner.waitForDone();
-    AssertJUnit.assertTrue("Cancelled ?",runner.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    Assert.assertTrue(runner.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(runner.isDone(),"Is Done ? ");
     AssertJUnit.assertNull("No Reponse :",runner.getMessage());
     AssertJUnit.assertNull("No Error :",runner.getError());
     executor.shutdown();
@@ -22,8 +22,8 @@
     ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
     executor.execute(runner);
     runner.waitForDone();
-    AssertJUnit.assertTrue("Cancelled ?",runner.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    Assert.assertTrue(runner.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(runner.isDone(),"Is Done ? ");
     AssertJUnit.assertNull("No Reponse :",runner.getMessage());
     AssertJUnit.assertNull("No Error :",runner.getError());
     executor.shutdown();
@@ -38,10 +38,10 @@
     Exception expectedError=new Exception("error processing");
     f.onError(expectedError);
     runner.waitForDone();
-    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    Assert.assertFalse(runner.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(runner.isDone(),"Is Done ? ");
     AssertJUnit.assertNull("No Reponse :",runner.getMessage());
-    AssertJUnit.assertEquals("Error",expectedError,runner.getError());
+    Assert.assertEquals(runner.getError(),expectedError,"Error");
     executor.shutdown();
   }
 {
@@ -52,10 +52,10 @@
     ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
     executor.execute(runner);
     runner.waitForDone();
-    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
+    Assert.assertFalse(runner.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(runner.isDone(),"Is Done ? ");
     AssertJUnit.assertNull("No Reponse :",runner.getMessage());
-    AssertJUnit.assertEquals("Error",expectedError,runner.getError());
+    Assert.assertEquals(runner.getError(),expectedError,"Error");
     executor.shutdown();
   }
 {
@@ -68,9 +68,9 @@
     String message="dummy Message";
     setResponse(f,message);
     runner.waitForDone();
-    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
-    AssertJUnit.assertEquals("Response Check:",message,runner.getMessage());
+    Assert.assertFalse(runner.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(runner.isDone(),"Is Done ? ");
+    Assert.assertEquals(runner.getMessage(),message,"Response Check:");
     AssertJUnit.assertNull("No Error :",runner.getError());
     executor.shutdown();
   }
@@ -82,9 +82,9 @@
     ThreadPoolExecutor executor=new ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
     executor.execute(runner);
     runner.waitForDone();
-    AssertJUnit.assertFalse("Cancelled ?",runner.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",runner.isDone());
-    AssertJUnit.assertEquals("Response Check:",message,runner.getMessage());
+    Assert.assertFalse(runner.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(runner.isDone(),"Is Done ? ");
+    Assert.assertEquals(runner.getMessage(),message,"Response Check:");
     AssertJUnit.assertNull("No Error :",runner.getError());
     executor.shutdown();
   }

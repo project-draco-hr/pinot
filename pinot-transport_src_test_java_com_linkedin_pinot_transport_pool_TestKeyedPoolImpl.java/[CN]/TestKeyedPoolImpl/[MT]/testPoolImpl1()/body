@@ -12,19 +12,19 @@
     for (int i=0; i < numKeys; i++) {
       KeyedFuture<String,String> rFuture=kPool.checkoutObject(getKey(i));
       String resource=rFuture.getOne();
-      AssertJUnit.assertEquals(getResource(i,j),resource);
+      Assert.assertEquals(resource,getResource(i,j));
       s.refresh();
-      AssertJUnit.assertEquals(c++,s.getCheckedOut());
+      Assert.assertEquals(s.getCheckedOut(),c++);
     }
   }
   s=(AggregatedPoolStats)kPool.getStats();
-  AssertJUnit.assertEquals(numKeys * numResourcesPerKey,s.getTotalCreated());
+  Assert.assertEquals(s.getTotalCreated(),numKeys * numResourcesPerKey);
   int checkedOut=c - 1;
   for (int j=0; j < numResourcesPerKey; j++) {
     for (int i=0; i < numKeys; i++) {
       kPool.checkinObject(getKey(i),getResource(i,j));
       s.refresh();
-      AssertJUnit.assertEquals(--checkedOut,s.getCheckedOut());
+      Assert.assertEquals(s.getCheckedOut(),--checkedOut);
     }
   }
   s=(AggregatedPoolStats)kPool.getStats();
@@ -33,25 +33,25 @@
   for (int i=0; i < numKeys; i++) {
     KeyedFuture<String,String> rFuture=kPool.checkoutObject(getKey(i));
     String resource=rFuture.getOne();
-    AssertJUnit.assertEquals(getResource(i,0),resource);
+    Assert.assertEquals(resource,getResource(i,0));
     CountDownLatch latch=new CountDownLatch(1);
     rm.setCountDownLatch(latch);
     kPool.destroyObject(getKey(i),resource);
     latch.await();
     Thread.sleep(1000);
     s.refresh();
-    AssertJUnit.assertEquals(0,s.getCheckedOut());
-    AssertJUnit.assertEquals(d++,s.getTotalDestroyed());
+    Assert.assertEquals(s.getCheckedOut(),0);
+    Assert.assertEquals(s.getTotalDestroyed(),d++);
   }
   Future<Map<String,NoneType>> f=kPool.shutdown();
   f.get();
   Map<String,List<String>> destroyedMap=rm.getDestroyedMap();
-  AssertJUnit.assertEquals(numKeys,destroyedMap.keySet().size());
+  Assert.assertEquals(destroyedMap.keySet().size(),numKeys);
   for (int i=0; i < numKeys; i++) {
     List<String> r=destroyedMap.get(getKey(i));
-    AssertJUnit.assertEquals("Resource for Key (" + getKey(i) + ")",numResourcesPerKey,r.size());
+    Assert.assertEquals(r.size(),numResourcesPerKey,"Resource for Key (" + getKey(i) + ")");
     for (int j=0; j < numResourcesPerKey; j++) {
-      AssertJUnit.assertTrue(r.contains(getResource(i,j)));
+      Assert.assertTrue(r.contains(getResource(i,j)));
     }
   }
 }

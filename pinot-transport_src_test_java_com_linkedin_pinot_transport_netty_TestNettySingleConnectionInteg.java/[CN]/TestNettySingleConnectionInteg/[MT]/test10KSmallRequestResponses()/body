@@ -14,7 +14,7 @@
     LOGGER.info("About to connect the client !!");
     boolean connected=clientConn.connect();
     LOGGER.info("Client connected !!");
-    AssertJUnit.assertTrue("connected",connected);
+    Assert.assertTrue(connected,"connected");
     Thread.sleep(1000);
     for (int i=0; i < 10000; i++) {
       String request="dummy request :" + i;
@@ -30,8 +30,8 @@
       byte[] b2=new byte[serverResp.readableBytes()];
       serverResp.readBytes(b2);
       String gotResponse=new String(b2);
-      AssertJUnit.assertEquals("Response Check at client",response,gotResponse);
-      AssertJUnit.assertEquals("Request Check at server",request,handler.getRequest());
+      Assert.assertEquals(gotResponse,response,"Response Check at client");
+      Assert.assertEquals(handler.getRequest(),request,"Request Check at server");
     }
   }
   finally {

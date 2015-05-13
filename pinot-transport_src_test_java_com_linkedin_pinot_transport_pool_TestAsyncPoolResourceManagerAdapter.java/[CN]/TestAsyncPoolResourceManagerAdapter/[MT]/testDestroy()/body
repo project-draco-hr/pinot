@@ -6,12 +6,12 @@
     AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
     MyCallback callback=new MyCallback();
     adapter.destroy(value,true,callback);
-    AssertJUnit.assertEquals("Callback Resource",value,callback.getResource());
-    AssertJUnit.assertEquals("Callback onSuccess",true,callback.isOnSuccessCalled());
-    AssertJUnit.assertEquals("Callback onError",false,callback.isOnErrorCalled());
+    Assert.assertEquals(callback.getResource(),value,"Callback Resource");
+    Assert.assertEquals(callback.isOnSuccessCalled(),true,"Callback onSuccess");
+    Assert.assertEquals(callback.isOnErrorCalled(),false,"Callback onError");
     AssertJUnit.assertNull("Callback Error Null",callback.getThrowable());
-    AssertJUnit.assertEquals("Resource Manager create Key",key,rm.getKeyForDestroy());
-    AssertJUnit.assertEquals("Resource Manager create Resource",value,rm.getResourceForDestroy());
+    Assert.assertEquals(rm.getKeyForDestroy(),key,"Resource Manager create Key");
+    Assert.assertEquals(rm.getResourceForDestroy(),value,"Resource Manager create Resource");
   }
 {
     String key="localhost:8080";
@@ -21,10 +21,10 @@
     MyCallback callback=new MyCallback();
     adapter.destroy(value,true,callback);
     AssertJUnit.assertNull("Callback Resource",callback.getResource());
-    AssertJUnit.assertEquals("Callback onSuccess",false,callback.isOnSuccessCalled());
-    AssertJUnit.assertEquals("Callback onError",true,callback.isOnErrorCalled());
+    Assert.assertEquals(callback.isOnSuccessCalled(),false,"Callback onSuccess");
+    Assert.assertEquals(callback.isOnErrorCalled(),true,"Callback onError");
     AssertJUnit.assertNotNull("Callback Error Null",callback.getThrowable());
-    AssertJUnit.assertEquals("Resource Manager create Key",key,rm.getKeyForDestroy());
-    AssertJUnit.assertEquals("Resource Manager create Resource",value,rm.getResourceForDestroy());
+    Assert.assertEquals(rm.getKeyForDestroy(),key,"Resource Manager create Key");
+    Assert.assertEquals(rm.getResourceForDestroy(),value,"Resource Manager create Resource");
   }
 }

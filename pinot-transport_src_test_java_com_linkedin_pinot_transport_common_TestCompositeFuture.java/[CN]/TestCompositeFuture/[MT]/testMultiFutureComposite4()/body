@@ -31,10 +31,10 @@
   AsyncResponseFuture<String,String> f=(AsyncResponseFuture<String,String>)futureMap.get(errorKey);
   f.onError(expectedException);
   runner.waitForDone();
-  AssertJUnit.assertFalse("Composite Cancelled ?",runner.isCancelled());
-  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
-  AssertJUnit.assertFalse("listener Cancelled ?",listener.isCancelled());
-  AssertJUnit.assertTrue("listener Is Done ? ",listener.isDone());
+  Assert.assertFalse(runner.isCancelled(),"Composite Cancelled ?");
+  Assert.assertTrue(runner.isDone(),"Composite Is Done ? ");
+  Assert.assertFalse(listener.isCancelled(),"listener Cancelled ?");
+  Assert.assertTrue(listener.isDone(),"listener Is Done ? ");
   Map<String,Throwable> runnerException=runner.getError();
   Map<String,String> runnerMessages=runner.getMessage();
   Map<String,String> listenerMessages=listener.getMessage();
@@ -42,26 +42,26 @@
   for (int i=0; i < numSuccessFutures; i++) {
     String k="key_" + i;
     AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
-    AssertJUnit.assertFalse("Cancelled ?",future.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
-    AssertJUnit.assertEquals("Reponse :",expectedMessages.get(k),future.getOne());
+    Assert.assertFalse(future.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(future.isDone(),"Is Done ? ");
+    Assert.assertEquals(future.getOne(),expectedMessages.get(k),"Reponse :");
     AssertJUnit.assertNull("No Error :",future.getError());
-    AssertJUnit.assertEquals("Message_" + i,expectedMessages.get(k),runnerMessages.get(k));
-    AssertJUnit.assertEquals("Message_" + i,expectedMessages.get(k),listenerMessages.get(k));
+    Assert.assertEquals(runnerMessages.get(k),expectedMessages.get(k),"Message_" + i);
+    Assert.assertEquals(listenerMessages.get(k),expectedMessages.get(k),"Message_" + i);
   }
   String key1="key_" + numSuccessFutures;
   f=(AsyncResponseFuture<String,String>)futureMap.get(key1);
-  AssertJUnit.assertFalse("Cancelled ?",f.isCancelled());
-  AssertJUnit.assertTrue("Is Done ? ",f.isDone());
-  AssertJUnit.assertEquals("Exception :",expectedException,f.getError().values().iterator().next());
+  Assert.assertFalse(f.isCancelled(),"Cancelled ?");
+  Assert.assertTrue(f.isDone(),"Is Done ? ");
+  Assert.assertEquals(f.getError().values().iterator().next(),expectedException,"Exception :");
   AssertJUnit.assertNull("No Response :",f.get());
-  AssertJUnit.assertEquals("Exception_" + numSuccessFutures,expectedException,runnerException.get(key1));
-  AssertJUnit.assertEquals("Exception_" + numSuccessFutures,expectedException,listenerException.get(key1));
+  Assert.assertEquals(runnerException.get(key1),expectedException,"Exception_" + numSuccessFutures);
+  Assert.assertEquals(listenerException.get(key1),expectedException,"Exception_" + numSuccessFutures);
   for (int i=numSuccessFutures + 1; i < numFutures; i++) {
     String k="key_" + i;
     AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
-    AssertJUnit.assertTrue("Cancelled ?",future.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
+    Assert.assertTrue(future.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(future.isDone(),"Is Done ? ");
     AssertJUnit.assertNull("No Reponse :",future.get());
     AssertJUnit.assertNull("No Error :",future.getError());
     Assert.assertNull(runnerMessages.get(k));

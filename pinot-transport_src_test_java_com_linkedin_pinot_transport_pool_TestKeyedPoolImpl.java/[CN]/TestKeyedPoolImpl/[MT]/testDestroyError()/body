@@ -8,8 +8,8 @@
   KeyedPool<String,String> kPool=new KeyedPoolImpl<String,String>(0,5,1000L,1000 * 60 * 60,rm,timedExecutor,service,null);
   AsyncResponseFuture<String,String> f=(AsyncResponseFuture<String,String>)kPool.checkoutObject(getKey(0));
   String r=f.getOne();
-  AssertJUnit.assertTrue(f.isDone());
-  AssertJUnit.assertNull(f.getError());
+  Assert.assertTrue(f.isDone());
+  Assert.assertNull(f.getError());
   CountDownLatch latch=new CountDownLatch(1);
   rm.setCountDownLatch(latch);
   kPool.destroyObject(getKey(0),r);
@@ -17,5 +17,5 @@
   kPool.shutdown().get();
   AggregatedPoolStats s=(AggregatedPoolStats)kPool.getStats();
   s.refresh();
-  AssertJUnit.assertEquals(1,s.getTotalDestroyErrors());
+  Assert.assertEquals(s.getTotalDestroyErrors(),1);
 }

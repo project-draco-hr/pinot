@@ -5,14 +5,14 @@
     MyPooledResourceManager rm=new MyPooledResourceManager(true,null);
     AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
     boolean ret=adapter.validateGet(value);
-    AssertJUnit.assertTrue("Validate Return",ret);
-    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
-    AssertJUnit.assertEquals("Resource Manager validate Resource",value,rm.getResourceForValidate());
+    Assert.assertTrue(ret,"Validate Return");
+    Assert.assertEquals(rm.getKeyForValidate(),key,"Resource Manager validate Key");
+    Assert.assertEquals(rm.getResourceForValidate(),value,"Resource Manager validate Resource");
     String value2="dummy2";
     ret=adapter.validatePut(value2);
-    AssertJUnit.assertTrue("Validate Return",ret);
-    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
-    AssertJUnit.assertEquals("Resource Manager validate Resource",value2,rm.getResourceForValidate());
+    Assert.assertTrue(ret,"Validate Return");
+    Assert.assertEquals(rm.getKeyForValidate(),key,"Resource Manager validate Key");
+    Assert.assertEquals(rm.getResourceForValidate(),value2,"Resource Manager validate Resource");
   }
 {
     String key="localhost:8080";
@@ -20,13 +20,13 @@
     MyPooledResourceManager rm=new MyPooledResourceManager(false,null);
     AsyncPoolResourceManagerAdapter<String,String> adapter=new AsyncPoolResourceManagerAdapter<String,String>(key,rm,MoreExecutors.sameThreadExecutor(),null);
     boolean ret=adapter.validateGet(value);
-    AssertJUnit.assertFalse("Validate Return",ret);
-    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
-    AssertJUnit.assertEquals("Resource Manager validate Resource",value,rm.getResourceForValidate());
+    Assert.assertFalse(ret,"Validate Return");
+    Assert.assertEquals(rm.getKeyForValidate(),key,"Resource Manager validate Key");
+    Assert.assertEquals(rm.getResourceForValidate(),value,"Resource Manager validate Resource");
     String value2="dummy2";
     ret=adapter.validatePut(value2);
-    AssertJUnit.assertFalse("Validate Return",ret);
-    AssertJUnit.assertEquals("Resource Manager validate Key",key,rm.getKeyForValidate());
-    AssertJUnit.assertEquals("Resource Manager validate Resource",value2,rm.getResourceForValidate());
+    Assert.assertFalse(ret,"Validate Return");
+    Assert.assertEquals(rm.getKeyForValidate(),key,"Resource Manager validate Key");
+    Assert.assertEquals(rm.getResourceForValidate(),value2,"Resource Manager validate Resource");
   }
 }

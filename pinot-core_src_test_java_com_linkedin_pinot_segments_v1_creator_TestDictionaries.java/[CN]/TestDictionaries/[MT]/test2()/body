@@ -9,10 +9,10 @@
     final List<Object> list=Arrays.asList(uniques.toArray());
     Collections.shuffle(list);
     for (    final Object entry : list) {
-      AssertJUnit.assertEquals(heapDictionary.indexOf(entry),mmapDictionary.indexOf(entry));
+      Assert.assertEquals(mmapDictionary.indexOf(entry),heapDictionary.indexOf(entry));
       if (!column.equals("pageKey")) {
-        AssertJUnit.assertEquals(heapDictionary.indexOf(entry) < 0,false);
-        AssertJUnit.assertEquals(mmapDictionary.indexOf(entry) < 0,false);
+        Assert.assertEquals(false,heapDictionary.indexOf(entry) < 0);
+        Assert.assertEquals(false,mmapDictionary.indexOf(entry) < 0);
       }
     }
   }

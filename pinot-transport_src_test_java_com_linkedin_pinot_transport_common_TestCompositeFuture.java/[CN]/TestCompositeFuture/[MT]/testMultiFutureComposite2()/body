@@ -26,23 +26,23 @@
     expectedErrors.put(k,expectedError);
   }
   runner.waitForDone();
-  AssertJUnit.assertFalse("Composite Cancelled ?",runner.isCancelled());
-  AssertJUnit.assertTrue("Composite Is Done ? ",runner.isDone());
-  AssertJUnit.assertTrue("Composite No Response :",runner.getMessage().isEmpty());
+  Assert.assertFalse(runner.isCancelled(),"Composite Cancelled ?");
+  Assert.assertTrue(runner.isDone(),"Composite Is Done ? ");
+  Assert.assertTrue(runner.getMessage().isEmpty(),"Composite No Response :");
   Map<String,Throwable> runnerException=runner.getError();
   Map<String,Throwable> listenerException=listener.getError();
   for (int i=0; i < numFutures; i++) {
     String k="key_" + i;
     AsyncResponseFuture<String,String> future=(AsyncResponseFuture<String,String>)futureMap.get(k);
-    AssertJUnit.assertFalse("Cancelled ?",future.isCancelled());
-    AssertJUnit.assertTrue("Is Done ? ",future.isDone());
-    AssertJUnit.assertEquals("Error :",expectedErrors.get(k),future.getError().values().iterator().next());
+    Assert.assertFalse(future.isCancelled(),"Cancelled ?");
+    Assert.assertTrue(future.isDone(),"Is Done ? ");
+    Assert.assertEquals(future.getError().values().iterator().next(),expectedErrors.get(k),"Error :");
     AssertJUnit.assertNull("No Reponse :",future.get());
-    AssertJUnit.assertEquals("Message_" + i,expectedErrors.get(k),runnerException.get(k));
-    AssertJUnit.assertEquals("Message_" + i,expectedErrors.get(k),listenerException.get(k));
+    Assert.assertEquals(runnerException.get(k),expectedErrors.get(k),"Message_" + i);
+    Assert.assertEquals(listenerException.get(k),expectedErrors.get(k),"Message_" + i);
   }
-  AssertJUnit.assertFalse("listener Cancelled ?",listener.isCancelled());
-  AssertJUnit.assertTrue("listener Is Done ? ",listener.isDone());
-  AssertJUnit.assertTrue("listener No Response :",listener.getMessage().isEmpty());
+  Assert.assertFalse(listener.isCancelled(),"listener Cancelled ?");
+  Assert.assertTrue(listener.isDone(),"listener Is Done ? ");
+  Assert.assertTrue(listener.getMessage().isEmpty(),"listener No Response :");
   executor.shutdown();
 }

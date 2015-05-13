@@ -20,8 +20,8 @@
     ctxt.setInvertedMap(invMap);
     scImpl.selectServices(ctxt);
     Map<ServerInstance,SegmentIdSet> resultMap=ctxt.getSelectedServers();
-    AssertJUnit.assertEquals("Count",1,resultMap.size());
-    AssertJUnit.assertEquals("Element check",pg,resultMap.get(serverInstance1));
+    Assert.assertEquals(resultMap.size(),1,"Count");
+    Assert.assertEquals(resultMap.get(serverInstance1),pg,"Element check");
     System.out.println(ctxt);
   }
 {
@@ -51,9 +51,9 @@
     ctxt.setInvertedMap(invMap);
     scImpl.selectServices(ctxt);
     Map<ServerInstance,SegmentIdSet> resultMap=ctxt.getSelectedServers();
-    AssertJUnit.assertEquals("Count",2,resultMap.size());
-    AssertJUnit.assertEquals("Element check",pg,resultMap.get(serverInstance1));
-    AssertJUnit.assertEquals("Element check",pg2,resultMap.get(serverInstance2));
+    Assert.assertEquals(resultMap.size(),2,"Count");
+    Assert.assertEquals(resultMap.get(serverInstance1),pg,"Element check");
+    Assert.assertEquals(resultMap.get(serverInstance2),pg2,"Element check");
     System.out.println(ctxt);
   }
 {
@@ -78,13 +78,13 @@
     ctxt.setInvertedMap(invMap);
     scImpl.selectServices(ctxt);
     Map<ServerInstance,SegmentIdSet> resultMap=ctxt.getSelectedServers();
-    AssertJUnit.assertEquals("Count",1,resultMap.size());
-    AssertJUnit.assertEquals("Element check",pg,resultMap.get(serverInstance1));
+    Assert.assertEquals(resultMap.size(),1,"Count");
+    Assert.assertEquals(resultMap.get(serverInstance1),pg,"Element check");
     System.out.println(ctxt);
     scImpl.selectServices(ctxt);
     resultMap=ctxt.getSelectedServers();
-    AssertJUnit.assertEquals("Count",1,resultMap.size());
-    AssertJUnit.assertEquals("Element check",pg,resultMap.get(serverInstance2));
+    Assert.assertEquals(resultMap.size(),1,"Count");
+    Assert.assertEquals(resultMap.get(serverInstance2),pg,"Element check");
     System.out.println(ctxt);
   }
 {
@@ -109,13 +109,13 @@
     ctxt.setInvertedMap(invMap);
     scImpl.selectServices(ctxt);
     Map<ServerInstance,SegmentIdSet> resultMap=ctxt.getSelectedServers();
-    AssertJUnit.assertEquals("Count",2,resultMap.size());
-    AssertJUnit.assertFalse("Element check",resultMap.get(serverInstance1).equals(resultMap.get(serverInstance2)));
+    Assert.assertEquals(resultMap.size(),2,"Count");
+    Assert.assertFalse(resultMap.get(serverInstance1).equals(resultMap.get(serverInstance2)),"Element check");
     System.out.println(ctxt);
     scImpl.selectServices(ctxt);
     resultMap=ctxt.getSelectedServers();
-    AssertJUnit.assertEquals("Count",2,resultMap.size());
-    AssertJUnit.assertFalse("Element check",resultMap.get(serverInstance1).equals(resultMap.get(serverInstance2)));
+    Assert.assertEquals(resultMap.size(),2,"Count");
+    Assert.assertFalse(resultMap.get(serverInstance1).equals(resultMap.get(serverInstance2)),"Element check");
     System.out.println(ctxt);
   }
 }
