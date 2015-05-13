@@ -1,25 +1,27 @@
 {
   final String pql=request.getString("pql");
+  final long startTime=System.nanoTime();
+  final BrokerRequest brokerRequest;
   try {
-    final long startTime=System.nanoTime();
     final JSONObject compiled=requestCompiler.compile(pql);
-    final BrokerRequest brokerRequest=convertToBrokerRequest(compiled);
-    brokerMetrics.addMeteredValue(brokerRequest,BrokerMeter.QUERIES,1);
-    final long requestCompilationTime=System.nanoTime() - startTime;
-    brokerMetrics.addPhaseTiming(brokerRequest,BrokerQueryPhase.REQUEST_COMPILATION,requestCompilationTime);
-    final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
-      @Override public BrokerResponse call() throws Exception {
-        final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
-        return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
-      }
-    }
-);
-    LOGGER.info("Broker Response : " + resp);
-    return resp;
+    brokerRequest=convertToBrokerRequest(compiled);
   }
- catch (  RecognitionException re) {
-    LOGGER.warn("Malformed or unrecognized query " + pql,re);
+ catch (  Exception e) {
+    BrokerResponse brokerResponse=new BrokerResponse();
+    brokerResponse.setExceptions(Arrays.asList(QueryException.getException(QueryException.PQL_PARSING_ERROR,e)));
     brokerMetrics.addMeteredValue(null,BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
-    throw re;
+    return brokerResponse;
   }
+  brokerMetrics.addMeteredValue(brokerRequest,BrokerMeter.QUERIES,1);
+  final long requestCompilationTime=System.nanoTime() - startTime;
+  brokerMetrics.addPhaseTiming(brokerRequest,BrokerQueryPhase.REQUEST_COMPILATION,requestCompilationTime);
+  final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
+    @Override public BrokerResponse call() throws Exception {
+      final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
+      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
+    }
+  }
+);
+  LOGGER.info("Broker Response : " + resp);
+  return resp;
 }
