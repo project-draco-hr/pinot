@@ -20,6 +20,7 @@
     metadataMap.put(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,fieldName),resource.getMetadata().get(fieldName).textValue());
   }
   realtimeDataResourceZKMetadata.setMetadata(metadataMap);
+  realtimeDataResourceZKMetadata.setSortedColumns(getSortedColumnsFromMetadata(metadataMap));
   if (schemaMap.size() > 0) {
     realtimeDataResourceZKMetadata.setDataSchema(Schema.getSchemaFromMap(schemaMap));
   }

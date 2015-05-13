@@ -26,6 +26,7 @@
     metadataMap.put(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,fieldName),resource.getMetadata().get(fieldName).textValue());
   }
   realtimeDataResourceMetadata.setMetadata(metadataMap);
+  realtimeDataResourceMetadata.setSortedColumns(getSortedColumnsFromMetadata(metadataMap));
   realtimeDataResourceMetadata.setDataSchema(Schema.getSchemaFromMap(schemaMap));
 switch (realtimeDataResourceMetadata.getStreamType()) {
 case kafka:

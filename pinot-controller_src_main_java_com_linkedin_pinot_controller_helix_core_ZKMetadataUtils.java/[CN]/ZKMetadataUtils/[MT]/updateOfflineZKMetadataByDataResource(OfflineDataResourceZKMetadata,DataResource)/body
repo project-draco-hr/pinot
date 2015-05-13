@@ -10,6 +10,7 @@
     metadataMap.put(StringUtil.join(".",CommonConstants.Helix.DataSource.METADATA,fieldName),resource.getMetadata().get(fieldName).textValue());
   }
   offlineDataResourceZKMetadata.setMetadata(metadataMap);
+  offlineDataResourceZKMetadata.setSortedColumns(getSortedColumnsFromMetadata(metadataMap));
   try {
     offlineDataResourceZKMetadata.setRetentionTimeUnit(TimeUnit.valueOf(resource.getRetentionTimeUnit()));
     offlineDataResourceZKMetadata.setRetentionTimeValue(Integer.parseInt(resource.getRetentionTimeValue()));

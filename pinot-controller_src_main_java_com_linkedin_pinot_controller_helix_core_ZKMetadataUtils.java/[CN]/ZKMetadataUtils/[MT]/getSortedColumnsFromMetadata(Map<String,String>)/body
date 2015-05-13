@@ -1,0 +1,12 @@
+{
+  if (metadataMap.containsKey(METADATA_SORTED_COLUMNS)) {
+    String sortedColumnsString=metadataMap.get(METADATA_SORTED_COLUMNS);
+    try {
+      return Arrays.asList(sortedColumnsString.split(","));
+    }
+ catch (    Exception e) {
+      LOGGER.warn("Caught exception when split the sorted columns : {}",sortedColumnsString);
+    }
+  }
+  return new ArrayList<String>();
+}
