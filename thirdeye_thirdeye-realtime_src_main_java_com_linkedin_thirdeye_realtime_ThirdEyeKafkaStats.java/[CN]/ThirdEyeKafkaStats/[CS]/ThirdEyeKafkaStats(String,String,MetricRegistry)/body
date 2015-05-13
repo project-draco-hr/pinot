@@ -14,7 +14,7 @@
   String bytesReadName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,BYTES_READ);
   metricRegistry.remove(bytesReadName);
   this.bytesRead=metricRegistry.meter(bytesReadName);
-  String lastPersistTimeMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_PERSIST_TIME_MILLIS);
+  final String lastPersistTimeMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,LAST_PERSIST_TIME_MILLIS);
   metricRegistry.remove(lastPersistTimeMillisName);
   metricRegistry.register(lastPersistTimeMillisName,new Gauge<Long>(){
     @Override public Long getValue(){
@@ -43,6 +43,14 @@
   metricRegistry.register(dataLagMillisName,new Gauge<Long>(){
     @Override public Long getValue(){
       return System.currentTimeMillis() - dataTimeMillis.get();
+    }
+  }
+);
+  final String timeSinceLastPersistMillisName=MetricRegistry.name(ThirdEyeKafkaStats.class,collection,topic,TIME_SINCE_LAST_PERSIST_MILLIS);
+  metricRegistry.remove(timeSinceLastPersistMillisName);
+  metricRegistry.register(timeSinceLastPersistMillisName,new Gauge<Long>(){
+    @Override public Long getValue(){
+      return System.currentTimeMillis() - lastPersistTimeMillis.get();
     }
   }
 );
