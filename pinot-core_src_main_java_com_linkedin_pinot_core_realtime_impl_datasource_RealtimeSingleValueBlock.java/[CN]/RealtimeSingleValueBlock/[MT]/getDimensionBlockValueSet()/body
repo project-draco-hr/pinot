@@ -5,7 +5,7 @@
         private int counter=0;
         private int max=docIdSearchableOffset + 1;
         @Override public boolean skipTo(        int docId){
-          if (docId > max) {
+          if (docId >= max) {
             return false;
           }
           counter=docId;
@@ -25,7 +25,9 @@
           if (!hasNext()) {
             return Constants.EOF;
           }
-          return reader.getInt(counter++);
+          int ret=reader.getInt(counter);
+          counter++;
+          return ret;
         }
         @Override public boolean hasNext(){
           return (counter < max);
