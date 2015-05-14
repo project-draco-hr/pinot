@@ -5,11 +5,11 @@
   for (int i=1; i <= _sizeOfCombineList; ++i) {
     List<Serializable> aggregationResults=getDoubleValues(i);
     List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
-    assertEquals((double)((i - 1) * i) / 2,combinedResult.get(0));
+    assertEquals(combinedResult.get(0),(double)((i - 1) * i) / 2);
   }
   for (int i=1; i <= _sizeOfCombineList; ++i) {
     List<Serializable> combinedResults=getDoubleValues(i);
     Serializable reduceResults=aggregationFunction.reduce(combinedResults);
-    assertEquals((double)((i - 1) * i) / 2,reduceResults);
+    assertEquals(reduceResults,(double)((i - 1) * i) / 2);
   }
 }

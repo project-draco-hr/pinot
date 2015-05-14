@@ -4,11 +4,11 @@
   for (int i=1; i <= _sizeOfCombineList; ++i) {
     List<Serializable> aggregationResults=getIntOpenHashSets(i);
     List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
-    assertEquals(i,((IntOpenHashSet)(combinedResult.get(0))).size());
+    assertEquals(((IntOpenHashSet)(combinedResult.get(0))).size(),i);
   }
   for (int i=1; i <= _sizeOfCombineList; ++i) {
     List<Serializable> combinedResults=getIntOpenHashSets(i);
     int reduceSize=(Integer)aggregationFunction.reduce(combinedResults);
-    assertEquals(i,reduceSize);
+    assertEquals(reduceSize,i);
   }
 }

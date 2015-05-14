@@ -9,11 +9,11 @@
   BucketKey[] ks={k1,k2,k3};
   ServerInstance[] servers={s1,s2,s3};
   List<ServerInstance> candidates=new ArrayList<ServerInstance>();
-  AssertJUnit.assertNull(sel1.selectServer(new SegmentId("1"),candidates,null));
+  Assert.assertNull(sel1.selectServer(new SegmentId("1"),candidates,null));
   candidates.addAll(Arrays.asList(servers));
   for (int i=0; i < 10; i++) {
     int num=i % candidates.size();
     BucketKey k=ks[num];
-    AssertJUnit.assertEquals("Round :" + i,candidates.get(num),sel1.selectServer(new SegmentId("0"),candidates,k));
+    Assert.assertEquals(sel1.selectServer(new SegmentId("0"),candidates,k),candidates.get(num),"Round :" + i);
   }
 }
