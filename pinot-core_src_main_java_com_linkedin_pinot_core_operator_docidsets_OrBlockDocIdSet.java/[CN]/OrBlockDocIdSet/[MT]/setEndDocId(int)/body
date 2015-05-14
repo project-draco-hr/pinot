@@ -1,16 +1,4 @@
 {
-  for (  BlockDocIdSet blockDocIdSet : docIdSets) {
-    if (blockDocIdSet instanceof ScanBasedSingleValueDocIdSet) {
-      ScanBasedSingleValueDocIdSet scanBasedSingleValueDocIdSet=(ScanBasedSingleValueDocIdSet)blockDocIdSet;
-      scanBasedSingleValueDocIdSet.setEndDocId(endDocId);
-    }
-    if (blockDocIdSet instanceof ScanBasedMultiValueDocIdSet) {
-      ScanBasedMultiValueDocIdSet scanBasedMultiValueDocIdSet=(ScanBasedMultiValueDocIdSet)blockDocIdSet;
-      scanBasedMultiValueDocIdSet.setEndDocId(endDocId);
-    }
-    if (blockDocIdSet instanceof BitmapDocIdSet) {
-      BitmapDocIdSet bitmapDocIdSet=(BitmapDocIdSet)blockDocIdSet;
-      bitmapDocIdSet.setEndDocId(endDocId);
-    }
-  }
+  maxDocId=Math.max(maxDocId,endDocId);
+  updateMinMaxRange();
 }

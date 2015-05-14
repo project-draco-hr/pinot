@@ -1,0 +1,10 @@
+{
+  for (  FilterBlockDocIdSet blockDocIdSet : blockDocIdSets) {
+    minDocId=Math.max(minDocId,blockDocIdSet.getMinDocId());
+    maxDocId=Math.min(maxDocId,blockDocIdSet.getMaxDocId());
+  }
+  for (  FilterBlockDocIdSet blockDocIdSet : blockDocIdSets) {
+    blockDocIdSet.setStartDocId(minDocId);
+    blockDocIdSet.setEndDocId(maxDocId);
+  }
+}

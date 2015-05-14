@@ -25,5 +25,13 @@
   final Collection<Serializable[]> reducedResults=selectionOperatorService.reduce(instanceResponseMap);
   final JSONObject jsonResult=selectionOperatorService.render(reducedResults);
   System.out.println(jsonResult);
-  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"results\":[[\"u\",\"68\",\"3\"],[\"u\",\"12\",\"2\"],[\"u\",\"90\",\"1\"],[\"u\",\"67\",\"1\"],[\"u\",\"80\",\"2\"],[\"u\",\"48\",\"2\"],[\"u\",\"71\",\"1\"],[\"u\",\"27\",\"1\"],[\"u\",\"93\",\"1\"],[\"u\",\"96\",\"3\"]],\"columns\":[\"dim_memberGender\",\"dim_memberIndustry\",\"met_impressionCount\"]}");
+  JSONArray columnJsonArray=jsonResult.getJSONArray("columns");
+  Assert.assertEquals(columnJsonArray.getString(0),"dim_memberGender");
+  Assert.assertEquals(columnJsonArray.getString(1),"dim_memberIndustry");
+  Assert.assertEquals(columnJsonArray.getString(2),"met_impressionCount");
+  JSONArray resultsJsonArray=jsonResult.getJSONArray("results");
+  for (int i=0; i < resultsJsonArray.length(); ++i) {
+    JSONArray rowJsonArray=resultsJsonArray.getJSONArray(i);
+    Assert.assertEquals(rowJsonArray.getString(0),"u");
+  }
 }

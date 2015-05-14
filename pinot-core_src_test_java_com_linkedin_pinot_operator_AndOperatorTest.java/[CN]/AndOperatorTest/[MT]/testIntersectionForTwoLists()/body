@@ -2,11 +2,11 @@
   int[] list1=new int[]{2,3,10,15,16,28};
   int[] list2=new int[]{3,6,8,20,28};
   List<Operator> operators=new ArrayList<Operator>();
-  operators.add(makeOperator(list1));
-  operators.add(makeOperator(list2));
+  operators.add(makeFilterOperator(list1));
+  operators.add(makeFilterOperator(list2));
   final AndOperator andOperator=new AndOperator(operators);
   andOperator.open();
-  Block block;
+  BaseFilterBlock block;
   while ((block=andOperator.nextBlock()) != null) {
     final BlockDocIdSet blockDocIdSet=block.getBlockDocIdSet();
     final BlockDocIdIterator iterator=blockDocIdSet.iterator();

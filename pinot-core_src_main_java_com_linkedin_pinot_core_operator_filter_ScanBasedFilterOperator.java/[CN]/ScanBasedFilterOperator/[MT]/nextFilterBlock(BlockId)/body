@@ -1,0 +1,17 @@
+{
+  Predicate predicate=getPredicate();
+  Dictionary dictionary=dataSource.getDictionary();
+  DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
+  FilterBlockDocIdSet docIdSet;
+  Block nextBlock=dataSource.nextBlock();
+  BlockValSet blockValueSet=nextBlock.getBlockValueSet();
+  BlockMetadata blockMetadata=nextBlock.getMetadata();
+  PredicateEvaluator evaluator=PredicateEvaluatorProvider.getPredicateFunctionFor(predicate,dictionary);
+  if (dataSourceMetadata.isSingleValue()) {
+    docIdSet=new ScanBasedSingleValueDocIdSet(blockValueSet,blockMetadata,evaluator.getDictionaryIds());
+  }
+ else {
+    docIdSet=new ScanBasedMultiValueDocIdSet(blockValueSet,blockMetadata,evaluator.getDictionaryIds());
+  }
+  return new ScanBlock(docIdSet);
+}

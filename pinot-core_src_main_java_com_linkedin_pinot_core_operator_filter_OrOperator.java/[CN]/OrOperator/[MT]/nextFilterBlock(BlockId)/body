@@ -1,0 +1,10 @@
+{
+  List<FilterBlockDocIdSet> blockDocIdSets=new ArrayList<FilterBlockDocIdSet>();
+  for (  Operator operator : operators) {
+    Block block=operator.nextBlock();
+    FilterBlockDocIdSet blockDocIdSet=(FilterBlockDocIdSet)block.getBlockDocIdSet();
+    blockDocIdSets.add(blockDocIdSet);
+  }
+  orBlock=new OrBlock(blockDocIdSets);
+  return orBlock;
+}
