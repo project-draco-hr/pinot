@@ -1,14 +1,20 @@
 {
   if (!inited) {
+    inited=true;
+    _currentDoc=0;
     if (_filterOperators == null) {
-      _currentBlock=new MatchEntireSegmentBlock(_docSize);
+      _currentBlock=new MatchEntireSegmentDocIdSetBlock(_docSize);
+      _currentBlockDocIdIterator=_currentBlock.getBlockDocIdSet().iterator();
+      return _currentBlock;
     }
  else {
       _currentBlock=_filterOperators.nextBlock();
     }
     _currentBlockDocIdIterator=_currentBlock.getBlockDocIdSet().iterator();
-    _currentDoc=0;
-    inited=true;
+  }
+  if (_filterOperators == null) {
+    _currentBlock=null;
+    return _currentBlock;
   }
   _pos=0;
   getNextDoc();
