@@ -1,5 +1,9 @@
 {
-  while (valueIterator.hasNext() && counter <= endDocId) {
+  if (currentDocId == Constants.EOF) {
+    return currentDocId;
+  }
+  while (valueIterator.hasNext() && currentDocId <= endDocId) {
+    currentDocId=currentDocId + 1;
     int length=valueIterator.nextIntVal(intArray);
     boolean found=false;
     for (int i=0; i < length; i++) {
@@ -9,9 +13,9 @@
       }
     }
     if (found) {
-      return counter;
+      return currentDocId;
     }
-    counter=counter + 1;
   }
-  return (counter=Constants.EOF);
+  currentDocId=Constants.EOF;
+  return Constants.EOF;
 }

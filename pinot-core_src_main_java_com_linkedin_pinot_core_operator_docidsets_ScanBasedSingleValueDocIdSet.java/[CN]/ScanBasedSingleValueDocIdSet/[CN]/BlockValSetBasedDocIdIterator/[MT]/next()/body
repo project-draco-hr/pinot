@@ -1,10 +1,14 @@
 {
-  while (valueIterator.hasNext() && currentDocId <= endDocId) {
-    int next=valueIterator.nextIntVal();
-    if (dictIdSet.contains(next)) {
-      return currentDocId++;
-    }
-    currentDocId=currentDocId + 1;
+  if (currentDocId == Constants.EOF) {
+    return currentDocId;
   }
+  while (valueIterator.hasNext() && currentDocId <= endDocId) {
+    currentDocId=currentDocId + 1;
+    int dictIdForCurrentDoc=valueIterator.nextIntVal();
+    if (dictIdSet.contains(dictIdForCurrentDoc)) {
+      return currentDocId;
+    }
+  }
+  currentDocId=Constants.EOF;
   return Constants.EOF;
 }

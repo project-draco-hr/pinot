@@ -2,10 +2,17 @@
   return new BlockDocIdIterator(){
     final PriorityQueue<IntPair> queue=new PriorityQueue<IntPair>(docIdIterators.length,new Pairs.AscendingIntPairComparator());
     final boolean[] iteratorIsInQueue=new boolean[docIdIterators.length];
-    int currentDocId=0;
+    int currentDocId=-1;
     @Override public int advance(    int targetDocId){
       if (currentDocId == Constants.EOF) {
         return Constants.EOF;
+      }
+      if (targetDocId < getMinDocId()) {
+        targetDocId=getMinDocId();
+      }
+ else       if (targetDocId > getMaxDocId()) {
+        currentDocId=Constants.EOF;
+        return currentDocId;
       }
       long start=System.nanoTime();
       Iterator<IntPair> iterator=queue.iterator();
@@ -18,21 +25,15 @@
       }
       for (int i=0; i < docIdIterators.length; i++) {
         if (!iteratorIsInQueue[i]) {
-          int next=docIdIterators[i].advance(targetDocId);
-          if (next != Constants.EOF) {
-            queue.add(new IntPair(next,i));
+          int nextDocId=docIdIterators[i].advance(targetDocId);
+          if (nextDocId != Constants.EOF) {
+            queue.add(new IntPair(nextDocId,i));
           }
           iteratorIsInQueue[i]=true;
         }
       }
       if (queue.size() > 0) {
-        IntPair pair=queue.remove();
-        iteratorIsInQueue[pair.getB()]=false;
-        currentDocId=pair.getA();
-        while (queue.size() > 0 && queue.peek().getA() == currentDocId) {
-          IntPair remove=queue.remove();
-          iteratorIsInQueue[remove.getB()]=false;
-        }
+        currentDocId=queue.peek().getA();
       }
  else {
         currentDocId=Constants.EOF;
@@ -43,23 +44,28 @@
     }
     @Override public int next(){
       long start=System.nanoTime();
+      if (currentDocId == Constants.EOF) {
+        return currentDocId;
+      }
+      while (queue.size() > 0 && queue.peek().getA() <= currentDocId) {
+        IntPair pair=queue.remove();
+        iteratorIsInQueue[pair.getB()]=false;
+      }
+      currentDocId++;
       for (int i=0; i < docIdIterators.length; i++) {
         if (!iteratorIsInQueue[i]) {
-          int next=docIdIterators[i].next();
-          if (next != Constants.EOF) {
-            queue.add(new IntPair(next,i));
+          int nextDocId=docIdIterators[i].advance(currentDocId);
+          if (nextDocId != Constants.EOF) {
+            if (!(nextDocId <= getMaxDocId() && nextDocId >= getMinDocId() && nextDocId >= currentDocId)) {
+              throw new RuntimeException("next Doc : " + nextDocId + " should never crossing the range : [ "+ getMinDocId()+ ", "+ getMaxDocId()+ " ]");
+            }
+            queue.add(new IntPair(nextDocId,i));
           }
           iteratorIsInQueue[i]=true;
         }
       }
       if (queue.size() > 0) {
-        IntPair pair=queue.remove();
-        iteratorIsInQueue[pair.getB()]=false;
-        currentDocId=pair.getA();
-        while (queue.size() > 0 && queue.peek().getA() == currentDocId) {
-          pair=queue.remove();
-          iteratorIsInQueue[pair.getB()]=false;
-        }
+        currentDocId=queue.peek().getA();
       }
  else {
         currentDocId=Constants.EOF;

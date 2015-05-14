@@ -1,4 +1,7 @@
 {
+  if (_currentDoc == Constants.EOF) {
+    return null;
+  }
   if (!inited) {
     inited=true;
     _currentDoc=0;
@@ -19,17 +22,17 @@
   _pos=0;
   getNextDoc();
   while (_currentDoc != Constants.EOF) {
-    _docIds[_pos++]=_currentDoc;
+    _docIdArray[_pos++]=_currentDoc;
     if (_pos == _maxSizeOfdocIdSet) {
       _searchableDocIdSize=_pos;
-      _currentDocIdSetBlock=new DocIdSetBlock(_docIds,_pos);
+      _currentDocIdSetBlock=new DocIdSetBlock(_docIdArray,_pos);
       return _currentDocIdSetBlock;
     }
     getNextDoc();
   }
   if (_pos > 0) {
     _searchableDocIdSize=_pos;
-    _currentDocIdSetBlock=new DocIdSetBlock(_docIds,_pos);
+    _currentDocIdSetBlock=new DocIdSetBlock(_docIdArray,_pos);
     return _currentDocIdSetBlock;
   }
   _currentDocIdSetBlock=null;

@@ -4,21 +4,21 @@
     targetDocId=startDocId;
   }
  else   if (targetDocId > endDocId) {
-    counter=Constants.EOF;
+    currentDocId=Constants.EOF;
   }
-  if (counter == Constants.EOF) {
-    return counter;
+  if (currentDocId == Constants.EOF) {
+    return currentDocId;
   }
   Iterator<IntPair> iterator=queue.iterator();
   while (iterator.hasNext()) {
     IntPair pair=iterator.next();
     if (pair.getA() < targetDocId) {
       iterator.remove();
-      exists[pair.getB()]=false;
+      iteratorIsInQueue[pair.getB()]=false;
     }
   }
   for (int i=0; i < iterators.length; i++) {
-    if (!exists[i]) {
+    if (!iteratorIsInQueue[i]) {
       int next;
       while (iterators[i].hasNext()) {
         next=iterators[i].next();
@@ -30,16 +30,16 @@
           break;
         }
       }
-      exists[i]=true;
+      iteratorIsInQueue[i]=true;
     }
   }
   if (queue.size() > 0) {
-    counter=queue.peek().getA();
+    currentDocId=queue.peek().getA();
   }
  else {
-    counter=Constants.EOF;
+    currentDocId=Constants.EOF;
   }
   long end=System.nanoTime();
   timeMeasure.addAndGet(end - start);
-  return counter;
+  return currentDocId;
 }

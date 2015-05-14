@@ -2,22 +2,19 @@
   return new BlockDocIdSet(){
     @Override public BlockDocIdIterator iterator(){
       return new BlockDocIdIterator(){
-        int _pos=0;
+        int _pos=-1;
         @Override public int advance(        int targetDocId){
-          _pos=Arrays.binarySearch(_docIdSet,targetDocId);
-          if (_pos < 0) {
-            _pos=(_pos + 1) * -1;
-          }
-          return _docIdSet[_pos];
+          throw new UnsupportedOperationException("Not support advance in DocIdSetBlock()");
         }
         @Override public int next(){
+          _pos++;
           if (_pos == _searchableLength) {
             return Constants.EOF;
           }
-          return _docIdSet[_pos++];
+          return _docIdArray[_pos];
         }
         @Override public int currentDocId(){
-          return _docIdSet[_pos];
+          return _docIdArray[_pos];
         }
       }
 ;
