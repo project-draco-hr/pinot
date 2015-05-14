@@ -60,7 +60,7 @@
   Assert.assertEquals(s.getTotalDestroyed(),3);
   f.get();
   reader.getEndLatch().await();
-  AssertJUnit.assertTrue(reader.isDone());
+  Assert.assertTrue(reader.isDone());
   Future<Map<String,NoneType>> f2=kPool.shutdown();
   f2.get();
   Map<String,List<String>> destroyedMap=rm.getDestroyedMap();
@@ -69,7 +69,7 @@
     List<String> r=destroyedMap.get(getKey(i));
     Assert.assertEquals(r.size(),numResourcesPerKey,"Resource for Key (" + getKey(i) + ")");
     for (int j=0; j < numResourcesPerKey; j++) {
-      AssertJUnit.assertTrue(r.contains(getResource(i,j)));
+      Assert.assertTrue(r.contains(getResource(i,j)));
     }
   }
 }

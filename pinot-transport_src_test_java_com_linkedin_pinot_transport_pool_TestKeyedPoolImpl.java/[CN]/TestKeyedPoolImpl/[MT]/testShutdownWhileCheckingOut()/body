@@ -15,14 +15,14 @@
  catch (  TimeoutException e) {
     isTimedout=true;
   }
-  AssertJUnit.assertTrue(isTimedout);
+  Assert.assertTrue(isTimedout);
   kPool.shutdown().get();
-  AssertJUnit.assertNull(f.get());
-  AssertJUnit.assertNotNull(f.getError());
+  Assert.assertNull(f.get());
+  Assert.assertNotNull(f.getError());
   boolean cancelled=f.cancel(false);
-  AssertJUnit.assertFalse(cancelled);
-  AssertJUnit.assertFalse(f.isCancelled());
-  AssertJUnit.assertTrue(f.isDone());
+  Assert.assertFalse(cancelled);
+  Assert.assertFalse(f.isCancelled());
+  Assert.assertTrue(f.isDone());
   rm.getCreateBlockLatch().countDown();
   Thread.sleep(5000);
 }

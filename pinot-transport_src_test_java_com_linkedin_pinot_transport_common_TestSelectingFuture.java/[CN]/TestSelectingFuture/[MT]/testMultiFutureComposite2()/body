@@ -28,7 +28,7 @@
   runner.waitForDone();
   Assert.assertFalse(runner.isCancelled(),"Composite Cancelled ?");
   Assert.assertTrue(runner.isDone(),"Composite Is Done ? ");
-  AssertJUnit.assertNull("Composite No Message :",runner.getMessage());
+  Assert.assertNull(runner.getMessage(),"Composite No Message :");
   Assert.assertEquals(runner.getError(),expectedError,"Error");
   Assert.assertFalse(futureList.get(0).isCancelled(),"First response not cancelled");
   Assert.assertFalse(futureList.get(1).isCancelled(),"Second response not cancelled");
@@ -36,8 +36,8 @@
   Assert.assertNotNull(futureList.get(0).getError());
   Assert.assertNotNull(futureList.get(1).getError());
   Assert.assertEquals(futureList.get(2).getError().get("key_2"),runner.getError());
-  AssertJUnit.assertNull(futureList.get(0).get());
-  AssertJUnit.assertNull(futureList.get(1).get());
-  AssertJUnit.assertNull(futureList.get(2).get());
+  Assert.assertNull(futureList.get(0).get());
+  Assert.assertNull(futureList.get(1).get());
+  Assert.assertNull(futureList.get(2).get());
   executor.shutdown();
 }
