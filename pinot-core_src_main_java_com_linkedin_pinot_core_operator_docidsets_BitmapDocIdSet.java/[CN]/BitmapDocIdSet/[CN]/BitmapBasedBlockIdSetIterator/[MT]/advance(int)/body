@@ -6,6 +6,9 @@
  else   if (targetDocId > endDocId) {
     counter=Constants.EOF;
   }
+  if (counter == Constants.EOF) {
+    return counter;
+  }
   Iterator<IntPair> iterator=queue.iterator();
   while (iterator.hasNext()) {
     IntPair pair=iterator.next();
@@ -30,7 +33,12 @@
       exists[i]=true;
     }
   }
-  removeFirstFromQueue();
+  if (queue.size() > 0) {
+    counter=queue.peek().getA();
+  }
+ else {
+    counter=Constants.EOF;
+  }
   long end=System.nanoTime();
   timeMeasure.addAndGet(end - start);
   return counter;

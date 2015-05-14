@@ -23,7 +23,8 @@ bitmapList.add(neqBitmap);
 break;
 case IN:
 String[] inRangeStrings=((InPredicate)predicate).getInRange();
-for (String rawValueInString : inRangeStrings) {
+Set<String> inRangeStringSet=new HashSet<String>(Arrays.asList(inRangeStrings));
+for (String rawValueInString : inRangeStringSet) {
 MutableRoaringBitmap bitmap=invertedIndex.getDocIdSetFor(getNumberObjectFromString(rawValueInString));
 if (bitmap != null) {
 bitmapList.add(bitmap);

@@ -21,7 +21,7 @@ final String[] inValues=((InPredicate)predicate).getInRange();
 final MutableRoaringBitmap inHolder=new MutableRoaringBitmap();
 for (final String value : inValues) {
 final int index=dictionary.indexOf(value);
-if (index >= 0) {
+if ((index >= 0) && (!ret.contains(index))) {
 ret.add(index);
 }
 }

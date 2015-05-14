@@ -1,5 +1,6 @@
 {
   try {
+    connection.prepareCall("DROP TABLE IF EXISTS mytable");
     File schemaAvroFile=avroFiles.get(0);
     DatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
     DataFileReader<GenericRecord> dataFileReader=new DataFileReader<GenericRecord>(schemaAvroFile,datumReader);
@@ -10,11 +11,15 @@
       try {
         List<Schema> types=field.schema().getTypes();
         String columnNameAndType;
+        String typeName=types.get(0).getName();
+        if (typeName.equalsIgnoreCase("int")) {
+          typeName="bigint";
+        }
         if (types.size() == 1) {
-          columnNameAndType=field.name() + " " + types.get(0).getName()+ " not null";
+          columnNameAndType=field.name() + " " + typeName+ " not null";
         }
  else {
-          columnNameAndType=field.name() + " " + types.get(0).getName();
+          columnNameAndType=field.name() + " " + typeName;
         }
         columnNamesAndTypes.add(columnNameAndType.replace("string","varchar(128)"));
       }

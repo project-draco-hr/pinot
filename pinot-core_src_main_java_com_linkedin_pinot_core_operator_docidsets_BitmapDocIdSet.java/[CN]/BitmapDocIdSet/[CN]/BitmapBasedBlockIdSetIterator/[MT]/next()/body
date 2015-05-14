@@ -1,10 +1,18 @@
 {
   long start=System.nanoTime();
+  if (counter == Constants.EOF) {
+    return counter;
+  }
+  while (queue.size() > 0 && queue.peek().getA() <= counter) {
+    IntPair pair=queue.remove();
+    exists[pair.getB()]=false;
+  }
+  counter++;
   for (int i=0; i < iterators.length; i++) {
     if (!exists[i]) {
       while (iterators[i].hasNext()) {
         int next=iterators[i].next();
-        if (next >= startDocId && next <= endDocId) {
+        if (next >= startDocId && next <= endDocId && next >= counter) {
           queue.add(new IntPair(next,i));
           break;
         }
@@ -15,7 +23,12 @@
       exists[i]=true;
     }
   }
-  removeFirstFromQueue();
+  if (queue.size() > 0) {
+    counter=queue.peek().getA();
+  }
+ else {
+    counter=Constants.EOF;
+  }
   long end=System.nanoTime();
   timeMeasure.addAndGet(end - start);
   return counter;

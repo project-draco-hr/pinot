@@ -53,7 +53,7 @@
               for (int groupKeyIndex=1; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
                 pinotGroupKey+="\t" + group.getString(groupKeyIndex);
               }
-              actualValues.put(pinotGroupKey,Integer.toString((int)Double.parseDouble(groupByResults.getJSONObject(resultIndex).getString("value"))));
+              actualValues.put(pinotGroupKey,groupByResults.getJSONObject(resultIndex).getString("value"));
             }
             Map<String,String> correctValues=new TreeMap<String,String>(new NullableStringComparator());
             LOGGER.info("Trying to execute sql query: " + sqlQueries.get(aggregationGroupIndex));
@@ -91,7 +91,7 @@
                 }
  else {
                   Assert.assertTrue(correctValues.containsKey(pinotKey),"Result group '" + pinotKey + "' returned by Pinot was not returned by H2 for query "+ pqlQuery);
-                  Assert.assertEquals(actualValues.get(pinotKey),correctValues.get(pinotKey),"Results differ between Pinot and H2 for query " + pqlQuery + " and group "+ pinotKey);
+                  Assert.assertTrue(Math.abs(Double.parseDouble(actualValues.get(pinotKey)) - Double.parseDouble(correctValues.get(pinotKey))) < 1);
                 }
               }
             }
