@@ -1,0 +1,11 @@
+{
+  if (columnIndex != 0) {
+    throw new IllegalArgumentException("Column index must always be 0 for aggregation result sets");
+  }
+  try {
+    return _groupByResults.getJSONObject(rowIndex).getString("value");
+  }
+ catch (  Exception e) {
+    throw new PinotClientException(e);
+  }
+}

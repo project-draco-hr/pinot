@@ -1,0 +1,7 @@
+{
+  Connection connection=ConnectionFactory.fromHostList("dummy");
+  PreparedStatement preparedStatement=connection.prepareStatement("SELECT foo FROM bar WHERE baz = ?");
+  preparedStatement.setString(0,"'hello'");
+  preparedStatement.execute();
+  Assert.assertEquals("SELECT foo FROM bar WHERE baz = '''hello'''",_dummyPinotClientTransport.getLastQuery());
+}

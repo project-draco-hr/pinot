@@ -1,0 +1,44 @@
+{
+  try {
+    final JSONObject json=new JSONObject();
+    json.put("pql",query);
+    final String url="http://" + brokerAddress + "/query";
+    final Future<Response> response=_httpClient.preparePost(url).setBody(json.toString()).execute();
+    return new Future<BrokerResponse>(){
+      public boolean cancel(      boolean mayInterruptIfRunning){
+        return response.cancel(mayInterruptIfRunning);
+      }
+      public boolean isCancelled(){
+        return response.isCancelled();
+      }
+      public boolean isDone(){
+        return response.isDone();
+      }
+      @Override public BrokerResponse get() throws InterruptedException, ExecutionException {
+        try {
+          return get(1000L,TimeUnit.DAYS);
+        }
+ catch (        TimeoutException e) {
+          throw new InterruptedException();
+        }
+      }
+      @Override public BrokerResponse get(      long timeout,      TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        try {
+          Response httpResponse=response.get(timeout,unit);
+          if (httpResponse.getStatusCode() != 200) {
+            throw new PinotClientException("Pinot returned HTTP status " + httpResponse.getStatusCode() + ", expected 200");
+          }
+          String responseBody=httpResponse.getResponseBody();
+          return BrokerResponse.fromJson(new JSONObject(responseBody));
+        }
+ catch (        Exception e) {
+          throw new ExecutionException(e);
+        }
+      }
+    }
+;
+  }
+ catch (  Exception e) {
+    throw new PinotClientException(e);
+  }
+}

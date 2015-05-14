@@ -1,0 +1,13 @@
+{
+  ResultSetGroup resultSetGroup=getResultSet("selection.json");
+  ResultSet resultSet=resultSetGroup.getResultSet(0);
+  Assert.assertEquals(resultSetGroup.getResultSetCount(),1,"Expected one result set for selection query");
+  Assert.assertEquals(resultSet.getRowCount(),24,"Mismatched selection query length");
+  Assert.assertEquals(resultSet.getInt(0,0),84);
+  Assert.assertEquals(resultSet.getLong(1,0),202L);
+  Assert.assertEquals(resultSet.getString(2,0),"95");
+  Assert.assertEquals(resultSet.getInt(0,78),2014);
+  Assert.assertEquals(resultSet.getColumnCount(),79);
+  Assert.assertEquals(resultSet.getColumnName(0),"ActualElapsedTime");
+  Assert.assertEquals(resultSet.getColumnName(1),"AirTime");
+}

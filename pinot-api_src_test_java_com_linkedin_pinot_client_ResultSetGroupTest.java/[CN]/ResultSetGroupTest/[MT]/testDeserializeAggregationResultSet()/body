@@ -1,0 +1,12 @@
+{
+  ResultSetGroup resultSetGroup=getResultSet("aggregation.json");
+  Assert.assertEquals(resultSetGroup.getResultSetCount(),1,"Result set count mismatch");
+  ResultSet resultSet=resultSetGroup.getResultSet(0);
+  Assert.assertEquals(resultSet.getGroupKeyLength(),0,"Expected 0 length group key for non-group by aggregation query");
+  Assert.assertEquals(resultSet.getRowCount(),1,"Result group length mismatch");
+  Assert.assertEquals(resultSet.getInt(0),36542,"Mismatched int value");
+  Assert.assertEquals(resultSet.getLong(0),36542L,"Mismatched long value");
+  Assert.assertEquals(resultSet.getString(0),"36542","Mismatched String value");
+  Assert.assertEquals(resultSet.getColumnCount(),1);
+  Assert.assertEquals(resultSet.getColumnName(0),"count_star");
+}

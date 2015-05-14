@@ -1,0 +1,15 @@
+{
+  ResultSetGroup resultSetGroup=getResultSet("aggregationGroupBy.json");
+  Assert.assertEquals(resultSetGroup.getResultSetCount(),1,"Result set count mismatch");
+  ResultSet resultSet=resultSetGroup.getResultSet(0);
+  Assert.assertEquals(resultSet.getGroupKeyLength(),1,"Group key length mismatch");
+  Assert.assertEquals(resultSet.getRowCount(),10,"Result group length mismatch");
+  Assert.assertEquals(resultSet.getGroupKeyInt(0,0),30194);
+  Assert.assertEquals(resultSet.getGroupKeyLong(1,0),31057L);
+  Assert.assertEquals(resultSet.getGroupKeyString(2,0),"32467");
+  Assert.assertEquals(resultSet.getInt(0),3604);
+  Assert.assertEquals(resultSet.getLong(1),1804L);
+  Assert.assertEquals(resultSet.getString(2),"1316");
+  Assert.assertEquals(resultSet.getColumnCount(),1);
+  Assert.assertEquals(resultSet.getColumnName(0),"count_star");
+}

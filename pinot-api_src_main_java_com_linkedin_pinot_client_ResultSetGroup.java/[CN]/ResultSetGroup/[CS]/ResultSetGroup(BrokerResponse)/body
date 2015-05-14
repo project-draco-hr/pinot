@@ -1,0 +1,19 @@
+{
+  _resultSets=new ArrayList<ResultSet>();
+  if (brokerResponse.getSelectionResults() != null) {
+    _resultSets.add(new SelectionResultSet(brokerResponse.getSelectionResults()));
+  }
+  int aggregationResultCount=brokerResponse.getAggregationResultsSize();
+  for (int i=0; i < aggregationResultCount; i++) {
+    JSONObject aggregationResult=brokerResponse.getAggregationResults().get(i);
+    if (aggregationResult.has("value")) {
+      _resultSets.add(new AggregationResultSet(aggregationResult));
+    }
+ else     if (aggregationResult.has("groupByResult")) {
+      _resultSets.add(new GroupByResultSet(aggregationResult));
+    }
+ else {
+      throw new PinotClientException("Unrecognized result group, neither a value nor group by result");
+    }
+  }
+}

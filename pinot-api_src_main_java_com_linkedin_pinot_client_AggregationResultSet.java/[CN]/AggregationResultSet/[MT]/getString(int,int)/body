@@ -1,0 +1,14 @@
+{
+  if (columnIndex != 0) {
+    throw new IllegalArgumentException("Column index must always be 0 for aggregation result sets");
+  }
+  if (rowIndex != 0) {
+    throw new IllegalArgumentException("Row index must always be 0 for aggregation result sets");
+  }
+  try {
+    return _jsonObject.getString("value");
+  }
+ catch (  Exception e) {
+    throw new PinotClientException(e);
+  }
+}
