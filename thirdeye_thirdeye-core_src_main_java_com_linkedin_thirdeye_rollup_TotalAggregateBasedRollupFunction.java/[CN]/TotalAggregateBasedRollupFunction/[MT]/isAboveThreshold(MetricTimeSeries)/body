@@ -1,0 +1,11 @@
+{
+  Set<Long> timeWindowSet=timeSeries.getTimeWindowSet();
+  long sum=0;
+  for (  Long timeWindow : timeWindowSet) {
+    sum+=timeSeries.get(timeWindow,metricName).longValue();
+  }
+  if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("sum = " + sum);
+  }
+  return sum >= totalAggregateThreshold;
+}

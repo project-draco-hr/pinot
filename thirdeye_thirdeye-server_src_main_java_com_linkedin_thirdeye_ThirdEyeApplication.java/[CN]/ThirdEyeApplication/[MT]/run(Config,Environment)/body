@@ -64,8 +64,6 @@
   environment.jersey().register(new DashboardResource(starTreeManager,timeSeriesResource,funnelResource,heatMapResource,config.getFeedbackAddress()));
   environment.jersey().register(new QueryResource(new ThirdEyeQueryExecutor(parallelQueryExecutor,starTreeManager)));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
-  environment.admin().addTask(new ViewTreeTask(starTreeManager));
-  environment.admin().addTask(new ViewDimensionIndexTask(rootDir));
-  environment.admin().addTask(new ViewMetricIndexTask(rootDir));
   environment.admin().addTask(new KafkaTask(kafkaConsumerManager));
+  environment.admin().addTask(new MergeTask(starTreeManager,dataUpdateManager));
 }

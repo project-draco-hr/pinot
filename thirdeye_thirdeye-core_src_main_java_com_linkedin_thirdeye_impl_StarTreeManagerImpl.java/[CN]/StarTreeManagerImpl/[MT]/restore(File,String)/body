@@ -24,6 +24,12 @@ synchronized (trees) {
         trees.get(collection).put(dataDir,starTree);
         starTree.open();
         LOGGER.info("Opened tree {} for collection {}",starTree.getRoot(),collection);
+        InputStream indexMetadataFile=new FileInputStream(new File(dataDir,StarTreeConstants.METADATA_FILE_NAME));
+        Properties indexMetadataProps=new Properties();
+        indexMetadataProps.load(indexMetadataFile);
+        indexMetadataFile.close();
+        IndexMetadata indexMetadata=IndexMetadata.fromProperties(indexMetadataProps);
+        allIndexMetadata.put(root.getId(),indexMetadata);
       }
       openCollections.add(collection);
       LOGGER.info("Opened {} trees for collection {}",dataDirs.length,collection);

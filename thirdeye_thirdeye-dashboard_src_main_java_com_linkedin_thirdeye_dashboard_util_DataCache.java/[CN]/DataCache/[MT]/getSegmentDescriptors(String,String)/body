@@ -1,3 +1,8 @@
 {
-  return segments.get(serverUri + "/collections/" + URLEncoder.encode(collection,ENCODING)+ "/segments");
+  String cacheKey=serverUri + "/collections/" + URLEncoder.encode(collection,ENCODING)+ "/segments";
+  List<SegmentDescriptor> descriptors=segments.get(cacheKey);
+  if (descriptors.isEmpty()) {
+    segments.invalidate(cacheKey);
+  }
+  return descriptors;
 }

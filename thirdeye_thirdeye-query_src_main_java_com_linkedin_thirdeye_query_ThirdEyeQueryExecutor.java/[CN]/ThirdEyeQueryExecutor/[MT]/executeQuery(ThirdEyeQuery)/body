@@ -10,6 +10,7 @@
   }
   result.setDimensions(dimensionNames);
   long startOffset=0;
+  long collectionWindowMillis=0;
   for (  ThirdEyeFunction function : query.getFunctions()) {
     if (function instanceof ThirdEyeMovingAverageFunction) {
       ThirdEyeMovingAverageFunction movingAverageFunction=(ThirdEyeMovingAverageFunction)function;
@@ -19,10 +20,28 @@
         startOffset=windowMillis;
       }
     }
+ else     if (function instanceof ThirdEyeAggregateFunction) {
+      ThirdEyeAggregateFunction aggregateFunction=(ThirdEyeAggregateFunction)function;
+      TimeGranularity window=aggregateFunction.getWindow();
+      collectionWindowMillis=TimeUnit.MILLISECONDS.convert(window.getSize(),window.getUnit());
+    }
   }
   long startTime=dateTimeToCollectionTime(config,new DateTime(query.getStart().getMillis() - startOffset));
-  long endTime=dateTimeToCollectionTime(config,query.getEnd()) - 1;
+  long endTime=dateTimeToCollectionTime(config,query.getEnd());
+  if (collectionWindowMillis > 0) {
+    long collectionWindow=dateTimeToCollectionTime(config,new DateTime(collectionWindowMillis));
+    startTime=(startTime / collectionWindow) * collectionWindow;
+    endTime=(endTime / collectionWindow + 1) * collectionWindow;
+  }
   final TimeRange timeRange=new TimeRange(startTime,endTime);
+  Set<UUID> treeIds=new HashSet<>();
+  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(starTree.getRoot().getId());
+    TimeRange treeTimeRange=new TimeRange(indexMetadata.getMinDataTime(),indexMetadata.getMaxDataTime());
+    if (!timeRange.isDisjoint(treeTimeRange)) {
+      treeIds.add(starTree.getRoot().getId());
+    }
+  }
   if (!query.getGroupByColumns().isEmpty()) {
     for (    final String groupByColumn : query.getGroupByColumns()) {
       if (query.getDimensionValues().containsKey(groupByColumn)) {
@@ -30,6 +49,9 @@
       }
       final Set<Future<Set<String>>> dimensionSetFutures=new HashSet<>();
       for (      final StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+        if (!treeIds.contains(starTree.getRoot().getId())) {
+          continue;
+        }
         dimensionSetFutures.add(executorService.submit(new Callable<Set<String>>(){
           @Override public Set<String> call() throws Exception {
             Multimap<String,String> values=query.getDimensionValues();
@@ -49,6 +71,7 @@
       for (      Future<Set<String>> future : dimensionSetFutures) {
         dimensionSet.addAll(future.get());
       }
+      dimensionSet.remove(StarTreeConstants.STAR);
       for (      String dimensionValue : dimensionSet) {
         query.addDimensionValue(groupByColumn,dimensionValue);
       }
@@ -60,7 +83,7 @@
   }
   Map<StarTree,Map<DimensionKey,Future<MetricTimeSeries>>> timeSeriesFutures=new HashMap<>();
   for (  final StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
-    if (timeRange.isDisjoint(fromStats(starTree.getStats()))) {
+    if (!treeIds.contains(starTree.getRoot().getId())) {
       continue;
     }
     timeSeriesFutures.put(starTree,new HashMap<DimensionKey,Future<MetricTimeSeries>>());
@@ -73,19 +96,29 @@
 ));
     }
   }
-  for (  Map<DimensionKey,Future<MetricTimeSeries>> treeResult : timeSeriesFutures.values()) {
-    for (    Map.Entry<DimensionKey,Future<MetricTimeSeries>> entry : treeResult.entrySet()) {
-      MetricTimeSeries timeSeries=entry.getValue().get();
-      for (      ThirdEyeFunction function : query.getFunctions()) {
-        timeSeries=function.apply(config,query,timeSeries);
+  Map<DimensionKey,MetricTimeSeries> mergedResults=new HashMap<>();
+  for (  Map<DimensionKey,Future<MetricTimeSeries>> resultMap : timeSeriesFutures.values()) {
+    for (    Map.Entry<DimensionKey,Future<MetricTimeSeries>> entry : resultMap.entrySet()) {
+      MetricTimeSeries additionalSeries=entry.getValue().get();
+      MetricTimeSeries currentSeries=mergedResults.get(entry.getKey());
+      if (currentSeries == null) {
+        currentSeries=new MetricTimeSeries(additionalSeries.getSchema());
+        mergedResults.put(entry.getKey(),currentSeries);
       }
-      for (      ThirdEyeFunction function : query.getDerivedMetrics()) {
-        timeSeries=function.apply(config,query,timeSeries);
-      }
-      timeSeries=TO_MILLIS.apply(config,query,timeSeries);
-      result.addData(entry.getKey(),timeSeries);
-      result.setMetrics(timeSeries.getSchema().getNames());
+      currentSeries.aggregate(additionalSeries);
     }
+  }
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : mergedResults.entrySet()) {
+    MetricTimeSeries timeSeries=entry.getValue();
+    for (    ThirdEyeFunction function : query.getFunctions()) {
+      timeSeries=function.apply(config,query,timeSeries);
+    }
+    for (    ThirdEyeFunction function : query.getDerivedMetrics()) {
+      timeSeries=function.apply(config,query,timeSeries);
+    }
+    timeSeries=TO_MILLIS.apply(config,query,timeSeries);
+    result.addData(entry.getKey(),timeSeries);
+    result.setMetrics(timeSeries.getSchema().getNames());
   }
   return result;
 }

@@ -6,4 +6,5 @@
   environment.jersey().register(new DashboardResource(config.getServerUri(),dataCache,queryCache,environment.getObjectMapper()));
   environment.jersey().register(new FlotTimeSeriesResource(config.getServerUri(),queryCache,environment.getObjectMapper()));
   environment.jersey().register(new MetadataResource(config.getServerUri(),dataCache));
+  environment.admin().addTask(new ClearCachesTask(dataCache,queryCache));
 }

@@ -28,6 +28,12 @@ synchronized (trees) {
             File treeFile=new File(file,StarTreeConstants.TREE_FILE_NAME);
             ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(treeFile));
             StarTreeNode root=(StarTreeNode)inputStream.readObject();
+            InputStream indexMetadataFile=new FileInputStream(new File(file,StarTreeConstants.METADATA_FILE_NAME));
+            Properties indexMetadataProps=new Properties();
+            indexMetadataProps.load(indexMetadataFile);
+            indexMetadataFile.close();
+            IndexMetadata indexMetadata=IndexMetadata.fromProperties(indexMetadataProps);
+            allIndexMetadata.put(root.getId(),indexMetadata);
             Map<File,StarTree> existingTrees=trees.get(config.getCollection());
             if (existingTrees == null) {
               LOGGER.error("There is a watch on collection {} but no open trees!",config.getCollection());
@@ -46,7 +52,7 @@ synchronized (trees) {
               }
  catch (              Exception e) {
                 if (LOGGER.isDebugEnabled()) {
-                  LOGGER.debug("{}",e);
+                  LOGGER.debug("Error while watching collection directory",e);
                 }
               }
             }
@@ -55,7 +61,7 @@ synchronized (trees) {
       }
     }
  catch (    Exception e) {
-      LOGGER.error("{}",e);
+      LOGGER.error("Error while watching collection directory",e);
     }
     if (key != null) {
       boolean valid=key.reset();

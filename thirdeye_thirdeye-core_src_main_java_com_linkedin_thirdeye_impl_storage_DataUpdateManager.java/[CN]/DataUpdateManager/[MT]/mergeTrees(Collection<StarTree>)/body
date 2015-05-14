@@ -1,0 +1,17 @@
+{
+  StarTreeConfig baseConfig=starTrees.iterator().next().getConfig();
+  StarTreeConfig inMemoryConfig=new StarTreeConfig(baseConfig.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),baseConfig.getAnomalyDetectionFunctionClass(),baseConfig.getAnomalyDetectionFunctionConfig(),baseConfig.getAnomalyHandlerClass(),baseConfig.getAnomalyHandlerConfig(),baseConfig.getAnomalyDetectionMode(),baseConfig.getDimensions(),baseConfig.getMetrics(),baseConfig.getTime(),baseConfig.getJoinSpec(),baseConfig.getRollup(),baseConfig.getSplit(),false);
+  final StarTree mergedTree=new StarTreeImpl(inMemoryConfig);
+  mergedTree.open();
+  for (  StarTree starTree : starTrees) {
+    starTree.eachLeaf(new StarTreeCallback(){
+      @Override public void call(      StarTreeNode node){
+        for (        StarTreeRecord record : node.getRecordStore()) {
+          mergedTree.add(record);
+        }
+      }
+    }
+);
+  }
+  return mergedTree;
+}
