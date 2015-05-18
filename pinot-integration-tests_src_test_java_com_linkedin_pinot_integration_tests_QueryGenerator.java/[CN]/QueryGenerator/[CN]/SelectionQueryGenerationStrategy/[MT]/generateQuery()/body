@@ -2,7 +2,7 @@
   Set<String> projectionColumns=new HashSet<String>();
   int projectionColumnCount=RANDOM.nextInt(3);
   for (int i=0; i < projectionColumnCount; i++) {
-    projectionColumns.add(pickRandom(_columnNames));
+    projectionColumns.add(pickRandom(_nonMultivalueColumnNames));
   }
   if (projectionColumns.isEmpty()) {
     projectionColumns.add("*");
@@ -10,7 +10,7 @@
   Set<String> orderByColumns=new HashSet<String>();
   int orderByColumnCount=RANDOM.nextInt(1);
   for (int i=0; i < orderByColumnCount; i++) {
-    orderByColumns.add(pickRandom(_columnNames));
+    orderByColumns.add(pickRandom(_nonMultivalueColumnNames));
   }
   QueryFragment predicate=generatePredicate();
   int resultLimit=RANDOM.nextInt(30) + 1;

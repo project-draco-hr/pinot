@@ -1,6 +1,17 @@
 {
   for (  String columnName : _columnNames) {
     _columnToValueList.put(columnName,new ArrayList<String>(_columnToValues.get(columnName)));
+    if (!_multivalueColumnCardinality.containsKey(columnName)) {
+      _nonMultivalueColumnNames.add(columnName);
+    }
+  }
+  for (  Map.Entry<String,Integer> entry : _multivalueColumnCardinality.entrySet()) {
+    String columnName=entry.getKey();
+    Integer columnCardinality=entry.getValue();
+    if (MAX_MULTIVALUE_CARDINALITY < columnCardinality) {
+      LOGGER.warn("Ignoring column {} with a cardinality of {}, exceeds maximum multivalue column cardinality of {}",columnName,columnCardinality,MAX_MULTIVALUE_CARDINALITY);
+      _columnNames.remove(columnName);
+    }
   }
   _columnToValues=null;
 }

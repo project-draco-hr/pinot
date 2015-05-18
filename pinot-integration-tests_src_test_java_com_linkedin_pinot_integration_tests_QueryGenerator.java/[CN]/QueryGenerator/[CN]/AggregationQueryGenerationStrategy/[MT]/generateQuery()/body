@@ -2,12 +2,12 @@
   Set<String> groupColumns=new HashSet<String>();
   int groupColumnCount=RANDOM.nextInt(2) + 1;
   for (int i=0; i < groupColumnCount; i++) {
-    groupColumns.add(pickRandom(_columnNames));
+    groupColumns.add(pickRandom(_nonMultivalueColumnNames));
   }
   int aggregationColumnCount=RANDOM.nextInt(2) + 1;
   Set<String> aggregationColumns=new HashSet<String>();
   for (int i=0; i < aggregationColumnCount; i++) {
-    String randomColumn=pickRandom(_numericalColumnNames);
+    String randomColumn=pickRandom(_nonMultivalueNumericalColumnNames);
     if (!groupColumns.contains(randomColumn)) {
       aggregationColumns.add(randomColumn);
     }

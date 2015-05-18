@@ -10,20 +10,25 @@
           values=new TreeSet<String>();
           _columnToValues.put(columnName,values);
         }
-        String value=null;
         Object avroValue=genericRecord.get(columnName);
         if (avroValue == null) {
           continue;
         }
  else {
-          if (avroValue instanceof Number) {
-            value=avroValue.toString();
+          if (_multivalueColumnCardinality.containsKey(columnName)) {
+            GenericData.Array array=(GenericData.Array)avroValue;
+            Integer storedCardinality=_multivalueColumnCardinality.get(columnName);
+            if (storedCardinality < array.size()) {
+              _multivalueColumnCardinality.put(columnName,array.size());
+            }
+            for (            Object element : array) {
+              storeAvroValueIntoValueSet(values,element);
+            }
           }
  else {
-            value="'" + avroValue.toString().replace("'","''") + "'";
+            storeAvroValueIntoValueSet(values,avroValue);
           }
         }
-        values.add(value);
       }
     }
   }

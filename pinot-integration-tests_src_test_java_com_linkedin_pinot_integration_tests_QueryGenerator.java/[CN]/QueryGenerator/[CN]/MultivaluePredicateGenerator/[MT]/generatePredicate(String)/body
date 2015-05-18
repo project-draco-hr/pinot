@@ -1,0 +1,19 @@
+{
+  List<String> columnValues=_columnToValueList.get(columnName);
+  int inValueCount=RANDOM.nextInt(10) + 1;
+  List<String> pqlInValueList=new ArrayList<String>(inValueCount);
+  List<String> h2InValueList=new ArrayList<String>(inValueCount);
+  for (int i=0; i < inValueCount; i++) {
+    ValueQueryFragment value=new ValueQueryFragment(pickRandom(columnValues));
+    pqlInValueList.add(value.generatePql());
+    h2InValueList.add(value.generateH2Sql());
+  }
+  String pqlInValues=StringUtil.join(", ",pqlInValueList.toArray(new String[pqlInValueList.size()]));
+  String h2InValues=StringUtil.join(", ",h2InValueList.toArray(new String[h2InValueList.size()]));
+  String[] h2InClauses=new String[MAX_MULTIVALUE_CARDINALITY];
+  for (int i=0; i < MAX_MULTIVALUE_CARDINALITY; i++) {
+    h2InClauses[i]=columnName + i + " IN ("+ h2InValues+ ")";
+  }
+  String h2QueryFragment="(" + StringUtil.join(" OR ",h2InClauses) + ")";
+  return new StringQueryFragment(columnName + " IN (" + pqlInValues+ ")",h2QueryFragment);
+}

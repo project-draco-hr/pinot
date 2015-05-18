@@ -7,53 +7,90 @@
     Schema schema=dataFileReader.getSchema();
     List<Schema.Field> fields=schema.getFields();
     List<String> columnNamesAndTypes=new ArrayList<String>(fields.size());
+    int columnCount=0;
     for (    Schema.Field field : fields) {
-      try {
+      String fieldName=field.name();
+      Schema.Type fieldType=field.schema().getType();
+switch (fieldType) {
+case UNION:
         List<Schema> types=field.schema().getTypes();
-        String columnNameAndType;
-        String typeName=types.get(0).getName();
-        if (typeName.equalsIgnoreCase("int")) {
-          typeName="bigint";
-        }
-        if (types.size() == 1) {
-          columnNameAndType=field.name() + " " + typeName+ " not null";
-        }
+      String columnNameAndType;
+    String typeName=types.get(0).getName();
+  if (typeName.equalsIgnoreCase("int")) {
+    typeName="bigint";
+  }
+if (types.size() == 1) {
+  columnNameAndType=field.name() + " " + typeName+ " not null";
+}
  else {
-          columnNameAndType=field.name() + " " + typeName;
-        }
-        columnNamesAndTypes.add(columnNameAndType.replace("string","varchar(128)"));
-      }
- catch (      Exception e) {
-      }
-    }
-    connection.prepareCall("create table mytable(" + StringUtil.join(",",columnNamesAndTypes.toArray(new String[columnNamesAndTypes.size()])) + ")").execute();
-    long start=System.currentTimeMillis();
-    StringBuilder params=new StringBuilder("?");
-    for (int i=0; i < columnNamesAndTypes.size() - 1; i++) {
-      params.append(",?");
-    }
-    PreparedStatement statement=connection.prepareStatement("INSERT INTO mytable VALUES (" + params.toString() + ")");
-    dataFileReader.close();
-    for (    File avroFile : avroFiles) {
-      datumReader=new GenericDatumReader<GenericRecord>();
-      dataFileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
-      GenericRecord record=null;
-      while (dataFileReader.hasNext()) {
-        record=dataFileReader.next(record);
-        for (int i=0; i < columnNamesAndTypes.size(); i++) {
-          Object value=record.get(i);
-          if (value instanceof Utf8) {
-            value=value.toString();
-          }
-          statement.setObject(i + 1,value);
-        }
-        statement.execute();
-      }
-      dataFileReader.close();
-    }
-    System.out.println("Insertion took " + (System.currentTimeMillis() - start));
-  }
- catch (  Exception e) {
-    throw new RuntimeException(e);
-  }
+  columnNameAndType=field.name() + " " + typeName;
+}
+columnNamesAndTypes.add(columnNameAndType.replace("string","varchar(128)"));
+++columnCount;
+break;
+case ARRAY:
+String elementTypeName=field.schema().getElementType().getName();
+if (elementTypeName.equalsIgnoreCase("int")) {
+elementTypeName="bigint";
+}
+elementTypeName=elementTypeName.replace("string","varchar(128)");
+for (int i=0; i < MAX_MULTIVALUE_CARDINALITY; i++) {
+columnNamesAndTypes.add(field.name() + i + " "+ elementTypeName);
+}
+++columnCount;
+break;
+default :
+throw new AssertionError("Don't know how to handle field " + fieldName + " of type "+ fieldType);
+}
+}
+connection.prepareCall("create table mytable(" + StringUtil.join(",",columnNamesAndTypes.toArray(new String[columnNamesAndTypes.size()])) + ")").execute();
+long start=System.currentTimeMillis();
+StringBuilder params=new StringBuilder("?");
+for (int i=0; i < columnNamesAndTypes.size() - 1; i++) {
+params.append(",?");
+}
+PreparedStatement statement=connection.prepareStatement("INSERT INTO mytable VALUES (" + params.toString() + ")");
+dataFileReader.close();
+for (File avroFile : avroFiles) {
+datumReader=new GenericDatumReader<GenericRecord>();
+dataFileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
+GenericRecord record=null;
+while (dataFileReader.hasNext()) {
+record=dataFileReader.next(record);
+int jdbcIndex=1;
+for (int avroIndex=0; avroIndex < columnCount; ++avroIndex) {
+Object value=record.get(avroIndex);
+if (value instanceof GenericData.Array) {
+GenericData.Array array=(GenericData.Array)value;
+for (int i=0; i < MAX_MULTIVALUE_CARDINALITY; i++) {
+if (i < array.size()) {
+value=array.get(i);
+if (value instanceof Utf8) {
+value=value.toString();
+}
+}
+ else {
+value=null;
+}
+statement.setObject(jdbcIndex,value);
+++jdbcIndex;
+}
+}
+ else {
+if (value instanceof Utf8) {
+value=value.toString();
+}
+statement.setObject(jdbcIndex,value);
+++jdbcIndex;
+}
+}
+statement.execute();
+}
+dataFileReader.close();
+}
+System.out.println("Insertion took " + (System.currentTimeMillis() - start));
+}
+ catch (Exception e) {
+throw new RuntimeException(e);
+}
 }
