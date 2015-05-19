@@ -1,4 +1,18 @@
 {
-  final IdealState state=HelixHelper.getResourceIdealState(_helixZkManager,resource);
-  return state.getPartitionSet();
+  List<String> segmentsInResource=new ArrayList<String>();
+switch (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName)) {
+case REALTIME:
+    for (    RealtimeSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getRealtimeResourceZKMetadataListForResource(getPropertyStore(),resourceName)) {
+      segmentsInResource.add(segmentZKMetadata.getSegmentName());
+    }
+  break;
+case OFFLINE:
+for (OfflineSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(getPropertyStore(),resourceName)) {
+  segmentsInResource.add(segmentZKMetadata.getSegmentName());
+}
+break;
+default :
+break;
+}
+return segmentsInResource;
 }

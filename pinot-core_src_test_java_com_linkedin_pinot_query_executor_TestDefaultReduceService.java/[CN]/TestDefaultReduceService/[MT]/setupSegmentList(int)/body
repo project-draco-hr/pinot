@@ -7,7 +7,7 @@
   INDEXES_DIR.mkdir();
   for (int i=0; i < numberOfSegments; ++i) {
     final File segmentDir=new File(INDEXES_DIR,"segment_" + i);
-    final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,"dim" + i,TimeUnit.DAYS,"midas","testTable");
+    final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,"dim" + i,TimeUnit.DAYS,"midas");
     config.setSegmentNamePostfix(String.valueOf(i));
     final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
     driver.init(config);

@@ -1,0 +1,18 @@
+{
+  if (segmentMetadata == null || segmentMetadata.getResourceName() == null) {
+    LOGGER.error("SegmentMetadata or resource name is null");
+    return false;
+  }
+  if ("realtime".equalsIgnoreCase(segmentMetadata.getIndexType())) {
+    if (getAllResourceNames().contains(BrokerRequestUtils.buildRealtimeResourceNameForResource(segmentMetadata.getResourceName()))) {
+      return true;
+    }
+  }
+ else {
+    if (getAllResourceNames().contains(BrokerRequestUtils.getOfflineResourceNameForResource(segmentMetadata.getResourceName()))) {
+      return true;
+    }
+  }
+  LOGGER.error("Resource {} is not registered",segmentMetadata.getResourceName());
+  return false;
+}

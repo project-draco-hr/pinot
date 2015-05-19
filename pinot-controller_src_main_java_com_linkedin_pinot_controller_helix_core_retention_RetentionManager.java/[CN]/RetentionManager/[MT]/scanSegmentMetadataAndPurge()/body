@@ -3,12 +3,7 @@
     List<SegmentZKMetadata> segmentZKMetadataList=_segmentMetadataMap.get(resourceName);
     for (    SegmentZKMetadata segmentZKMetadata : segmentZKMetadataList) {
       RetentionStrategy deletionStrategy;
-      if (_tableDeletionStrategy.containsKey(resourceName + "." + segmentZKMetadata.getTableName())) {
-        deletionStrategy=_tableDeletionStrategy.get(resourceName + "." + segmentZKMetadata.getTableName());
-      }
- else {
-        deletionStrategy=_tableDeletionStrategy.get(resourceName + ".*");
-      }
+      deletionStrategy=_resourceDeletionStrategy.get(resourceName);
       if (deletionStrategy == null) {
         LOGGER.info("No Retention strategy found for segment: " + segmentZKMetadata.getSegmentName());
         continue;

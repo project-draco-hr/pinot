@@ -6,14 +6,12 @@
  else {
     reader=new RealtimeSegmentRecordReader(realtimeSegmentImpl,dataSchema,sortedColumn);
   }
-  FieldExtractor extractor=FieldExtractorFactory.getPlainFieldExtractor(dataSchema);
   SegmentGeneratorConfig genConfig=new SegmentGeneratorConfig(dataSchema);
   genConfig.setInputFilePath(null);
   genConfig.setTimeColumnName(dataSchema.getTimeSpec().getOutGoingTimeColumnName());
   genConfig.setTimeUnitForSegment(dataSchema.getTimeSpec().getOutgoingGranularitySpec().getTimeType());
   genConfig.setSegmentVersion(SegmentVersion.v1);
   genConfig.setResourceName(resourceName);
-  genConfig.setTableName(tableName);
   genConfig.setIndexOutputDir(outputPath);
   genConfig.setSegmentName(segmentName);
   final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();

@@ -64,7 +64,7 @@
       LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
       LOGGER.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
       File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
-      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getResourceName(),segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn);
+      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getResourceName(),segmentMetadata.getSegmentName(),sortedColumn);
       try {
         LOGGER.info("Trying to build segment!");
         conveter.build();
@@ -78,7 +78,6 @@
         swap();
         RealtimeSegmentZKMetadata metadaToOverrite=new RealtimeSegmentZKMetadata();
         metadaToOverrite.setResourceName(segmentMetadata.getResourceName());
-        metadaToOverrite.setTableName(segmentMetadata.getTableName());
         metadaToOverrite.setSegmentName(segmentMetadata.getSegmentName());
         metadaToOverrite.setSegmentType(SegmentType.OFFLINE);
         metadaToOverrite.setStatus(Status.DONE);

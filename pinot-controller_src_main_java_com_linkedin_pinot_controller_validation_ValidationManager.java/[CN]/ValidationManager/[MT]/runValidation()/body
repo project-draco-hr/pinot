@@ -11,51 +11,38 @@
       continue;
     }
     List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(propertyStore,resourceName);
-    Map<String,List<SegmentMetadata>> tableToSegmentMetadata=new HashMap<String,List<SegmentMetadata>>();
+    List<SegmentMetadata> segmentMetadataList=new ArrayList<SegmentMetadata>();
     for (    OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
       SegmentMetadata segmentMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
-      String tableName=segmentMetadata.getTableName();
-      if (tableToSegmentMetadata.containsKey(tableName)) {
-        List<SegmentMetadata> metadataList=tableToSegmentMetadata.get(tableName);
-        metadataList.add(segmentMetadata);
+      segmentMetadataList.add(segmentMetadata);
+    }
+    int missingSegmentCount=0;
+    if (2 < segmentMetadataList.size()) {
+      List<Interval> segmentIntervals=new ArrayList<Interval>();
+      for (      SegmentMetadata segmentMetadata : segmentMetadataList) {
+        Interval timeInterval=segmentMetadata.getTimeInterval();
+        if (timeInterval != null)         segmentIntervals.add(timeInterval);
       }
- else {
-        List<SegmentMetadata> metadataList=new ArrayList<SegmentMetadata>();
-        metadataList.add(segmentMetadata);
-        tableToSegmentMetadata.put(tableName,metadataList);
+      List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,segmentMetadataList.get(0).getTimeGranularity());
+      missingSegmentCount=missingIntervals.size();
+    }
+    _validationMetrics.updateMissingSegmentsGauge(resourceName,missingSegmentCount);
+    long maxSegmentEndTime=Long.MIN_VALUE;
+    long maxSegmentPushTime=Long.MIN_VALUE;
+    for (    SegmentMetadata segmentMetadata : segmentMetadataList) {
+      Interval segmentInterval=segmentMetadata.getTimeInterval();
+      if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
+        maxSegmentEndTime=segmentInterval.getEndMillis();
+      }
+      long segmentPushTime=segmentMetadata.getPushTime();
+      long segmentRefreshTime=segmentMetadata.getRefreshTime();
+      long segmentUpdateTime=Math.max(segmentPushTime,segmentRefreshTime);
+      if (maxSegmentPushTime < segmentUpdateTime) {
+        maxSegmentPushTime=segmentUpdateTime;
       }
     }
-    for (    Map.Entry<String,List<SegmentMetadata>> stringListEntry : tableToSegmentMetadata.entrySet()) {
-      String tableName=stringListEntry.getKey();
-      List<SegmentMetadata> tableSegmentsMetadata=stringListEntry.getValue();
-      int missingSegmentCount=0;
-      if (2 < tableSegmentsMetadata.size()) {
-        List<Interval> segmentIntervals=new ArrayList<Interval>();
-        for (        SegmentMetadata tableSegmentMetadata : tableSegmentsMetadata) {
-          Interval timeInterval=tableSegmentMetadata.getTimeInterval();
-          if (timeInterval != null)           segmentIntervals.add(timeInterval);
-        }
-        List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,tableSegmentsMetadata.get(0).getTimeGranularity());
-        missingSegmentCount=missingIntervals.size();
-      }
-      _validationMetrics.updateMissingSegmentsGauge(resourceName,tableName,missingSegmentCount);
-      long maxSegmentEndTime=Long.MIN_VALUE;
-      long maxSegmentPushTime=Long.MIN_VALUE;
-      for (      SegmentMetadata segmentMetadata : tableSegmentsMetadata) {
-        Interval segmentInterval=segmentMetadata.getTimeInterval();
-        if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
-          maxSegmentEndTime=segmentInterval.getEndMillis();
-        }
-        long segmentPushTime=segmentMetadata.getPushTime();
-        long segmentRefreshTime=segmentMetadata.getRefreshTime();
-        long segmentUpdateTime=Math.max(segmentPushTime,segmentRefreshTime);
-        if (maxSegmentPushTime < segmentUpdateTime) {
-          maxSegmentPushTime=segmentUpdateTime;
-        }
-      }
-      _validationMetrics.updateOfflineSegmentDelayGauge(resourceName,tableName,maxSegmentEndTime);
-      _validationMetrics.updateLastPushTimeGauge(resourceName,tableName,maxSegmentPushTime);
-    }
+    _validationMetrics.updateOfflineSegmentDelayGauge(resourceName,maxSegmentEndTime);
+    _validationMetrics.updateLastPushTimeGauge(resourceName,maxSegmentPushTime);
   }
   LOGGER.info("Validation completed");
 }

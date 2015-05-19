@@ -17,7 +17,7 @@
   for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
     avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
   }
-  createHybridResource("myresource","mytable","DaysSinceEpoch","daysSinceEpoch",KafkaTestUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,avroFiles.get(0),3000,"DAYS");
+  createHybridResource("myresource","DaysSinceEpoch","daysSinceEpoch",KafkaTestUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,avroFiles.get(0),3000,"DAYS");
   final List<File> offlineAvroFiles=new ArrayList<File>(OFFLINE_SEGMENT_COUNT);
   for (int i=0; i < OFFLINE_SEGMENT_COUNT; i++) {
     offlineAvroFiles.add(avroFiles.get(i));
@@ -35,10 +35,10 @@
     }
   }
 );
-  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"myresource","mytable");
+  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"myresource");
   executor.execute(new Runnable(){
     @Override public void run(){
-      _queryGenerator=new QueryGenerator(avroFiles,"'myresource.mytable'","mytable");
+      _queryGenerator=new QueryGenerator(avroFiles,"'myresource'","mytable");
     }
   }
 );
@@ -83,7 +83,7 @@
   Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
   do {
     Thread.sleep(5000L);
-    JSONObject response=postQuery("select count(*) from 'myresource.mytable'");
+    JSONObject response=postQuery("select count(*) from 'myresource'");
     JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
     JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
     String pinotValue=firstAggregationResult.getString("value");

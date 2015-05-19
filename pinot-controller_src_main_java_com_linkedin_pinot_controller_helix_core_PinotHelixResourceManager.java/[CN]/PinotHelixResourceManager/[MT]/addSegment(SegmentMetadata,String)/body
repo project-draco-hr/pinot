@@ -1,9 +1,9 @@
 {
   final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
   try {
-    if (!matchResourceAndTableName(segmentMetadata)) {
+    if (!matchResourceName(segmentMetadata)) {
       res.status=STATUS.failure;
-      res.errorMessage="Reject segment: resource name and table name are not registered." + " Resource name: " + segmentMetadata.getResourceName() + ", Table name: "+ segmentMetadata.getTableName()+ "\n";
+      res.errorMessage="Reject segment: resource name is not registered." + " Resource name: " + segmentMetadata.getResourceName() + "\n";
       return res;
     }
     if (ifSegmentExisted(segmentMetadata)) {

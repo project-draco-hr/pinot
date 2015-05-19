@@ -7,7 +7,6 @@
   _tarDir.mkdirs();
   startCluster();
   createResource();
-  addTableToOfflineResource("myresource","mytable","DaysSinceEpoch","daysSinceEpoch");
   TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
   _tmpDir.mkdirs();
   final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
@@ -23,10 +22,10 @@
     }
   }
 );
-  buildSegmentsFromAvro(avroFiles,executor,0,_segmentDir,_tarDir,"myresource","mytable");
+  buildSegmentsFromAvro(avroFiles,executor,0,_segmentDir,_tarDir,"myresource");
   executor.execute(new Runnable(){
     @Override public void run(){
-      _queryGenerator=new QueryGenerator(avroFiles,"'myresource.mytable'","mytable");
+      _queryGenerator=new QueryGenerator(avroFiles,"'myresource'","mytable");
     }
   }
 );

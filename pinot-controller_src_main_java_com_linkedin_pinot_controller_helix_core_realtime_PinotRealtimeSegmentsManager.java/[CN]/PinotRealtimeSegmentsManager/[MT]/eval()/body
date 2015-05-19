@@ -8,13 +8,11 @@
     IdealState state=idealStateMap.get(resource);
     if (state.getPartitionSet().size() == 0) {
       List<String> instancesInResource=pinotClusterManager.getHelixAdmin().getInstancesInClusterWithTag(pinotClusterManager.getHelixClusterName(),resource);
-      RealtimeDataResourceZKMetadata realtimeDRMetadata=pinotClusterManager.getRealtimeDataResourceZKMetadata(resource);
-      String tableName=realtimeDRMetadata.getTableList().get(0);
       for (      String instanceId : instancesInResource) {
         InstanceZKMetadata instanceZKMetadata=pinotClusterManager.getInstanceZKMetadata(instanceId);
         String groupId=instanceZKMetadata.getGroupId(resource);
         String partitionId=instanceZKMetadata.getPartition(resource);
-        listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resource,tableName,instanceId,groupId,partitionId,String.valueOf(System.currentTimeMillis())));
+        listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resource,instanceId,groupId,partitionId,String.valueOf(System.currentTimeMillis())));
       }
     }
  else {
@@ -31,21 +29,17 @@
         InstanceZKMetadata instanceZKMetadata=pinotClusterManager.getInstanceZKMetadata(instanceId);
         String groupId=instanceZKMetadata.getGroupId(resource);
         String partitionId=instanceZKMetadata.getPartition(resource);
-        RealtimeDataResourceZKMetadata realtimeDRMetadata=pinotClusterManager.getRealtimeDataResourceZKMetadata(resource);
-        String tableName=realtimeDRMetadata.getTableList().get(0);
-        listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resource,tableName,instanceId,groupId,partitionId,String.valueOf(System.currentTimeMillis())));
+        listOfSegmentsToAdd.add(SegmentNameBuilder.Realtime.build(resource,instanceId,groupId,partitionId,String.valueOf(System.currentTimeMillis())));
       }
     }
   }
   LOGGER.info("computed list of new segments to add : " + Arrays.toString(listOfSegmentsToAdd.toArray()));
   for (  String segmentId : listOfSegmentsToAdd) {
     String resourceName=SegmentNameBuilder.Realtime.extractResourceName(segmentId);
-    String tableName=SegmentNameBuilder.Realtime.extractTableName(segmentId);
     String instanceName=SegmentNameBuilder.Realtime.extractInstanceName(segmentId);
     if (!idealStateMap.get(resourceName).getPartitionSet().contains(segmentId)) {
       RealtimeSegmentZKMetadata realtimeSegmentMetadataToAdd=new RealtimeSegmentZKMetadata();
       realtimeSegmentMetadataToAdd.setResourceName(BrokerRequestUtils.getHybridResourceName(resourceName));
-      realtimeSegmentMetadataToAdd.setTableName(tableName);
       realtimeSegmentMetadataToAdd.setSegmentType(SegmentType.REALTIME);
       realtimeSegmentMetadataToAdd.setStatus(Status.IN_PROGRESS);
       realtimeSegmentMetadataToAdd.setSegmentName(segmentId);

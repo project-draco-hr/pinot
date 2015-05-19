@@ -3,6 +3,9 @@
   BufferedOutputStream bOut=null;
   GzipCompressorOutputStream gzOut=null;
   TarArchiveOutputStream tOut=null;
+  if (!tarGzPath.endsWith(TAR_GZ_FILE_EXTENTION)) {
+    tarGzPath=tarGzPath + TAR_GZ_FILE_EXTENTION;
+  }
   try {
     fOut=new FileOutputStream(new File(tarGzPath));
     bOut=new BufferedOutputStream(fOut);
@@ -18,4 +21,5 @@
     bOut.close();
     fOut.close();
   }
+  return tarGzPath;
 }

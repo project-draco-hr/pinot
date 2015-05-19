@@ -1,12 +1,11 @@
 {
   String testResourceName="testResource";
-  String testTableName="testTable";
   Thread.sleep(1000);
   ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
-  DataResource dataResource=new DataResource("create",testResourceName,Helix.ResourceType.OFFLINE.toString(),testTableName,"timestamp","millsSinceEpoch",2,2,"DAYS","5","daily","BalanceNumSegmentAssignmentStrategy","broker_" + testResourceName,2,null);
+  DataResource dataResource=new DataResource("create",testResourceName,Helix.ResourceType.OFFLINE.toString(),"timestamp","millsSinceEpoch",2,2,"DAYS","5","daily","BalanceNumSegmentAssignmentStrategy","broker_" + testResourceName,2,null);
   _pinotHelixResourceManager.handleCreateNewDataResource(dataResource);
-  DummyMetadata metadata=new DummyMetadata(testResourceName,testTableName);
+  DummyMetadata metadata=new DummyMetadata(testResourceName);
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
   OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
