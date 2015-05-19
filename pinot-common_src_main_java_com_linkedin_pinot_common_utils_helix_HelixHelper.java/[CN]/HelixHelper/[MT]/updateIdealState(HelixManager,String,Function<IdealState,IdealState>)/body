@@ -1,0 +1,27 @@
+{
+  HelixDataAccessor dataAccessor=helixManager.getHelixDataAccessor();
+  PropertyKey propertyKey=dataAccessor.keyBuilder().idealStates(resourceName);
+  while (true) {
+    IdealState idealState=dataAccessor.getProperty(propertyKey);
+    IdealState updatedIdealState;
+    try {
+      updatedIdealState=updater.apply((IdealState)dataAccessor.getProperty(propertyKey));
+    }
+ catch (    Exception e) {
+      LOGGER.error("Caught exception while updating ideal state",e);
+      return;
+    }
+    if (!EqualityUtils.isEqual(idealState,updatedIdealState) && updatedIdealState != null) {
+      if (dataAccessor.updateProperty(propertyKey,updatedIdealState)) {
+        return;
+      }
+ else {
+        LOGGER.warn("Failed to update ideal state for resource {}, retrying.",resourceName);
+      }
+    }
+ else {
+      LOGGER.warn("Idempotent or null ideal state update for resource {}, skipping update.",resourceName);
+      return;
+    }
+  }
+}
