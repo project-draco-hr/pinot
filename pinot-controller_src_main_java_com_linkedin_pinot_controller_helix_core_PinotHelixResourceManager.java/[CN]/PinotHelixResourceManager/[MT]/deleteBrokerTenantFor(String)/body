@@ -1,0 +1,9 @@
+{
+  PinotResourceManagerResponse response=new PinotResourceManagerResponse();
+  String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(tenantName);
+  List<String> instancesInClusterWithTag=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag);
+  for (  String instance : instancesInClusterWithTag) {
+    retagInstance(instance,brokerTag,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE);
+  }
+  return response;
+}

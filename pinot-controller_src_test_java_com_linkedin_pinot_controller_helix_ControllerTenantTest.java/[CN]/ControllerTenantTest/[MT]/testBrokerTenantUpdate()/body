@@ -1,0 +1,21 @@
+{
+  String brokerTag="colocated_0";
+  JSONObject payload=ControllerRequestBuilderUtil.buildBrokerTenantCreateRequestJSON(brokerTag,5);
+  String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
+  System.out.println(res);
+  System.out.println(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size());
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size(),5);
+  System.out.println(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size());
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),15);
+  for (int i=6; i < 15; ++i) {
+    payload=ControllerRequestBuilderUtil.buildBrokerTenantCreateRequestJSON(brokerTag,i);
+    res=sendPutRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
+    Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size(),i);
+    Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),20 - i);
+  }
+  res=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forBrokerTenantCreate(brokerTag));
+  System.out.println(res);
+  System.out.println(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size());
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size(),0);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),20);
+}

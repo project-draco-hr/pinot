@@ -1,0 +1,24 @@
+{
+  int incOffline=serverTenant.getOfflineInstances() - taggedOfflineServers.size();
+  int incRealtime=serverTenant.getRealtimeInstances() - taggedRealtimeServers.size();
+  taggedRealtimeServers.removeAll(taggedOfflineServers);
+  taggedOfflineServers.removeAll(taggedRealtimeServers);
+  for (int i=0; i < incOffline; ++i) {
+    if (i < incInstances) {
+      retagInstance(unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE,offlineServerTag);
+    }
+ else {
+      _helixAdmin.addInstanceTag(_helixClusterName,taggedRealtimeServers.get(i - incInstances),offlineServerTag);
+    }
+  }
+  for (int i=incOffline; i < incOffline + incRealtime; ++i) {
+    if (i < incInstances) {
+      retagInstance(unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE,realtimeServerTag);
+    }
+ else {
+      _helixAdmin.addInstanceTag(_helixClusterName,taggedOfflineServers.get(i - Math.max(incInstances,incOffline)),realtimeServerTag);
+    }
+  }
+  res.status=STATUS.success;
+  return res;
+}

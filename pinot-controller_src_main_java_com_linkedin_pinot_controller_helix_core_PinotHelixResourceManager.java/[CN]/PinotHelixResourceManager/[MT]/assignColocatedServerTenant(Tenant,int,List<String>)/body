@@ -1,0 +1,14 @@
+{
+  int cnt=0;
+  String offlineServerTag=ControllerTenantNameBuilder.getOfflineTenantNameForTenant(serverTenant.getTenantName());
+  for (int i=0; i < serverTenant.getOfflineInstances(); i++) {
+    retagInstance(unTaggedInstanceList.get(cnt++),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE,offlineServerTag);
+  }
+  String realtimeServerTag=ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(serverTenant.getTenantName());
+  for (int i=0; i < serverTenant.getRealtimeInstances(); i++) {
+    retagInstance(unTaggedInstanceList.get(cnt++),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE,realtimeServerTag);
+    if (cnt == numberOfInstances) {
+      cnt=0;
+    }
+  }
+}

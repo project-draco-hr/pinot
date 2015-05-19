@@ -1,0 +1,17 @@
+{
+  PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  List<String> unTaggedInstanceList=_pinotHelixAdmin.getOnlineUnTaggedBrokerInstanceList();
+  int numberOfInstances=brokerTenant.getNumberOfInstances();
+  if (unTaggedInstanceList.size() < numberOfInstances) {
+    res.status=STATUS.failure;
+    res.errorMessage="Failed to allocate broker instances to Tag : " + brokerTenant.getTenantName() + ", Current number of untagged server instances : "+ unTaggedInstanceList.size()+ ", Request asked number is : "+ brokerTenant.getNumberOfInstances();
+    LOGGER.error(res.errorMessage);
+    return res;
+  }
+  String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(brokerTenant.getTenantName());
+  for (int i=0; i < brokerTenant.getNumberOfInstances(); ++i) {
+    retagInstance(unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE,brokerTag);
+  }
+  res.status=STATUS.success;
+  return res;
+}

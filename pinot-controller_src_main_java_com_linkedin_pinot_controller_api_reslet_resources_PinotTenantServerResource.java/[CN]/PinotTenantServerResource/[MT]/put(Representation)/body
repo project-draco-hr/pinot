@@ -1,0 +1,25 @@
+{
+  StringRepresentation presentation=null;
+  try {
+    PinotResourceManagerResponse response=null;
+    final Tenant tenant=_objectMapper.readValue(ByteStreams.toByteArray(entity.getStream()),Tenant.class);
+switch (tenant.getTenantRole()) {
+case BROKER:
+      response=_pinotHelixResourceMananger.updateBrokerTenant(tenant);
+    presentation=new StringRepresentation(response.toString());
+  break;
+case SERVER:
+response=_pinotHelixResourceMananger.updateServerTenant(tenant);
+presentation=new StringRepresentation(response.toString());
+break;
+default :
+throw new RuntimeException("Not a valid tenant update call");
+}
+}
+ catch (final Exception e) {
+presentation=exceptionToStringRepresentation(e);
+LOGGER.error("Caught exception while processing put request",e);
+setStatus(Status.SERVER_ERROR_INTERNAL);
+}
+return presentation;
+}

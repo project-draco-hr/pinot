@@ -1,0 +1,13 @@
+{
+  int incOffline=serverTenant.getOfflineInstances() - taggedOfflineServers.size();
+  int incRealtime=serverTenant.getRealtimeInstances() - taggedRealtimeServers.size();
+  for (int i=0; i < incOffline; ++i) {
+    retagInstance(unTaggedInstanceList.get(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE,offlineServerTag);
+  }
+  for (int i=incOffline; i < incOffline + incRealtime; ++i) {
+    String instanceName=unTaggedInstanceList.get(i);
+    retagInstance(instanceName,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE,realtimeServerTag);
+  }
+  res.status=STATUS.success;
+  return res;
+}

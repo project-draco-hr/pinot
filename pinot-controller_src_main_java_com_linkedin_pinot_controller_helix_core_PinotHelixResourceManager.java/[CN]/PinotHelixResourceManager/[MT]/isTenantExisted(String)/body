@@ -1,0 +1,12 @@
+{
+  if (!_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ControllerTenantNameBuilder.getBrokerTenantNameForTenant(tenantName)).isEmpty()) {
+    return true;
+  }
+  if (!_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ControllerTenantNameBuilder.getOfflineTenantNameForTenant(tenantName)).isEmpty()) {
+    return true;
+  }
+  if (!_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(tenantName)).isEmpty()) {
+    return true;
+  }
+  return false;
+}

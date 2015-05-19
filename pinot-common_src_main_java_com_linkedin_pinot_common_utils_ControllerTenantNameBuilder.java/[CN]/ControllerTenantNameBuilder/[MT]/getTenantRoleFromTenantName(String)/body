@@ -1,0 +1,12 @@
+{
+  if (tenantName.endsWith(REALTIME_TENANT_SUFFIX)) {
+    return TenantRole.SERVER;
+  }
+  if (tenantName.endsWith(OFFLINE_TENANT_SUFFIX)) {
+    return TenantRole.SERVER;
+  }
+  if (tenantName.endsWith(BROKER_TENANT_SUFFIX)) {
+    return TenantRole.BROKER;
+  }
+  throw new RuntimeException("Cannot identify tenant type from tenant name : " + tenantName);
+}

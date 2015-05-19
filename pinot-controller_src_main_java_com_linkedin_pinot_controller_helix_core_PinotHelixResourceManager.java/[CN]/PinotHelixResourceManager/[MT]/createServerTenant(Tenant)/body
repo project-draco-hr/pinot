@@ -1,0 +1,21 @@
+{
+  PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  int numberOfInstances=serverTenant.getNumberOfInstances();
+  List<String> unTaggedInstanceList=_pinotHelixAdmin.getOnlineUnTaggedServerInstanceList();
+  if (unTaggedInstanceList.size() < numberOfInstances) {
+    res.status=STATUS.failure;
+    res.errorMessage="Failed to allocate server instances to Tag : " + serverTenant.getTenantName() + ", Current number of untagged server instances : "+ unTaggedInstanceList.size()+ ", Request asked number is : "+ serverTenant.getNumberOfInstances();
+    LOGGER.error(res.errorMessage);
+    return res;
+  }
+ else {
+    if (serverTenant.isColoated()) {
+      assignColocatedServerTenant(serverTenant,numberOfInstances,unTaggedInstanceList);
+    }
+ else {
+      assignIndependentServerTenant(serverTenant,numberOfInstances,unTaggedInstanceList);
+    }
+  }
+  res.status=STATUS.success;
+  return res;
+}

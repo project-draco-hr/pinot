@@ -1,0 +1,13 @@
+{
+  PinotResourceManagerResponse res=new PinotResourceManagerResponse();
+  String brokerTenantTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(tenant.getTenantName());
+  List<String> instancesInClusterWithTag=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTenantTag);
+  if (instancesInClusterWithTag.size() > tenant.getNumberOfInstances()) {
+    return scaleDownBroker(tenant,res,brokerTenantTag,instancesInClusterWithTag);
+  }
+  if (instancesInClusterWithTag.size() < tenant.getNumberOfInstances()) {
+    return scaleUpBroker(tenant,res,brokerTenantTag,instancesInClusterWithTag);
+  }
+  res.status=STATUS.success;
+  return res;
+}

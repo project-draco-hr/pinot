@@ -1,0 +1,21 @@
+{
+  String serverTag="serverTag_0";
+  JSONObject payload=ControllerRequestBuilderUtil.buildServerTenantCreateRequestJSON(serverTag,5,2,3);
+  String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
+  System.out.println(res);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_OFFLINE").size(),2);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_REALTIME").size(),3);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),15);
+  for (int i=6; i < 18; i+=2) {
+    payload=ControllerRequestBuilderUtil.buildServerTenantCreateRequestJSON(serverTag,i,i / 2,i / 2);
+    res=sendPutRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
+    Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_OFFLINE").size(),i / 2);
+    Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_REALTIME").size(),i / 2);
+    Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),20 - i);
+  }
+  res=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forServerTenantCreate(serverTag));
+  System.out.println(res);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_OFFLINE").size(),0);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_REALTIME").size(),0);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),20);
+}

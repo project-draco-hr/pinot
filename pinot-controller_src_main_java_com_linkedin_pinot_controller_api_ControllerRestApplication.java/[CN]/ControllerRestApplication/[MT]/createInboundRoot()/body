@@ -1,6 +1,11 @@
 {
   final Router router=new Router(getContext());
   router.setDefaultMatchingMode(Template.MODE_EQUALS);
+  router.attach("/tenants",PinotTenantServerResource.class);
+  router.attach("/tenants/",PinotTenantServerResource.class);
+  router.attach("/tenants/{tenantName}",PinotTenantServerResource.class);
+  router.attach("/tenants/{tenantName}/",PinotTenantServerResource.class);
+  router.attach("/tenants/{tenantName}/instances",PinotTenantServerResource.class);
   router.attach("/dataresources",PinotDataResource.class);
   router.attach("/dataresources/",PinotDataResource.class);
   router.attach("/dataresources/{resourceName}",PinotDataResource.class);

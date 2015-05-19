@@ -1,0 +1,13 @@
+{
+  PinotResourceManagerResponse response=new PinotResourceManagerResponse();
+  String realtimeTenantTag=ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(tenantName);
+  List<String> instancesInClusterWithTag=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,realtimeTenantTag);
+  for (  String instanceName : instancesInClusterWithTag) {
+    _helixAdmin.removeInstanceTag(_helixClusterName,instanceName,realtimeTenantTag);
+    if (getTagsForInstance(instanceName).isEmpty()) {
+      _helixAdmin.addInstanceTag(_helixClusterName,instanceName,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+    }
+  }
+  response.status=STATUS.success;
+  return response;
+}

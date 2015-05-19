@@ -1,0 +1,16 @@
+{
+  this._tenantRole=tenantRole;
+  this._tenantName=tenantName;
+  this._numberOfInstances=numberOfInstances;
+  if (_tenantRole == TenantRole.SERVER) {
+    if (offlineInstances > numberOfInstances || realtimeInstances > numberOfInstances) {
+      throw new RuntimeException("OfflineInstances/RealtimeInstances shouldn't exceed numberOfInstances");
+    }
+    this._offlineInstances=offlineInstances;
+    this._realtimeInstances=realtimeInstances;
+  }
+ else {
+    this._offlineInstances=-1;
+    this._realtimeInstances=-1;
+  }
+}
