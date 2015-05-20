@@ -1,7 +1,7 @@
 {
   JSONObject o=new JSONObject(jsonString);
-  String tableName=o.getString("tableName");
   String tableType=o.getString("tableType").toLowerCase();
+  String tableName=new TableNameBuilder(TableType.valueOf(tableType.toUpperCase())).forTable(o.getString("tableName"));
   SegmentsValidationAndRetentionConfig validationConfig=loadSegmentsConfig(new ObjectMapper().readTree(o.getJSONObject("segmentsConfig").toString()));
   TenantConfig tenantConfig=loadTenantsConfig(new ObjectMapper().readTree(o.getJSONObject("tenants").toString()));
   TableCustomConfig customConfig=loadCustomConfig(new ObjectMapper().readTree(o.getJSONObject("metadata").toString()));

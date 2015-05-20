@@ -1,7 +1,7 @@
 {
   IdealState resourceIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
   for (  String resourceName : resourceIdealState.getPartitionSet()) {
-    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) == ResourceType.OFFLINE) {
+    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) == TableType.OFFLINE) {
       String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resourceName).getBrokerTag());
       if (brokerTag.equals(brokerTenantTag)) {
         resourceIdealState.setPartitionState(resourceName,instanceName,BrokerOnlineOfflineStateModel.ONLINE);

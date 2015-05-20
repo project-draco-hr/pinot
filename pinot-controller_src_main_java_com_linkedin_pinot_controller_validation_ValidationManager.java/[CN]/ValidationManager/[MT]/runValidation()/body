@@ -7,7 +7,7 @@
   List<String> allResourceNames=_pinotHelixResourceManager.getAllPinotResourceNames();
   ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
   for (  String resourceName : allResourceNames) {
-    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) != ResourceType.OFFLINE) {
+    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) != TableType.OFFLINE) {
       continue;
     }
     List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(propertyStore,resourceName);

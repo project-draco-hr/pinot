@@ -1,0 +1,20 @@
+{
+  TenantConfig tenants=config.getTenantConfig();
+  if (tenants.getBroker() == null || tenants.getServer() == null) {
+    throw new RuntimeException("missing tenant configs");
+  }
+  SegmentsValidationAndRetentionConfig segmentsConfig=config.getValidationConfig();
+  IndexingConfig indexingConfig=config.getIndexingConfig();
+  TableType type=TableType.valueOf(config.getTableName().toUpperCase());
+  IdealState state=null;
+switch (type) {
+case OFFLINE:
+    state=PinotResourceIdealStateBuilder.buildEmptyIdealStateFor(config.getTableName(),Integer.parseInt(segmentsConfig.getReplication()),_helixAdmin,_helixClusterName);
+  break;
+case REALTIME:
+KafkaStreamMetadata metadata=new KafkaStreamMetadata(indexingConfig.getStreamConfigs());
+break;
+default :
+throw new RuntimeException("UnSupported table type");
+}
+}
