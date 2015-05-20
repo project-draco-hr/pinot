@@ -1,0 +1,15 @@
+{
+  StringRepresentation presentation=null;
+  final String tableName=(String)getRequest().getAttributes().get("tableName");
+  if (tableName == null) {
+    return new StringRepresentation("tableName is not present");
+  }
+  SegmentsValidationAndRetentionConfig config=null;
+  try {
+    JSONObject o=new JSONObject(entity.getText().toString());
+    config=AbstractTableConfig.loadSegmentsConfig(new ObjectMapper().readTree(o.getJSONObject("segmentsConfig").toString()));
+  }
+ catch (  final Exception e) {
+  }
+  return presentation;
+}

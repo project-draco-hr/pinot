@@ -1,4 +1,11 @@
 {
-  String jsonString=record.getSimpleField("configs");
-  return init(jsonString);
+  Map<String,String> simpleFields=record.getSimpleFields();
+  JSONObject str=new JSONObject();
+  str.put("tableName",simpleFields.get("tableName"));
+  str.put("tableType",simpleFields.get("tableType"));
+  str.put("segmentsConfig",new JSONObject(simpleFields.get("segmentsConfig")));
+  str.put("tenants",new JSONObject(simpleFields.get("tenants")));
+  str.put("tableIndexConfig",new JSONObject(simpleFields.get("tableIndexConfig")));
+  str.put("metadata",new JSONObject(simpleFields.get("metadata")));
+  return init(str.toString());
 }

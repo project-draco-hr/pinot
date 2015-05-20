@@ -1,0 +1,15 @@
+{
+  StringRepresentation presentation=null;
+  final String tableName=(String)getRequest().getAttributes().get("tableName");
+  if (tableName == null) {
+    return new StringRepresentation("tableName is not present");
+  }
+  TableCustomConfig config=null;
+  try {
+    JSONObject o=new JSONObject(entity.getText().toString());
+    config=AbstractTableConfig.loadCustomConfig(new ObjectMapper().readTree(o.getJSONObject("metadata").toString()));
+  }
+ catch (  final Exception e) {
+  }
+  return presentation;
+}

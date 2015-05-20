@@ -1,12 +1,16 @@
 {
   StringRepresentation presentation=null;
+  AbstractTableConfig config=null;
   try {
     String jsonRequest=entity.getText();
-    AbstractTableConfig config=AbstractTableConfig.init(jsonRequest);
+    config=AbstractTableConfig.init(jsonRequest);
+    System.out.println("original : " + config);
+    ZNRecord rec=AbstractTableConfig.toZnRecord(config);
+    System.out.println("from znRecord : " + AbstractTableConfig.fromZnRecord(rec));
     return new StringRepresentation(config.toString());
   }
  catch (  Exception e) {
-    LOGGER.error("error reading requestJSON",e);
+    LOGGER.error("error reading/serializing requestJSON",e);
   }
   try {
   }

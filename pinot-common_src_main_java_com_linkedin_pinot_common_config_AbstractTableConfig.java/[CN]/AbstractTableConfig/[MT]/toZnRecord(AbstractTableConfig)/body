@@ -1,5 +1,6 @@
 {
   ZNRecord rec=new ZNRecord(config.getTableName() + "_" + config.getTableType());
-  rec.setSimpleField("configs",config.getJsonString());
+  Map<String,String> map=config.getRawJSONMap();
+  rec.setSimpleFields(map);
   return rec;
 }
