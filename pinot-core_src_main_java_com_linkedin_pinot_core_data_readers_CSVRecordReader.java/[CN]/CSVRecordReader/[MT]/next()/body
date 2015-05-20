@@ -1,0 +1,22 @@
+{
+  CSVRecord record=_iterator.next();
+  Map<String,Object> fieldMap=new HashMap<String,Object>();
+  for (  final FieldSpec fieldSpec : _schema.getAllFieldSpecs()) {
+    String column=fieldSpec.getName();
+    String token=record.get(column);
+    Object value=null;
+    if ((token == null) || (token.isEmpty())) {
+      value=getDefaultNullValue(fieldSpec);
+    }
+ else     if (fieldSpec.isSingleValueField()) {
+      value=convertToDataType(token,fieldSpec.getDataType());
+    }
+ else {
+      value=convertToDataTypeArray(token,fieldSpec.getDataType());
+    }
+    fieldMap.put(column,value);
+  }
+  GenericRow genericRow=new GenericRow();
+  genericRow.init(fieldMap);
+  return genericRow;
+}
