@@ -1,0 +1,12 @@
+{
+  conf=(ControllerConf)getApplication().getContext().getAttributes().get(ControllerConf.class.toString());
+  manager=(PinotHelixResourceManager)getApplication().getContext().getAttributes().get(PinotHelixResourceManager.class.toString());
+  baseDataDir=new File(conf.getDataDir());
+  if (!baseDataDir.exists()) {
+    FileUtils.forceMkdir(baseDataDir);
+  }
+  tempDir=new File(baseDataDir,"schemasTemp");
+  if (!tempDir.exists()) {
+    FileUtils.forceMkdir(tempDir);
+  }
+}

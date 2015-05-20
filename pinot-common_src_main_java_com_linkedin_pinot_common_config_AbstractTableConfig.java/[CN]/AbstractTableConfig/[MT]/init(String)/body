@@ -1,0 +1,16 @@
+{
+  JSONObject o=new JSONObject(jsonString);
+  String tableName=o.getString("tableName");
+  String tableType=o.getString("tableType").toLowerCase();
+  SegmentsValidationAndRetentionConfig validationConfig=loadSegmentsConfig(new ObjectMapper().readTree(o.getJSONObject("segmentsConfig").toString()));
+  TenantConfig tenantConfig=loadTenantsConfig(new ObjectMapper().readTree(o.getJSONObject("tenants").toString()));
+  TableCustomConfig customConfig=loadCustomConfig(new ObjectMapper().readTree(o.getJSONObject("metadata").toString()));
+  IndexingConfig config=loadIndexingConfig(new ObjectMapper().readTree(o.getJSONObject("tableIndexConfig").toString()));
+  if (tableType.equals("offline")) {
+    return new RealtimeTableConfig(tableName,tableType,validationConfig,tenantConfig,customConfig,jsonString,config);
+  }
+ else   if (tableType.equals("realtime")) {
+    return new OfflineTableConfig(tableName,tableType,validationConfig,tenantConfig,customConfig,jsonString,config);
+  }
+  throw new UnsupportedOperationException("unknown tableType : " + tableType);
+}
