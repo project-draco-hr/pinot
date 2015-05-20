@@ -1,0 +1,13 @@
+{
+  String path=StringUtil.join("/","/schemas",schemaName);
+  List<String> schemas=_propertyStore.getChildNames(path,AccessOption.PERSISTENT);
+  List<Integer> schemasIds=new ArrayList<Integer>();
+  for (  String id : schemas) {
+    schemasIds.add(Integer.parseInt(id));
+  }
+  Collections.sort(schemasIds);
+  String latest=String.valueOf(schemasIds.get(schemasIds.size() - 1));
+  LOGGER.info("found schema {} with version {}",schemaName,latest);
+  ZNRecord record=_propertyStore.get(StringUtil.join("/",path,latest),null,AccessOption.PERSISTENT);
+  return Schema.fromZNRecordV2(record);
+}

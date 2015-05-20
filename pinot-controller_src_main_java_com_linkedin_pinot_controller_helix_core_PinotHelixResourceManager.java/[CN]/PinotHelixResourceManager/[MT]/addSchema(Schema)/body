@@ -1,0 +1,8 @@
+{
+  ZNRecord record=Schema.toZNRecord(schema);
+  String path=StringUtil.join("/","/schemas",schema.getSchemaName(),String.valueOf(schema.getSchemaVersion()));
+  if (_propertyStore.exists(path,AccessOption.PERSISTENT)) {
+    throw new IllegalAccessException("schema : " + schema.getSchemaName() + " version : "+ schema.getSchemaVersion()+ " exist");
+  }
+  _propertyStore.create(path,record,AccessOption.PERSISTENT);
+}
