@@ -7,11 +7,11 @@
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
   _helixAdmin=_pinotHelixResourceManager.getHelixAdmin();
   _helixZkManager=_pinotHelixResourceManager.getHelixZkManager();
-  Tenant brokerTenant=new TenantBuilder("testBroker").setType(TenantRole.BROKER).setTotalInstances(5).setOfflineInstances(-1).setRealtimeInstances(-1).build();
+  Tenant brokerTenant=new TenantBuilder("testBroker").setRole(TenantRole.BROKER).setTotalInstances(5).setOfflineInstances(-1).setRealtimeInstances(-1).build();
   _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
-  Tenant serverTenant=new TenantBuilder("testServer").setType(TenantRole.BROKER).setTotalInstances(4).setOfflineInstances(2).setRealtimeInstances(2).build();
+  Tenant serverTenant=new TenantBuilder("testServer").setRole(TenantRole.BROKER).setTotalInstances(4).setOfflineInstances(2).setRealtimeInstances(2).build();
   _pinotHelixResourceManager.createBrokerTenant(serverTenant);
-  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(_testTableName,"testServer","testBroker",2).toString();
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(_testTableName,"testServer","testBroker",2).toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
   _pinotHelixResourceManager.addTable(offlineTableConfig);
 }

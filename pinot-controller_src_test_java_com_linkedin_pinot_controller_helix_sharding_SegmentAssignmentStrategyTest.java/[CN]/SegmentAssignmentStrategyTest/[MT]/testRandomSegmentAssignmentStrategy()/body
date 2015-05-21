@@ -1,9 +1,9 @@
 {
   final int numReplicas=2;
   String serverTenantName="randomServerTenant";
-  Tenant serverTenant=new TenantBuilder(serverTenantName).setType(TenantRole.SERVER).setTotalInstances(20).setOfflineInstances(20).setRealtimeInstances(0).build();
+  Tenant serverTenant=new TenantBuilder(serverTenantName).setRole(TenantRole.SERVER).setTotalInstances(20).setOfflineInstances(20).setRealtimeInstances(0).build();
   _pinotHelixResourceManager.createServerTenant(serverTenant);
-  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(TABLE_NAME_RANDOM,serverTenantName,BROKER_TENANT_NAME,numReplicas,"RandomAssignmentStrategy").toString();
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(TABLE_NAME_RANDOM,serverTenantName,BROKER_TENANT_NAME,numReplicas,"RandomAssignmentStrategy").toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
   _pinotHelixResourceManager.addTable(offlineTableConfig);
   Thread.sleep(3000);

@@ -1,7 +1,4 @@
 {
-  final JSONObject ret=new JSONObject();
-  ret.put(TENANT_ROLE,TenantRole.BROKER.toString());
-  ret.put(TENANT_NAME,tenantName);
-  ret.put(NUMBER_OF_INSTANCES,numberOfInstances);
-  return ret;
+  Tenant tenant=new TenantBuilder(tenantName).setRole(TenantRole.BROKER).setTotalInstances(numberOfInstances).build();
+  return tenant.toJSON();
 }

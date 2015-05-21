@@ -2,9 +2,7 @@
   final PinotResourceManagerResponse res=new PinotResourceManagerResponse();
   try {
     if (!matchResourceName(segmentMetadata)) {
-      res.status=STATUS.failure;
-      res.errorMessage="Reject segment: resource name is not registered." + " Resource name: " + segmentMetadata.getResourceName() + "\n";
-      return res;
+      throw new RuntimeException("Reject segment: resource name is not registered." + " Resource name: " + segmentMetadata.getResourceName() + "\n");
     }
     if (ifSegmentExisted(segmentMetadata)) {
       if (ifRefreshAnExistedSegment(segmentMetadata)) {
@@ -38,16 +36,13 @@
       offlineSegmentZKMetadata.setPushTime(System.currentTimeMillis());
       ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
       LOGGER.info("Added segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
-      OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_propertyStore,segmentMetadata.getResourceName());
-      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName,getPropertyStore(),offlineDataResourceZKMetadata.getServerTenant());
-      _helixAdmin.setResourceIdealState(_helixClusterName,BrokerRequestUtils.getOfflineResourceNameForResource(offlineSegmentZKMetadata.getResourceName()),idealState);
+      AbstractTableConfig offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,segmentMetadata.getResourceName());
+      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateFor(segmentMetadata,_helixAdmin,_helixClusterName,getPropertyStore(),ControllerTenantNameBuilder.getOfflineTenantNameForTenant(offlineTableConfig.getTenantConfig().getServer()));
+      _helixAdmin.setResourceIdealState(_helixClusterName,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(offlineSegmentZKMetadata.getResourceName()),idealState);
       res.status=STATUS.success;
     }
   }
  catch (  final Exception e) {
-    res.status=STATUS.failure;
-    res.errorMessage=e.getMessage();
     LOGGER.error("Caught exception while adding segment",e);
   }
-  return res;
 }

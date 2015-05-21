@@ -1,0 +1,14 @@
+{
+  KafkaStreamMetadata kafkaStreamMetadata=new KafkaStreamMetadata(realtimeTableConfig.getIndexingConfig().getStreamConfigs());
+  String realtimeServerTenant=ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(realtimeTableConfig.getTenantConfig().getServer());
+switch (kafkaStreamMetadata.getConsumerType()) {
+case highLevel:
+    IdealState idealState=buildInitialKafkaHighLevelConsumerRealtimeIdealStateFor(realtimeTableName,helixAdmin,helixClusterName,zkHelixPropertyStore);
+  List<String> realtimeInstances=helixAdmin.getInstancesInClusterWithTag(helixClusterName,realtimeServerTenant);
+setupInstanceConfigForKafkaHighLevelConsumer(realtimeTableName,realtimeInstances.size(),Integer.parseInt(realtimeTableConfig.getValidationConfig().getReplication()),realtimeTableConfig.getIndexingConfig().getStreamConfigs(),zkHelixPropertyStore,realtimeInstances);
+return idealState;
+case simple:
+default :
+throw new UnsupportedOperationException("Not support kafka consumer type: " + kafkaStreamMetadata.getConsumerType());
+}
+}

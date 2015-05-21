@@ -11,7 +11,7 @@
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_OFFLINE").size(),3);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),14);
   String tableName="testTable";
-  payload=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(tableName,serverTenant,brokerTenant,3);
+  payload=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,serverTenant,brokerTenant,3);
   sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),payload.toString());
   Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE).getPartitionSet().size(),1);
   Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE).getInstanceSet(tableName + "_OFFLINE").size(),5);

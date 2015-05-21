@@ -1,13 +1,13 @@
 {
   List<String> segmentsInResource=new ArrayList<String>();
-switch (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName)) {
+switch (TableNameBuilder.getTableTypeFromTableName(tableName)) {
 case REALTIME:
-    for (    RealtimeSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getRealtimeResourceZKMetadataListForResource(getPropertyStore(),resourceName)) {
+    for (    RealtimeSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getRealtimeSegmentZKMetadataListForTable(getPropertyStore(),tableName)) {
       segmentsInResource.add(segmentZKMetadata.getSegmentName());
     }
   break;
 case OFFLINE:
-for (OfflineSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(getPropertyStore(),resourceName)) {
+for (OfflineSegmentZKMetadata segmentZKMetadata : ZKMetadataProvider.getOfflineSegmentZKMetadataListForTable(getPropertyStore(),tableName)) {
   segmentsInResource.add(segmentZKMetadata.getSegmentName());
 }
 break;

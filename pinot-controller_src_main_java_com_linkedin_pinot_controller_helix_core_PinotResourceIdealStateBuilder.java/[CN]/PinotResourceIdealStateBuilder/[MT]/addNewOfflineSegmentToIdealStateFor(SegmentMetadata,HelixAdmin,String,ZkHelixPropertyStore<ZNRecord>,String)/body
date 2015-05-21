@@ -1,16 +1,15 @@
 {
-  final String resourceName=segmentMetadata.getResourceName();
-  final String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(segmentMetadata.getResourceName());
+  final String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(segmentMetadata.getResourceName());
   final String segmentName=segmentMetadata.getName();
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(propertyStore,resourceName);
-  if (!SEGMENT_ASSIGNMENT_STRATEGY_MAP.containsKey(resourceName)) {
-    SEGMENT_ASSIGNMENT_STRATEGY_MAP.put(resourceName,SegmentAssignmentStrategyFactory.getSegmentAssignmentStrategy(offlineDataResourceZKMetadata.getSegmentAssignmentStrategy()));
+  AbstractTableConfig offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(propertyStore,offlineTableName);
+  if (!SEGMENT_ASSIGNMENT_STRATEGY_MAP.containsKey(offlineTableName)) {
+    SEGMENT_ASSIGNMENT_STRATEGY_MAP.put(offlineTableName,SegmentAssignmentStrategyFactory.getSegmentAssignmentStrategy(offlineTableConfig.getValidationConfig().getSegmentAssignmentStrategy()));
   }
-  final SegmentAssignmentStrategy segmentAssignmentStrategy=SEGMENT_ASSIGNMENT_STRATEGY_MAP.get(resourceName);
-  final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,offlineResourceName);
+  final SegmentAssignmentStrategy segmentAssignmentStrategy=SEGMENT_ASSIGNMENT_STRATEGY_MAP.get(offlineTableName);
+  final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,offlineTableName);
   final Set<String> currentInstanceSet=currentIdealState.getInstanceSet(segmentName);
   if (currentInstanceSet.isEmpty()) {
-    final int replicas=offlineDataResourceZKMetadata.getNumDataReplicas();
+    final int replicas=Integer.parseInt(offlineTableConfig.getValidationConfig().getReplication());
     final List<String> selectedInstances=segmentAssignmentStrategy.getAssignedInstances(helixAdmin,helixClusterName,segmentMetadata,replicas,serverTenant);
     for (    final String instance : selectedInstances) {
       currentIdealState.setPartitionState(segmentName,instance,ONLINE);

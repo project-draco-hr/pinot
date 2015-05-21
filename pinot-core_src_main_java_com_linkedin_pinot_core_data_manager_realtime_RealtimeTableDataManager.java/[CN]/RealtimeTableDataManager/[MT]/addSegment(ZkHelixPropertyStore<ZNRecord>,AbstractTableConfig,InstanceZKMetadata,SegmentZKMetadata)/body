@@ -29,7 +29,7 @@ synchronized (getGlobalLock()) {
             String latest=String.valueOf(schemasIds.get(schemasIds.size() - 1));
             LOGGER.info("found schema {} with version {}",tableConfig.getValidationConfig().getSchemaName(),latest);
             ZNRecord record=propertyStoreHelper.get(tableConfig.getValidationConfig().getSchemaName() + "/" + latest);
-            SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecordV2(record));
+            SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record));
             LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);
             _segmentsMap.put(segmentId,manager);
             _loadingSegments.add(segmentId);

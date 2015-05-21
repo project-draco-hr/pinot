@@ -4,12 +4,12 @@
     return false;
   }
   if ("realtime".equalsIgnoreCase(segmentMetadata.getIndexType())) {
-    if (getAllResourceNames().contains(BrokerRequestUtils.buildRealtimeResourceNameForResource(segmentMetadata.getResourceName()))) {
+    if (getAllResourceNames().contains(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(segmentMetadata.getResourceName()))) {
       return true;
     }
   }
  else {
-    if (getAllResourceNames().contains(BrokerRequestUtils.getOfflineResourceNameForResource(segmentMetadata.getResourceName()))) {
+    if (getAllResourceNames().contains(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(segmentMetadata.getResourceName()))) {
       return true;
     }
   }

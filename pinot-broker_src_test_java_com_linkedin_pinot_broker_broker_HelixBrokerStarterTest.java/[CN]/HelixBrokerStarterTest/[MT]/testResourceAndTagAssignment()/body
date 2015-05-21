@@ -12,7 +12,7 @@
   HelixExternalViewBasedRouting helixExternalViewBasedRouting=_helixBrokerStarter.getHelixExternalViewBasedRouting();
   Assert.assertEquals(Arrays.toString(helixExternalViewBasedRouting.getDataResourceSet().toArray()),"[company_OFFLINE]");
   final String tableName="cap";
-  JSONObject buildCreateOfflineTableV2JSON=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(tableName,"testServer","testBroker",1);
+  JSONObject buildCreateOfflineTableV2JSON=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,"testServer","testBroker",1);
   AbstractTableConfig config=AbstractTableConfig.init(buildCreateOfflineTableV2JSON.toString());
   _pinotResourceManager.addTable(config);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"testBroker_BROKER").size(),6);

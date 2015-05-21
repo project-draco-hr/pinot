@@ -1,6 +1,6 @@
 {
   _retentionManager.stop();
-  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResourceV2(_offlineTableName)) {
+  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResource(_offlineTableName)) {
     _pinotHelixResourceManager.deleteSegment(_offlineTableName,segmentId);
   }
   while (_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(_offlineTableName),AccessOption.PERSISTENT).size() > 0) {

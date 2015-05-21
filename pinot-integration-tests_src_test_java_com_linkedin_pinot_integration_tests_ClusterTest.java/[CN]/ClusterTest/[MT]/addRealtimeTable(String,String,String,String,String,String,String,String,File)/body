@@ -6,7 +6,7 @@
   metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.DECODER_CLASS,AvroFileSchemaKafkaAvroMessageDecoder.class.getName());
   metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.ZK_BROKER_URL,kafkaZkUrl);
   metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.HighLevelConsumer.ZK_CONNECTION_STRING,kafkaZkUrl);
-  JSONObject request=ControllerRequestBuilder.buildCreateRealtimeTableV2JSON(resourceName,serverTenant,brokerTenant,timeColumnName,timeColumnType,"rententionTimeUnit","900",1,"BalanceNumSegmentAssignmentStrategy",metadata,schemaName);
+  JSONObject request=ControllerRequestBuilder.buildCreateRealtimeTableJSON(resourceName,serverTenant,brokerTenant,timeColumnName,timeColumnType,"rententionTimeUnit","900",1,"BalanceNumSegmentAssignmentStrategy",metadata,schemaName);
   sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
   AvroFileSchemaKafkaAvroMessageDecoder.avroFile=avroFile;
 }

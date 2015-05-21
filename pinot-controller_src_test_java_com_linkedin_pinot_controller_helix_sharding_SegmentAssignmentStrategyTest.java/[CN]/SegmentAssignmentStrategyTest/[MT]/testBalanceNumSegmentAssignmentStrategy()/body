@@ -2,9 +2,9 @@
   final int numReplicas=3;
   final int totalInstances=6;
   String serverTenantName="balanceServerTenant";
-  Tenant serverTenant=new TenantBuilder(serverTenantName).setType(TenantRole.SERVER).setTotalInstances(6).setOfflineInstances(6).setRealtimeInstances(0).build();
+  Tenant serverTenant=new TenantBuilder(serverTenantName).setRole(TenantRole.SERVER).setTotalInstances(6).setOfflineInstances(6).setRealtimeInstances(0).build();
   _pinotHelixResourceManager.createServerTenant(serverTenant);
-  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(TABLE_NAME_BALANCED,serverTenantName,BROKER_TENANT_NAME,numReplicas,"BalanceNumSegmentAssignmentStrategy").toString();
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(TABLE_NAME_BALANCED,serverTenantName,BROKER_TENANT_NAME,numReplicas,"BalanceNumSegmentAssignmentStrategy").toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
   _pinotHelixResourceManager.addTable(offlineTableConfig);
   Thread.sleep(3000);

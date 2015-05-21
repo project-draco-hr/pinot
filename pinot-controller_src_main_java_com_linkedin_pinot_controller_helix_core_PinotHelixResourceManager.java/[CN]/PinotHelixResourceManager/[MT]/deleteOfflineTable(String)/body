@@ -1,7 +1,6 @@
 {
   final String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
   HelixHelper.deleteResourceFromBrokerResource(_helixAdmin,_helixClusterName,offlineTableName);
-  ControllerHelixHelper.deleteBrokerDataResourceConfig(_helixAdmin,_helixClusterName,offlineTableName);
   if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(offlineTableName)) {
     return;
   }
