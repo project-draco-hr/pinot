@@ -1,9 +1,9 @@
 {
   _retentionManager.stop();
-  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName))) {
-    _pinotHelixResourceManager.deleteSegment(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName),segmentId);
+  for (  String segmentId : _pinotHelixResourceManager.getAllSegmentsForResource(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(_testTableName))) {
+    _pinotHelixResourceManager.deleteSegment(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(_testTableName),segmentId);
   }
-  while (_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(BrokerRequestUtils.getOfflineResourceNameForResource(_testResourceName)),AccessOption.PERSISTENT).size() > 0) {
+  while (_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(_testTableName)),AccessOption.PERSISTENT).size() > 0) {
     Thread.sleep(1000);
   }
 }

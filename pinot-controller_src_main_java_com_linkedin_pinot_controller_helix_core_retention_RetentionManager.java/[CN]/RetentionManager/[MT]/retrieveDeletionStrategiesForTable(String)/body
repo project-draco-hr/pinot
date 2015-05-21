@@ -1,0 +1,11 @@
+{
+switch (TableNameBuilder.getTableTypeFromTableName(tableName)) {
+case OFFLINE:
+    return handleOfflineDeletionStrategy(tableName);
+case REALTIME:
+  return handleRealtimeDeletionStrategy(tableName);
+default :
+break;
+}
+throw new UnsupportedOperationException("Not support resource type for table name - " + tableName);
+}

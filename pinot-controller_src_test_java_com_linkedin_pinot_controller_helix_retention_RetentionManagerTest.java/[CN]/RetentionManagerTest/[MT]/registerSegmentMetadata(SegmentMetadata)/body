@@ -1,0 +1,9 @@
+{
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=new OfflineSegmentZKMetadata();
+  ZKMetadataUtils.updateSegmentMetadata(offlineSegmentZKMetadata,segmentMetadata);
+  ZKMetadataProvider.setOfflineSegmentZKMetadataV2(_pinotHelixResourceManager.getPropertyStore(),offlineSegmentZKMetadata);
+  IdealState idealState=_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,_offlineTableName);
+  idealState.setPartitionState(segmentMetadata.getName(),"Server_localhost_0","ONLINE");
+  idealState.setPartitionState(segmentMetadata.getName(),"Server_localhost_1","ONLINE");
+  _helixAdmin.setResourceIdealState(HELIX_CLUSTER_NAME,_offlineTableName,idealState);
+}

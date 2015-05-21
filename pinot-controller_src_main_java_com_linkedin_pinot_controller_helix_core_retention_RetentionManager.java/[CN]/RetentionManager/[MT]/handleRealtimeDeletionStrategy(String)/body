@@ -1,12 +1,19 @@
 {
-  Map<String,RetentionStrategy> resourceToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
-  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(_pinotHelixResourceManager.getPropertyStore(),resourceName);
+  Map<String,RetentionStrategy> tableToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
+  AbstractTableConfig realtimeTableConfig;
   try {
-    TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(realtimeDataResourceZKMetadata.getRetentionTimeUnit(),realtimeDataResourceZKMetadata.getRetentionTimeValue());
-    resourceToDeletionStrategyMap.put(resourceName,timeRetentionStrategy);
+    realtimeTableConfig=ZKMetadataProvider.getOfflineTableConfig(_pinotHelixResourceManager.getPropertyStore(),realtimeTableName);
   }
  catch (  Exception e) {
-    LOGGER.error("Error creating TimeRetentionStrategy for resource: " + resourceName + ", Exception: "+ e);
+    LOGGER.error("Error getting realtime table config from property store!");
+    return tableToDeletionStrategyMap;
   }
-  return resourceToDeletionStrategyMap;
+  try {
+    TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(realtimeTableConfig.getValidationConfig().getRetentionTimeUnit(),realtimeTableConfig.getValidationConfig().getRetentionTimeValue());
+    tableToDeletionStrategyMap.put(realtimeTableName,timeRetentionStrategy);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Error creating TimeRetentionStrategy for table: " + realtimeTableName + ", Exception: "+ e);
+  }
+  return tableToDeletionStrategyMap;
 }

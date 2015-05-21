@@ -1,18 +1,23 @@
 {
-  Map<String,RetentionStrategy> resourceToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
-  OfflineDataResourceZKMetadata offlineDataResourceZKMetadata=ZKMetadataProvider.getOfflineResourceZKMetadata(_pinotHelixResourceManager.getPropertyStore(),resourceName);
-  if (offlineDataResourceZKMetadata.getPushFrequency().equalsIgnoreCase(REFRESH)) {
-    LOGGER.info("Resource: " + resourceName + " is a fresh only data resource.");
-    return resourceToDeletionStrategyMap;
+  Map<String,RetentionStrategy> tableToDeletionStrategyMap=new HashMap<String,RetentionStrategy>();
+  AbstractTableConfig offlineTableConfig;
+  try {
+    offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_pinotHelixResourceManager.getPropertyStore(),offlineTableName);
   }
- else {
-    try {
-      TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(offlineDataResourceZKMetadata.getRetentionTimeUnit(),offlineDataResourceZKMetadata.getRetentionTimeValue());
-      resourceToDeletionStrategyMap.put(resourceName,timeRetentionStrategy);
-    }
- catch (    Exception e) {
-      LOGGER.error("Error creating TimeRetentionStrategy for resource: " + resourceName + ", Exception: "+ e);
-    }
-    return resourceToDeletionStrategyMap;
+ catch (  Exception e) {
+    LOGGER.error("Error getting offline table config from property store!");
+    return tableToDeletionStrategyMap;
   }
+  if (offlineTableConfig.getValidationConfig().getSegmentPushType().equalsIgnoreCase("REFRESH")) {
+    LOGGER.info("Table: " + offlineTableName + " is a fresh only table.");
+    return tableToDeletionStrategyMap;
+  }
+  try {
+    TimeRetentionStrategy timeRetentionStrategy=new TimeRetentionStrategy(offlineTableConfig.getValidationConfig().getRetentionTimeUnit(),offlineTableConfig.getValidationConfig().getRetentionTimeValue());
+    tableToDeletionStrategyMap.put(offlineTableName,timeRetentionStrategy);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Error creating TimeRetentionStrategy for table: " + offlineTableName + ", Exception: "+ e);
+  }
+  return tableToDeletionStrategyMap;
 }

@@ -1,14 +1,14 @@
 {
   List<SegmentZKMetadata> segmentMetadataList=new ArrayList<SegmentZKMetadata>();
-switch (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName)) {
+switch (TableNameBuilder.getTableTypeFromTableName(tableName)) {
 case OFFLINE:
-    List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(_pinotHelixResourceManager.getPropertyStore(),resourceName);
+    List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineSegmentZKMetadataListForTable(_pinotHelixResourceManager.getPropertyStore(),tableName);
   for (  OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
     segmentMetadataList.add(offlineSegmentZKMetadata);
   }
 break;
 case REALTIME:
-List<RealtimeSegmentZKMetadata> realtimeSegmentZKMetadatas=ZKMetadataProvider.getRealtimeResourceZKMetadataListForResource(_pinotHelixResourceManager.getPropertyStore(),resourceName);
+List<RealtimeSegmentZKMetadata> realtimeSegmentZKMetadatas=ZKMetadataProvider.getRealtimeSegmentZKMetadataListForTable(_pinotHelixResourceManager.getPropertyStore(),tableName);
 for (RealtimeSegmentZKMetadata realtimeSegmentZKMetadata : realtimeSegmentZKMetadatas) {
 segmentMetadataList.add(realtimeSegmentZKMetadata);
 }

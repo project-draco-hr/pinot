@@ -7,6 +7,11 @@
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
   _helixAdmin=_pinotHelixResourceManager.getHelixAdmin();
   _helixZkManager=_pinotHelixResourceManager.getHelixZkManager();
-  DataResource dataResource=new DataResource("create",_testResourceName,Helix.TableType.OFFLINE.toString(),"timestamp","millsSinceEpoch",2,2,"DAYS","5","daily","BalanceNumSegmentAssignmentStrategy","broker_" + _testResourceName,"serverTenant",2,null);
-  _pinotHelixResourceManager.handleCreateNewDataResource(dataResource);
+  Tenant brokerTenant=new Tenant(TenantRole.BROKER,"testBroker",5,-1,-1);
+  _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
+  Tenant serverTenant=new Tenant(TenantRole.BROKER,"testServer",4,2,2);
+  _pinotHelixResourceManager.createBrokerTenant(serverTenant);
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(_testTableName,"testServer","testBroker",2).toString();
+  AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
+  _pinotHelixResourceManager.addTable(offlineTableConfig);
 }
