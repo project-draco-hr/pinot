@@ -4,17 +4,30 @@
     throw new RuntimeException("missing tenant configs");
   }
   SegmentsValidationAndRetentionConfig segmentsConfig=config.getValidationConfig();
-  IndexingConfig indexingConfig=config.getIndexingConfig();
-  TableType type=TableType.valueOf(config.getTableName().toUpperCase());
-  IdealState state=null;
+  TableType type=TableType.valueOf(config.getTableType().toUpperCase());
 switch (type) {
 case OFFLINE:
-    state=PinotResourceIdealStateBuilder.buildEmptyIdealStateFor(config.getTableName(),Integer.parseInt(segmentsConfig.getReplication()),_helixAdmin,_helixClusterName);
-  break;
+    final String offlineTableName=config.getTableName();
+  LOGGER.info("building empty ideal state for resource : " + offlineTableName);
+final IdealState offlineIdealState=PinotResourceIdealStateBuilder.buildEmptyIdealStateFor(offlineTableName,Integer.parseInt(segmentsConfig.getReplication()),_helixAdmin,_helixClusterName);
+LOGGER.info("adding resource via the admin");
+_helixAdmin.addResource(_helixClusterName,offlineTableName,offlineIdealState);
+LOGGER.info("successfully added the resource : " + offlineTableName + " to the cluster");
+ZKMetadataProvider.setOfflineResourceZKMetadata(_propertyStore,offlineTableName,AbstractTableConfig.toZnRecord(config));
+_propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(offlineTableName),new ZNRecord(offlineTableName),AccessOption.PERSISTENT);
+break;
 case REALTIME:
-KafkaStreamMetadata metadata=new KafkaStreamMetadata(indexingConfig.getStreamConfigs());
+final String realtimeTableName=BrokerRequestUtils.getRealtimeResourceNameForResource(config.getTableName());
+ZKMetadataProvider.setRealtimeResourceZKMetadata(_propertyStore,realtimeTableName,AbstractTableConfig.toZnRecord(config));
+LOGGER.info("building empty ideal state for resource : " + realtimeTableName);
+final IdealState realtimeIdealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateForV2(realtimeTableName,(RealtimeTableConfig)config,_helixAdmin,_helixClusterName,_propertyStore);
+LOGGER.info("adding resource via the admin");
+_helixAdmin.addResource(_helixClusterName,realtimeTableName,realtimeIdealState);
+LOGGER.info("successfully added the resource : " + realtimeTableName + " to the cluster");
+_propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(realtimeTableName),new ZNRecord(realtimeTableName),AccessOption.PERSISTENT);
 break;
 default :
 throw new RuntimeException("UnSupported table type");
 }
+handleBrokerResourceV2(config);
 }

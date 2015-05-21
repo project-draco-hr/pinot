@@ -1,0 +1,17 @@
+{
+  final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+  HelixHelper.deleteResourceFromBrokerResource(_helixAdmin,_helixClusterName,realtimeTableName);
+  ControllerHelixHelper.deleteBrokerDataResourceConfig(_helixAdmin,_helixClusterName,realtimeTableName);
+  if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(realtimeTableName)) {
+    return;
+  }
+  ZKMetadataProvider.removeResourceSegmentsFromPropertyStore(getPropertyStore(),realtimeTableName);
+  ZKMetadataProvider.removeResourceConfigFromPropertyStore(getPropertyStore(),realtimeTableName);
+  ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),realtimeTableName);
+  for (  String instance : getAllInstancesForTable(realtimeTableName)) {
+    InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(getPropertyStore(),instance);
+    instanceZKMetadata.removeResource(realtimeTableName);
+    ZKMetadataProvider.setInstanceZKMetadata(getPropertyStore(),instanceZKMetadata);
+  }
+  _helixAdmin.dropResource(_helixClusterName,realtimeTableName);
+}

@@ -1,0 +1,8 @@
+{
+  String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+  ZNRecord znRecord=propertyStore.get(constructPropertyStorePathForResourceConfig(realtimeTableName),null,AccessOption.PERSISTENT);
+  if (znRecord == null) {
+    return null;
+  }
+  return AbstractTableConfig.fromZnRecord(znRecord);
+}

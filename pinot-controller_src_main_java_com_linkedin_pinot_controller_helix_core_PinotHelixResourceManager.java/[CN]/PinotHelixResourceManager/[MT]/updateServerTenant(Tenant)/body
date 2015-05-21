@@ -7,7 +7,7 @@
   Set<String> allServingServers=new HashSet<String>();
   allServingServers.addAll(taggedOfflineServers);
   allServingServers.addAll(taggedRealtimeServers);
-  boolean isCurrentTenantColocated=(allServingServers.size() == taggedOfflineServers.size() + taggedRealtimeServers.size());
+  boolean isCurrentTenantColocated=(allServingServers.size() < taggedOfflineServers.size() + taggedRealtimeServers.size());
   if (isCurrentTenantColocated != serverTenant.isColoated()) {
     res.status=STATUS.failure;
     res.errorMessage="Not support different colocated type request for update request: " + serverTenant;

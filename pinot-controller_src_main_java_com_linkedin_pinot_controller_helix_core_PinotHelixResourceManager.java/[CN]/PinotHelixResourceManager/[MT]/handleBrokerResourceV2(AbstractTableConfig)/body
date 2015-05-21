@@ -1,0 +1,20 @@
+{
+  try {
+    String brokerTenant=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(tableConfig.getTenantConfig().getBroker());
+    if (_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTenant).isEmpty()) {
+      throw new RuntimeException("broker resource tenant : " + tableConfig.getTenantConfig().getBroker() + " is not existed!");
+    }
+    LOGGER.info("Trying to update BrokerDataResource IdealState!");
+    final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
+    String tableName=tableConfig.getTableName();
+    for (    String instanceName : _helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTenant)) {
+      idealState.setPartitionState(tableName,instanceName,BrokerOnlineOfflineStateModel.ONLINE);
+    }
+    if (idealState != null) {
+      _helixAdmin.setResourceIdealState(_helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,idealState);
+    }
+  }
+ catch (  final Exception e) {
+    LOGGER.warn("Caught exception while creating broker data resource",e);
+  }
+}

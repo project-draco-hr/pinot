@@ -2,7 +2,14 @@
   final int numRelicas=2;
   final int numInstancesPerReplica=10;
   final int totalNumInstances=numRelicas * numInstancesPerReplica;
-  final DataResource resource=ControllerRequestBuilderUtil.createOfflineClusterCreationConfig(totalNumInstances,numRelicas,RESOURCE_NAME_RANDOM,"RandomAssignmentStrategy");
+  String resourceName="testResource";
+  String brokerTag="broker_testResource";
+  JSONObject payload=ControllerRequestBuilderUtil.buildBrokerTenantCreateRequestJSON(brokerTag,5);
+  ControllerTest.sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
+  String serverTag="serverTag_0";
+  Tenant serverTenant=new Tenant(TenantRole.SERVER,serverTag,6,3,3);
+  _pinotResourceManager.createServerTenant(serverTenant);
+  final DataResource resource=ControllerRequestBuilderUtil.createOfflineClusterCreationConfig(serverTag,brokerTag,numRelicas,RESOURCE_NAME_RANDOM,"RandomAssignmentStrategy");
   _pinotResourceManager.handleCreateNewDataResource(resource);
   Thread.sleep(3000);
   for (int i=0; i < 10; ++i) {

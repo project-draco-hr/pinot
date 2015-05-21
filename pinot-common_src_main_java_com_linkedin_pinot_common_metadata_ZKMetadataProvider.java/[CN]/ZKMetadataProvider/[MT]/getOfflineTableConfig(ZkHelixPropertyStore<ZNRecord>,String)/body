@@ -1,0 +1,8 @@
+{
+  String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+  ZNRecord znRecord=propertyStore.get(constructPropertyStorePathForResourceConfig(offlineTableName),null,AccessOption.PERSISTENT);
+  if (znRecord == null) {
+    return null;
+  }
+  return AbstractTableConfig.fromZnRecord(znRecord);
+}

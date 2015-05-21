@@ -1,0 +1,7 @@
+{
+  final CustomModeISBuilder customModeIdealStateBuilder=new CustomModeISBuilder(realtimeTableName);
+  customModeIdealStateBuilder.setStateModel(PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL).setNumPartitions(0).setNumReplica(1).setMaxPartitionsPerNode(1);
+  final IdealState idealState=customModeIdealStateBuilder.build();
+  idealState.setInstanceGroupTag(realtimeTableName);
+  return idealState;
+}
