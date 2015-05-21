@@ -3,7 +3,7 @@
   Map<String,Object> fieldMap=new HashMap<String,Object>();
   for (  final FieldSpec fieldSpec : _schema.getAllFieldSpecs()) {
     String column=fieldSpec.getName();
-    String token=record.get(column);
+    String token=getValueForColumn(record,column);
     Object value=null;
     if (fieldSpec.isSingleValueField()) {
       value=RecordReaderUtils.convertToDataType(token,fieldSpec.getDataType());

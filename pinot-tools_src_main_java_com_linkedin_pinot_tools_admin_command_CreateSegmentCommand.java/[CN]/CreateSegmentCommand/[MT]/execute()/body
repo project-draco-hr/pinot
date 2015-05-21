@@ -33,6 +33,13 @@
     _logger.error("Error: Input format requires schema");
     return false;
   }
+  final RecordReaderConfig recordReaderConfig;
+  if (_recordReaderConfigFile != null) {
+    recordReaderConfig=new ObjectMapper().readValue(new File(_recordReaderConfigFile),RecordReaderConfig.class);
+  }
+ else {
+    recordReaderConfig=null;
+  }
   ExecutorService executor=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   int cnt=0;
   for (  final File file : files) {
@@ -42,6 +49,7 @@
         try {
           SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
           config.setInputFileFormat(_format);
+          config.setRecordeReaderConfig(recordReaderConfig);
           config.setSegmentVersion(SegmentVersion.v1);
           config.setIndexOutputDir(_outDir);
           config.setResourceName(_resourceName);
