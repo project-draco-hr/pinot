@@ -9,7 +9,8 @@
       value=RecordReaderUtils.convertToDataType(token,fieldSpec.getDataType());
     }
  else {
-      value=RecordReaderUtils.convertToDataTypeArray(token,fieldSpec.getDataType());
+      String[] tokens=(token != null) ? token.split(_delimiterString) : null;
+      value=RecordReaderUtils.convertToDataTypeArray(tokens,fieldSpec.getDataType());
     }
     fieldMap.put(column,value);
   }

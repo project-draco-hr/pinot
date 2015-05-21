@@ -1,15 +1,16 @@
 {
-  Map<String,String> record=_iterator.next();
+  Map<String,Object> record=_iterator.next();
   Map<String,Object> fieldMap=new HashMap<String,Object>();
   for (  final FieldSpec fieldSpec : _schema.getAllFieldSpecs()) {
     String column=fieldSpec.getName();
-    String token=record.get(column);
+    Object data=record.get(column);
     Object value=null;
     if (fieldSpec.isSingleValueField()) {
+      String token=(data != null) ? data.toString() : null;
       value=RecordReaderUtils.convertToDataType(token,fieldSpec.getDataType());
     }
  else {
-      value=RecordReaderUtils.convertToDataTypeArray(token,fieldSpec.getDataType());
+      value=convertToDataTypeArray(data,fieldSpec.getDataType());
     }
     fieldMap.put(column,value);
   }

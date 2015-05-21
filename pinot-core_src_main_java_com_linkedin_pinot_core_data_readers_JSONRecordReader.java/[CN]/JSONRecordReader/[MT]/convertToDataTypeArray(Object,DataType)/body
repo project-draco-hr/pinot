@@ -1,0 +1,16 @@
+{
+  Object[] value;
+  if ((data == null)) {
+    value=new Object[1];
+    value[0]=RecordReaderUtils.getDefaultNullValue(dataType);
+  }
+ else {
+    ArrayList objs=(ArrayList)data;
+    value=new Object[objs.size()];
+    for (int i=0; i < objs.size(); ++i) {
+      String token=(objs.get(i) != null) ? objs.get(i).toString() : null;
+      value[i]=RecordReaderUtils.convertToDataType(token,dataType);
+    }
+  }
+  return value;
+}
