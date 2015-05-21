@@ -1,0 +1,8 @@
+{
+  String actualTableName=new TableNameBuilder(type).forTable(tableName);
+  ZNRecord rec=_propertyStore.get("/tables/" + actualTableName,null,AccessOption.PERSISTENT);
+  AbstractTableConfig config=AbstractTableConfig.fromZnRecord(rec);
+  String brokerTenantName=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(config.getTenantConfig().getBroker());
+  List<String> serverInstances=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTenantName);
+  return serverInstances;
+}

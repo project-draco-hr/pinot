@@ -1,8 +1,20 @@
 {
-  StringRepresentation presentation=null;
   final String tableName=(String)getRequest().getAttributes().get("tableName");
   if (tableName == null) {
     return new StringRepresentation("tableName is not present");
   }
-  return presentation;
+  try {
+    JSONArray ret=new JSONArray();
+    if (manager.hasOfflineTable(tableName)) {
+      ret.add(manager.getTableConfig(tableName,TableType.OFFLINE).toJSON());
+    }
+    if (manager.hasRealtimeTable(tableName)) {
+      ret.add(manager.getTableConfig(tableName,TableType.REALTIME).toJSON());
+    }
+    return new StringRepresentation(ret.toString());
+  }
+ catch (  Exception e) {
+    LOGGER.error("error processing get table config",e);
+    return PinotFileUpload.exceptionToStringRepresentation(e);
+  }
 }

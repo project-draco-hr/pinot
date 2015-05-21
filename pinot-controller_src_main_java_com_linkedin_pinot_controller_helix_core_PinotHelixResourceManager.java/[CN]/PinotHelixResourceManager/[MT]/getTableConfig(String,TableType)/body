@@ -1,0 +1,10 @@
+{
+  String actualTableName=new TableNameBuilder(type).forTable(tableName);
+  List<String> tableNames=_propertyStore.getChildNames("/tables/" + actualTableName,AccessOption.PERSISTENT);
+  AbstractTableConfig ret=null;
+  if (tableNames.contains(actualTableName)) {
+    ZNRecord rec=_propertyStore.get("/tables/" + actualTableName,null,AccessOption.PERSISTENT);
+    ret=AbstractTableConfig.fromZnRecord(rec);
+  }
+  return ret;
+}
