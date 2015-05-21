@@ -4,13 +4,13 @@
     return;
   }
   LOGGER.info("Starting validation");
-  List<String> allResourceNames=_pinotHelixResourceManager.getAllPinotResourceNames();
+  List<String> allTableNames=_pinotHelixResourceManager.getAllPinotResourceNames();
   ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
-  for (  String resourceName : allResourceNames) {
-    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) != TableType.OFFLINE) {
+  for (  String tableName : allTableNames) {
+    if (TableNameBuilder.getTableTypeFromTableName(tableName) != TableType.OFFLINE) {
       continue;
     }
-    List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineResourceZKMetadataListForResource(propertyStore,resourceName);
+    List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineSegmentZKMetadataListForTable(propertyStore,tableName);
     List<SegmentMetadata> segmentMetadataList=new ArrayList<SegmentMetadata>();
     for (    OfflineSegmentZKMetadata offlineSegmentZKMetadata : offlineSegmentZKMetadatas) {
       SegmentMetadata segmentMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
@@ -26,7 +26,7 @@
       List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,segmentMetadataList.get(0).getTimeGranularity());
       missingSegmentCount=missingIntervals.size();
     }
-    _validationMetrics.updateMissingSegmentsGauge(resourceName,missingSegmentCount);
+    _validationMetrics.updateMissingSegmentsGauge(tableName,missingSegmentCount);
     long maxSegmentEndTime=Long.MIN_VALUE;
     long maxSegmentPushTime=Long.MIN_VALUE;
     for (    SegmentMetadata segmentMetadata : segmentMetadataList) {
@@ -41,8 +41,8 @@
         maxSegmentPushTime=segmentUpdateTime;
       }
     }
-    _validationMetrics.updateOfflineSegmentDelayGauge(resourceName,maxSegmentEndTime);
-    _validationMetrics.updateLastPushTimeGauge(resourceName,maxSegmentPushTime);
+    _validationMetrics.updateOfflineSegmentDelayGauge(tableName,maxSegmentEndTime);
+    _validationMetrics.updateLastPushTimeGauge(tableName,maxSegmentPushTime);
   }
   LOGGER.info("Validation completed");
 }
