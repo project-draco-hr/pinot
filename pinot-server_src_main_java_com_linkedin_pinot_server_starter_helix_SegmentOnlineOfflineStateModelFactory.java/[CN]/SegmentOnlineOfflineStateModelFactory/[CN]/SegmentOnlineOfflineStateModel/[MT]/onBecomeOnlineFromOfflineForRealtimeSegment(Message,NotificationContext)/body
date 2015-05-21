@@ -4,6 +4,6 @@
   ZkHelixPropertyStore<ZNRecord> propertyStore=ZkUtils.getZkPropertyStore(context.getManager(),_helixClusterName);
   SegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(propertyStore,resourceName,segmentId);
   InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(propertyStore,_instanceId);
-  RealtimeDataResourceZKMetadata realtimeDataResourceZKMetadata=ZKMetadataProvider.getRealtimeResourceZKMetadata(propertyStore,resourceName);
-  ((InstanceDataManager)INSTANCE_DATA_MANAGER).addSegment(propertyStore,realtimeDataResourceZKMetadata,instanceZKMetadata,realtimeSegmentZKMetadata);
+  AbstractTableConfig tableConfig=AbstractTableConfig.fromZnRecord(propertyStore.get("/CONFIGS/RESOURCE/" + resourceName,null,AccessOption.PERSISTENT));
+  ((InstanceDataManager)INSTANCE_DATA_MANAGER).addSegment(propertyStore,tableConfig,instanceZKMetadata,realtimeSegmentZKMetadata);
 }

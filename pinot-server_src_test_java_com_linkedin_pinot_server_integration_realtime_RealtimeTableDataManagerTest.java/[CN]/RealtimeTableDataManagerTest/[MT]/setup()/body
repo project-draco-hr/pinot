@@ -1,6 +1,23 @@
 {
-  realtimeDataResourceZKMetadata=getRealtimeDataResourceZKMetadata();
   instanceZKMetadata=getInstanceZKMetadata();
   realtimeSegmentZKMetadata=getRealtimeSegmentZKMetadata();
   resourceDataManagerConfig=getResourceDataManagerConfig();
+  JSONObject request=new JSONObject();
+  request.put("tableName","mirror");
+  request.put("tableType","REALTIME");
+  JSONObject indexing=new JSONObject();
+  indexing.put("loadMode","HEAP");
+  JSONObject stream=new JSONObject();
+  stream.put("streamType","kafka");
+  stream.put("stream.kafka.consumer.type","highLevel");
+  stream.put("stream.kafka.topic.name","MirrorDecoratedProfileViewEvent");
+  stream.put("stream.kafka.decoder.class.name","com.linkedin.pinot.core.realtime.impl.kafka.KafkaAvroMessageDecoder");
+  stream.put("stream.kafka.hlc.zk.connect.string","zk-eat1-kafka.corp.linkedin.com:12913/kafka-aggregate-tracking");
+  stream.put("stream.kafka.decoder.prop.schema.registry.rest.url","http://eat1-ei2-schema-vip-z.stg.linkedin.com:10252/schemaRegistry/schemas");
+  indexing.put("streamConfigs",stream);
+  request.put("tableIndexConfig",indexing);
+  request.put("segmentsConfig",new JSONObject());
+  request.put("tenants",new JSONObject());
+  request.put("metadata",new JSONObject());
+  tableConfig=AbstractTableConfig.init(request.toString());
 }
