@@ -1,5 +1,6 @@
 {
-  String path=StringUtil.join("/","/schemas",schemaName);
+  PinotHelixPropertyStoreZnRecordProvider propertyStoreHelper=PinotHelixPropertyStoreZnRecordProvider.forSchema(_propertyStore);
+  String path=StringUtil.join("/",propertyStoreHelper.getRelativePath(),schemaName);
   List<String> schemas=_propertyStore.getChildNames(path,AccessOption.PERSISTENT);
   List<Integer> schemasIds=new ArrayList<Integer>();
   for (  String id : schemas) {
@@ -8,6 +9,6 @@
   Collections.sort(schemasIds);
   String latest=String.valueOf(schemasIds.get(schemasIds.size() - 1));
   LOGGER.info("found schema {} with version {}",schemaName,latest);
-  ZNRecord record=_propertyStore.get(StringUtil.join("/",path,latest),null,AccessOption.PERSISTENT);
+  ZNRecord record=propertyStoreHelper.get(schemaName);
   return Schema.fromZNRecordV2(record);
 }

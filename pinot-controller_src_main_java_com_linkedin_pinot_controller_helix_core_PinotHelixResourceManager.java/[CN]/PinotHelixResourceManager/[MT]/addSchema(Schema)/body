@@ -1,8 +1,9 @@
 {
   ZNRecord record=Schema.toZNRecord(schema);
-  String path=StringUtil.join("/","/schemas",schema.getSchemaName(),String.valueOf(schema.getSchemaVersion()));
-  if (_propertyStore.exists(path,AccessOption.PERSISTENT)) {
+  String name=StringUtil.join("/",schema.getSchemaName(),String.valueOf(schema.getSchemaVersion()));
+  PinotHelixPropertyStoreZnRecordProvider propertyStoreHelper=PinotHelixPropertyStoreZnRecordProvider.forSchema(_propertyStore);
+  if (propertyStoreHelper.exist(name)) {
     throw new IllegalAccessException("schema : " + schema.getSchemaName() + " version : "+ schema.getSchemaVersion()+ " exist");
   }
-  _propertyStore.create(path,record,AccessOption.PERSISTENT);
+  propertyStoreHelper.set(name,record);
 }
