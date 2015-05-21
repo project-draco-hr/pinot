@@ -1,10 +1,11 @@
 {
   String actualTableName=new TableNameBuilder(type).forTable(tableName);
-  List<String> tableNames=_propertyStore.getChildNames("/tables/" + actualTableName,AccessOption.PERSISTENT);
-  AbstractTableConfig ret=null;
-  if (tableNames.contains(actualTableName)) {
-    ZNRecord rec=_propertyStore.get("/tables/" + actualTableName,null,AccessOption.PERSISTENT);
-    ret=AbstractTableConfig.fromZnRecord(rec);
+  AbstractTableConfig config=null;
+  if (type == TableType.REALTIME) {
+    config=ZKMetadataProvider.getRealtimeTableConfig(getPropertyStore(),actualTableName);
   }
-  return ret;
+ else {
+    config=ZKMetadataProvider.getOfflineTableConfig(getPropertyStore(),actualTableName);
+  }
+  return config;
 }

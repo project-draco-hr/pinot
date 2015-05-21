@@ -3,13 +3,11 @@
   try {
     String jsonRequest=entity.getText();
     config=AbstractTableConfig.init(jsonRequest);
-    System.out.println("original : " + config);
-    ZNRecord rec=AbstractTableConfig.toZnRecord(config);
-    System.out.println("from znRecord : " + AbstractTableConfig.fromZnRecord(rec));
     try {
       manager.addTable(config);
     }
  catch (    Exception e) {
+      e.printStackTrace();
       return new StringRepresentation("Failed: " + e.getMessage());
     }
     return new StringRepresentation("Success");

@@ -35,13 +35,8 @@
         FileUtils.deleteQuietly(segmentFile);
       }
       FileUtils.moveFile(dataFile,segmentFile);
-      PinotResourceManagerResponse res=manager.addSegment(metadata,constructDownloadUrl(metadata.getResourceName(),dataFile.getName()));
-      if (!res.isSuccessfull()) {
-        rep=new StringRepresentation(res.errorMessage,MediaType.TEXT_PLAIN);
-        setStatus(Status.SERVER_ERROR_INTERNAL);
-        LOGGER.error("Resource manager failed to add segment: " + res.errorMessage);
-        FileUtils.deleteQuietly(new File(resourceDir,dataFile.getName()));
-      }
+      manager.addSegmentV2(metadata,constructDownloadUrl(metadata.getResourceName(),dataFile.getName()));
+      return new StringRepresentation("");
     }
  else {
       rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);

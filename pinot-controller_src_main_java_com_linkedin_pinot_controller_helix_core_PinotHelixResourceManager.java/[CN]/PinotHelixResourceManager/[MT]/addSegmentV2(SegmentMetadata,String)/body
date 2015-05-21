@@ -37,7 +37,7 @@
       ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
       LOGGER.info("Added segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
       AbstractTableConfig offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,segmentMetadata.getResourceName());
-      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateForV2(segmentMetadata,_helixAdmin,_helixClusterName,getPropertyStore(),offlineTableConfig.getTenantConfig().getServer());
+      final IdealState idealState=PinotResourceIdealStateBuilder.addNewOfflineSegmentToIdealStateForV2(segmentMetadata,_helixAdmin,_helixClusterName,getPropertyStore(),ControllerTenantNameBuilder.getOfflineTenantNameForTenant(offlineTableConfig.getTenantConfig().getServer()));
       _helixAdmin.setResourceIdealState(_helixClusterName,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(offlineSegmentZKMetadata.getResourceName()),idealState);
       res.status=STATUS.success;
     }

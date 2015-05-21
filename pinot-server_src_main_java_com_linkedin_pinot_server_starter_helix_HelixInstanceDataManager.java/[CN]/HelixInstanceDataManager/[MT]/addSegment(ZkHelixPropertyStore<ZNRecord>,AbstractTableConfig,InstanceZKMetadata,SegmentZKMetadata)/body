@@ -6,10 +6,10 @@
   LOGGER.debug("Trying to add segment with Metadata: " + segmentZKMetadata.toString());
   String resourceName=segmentZKMetadata.getResourceName();
   if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
-    resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName);
+    resourceName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(resourceName);
   }
  else   if (segmentZKMetadata instanceof OfflineSegmentZKMetadata) {
-    resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
+    resourceName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(resourceName);
   }
   if (!_resourceDataManagerMap.containsKey(resourceName)) {
     LOGGER.info("Trying to add ResourceDataManager for resource name: " + resourceName);

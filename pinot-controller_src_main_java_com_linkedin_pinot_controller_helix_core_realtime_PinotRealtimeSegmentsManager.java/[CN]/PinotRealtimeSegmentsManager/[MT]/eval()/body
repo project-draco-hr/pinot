@@ -7,7 +7,13 @@
   for (  String resource : idealStateMap.keySet()) {
     IdealState state=idealStateMap.get(resource);
     if (state.getPartitionSet().size() == 0) {
-      List<String> instancesInResource=pinotClusterManager.getHelixAdmin().getInstancesInClusterWithTag(pinotClusterManager.getHelixClusterName(),resource);
+      List<String> instancesInResource=new ArrayList<String>();
+      try {
+        instancesInResource.addAll(pinotClusterManager.getServerInstancesForTable(resource,TableType.REALTIME));
+      }
+ catch (      Exception e) {
+        LOGGER.error("error fetching instances",e);
+      }
       for (      String instanceId : instancesInResource) {
         InstanceZKMetadata instanceZKMetadata=pinotClusterManager.getInstanceZKMetadata(instanceId);
         String groupId=instanceZKMetadata.getGroupId(resource);

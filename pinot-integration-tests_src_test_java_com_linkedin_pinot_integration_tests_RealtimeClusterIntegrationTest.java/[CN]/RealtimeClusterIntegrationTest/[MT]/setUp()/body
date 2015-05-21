@@ -11,7 +11,8 @@
   for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
     avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
   }
-  createRealtimeResource("myresource","DaysSinceEpoch","daysSinceEpoch",KafkaTestUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,avroFiles.get(0));
+  File schemaFile=new File(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.schema").getFile());
+  setUpTable("myresource","DaysSinceEpoch","daysSinceEpoch",KafkaTestUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
   ExecutorService executor=Executors.newCachedThreadPool();
   Class.forName("org.h2.Driver");
   _connection=DriverManager.getConnection("jdbc:h2:mem:");

@@ -1,0 +1,33 @@
+{
+  HttpClient client=new HttpClient();
+  try {
+    client.getParams().setParameter("http.protocol.version",HttpVersion.HTTP_1_1);
+    PostMethod post=new PostMethod("http://" + host + ":"+ port+ "/"+ path);
+    Part[] parts={new FilePart(fileName,new PartSource(){
+      @Override public long getLength(){
+        return lengthInBytes;
+      }
+      @Override public String getFileName(){
+        return "fileName";
+      }
+      @Override public InputStream createInputStream() throws IOException {
+        return new BufferedInputStream(inputStream);
+      }
+    }
+)};
+    post.setRequestEntity(new MultipartRequestEntity(parts,new HttpMethodParams()));
+    client.executeMethod(post);
+    if (post.getStatusCode() >= 400) {
+      String errorString="POST Status Code: " + post.getStatusCode() + "\n";
+      if (post.getResponseHeader("Error") != null) {
+        errorString+="ServletException: " + post.getResponseHeader("Error").getValue();
+      }
+      throw new HttpException(errorString);
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while sending file",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
+  }
+}

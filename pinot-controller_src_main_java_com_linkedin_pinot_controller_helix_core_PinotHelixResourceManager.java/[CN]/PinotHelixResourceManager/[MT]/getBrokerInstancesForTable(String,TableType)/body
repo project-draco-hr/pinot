@@ -1,7 +1,12 @@
 {
   String actualTableName=new TableNameBuilder(type).forTable(tableName);
-  ZNRecord rec=_propertyStore.get("/tables/" + actualTableName,null,AccessOption.PERSISTENT);
-  AbstractTableConfig config=AbstractTableConfig.fromZnRecord(rec);
+  AbstractTableConfig config=null;
+  if (type == TableType.REALTIME) {
+    config=ZKMetadataProvider.getRealtimeTableConfig(getPropertyStore(),actualTableName);
+  }
+ else {
+    config=ZKMetadataProvider.getOfflineTableConfig(getPropertyStore(),actualTableName);
+  }
   String brokerTenantName=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(config.getTenantConfig().getBroker());
   List<String> serverInstances=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTenantName);
   return serverInstances;
