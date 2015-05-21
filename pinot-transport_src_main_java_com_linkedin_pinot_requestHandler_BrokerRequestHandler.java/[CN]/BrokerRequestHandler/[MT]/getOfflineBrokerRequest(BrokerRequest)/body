@@ -1,7 +1,7 @@
 {
   BrokerRequest offlineRequest=request.deepCopy();
   String hybridResourceName=request.getQuerySource().getResourceName();
-  String offlineResourceName=BrokerRequestUtils.getOfflineResourceNameForResource(hybridResourceName);
+  String offlineResourceName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(hybridResourceName);
   offlineRequest.getQuerySource().setResourceName(offlineResourceName);
   attachTimeBoundary(hybridResourceName,offlineRequest,true);
   return offlineRequest;

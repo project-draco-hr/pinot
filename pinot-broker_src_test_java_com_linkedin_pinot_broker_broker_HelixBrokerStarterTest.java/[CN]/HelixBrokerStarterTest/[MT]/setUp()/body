@@ -21,7 +21,7 @@
   for (int i=1; i <= 5; i++) {
     addOneSegment(dataResource);
     Thread.sleep(2000);
-    final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,BrokerRequestUtils.getOfflineResourceNameForResource(dataResource));
+    final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(dataResource));
     Assert.assertEquals(externalView.getPartitionSet().size(),i);
   }
 }

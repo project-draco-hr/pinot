@@ -13,12 +13,12 @@ final IdealState offlineIdealState=PinotResourceIdealStateBuilder.buildEmptyIdea
 LOGGER.info("adding resource via the admin");
 _helixAdmin.addResource(_helixClusterName,offlineTableName,offlineIdealState);
 LOGGER.info("successfully added the resource : " + offlineTableName + " to the cluster");
-ZKMetadataProvider.setOfflineResourceZKMetadata(_propertyStore,offlineTableName,AbstractTableConfig.toZnRecord(config));
+ZKMetadataProvider.setOfflineTableConfig(_propertyStore,offlineTableName,AbstractTableConfig.toZnRecord(config));
 _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(offlineTableName),new ZNRecord(offlineTableName),AccessOption.PERSISTENT);
 break;
 case REALTIME:
-final String realtimeTableName=BrokerRequestUtils.getRealtimeResourceNameForResource(config.getTableName());
-ZKMetadataProvider.setRealtimeResourceZKMetadata(_propertyStore,realtimeTableName,AbstractTableConfig.toZnRecord(config));
+final String realtimeTableName=config.getTableName();
+ZKMetadataProvider.setRealtimeTableConfig(_propertyStore,realtimeTableName,AbstractTableConfig.toZnRecord(config));
 LOGGER.info("building empty ideal state for resource : " + realtimeTableName);
 final IdealState realtimeIdealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateForV2(realtimeTableName,(RealtimeTableConfig)config,_helixAdmin,_helixClusterName,_propertyStore);
 LOGGER.info("adding resource via the admin");

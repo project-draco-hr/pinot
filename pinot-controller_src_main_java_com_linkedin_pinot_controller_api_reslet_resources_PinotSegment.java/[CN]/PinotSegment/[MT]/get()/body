@@ -7,7 +7,7 @@
       final JSONArray segmentsArray=new JSONArray();
       final JSONObject ret=new JSONObject();
       ret.put("resource",resourceName);
-      for (      final String segmentId : manager.getAllSegmentsForResource(resourceName)) {
+      for (      final String segmentId : manager.getAllSegmentsForResourceV2(resourceName)) {
         segmentsArray.put(segmentId);
       }
       ret.put("segments",segmentsArray);
@@ -16,7 +16,7 @@
  else {
       final JSONObject medata=new JSONObject();
       try {
-        OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(manager.getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName),segmentName);
+        OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(manager.getPropertyStore(),TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(resourceName),segmentName);
         for (        final String key : offlineSegmentZKMetadata.toMap().keySet()) {
           medata.put(key,offlineSegmentZKMetadata.toMap().get(key));
         }
@@ -32,7 +32,7 @@
       }
       try {
         if (presentation == null) {
-          RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(manager.getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName),segmentName);
+          RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(manager.getPropertyStore(),TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(resourceName),segmentName);
           for (          final String key : realtimeSegmentZKMetadata.toMap().keySet()) {
             medata.put(key,realtimeSegmentZKMetadata.toMap().get(key));
           }

@@ -1,4 +1,4 @@
 {
-  resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resourceName);
-  return new OfflineSegmentZKMetadata(propertyStore.get(constructPropertyStorePathForSegment(resourceName,segmentName),null,AccessOption.PERSISTENT));
+  String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+  return new OfflineSegmentZKMetadata(propertyStore.get(constructPropertyStorePathForSegment(offlineTableName,segmentName),null,AccessOption.PERSISTENT));
 }

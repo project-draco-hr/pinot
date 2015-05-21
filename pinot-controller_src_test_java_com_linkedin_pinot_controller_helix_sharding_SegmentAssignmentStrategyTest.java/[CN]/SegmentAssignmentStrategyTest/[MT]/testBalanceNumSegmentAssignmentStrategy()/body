@@ -1,25 +1,28 @@
 {
-  final int numRelicas=3;
-  final int numInstancesPerReplica=2;
-  final int totalInstances=numInstancesPerReplica * numRelicas;
-  final DataResource resource=ControllerRequestBuilderUtil.createOfflineClusterCreationConfig(totalInstances,numRelicas,RESOURCE_NAME_BALANCED,"BalanceNumSegmentAssignmentStrategy");
-  _pinotResourceManager.handleCreateNewDataResource(resource);
+  final int numReplicas=3;
+  final int totalInstances=6;
+  String serverTenantName="balanceServerTenant";
+  Tenant serverTenant=new Tenant(TenantRole.SERVER,serverTenantName,6,6,0);
+  _pinotHelixResourceManager.createServerTenant(serverTenant);
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(TABLE_NAME_BALANCED,serverTenantName,BROKER_TENANT_NAME,numReplicas,"BalanceNumSegmentAssignmentStrategy").toString();
+  AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
+  _pinotHelixResourceManager.addTable(offlineTableConfig);
   Thread.sleep(3000);
   for (int i=0; i < 10; ++i) {
-    addOneSegment(RESOURCE_NAME_BALANCED);
+    addOneSegment(TABLE_NAME_BALANCED);
     Thread.sleep(2000);
-    final List<String> taggedInstances=_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,BrokerRequestUtils.getOfflineResourceNameForResource(RESOURCE_NAME_BALANCED));
+    final Set<String> taggedInstances=_pinotHelixResourceManager.getAllInstancesForServerTenant(serverTenantName);
     final Map<String,Integer> instance2NumSegmentsMap=new HashMap<String,Integer>();
     for (    final String instance : taggedInstances) {
       instance2NumSegmentsMap.put(instance,0);
     }
-    final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,BrokerRequestUtils.getOfflineResourceNameForResource(RESOURCE_NAME_BALANCED));
+    final ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(TABLE_NAME_BALANCED));
     for (    final String segmentId : externalView.getPartitionSet()) {
       for (      final String instance : externalView.getStateMap(segmentId).keySet()) {
         instance2NumSegmentsMap.put(instance,instance2NumSegmentsMap.get(instance) + 1);
       }
     }
-    final int totalSegments=(i + 1) * numRelicas;
+    final int totalSegments=(i + 1) * numReplicas;
     final int minNumSegmentsPerInstance=totalSegments / totalInstances;
     int maxNumSegmentsPerInstance=minNumSegmentsPerInstance;
     if ((minNumSegmentsPerInstance * totalInstances) < totalSegments) {
@@ -30,5 +33,5 @@
       Assert.assertTrue(instance2NumSegmentsMap.get(instance) <= maxNumSegmentsPerInstance);
     }
   }
-  _helixAdmin.dropResource(HELIX_CLUSTER_NAME,BrokerRequestUtils.getOfflineResourceNameForResource(RESOURCE_NAME_BALANCED));
+  _helixAdmin.dropResource(HELIX_CLUSTER_NAME,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(TABLE_NAME_BALANCED));
 }

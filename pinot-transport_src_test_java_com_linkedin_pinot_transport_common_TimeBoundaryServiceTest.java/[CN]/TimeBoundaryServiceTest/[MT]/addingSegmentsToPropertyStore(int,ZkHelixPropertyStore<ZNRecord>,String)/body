@@ -1,8 +1,7 @@
 {
-  String resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(resource);
   for (int i=0; i < numSegments; ++i) {
     OfflineSegmentZKMetadata offlineSegmentZKMetadata=new OfflineSegmentZKMetadata();
-    offlineSegmentZKMetadata.setSegmentName(resourceName + "_" + System.currentTimeMillis()+ "_"+ i);
+    offlineSegmentZKMetadata.setSegmentName(tableName + "_" + System.currentTimeMillis()+ "_"+ i);
     offlineSegmentZKMetadata.setTimeUnit(TimeUnit.DAYS);
     offlineSegmentZKMetadata.setEndTime(i);
     offlineSegmentZKMetadata.setCrc(-1);
@@ -10,7 +9,7 @@
     offlineSegmentZKMetadata.setStartTime(i - 1);
     offlineSegmentZKMetadata.setIndexVersion("0");
     offlineSegmentZKMetadata.setPushTime(i + 5);
-    offlineSegmentZKMetadata.setResourceName(resourceName);
+    offlineSegmentZKMetadata.setResourceName(tableName);
     offlineSegmentZKMetadata.setSegmentType(SegmentType.OFFLINE);
     ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
   }

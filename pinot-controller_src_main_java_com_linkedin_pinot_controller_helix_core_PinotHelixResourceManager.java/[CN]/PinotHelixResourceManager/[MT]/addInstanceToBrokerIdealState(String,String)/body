@@ -1,10 +1,16 @@
 {
   IdealState resourceIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
-  for (  String resourceName : resourceIdealState.getPartitionSet()) {
-    if (BrokerRequestUtils.getResourceTypeFromResourceName(resourceName) == TableType.OFFLINE) {
-      String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),resourceName).getBrokerTag());
+  for (  String tableName : resourceIdealState.getPartitionSet()) {
+    if (TableNameBuilder.getTableTypeFromTableName(tableName) == TableType.OFFLINE) {
+      String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(ZKMetadataProvider.getOfflineTableConfig(getPropertyStore(),tableName).getTenantConfig().getBroker());
       if (brokerTag.equals(brokerTenantTag)) {
-        resourceIdealState.setPartitionState(resourceName,instanceName,BrokerOnlineOfflineStateModel.ONLINE);
+        resourceIdealState.setPartitionState(tableName,instanceName,BrokerOnlineOfflineStateModel.ONLINE);
+      }
+    }
+ else     if (TableNameBuilder.getTableTypeFromTableName(tableName) == TableType.REALTIME) {
+      String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(ZKMetadataProvider.getRealtimeTableConfig(getPropertyStore(),tableName).getTenantConfig().getBroker());
+      if (brokerTag.equals(brokerTenantTag)) {
+        resourceIdealState.setPartitionState(tableName,instanceName,BrokerOnlineOfflineStateModel.ONLINE);
       }
     }
   }

@@ -6,8 +6,8 @@
     _zkClient.deleteRecursive(zkPath);
   }
   final String instanceId="localhost_helixController";
-  _pinotResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null);
-  _pinotResourceManager.start();
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null);
+  _pinotHelixResourceManager.start();
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_SERVER);
   _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
@@ -15,4 +15,7 @@
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numBrokerInstance);
   Thread.sleep(3000);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),_numServerInstance);
+  Tenant brokerTenant=new Tenant(TenantRole.BROKER,BROKER_TENANT_NAME,5,0,0);
+  _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,BROKER_TENANT_NAME + "_BROKER").size(),5);
 }

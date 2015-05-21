@@ -1,0 +1,36 @@
+{
+  JSONObject offlineTableConfigJson=new JSONObject();
+  offlineTableConfigJson.put("tableName",tableName);
+  JSONObject segmentsConfig=new JSONObject();
+  segmentsConfig.put("retentionTimeUnit","DAYS");
+  segmentsConfig.put("retentionTimeValue",-1);
+  segmentsConfig.put("segmentPushFrequency","daily");
+  segmentsConfig.put("segmentPushType","APPEND");
+  segmentsConfig.put("replication",1);
+  segmentsConfig.put("schemaName","tableSchema");
+  segmentsConfig.put("timeColumnName","timestamp");
+  segmentsConfig.put("timeType","daysSinceEpoch");
+  segmentsConfig.put("segmentAssignmentStrategy","");
+  offlineTableConfigJson.put("segmentsConfig",segmentsConfig);
+  JSONObject tableIndexConfig=new JSONObject();
+  JSONArray invertedIndexColumns=new JSONArray();
+  invertedIndexColumns.put("column1");
+  invertedIndexColumns.put("column2");
+  tableIndexConfig.put("invertedIndexColumns",invertedIndexColumns);
+  tableIndexConfig.put("loadMode","HEAP");
+  tableIndexConfig.put("lazyLoad","false");
+  offlineTableConfigJson.put("tableIndexConfig",tableIndexConfig);
+  JSONObject tenants=new JSONObject();
+  tenants.put("broker","brokerTenant");
+  tenants.put("server","serverTenant");
+  offlineTableConfigJson.put("tenants",tenants);
+  offlineTableConfigJson.put("tableType","OFFLINE");
+  JSONObject metadata=new JSONObject();
+  JSONObject customConfigs=new JSONObject();
+  customConfigs.put("d2Name","xlntBetaPinot");
+  metadata.put("customConfigs",customConfigs);
+  offlineTableConfigJson.put("metadata",metadata);
+  AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(offlineTableConfigJson.toString());
+  String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+  ZKMetadataProvider.setOfflineTableConfig(_propertyStore,offlineTableName,AbstractTableConfig.toZnRecord(offlineTableConfig));
+}

@@ -1,11 +1,17 @@
 {
-  String brokerTag=null;
-  if (getAllResourceNames().contains(BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName))) {
-    brokerTag=ZKMetadataProvider.getRealtimeResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getRealtimeResourceNameForResource(resourceName)).getBrokerTag();
+  String brokerTenantName=null;
+  try {
+    if (getAllResourceNames().contains(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName))) {
+      brokerTenantName=ZKMetadataProvider.getRealtimeTableConfig(getPropertyStore(),tableName).getTenantConfig().getBroker();
+    }
+    if (getAllResourceNames().contains(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName))) {
+      brokerTenantName=ZKMetadataProvider.getOfflineTableConfig(getPropertyStore(),tableName).getTenantConfig().getBroker();
+    }
   }
-  if (getAllResourceNames().contains(BrokerRequestUtils.getOfflineResourceNameForResource(resourceName))) {
-    brokerTag=ZKMetadataProvider.getOfflineResourceZKMetadata(getPropertyStore(),BrokerRequestUtils.getOfflineResourceNameForResource(resourceName)).getBrokerTag();
+ catch (  Exception e) {
+    throw new RuntimeException("Failed to deserialize the tableConfig from propertyStore");
   }
-  final List<String> instanceIds=_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag);
+  final List<String> instanceIds=new ArrayList<String>();
+  instanceIds.addAll(getAllInstancesForBrokerTenant(brokerTenantName));
   return instanceIds;
 }

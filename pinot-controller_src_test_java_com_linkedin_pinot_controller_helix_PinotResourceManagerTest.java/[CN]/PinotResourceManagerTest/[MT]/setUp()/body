@@ -2,8 +2,8 @@
   ZkTestUtils.startLocalZkServer();
   _zkClient=new ZkClient(ZK_SERVER);
   final String instanceId="localhost_helixController";
-  _pinotResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null);
-  _pinotResourceManager.start();
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null);
+  _pinotHelixResourceManager.start();
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_SERVER);
   _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
@@ -12,6 +12,12 @@
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,1);
   Thread.sleep(3000);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),_numInstance);
-  final DataResource resource=ControllerRequestBuilderUtil.createOfflineClusterCreationConfig(1,1,TEST_RESOURCE_NAME,"BalanceNumSegmentAssignmentStrategy");
-  _pinotResourceManager.handleCreateNewDataResource(resource);
+  Tenant brokerTenant=new Tenant(TenantRole.BROKER,BROKER_TENANT_NAME,1,0,0);
+  _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,BROKER_TENANT_NAME + "_BROKER").size(),1);
+  Tenant serverTenant=new Tenant(TenantRole.SERVER,SERVER_TENANT_NAME,1,1,0);
+  _pinotHelixResourceManager.createServerTenant(serverTenant);
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(TABLE_NAME,SERVER_TENANT_NAME,BROKER_TENANT_NAME,1).toString();
+  AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
+  _pinotHelixResourceManager.addTable(offlineTableConfig);
 }

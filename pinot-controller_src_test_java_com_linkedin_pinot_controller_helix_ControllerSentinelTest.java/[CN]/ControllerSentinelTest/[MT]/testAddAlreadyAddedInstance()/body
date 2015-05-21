@@ -1,8 +1,0 @@
-{
-  for (int i=0; i < 20; i++) {
-    final JSONObject payload=ControllerRequestBuilderUtil.buildInstanceCreateRequestJSON("localhost",String.valueOf(i),CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
-    final String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forInstanceCreate(),payload.toString());
-    final JSONObject resJSON=new JSONObject(res);
-    Assert.assertEquals(SUCCESS_STATUS,resJSON.getString("status"));
-  }
-}

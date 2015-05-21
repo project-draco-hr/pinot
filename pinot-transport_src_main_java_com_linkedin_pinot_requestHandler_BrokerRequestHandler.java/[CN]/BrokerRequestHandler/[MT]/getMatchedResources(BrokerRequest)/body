@@ -1,17 +1,17 @@
 {
   List<String> matchedResources=new ArrayList<String>();
-  String resourceName=BrokerRequestUtils.getOfflineResourceNameForResource(request.getQuerySource().getResourceName());
-  if (_routingTable.findServers(new RoutingTableLookupRequest(resourceName)) != null) {
-    matchedResources.add(resourceName);
+  String tableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(request.getQuerySource().getResourceName());
+  if (_routingTable.findServers(new RoutingTableLookupRequest(tableName)) != null) {
+    matchedResources.add(tableName);
   }
-  resourceName=BrokerRequestUtils.getRealtimeResourceNameForResource(request.getQuerySource().getResourceName());
-  if (_routingTable.findServers(new RoutingTableLookupRequest(resourceName)) != null) {
-    matchedResources.add(resourceName);
+  tableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(request.getQuerySource().getResourceName());
+  if (_routingTable.findServers(new RoutingTableLookupRequest(tableName)) != null) {
+    matchedResources.add(tableName);
   }
   if (matchedResources.isEmpty()) {
-    resourceName=request.getQuerySource().getResourceName();
-    if (_routingTable.findServers(new RoutingTableLookupRequest(resourceName)) != null) {
-      matchedResources.add(resourceName);
+    tableName=request.getQuerySource().getResourceName();
+    if (_routingTable.findServers(new RoutingTableLookupRequest(tableName)) != null) {
+      matchedResources.add(tableName);
     }
   }
   return matchedResources;

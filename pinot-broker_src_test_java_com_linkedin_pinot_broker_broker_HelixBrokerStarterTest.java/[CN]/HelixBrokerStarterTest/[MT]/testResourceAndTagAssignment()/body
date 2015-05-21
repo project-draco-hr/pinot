@@ -1,6 +1,6 @@
 {
-  final String COMPANY_RESOURCE_NAME=BrokerRequestUtils.getOfflineResourceNameForResource("company");
-  final String CAP_RESOURCE_NAME=BrokerRequestUtils.getOfflineResourceNameForResource("cap");
+  final String COMPANY_RESOURCE_NAME=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable("company");
+  final String CAP_RESOURCE_NAME=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable("cap");
   PinotResourceManagerResponse res;
   IdealState idealState;
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"broker_colocated").size(),6);
