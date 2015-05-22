@@ -26,22 +26,15 @@
       collectionWindowMillis=TimeUnit.MILLISECONDS.convert(window.getSize(),window.getUnit());
     }
   }
-  long startTime=dateTimeToCollectionTime(config,new DateTime(query.getStart().getMillis() - startOffset));
-  long endTime=dateTimeToCollectionTime(config,query.getEnd());
+  long queryStartTime=dateTimeToCollectionTime(config,new DateTime(query.getStart().getMillis() - startOffset));
+  long queryEndTime=dateTimeToCollectionTime(config,query.getEnd());
   if (collectionWindowMillis > 0) {
     long collectionWindow=dateTimeToCollectionTime(config,new DateTime(collectionWindowMillis));
-    startTime=(startTime / collectionWindow) * collectionWindow;
-    endTime=(endTime / collectionWindow + 1) * collectionWindow;
+    queryStartTime=(queryStartTime / collectionWindow) * collectionWindow;
+    queryEndTime=(queryEndTime / collectionWindow + 1) * collectionWindow;
   }
-  final TimeRange timeRange=new TimeRange(startTime,endTime);
-  Set<UUID> treeIds=new HashSet<>();
-  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
-    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(starTree.getRoot().getId());
-    TimeRange treeTimeRange=new TimeRange(indexMetadata.getMinDataTime(),indexMetadata.getMaxDataTime());
-    if (!timeRange.isDisjoint(treeTimeRange)) {
-      treeIds.add(starTree.getRoot().getId());
-    }
-  }
+  final TimeRange queryTimeRange=new TimeRange(queryStartTime,queryEndTime);
+  List<UUID> treeIdsToQuery=selectTreesToQuery(config,queryTimeRange);
   if (!query.getGroupByColumns().isEmpty()) {
     for (    final String groupByColumn : query.getGroupByColumns()) {
       if (query.getDimensionValues().containsKey(groupByColumn)) {
@@ -49,7 +42,7 @@
       }
       final Set<Future<Set<String>>> dimensionSetFutures=new HashSet<>();
       for (      final StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
-        if (!treeIds.contains(starTree.getRoot().getId())) {
+        if (!treeIdsToQuery.contains(starTree.getRoot().getId())) {
           continue;
         }
         dimensionSetFutures.add(executorService.submit(new Callable<Set<String>>(){
@@ -83,14 +76,14 @@
   }
   Map<StarTree,Map<DimensionKey,Future<MetricTimeSeries>>> timeSeriesFutures=new HashMap<>();
   for (  final StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
-    if (!treeIds.contains(starTree.getRoot().getId())) {
+    if (!treeIdsToQuery.contains(starTree.getRoot().getId())) {
       continue;
     }
     timeSeriesFutures.put(starTree,new HashMap<DimensionKey,Future<MetricTimeSeries>>());
     for (    final DimensionKey dimensionKey : dimensionKeys) {
       timeSeriesFutures.get(starTree).put(dimensionKey,executorService.submit(new Callable<MetricTimeSeries>(){
         @Override public MetricTimeSeries call() throws Exception {
-          return starTree.getTimeSeries(new StarTreeQueryImpl(config,dimensionKey,timeRange));
+          return starTree.getTimeSeries(new StarTreeQueryImpl(config,dimensionKey,queryTimeRange));
         }
       }
 ));

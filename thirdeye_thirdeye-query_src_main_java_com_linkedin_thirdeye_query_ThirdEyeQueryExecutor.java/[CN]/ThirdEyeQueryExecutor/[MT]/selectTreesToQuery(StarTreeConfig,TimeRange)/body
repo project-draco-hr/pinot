@@ -1,0 +1,45 @@
+{
+  long queryStartTime=queryTimeRange.getStart();
+  long queryEndTime=queryTimeRange.getEnd();
+  List<UUID> treeIds=new ArrayList<>();
+  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(starTree.getRoot().getId());
+    TimeRange treeTimeRange=new TimeRange(indexMetadata.getMinDataTime(),indexMetadata.getMaxDataTime());
+    if (!queryTimeRange.isDisjoint(treeTimeRange)) {
+      treeIds.add(starTree.getRoot().getId());
+    }
+  }
+  Comparator<? super UUID> comparator=new Comparator<UUID>(){
+    @Override public int compare(    UUID treeId1,    UUID treeId2){
+      IndexMetadata indexMetadata1=starTreeManager.getIndexMetadata(treeId1);
+      IndexMetadata indexMetadata2=starTreeManager.getIndexMetadata(treeId1);
+      Long startTime1=indexMetadata1.getStartTime();
+      Long startTime2=indexMetadata2.getStartTime();
+      int ret=startTime1.compareTo(startTime2);
+      if (ret == 0) {
+        Integer timeGranularity1=timeGranularitySortOrder.get(indexMetadata1.getTimeGranularity());
+        Integer timeGranularity2=timeGranularitySortOrder.get(indexMetadata2.getTimeGranularity());
+        ret=timeGranularity1.compareTo(timeGranularity2);
+      }
+      return ret;
+    }
+  }
+;
+  Collections.sort(treeIds,comparator);
+  TimeRange remainingTimeRange=new TimeRange(queryStartTime,queryEndTime);
+  List<UUID> treeIdsToQuery=new ArrayList<>();
+  for (  UUID treeId : treeIds) {
+    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(treeId);
+    long startTime=indexMetadata.getStartTime();
+    long endTime=indexMetadata.getStartTime();
+    TimeRange treeTimeRange=new TimeRange(startTime,endTime);
+    if (treeTimeRange.isWithIn(remainingTimeRange)) {
+      treeIdsToQuery.add(treeId);
+      remainingTimeRange=new TimeRange(endTime,queryEndTime);
+      if (endTime == queryEndTime) {
+        break;
+      }
+    }
+  }
+  return treeIdsToQuery;
+}
