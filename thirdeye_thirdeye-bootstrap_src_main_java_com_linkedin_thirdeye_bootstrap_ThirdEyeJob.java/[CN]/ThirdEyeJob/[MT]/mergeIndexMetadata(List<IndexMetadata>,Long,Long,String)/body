@@ -1,7 +1,6 @@
 {
   Long min=Long.MAX_VALUE;
   Long max=0L;
-  IndexMetadata mergedIndexMetadata=new IndexMetadata();
   for (  IndexMetadata indexMetadata : indexMetdataList) {
     if (indexMetadata.getMinDataTime() != null && indexMetadata.getMinDataTime() < min) {
       min=indexMetadata.getMinDataTime();
@@ -10,7 +9,6 @@
       max=indexMetadata.getMaxDataTime();
     }
   }
-  mergedIndexMetadata.setMaxDataTime(max);
-  mergedIndexMetadata.setMinDataTime(min);
+  IndexMetadata mergedIndexMetadata=new IndexMetadata(min,max,startTime,endTime,schedule);
   return mergedIndexMetadata;
 }
