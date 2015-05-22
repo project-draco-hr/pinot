@@ -1,6 +1,0 @@
-{
-  JSONObject payload=ControllerRequestBuilderUtil.buildCreateOfflineResourceJSON(_resourceName,_numInstances,_numReplicas);
-  String res=AbstractBaseCommand.sendPostRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forResourceCreate(),payload.toString().replaceAll("}$",", \"metadata\":{}}"));
-  String status=new JSONObject(res).getString("status");
-  return status.equals("success");
-}

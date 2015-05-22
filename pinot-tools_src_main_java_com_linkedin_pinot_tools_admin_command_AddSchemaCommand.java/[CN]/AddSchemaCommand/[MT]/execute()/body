@@ -1,0 +1,9 @@
+{
+  File schemaFile=new File(schemaFilePath);
+  if (!schemaFile.exists()) {
+    throw new FileNotFoundException("file does not exist, + " + schemaFilePath);
+  }
+  Schema s=Schema.fromFile(schemaFile);
+  FileUploadUtils.sendFile(controllerHost,controllerPort,"schemas",s.getSchemaName(),new FileInputStream(schemaFile),schemaFile.length());
+  return true;
+}
