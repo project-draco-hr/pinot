@@ -1,15 +1,16 @@
 {
-  StringRepresentation presentation=null;
   final String tableName=(String)getRequest().getAttributes().get("tableName");
   if (tableName == null) {
     return new StringRepresentation("tableName is not present");
   }
-  SegmentsValidationAndRetentionConfig config=null;
+  AbstractTableConfig config=null;
   try {
-    JSONObject o=new JSONObject(entity.getText().toString());
-    config=AbstractTableConfig.loadSegmentsConfig(new ObjectMapper().readTree(o.getJSONObject("segmentsConfig").toString()));
+    config=AbstractTableConfig.init(entity.getText());
+    manager.updateSegmentsValidationAndRetentionConfigFor(config.getTableName(),TableType.valueOf(config.getTableType()),config.getValidationConfig());
+    return new StringRepresentation("done");
   }
  catch (  final Exception e) {
+    LOGGER.error("errpr updating segments configs for table {}",config.getTableName(),e);
+    return PinotFileUpload.exceptionToStringRepresentation(e);
   }
-  return presentation;
 }

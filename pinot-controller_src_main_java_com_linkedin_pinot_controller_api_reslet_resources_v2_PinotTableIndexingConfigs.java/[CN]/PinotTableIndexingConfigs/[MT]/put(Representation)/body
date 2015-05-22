@@ -1,15 +1,16 @@
 {
-  StringRepresentation presentation=null;
   final String tableName=(String)getRequest().getAttributes().get("tableName");
   if (tableName == null) {
     return new StringRepresentation("tableName is not present");
   }
-  IndexingConfig config=null;
+  AbstractTableConfig config=null;
   try {
-    JSONObject o=new JSONObject(entity.getText().toString());
-    config=AbstractTableConfig.loadIndexingConfig(new ObjectMapper().readTree(o.getJSONObject("tableIndexConfig").toString()));
+    config=AbstractTableConfig.init(entity.getText());
+    manager.updateIndexingConfigFor(config.getTableName(),TableType.valueOf(config.getTableType()),config.getIndexingConfig());
+    return new StringRepresentation("done");
   }
  catch (  final Exception e) {
+    LOGGER.error("errpr updating indexing configs for table {}",config.getTableName(),e);
+    return PinotFileUpload.exceptionToStringRepresentation(e);
   }
-  return presentation;
 }

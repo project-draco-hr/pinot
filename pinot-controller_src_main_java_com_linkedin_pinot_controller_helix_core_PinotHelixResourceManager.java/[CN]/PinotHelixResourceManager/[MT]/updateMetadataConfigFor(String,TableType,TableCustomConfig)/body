@@ -1,0 +1,15 @@
+{
+  String actualTableName=new TableNameBuilder(type).forTable(tableName);
+  AbstractTableConfig config;
+  if (type == TableType.REALTIME) {
+    config=ZKMetadataProvider.getRealtimeTableConfig(getPropertyStore(),actualTableName);
+  }
+ else {
+    config=ZKMetadataProvider.getOfflineTableConfig(getPropertyStore(),actualTableName);
+  }
+  if (config == null) {
+    throw new RuntimeException("tableName : " + tableName + " of type : "+ type+ " not found");
+  }
+  config.setCustomConfigs(newConfigs);
+  setTableConfig(config,actualTableName,type);
+}
