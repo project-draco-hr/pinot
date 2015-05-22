@@ -15,7 +15,7 @@
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numBrokerInstance);
   Thread.sleep(3000);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),_numServerInstance);
-  Tenant brokerTenant=new Tenant(TenantRole.BROKER,BROKER_TENANT_NAME,5,0,0);
+  Tenant brokerTenant=new TenantBuilder(BROKER_TENANT_NAME).setType(TenantRole.BROKER).setTotalInstances(5).setOfflineInstances(0).setRealtimeInstances(0).build();
   _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,BROKER_TENANT_NAME + "_BROKER").size(),5);
 }

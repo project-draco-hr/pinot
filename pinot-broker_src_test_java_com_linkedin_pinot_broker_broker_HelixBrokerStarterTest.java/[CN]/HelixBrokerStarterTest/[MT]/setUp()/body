@@ -14,9 +14,9 @@
   Thread.sleep(1000);
   addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,5);
   addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,1);
-  Tenant brokerTenant=new Tenant(TenantRole.BROKER,"testBroker",6,-1,-1);
+  Tenant brokerTenant=new TenantBuilder("testBroker").setType(TenantRole.BROKER).setTotalInstances(6).setOfflineInstances(-1).setRealtimeInstances(-1).build();
   _pinotResourceManager.createBrokerTenant(brokerTenant);
-  Tenant serverTenant=new Tenant(TenantRole.SERVER,"testServer",1,1,0);
+  Tenant serverTenant=new TenantBuilder("testServer").setType(TenantRole.SERVER).setTotalInstances(1).setOfflineInstances(1).setRealtimeInstances(0).build();
   _pinotResourceManager.createServerTenant(serverTenant);
   final String tableName="company";
   JSONObject buildCreateOfflineTableV2JSON=ControllerRequestBuilderUtil.buildCreateOfflineTableV2JSON(tableName,"testServer","testBroker",1);

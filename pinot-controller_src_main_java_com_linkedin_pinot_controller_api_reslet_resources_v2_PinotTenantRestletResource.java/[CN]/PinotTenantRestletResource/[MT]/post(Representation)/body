@@ -2,7 +2,7 @@
   StringRepresentation presentation=null;
   try {
     PinotResourceManagerResponse response=null;
-    final Tenant tenant=_objectMapper.readValue(ByteStreams.toByteArray(entity.getStream()),Tenant.class);
+    final Tenant tenant=_objectMapper.readValue(entity.getText(),Tenant.class);
 switch (tenant.getTenantRole()) {
 case BROKER:
       response=_pinotHelixResourceMananger.createBrokerTenant(tenant);
