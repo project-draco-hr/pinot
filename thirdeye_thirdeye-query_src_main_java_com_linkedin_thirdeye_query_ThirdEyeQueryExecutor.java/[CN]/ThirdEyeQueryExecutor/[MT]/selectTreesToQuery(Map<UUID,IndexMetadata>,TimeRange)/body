@@ -2,23 +2,23 @@
   long queryStartTime=queryTimeRange.getStart();
   long queryEndTime=queryTimeRange.getEnd();
   List<UUID> treeIds=new ArrayList<>();
-  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
-    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(starTree.getRoot().getId());
+  for (  UUID treeId : treeMetadataMap.keySet()) {
+    IndexMetadata indexMetadata=treeMetadataMap.get(treeId);
     TimeRange treeTimeRange=new TimeRange(indexMetadata.getMinDataTime(),indexMetadata.getMaxDataTime());
     if (!queryTimeRange.isDisjoint(treeTimeRange)) {
-      treeIds.add(starTree.getRoot().getId());
+      treeIds.add(treeId);
     }
   }
   Comparator<? super UUID> comparator=new Comparator<UUID>(){
     @Override public int compare(    UUID treeId1,    UUID treeId2){
-      IndexMetadata indexMetadata1=starTreeManager.getIndexMetadata(treeId1);
-      IndexMetadata indexMetadata2=starTreeManager.getIndexMetadata(treeId1);
+      IndexMetadata indexMetadata1=treeMetadataMap.get(treeId1);
+      IndexMetadata indexMetadata2=treeMetadataMap.get(treeId2);
       Long startTime1=indexMetadata1.getStartTime();
       Long startTime2=indexMetadata2.getStartTime();
       int ret=startTime1.compareTo(startTime2);
       if (ret == 0) {
-        Integer timeGranularity1=timeGranularitySortOrder.get(indexMetadata1.getTimeGranularity());
-        Integer timeGranularity2=timeGranularitySortOrder.get(indexMetadata2.getTimeGranularity());
+        Integer timeGranularity1=timeGranularitySortOrder.get(indexMetadata1.getTimeGranularity().toUpperCase());
+        Integer timeGranularity2=timeGranularitySortOrder.get(indexMetadata2.getTimeGranularity().toUpperCase());
         ret=timeGranularity1.compareTo(timeGranularity2);
       }
       return ret;
@@ -29,14 +29,15 @@
   TimeRange remainingTimeRange=new TimeRange(queryStartTime,queryEndTime);
   List<UUID> treeIdsToQuery=new ArrayList<>();
   for (  UUID treeId : treeIds) {
-    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(treeId);
+    IndexMetadata indexMetadata=treeMetadataMap.get(treeId);
     long startTime=indexMetadata.getStartTime();
-    long endTime=indexMetadata.getStartTime();
+    long endTime=indexMetadata.getEndTime();
     TimeRange treeTimeRange=new TimeRange(startTime,endTime);
-    if (treeTimeRange.isWithIn(remainingTimeRange)) {
+    if (remainingTimeRange.getStart() >= treeTimeRange.getStart() && remainingTimeRange.getStart() <= treeTimeRange.getEnd()) {
+      LOGGER.info("Selecting treeId:{} with TimeRange:{}",treeId,treeTimeRange);
       treeIdsToQuery.add(treeId);
       remainingTimeRange=new TimeRange(endTime,queryEndTime);
-      if (endTime == queryEndTime) {
+      if (endTime >= queryEndTime) {
         break;
       }
     }

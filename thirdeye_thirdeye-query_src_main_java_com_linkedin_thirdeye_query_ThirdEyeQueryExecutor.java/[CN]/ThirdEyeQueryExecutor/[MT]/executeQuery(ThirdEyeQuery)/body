@@ -1,4 +1,5 @@
 {
+  LOGGER.info("START Execution for query_id: {} query{}",query.hashCode(),query);
   ThirdEyeQueryResult result=new ThirdEyeQueryResult();
   final StarTreeConfig config=starTreeManager.getConfig(query.getCollection());
   if (config == null) {
@@ -34,7 +35,13 @@
     queryEndTime=(queryEndTime / collectionWindow + 1) * collectionWindow;
   }
   final TimeRange queryTimeRange=new TimeRange(queryStartTime,queryEndTime);
-  List<UUID> treeIdsToQuery=selectTreesToQuery(config,queryTimeRange);
+  Map<UUID,IndexMetadata> treeMetadataMap=new HashMap<UUID,IndexMetadata>();
+  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    UUID treeId=starTree.getRoot().getId();
+    treeMetadataMap.put(treeId,starTreeManager.getIndexMetadata(treeId));
+  }
+  LOGGER.info("Selecting trees to query for queryTimeRange:{}",queryTimeRange);
+  List<UUID> treeIdsToQuery=selectTreesToQuery(treeMetadataMap,queryTimeRange);
   if (!query.getGroupByColumns().isEmpty()) {
     for (    final String groupByColumn : query.getGroupByColumns()) {
       if (query.getDimensionValues().containsKey(groupByColumn)) {
@@ -113,5 +120,6 @@
     result.addData(entry.getKey(),timeSeries);
     result.setMetrics(timeSeries.getSchema().getNames());
   }
+  LOGGER.info("END Execution for query_id: {} ",query.hashCode());
   return result;
 }
