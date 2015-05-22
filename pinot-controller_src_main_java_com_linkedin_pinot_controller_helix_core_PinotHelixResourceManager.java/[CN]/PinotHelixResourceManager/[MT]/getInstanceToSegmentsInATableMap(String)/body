@@ -1,0 +1,19 @@
+{
+  Map<String,List<String>> instancesToSegmentsMap=new HashMap<String,List<String>>();
+  IdealState is=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+  Set<String> segments=is.getPartitionSet();
+  for (  String segment : segments) {
+    Set<String> instances=is.getInstanceSet(segment);
+    for (    String instance : instances) {
+      if (instancesToSegmentsMap.containsKey(instance)) {
+        instancesToSegmentsMap.get(instance).add(segment);
+      }
+ else {
+        List<String> a=new ArrayList<String>();
+        a.add(segment);
+        instancesToSegmentsMap.put(instance,a);
+      }
+    }
+  }
+  return instancesToSegmentsMap;
+}

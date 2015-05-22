@@ -1,0 +1,38 @@
+{
+  StringRepresentation presentation=null;
+  try {
+    final String tableName=(String)getRequest().getAttributes().get("tableName");
+    final String segmentName=(String)getRequest().getAttributes().get("segmentName");
+    if (segmentName != null) {
+      OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(manager.getPropertyStore(),TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
+      String res=new ObjectMapper().writeValueAsString(offlineSegmentZKMetadata.toMap());
+      return new StringRepresentation(res);
+    }
+    final String grouping=getQueryValue("grouping") == null ? "instances" : "arrivalDay";
+    if (!grouping.equals("instances")) {
+      throw new RuntimeException("currently only instance grouping is supported");
+    }
+    JSONArray ret=new JSONArray();
+    if (manager.hasRealtimeTable(tableName)) {
+      String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+      JSONObject realtime=new JSONObject();
+      realtime.put("tableType","realtime");
+      realtime.put("segments",new ObjectMapper().writeValueAsString(manager.getInstanceToSegmentsInATableMap(realtimeTableName)));
+      ret.put(realtime);
+    }
+    if (manager.hasOfflineTable(tableName)) {
+      String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+      JSONObject offline=new JSONObject();
+      offline.put("tableType","offline");
+      offline.put("segments",new ObjectMapper().writeValueAsString(manager.getInstanceToSegmentsInATableMap(offlineTableName)));
+      ret.put(offline);
+    }
+    return new StringRepresentation(ret.toString());
+  }
+ catch (  final Exception e) {
+    presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
+    LOGGER.error("Caught exception while processing get request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return presentation;
+}
