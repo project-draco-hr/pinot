@@ -1,14 +1,14 @@
 {
   final String segmentId=message.getPartitionName();
-  final String resourceName=message.getResourceName();
+  final String tableName=message.getResourceName();
   ZkHelixPropertyStore<ZNRecord> propertyStore=ZkUtils.getZkPropertyStore(context.getManager(),_helixClusterName);
-  OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(propertyStore,resourceName,segmentId);
-  LOGGER.info("Trying to load segment : " + segmentId + " for resource : "+ resourceName);
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(propertyStore,tableName,segmentId);
+  LOGGER.info("Trying to load segment : " + segmentId + " for table : "+ tableName);
   try {
     SegmentMetadata segmentMetadataForCheck=new SegmentMetadataImpl(offlineSegmentZKMetadata);
-    SegmentMetadata segmentMetadataFromServer=INSTANCE_DATA_MANAGER.getSegmentMetadata(resourceName,segmentMetadataForCheck.getName());
+    SegmentMetadata segmentMetadataFromServer=INSTANCE_DATA_MANAGER.getSegmentMetadata(tableName,segmentMetadataForCheck.getName());
     if (segmentMetadataFromServer == null) {
-      final String localSegmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),resourceName),segmentId).toString();
+      final String localSegmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),tableName),segmentId).toString();
       if (new File(localSegmentDir).exists()) {
         try {
           segmentMetadataFromServer=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
@@ -44,7 +44,7 @@
         long attemptStartTime=System.currentTimeMillis();
         try {
           final String uri=offlineSegmentZKMetadata.getDownloadUrl();
-          final String localSegmentDir=downloadSegmentToLocal(uri,resourceName,segmentId);
+          final String localSegmentDir=downloadSegmentToLocal(uri,tableName,segmentId);
           final SegmentMetadata segmentMetadata=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
           INSTANCE_DATA_MANAGER.addSegment(segmentMetadata);
           break;

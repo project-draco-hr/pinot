@@ -1,10 +1,10 @@
 {
   String brokerTenantName=null;
   try {
-    if (getAllResourceNames().contains(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName))) {
+    if (getAllTableNames().contains(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName))) {
       brokerTenantName=ZKMetadataProvider.getRealtimeTableConfig(getPropertyStore(),tableName).getTenantConfig().getBroker();
     }
-    if (getAllResourceNames().contains(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName))) {
+    if (getAllTableNames().contains(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName))) {
       brokerTenantName=ZKMetadataProvider.getOfflineTableConfig(getPropertyStore(),tableName).getTenantConfig().getBroker();
     }
   }

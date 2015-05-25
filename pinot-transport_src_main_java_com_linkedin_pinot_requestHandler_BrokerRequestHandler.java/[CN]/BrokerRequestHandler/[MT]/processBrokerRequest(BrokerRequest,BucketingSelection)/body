@@ -1,14 +1,14 @@
 {
-  if (request == null || request.getQuerySource() == null || request.getQuerySource().getResourceName() == null) {
-    LOGGER.info("Query contains null resource.");
+  if (request == null || request.getQuerySource() == null || request.getQuerySource().getTableName() == null) {
+    LOGGER.info("Query contains null table.");
     return BrokerResponse.getNullBrokerResponse();
   }
-  List<String> matchedResources=getMatchedResources(request);
-  if (matchedResources.size() > 1) {
+  List<String> matchedTables=getMatchedTables(request);
+  if (matchedTables.size() > 1) {
     return processFederatedBrokerRequest(request,overriddenSelection);
   }
-  if (matchedResources.size() == 1) {
-    return processSingleResourceBrokerRequest(request,matchedResources.get(0),overriddenSelection);
+  if (matchedTables.size() == 1) {
+    return processSingleTableBrokerRequest(request,matchedTables.get(0),overriddenSelection);
   }
   return BrokerResponse.getNullBrokerResponse();
 }

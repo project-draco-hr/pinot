@@ -1,6 +1,6 @@
 {
   Map<String,IdealState> idealStateMap=new HashMap<String,IdealState>();
-  for (  String resource : pinotClusterManager.getAllRealtimeResources()) {
+  for (  String resource : pinotClusterManager.getAllRealtimeTables()) {
     idealStateMap.put(resource,pinotClusterManager.getHelixAdmin().getResourceIdealState(pinotClusterManager.getHelixClusterName(),resource));
   }
   List<String> listOfSegmentsToAdd=new ArrayList<String>();
@@ -25,7 +25,7 @@
       Set<String> instancesToAssignRealtimeSegment=new HashSet<String>();
       instancesToAssignRealtimeSegment.addAll(pinotClusterManager.getHelixAdmin().getInstancesInClusterWithTag(pinotClusterManager.getHelixClusterName(),resource));
       for (      String partition : state.getPartitionSet()) {
-        RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractResourceName(partition),partition);
+        RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractTableName(partition),partition);
         if (realtimeSegmentZKMetadata.getStatus() == Status.IN_PROGRESS) {
           String instanceName=SegmentNameBuilder.Realtime.extractInstanceName(partition);
           instancesToAssignRealtimeSegment.remove(instanceName);
@@ -41,17 +41,17 @@
   }
   LOGGER.info("computed list of new segments to add : " + Arrays.toString(listOfSegmentsToAdd.toArray()));
   for (  String segmentId : listOfSegmentsToAdd) {
-    String resourceName=SegmentNameBuilder.Realtime.extractResourceName(segmentId);
+    String resourceName=SegmentNameBuilder.Realtime.extractTableName(segmentId);
     String instanceName=SegmentNameBuilder.Realtime.extractInstanceName(segmentId);
     if (!idealStateMap.get(resourceName).getPartitionSet().contains(segmentId)) {
       RealtimeSegmentZKMetadata realtimeSegmentMetadataToAdd=new RealtimeSegmentZKMetadata();
-      realtimeSegmentMetadataToAdd.setResourceName(TableNameBuilder.extractRawTableName(resourceName));
+      realtimeSegmentMetadataToAdd.setTableName(TableNameBuilder.extractRawTableName(resourceName));
       realtimeSegmentMetadataToAdd.setSegmentType(SegmentType.REALTIME);
       realtimeSegmentMetadataToAdd.setStatus(Status.IN_PROGRESS);
       realtimeSegmentMetadataToAdd.setSegmentName(segmentId);
       ZKMetadataProvider.setRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),realtimeSegmentMetadataToAdd);
-      IdealState s=PinotResourceIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,idealStateMap.get(resourceName),instanceName);
-      pinotClusterManager.getHelixAdmin().setResourceIdealState(pinotClusterManager.getHelixClusterName(),resourceName,PinotResourceIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,s,instanceName));
+      IdealState s=PinotTableIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,idealStateMap.get(resourceName),instanceName);
+      pinotClusterManager.getHelixAdmin().setResourceIdealState(pinotClusterManager.getHelixClusterName(),resourceName,PinotTableIdealStateBuilder.addNewRealtimeSegmentToIdealState(segmentId,s,instanceName));
     }
   }
 }

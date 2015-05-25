@@ -1,12 +1,12 @@
 {
   _instanceDataManagerConfiguration=serverConfig;
   checkRequiredKeys();
-  for (  String resourceName : getResourceNames()) {
-    Configuration resourceConfig=_instanceDataManagerConfiguration.subset(resourceName);
-    resourceConfig.addProperty(kEY_OF_RESOURCE_NAME,resourceName);
-    if (!resourceConfig.containsKey(kEY_OF_RESOURCE_DATA_DIRECTORY)) {
-      resourceConfig.addProperty(kEY_OF_RESOURCE_DATA_DIRECTORY,getInstanceDataDir() + "/" + resourceName+ "/index/node"+ getInstanceId());
+  for (  String tableName : getTableNames()) {
+    Configuration tableConfig=_instanceDataManagerConfiguration.subset(tableName);
+    tableConfig.addProperty(kEY_OF_TABLE_NAME,tableName);
+    if (!tableConfig.containsKey(kEY_OF_TABLE_DATA_DIRECTORY)) {
+      tableConfig.addProperty(kEY_OF_TABLE_DATA_DIRECTORY,getInstanceDataDir() + "/" + tableName+ "/index/node"+ getInstanceId());
     }
-    _resourceDataManagerConfigMap.put(resourceName,new TableDataManagerConfig(resourceConfig));
+    _tableDataManagerConfigMap.put(tableName,new TableDataManagerConfig(tableConfig));
   }
 }

@@ -8,7 +8,7 @@
     String srcDir=file.getAbsolutePath();
     String outFile=TarGzCompressionUtils.createTarGzOfDirectory(srcDir);
     File tgzFile=new File(outFile);
-    FileUploadUtils.sendFile(_controllerHost,_controllerPort,tgzFile.getName(),new FileInputStream(tgzFile),tgzFile.length());
+    FileUploadUtils.sendSegmentFile(_controllerHost,_controllerPort,tgzFile.getName(),new FileInputStream(tgzFile),tgzFile.length());
     FileUtils.deleteQuietly(tgzFile);
   }
   return true;

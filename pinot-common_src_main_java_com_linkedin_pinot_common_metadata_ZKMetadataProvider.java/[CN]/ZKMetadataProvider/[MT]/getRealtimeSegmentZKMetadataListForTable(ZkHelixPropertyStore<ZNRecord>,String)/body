@@ -3,9 +3,9 @@
   if (propertyStore == null) {
     return resultList;
   }
-  String realtimeResourceName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(resourceName);
-  if (propertyStore.exists(constructPropertyStorePathForResource(realtimeResourceName),AccessOption.PERSISTENT)) {
-    List<ZNRecord> znRecordList=propertyStore.getChildren(constructPropertyStorePathForResource(realtimeResourceName),null,AccessOption.PERSISTENT);
+  String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(resourceName);
+  if (propertyStore.exists(constructPropertyStorePathForResource(realtimeTableName),AccessOption.PERSISTENT)) {
+    List<ZNRecord> znRecordList=propertyStore.getChildren(constructPropertyStorePathForResource(realtimeTableName),null,AccessOption.PERSISTENT);
     if (znRecordList != null) {
       for (      ZNRecord record : znRecordList) {
         resultList.add(new RealtimeSegmentZKMetadata(record));

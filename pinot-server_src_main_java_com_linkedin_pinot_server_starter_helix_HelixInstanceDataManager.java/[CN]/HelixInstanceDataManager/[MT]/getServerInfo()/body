@@ -1,10 +1,10 @@
 {
   StringBuilder sb=new StringBuilder();
   sb.append("\n[InstanceDataManager Info] : ");
-  for (  String resourceName : _resourceDataManagerMap.keySet()) {
-    sb.append("\n\t{\n\t\tResource : [" + resourceName + "];\n\t\tSegments : [");
+  for (  String tableName : _tableDataManagerMap.keySet()) {
+    sb.append("\n\t{\n\t\tTable : [" + tableName + "];\n\t\tSegments : [");
     boolean isFirstSegment=true;
-    for (    SegmentDataManager segmentDataManager : _resourceDataManagerMap.get(resourceName).getAllSegments()) {
+    for (    SegmentDataManager segmentDataManager : _tableDataManagerMap.get(tableName).getAllSegments()) {
       if (isFirstSegment) {
         sb.append(segmentDataManager.getSegment().getSegmentName());
         isFirstSegment=false;

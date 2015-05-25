@@ -15,11 +15,11 @@
   config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"bootstrap.segment.dir"),"0");
   config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"data.manager.class"),"com.linkedin.pinot.core.data.manager.InstanceDataManager");
   config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"segment.metadata.loader.class"),"com.linkedin.pinot.core.indexsegment.columnar.ColumnarSegmentMetadataLoader");
-  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"resourceName"),StringUtils.join(resourceNames,","));
-  for (  final String resource : resourceNames) {
-    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,resource,"dataManagerType"),"offline");
-    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,resource,"readMode"),"heap");
-    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,resource,"numQueryExecutorThreads"),"50");
+  config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,"tableName"),StringUtils.join(tableNames,","));
+  for (  final String table : tableNames) {
+    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,table,"dataManagerType"),"offline");
+    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,table,"readMode"),"heap");
+    config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,INSTANCE_PREFIC,table,"numQueryExecutorThreads"),"50");
   }
   config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"class"),"com.linkedin.pinot.core.query.executor.ServerQueryExecutor");
   config.addProperty(StringUtil.join(".",PINOT_SERVER_PREFIX,EXECUTOR_PREFIX,"timeout"),"150000");

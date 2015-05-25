@@ -2,7 +2,7 @@
   CommandLineParser cliParser=new GnuParser();
   Options cliOptions=buildCommandLineOptions();
   CommandLine cmd=cliParser.parse(cliOptions,args,true);
-  if ((!cmd.hasOption(BROKER_CONFIG_OPT_NAME)) || (!cmd.hasOption(REQUEST_SIZE_OPT_NAME)) || (!cmd.hasOption(RESOURCE_NAME_OPT_NAME))|| (!cmd.hasOption(RESOURCE_NAME_OPT_NAME))) {
+  if ((!cmd.hasOption(BROKER_CONFIG_OPT_NAME)) || (!cmd.hasOption(REQUEST_SIZE_OPT_NAME)) || (!cmd.hasOption(TABLE_NAME_OPT_NAME))|| (!cmd.hasOption(TABLE_NAME_OPT_NAME))) {
     System.err.println("Missing required arguments !!");
     System.err.println(cliOptions);
     throw new RuntimeException("Missing required arguments !!");
@@ -10,7 +10,7 @@
   String brokerConfigPath=cmd.getOptionValue(BROKER_CONFIG_OPT_NAME);
   int requestSize=Integer.parseInt(cmd.getOptionValue(REQUEST_SIZE_OPT_NAME));
   int numRequests=Integer.parseInt(cmd.getOptionValue(NUM_REQUESTS_OPT_NAME));
-  String resourceName=cmd.getOptionValue(RESOURCE_NAME_OPT_NAME);
+  String resourceName=cmd.getOptionValue(TABLE_NAME_OPT_NAME);
   PropertiesConfiguration brokerConf=new PropertiesConfiguration();
   brokerConf.setDelimiterParsingDisabled(false);
   brokerConf.load(brokerConfigPath);

@@ -1,0 +1,10 @@
+{
+  final IdealState currentIdealState=helixAdmin.getResourceIdealState(helixClusterName,tableName);
+  if (currentIdealState != null && currentIdealState.getPartitionSet() != null && currentIdealState.getPartitionSet().contains(segmentId)) {
+    currentIdealState.getPartitionSet().remove(segmentId);
+  }
+ else {
+    throw new RuntimeException("Cannot found segmentId - " + segmentId + " in table - "+ tableName);
+  }
+  return currentIdealState;
+}

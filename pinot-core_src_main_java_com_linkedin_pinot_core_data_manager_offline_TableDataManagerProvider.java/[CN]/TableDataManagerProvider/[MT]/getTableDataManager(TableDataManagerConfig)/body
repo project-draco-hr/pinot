@@ -1,0 +1,16 @@
+{
+  try {
+    Class<? extends TableDataManager> cls=keyToFunction.get(tableDataManagerConfig.getTableDataManagerType().toLowerCase());
+    if (cls != null) {
+      TableDataManager tableDataManager=(TableDataManager)cls.newInstance();
+      tableDataManager.init(tableDataManagerConfig);
+      return tableDataManager;
+    }
+ else {
+      throw new UnsupportedOperationException("No tableDataManager type found.");
+    }
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException("Not support tableDataManager type with - " + tableDataManagerConfig.getTableDataManagerType());
+  }
+}

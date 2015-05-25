@@ -1,0 +1,24 @@
+{
+  int numInstancesPerReplica=numDataInstances / numDataReplicas;
+  int partitionId=0;
+  int replicaId=0;
+  String groupId=getGroupIdFromRealtimeDataTable(realtimeTableName,streamProviderConfig);
+  for (  String instance : instanceList) {
+    InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(zkHelixPropertyStore,instance);
+    if (instanceZKMetadata == null) {
+      instanceZKMetadata=new InstanceZKMetadata();
+      String[] instanceConfigs=instance.split("_");
+      assert(instanceConfigs.length == 3);
+      instanceZKMetadata.setInstanceType(instanceConfigs[0]);
+      instanceZKMetadata.setInstanceName(instanceConfigs[1]);
+      instanceZKMetadata.setInstancePort(Integer.parseInt(instanceConfigs[2]));
+    }
+    instanceZKMetadata.setGroupId(realtimeTableName,groupId + "_" + replicaId);
+    instanceZKMetadata.setPartition(realtimeTableName,Integer.toString(partitionId));
+    partitionId=(partitionId + 1) % numInstancesPerReplica;
+    if (partitionId == 0) {
+      replicaId++;
+    }
+    ZKMetadataProvider.setInstanceZKMetadata(zkHelixPropertyStore,instanceZKMetadata);
+  }
+}

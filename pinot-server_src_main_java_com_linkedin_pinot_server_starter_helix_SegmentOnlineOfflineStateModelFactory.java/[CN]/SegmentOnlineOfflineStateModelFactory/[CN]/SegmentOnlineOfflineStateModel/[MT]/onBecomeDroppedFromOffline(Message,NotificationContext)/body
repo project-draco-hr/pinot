@@ -1,9 +1,9 @@
 {
   LOGGER.debug("SegmentOnlineOfflineStateModel.onBecomeDroppedFromOffline() : " + message);
   final String segmentId=message.getPartitionName();
-  final String resourceName=message.getResourceName();
+  final String tableName=message.getResourceName();
   try {
-    final File segmentDir=new File(getSegmentLocalDirectory(resourceName,segmentId));
+    final File segmentDir=new File(getSegmentLocalDirectory(tableName,segmentId));
     if (segmentDir.exists()) {
       FileUtils.deleteQuietly(segmentDir);
     }

@@ -1,0 +1,26 @@
+{
+  TableType tableType=TableNameBuilder.getTableTypeFromTableName(tableName);
+  Configuration defaultConfig=new PropertiesConfiguration();
+  defaultConfig.addProperty(TABLE_DATA_MANAGER_NAME,tableName);
+  String dataDir=_instanceDataManagerConfig.getInstanceDataDir() + "/" + tableName;
+  defaultConfig.addProperty(TABLE_DATA_MANAGER_DATA_DIRECTORY,dataDir);
+  if (_instanceDataManagerConfig.getReadMode() != null) {
+    defaultConfig.addProperty(READ_MODE,_instanceDataManagerConfig.getReadMode().toString());
+  }
+ else {
+    defaultConfig.addProperty(READ_MODE,ReadMode.heap);
+  }
+  defaultConfig.addProperty(TABLE_DATA_MANAGER_NUM_QUERY_EXECUTOR_THREADS,20);
+  TableDataManagerConfig tableDataManagerConfig=new TableDataManagerConfig(defaultConfig);
+switch (tableType) {
+case OFFLINE:
+    defaultConfig.addProperty(TABLE_DATA_MANAGER_TYPE,"offline");
+  break;
+case REALTIME:
+defaultConfig.addProperty(TABLE_DATA_MANAGER_TYPE,"realtime");
+break;
+default :
+throw new UnsupportedOperationException("Not supported table type for - " + tableName);
+}
+return tableDataManagerConfig;
+}

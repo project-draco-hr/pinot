@@ -1,11 +1,11 @@
 {
   final PropertiesConfiguration brokerConfiguration=new PropertiesConfiguration();
   brokerConfiguration.addProperty("pinot.broker.transport.routingMode","CONFIG");
-  brokerConfiguration.addProperty("pinot.broker.transport.routing.resourceName",StringUtils.join(RESOURCE_NAMES,","));
-  for (  final String resource : RESOURCE_NAMES) {
-    brokerConfiguration.addProperty(getKey("pinot.broker.transport.routing",resource,"numNodesPerReplica"),"1");
-    brokerConfiguration.addProperty(getKey("pinot.broker.transport.routing",resource,"serversForNode.0"),"localhost:" + SERVER_PORT);
-    brokerConfiguration.addProperty(getKey("pinot.broker.transport.routing",resource,"serversForNode.default"),"localhost:" + SERVER_PORT);
+  brokerConfiguration.addProperty("pinot.broker.transport.routing.tableName",StringUtils.join(TABLE_NAMES,","));
+  for (  final String table : TABLE_NAMES) {
+    brokerConfiguration.addProperty(getKey("pinot.broker.transport.routing",table,"numNodesPerReplica"),"1");
+    brokerConfiguration.addProperty(getKey("pinot.broker.transport.routing",table,"serversForNode.0"),"localhost:" + SERVER_PORT);
+    brokerConfiguration.addProperty(getKey("pinot.broker.transport.routing",table,"serversForNode.default"),"localhost:" + SERVER_PORT);
   }
   brokerConfiguration.addProperty("pinot.broker.client.enableConsole","true");
   brokerConfiguration.addProperty("pinot.broker.client.queryPort",BROKER_CLIENT_PORT);

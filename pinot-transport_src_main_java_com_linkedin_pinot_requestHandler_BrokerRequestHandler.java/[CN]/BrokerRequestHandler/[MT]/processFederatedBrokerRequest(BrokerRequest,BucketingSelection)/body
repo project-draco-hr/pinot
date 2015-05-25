@@ -1,9 +1,9 @@
 {
-  List<BrokerRequest> perResourceRequests=new ArrayList<BrokerRequest>();
-  perResourceRequests.add(getRealtimeBrokerRequest(request));
-  perResourceRequests.add(getOfflineBrokerRequest(request));
+  List<BrokerRequest> perTableRequests=new ArrayList<BrokerRequest>();
+  perTableRequests.add(getRealtimeBrokerRequest(request));
+  perTableRequests.add(getOfflineBrokerRequest(request));
   try {
-    return getDataTableFromBrokerRequestList(request,perResourceRequests,null);
+    return getDataTableFromBrokerRequestList(request,perTableRequests,null);
   }
  catch (  Exception e) {
     LOGGER.error("Caught exception while processing federated broker request",e);

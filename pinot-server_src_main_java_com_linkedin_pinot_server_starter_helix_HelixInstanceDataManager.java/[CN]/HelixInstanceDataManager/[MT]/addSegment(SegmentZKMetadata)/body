@@ -1,24 +1,24 @@
 {
-  if (segmentZKMetadata == null || segmentZKMetadata.getResourceName() == null) {
+  if (segmentZKMetadata == null || segmentZKMetadata.getTableName() == null) {
     throw new RuntimeException("Error: adding invalid SegmentMetadata!");
   }
   LOGGER.info("Trying to add segment with name: " + segmentZKMetadata.getSegmentName());
   LOGGER.debug("Trying to add segment with Metadata: " + segmentZKMetadata.toString());
-  String resourceName=segmentZKMetadata.getResourceName();
+  String tableName=segmentZKMetadata.getTableName();
   if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
-    resourceName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(resourceName);
+    tableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
   }
  else   if (segmentZKMetadata instanceof OfflineSegmentZKMetadata) {
-    resourceName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(resourceName);
+    tableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
   }
-  if (!_resourceDataManagerMap.containsKey(resourceName)) {
-    LOGGER.info("Trying to add ResourceDataManager for resource name: " + resourceName);
+  if (!_tableDataManagerMap.containsKey(tableName)) {
+    LOGGER.info("Trying to add TableDataManager for table name: " + tableName);
 synchronized (_globalLock) {
-      if (!_resourceDataManagerMap.containsKey(resourceName)) {
-        addResourceIfNeed(null,resourceName);
+      if (!_tableDataManagerMap.containsKey(tableName)) {
+        addTableIfNeed(null,tableName);
       }
     }
   }
-  _resourceDataManagerMap.get(resourceName).addSegment(segmentZKMetadata);
+  _tableDataManagerMap.get(tableName).addSegment(segmentZKMetadata);
   LOGGER.info("Successfuly added a segment : " + segmentZKMetadata.getSegmentName() + " in HelixInstanceDataManager");
 }

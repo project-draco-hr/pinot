@@ -1,8 +1,8 @@
 {
-  String resourceName=request.getResourceName();
-  if ((_brokerRoutingTable == null) || (!_brokerRoutingTable.containsKey(resourceName))) {
+  String tableName=request.getTableName();
+  if ((_brokerRoutingTable == null) || (!_brokerRoutingTable.containsKey(tableName))) {
     return null;
   }
-  List<ServerToSegmentSetMap> serverToSegmentSetMaps=_brokerRoutingTable.get(resourceName);
+  List<ServerToSegmentSetMap> serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
   return serverToSegmentSetMaps.get(_random.nextInt(serverToSegmentSetMaps.size())).getRouting();
 }

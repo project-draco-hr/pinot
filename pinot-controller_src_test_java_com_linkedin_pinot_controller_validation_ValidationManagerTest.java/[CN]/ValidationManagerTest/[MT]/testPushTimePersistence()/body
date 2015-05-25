@@ -1,5 +1,5 @@
 {
-  String testResourceName="testResource";
+  String testTableName="testTable";
   Thread.sleep(1000);
   ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
@@ -7,13 +7,13 @@
   _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
   Tenant serverTenant=new TenantBuilder("testServer").setRole(TenantRole.SERVER).setTotalInstances(2).setOfflineInstances(2).setRealtimeInstances(0).build();
   _pinotHelixResourceManager.createBrokerTenant(serverTenant);
-  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(testResourceName,"testServer","testBroker","timestamp","millsSinceEpoch","DAYS","5",2,"BalanceNumSegmentAssignmentStrategy").toString();
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(testTableName,"testServer","testBroker","timestamp","millsSinceEpoch","DAYS","5",2,"BalanceNumSegmentAssignmentStrategy").toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
   _pinotHelixResourceManager.addTable(offlineTableConfig);
-  DummyMetadata metadata=new DummyMetadata(testResourceName);
+  DummyMetadata metadata=new DummyMetadata(testTableName);
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
-  OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
+  OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getTableName(),metadata.getName());
   SegmentMetadata fetchedMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   long pushTime=fetchedMetadata.getPushTime();
   Assert.assertTrue(System.currentTimeMillis() - pushTime < 30000);
@@ -21,7 +21,7 @@
   metadata.setCrc("anotherfakecrc");
   _pinotHelixResourceManager.addSegment(metadata,"http://dummy/");
   Thread.sleep(1000);
-  offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getResourceName(),metadata.getName());
+  offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),metadata.getTableName(),metadata.getName());
   fetchedMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   Assert.assertEquals(fetchedMetadata.getPushTime(),pushTime);
   Assert.assertTrue(System.currentTimeMillis() - fetchedMetadata.getRefreshTime() < 30000);

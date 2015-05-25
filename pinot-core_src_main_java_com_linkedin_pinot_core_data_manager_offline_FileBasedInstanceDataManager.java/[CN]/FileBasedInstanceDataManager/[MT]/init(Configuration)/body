@@ -7,10 +7,10 @@
     LOGGER.error("Error during InstanceDataManager initialization",e);
     Utils.rethrowException(e);
   }
-  for (  String resourceName : _instanceDataManagerConfig.getResourceNames()) {
-    TableDataManagerConfig resourceDataManagerConfig=_instanceDataManagerConfig.getResourceDataManagerConfig(resourceName);
-    TableDataManager resourceDataManager=TableDataManagerProvider.getResourceDataManager(resourceDataManagerConfig);
-    _resourceDataManagerMap.put(resourceName,resourceDataManager);
+  for (  String tableName : _instanceDataManagerConfig.getTableNames()) {
+    TableDataManagerConfig tableDataManagerConfig=_instanceDataManagerConfig.getTableDataManagerConfig(tableName);
+    TableDataManager tableDataManager=TableDataManagerProvider.getTableDataManager(tableDataManagerConfig);
+    _tableDataManagerMap.put(tableName,tableDataManager);
   }
   try {
     _segmentMetadataLoader=getSegmentMetadataLoader(_instanceDataManagerConfig.getSegmentMetadataLoaderClass());

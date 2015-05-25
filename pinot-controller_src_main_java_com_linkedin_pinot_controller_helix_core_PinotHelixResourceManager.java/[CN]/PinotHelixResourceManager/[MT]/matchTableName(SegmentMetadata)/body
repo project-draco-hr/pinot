@@ -1,0 +1,18 @@
+{
+  if (segmentMetadata == null || segmentMetadata.getTableName() == null) {
+    LOGGER.error("SegmentMetadata or table name is null");
+    return false;
+  }
+  if ("realtime".equalsIgnoreCase(segmentMetadata.getIndexType())) {
+    if (getAllTableNames().contains(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(segmentMetadata.getTableName()))) {
+      return true;
+    }
+  }
+ else {
+    if (getAllTableNames().contains(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(segmentMetadata.getTableName()))) {
+      return true;
+    }
+  }
+  LOGGER.error("Table {} is not registered",segmentMetadata.getTableName());
+  return false;
+}

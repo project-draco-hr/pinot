@@ -22,7 +22,7 @@ synchronized (getGlobalLock()) {
     LOGGER.info("Segment " + segmentId + " has been deleted");
     _segmentAsyncExecutorService.execute(new Runnable(){
       @Override public void run(){
-        FileUtils.deleteQuietly(new File(_resourceDataDir,segmentId));
+        FileUtils.deleteQuietly(new File(_tableDataDir,segmentId));
         LOGGER.info("The index directory for the segment " + segmentId + " has been deleted");
       }
     }

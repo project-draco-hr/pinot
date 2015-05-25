@@ -4,13 +4,13 @@
   Map<BrokerRequest,CompositeFuture<ServerInstance,ByteBuf>> responseFuturesList=new HashMap<BrokerRequest,CompositeFuture<ServerInstance,ByteBuf>>();
   for (  BrokerRequest request : requests) {
     final long routingStartTime=System.nanoTime();
-    RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getResourceName());
+    RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getTableName());
     Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
     if (segmentServices == null || segmentServices.isEmpty()) {
-      LOGGER.info("Not found ServerInstances to Segments Mapping for resource - " + rtRequest.getResourceName());
+      LOGGER.info("Not found ServerInstances to Segments Mapping for Table - " + rtRequest.getTableName());
       continue;
     }
-    LOGGER.debug("Find ServerInstances to Segments Mapping for resource - " + rtRequest.getResourceName());
+    LOGGER.debug("Find ServerInstances to Segments Mapping for table - " + rtRequest.getTableName());
     for (    ServerInstance serverInstance : segmentServices.keySet()) {
       LOGGER.debug(serverInstance + " : " + segmentServices.get(serverInstance));
     }

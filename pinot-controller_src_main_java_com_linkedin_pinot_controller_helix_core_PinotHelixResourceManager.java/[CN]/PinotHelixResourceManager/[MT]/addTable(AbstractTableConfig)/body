@@ -8,22 +8,22 @@
 switch (type) {
 case OFFLINE:
     final String offlineTableName=config.getTableName();
-  LOGGER.info("building empty ideal state for resource : " + offlineTableName);
-final IdealState offlineIdealState=PinotResourceIdealStateBuilder.buildEmptyIdealStateFor(offlineTableName,Integer.parseInt(segmentsConfig.getReplication()),_helixAdmin,_helixClusterName);
-LOGGER.info("adding resource via the admin");
+  LOGGER.info("building empty ideal state for table : " + offlineTableName);
+final IdealState offlineIdealState=PinotTableIdealStateBuilder.buildEmptyIdealStateFor(offlineTableName,Integer.parseInt(segmentsConfig.getReplication()),_helixAdmin,_helixClusterName);
+LOGGER.info("adding table via the admin");
 _helixAdmin.addResource(_helixClusterName,offlineTableName,offlineIdealState);
-LOGGER.info("successfully added the resource : " + offlineTableName + " to the cluster");
+LOGGER.info("successfully added the table : " + offlineTableName + " to the cluster");
 ZKMetadataProvider.setOfflineTableConfig(_propertyStore,offlineTableName,AbstractTableConfig.toZnRecord(config));
 _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(offlineTableName),new ZNRecord(offlineTableName),AccessOption.PERSISTENT);
 break;
 case REALTIME:
 final String realtimeTableName=config.getTableName();
 ZKMetadataProvider.setRealtimeTableConfig(_propertyStore,realtimeTableName,AbstractTableConfig.toZnRecord(config));
-LOGGER.info("building empty ideal state for resource : " + realtimeTableName);
-final IdealState realtimeIdealState=PinotResourceIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeTableName,config,_helixAdmin,_helixClusterName,_propertyStore);
-LOGGER.info("adding resource via the admin");
+LOGGER.info("building empty ideal state for table : " + realtimeTableName);
+final IdealState realtimeIdealState=PinotTableIdealStateBuilder.buildInitialRealtimeIdealStateFor(realtimeTableName,config,_helixAdmin,_helixClusterName,_propertyStore);
+LOGGER.info("adding table via the admin");
 _helixAdmin.addResource(_helixClusterName,realtimeTableName,realtimeIdealState);
-LOGGER.info("successfully added the resource : " + realtimeTableName + " to the cluster");
+LOGGER.info("successfully added the table : " + realtimeTableName + " to the cluster");
 _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(realtimeTableName),new ZNRecord(realtimeTableName),AccessOption.PERSISTENT);
 break;
 default :

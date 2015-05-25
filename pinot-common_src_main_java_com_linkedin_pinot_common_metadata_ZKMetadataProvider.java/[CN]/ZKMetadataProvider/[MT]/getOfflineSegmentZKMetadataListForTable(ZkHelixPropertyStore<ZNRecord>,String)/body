@@ -3,9 +3,9 @@
   if (propertyStore == null) {
     return resultList;
   }
-  String offlineResourceName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
-  if (propertyStore.exists(constructPropertyStorePathForResource(offlineResourceName),AccessOption.PERSISTENT)) {
-    List<ZNRecord> znRecordList=propertyStore.getChildren(constructPropertyStorePathForResource(offlineResourceName),null,AccessOption.PERSISTENT);
+  String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+  if (propertyStore.exists(constructPropertyStorePathForResource(offlineTableName),AccessOption.PERSISTENT)) {
+    List<ZNRecord> znRecordList=propertyStore.getChildren(constructPropertyStorePathForResource(offlineTableName),null,AccessOption.PERSISTENT);
     if (znRecordList != null) {
       for (      ZNRecord record : znRecordList) {
         resultList.add(new OfflineSegmentZKMetadata(record));

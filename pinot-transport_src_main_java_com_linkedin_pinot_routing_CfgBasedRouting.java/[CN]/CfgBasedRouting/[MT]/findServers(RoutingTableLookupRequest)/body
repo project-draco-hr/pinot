@@ -1,7 +1,7 @@
 {
-  ResourceRoutingConfig cfg=_cfg.getResourceRoutingCfg().get(request.getResourceName());
+  PerTableRoutingConfig cfg=_cfg.getPerTableRoutingCfg().get(request.getTableName());
   if (null == cfg) {
-    LOGGER.warn("Unable to find routing setting for resource :" + request.getResourceName());
+    LOGGER.warn("Unable to find routing setting for table :" + request.getTableName());
     return null;
   }
   return cfg.buildRequestRoutingMap();

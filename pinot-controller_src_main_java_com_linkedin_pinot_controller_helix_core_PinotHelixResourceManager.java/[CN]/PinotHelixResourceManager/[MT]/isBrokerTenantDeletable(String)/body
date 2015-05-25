@@ -1,10 +1,10 @@
 {
   String brokerTag=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(tenantName);
   Set<String> taggedInstances=new HashSet<String>(_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTag));
-  String resourceName=CommonConstants.Helix.BROKER_RESOURCE_INSTANCE;
-  IdealState resourceIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName);
-  for (  String partition : resourceIdealState.getPartitionSet()) {
-    for (    String instance : resourceIdealState.getInstanceSet(partition)) {
+  String brokerName=CommonConstants.Helix.BROKER_RESOURCE_INSTANCE;
+  IdealState brokerIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,brokerName);
+  for (  String partition : brokerIdealState.getPartitionSet()) {
+    for (    String instance : brokerIdealState.getInstanceSet(partition)) {
       if (taggedInstances.contains(instance)) {
         return false;
       }

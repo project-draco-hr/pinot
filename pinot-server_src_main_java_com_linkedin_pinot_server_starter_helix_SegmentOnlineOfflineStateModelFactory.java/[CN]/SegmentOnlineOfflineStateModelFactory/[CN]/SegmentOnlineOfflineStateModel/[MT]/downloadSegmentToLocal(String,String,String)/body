@@ -6,7 +6,7 @@
   }
  else {
     try {
-      tempSegmentFile=new File(INSTANCE_DATA_MANAGER.getSegmentFileDirectory() + "/" + resourceName+ "/temp_"+ segmentId+ "_"+ System.currentTimeMillis());
+      tempSegmentFile=new File(INSTANCE_DATA_MANAGER.getSegmentFileDirectory() + "/" + tableName+ "/temp_"+ segmentId+ "_"+ System.currentTimeMillis());
       if (uri.startsWith("http:")) {
         tempFile=new File(INSTANCE_DATA_MANAGER.getSegmentFileDirectory(),segmentId + ".tar.gz");
         final long httpGetResponseContentLength=FileUploadUtils.getFile(uri,tempFile);
@@ -18,7 +18,7 @@
  else {
         TarGzCompressionUtils.unTar(new File(uri),tempSegmentFile);
       }
-      final File segmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),resourceName),segmentId);
+      final File segmentDir=new File(new File(INSTANCE_DATA_MANAGER.getSegmentDataDirectory(),tableName),segmentId);
       Thread.sleep(1000);
       if (segmentDir.exists()) {
         LOGGER.info("Deleting the directory and recreating it again- " + segmentDir.getAbsolutePath());

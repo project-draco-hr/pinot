@@ -1,22 +1,22 @@
 {
-  _resourceDataManagerConfig=resourceDataManagerConfig;
-  _resourceName=_resourceDataManagerConfig.getResourceName();
-  LOGGER=LoggerFactory.getLogger(_resourceName + "-RealtimeResourceDataManager");
-  _currentNumberOfSegments=Metrics.newCounter(RealtimeTableDataManager.class,_resourceName + "-" + CommonConstants.Metric.Server.CURRENT_NUMBER_OF_SEGMENTS);
-  _currentNumberOfDocuments=Metrics.newCounter(RealtimeTableDataManager.class,_resourceName + "-" + CommonConstants.Metric.Server.CURRENT_NUMBER_OF_DOCUMENTS);
-  _numDeletedSegments=Metrics.newCounter(RealtimeTableDataManager.class,_resourceName + "-" + CommonConstants.Metric.Server.NUMBER_OF_DELETED_SEGMENTS);
-  _resourceDataDir=_resourceDataManagerConfig.getDataDir();
-  if (!new File(_resourceDataDir).exists()) {
-    new File(_resourceDataDir).mkdirs();
+  _tableDataManagerConfig=tableDataManagerConfig;
+  _tableName=_tableDataManagerConfig.getTableName();
+  LOGGER=LoggerFactory.getLogger(_tableName + "-RealtimeTableDataManager");
+  _currentNumberOfSegments=Metrics.newCounter(RealtimeTableDataManager.class,_tableName + "-" + CommonConstants.Metric.Server.CURRENT_NUMBER_OF_SEGMENTS);
+  _currentNumberOfDocuments=Metrics.newCounter(RealtimeTableDataManager.class,_tableName + "-" + CommonConstants.Metric.Server.CURRENT_NUMBER_OF_DOCUMENTS);
+  _numDeletedSegments=Metrics.newCounter(RealtimeTableDataManager.class,_tableName + "-" + CommonConstants.Metric.Server.NUMBER_OF_DELETED_SEGMENTS);
+  _tableDataDir=_tableDataManagerConfig.getDataDir();
+  if (!new File(_tableDataDir).exists()) {
+    new File(_tableDataDir).mkdirs();
   }
-  _numberOfResourceQueryExecutorThreads=_resourceDataManagerConfig.getNumberOfResourceQueryExecutorThreads();
-  if (_numberOfResourceQueryExecutorThreads > 0) {
-    _queryExecutorService=Executors.newFixedThreadPool(_numberOfResourceQueryExecutorThreads,new NamedThreadFactory("parallel-query-executor-" + _resourceName));
+  _numberOfTableQueryExecutorThreads=_tableDataManagerConfig.getNumberOfTableQueryExecutorThreads();
+  if (_numberOfTableQueryExecutorThreads > 0) {
+    _queryExecutorService=Executors.newFixedThreadPool(_numberOfTableQueryExecutorThreads,new NamedThreadFactory("parallel-query-executor-" + _tableName));
   }
  else {
-    _queryExecutorService=Executors.newCachedThreadPool(new NamedThreadFactory("parallel-query-executor-" + _resourceName));
+    _queryExecutorService=Executors.newCachedThreadPool(new NamedThreadFactory("parallel-query-executor-" + _tableName));
   }
-  _readMode=ReadMode.valueOf(_resourceDataManagerConfig.getReadMode());
-  _indexLoadingConfigMetadata=_resourceDataManagerConfig.getIndexLoadingConfigMetadata();
-  LOGGER.info("Initialized RealtimeResourceDataManager: resource : " + _resourceName + " with :\n\tData Directory: "+ _resourceDataDir+ "\n\tRead Mode : "+ _readMode+ "\n\tQuery Exeutor with "+ ((_numberOfResourceQueryExecutorThreads > 0) ? _numberOfResourceQueryExecutorThreads : "cached")+ " threads");
+  _readMode=ReadMode.valueOf(_tableDataManagerConfig.getReadMode());
+  _indexLoadingConfigMetadata=_tableDataManagerConfig.getIndexLoadingConfigMetadata();
+  LOGGER.info("Initialized RealtimeTableDataManager: table : " + _tableName + " with :\n\tData Directory: "+ _tableDataDir+ "\n\tRead Mode : "+ _readMode+ "\n\tQuery Exeutor with "+ ((_numberOfTableQueryExecutorThreads > 0) ? _numberOfTableQueryExecutorThreads : "cached")+ " threads");
 }

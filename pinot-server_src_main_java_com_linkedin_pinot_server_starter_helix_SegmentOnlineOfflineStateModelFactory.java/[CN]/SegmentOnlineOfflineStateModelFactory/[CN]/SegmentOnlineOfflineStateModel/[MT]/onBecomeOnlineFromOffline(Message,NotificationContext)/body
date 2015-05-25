@@ -1,8 +1,8 @@
 {
   LOGGER.debug("SegmentOnlineOfflineStateModel.onBecomeOnlineFromOffline() : " + message);
-  final TableType resourceType=TableNameBuilder.getTableTypeFromTableName(message.getResourceName());
+  final TableType tableType=TableNameBuilder.getTableTypeFromTableName(message.getResourceName());
   try {
-switch (resourceType) {
+switch (tableType) {
 case OFFLINE:
       onBecomeOnlineFromOfflineForOfflineSegment(message,context);
     break;
@@ -10,12 +10,12 @@ case REALTIME:
   onBecomeOnlineFromOfflineForRealtimeSegment(message,context);
 break;
 default :
-throw new RuntimeException("Not supported resource Type for onBecomeOnlineFromOffline message: " + message);
+throw new RuntimeException("Not supported table Type for onBecomeOnlineFromOffline message: " + message);
 }
 }
  catch (Exception e) {
 if (LOGGER.isErrorEnabled()) {
-LOGGER.error("Caught exception in state transition for OFFLINE -> ONLINE for partition" + message.getPartitionName() + " of resource "+ message.getResourceName(),e);
+LOGGER.error("Caught exception in state transition for OFFLINE -> ONLINE for partition" + message.getPartitionName() + " of table "+ message.getResourceName(),e);
 }
 Utils.rethrowException(e);
 }

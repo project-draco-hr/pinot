@@ -8,8 +8,8 @@
   }
   Set<String> offlineSegmentsServing=externalView.getPartitionSet();
   AbstractTableConfig offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,tableName);
-  TimeUnit resourceTimeUnit=getTimeUnitFromString(offlineTableConfig.getValidationConfig().getTimeType());
-  if (!offlineSegmentsServing.isEmpty() && resourceTimeUnit != null) {
+  TimeUnit tableTimeUnit=getTimeUnitFromString(offlineTableConfig.getValidationConfig().getTimeType());
+  if (!offlineSegmentsServing.isEmpty() && tableTimeUnit != null) {
     long maxTimeValue=-1;
     for (    String segmentId : offlineSegmentsServing) {
       try {
@@ -17,7 +17,7 @@
         OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_propertyStore,tableName,segmentId);
         if (offlineSegmentZKMetadata.getEndTime() > 0) {
           if (offlineSegmentZKMetadata.getTimeUnit() != null) {
-            endTime=resourceTimeUnit.convert(offlineSegmentZKMetadata.getEndTime(),offlineSegmentZKMetadata.getTimeUnit());
+            endTime=tableTimeUnit.convert(offlineSegmentZKMetadata.getEndTime(),offlineSegmentZKMetadata.getTimeUnit());
           }
  else {
             endTime=offlineSegmentZKMetadata.getEndTime();

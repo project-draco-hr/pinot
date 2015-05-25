@@ -3,11 +3,11 @@
   serverConfiguration.addProperty(getKey("pinot.server.instance","id"),"0");
   serverConfiguration.addProperty(getKey("pinot.server.instance","bootstrap.segment.dir"),SERVER_BOOTSTRAP_DIR);
   serverConfiguration.addProperty(getKey("pinot.server.instance","dataDir"),SERVER_INDEX_DIR);
-  serverConfiguration.addProperty(getKey("pinot.server.instance","resourceName"),StringUtils.join(RESOURCE_NAMES,',').trim());
-  for (  final String resource : RESOURCE_NAMES) {
-    serverConfiguration.addProperty(getKey("pinot.server.instance",resource.trim(),"numQueryExecutorThreads"),"50");
-    serverConfiguration.addProperty(getKey("pinot.server.instance",resource.trim(),"dataManagerType"),"offline");
-    serverConfiguration.addProperty(getKey("pinot.server.instance",resource.trim(),"readMode"),SERVER_INDEX_READ_MODE);
+  serverConfiguration.addProperty(getKey("pinot.server.instance","tableName"),StringUtils.join(TABLE_NAMES,',').trim());
+  for (  final String table : TABLE_NAMES) {
+    serverConfiguration.addProperty(getKey("pinot.server.instance",table.trim(),"numQueryExecutorThreads"),"50");
+    serverConfiguration.addProperty(getKey("pinot.server.instance",table.trim(),"dataManagerType"),"offline");
+    serverConfiguration.addProperty(getKey("pinot.server.instance",table.trim(),"readMode"),SERVER_INDEX_READ_MODE);
   }
   serverConfiguration.addProperty("pinot.server.instance.data.manager.class",FileBasedInstanceDataManager.class.getName());
   serverConfiguration.addProperty("pinot.server.instance.segment.metadata.loader.class",ColumnarSegmentMetadataLoader.class.getName());

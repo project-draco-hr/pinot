@@ -1,13 +1,13 @@
 {
   Set<String> taggedInstances=new HashSet<String>(_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ControllerTenantNameBuilder.getOfflineTenantNameForTenant(tenantName)));
   taggedInstances.addAll(_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(tenantName)));
-  for (  String resourceName : getAllResourceNames()) {
-    if (resourceName.equals(CommonConstants.Helix.BROKER_RESOURCE_INSTANCE)) {
+  for (  String tableName : getAllTableNames()) {
+    if (tableName.equals(CommonConstants.Helix.BROKER_RESOURCE_INSTANCE)) {
       continue;
     }
-    IdealState resourceIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,resourceName);
-    for (    String partition : resourceIdealState.getPartitionSet()) {
-      for (      String instance : resourceIdealState.getInstanceSet(partition)) {
+    IdealState tableIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+    for (    String partition : tableIdealState.getPartitionSet()) {
+      for (      String instance : tableIdealState.getInstanceSet(partition)) {
         if (taggedInstances.contains(instance)) {
           return false;
         }

@@ -16,7 +16,7 @@
     }
     final Plan globalQueryPlan=_serverMetrics.timePhase(brokerRequest,ServerQueryPhase.BUILD_QUERY_PLAN,new Callable<Plan>(){
       @Override public Plan call() throws Exception {
-        return _planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getResourceDataManager(brokerRequest.getQuerySource().getResourceName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
+        return _planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getTableDataManager(brokerRequest.getQuerySource().getTableName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
       }
     }
 );
@@ -53,8 +53,8 @@
     return instanceResponse;
   }
  finally {
-    if (_instanceDataManager.getResourceDataManager(instanceRequest.getQuery().getQuerySource().getResourceName()) != null) {
-      _instanceDataManager.getResourceDataManager(instanceRequest.getQuery().getQuerySource().getResourceName()).returnSegmentReaders(instanceRequest.getSearchSegments());
+    if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
+      _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReaders(instanceRequest.getSearchSegments());
     }
   }
 }

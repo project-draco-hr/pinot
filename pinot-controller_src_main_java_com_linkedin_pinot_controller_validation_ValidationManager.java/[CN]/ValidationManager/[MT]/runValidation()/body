@@ -4,7 +4,7 @@
     return;
   }
   LOGGER.info("Starting validation");
-  List<String> allTableNames=_pinotHelixResourceManager.getAllPinotResourceNames();
+  List<String> allTableNames=_pinotHelixResourceManager.getAllPinotTableNames();
   ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
   for (  String tableName : allTableNames) {
     if (TableNameBuilder.getTableTypeFromTableName(tableName) != TableType.OFFLINE) {

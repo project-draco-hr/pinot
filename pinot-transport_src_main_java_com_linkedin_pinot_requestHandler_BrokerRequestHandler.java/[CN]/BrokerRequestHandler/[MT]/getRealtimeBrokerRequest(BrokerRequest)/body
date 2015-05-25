@@ -1,8 +1,8 @@
 {
   BrokerRequest realtimeRequest=request.deepCopy();
-  String hybridResourceName=request.getQuerySource().getResourceName();
-  String realtimeResourceName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(hybridResourceName);
-  realtimeRequest.getQuerySource().setResourceName(realtimeResourceName);
-  attachTimeBoundary(hybridResourceName,realtimeRequest,false);
+  String hybridTableName=request.getQuerySource().getTableName();
+  String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(hybridTableName);
+  realtimeRequest.getQuerySource().setTableName(realtimeTableName);
+  attachTimeBoundary(hybridTableName,realtimeRequest,false);
   return realtimeRequest;
 }

@@ -1,27 +1,27 @@
 {
   Representation presentation=null;
   try {
-    final String resourceName=(String)getRequest().getAttributes().get("tableName");
+    final String tableName=(String)getRequest().getAttributes().get("tableName");
     final String segmentName=(String)getRequest().getAttributes().get("segmentName");
-    if ((resourceName == null) && (segmentName == null)) {
+    if ((tableName == null) && (segmentName == null)) {
       final JSONArray ret=new JSONArray();
       for (      final File file : baseDataDir.listFiles()) {
-        final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/datafiles/"+ file.getName();
+        final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/segments/"+ file.getName();
         ret.put(url);
       }
       presentation=new StringRepresentation(ret.toString());
       return presentation;
     }
- else     if ((resourceName != null) && (segmentName == null)) {
+ else     if ((tableName != null) && (segmentName == null)) {
       final JSONArray ret=new JSONArray();
-      for (      final File file : new File(baseDataDir,resourceName).listFiles()) {
-        final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/datafiles/"+ resourceName+ "/"+ file.getName();
+      for (      final File file : new File(baseDataDir,tableName).listFiles()) {
+        final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/segments/"+ tableName+ "/"+ file.getName();
         ret.put(url);
       }
       presentation=new StringRepresentation(ret.toString());
       return presentation;
     }
-    final File dataFile=new File(baseDataDir,StringUtil.join("/",resourceName,segmentName));
+    final File dataFile=new File(baseDataDir,StringUtil.join("/",tableName,segmentName));
     if (dataFile.exists()) {
       presentation=new FileRepresentation(dataFile,MediaType.ALL,0);
       return presentation;

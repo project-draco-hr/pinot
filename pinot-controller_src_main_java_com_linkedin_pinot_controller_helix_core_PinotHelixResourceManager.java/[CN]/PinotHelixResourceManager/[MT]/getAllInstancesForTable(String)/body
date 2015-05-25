@@ -1,8 +1,8 @@
 {
   Set<String> instanceSet=new HashSet<String>();
-  IdealState resourceIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
-  for (  String partition : resourceIdealState.getPartitionSet()) {
-    instanceSet.addAll(resourceIdealState.getInstanceSet(partition));
+  IdealState tableIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+  for (  String partition : tableIdealState.getPartitionSet()) {
+    instanceSet.addAll(tableIdealState.getInstanceSet(partition));
   }
   return instanceSet;
 }

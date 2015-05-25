@@ -12,7 +12,7 @@
   for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
     avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
   }
-  createResource();
+  createTable();
   ExecutorService executor=Executors.newCachedThreadPool();
   Class.forName("org.h2.Driver");
   _connection=DriverManager.getConnection("jdbc:h2:mem:");
@@ -22,10 +22,10 @@
     }
   }
 );
-  buildSegmentsFromAvro(avroFiles,executor,0,_segmentDir,_tarDir,"myresource");
+  buildSegmentsFromAvro(avroFiles,executor,0,_segmentDir,_tarDir,"mytable");
   executor.execute(new Runnable(){
     @Override public void run(){
-      _queryGenerator=new QueryGenerator(avroFiles,"'myresource'","mytable");
+      _queryGenerator=new QueryGenerator(avroFiles,"'mytable'","mytable");
     }
   }
 );
@@ -37,7 +37,7 @@
   manager.addExternalViewChangeListener(new ExternalViewChangeListener(){
     @Override public void onExternalViewChange(    List<ExternalView> externalViewList,    NotificationContext changeContext){
       for (      ExternalView externalView : externalViewList) {
-        if (externalView.getId().contains("myresource")) {
+        if (externalView.getId().contains("mytable")) {
           Set<String> partitionSet=externalView.getPartitionSet();
           if (partitionSet.size() == SEGMENT_COUNT) {
             int onlinePartitionCount=0;
@@ -48,7 +48,7 @@
               }
             }
             if (onlinePartitionCount == SEGMENT_COUNT) {
-              System.out.println("Got " + SEGMENT_COUNT + " online resources, unlatching the main thread");
+              System.out.println("Got " + SEGMENT_COUNT + " online tables, unlatching the main thread");
               latch.countDown();
             }
           }
@@ -61,7 +61,7 @@
   for (  String segmentName : _tarDir.list()) {
     System.out.println("Uploading segment " + (i++) + " : "+ segmentName);
     File file=new File(_tarDir,segmentName);
-    FileUploadUtils.sendFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
+    FileUploadUtils.sendSegmentFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
   }
   latch.await();
   TOTAL_DOCS=115545;

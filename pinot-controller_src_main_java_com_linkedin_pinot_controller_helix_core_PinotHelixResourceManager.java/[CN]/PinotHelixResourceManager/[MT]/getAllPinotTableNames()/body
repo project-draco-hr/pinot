@@ -1,0 +1,11 @@
+{
+  List<String> tableNames=getAllTableNames();
+  ArrayList<String> pinotTableNames=new ArrayList<String>();
+  for (  String tableName : tableNames) {
+    if (CommonConstants.Helix.NON_PINOT_RESOURCE_RESOURCE_NAMES.contains(tableName)) {
+      continue;
+    }
+    pinotTableNames.add(tableName);
+  }
+  return pinotTableNames;
+}
