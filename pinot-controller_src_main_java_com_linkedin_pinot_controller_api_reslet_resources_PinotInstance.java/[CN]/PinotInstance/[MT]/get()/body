@@ -1,0 +1,24 @@
+{
+  StringRepresentation presentation=null;
+  try {
+    final String instanceName=(String)getRequest().getAttributes().get(INSTANCE_NAME);
+    final String status=getReference().getQueryAsForm().getValues(STATUS);
+    if (status == null) {
+      presentation=new StringRepresentation("Not a valid GET call, do nothing!");
+    }
+ else {
+      if (status.equals(ENABLE)) {
+        presentation=new StringRepresentation(manager.enableInstance(instanceName).toJSON().toString());
+      }
+      if (status.equals(DISABLE)) {
+        presentation=new StringRepresentation(manager.disableInstance(instanceName).toJSON().toString());
+      }
+    }
+  }
+ catch (  final Exception e) {
+    presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
+    LOGGER.error("Caught exception while processing post request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return presentation;
+}

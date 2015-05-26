@@ -4,7 +4,7 @@
   if (brokerIdealState.getPartitionSet().contains(resourceTag)) {
     Map<String,String> instanceStateMap=brokerIdealState.getInstanceStateMap(resourceTag);
     for (    String instance : instanceStateMap.keySet()) {
-      brokerIdealState.setPartitionState(resourceTag,instance,"DROPPED");
+      brokerIdealState.setPartitionState(resourceTag,instance,DROPPED);
     }
     helixAdmin.setResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,brokerIdealState);
   }

@@ -1,0 +1,44 @@
+{
+  _helixAdmin.enableInstance(_helixClusterName,instanceName,toggle);
+  long deadline=System.currentTimeMillis() + 1000 * timeOutInSeconds;
+  boolean toggleSucceed=false;
+  String beforeToggleStates=(toggle) ? SegmentOnlineOfflineStateModel.OFFLINE : SegmentOnlineOfflineStateModel.ONLINE;
+  while (System.currentTimeMillis() < deadline) {
+    toggleSucceed=true;
+    PropertyKey liveInstanceKey=_helixDataAccessor.keyBuilder().liveInstance(instanceName);
+    LiveInstance liveInstance=_helixDataAccessor.getProperty(liveInstanceKey);
+    if (liveInstance == null) {
+      if (toggle) {
+        return PinotResourceManagerResponse.FAILURE_RESPONSE;
+      }
+ else {
+        return PinotResourceManagerResponse.SUCCESS_RESPONSE;
+      }
+    }
+    PropertyKey instanceCurrentStatesKey=_helixDataAccessor.keyBuilder().currentStates(instanceName,liveInstance.getSessionId());
+    List<CurrentState> instanceCurrentStates=_helixDataAccessor.getChildValues(instanceCurrentStatesKey);
+    if (instanceCurrentStates == null) {
+      return PinotResourceManagerResponse.SUCCESS_RESPONSE;
+    }
+ else {
+      for (      CurrentState currentState : instanceCurrentStates) {
+        for (        String state : currentState.getPartitionStateMap().values()) {
+          if (beforeToggleStates.equals(state)) {
+            toggleSucceed=false;
+          }
+        }
+      }
+    }
+    if (toggleSucceed) {
+      return PinotResourceManagerResponse.SUCCESS_RESPONSE;
+    }
+ else {
+      try {
+        Thread.sleep(500);
+      }
+ catch (      InterruptedException e) {
+      }
+    }
+  }
+  return PinotResourceManagerResponse.FAILURE_RESPONSE;
+}

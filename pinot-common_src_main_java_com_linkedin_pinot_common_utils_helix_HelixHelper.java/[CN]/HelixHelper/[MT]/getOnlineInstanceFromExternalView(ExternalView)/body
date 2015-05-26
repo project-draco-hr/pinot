@@ -1,0 +1,14 @@
+{
+  Set<String> instanceSet=new HashSet<String>();
+  if (resourceExternalView != null) {
+    for (    String partition : resourceExternalView.getPartitionSet()) {
+      Map<String,String> stateMap=resourceExternalView.getStateMap(partition);
+      for (      String instance : stateMap.keySet()) {
+        if (stateMap.get(instance).equalsIgnoreCase(ONLINE)) {
+          instanceSet.add(instance);
+        }
+      }
+    }
+  }
+  return instanceSet;
+}
