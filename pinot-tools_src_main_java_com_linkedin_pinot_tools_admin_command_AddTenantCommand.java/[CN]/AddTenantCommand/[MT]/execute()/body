@@ -1,0 +1,7 @@
+{
+  Tenant t=new Tenant.TenantBuilder(_name).setRole(_role).setTotalInstances(_instanceCount).setOfflineInstances(_offlineInstanceCount).setRealtimeInstances(_realtimeInstanceCount).build();
+  String res=AbstractBaseCommand.sendPostRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forTenantCreate(),t.toString());
+  _logger.info(res);
+  System.out.print(res);
+  return true;
+}
