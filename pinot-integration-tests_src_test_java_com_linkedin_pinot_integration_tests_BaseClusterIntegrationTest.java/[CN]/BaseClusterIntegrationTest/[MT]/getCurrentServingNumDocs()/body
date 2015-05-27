@@ -1,12 +1,5 @@
 {
-  try {
-    String countQuery="SELECT count(*) FROM 'mytable' LIMIT 0";
-    JSONObject ret=postQuery(countQuery);
-    ret.put("pql",countQuery);
-    System.out.println(ret.toString(1));
-    return ret.getLong("numDocsScanned");
-  }
- catch (  Exception e) {
-    return 0;
-  }
+  ensurePinotConnectionIsCreated();
+  com.linkedin.pinot.client.ResultSet resultSet=_pinotConnection.execute("SELECT COUNT(*) from mytable LIMIT 0").getResultSet(0);
+  return resultSet.getInt(0);
 }

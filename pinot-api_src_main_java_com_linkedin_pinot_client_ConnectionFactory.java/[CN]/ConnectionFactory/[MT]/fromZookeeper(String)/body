@@ -1,3 +1,29 @@
 {
-  throw new AssertionError("Unimplemented!");
+  try {
+    ZkClient client=new ZkClient(zkUrl);
+    client.setZkSerializer(new ByteArraySerializer());
+    byte[] brokerResourceNodeData=client.readData("/EXTERNALVIEW/brokerResource",true);
+    System.out.println("brokerResourceNodeData = " + new String(brokerResourceNodeData));
+    JSONObject jsonObject=new JSONObject(new String(brokerResourceNodeData));
+    System.out.println("jsonObject = " + jsonObject);
+    JSONObject brokerResourceNode=jsonObject.getJSONObject("mapFields");
+    List<String> brokerUrls=new ArrayList<String>();
+    Iterator<String> resourceNames=brokerResourceNode.keys();
+    while (resourceNames.hasNext()) {
+      String resourceName=resourceNames.next();
+      JSONObject resource=brokerResourceNode.getJSONObject(resourceName);
+      Iterator<String> brokerNames=resource.keys();
+      while (brokerNames.hasNext()) {
+        String brokerName=brokerNames.next();
+        if (brokerName.startsWith("Broker_") && "ONLINE".equals(resource.getString(brokerName))) {
+          brokerUrls.add(brokerName.replace("Broker_","").replace("_",":"));
+        }
+      }
+    }
+    client.close();
+    return new Connection(brokerUrls,_transportFactory.buildTransport());
+  }
+ catch (  Exception e) {
+    throw new PinotClientException(e);
+  }
 }
