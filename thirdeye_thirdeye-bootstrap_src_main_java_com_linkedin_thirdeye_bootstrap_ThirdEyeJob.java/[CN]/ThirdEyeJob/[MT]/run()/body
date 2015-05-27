@@ -82,7 +82,7 @@ RemoteIterator<LocatedFileStatus> listFiles=fileSystem.listFiles(dataPath,false)
 List<IndexMetadata> indexMetadataList=new ArrayList<IndexMetadata>();
 while (listFiles.hasNext()) {
 Path path=listFiles.next().getPath();
-IndexMetadata localIndexMetadata=builder.getMetadataObject(path);
+IndexMetadata localIndexMetadata=builder.getMetadataObjectBootstrap(path);
 if (localIndexMetadata != null) {
 indexMetadataList.add(localIndexMetadata);
 }
@@ -92,7 +92,7 @@ throw new IllegalStateException("No metadata files found");
 }
 Path metadataPath=new Path(bootstrapPhase2Output,StarTreeConstants.METADATA_FILE_NAME);
 IndexMetadata mergedIndexMetadata=mergeIndexMetadata(indexMetadataList,minTime.getMillis(),maxTime.getMillis(),schedule);
-writeMergedIndexMetadata(fileSystem,metadataPath,mergedIndexMetadata);
+writeMergedIndexMetadataServerPush(fileSystem,metadataPath,mergedIndexMetadata);
 listFiles=fileSystem.listFiles(dataPath,false);
 while (listFiles.hasNext()) {
 Path path=listFiles.next().getPath();
@@ -104,6 +104,7 @@ builder.addFileEntry(path);
 builder.addTarGzFile(path);
 }
 }
+builder.addFileEntry(configPath);
 builder.finish();
 if (fileSystem.exists(outputTarGzFilePath)) {
 LOGGER.info("Successfully created {}.",outputTarGzFilePath);

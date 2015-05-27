@@ -3,12 +3,18 @@
   Map<UUID,IndexMetadata> treeMetadataMap=new HashMap<UUID,IndexMetadata>();
   Map<UUID,Integer> treeIdToArrayIndexMapping=new HashMap<UUID,Integer>();
   for (int i=0; i < indexMetadataArray.length; i++) {
-    Long minDataTime=toMilliSecond(indexMetadataArray[i][0],indexMetadataArray[i][2]);
-    Long maxDataTime=toMilliSecond(indexMetadataArray[i][1],indexMetadataArray[i][2]);
-    Long startTime=toMilliSecond(indexMetadataArray[i][0],indexMetadataArray[i][2]);
-    Long endTime=toMilliSecond(indexMetadataArray[i][1],indexMetadataArray[i][2]);
+    Long minDataTimeMillis=toMilliSecond(indexMetadataArray[i][0],indexMetadataArray[i][2]);
+    Long maxDataTimeMillis=toMilliSecond(indexMetadataArray[i][1],indexMetadataArray[i][2]);
+    Long startTimeMillis=toMilliSecond(indexMetadataArray[i][0],indexMetadataArray[i][2]);
+    Long endTimeMillis=toMilliSecond(indexMetadataArray[i][1],indexMetadataArray[i][2]);
     String timeGranularity=indexMetadataArray[i][2];
-    IndexMetadata value=new IndexMetadata(minDataTime,maxDataTime,startTime,endTime,timeGranularity);
+    TimeUnit aggregationGranularity=TimeUnit.HOURS;
+    int bucketSize=1;
+    Long minDataTime=aggregationGranularity.convert(minDataTimeMillis,TimeUnit.MILLISECONDS) / bucketSize;
+    Long maxDataTime=aggregationGranularity.convert(maxDataTimeMillis,TimeUnit.MILLISECONDS) / bucketSize;
+    Long startTime=aggregationGranularity.convert(startTimeMillis,TimeUnit.MILLISECONDS) / bucketSize;
+    Long endTime=aggregationGranularity.convert(endTimeMillis,TimeUnit.MILLISECONDS) / bucketSize;
+    IndexMetadata value=new IndexMetadata(minDataTime,maxDataTime,minDataTimeMillis,maxDataTimeMillis,startTime,endTime,startTimeMillis,endTimeMillis,timeGranularity,aggregationGranularity.toString(),bucketSize);
     UUID uuid=UUID.nameUUIDFromBytes(("" + i).getBytes());
     System.out.println("Adding metadata for treeId:" + uuid + Arrays.toString(indexMetadataArray[i])+ " metadata:"+ value);
     treeMetadataMap.put(uuid,value);

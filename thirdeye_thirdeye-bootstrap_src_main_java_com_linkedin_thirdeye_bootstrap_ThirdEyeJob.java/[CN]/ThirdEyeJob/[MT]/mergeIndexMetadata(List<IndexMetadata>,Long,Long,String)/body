@@ -1,14 +1,28 @@
 {
   Long min=Long.MAX_VALUE;
+  Long minMillis=Long.MAX_VALUE;
   Long max=0L;
+  Long maxMillis=0L;
+  Long startTime=Long.MAX_VALUE;
+  Long endTime=0L;
+  String aggregationGranularity="";
+  int bucketSize=0;
   for (  IndexMetadata indexMetadata : indexMetdataList) {
+    if (aggregationGranularity.equals("")) {
+      aggregationGranularity=indexMetadata.getAggregationGranularity();
+      bucketSize=indexMetadata.getBucketSize();
+    }
     if (indexMetadata.getMinDataTime() != null && indexMetadata.getMinDataTime() < min) {
       min=indexMetadata.getMinDataTime();
+      minMillis=indexMetadata.getMaxDataTimeMillis();
     }
     if (indexMetadata.getMaxDataTime() != null && indexMetadata.getMaxDataTime() > max) {
       max=indexMetadata.getMaxDataTime();
+      maxMillis=indexMetadata.getMaxDataTimeMillis();
     }
   }
-  IndexMetadata mergedIndexMetadata=new IndexMetadata(min,max,startTime,endTime,schedule);
+  startTime=TimeUnit.valueOf(aggregationGranularity).convert(startTimeMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  endTime=TimeUnit.valueOf(aggregationGranularity).convert(endTimeMillis,TimeUnit.MILLISECONDS) / bucketSize;
+  IndexMetadata mergedIndexMetadata=new IndexMetadata(min,max,minMillis,maxMillis,startTime,endTime,startTimeMillis,endTimeMillis,schedule,aggregationGranularity,bucketSize);
   return mergedIndexMetadata;
 }

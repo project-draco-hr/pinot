@@ -2,16 +2,28 @@
   IndexMetadata indexMetadata=new IndexMetadata();
   String minDataTime=properties.getProperty(StarTreeMetadataProperties.MIN_DATA_TIME);
   String maxDataTime=properties.getProperty(StarTreeMetadataProperties.MAX_DATA_TIME);
+  String minDataTimeMillis=properties.getProperty(StarTreeMetadataProperties.MIN_DATA_TIME_MILLIS);
+  String maxDataTimeMillis=properties.getProperty(StarTreeMetadataProperties.MAX_DATA_TIME_MILLIS);
   String startTime=properties.getProperty(StarTreeMetadataProperties.START_TIME);
   String endTime=properties.getProperty(StarTreeMetadataProperties.END_TIME);
+  String startTimeMillis=properties.getProperty(StarTreeMetadataProperties.START_TIME_MILLIS);
+  String endTimeMillis=properties.getProperty(StarTreeMetadataProperties.END_TIME_MILLIS);
   String timeGranularity=properties.getProperty(StarTreeMetadataProperties.TIME_GRANULARITY);
-  if (minDataTime == null || maxDataTime == null || startTime == null || endTime == null || timeGranularity == null) {
+  String aggregationGranularity=properties.getProperty(StarTreeMetadataProperties.AGGREGATION_GRANULARITY);
+  String bucketSize=properties.getProperty(StarTreeMetadataProperties.BUCKET_SIZE);
+  if (minDataTime == null || maxDataTime == null || minDataTimeMillis == null || maxDataTimeMillis == null || startTime == null || endTime == null || startTimeMillis == null || endTimeMillis == null || timeGranularity == null || aggregationGranularity == null || bucketSize == null) {
     throw new IllegalStateException("Cannot find required metadata properties");
   }
   indexMetadata.setMinDataTime(Long.valueOf(minDataTime));
   indexMetadata.setMaxDataTime(Long.valueOf(maxDataTime));
+  indexMetadata.setMinDataTimeMillis(Long.valueOf(minDataTimeMillis));
+  indexMetadata.setMaxDataTimeMillis(Long.valueOf(maxDataTimeMillis));
   indexMetadata.setStartTime(Long.valueOf(startTime));
   indexMetadata.setEndTime(Long.valueOf(endTime));
+  indexMetadata.setStartTimeMillis(Long.valueOf(startTimeMillis));
+  indexMetadata.setEndTimeMillis(Long.valueOf(endTimeMillis));
   indexMetadata.setTimeGranularity(timeGranularity);
+  indexMetadata.setAggregationGranularity(aggregationGranularity);
+  indexMetadata.setBucketSize(Integer.valueOf(bucketSize));
   return indexMetadata;
 }

@@ -74,10 +74,20 @@
     FixedBufferUtil.combineDataFiles(treeStream,leafBufferDir,segmentBufferDir);
     File metadataFile=new File(segmentBufferDir,StarTreeConstants.METADATA_FILE_NAME);
     LOGGER.info("Creating index metadata {}",metadataFile);
-    IndexMetadata metadata=new IndexMetadata(minDataTime.get(),maxDataTime.get(),minTime.getMillis(),maxTime.getMillis(),schedule);
+    TimeUnit aggregationGranularity=starTree.getConfig().getTime().getBucket().getUnit();
+    int bucketSize=starTree.getConfig().getTime().getBucket().getSize();
+    Long minDataTimeMillis=TimeUnit.MILLISECONDS.convert(minDataTime.get() * bucketSize,aggregationGranularity);
+    Long maxDataTimeMillis=TimeUnit.MILLISECONDS.convert(maxDataTime.get() * bucketSize,aggregationGranularity);
+    Long startTime=aggregationGranularity.convert(minTime.getMillis(),TimeUnit.MILLISECONDS) / bucketSize;
+    Long endTime=aggregationGranularity.convert(maxTime.getMillis(),TimeUnit.MILLISECONDS) / bucketSize;
+    IndexMetadata metadata=new IndexMetadata(minDataTime.get(),maxDataTime.get(),minDataTimeMillis,maxDataTimeMillis,startTime,endTime,minTime.getMillis(),maxTime.getMillis(),schedule,aggregationGranularity.toString(),bucketSize);
     OutputStream metadataStream=new FileOutputStream(metadataFile);
     metadata.toProperties().store(metadataStream,"This segment was created via DataUpdateManager#persistTree");
     metadataStream.close();
+    File configFile=new File(segmentBufferDir,StarTreeConstants.CONFIG_FILE_NAME);
+    LOGGER.info("Creating config.yml {}",configFile);
+    ObjectMapper objectMapper=new ObjectMapper();
+    objectMapper.writeValue(configFile,starTree.getConfig());
     String treeId=starTree.getRoot().getId().toString();
     File dataDir=new File(collectionDir,StorageUtils.getDataDirName(treeId,schedule,minTime,maxTime));
     if (dataDir.exists()) {
