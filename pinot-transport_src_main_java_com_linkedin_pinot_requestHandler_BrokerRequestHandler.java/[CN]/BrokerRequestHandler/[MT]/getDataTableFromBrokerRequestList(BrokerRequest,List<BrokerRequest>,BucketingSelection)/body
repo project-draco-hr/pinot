@@ -23,6 +23,7 @@
   long scatterGatherTime=0;
   long deserializationTime=0;
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  final AtomicInteger responseSeq=new AtomicInteger(-1);
 {
     for (    BrokerRequest request : responseFuturesList.keySet()) {
       CompositeFuture<ServerInstance,ByteBuf> response=responseFuturesList.get(request);
@@ -38,7 +39,6 @@
       final long deserializationStartTime=System.nanoTime();
       Map<ServerInstance,Throwable> errors=response.getError();
       if (null != responses) {
-        int responseSeq=0;
         for (        Entry<ServerInstance,ByteBuf> e : responses.entrySet()) {
           try {
             ByteBuf b=e.getValue();
@@ -48,7 +48,7 @@
             }
             b.readBytes(b2);
             DataTable r2=new DataTable(b2);
-            ServerInstance decoratedServerInstance=new ServerInstance(e.getKey().getHostname(),e.getKey().getPort(),(responseSeq++));
+            ServerInstance decoratedServerInstance=new ServerInstance(e.getKey().getHostname(),e.getKey().getPort(),responseSeq.incrementAndGet());
             if (errors != null && errors.containsKey(e.getKey())) {
               Throwable throwable=errors.get(e.getKey());
               if (throwable != null) {

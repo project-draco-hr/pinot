@@ -1,13 +1,9 @@
 {
   String testTableName="testTable";
   Thread.sleep(1000);
-  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
-  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2);
-  Tenant brokerTenant=new TenantBuilder("testBroker").setRole(TenantRole.BROKER).setTotalInstances(2).setOfflineInstances(-1).setRealtimeInstances(-1).build();
-  _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
-  Tenant serverTenant=new TenantBuilder("testServer").setRole(TenantRole.SERVER).setTotalInstances(2).setOfflineInstances(2).setRealtimeInstances(0).build();
-  _pinotHelixResourceManager.createBrokerTenant(serverTenant);
-  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(testTableName,"testServer","testBroker","timestamp","millsSinceEpoch","DAYS","5",2,"BalanceNumSegmentAssignmentStrategy").toString();
+  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2,true);
+  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2,true);
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(testTableName,null,null,"timestamp","millsSinceEpoch","DAYS","5",2,"BalanceNumSegmentAssignmentStrategy").toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
   _pinotHelixResourceManager.addTable(offlineTableConfig);
   DummyMetadata metadata=new DummyMetadata(testTableName);

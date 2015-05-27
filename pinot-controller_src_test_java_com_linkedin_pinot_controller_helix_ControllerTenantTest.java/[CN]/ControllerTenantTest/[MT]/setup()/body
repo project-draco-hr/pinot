@@ -2,6 +2,7 @@
   startZk();
   _zkClient=new ZkClient(ZkTestUtils.DEFAULT_ZK_STR);
   startController();
+  ZKMetadataProvider.setClusterTenantIsolationEnabled(_propertyStore,false);
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,20);
   ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,20);
 }

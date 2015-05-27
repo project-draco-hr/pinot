@@ -6,16 +6,15 @@
     _zkClient.deleteRecursive(zkPath);
   }
   final String instanceId="localhost_helixController";
-  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null);
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null,10000L,true);
   _pinotHelixResourceManager.start();
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_SERVER);
   _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
-  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numServerInstance);
-  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numBrokerInstance);
+  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numServerInstance,true);
+  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numBrokerInstance,true);
   Thread.sleep(3000);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),_numServerInstance);
-  Tenant brokerTenant=new TenantBuilder(BROKER_TENANT_NAME).setRole(TenantRole.BROKER).setTotalInstances(5).setOfflineInstances(0).setRealtimeInstances(0).build();
-  _pinotHelixResourceManager.createBrokerTenant(brokerTenant);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,BROKER_TENANT_NAME + "_BROKER").size(),5);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_OFFLINE").size(),_numServerInstance);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_REALTIME").size(),_numServerInstance);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER").size(),_numBrokerInstance);
 }

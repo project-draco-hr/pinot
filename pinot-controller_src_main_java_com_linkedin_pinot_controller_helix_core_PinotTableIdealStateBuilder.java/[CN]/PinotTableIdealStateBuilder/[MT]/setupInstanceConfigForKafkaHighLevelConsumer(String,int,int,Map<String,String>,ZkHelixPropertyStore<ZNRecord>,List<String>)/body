@@ -3,7 +3,8 @@
   int partitionId=0;
   int replicaId=0;
   String groupId=getGroupIdFromRealtimeDataTable(realtimeTableName,streamProviderConfig);
-  for (  String instance : instanceList) {
+  for (int i=0; i < numInstancesPerReplica * numDataReplicas; ++i) {
+    String instance=instanceList.get(i);
     InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(zkHelixPropertyStore,instance);
     if (instanceZKMetadata == null) {
       instanceZKMetadata=new InstanceZKMetadata();

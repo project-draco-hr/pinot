@@ -1,17 +1,13 @@
 {
   final int numReplicas=3;
-  final int totalInstances=6;
-  String serverTenantName="balanceServerTenant";
-  Tenant serverTenant=new TenantBuilder(serverTenantName).setRole(TenantRole.SERVER).setTotalInstances(6).setOfflineInstances(6).setRealtimeInstances(0).build();
-  _pinotHelixResourceManager.createServerTenant(serverTenant);
-  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(TABLE_NAME_BALANCED,serverTenantName,BROKER_TENANT_NAME,numReplicas,"BalanceNumSegmentAssignmentStrategy").toString();
+  String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(TABLE_NAME_BALANCED,null,null,numReplicas,"BalanceNumSegmentAssignmentStrategy").toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);
   _pinotHelixResourceManager.addTable(offlineTableConfig);
   Thread.sleep(3000);
-  for (int i=0; i < 10; ++i) {
+  for (int i=0; i < 100; ++i) {
     addOneSegment(TABLE_NAME_BALANCED);
     Thread.sleep(2000);
-    final Set<String> taggedInstances=_pinotHelixResourceManager.getAllInstancesForServerTenant(serverTenantName);
+    final Set<String> taggedInstances=_pinotHelixResourceManager.getAllInstancesForServerTenant("DefaultTenant_OFFLINE");
     final Map<String,Integer> instance2NumSegmentsMap=new HashMap<String,Integer>();
     for (    final String instance : taggedInstances) {
       instance2NumSegmentsMap.put(instance,0);
@@ -23,9 +19,9 @@
       }
     }
     final int totalSegments=(i + 1) * numReplicas;
-    final int minNumSegmentsPerInstance=totalSegments / totalInstances;
+    final int minNumSegmentsPerInstance=totalSegments / _numServerInstance;
     int maxNumSegmentsPerInstance=minNumSegmentsPerInstance;
-    if ((minNumSegmentsPerInstance * totalInstances) < totalSegments) {
+    if ((minNumSegmentsPerInstance * _numServerInstance) < totalSegments) {
       maxNumSegmentsPerInstance=maxNumSegmentsPerInstance + 1;
     }
     for (    final String instance : instance2NumSegmentsMap.keySet()) {

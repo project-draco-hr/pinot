@@ -1,7 +1,6 @@
 {
   IdealState idealState;
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"testBroker_BROKER").size(),6);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"broker_untagged").size(),0);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER").size(),6);
   idealState=_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
   Assert.assertEquals(idealState.getInstanceSet(COMPANY_TABLE_NAME).size(),6);
   ExternalView externalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
@@ -13,8 +12,7 @@
   JSONObject buildCreateOfflineTableV2JSON=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,"testServer","testBroker",1);
   AbstractTableConfig config=AbstractTableConfig.init(buildCreateOfflineTableV2JSON.toString());
   _pinotResourceManager.addTable(config);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"testBroker_BROKER").size(),6);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"broker_untagged").size(),0);
+  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER").size(),6);
   idealState=_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
   Assert.assertEquals(idealState.getInstanceSet(CAP_TABLE_NAME).size(),6);
   Assert.assertEquals(idealState.getInstanceSet(COMPANY_TABLE_NAME).size(),6);

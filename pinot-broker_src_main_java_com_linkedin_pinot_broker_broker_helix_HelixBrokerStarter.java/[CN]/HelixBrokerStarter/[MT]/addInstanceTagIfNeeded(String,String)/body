@@ -2,6 +2,11 @@
   InstanceConfig instanceConfig=_helixAdmin.getInstanceConfig(clusterName,instanceName);
   List<String> instanceTags=instanceConfig.getTags();
   if (instanceTags == null || instanceTags.isEmpty()) {
-    _helixAdmin.addInstanceTag(clusterName,instanceName,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE);
+    if (ZKMetadataProvider.getClusterTenantIsolationEnabled(_helixManager.getHelixPropertyStore())) {
+      _helixAdmin.addInstanceTag(clusterName,instanceName,ControllerTenantNameBuilder.getBrokerTenantNameForTenant(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+    }
+ else {
+      _helixAdmin.addInstanceTag(clusterName,instanceName,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE);
+    }
   }
 }

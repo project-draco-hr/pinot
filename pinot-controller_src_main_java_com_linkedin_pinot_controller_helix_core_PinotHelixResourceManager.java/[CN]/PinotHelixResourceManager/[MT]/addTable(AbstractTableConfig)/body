@@ -1,14 +1,32 @@
 {
-  TenantConfig tenants=config.getTenantConfig();
-  if (tenants.getBroker() == null || tenants.getServer() == null) {
-    throw new RuntimeException("missing tenant configs");
-  }
-  SegmentsValidationAndRetentionConfig segmentsConfig=config.getValidationConfig();
+  TenantConfig tenantConfig=null;
   TableType type=TableType.valueOf(config.getTableType().toUpperCase());
+  if (isSingleTenantCluster()) {
+    tenantConfig=new TenantConfig();
+    tenantConfig.setBroker(ControllerTenantNameBuilder.getBrokerTenantNameForTenant(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
 switch (type) {
 case OFFLINE:
-    final String offlineTableName=config.getTableName();
-  LOGGER.info("building empty ideal state for table : " + offlineTableName);
+      tenantConfig.setServer(ControllerTenantNameBuilder.getOfflineTenantNameForTenant(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+    break;
+case REALTIME:
+  tenantConfig.setServer(ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+break;
+default :
+throw new RuntimeException("UnSupported table type");
+}
+config.setTenantConfig(tenantConfig);
+}
+ else {
+tenantConfig=config.getTenantConfig();
+if (tenantConfig.getBroker() == null || tenantConfig.getServer() == null) {
+throw new RuntimeException("missing tenant configs");
+}
+}
+SegmentsValidationAndRetentionConfig segmentsConfig=config.getValidationConfig();
+switch (type) {
+case OFFLINE:
+final String offlineTableName=config.getTableName();
+LOGGER.info("building empty ideal state for table : " + offlineTableName);
 final IdealState offlineIdealState=PinotTableIdealStateBuilder.buildEmptyIdealStateFor(offlineTableName,Integer.parseInt(segmentsConfig.getReplication()),_helixAdmin,_helixClusterName);
 LOGGER.info("adding table via the admin");
 _helixAdmin.addResource(_helixClusterName,offlineTableName,offlineIdealState);

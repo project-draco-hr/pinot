@@ -1,9 +1,5 @@
 {
   Schema schema=Schema.fromFile(schemaFile);
-  String brokerTenant="hybridBroker";
-  String realtimeTenant="hybridServer";
-  createBrokerTenant(brokerTenant);
-  createServerTenant(realtimeTenant,1,1);
   addSchema(schemaFile,schema.getSchemaName());
-  addHybridTable(tableName,timeColumnName,timeColumnType,kafkaZkUrl,kafkaTopic,schema.getSchemaName(),realtimeTenant,brokerTenant,avroFile);
+  addHybridTable(tableName,timeColumnName,timeColumnType,kafkaZkUrl,kafkaTopic,schema.getSchemaName(),null,null,avroFile);
 }

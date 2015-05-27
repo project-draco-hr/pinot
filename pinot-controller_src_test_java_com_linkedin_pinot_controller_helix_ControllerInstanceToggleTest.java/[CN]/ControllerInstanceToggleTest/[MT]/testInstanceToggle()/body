@@ -1,28 +1,17 @@
 {
-  String brokerTenant="testBrokerTenant";
-  JSONObject payload=ControllerRequestBuilderUtil.buildBrokerTenantCreateRequestJSON(brokerTenant,5);
-  sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTenant + "_BROKER").size(),5);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),15);
-  String serverTenant="testServerTenant";
-  payload=ControllerRequestBuilderUtil.buildServerTenantCreateRequestJSON(serverTenant,6,3,3);
-  sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_REALTIME").size(),3);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_OFFLINE").size(),3);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),14);
   String tableName="testTable";
-  payload=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,serverTenant,brokerTenant,3);
+  JSONObject payload=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,null,null,20);
   sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),payload.toString());
   Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE).getPartitionSet().size(),1);
-  Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE).getInstanceSet(tableName + "_OFFLINE").size(),5);
+  Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE).getInstanceSet(tableName + "_OFFLINE").size(),20);
   for (int i=0; i < 10; ++i) {
     Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,tableName + "_OFFLINE").getNumPartitions(),i);
     addOneOfflineSegment(tableName);
     Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,tableName + "_OFFLINE").getNumPartitions(),i + 1);
   }
   Thread.sleep(2000);
-  int i=3;
-  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_OFFLINE")) {
+  int i=20;
+  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_OFFLINE")) {
     ExternalView resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,tableName + "_OFFLINE");
     Set<String> instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i--);
@@ -33,7 +22,7 @@
     LOGGER.info("Current running server instance: " + instanceSet.size());
   }
   i=0;
-  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_OFFLINE")) {
+  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_OFFLINE")) {
     ExternalView resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,tableName + "_OFFLINE");
     Set<String> instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i++);
@@ -43,8 +32,8 @@
     Assert.assertEquals(instanceSet.size(),i);
     LOGGER.info("Current running server instance: " + instanceSet.size());
   }
-  i=5;
-  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTenant + "_BROKER")) {
+  i=20;
+  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER")) {
     ExternalView resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
     Set<String> instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i--);
@@ -55,7 +44,7 @@
     LOGGER.info("Current running broker instance: " + instanceSet.size());
   }
   i=0;
-  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTenant + "_BROKER")) {
+  for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER")) {
     ExternalView resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
     Set<String> instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i++);
@@ -67,11 +56,4 @@
   }
   sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableDelete(tableName));
   Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE).getPartitionSet().size(),0);
-  sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forBrokerTenantCreate(brokerTenant));
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTenant + "_BROKER").size(),0);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),20);
-  sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forServerTenantCreate(serverTenant));
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_REALTIME").size(),0);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTenant + "_OFFLINE").size(),0);
-  Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),20);
 }

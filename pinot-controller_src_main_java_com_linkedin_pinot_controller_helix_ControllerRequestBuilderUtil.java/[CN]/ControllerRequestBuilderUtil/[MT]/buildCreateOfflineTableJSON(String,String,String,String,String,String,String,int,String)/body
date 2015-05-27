@@ -21,8 +21,12 @@
   tableIndexConfig.put("lazyLoad","false");
   creationRequest.put("tableIndexConfig",tableIndexConfig);
   JSONObject tenants=new JSONObject();
-  tenants.put("broker",brokerTenant);
-  tenants.put("server",serverTenant);
+  if (brokerTenant != null) {
+    tenants.put("broker",brokerTenant);
+  }
+  if (serverTenant != null) {
+    tenants.put("server",serverTenant);
+  }
   creationRequest.put("tenants",tenants);
   creationRequest.put("tableType","OFFLINE");
   JSONObject metadata=new JSONObject();

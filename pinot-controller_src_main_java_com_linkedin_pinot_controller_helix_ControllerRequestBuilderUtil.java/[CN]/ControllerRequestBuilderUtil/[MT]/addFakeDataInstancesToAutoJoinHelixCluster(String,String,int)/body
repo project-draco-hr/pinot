@@ -1,11 +1,3 @@
 {
-  for (int i=0; i < numInstances; ++i) {
-    final String instanceId="Server_localhost_" + i;
-    final HelixManager helixZkManager=HelixManagerFactory.getZKHelixManager(helixClusterName,instanceId,InstanceType.PARTICIPANT,zkServer);
-    final StateMachineEngine stateMachineEngine=helixZkManager.getStateMachineEngine();
-    final StateModelFactory<?> stateModelFactory=new EmptySegmentOnlineOfflineStateModelFactory();
-    stateMachineEngine.registerStateModelFactory(EmptySegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
-    helixZkManager.connect();
-    helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,UNTAGGED_SERVER_INSTANCE);
-  }
+  addFakeDataInstancesToAutoJoinHelixCluster(helixClusterName,zkServer,numInstances,false);
 }

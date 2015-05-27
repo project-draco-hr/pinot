@@ -6,6 +6,12 @@
     final StateModelFactory<?> stateModelFactory=new EmptySegmentOnlineOfflineStateModelFactory();
     stateMachineEngine.registerStateModelFactory(EmptySegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
     helixZkManager.connect();
-    helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE);
+    if (isSingleTenant) {
+      helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+      helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+    }
+ else {
+      helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,UNTAGGED_SERVER_INSTANCE);
+    }
   }
 }

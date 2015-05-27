@@ -1,9 +1,5 @@
 {
   Schema schema=Schema.fromFile(schemaFile);
-  String brokerTenant="realtimeBroker";
-  String realtimeTenant="realtimeServer";
-  createBrokerTenant(brokerTenant);
-  createServerTenant(realtimeTenant,0,1);
   addSchema(schemaFile,schema.getSchemaName());
-  addRealtimeTable(tableName,timeColumnName,timeColumnType,kafkaZkUrl,kafkaTopic,schema.getSchemaName(),realtimeTenant,brokerTenant,avroFile);
+  addRealtimeTable(tableName,timeColumnName,timeColumnType,kafkaZkUrl,kafkaTopic,schema.getSchemaName(),null,null,avroFile);
 }
