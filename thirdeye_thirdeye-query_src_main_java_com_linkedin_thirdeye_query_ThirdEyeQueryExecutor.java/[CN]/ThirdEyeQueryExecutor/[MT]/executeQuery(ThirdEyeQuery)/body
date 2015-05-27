@@ -27,21 +27,23 @@
       collectionWindowMillis=TimeUnit.MILLISECONDS.convert(window.getSize(),window.getUnit());
     }
   }
-  long queryStartTime=dateTimeToCollectionTime(config,new DateTime(query.getStart().getMillis() - startOffset));
+  DateTime queryStartInMillis=new DateTime(query.getStart().getMillis() - startOffset);
+  long queryStartTime=dateTimeToCollectionTime(config,queryStartInMillis);
   long queryEndTime=dateTimeToCollectionTime(config,query.getEnd());
+  final TimeRange inputQueryTimeRange=new TimeRange(queryStartInMillis.getMillis(),query.getEnd().getMillis());
+  Map<UUID,IndexMetadata> treeMetadataMap=new HashMap<UUID,IndexMetadata>();
+  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    UUID treeId=starTree.getRoot().getId();
+    treeMetadataMap.put(treeId,starTreeManager.getIndexMetadata(treeId));
+  }
+  LOGGER.info("Selecting trees to query for queryTimeRange:{}",inputQueryTimeRange);
+  List<UUID> treeIdsToQuery=selectTreesToQuery(treeMetadataMap,inputQueryTimeRange);
   if (collectionWindowMillis > 0) {
     long collectionWindow=dateTimeToCollectionTime(config,new DateTime(collectionWindowMillis));
     queryStartTime=(queryStartTime / collectionWindow) * collectionWindow;
     queryEndTime=(queryEndTime / collectionWindow + 1) * collectionWindow;
   }
   final TimeRange queryTimeRange=new TimeRange(queryStartTime,queryEndTime);
-  Map<UUID,IndexMetadata> treeMetadataMap=new HashMap<UUID,IndexMetadata>();
-  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
-    UUID treeId=starTree.getRoot().getId();
-    treeMetadataMap.put(treeId,starTreeManager.getIndexMetadata(treeId));
-  }
-  LOGGER.info("Selecting trees to query for queryTimeRange:{}",queryTimeRange);
-  List<UUID> treeIdsToQuery=selectTreesToQuery(treeMetadataMap,queryTimeRange);
   if (!query.getGroupByColumns().isEmpty()) {
     for (    final String groupByColumn : query.getGroupByColumns()) {
       if (query.getDimensionValues().containsKey(groupByColumn)) {

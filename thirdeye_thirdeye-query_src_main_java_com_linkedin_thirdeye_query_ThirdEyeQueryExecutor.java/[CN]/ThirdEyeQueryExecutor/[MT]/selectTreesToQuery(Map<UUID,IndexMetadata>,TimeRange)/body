@@ -28,12 +28,18 @@
   Collections.sort(treeIds,comparator);
   TimeRange remainingTimeRange=new TimeRange(queryStartTime,queryEndTime);
   List<UUID> treeIdsToQuery=new ArrayList<>();
+  if (treeIds.size() > 0) {
+    IndexMetadata indexMetadata=treeMetadataMap.get(treeIds.get(0));
+    if (indexMetadata.getStartTime() > queryStartTime) {
+      remainingTimeRange=new TimeRange(Math.min(indexMetadata.getStartTime(),queryEndTime),queryEndTime);
+    }
+  }
   for (  UUID treeId : treeIds) {
     IndexMetadata indexMetadata=treeMetadataMap.get(treeId);
     long startTime=indexMetadata.getStartTime();
     long endTime=indexMetadata.getEndTime();
     TimeRange treeTimeRange=new TimeRange(startTime,endTime);
-    if (remainingTimeRange.getStart() >= treeTimeRange.getStart() && remainingTimeRange.getStart() <= treeTimeRange.getEnd()) {
+    if (remainingTimeRange.getStart() >= treeTimeRange.getStart() && remainingTimeRange.getStart() < treeTimeRange.getEnd()) {
       LOGGER.info("Selecting treeId:{} with TimeRange:{}",treeId,treeTimeRange);
       treeIdsToQuery.add(treeId);
       if (endTime >= queryEndTime) {

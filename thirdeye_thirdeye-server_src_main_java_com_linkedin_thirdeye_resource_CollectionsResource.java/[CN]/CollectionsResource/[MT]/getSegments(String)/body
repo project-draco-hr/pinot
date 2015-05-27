@@ -16,37 +16,19 @@
   List<SegmentDescriptor> descriptors=new ArrayList<>();
   if (dataDirs != null) {
     for (    File dataDir : dataDirs) {
-      String[] tokens=dataDir.getName().split("_");
-      DateTime startWallTime=StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(tokens[2]);
-      DateTime endWallTime=StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(tokens[3]);
       File metadataFile=new File(dataDir,StarTreeConstants.METADATA_FILE_NAME);
-      Properties metadata=new Properties();
+      Properties properties=new Properties();
       InputStream inputStream=new FileInputStream(metadataFile);
       try {
-        metadata.load(inputStream);
+        properties.load(inputStream);
       }
   finally {
         inputStream.close();
       }
-      DateTime minDataTime=null;
-      String minDataTimeProp=metadata.getProperty(StarTreeMetadataProperties.MIN_DATA_TIME);
-      if (minDataTimeProp != null) {
-        long collectionTime=Long.valueOf(minDataTimeProp);
-        long size=config.getTime().getBucket().getSize();
-        TimeUnit unit=config.getTime().getBucket().getUnit();
-        long minTimeMillis=TimeUnit.MILLISECONDS.convert(collectionTime * size,unit);
-        minDataTime=new DateTime(minTimeMillis,DateTimeZone.UTC);
-      }
-      DateTime maxDataTime=null;
-      String maxDataTimeProp=metadata.getProperty(StarTreeMetadataProperties.MAX_DATA_TIME);
-      if (maxDataTimeProp != null) {
-        long collectionTime=Long.valueOf(maxDataTimeProp);
-        long size=config.getTime().getBucket().getSize();
-        TimeUnit unit=config.getTime().getBucket().getUnit();
-        long maxTimeMillis=TimeUnit.MILLISECONDS.convert(collectionTime * size,unit);
-        maxDataTime=new DateTime(maxTimeMillis,DateTimeZone.UTC);
-      }
-      descriptors.add(new SegmentDescriptor(dataDir,startWallTime,endWallTime,minDataTime,maxDataTime));
+      IndexMetadata indexMetadata=IndexMetadata.fromProperties(properties);
+      DateTime startWallTime=new DateTime(indexMetadata.getStartTime());
+      DateTime endWallTime=new DateTime(indexMetadata.getEndTime());
+      descriptors.add(new SegmentDescriptor(dataDir,startWallTime,endWallTime,new DateTime(indexMetadata.getMinDataTime()),new DateTime(indexMetadata.getMaxDataTime())));
     }
   }
   return descriptors;
