@@ -12,7 +12,7 @@
       return next();
     }
     @Override public int next(){
-      long start=System.nanoTime();
+      long start=System.currentTimeMillis();
       if (currentDocId == Constants.EOF) {
         return currentDocId;
       }
@@ -36,11 +36,8 @@
         }
       }
       currentDocId=currentMax;
-      long end=System.nanoTime();
+      long end=System.currentTimeMillis();
       timeMeasure.addAndGet(end - start);
-      if (currentDocId == Constants.EOF) {
-        LOGGER.info("AND operator took:" + timeMeasure.get());
-      }
       return currentDocId;
     }
     @Override public int currentDocId(){

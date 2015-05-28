@@ -1,0 +1,14 @@
+{
+  int numInstances=1;
+  int numReplicas=1;
+  String segmentAssignmentStrategy="BalanceNumSegmentAssignmentStrategy";
+  String brokerTenantName="testBrokerTenant";
+  String serverTenantName="testServerTenant";
+  Tenant brokerTenant=new TenantBuilder(brokerTenantName).setRole(TenantRole.BROKER).setTotalInstances(numInstances).build();
+  controllerStarter.getHelixResourceManager().createBrokerTenant(brokerTenant);
+  Tenant serverTenant=new TenantBuilder(serverTenantName).setRole(TenantRole.SERVER).setTotalInstances(numInstances).setOfflineInstances(numInstances).build();
+  controllerStarter.getHelixResourceManager().createServerTenant(serverTenant);
+  String jsonString=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,serverTenantName,brokerTenantName,numReplicas,segmentAssignmentStrategy).toString();
+  AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(jsonString);
+  controllerStarter.getHelixResourceManager().addTable(offlineTableConfig);
+}
