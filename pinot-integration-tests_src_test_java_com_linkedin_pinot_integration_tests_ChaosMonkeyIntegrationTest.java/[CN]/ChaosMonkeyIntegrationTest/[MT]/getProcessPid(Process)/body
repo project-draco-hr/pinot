@@ -1,0 +1,14 @@
+{
+  Class<? extends Process> clazz=process.getClass();
+  try {
+    Field field=clazz.getDeclaredField("pid");
+    field.setAccessible(true);
+    return field.getInt(process);
+  }
+ catch (  NoSuchFieldException e) {
+    return -1;
+  }
+catch (  IllegalAccessException e) {
+    return -1;
+  }
+}

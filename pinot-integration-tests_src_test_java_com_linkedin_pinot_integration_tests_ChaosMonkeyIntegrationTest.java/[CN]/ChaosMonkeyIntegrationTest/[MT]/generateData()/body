@@ -1,0 +1,5 @@
+{
+  String schemaFile=TestUtils.getFileFromResourceUrl(ChaosMonkeyIntegrationTest.class.getClassLoader().getResource("chaos-monkey-schema.json"));
+  String schemaAnnotationsFile=TestUtils.getFileFromResourceUrl(ChaosMonkeyIntegrationTest.class.getClassLoader().getResource("chaos-monkey-schema-annotations.json"));
+  runAdministratorCommand(new String[]{"GenerateData","-numRecords",TOTAL_RECORD_COUNT,"-numFiles",SEGMENT_COUNT,"-schemaFile",schemaFile,"-schemaAnnotation",schemaAnnotationsFile,"-overwrite","-outDir",AVRO_DIR}).waitFor();
+}

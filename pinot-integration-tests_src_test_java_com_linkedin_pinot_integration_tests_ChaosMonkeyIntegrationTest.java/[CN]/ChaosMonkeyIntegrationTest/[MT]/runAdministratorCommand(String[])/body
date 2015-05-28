@@ -1,0 +1,21 @@
+{
+  String classpath=System.getProperty("java.class.path");
+  List<String> completeArgs=new ArrayList<String>();
+  completeArgs.add("java");
+  completeArgs.add("-Xms4G");
+  completeArgs.add("-Xmx4G");
+  completeArgs.add("-cp");
+  completeArgs.add(classpath);
+  completeArgs.add(PinotAdministrator.class.getName());
+  completeArgs.addAll(Arrays.asList(args));
+  try {
+    Process process=new ProcessBuilder(completeArgs).redirectError(ProcessBuilder.Redirect.INHERIT).redirectOutput(ProcessBuilder.Redirect.INHERIT).start();
+synchronized (_processes) {
+      _processes.add(process);
+    }
+    return process;
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

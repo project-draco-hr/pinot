@@ -1,0 +1,4 @@
+{
+  String schemaFile=TestUtils.getFileFromResourceUrl(ChaosMonkeyIntegrationTest.class.getClassLoader().getResource("chaos-monkey-schema.json"));
+  runAdministratorCommand(new String[]{"CreateSegment","-schemaFile",schemaFile,"-dataDir",AVRO_DIR,"-tableName","myTable","-segmentName","my_table","-outDir",SEGMENT_DIR,"-overwrite"}).waitFor();
+}

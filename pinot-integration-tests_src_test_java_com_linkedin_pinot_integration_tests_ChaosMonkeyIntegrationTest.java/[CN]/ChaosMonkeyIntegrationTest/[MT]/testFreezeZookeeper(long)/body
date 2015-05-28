@@ -1,0 +1,35 @@
+{
+  System.out.println("System.getProperty(\"java.class.path\") = " + System.getProperty("java.class.path"));
+  Process zookeeper=startZookeeper();
+  sleep(1000L);
+  Process controller=startController();
+  sleep(1000L);
+  Process server=startServer();
+  sleep(1000L);
+  Process broker=startBroker();
+  sleep(1000L);
+  createTable();
+  generateData();
+  convertData();
+  uploadData();
+  sleep(5000L);
+  long timeInSixtySeconds=System.currentTimeMillis() + 60000L;
+  int currentRecordCount=countRecords();
+  int expectedRecordCount=Integer.parseInt(TOTAL_RECORD_COUNT);
+  while (currentRecordCount != expectedRecordCount && System.currentTimeMillis() < timeInSixtySeconds) {
+    sleep(1000L);
+    currentRecordCount=countRecords();
+  }
+  Assert.assertEquals(currentRecordCount,expectedRecordCount,"All segments did not load within 60 seconds");
+  sendSignalToProcess(zookeeper,Signal.SIGSTOP);
+  sleep(freezeLength);
+  sendSignalToProcess(zookeeper,Signal.SIGCONT);
+  sleep(5000L);
+  timeInSixtySeconds=System.currentTimeMillis() + 60000L;
+  currentRecordCount=countRecords();
+  while (currentRecordCount != expectedRecordCount && System.currentTimeMillis() < timeInSixtySeconds) {
+    sleep(1000L);
+    currentRecordCount=countRecords();
+  }
+  Assert.assertEquals(currentRecordCount,expectedRecordCount,"Record count still inconsistent 60 seconds after zookeeper restart");
+}
