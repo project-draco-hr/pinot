@@ -1,7 +1,20 @@
 {
   final String tableName=(String)getRequest().getAttributes().get("tableName");
   if (tableName == null) {
-    return new StringRepresentation("tableName is not present");
+    try {
+      JSONObject object=new JSONObject();
+      JSONArray tableArray=new JSONArray();
+      List<String> tableNames=manager.getAllPinotTableNames();
+      for (      String pinotTableName : tableNames) {
+        tableArray.add(pinotTableName);
+      }
+      object.put("tables",tableArray);
+      return new StringRepresentation(object.toString());
+    }
+ catch (    Exception e) {
+      LOGGER.error("Error processing table list",e);
+      return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
+    }
   }
   try {
     JSONArray ret=new JSONArray();
