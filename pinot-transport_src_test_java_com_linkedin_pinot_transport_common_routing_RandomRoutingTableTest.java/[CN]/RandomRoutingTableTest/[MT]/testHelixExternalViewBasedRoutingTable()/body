@@ -1,0 +1,34 @@
+{
+  String tableName="mirrorActivity_OFFLINE";
+  String fileName=RandomRoutingTableTest.class.getClassLoader().getResource("SampleExternalView.json").getFile();
+  System.out.println(fileName);
+  InputStream evInputStream=new FileInputStream(fileName);
+  ZNRecordSerializer znRecordSerializer=new ZNRecordSerializer();
+  ZNRecord externalViewRecord=(ZNRecord)znRecordSerializer.deserialize(IOUtils.toByteArray(evInputStream));
+  int totalRuns=10000;
+  RoutingTableBuilder routingStrategy=new BalancedRandomRoutingTableBuilder(10);
+  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(routingStrategy,null,null,null);
+  ExternalView externalView=new ExternalView(externalViewRecord);
+  routingTable.markDataResourceOnline(tableName,externalView);
+  double[] globalArrays=new double[9];
+  for (int numRun=0; numRun < totalRuns; ++numRun) {
+    RoutingTableLookupRequest request=new RoutingTableLookupRequest(tableName);
+    Map<ServerInstance,SegmentIdSet> serversMap=routingTable.findServers(request);
+    TreeSet<ServerInstance> serverInstances=new TreeSet<ServerInstance>(serversMap.keySet());
+    int i=0;
+    double[] arrays=new double[9];
+    for (    ServerInstance serverInstance : serverInstances) {
+      globalArrays[i]+=serversMap.get(serverInstance).getSegments().size();
+      arrays[i++]=serversMap.get(serverInstance).getSegments().size();
+    }
+    for (int j=0; i < arrays.length; ++j) {
+      Assert.assertTrue(arrays[j] / totalRuns <= 30);
+      Assert.assertTrue(arrays[j] / totalRuns >= 28);
+    }
+  }
+  for (int i=0; i < globalArrays.length; ++i) {
+    Assert.assertTrue(globalArrays[i] / totalRuns <= 30);
+    Assert.assertTrue(globalArrays[i] / totalRuns >= 28);
+  }
+  System.out.println(Arrays.toString(globalArrays) + " : " + new StandardDeviation().evaluate(globalArrays)+ " : "+ new Mean().evaluate(globalArrays));
+}

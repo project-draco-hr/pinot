@@ -1,0 +1,56 @@
+{
+  List<Map<String,Set<String>>> routingTables=new ArrayList<Map<String,Set<String>>>();
+  for (int i=0; i < _numberOfRoutingTables; ++i) {
+    routingTables.add(new HashMap<String,Set<String>>());
+  }
+  String[] segmentSet=externalView.getPartitionSet().toArray(new String[0]);
+  for (  String segment : segmentSet) {
+    Map<String,String> instanceToStateMap=externalView.getStateMap(segment);
+    for (    String instance : instanceToStateMap.keySet().toArray(new String[0])) {
+      if (!instanceToStateMap.get(instance).equals("ONLINE")) {
+        instanceToStateMap.remove(instance);
+      }
+    }
+    if (instanceToStateMap.size() > 0) {
+      List<String> instanceList=new ArrayList<String>(instanceToStateMap.keySet());
+      Collections.shuffle(instanceList);
+      String[] instances=instanceList.toArray(new String[0]);
+      for (int i=0; i < _numberOfRoutingTables; ++i) {
+        int minInstances=Integer.MAX_VALUE;
+        int minIdx=-1;
+        int base=2;
+        for (int k=0; k < instances.length; ++k) {
+          int sizeOfCurrentInstance=0;
+          if (routingTables.get(i).containsKey(instances[k])) {
+            sizeOfCurrentInstance=routingTables.get(i).get(instances[k]).size();
+          }
+          if (sizeOfCurrentInstance < minInstances) {
+            minInstances=sizeOfCurrentInstance;
+            minIdx=k;
+            base=2;
+          }
+          if (sizeOfCurrentInstance == minInstances && (System.currentTimeMillis() % base == 0)) {
+            minIdx=k;
+            base=2;
+          }
+ else {
+            base++;
+          }
+        }
+        if (routingTables.get(i).containsKey(instances[minIdx])) {
+          routingTables.get(i).get(instances[minIdx]).add(segment);
+        }
+ else {
+          Set<String> instanceSegmentSet=new HashSet<String>();
+          instanceSegmentSet.add(segment);
+          routingTables.get(i).put(instances[minIdx],instanceSegmentSet);
+        }
+      }
+    }
+  }
+  List<ServerToSegmentSetMap> resultRoutingTableList=new ArrayList<ServerToSegmentSetMap>();
+  for (int i=0; i < _numberOfRoutingTables; ++i) {
+    resultRoutingTableList.add(new ServerToSegmentSetMap(routingTables.get(i)));
+  }
+  return resultRoutingTableList;
+}
