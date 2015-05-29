@@ -1,4 +1,9 @@
 @pinotui.route('/segments/<string:fabric>/<string:cluster>/<string:table>')
 def get_segments(fabric, cluster, table):
     resource = PinotResource(config, logger, fabric, cluster)
-    return jsonify(dict(success=True, segments=resource.get_table_segments(table)))
+    try:
+        zk = PinotZk(config, logger, fabric)
+    except PinotException as e:
+        return jsonify(dict(success=False, error_message='Failed getting ZK: {0}'.format(e)))
+    zkhandle = zk.get_handle()
+    return jsonify(dict(success=True, segments=resource.get_table_segments(table, zkhandle)))

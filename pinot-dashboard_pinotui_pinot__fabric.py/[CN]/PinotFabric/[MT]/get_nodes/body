@@ -1,0 +1,9 @@
+def get_nodes(self, zk):
+    root = self.config.get_zk_root(self.fabric)
+    state_path = os.path.join(root, 'CONFIGS', 'PARTICIPANT')
+    nodes = []
+    for node in zk.get_children(state_path):
+        data = zk.get(os.path.join(state_path, node))
+        extracted = json.loads(data[0])
+        nodes.append({'nodename': node, 'host': extracted['simpleFields']['HELIX_HOST'].split('_', 1)[(-1)], 'type': node.split('_')[0], 'tags': extracted['listFields']['TAG_LIST'], })
+    return nodes
