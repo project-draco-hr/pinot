@@ -7,5 +7,5 @@ def get_tables(self, zk):
         tenants = json.loads(data['simpleFields']['tenants'])
         if (tenants['server'] != self.resource):
             continue
-        tables.append(table)
+        tables.append({'name': table, 'type': data['simpleFields']['tableType'], })
     return tables

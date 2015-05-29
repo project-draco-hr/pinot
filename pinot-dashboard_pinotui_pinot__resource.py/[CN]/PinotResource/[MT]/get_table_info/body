@@ -1,0 +1,5 @@
+def get_table_info(self, table, zk):
+    root = self.config.get_zk_root(self.fabric)
+    path = os.path.join(root, 'PROPERTYSTORE', 'CONFIGS', 'TABLE', table)
+    data = json.loads(zk.get(path)[0])
+    return data
