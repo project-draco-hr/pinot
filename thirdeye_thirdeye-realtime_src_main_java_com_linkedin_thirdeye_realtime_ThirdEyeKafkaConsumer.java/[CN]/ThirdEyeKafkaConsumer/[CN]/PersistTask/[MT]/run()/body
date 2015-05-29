@@ -1,16 +1,14 @@
 {
-  String collection=starTreeConfig.getCollection();
+  String collection=starTree.getConfig().getCollection();
   long currentTime=System.currentTimeMillis();
   DateTime minTime=new DateTime(stats.getLastPersistTimeMillis().get(),DateTimeZone.UTC);
   DateTime maxTime=new DateTime(currentTime,DateTimeZone.UTC);
-  TimeGranularity scheduleGranularity=kafkaConfig.getPersistInterval();
-  String schedule=String.format("KAFKA-%d-%s",scheduleGranularity.getSize(),scheduleGranularity.getUnit());
   LOG.info("Beginning persist data from {} to {} for {}",minTime,maxTime,collection);
   lock.writeLock().lock();
   try {
     LOG.info("Locked {} to persist data...",lock);
     StarTree rolledUpTree=dataUpdateManager.rollUp(starTree);
-    dataUpdateManager.persistTree(collection,schedule,minTime,maxTime,rolledUpTree);
+    dataUpdateManager.persistTree(collection,SCHEDULE,minTime,maxTime,rolledUpTree);
     LOG.info("Clearing existing star tree metrics...");
     starTree.clear();
     LOG.info("Updating last persist time to {}",currentTime);

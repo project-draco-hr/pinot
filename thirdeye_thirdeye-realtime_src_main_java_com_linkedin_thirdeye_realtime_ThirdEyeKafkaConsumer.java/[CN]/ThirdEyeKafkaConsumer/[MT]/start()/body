@@ -1,13 +1,9 @@
 {
   if (!isStarted.getAndSet(true)) {
-    LOG.info("Creating in-memory star tree");
-    StarTreeConfig inMemoryConfig=new StarTreeConfig(starTreeConfig.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),starTreeConfig.getAnomalyDetectionFunctionClass(),starTreeConfig.getAnomalyDetectionFunctionConfig(),starTreeConfig.getAnomalyHandlerClass(),starTreeConfig.getAnomalyHandlerConfig(),starTreeConfig.getAnomalyDetectionMode(),starTreeConfig.getDimensions(),starTreeConfig.getMetrics(),starTreeConfig.getTime(),starTreeConfig.getJoinSpec(),starTreeConfig.getRollup(),starTreeConfig.getSplit(),false);
-    final StarTree starTree=new StarTreeImpl(inMemoryConfig);
-    starTree.open();
     LOG.info("Constructing decoder {}",kafkaConfig.getDecoderClass());
     Class<?> decoderClass=Class.forName(kafkaConfig.getDecoderClass());
     ThirdEyeKafkaDecoder decoder=(ThirdEyeKafkaDecoder)decoderClass.getConstructor().newInstance();
-    decoder.init(starTreeConfig,kafkaConfig);
+    decoder.init(starTree.getConfig(),kafkaConfig);
     Properties props=new Properties();
     props.put("zookeeper.connect",kafkaConfig.getZkAddress());
     props.put("group.id",kafkaConfig.getGroupId());

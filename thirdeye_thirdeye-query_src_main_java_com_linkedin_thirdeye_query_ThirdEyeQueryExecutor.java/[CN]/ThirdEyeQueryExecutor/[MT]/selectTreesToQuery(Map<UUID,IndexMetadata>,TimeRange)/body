@@ -1,6 +1,4 @@
 {
-  long queryStartTime=queryTimeRange.getStart();
-  long queryEndTime=queryTimeRange.getEnd();
   List<UUID> treeIds=new ArrayList<>();
   for (  UUID treeId : treeMetadataMap.keySet()) {
     IndexMetadata indexMetadata=treeMetadataMap.get(treeId);
@@ -26,26 +24,15 @@
   }
 ;
   Collections.sort(treeIds,comparator);
-  TimeRange remainingTimeRange=new TimeRange(queryStartTime,queryEndTime);
   List<UUID> treeIdsToQuery=new ArrayList<>();
-  if (treeIds.size() > 0) {
-    IndexMetadata indexMetadata=treeMetadataMap.get(treeIds.get(0));
-    if (indexMetadata.getStartTime() > queryStartTime) {
-      remainingTimeRange=new TimeRange(Math.min(indexMetadata.getStartTimeMillis(),queryEndTime),queryEndTime);
-    }
-  }
+  TimeRange lastSelectedRange=null;
   for (  UUID treeId : treeIds) {
     IndexMetadata indexMetadata=treeMetadataMap.get(treeId);
-    long startTime=indexMetadata.getStartTimeMillis();
-    long endTime=indexMetadata.getEndTimeMillis();
-    TimeRange treeTimeRange=new TimeRange(startTime,endTime);
-    if (remainingTimeRange.getStart() >= treeTimeRange.getStart() && remainingTimeRange.getStart() < treeTimeRange.getEnd()) {
-      LOGGER.info("Selecting treeId:{} with TimeRange:{}",treeId,treeTimeRange);
+    TimeRange treeRange=new TimeRange(indexMetadata.getStartTimeMillis(),indexMetadata.getEndTimeMillis());
+    if (lastSelectedRange == null || lastSelectedRange.getEnd() <= treeRange.getStart()) {
+      lastSelectedRange=treeRange;
       treeIdsToQuery.add(treeId);
-      if (endTime >= queryEndTime) {
-        break;
-      }
-      remainingTimeRange=new TimeRange(endTime,queryEndTime);
+      LOGGER.info("Selecting treeId:{} with TimeRange:{}",treeId,treeRange);
     }
   }
   return treeIdsToQuery;

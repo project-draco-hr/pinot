@@ -31,6 +31,10 @@ synchronized (trees) {
         IndexMetadata indexMetadata=IndexMetadata.fromProperties(indexMetadataProps);
         allIndexMetadata.put(root.getId(),indexMetadata);
       }
+      StarTreeConfig inMemoryConfig=new StarTreeConfig(config.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),config.getAnomalyDetectionFunctionClass(),config.getAnomalyDetectionFunctionConfig(),config.getAnomalyHandlerClass(),config.getAnomalyHandlerConfig(),config.getAnomalyDetectionMode(),config.getDimensions(),config.getMetrics(),config.getTime(),config.getJoinSpec(),config.getRollup(),config.getSplit(),false);
+      final StarTree mutableTree=new StarTreeImpl(inMemoryConfig);
+      mutableTree.open();
+      mutableTrees.put(collection,mutableTree);
       openCollections.add(collection);
       LOGGER.info("Opened {} trees for collection {}",dataDirs.length,collection);
       DataRefreshWatcher refreshWatcher=new DataRefreshWatcher(config);

@@ -31,5 +31,13 @@
       descriptors.add(new SegmentDescriptor(dataDir,startWallTime,endWallTime,new DateTime(indexMetadata.getMinDataTimeMillis()),new DateTime(indexMetadata.getMaxDataTimeMillis())));
     }
   }
+  StarTree mutableTree=manager.getMutableStarTree(collection);
+  if (mutableTree != null) {
+    StarTreeStats stats=mutableTree.getStats();
+    DateTime minTime=collectionTimeToDateTime(mutableTree.getConfig(),stats.getMinTime());
+    DateTime maxTime=collectionTimeToDateTime(mutableTree.getConfig(),stats.getMaxTime());
+    SegmentDescriptor descriptor=new SegmentDescriptor(null,null,null,minTime,maxTime);
+    descriptors.add(descriptor);
+  }
   return descriptors;
 }

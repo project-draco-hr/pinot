@@ -1,13 +1,14 @@
 {
   if (isStarted.getAndSet(false)) {
-    LOG.info("Shutting down Kafka consumer persist scheduler for {}",starTreeConfig.getCollection());
+    String collection=starTree.getConfig().getCollection();
+    LOG.info("Shutting down Kafka consumer persist scheduler for {}",collection);
     taskScheduler.shutdown();
-    LOG.info("Shutting down Kafka consumer executors for {}",starTreeConfig.getCollection());
+    LOG.info("Shutting down Kafka consumer executors for {}",collection);
     consumerExecutors.shutdown();
     LOG.info("Persisting any remaining data");
     if (persistTask.get() != null) {
       persistTask.get().run();
     }
-    LOG.info("Shut down kafka consumer for {}",starTreeConfig.getCollection());
+    LOG.info("Shut down kafka consumer for {}",collection);
   }
 }

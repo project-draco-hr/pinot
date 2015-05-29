@@ -1,0 +1,19 @@
+{
+  if (starTree == null) {
+    throw new NullPointerException("Provided star tree is null");
+  }
+  if (kafkaConfig == null) {
+    throw new NullPointerException("Provided kafka config is null");
+  }
+  String collection=starTree.getConfig().getCollection();
+  String topic=kafkaConfig.getTopicName();
+  this.starTree=starTree;
+  this.kafkaConfig=kafkaConfig;
+  this.consumerExecutors=consumerExecutors;
+  this.taskScheduler=taskScheduler;
+  this.dataUpdateManager=dataUpdateManager;
+  this.isStarted=new AtomicBoolean();
+  this.lock=new ReentrantReadWriteLock();
+  this.stats=new ThirdEyeKafkaStats(collection,topic,metricRegistry);
+  this.persistTask=new AtomicReference<>();
+}
