@@ -1,0 +1,22 @@
+{
+  if (dictionary != null) {
+    final ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    final DataOutputStream out=new DataOutputStream(baos);
+    out.writeInt(dictionary.size());
+    for (    String key : dictionary.keySet()) {
+      byte[] bytes=key.getBytes();
+      out.writeInt(bytes.length);
+      out.write(bytes);
+      Map<Integer,String> map=dictionary.get(key);
+      out.writeInt(map.size());
+      for (      Entry<Integer,String> entry : map.entrySet()) {
+        out.writeInt(entry.getKey());
+        byte[] valueBytes=entry.getValue().getBytes();
+        out.writeInt(valueBytes.length);
+        out.write(valueBytes);
+      }
+    }
+    return baos.toByteArray();
+  }
+  return new byte[0];
+}

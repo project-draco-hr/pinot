@@ -1,0 +1,28 @@
+{
+  Map<String,Map<Integer,String>> map=new HashMap<String,Map<Integer,String>>();
+  try {
+    final ByteArrayInputStream bais=new ByteArrayInputStream(buffer);
+    final DataInputStream in=new DataInputStream(bais);
+    int size=in.readInt();
+    byte[] temp;
+    for (int i=0; i < size; i++) {
+      int readLength=in.readInt();
+      temp=new byte[readLength];
+      in.read(temp);
+      Map<Integer,String> childMap=new HashMap<Integer,String>();
+      map.put(new String(temp),childMap);
+      int childMapSize=in.readInt();
+      for (int j=0; j < childMapSize; j++) {
+        Integer key=in.readInt();
+        int valueLength=in.readInt();
+        temp=new byte[valueLength];
+        in.read(temp);
+        childMap.put(key,new String(temp));
+      }
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception while deserializing dictionary",e);
+  }
+  return map;
+}

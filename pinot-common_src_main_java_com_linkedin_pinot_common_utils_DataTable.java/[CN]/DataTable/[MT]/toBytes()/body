@@ -1,7 +1,10 @@
 {
-  final byte[] dictionaryBytes=serializeObject(dictionary);
-  final byte[] metadataBytes=serializeObject(metadata);
-  final byte[] schemaBytes=serializeObject(schema);
+  final byte[] dictionaryBytes=serializeDictionary();
+  final byte[] metadataBytes=serializeMetadata();
+  byte[] schemaBytes=new byte[0];
+  if (schema != null) {
+    schemaBytes=schema.toBytes();
+  }
   final ByteArrayOutputStream baos=new ByteArrayOutputStream();
   final DataOutputStream out=new DataOutputStream(baos);
   out.writeInt(VERSION);
@@ -41,5 +44,7 @@
   if (variableSizeDataBytes != null) {
     out.write(variableSizeDataBytes);
   }
-  return baos.toByteArray();
+  byte[] byteArray=baos.toByteArray();
+  long end=System.currentTimeMillis();
+  return byteArray;
 }

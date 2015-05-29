@@ -1,0 +1,20 @@
+{
+  if (columnNames == null || columnNames.length == 0) {
+    return new byte[0];
+  }
+  ByteArrayOutputStream out=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(out);
+  int length=columnNames.length;
+  dos.writeInt(length);
+  for (int i=0; i < length; i++) {
+    byte[] bytes=columnNames[i].getBytes();
+    dos.writeInt(bytes.length);
+    dos.write(bytes);
+  }
+  for (int i=0; i < length; i++) {
+    byte[] bytes=columnTypes[i].name().getBytes();
+    dos.writeInt(bytes.length);
+    dos.write(bytes);
+  }
+  return out.toByteArray();
+}

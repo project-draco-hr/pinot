@@ -1,11 +1,12 @@
 {
+  long start=System.nanoTime();
   final ByteArrayInputStream bais=new ByteArrayInputStream(value);
   ObjectInputStream out=null;
+  Object readObject;
   try {
     try {
       out=new ObjectInputStream(bais);
-      final Object readObject=out.readObject();
-      return (T)readObject;
+      readObject=out.readObject();
     }
  catch (    final Exception e) {
       LOGGER.error("Caught exception while deserializing DataTable",e);
@@ -16,4 +17,7 @@
     IOUtils.closeQuietly(out);
     IOUtils.closeQuietly(bais);
   }
+  long end=System.nanoTime();
+  LOGGER.info("java deser time:{}",(end - start));
+  return (T)readObject;
 }
