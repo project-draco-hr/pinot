@@ -1,0 +1,21 @@
+{
+  FileSystem fileSystem=FileSystem.get(new Configuration());
+  String[] inputs=inputPaths.split(",");
+  StringBuilder filteredInputs=new StringBuilder();
+  String filteredInputPaths;
+  for (  String input : inputs) {
+    if (fileSystem.exists(new Path(input))) {
+      filteredInputs.append(input + ",");
+    }
+ else {
+      LOGGER.info("Skipping missing input path {}",input);
+    }
+  }
+  if (filteredInputs.length() > 0) {
+    filteredInputPaths=filteredInputs.substring(0,filteredInputs.length() - 1);
+  }
+ else {
+    throw new IllegalArgumentException("Must provide valid existing " + ThirdEyeJobConstants.INPUT_PATHS.getName());
+  }
+  return filteredInputPaths;
+}
