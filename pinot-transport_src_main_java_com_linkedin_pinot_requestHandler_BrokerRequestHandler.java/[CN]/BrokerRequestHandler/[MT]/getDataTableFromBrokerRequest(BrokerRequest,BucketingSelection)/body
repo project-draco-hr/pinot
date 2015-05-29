@@ -3,12 +3,8 @@
   RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getTableName());
   Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
   if (segmentServices == null || segmentServices.isEmpty()) {
-    LOGGER.debug("Not found ServerInstances to Segments Mapping:");
+    LOGGER.warn("Not found ServerInstances to Segments Mapping:");
     return BrokerResponse.getEmptyBrokerResponse();
-  }
-  LOGGER.debug("Find ServerInstances to Segments Mapping:");
-  for (  ServerInstance serverInstance : segmentServices.keySet()) {
-    LOGGER.debug(serverInstance + " : " + segmentServices.get(serverInstance));
   }
   final long queryRoutingTime=System.nanoTime() - routingStartTime;
   _brokerMetrics.addPhaseTiming(request,BrokerQueryPhase.QUERY_ROUTING,queryRoutingTime);
