@@ -1,0 +1,7 @@
+def delete_segment(self, segment_name):
+    url = '{0}/datafiles/{1}/{2}'.format(self.config.get_controller_url(self.fabric), self.resource, segment_name)
+    try:
+        result = requests.delete(url)
+    except RequestException as e:
+        raise PinotException(e)
+    return (result.status_code == 200)
