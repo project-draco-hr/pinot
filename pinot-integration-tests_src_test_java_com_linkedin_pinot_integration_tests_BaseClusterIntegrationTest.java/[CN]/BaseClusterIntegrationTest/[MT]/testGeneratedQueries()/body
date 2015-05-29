@@ -1,5 +1,10 @@
 {
-  QueryGenerator.Query[] queries=new QueryGenerator.Query[getGeneratedQueryCount()];
+  int generatedQueryCount=getGeneratedQueryCount();
+  String generatedQueryCountProperty=System.getProperty("integration.test.generatedQueryCount");
+  if (generatedQueryCountProperty != null) {
+    generatedQueryCount=Integer.parseInt(generatedQueryCountProperty);
+  }
+  QueryGenerator.Query[] queries=new QueryGenerator.Query[generatedQueryCount];
   _queryGenerator.setSkipMultivaluePredicates(true);
   for (int i=0; i < queries.length; i++) {
     queries[i]=_queryGenerator.generateQuery();
