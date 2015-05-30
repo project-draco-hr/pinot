@@ -39,21 +39,23 @@ break;
 case STRING:
 case BOOLEAN:
 for (final Object e : sortedList) {
-if (stringColumnMaxLength < ((String)e).getBytes().length) {
-stringColumnMaxLength=((String)e).getBytes().length;
+int length=((String)e).getBytes(Charset.forName("UTF-8")).length;
+if (stringColumnMaxLength < length) {
+stringColumnMaxLength=length;
 }
 }
 final FixedByteWidthRowColDataFileWriter stringDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,new int[]{stringColumnMaxLength});
 final String[] revised=new String[sortedList.length];
 for (int i=0; i < sortedList.length; i++) {
 final String toWrite=sortedList[i].toString();
-final int padding=stringColumnMaxLength - toWrite.getBytes().length;
+final int padding=stringColumnMaxLength - toWrite.getBytes(Charset.forName("UTF-8")).length;
 final StringBuilder bld=new StringBuilder();
 bld.append(toWrite);
 for (int j=0; j < padding; j++) {
 bld.append(V1Constants.Str.STRING_PAD_CHAR);
 }
 revised[i]=bld.toString();
+assert(revised[i].getBytes(Charset.forName("UTF-8")).length == stringColumnMaxLength);
 }
 Arrays.sort(revised);
 for (int i=0; i < revised.length; i++) {
