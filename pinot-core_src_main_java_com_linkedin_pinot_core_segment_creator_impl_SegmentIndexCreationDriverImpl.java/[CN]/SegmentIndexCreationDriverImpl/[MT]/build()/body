@@ -1,4 +1,5 @@
 {
+  LOGGER.info("Start building StatsCollector!");
   totalDocs=0;
   while (recordReader.hasNext()) {
     totalDocs++;
@@ -11,8 +12,10 @@
     totalStatsCollectorTime+=(stop1 - stop);
   }
   buildIndexCreationInfo();
+  LOGGER.info("Finished building StatsCollector!");
   indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
   recordReader.rewind();
+  LOGGER.info("Start building IndexCreator!");
   while (recordReader.hasNext()) {
     long start=System.currentTimeMillis();
     GenericRow row=recordReader.next();
@@ -23,6 +26,7 @@
     totalIndexTime+=(stop1 - stop);
   }
   recordReader.close();
+  LOGGER.info("Finished records indexing in IndexCreator!");
   final String timeColumn=config.getTimeColumnName();
   if (config.getSegmentName() != null) {
     segmentName=config.getSegmentName();
@@ -39,6 +43,7 @@
   }
   indexCreator.setSegmentName(segmentName);
   indexCreator.seal();
+  LOGGER.info("Finished segment seal!");
   final File outputDir=new File(config.getIndexOutputDir());
   final File segmentOutputDir=new File(outputDir,segmentName);
   if (segmentOutputDir.exists()) {

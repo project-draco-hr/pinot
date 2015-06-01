@@ -1,6 +1,14 @@
 {
   for (  final String column : dictionaryCreatorMap.keySet()) {
-    Object dictionaryIndex=dictionaryCreatorMap.get(column).indexOf(row.getValue(column));
+    Object columnValueToIndex=row.getValue(column);
+    Object dictionaryIndex;
+    if (dictionaryCache.get(column).containsKey(columnValueToIndex)) {
+      dictionaryIndex=dictionaryCache.get(column).get(columnValueToIndex);
+    }
+ else {
+      dictionaryIndex=dictionaryCreatorMap.get(column).indexOf(columnValueToIndex);
+      dictionaryCache.get(column).put(columnValueToIndex,dictionaryIndex);
+    }
     forwardIndexCreatorMap.get(column).index(docIdCounter,dictionaryIndex);
     if (config.createInvertedIndexEnabled()) {
       invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);

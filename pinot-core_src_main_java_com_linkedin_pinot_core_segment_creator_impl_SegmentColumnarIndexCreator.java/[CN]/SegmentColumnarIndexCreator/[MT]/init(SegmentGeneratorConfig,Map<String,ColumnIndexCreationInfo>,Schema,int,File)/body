@@ -24,6 +24,7 @@
   }
   for (  final String column : dictionaryCreatorMap.keySet()) {
     dictionaryCreatorMap.get(column).build();
+    dictionaryCache.put(column,new HashMap<Object,Object>());
     ColumnIndexCreationInfo indexCreationInfo=indexCreationInfoMap.get(column);
     if (schema.getFieldSpecFor(column).isSingleValueField()) {
       if (indexCreationInfo.isSorted()) {
