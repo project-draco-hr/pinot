@@ -1,40 +1,17 @@
-def get_nodes(self, pinot_zoo):
-    if (not re.match('^[a-zA-Z0-9_]+$', self.resource)):
-        error = 'potentially unsafe resource name: {0}'.format(self.resource)
-        self.logger.error(error)
-        raise PinotException(error)
-    zk = pinot_zoo.get_handle()
-    if (not zk):
-        return False
-    root = self.config.get_zk_root(self.fabric)
-    state_path = os.path.join(root, 'IDEALSTATES', self.resource)
-    try:
-        ideal_state = zk.get(state_path)[0]
-    except kazoo.exceptions.NoNodeError:
-        pinot_zoo.close()
-        error = 'Failed getting statefile'
-        self.logger.exception(error)
-        raise PinotException(error)
-    try:
-        host_maps = json.loads(ideal_state)['mapFields']
-    except (ValueError, KeyError):
-        error = 'Failed parsing JSON IDEALSTATES data'
-        self.logger.exception(error)
-        raise PinotException(error)
-    nodes_list = set()
-    for servers in host_maps.itervalues():
-        for hostname in servers.iterkeys():
-            nodes_list.add(hostname)
+def get_nodes(self, zk):
     nodes_status = defaultdict(dict)
-    for node in nodes_list:
-        instance_path = os.path.join(root, 'LIVEINSTANCES', node)
-        parts = node.split('_')
-        node = parts[1]
-        nodes_status[node]['helix_port'] = parts[2]
-        nodes_status[node]['type'] = parts[0]
-        if zk.exists(instance_path):
-            nodes_status[node]['online'] = True
-        else:
-            nodes_status[node]['online'] = False
-    pinot_zoo.close()
+    pinot_fabric = PinotFabric(self.config, self.logger, self.fabric)
+    for node in pinot_fabric.get_nodes(zk):
+        match = False
+        for tag in node['tags']:
+            if tag.startswith(self.resource):
+                match = True
+                break
+        if (not match):
+            continue
+        instance_path = os.path.join(self.config.get_zk_root(self.fabric), 'LIVEINSTANCES', node['nodename'])
+        host = node['host']
+        nodes_status[host]['type'] = node['type']
+        nodes_status[host]['helix_port'] = 0
+        nodes_status[host]['online'] = zk.exists(instance_path)
     return nodes_status

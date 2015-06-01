@@ -1,0 +1,11 @@
+def get_tables(self, zk):
+    tables = []
+    root = os.path.join(self.config.get_zk_root(self.fabric), 'PROPERTYSTORE', 'CONFIGS', 'TABLE')
+    for table in zk.get_children(root):
+        path = os.path.join(root, table)
+        data = json.loads(zk.get(path)[0])
+        tenants = json.loads(data['simpleFields']['tenants'])
+        if (tenants['server'] != self.resource):
+            continue
+        tables.append({'name': table, 'type': data['simpleFields']['tableType'], })
+    return tables
