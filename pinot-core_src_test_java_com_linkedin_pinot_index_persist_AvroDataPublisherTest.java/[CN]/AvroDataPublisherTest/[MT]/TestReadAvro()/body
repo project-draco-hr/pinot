@@ -1,7 +1,7 @@
 {
   final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
   final String jsonPath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(JSON_DATA));
-  Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("dim_campaignType",DataType.STRING).addSingleValueDimension("sort_campaignId",DataType.STRING).build();
+  Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("column3",DataType.STRING).addSingleValueDimension("column2",DataType.STRING).build();
   final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
   config.setInputFileFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
@@ -22,5 +22,5 @@
     }
     cnt++;
   }
-  Assert.assertEquals(cnt,10000);
+  Assert.assertEquals(cnt,10001);
 }

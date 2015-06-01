@@ -5,6 +5,7 @@
   rootPlanNode.showTree("");
   final MSelectionOnlyOperator operator=(MSelectionOnlyOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  System.out.println("Test: InnerSegmentPlanMakerForSelectionNoFilter");
   System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
   System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
   System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
@@ -24,5 +25,5 @@
   DataSchema dataSchema=resultBlock.getSelectionDataSchema();
   final JSONObject jsonResult=SelectionOperatorUtils.render(reducedResults,selectionColumns,dataSchema);
   System.out.println(jsonResult);
-  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"results\":[[\"m\",\"112\",\"5\"],[\"m\",\"102\",\"1\"],[\"m\",\"100\",\"5\"],[\"m\",\"99\",\"1\"],[\"m\",\"96\",\"2\"],[\"m\",\"92\",\"2\"],[\"m\",\"88\",\"3\"],[\"m\",\"84\",\"5\"],[\"m\",\"80\",\"3\"],[\"m\",\"80\",\"1\"]],\"columns\":[\"dim_memberGender\",\"dim_memberIndustry\",\"met_impressionCount\"]}");
+  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"columns\":[\"column11\",\"column12\",\"met_impressionCount\"], \"results\":[[\"i\",\"jgn\",\"4955241829510629137\"],[\"i\",\"lVH\",\"6240989492723764727\"],[\"i\",\"kWZ\",\"4955241829510629137\"],[\"i\",\"pm\",\"6240989492723764727\"],[\"i\",\"GF\",\"8637957270245933828\"],[\"i\",\"kB\",\"8637957270245933828\"],[\"i\",\"BQ\",\"8310347835142446717\"],[\"i\",\"YO\",\"4955241829510629137\"],[\"i\",\"RI\",\"8310347835142446717\"],[\"i\",\"RI\",\"6240989492723764727\"]]}");
 }

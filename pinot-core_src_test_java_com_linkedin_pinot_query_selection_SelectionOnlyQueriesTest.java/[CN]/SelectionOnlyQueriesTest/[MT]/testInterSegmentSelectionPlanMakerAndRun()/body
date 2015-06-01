@@ -8,6 +8,7 @@
   globalPlan.print();
   globalPlan.execute();
   final DataTable instanceResponse=globalPlan.getInstanceResponse();
+  System.out.println("Test: InterSegmentSelectionPlanMakerAndRun");
   System.out.println("instanceResponse : " + instanceResponse);
   final DefaultReduceService defaultReduceService=new DefaultReduceService();
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
@@ -15,5 +16,6 @@
   final BrokerResponse brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   System.out.println("Selection Result : " + brokerResponse.getSelectionResults());
   System.out.println("Time used : " + brokerResponse.getTimeUsedMs());
-  JsonAssert.assertEqualsIgnoreOrder(brokerResponse.getSelectionResults().toString(),"{\"results\":[[\"m\",\"112\",\"5\"],[\"m\",\"102\",\"1\"],[\"m\",\"100\",\"5\"],[\"m\",\"99\",\"1\"],[\"m\",\"96\",\"2\"],[\"m\",\"92\",\"2\"],[\"m\",\"88\",\"3\"],[\"m\",\"84\",\"5\"],[\"m\",\"80\",\"3\"],[\"m\",\"80\",\"1\"]],\"columns\":[\"dim_memberGender\",\"dim_memberIndustry\",\"met_impressionCount\"]}");
+  System.out.println("Result: " + brokerResponse.getSelectionResults());
+  JsonAssert.assertEqualsIgnoreOrder(brokerResponse.getSelectionResults().toString(),"{\"columns\":[\"column11\",\"column12\",\"met_impressionCount\"],\"results\":[[\"i\",\"jgn\",\"4955241829510629137\"],[\"i\",\"lVH\",\"6240989492723764727\"],[\"i\",\"kWZ\",\"4955241829510629137\"],[\"i\",\"pm\",\"6240989492723764727\"],[\"i\",\"GF\",\"8637957270245933828\"],[\"i\",\"kB\",\"8637957270245933828\"],[\"i\",\"BQ\",\"8310347835142446717\"],[\"i\",\"YO\",\"4955241829510629137\"],[\"i\",\"RI\",\"8310347835142446717\"],[\"i\",\"RI\",\"6240989492723764727\"]]}");
 }
