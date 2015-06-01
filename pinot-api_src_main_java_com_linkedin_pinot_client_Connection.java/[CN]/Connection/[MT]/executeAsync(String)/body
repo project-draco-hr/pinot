@@ -1,13 +1,13 @@
 {
   final Future<BrokerResponse> responseFuture=_transport.executeQueryAsync(pickRandomBroker(),statement);
   return new Future<ResultSetGroup>(){
-    public boolean cancel(    boolean mayInterruptIfRunning){
+    @Override public boolean cancel(    boolean mayInterruptIfRunning){
       return responseFuture.cancel(mayInterruptIfRunning);
     }
-    public boolean isCancelled(){
+    @Override public boolean isCancelled(){
       return responseFuture.isCancelled();
     }
-    public boolean isDone(){
+    @Override public boolean isDone(){
       return responseFuture.isDone();
     }
     @Override public ResultSetGroup get() throws InterruptedException, ExecutionException {
@@ -15,7 +15,7 @@
         return get(1000L,TimeUnit.DAYS);
       }
  catch (      TimeoutException e) {
-        throw new InterruptedException();
+        throw new ExecutionException(e);
       }
     }
     @Override public ResultSetGroup get(    long timeout,    TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {

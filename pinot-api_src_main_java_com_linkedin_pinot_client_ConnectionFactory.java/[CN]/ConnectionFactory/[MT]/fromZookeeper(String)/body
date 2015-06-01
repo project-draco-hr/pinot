@@ -3,9 +3,7 @@
     ZkClient client=new ZkClient(zkUrl);
     client.setZkSerializer(new ByteArraySerializer());
     byte[] brokerResourceNodeData=client.readData("/EXTERNALVIEW/brokerResource",true);
-    System.out.println("brokerResourceNodeData = " + new String(brokerResourceNodeData));
     JSONObject jsonObject=new JSONObject(new String(brokerResourceNodeData));
-    System.out.println("jsonObject = " + jsonObject);
     JSONObject brokerResourceNode=jsonObject.getJSONObject("mapFields");
     List<String> brokerUrls=new ArrayList<String>();
     Iterator<String> resourceNames=brokerResourceNode.keys();
