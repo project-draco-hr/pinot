@@ -6,5 +6,5 @@
   if (null != _globalMetrics) {
     _globalMetrics.addTransportClientMetrics(serverMetric);
   }
-  ch.pipeline().addLast("request_handler",new NettyChannelInboundHandler(_handlerFactory.createNewRequestHandler(),serverMetric));
+  ch.pipeline().addLast("request_handler",new NettyChannelInboundHandler(_handlerFactory.createNewRequestHandler(),serverMetric,_defaultLargeQueryLatencyMs));
 }

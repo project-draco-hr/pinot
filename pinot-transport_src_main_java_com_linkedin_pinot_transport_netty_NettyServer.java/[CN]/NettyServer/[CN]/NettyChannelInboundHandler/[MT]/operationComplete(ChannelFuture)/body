@@ -2,5 +2,9 @@
   LOGGER.debug("Response has been sent !!");
   _lastSendResponseLatency.stop();
   _metric.addServingStats(_lastRequsetSizeInBytes,_lastResponseSizeInBytes,1L,false,_lastProcessingLatency.getLatencyMs(),_lastSendResponseLatency.getLatencyMs());
+  long totalQueryTime=System.currentTimeMillis() - _requestStartTime;
+  if (totalQueryTime > _defaultLargeQueryLatencyMs) {
+    LOGGER.info("Trace Info: request handler processing time : {}, send response latency: {}, total time to handle request: {}",_lastProcessingLatency.getLatencyMs(),_lastSendResponseLatency.getLatencyMs(),totalQueryTime);
+  }
   _state=State.RESPONSE_SENT;
 }
