@@ -3,6 +3,7 @@
   final BrokerRequest brokerRequest=getSelectionWithFilterBrokerRequest();
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV0();
   final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
+  System.out.println(brokerRequest);
   rootPlanNode.showTree("");
   final MSelectionOnlyOperator operator=(MSelectionOnlyOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
@@ -27,5 +28,5 @@
   DataSchema dataSchema=resultBlock.getSelectionDataSchema();
   final JSONObject jsonResult=SelectionOperatorUtils.render(reducedResults,selectionColumns,dataSchema);
   System.out.println(jsonResult);
-  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"results\":[[\"1\",\"356899\",[\"2147483647\"],\"4315729\",\"OCCUPATION_COMPANY\",[\"2147483647\"]]," + "[\"1\",\"356899\",[\"2147483647\"],\"189805519\",\"SCHOOL\",[\"2147483647\"]]," + "[\"1\",\"356899\",[\"2147483647\"],\"189805519\",\"SCHOOL\",[\"2147483647\"]],"+ "[\"1\",\"356899\",[\"1482\"],\"636019\",\"OCCUPATION_COMPANY\",[\"478\"]],"+ "[\"1\",\"356899\",[\"2147483647\"],\"189805519\",\"SCHOOL\",[\"2147483647\"]],"+ "[\"1\",\"356899\",[\"94413\"],\"110523574\",\"OCCUPATION_COMPANY\",[\"532\"]],"+ "[\"1\",\"356899\",[\"10061\"],\"4094221\",\"COMPANY\",[\"239\",\"565\"]],"+ "[\"1\",\"356899\",[\"94413\"],\"110523574\",\"OCCUPATION_COMPANY\",[\"532\"]],"+ "[\"1\",\"356899\",[\"1482\"],\"636019\",\"OCCUPATION_COMPANY\",[\"478\"]],"+ "[\"1\",\"356899\",[\"2147483647\"],\"189805519\",\"SCHOOL\",[\"2147483647\"]]],"+ "\"columns\":[\"count\",\"vieweeId\",\"viewerCompanies\",\"viewerId\",\"viewerObfuscationType\",\"viewerOccupations\"]}");
+  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"columns\":[\"column1\",\"column2\",\"column5\",\"column6\",\"column7\",\"count\"]," + "\"results\":[[\"1966355282\",\"1787748327\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"]," + "[\"401448718\",\"1787748327\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"401448718\",\"1787748327\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"1493628747\",\"1787748327\",\"AKXcXcIqsqOJFsdwxZ\",[\"1482\"],[\"478\"],\"890662862\"],"+ "[\"401448718\",\"1787748327\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"1295439109\",\"1787748327\",\"AKXcXcIqsqOJFsdwxZ\",[\"94413\"],[\"532\"],\"890662862\"],"+ "[\"269506187\",\"1787748327\",\"EOFxevm\",[\"10061\"],[\"239\",\"565\"],\"890662862\"],"+ "[\"1295439109\",\"1787748327\",\"AKXcXcIqsqOJFsdwxZ\",[\"94413\"],[\"532\"],\"890662862\"],"+ "[\"1493628747\",\"1787748327\",\"AKXcXcIqsqOJFsdwxZ\",[\"1482\"],[\"478\"],\"890662862\"],"+ "[\"401448718\",\"1787748327\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"]]}");
 }
