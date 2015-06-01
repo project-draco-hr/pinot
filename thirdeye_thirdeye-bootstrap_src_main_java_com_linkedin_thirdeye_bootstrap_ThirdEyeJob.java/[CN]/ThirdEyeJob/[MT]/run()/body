@@ -150,7 +150,6 @@ for (FileStatus file : fileStatus) {
 DateTime lastModifiedDate=new DateTime(file.getModificationTime());
 if (lastModifiedDate.isBefore(cleanupDaysAgoDate.getMillis())) {
 LOGGER.info("Deleting {}",file.getPath());
-fileSystem.delete(file.getPath(),true);
 }
 }
 fileStatus=fileSystem.listStatus(metricIndexDir,new PathFilter(){
@@ -163,10 +162,13 @@ for (FileStatus file : fileStatus) {
 DateTime lastModifiedDate=new DateTime(file.getModificationTime());
 if (lastModifiedDate.isBefore(cleanupDaysAgoDate.getMillis())) {
 Path startreeBootstrapPath1=new Path(file.getPath(),PhaseSpec.STARTREE_BOOTSTRAP_PHASE1.getName().toLowerCase());
+if (fileSystem.exists(startreeBootstrapPath1)) {
+  LOGGER.info("Deleting {}",startreeBootstrapPath1);
+}
 Path startreeBootstrapPath2=new Path(file.getPath(),PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getName().toLowerCase());
-LOGGER.info("Deleting {} {}",startreeBootstrapPath1,startreeBootstrapPath2);
-fileSystem.delete(startreeBootstrapPath1,true);
-fileSystem.delete(startreeBootstrapPath2,true);
+if (fileSystem.exists(startreeBootstrapPath2)) {
+  LOGGER.info("Deleting {}",startreeBootstrapPath2);
+}
 }
 }
 }
