@@ -6,4 +6,5 @@ def create_server_tenant(self, name, instances, offline_instances=0, realtime_in
         error = 'Failed hitting {0}'.format(url)
         self.logger.exception(error)
         raise PinotException(error)
-    return result
+    print result
+    return (result.status_code == 200)
