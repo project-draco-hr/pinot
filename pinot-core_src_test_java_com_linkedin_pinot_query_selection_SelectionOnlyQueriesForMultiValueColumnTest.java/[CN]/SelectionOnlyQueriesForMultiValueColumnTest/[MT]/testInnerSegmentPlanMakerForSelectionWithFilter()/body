@@ -3,7 +3,6 @@
   final BrokerRequest brokerRequest=getSelectionWithFilterBrokerRequest();
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV0();
   final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
-  System.out.println(brokerRequest);
   rootPlanNode.showTree("");
   final MSelectionOnlyOperator operator=(MSelectionOnlyOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();

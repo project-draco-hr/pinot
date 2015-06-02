@@ -2,7 +2,7 @@
   DataSource ds1=segment.getDataSource("count");
   BitmapBasedFilterOperator op=new BitmapBasedFilterOperator(ds1);
   List<String> rhs=new ArrayList<String>();
-  rhs.add("1");
+  rhs.add("890662862");
   Predicate predicate=new EqPredicate("count",rhs);
   op.setPredicate(predicate);
   Block b=op.nextBlock();
@@ -13,7 +13,7 @@
   int counter=0;
   while (docId != Constants.EOF) {
     blockValIterator.skipTo(docId);
-    Assert.assertEquals(ds1.getDictionary().get(blockValIterator.nextIntVal()),1);
+    Assert.assertEquals(ds1.getDictionary().get(blockValIterator.nextIntVal()),890662862);
     docId=iterator.next();
     counter++;
   }
