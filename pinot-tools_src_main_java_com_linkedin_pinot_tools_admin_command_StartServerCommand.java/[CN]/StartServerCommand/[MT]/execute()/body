@@ -1,8 +1,8 @@
 {
   final Configuration configuration=new PropertiesConfiguration();
-  configuration.addProperty(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,_port);
-  configuration.addProperty("pinot.server.instance.dataDir",_dataDir + _port + "/index");
-  configuration.addProperty("pinot.server.instance.segmentTarDir",_segmentDir + _port + "/segmentTar");
+  configuration.addProperty(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,_serverPort);
+  configuration.addProperty("pinot.server.instance.dataDir",_dataDir + _serverPort + "/index");
+  configuration.addProperty("pinot.server.instance.segmentTarDir",_segmentDir + _serverPort + "/segmentTar");
   final HelixServerStarter pinotHelixStarter=new HelixServerStarter(_clusterName,_zkAddress,configuration);
   savePID(System.getProperty("java.io.tmpdir") + File.separator + ".pinotAdminServer.pid");
   return true;
