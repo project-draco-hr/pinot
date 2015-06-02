@@ -2,7 +2,7 @@
   Assert.assertEquals(10001 * numSegments,brokerResponse.getNumDocsScanned());
   Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
   for (int i=0; i < _numAggregations; ++i) {
-    Assert.assertEquals("[\"dim_memberGender\",\"dim_memberFunction\"]",brokerResponse.getAggregationResults().get(i).getJSONArray("groupByColumns").toString());
+    Assert.assertEquals("[\"column11\",\"column10\"]",brokerResponse.getAggregationResults().get(i).getJSONArray("groupByColumns").toString());
     Assert.assertEquals(15,brokerResponse.getAggregationResults().get(i).getJSONArray("groupByResult").length());
   }
   Assert.assertEquals("count_star",brokerResponse.getAggregationResults().get(0).getString("function").toString());
@@ -10,18 +10,26 @@
   Assert.assertEquals("max_met_impressionCount",brokerResponse.getAggregationResults().get(2).getString("function").toString());
   Assert.assertEquals("min_met_impressionCount",brokerResponse.getAggregationResults().get(3).getString("function").toString());
   Assert.assertEquals("avg_met_impressionCount",brokerResponse.getAggregationResults().get(4).getString("function").toString());
-  Assert.assertEquals("distinctCount_dim_memberIndustry",brokerResponse.getAggregationResults().get(5).getString("function").toString());
+  Assert.assertEquals("distinctCount_column12",brokerResponse.getAggregationResults().get(5).getString("function").toString());
   final List<double[]> aggregationResult=getAggregationResult(numSegments);
   final List<String[]> groupByResult=getGroupResult();
   for (int j=0; j < _numAggregations; ++j) {
     final double[] aggResult=aggregationResult.get(j);
     final String[] groupResult=groupByResult.get(j);
     for (int i=0; i < 15; ++i) {
-      Assert.assertEquals(aggResult[i],brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getDouble("value"));
+      System.out.println("i = " + i);
+      System.out.println("aggResult = " + aggResult[i]);
+      double aDouble=brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getDouble("value");
+      System.out.println("aDouble = " + aDouble);
+      Assert.assertEquals(aggResult[i],aDouble);
       if ((i < 14 && aggResult[i] == aggResult[i + 1]) || (i > 0 && aggResult[i] == aggResult[i - 1])) {
       }
  else {
-        Assert.assertEquals(groupResult[i],brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getString("group"));
+        System.out.println("i = " + i);
+        System.out.println("groupResult[i] = " + groupResult[i]);
+        String string=brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getString("group");
+        System.out.println("string = " + string);
+        Assert.assertEquals(groupResult[i],string);
       }
     }
   }
