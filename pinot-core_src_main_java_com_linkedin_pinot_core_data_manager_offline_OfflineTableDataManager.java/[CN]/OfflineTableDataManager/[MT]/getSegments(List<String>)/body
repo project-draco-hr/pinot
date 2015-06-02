@@ -1,11 +1,9 @@
 {
   List<SegmentDataManager> ret=new ArrayList<SegmentDataManager>();
-synchronized (getGlobalLock()) {
-    for (    String segmentName : segmentList) {
-      if (_segmentsMap.containsKey(segmentName)) {
-        incrementCount(segmentName);
-        ret.add(_segmentsMap.get(segmentName));
-      }
+  for (  String segmentName : segmentList) {
+    if (_segmentsMap.containsKey(segmentName)) {
+      incrementCount(segmentName);
+      ret.add(_segmentsMap.get(segmentName));
     }
   }
   return ret;
