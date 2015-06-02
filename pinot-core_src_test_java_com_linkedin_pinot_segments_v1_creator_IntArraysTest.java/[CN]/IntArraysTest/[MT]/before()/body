@@ -5,8 +5,8 @@
   }
   System.out.println(INDEX_DIR.getAbsolutePath());
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
-  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.DAYS,"test");
-  config.setTimeColumnName("daysSinceEpoch");
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"weeksSinceEpochSunday",TimeUnit.DAYS,"test");
+  config.setTimeColumnName("weeksSinceEpochSunday");
   driver.init(config);
   driver.build();
   final DataFileStream<GenericRecord> avroReader=AvroUtils.getAvroReader(new File(filePath));
