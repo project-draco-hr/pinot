@@ -1,10 +1,10 @@
 {
-  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(new File("/tmp/mirrorTwoDotO").listFiles()[0],ReadMode.mmap);
-  final ImmutableDictionaryReader d=segment.getDictionaryFor("viewerId");
+  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(INDEX_DIR.listFiles()[0],ReadMode.mmap);
+  final ImmutableDictionaryReader d=segment.getDictionaryFor("column1");
   final List<String> rhs=new ArrayList<String>();
   rhs.add(d.get(new Random().nextInt(d.length())).toString());
-  final Predicate p=new EqPredicate("viewerId",rhs);
-  final DataSource ds=segment.getDataSource("viewerId",p);
+  final Predicate p=new EqPredicate("column1",rhs);
+  final DataSource ds=segment.getDataSource("column1",p);
   final Block bl=ds.nextBlock();
   final BlockDocIdSet idSet=bl.getBlockDocIdSet();
   final BlockDocIdIterator it=idSet.iterator();

@@ -1,9 +1,9 @@
 {
-  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(new File("/tmp/mirrorTwoDotO").listFiles()[0],ReadMode.mmap);
+  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(INDEX_DIR.listFiles()[0],ReadMode.mmap);
   final List<String> rhs=new ArrayList<String>();
   rhs.add("-100");
-  final Predicate p=new EqPredicate("viewerId",rhs);
-  final DataSource ds=segment.getDataSource("viewerId",p);
+  final Predicate p=new EqPredicate("column1",rhs);
+  final DataSource ds=segment.getDataSource("column1",p);
   final Block bl=ds.nextBlock();
   final BlockDocIdSet idSet=bl.getBlockDocIdSet();
   final BlockDocIdIterator it=idSet.iterator();

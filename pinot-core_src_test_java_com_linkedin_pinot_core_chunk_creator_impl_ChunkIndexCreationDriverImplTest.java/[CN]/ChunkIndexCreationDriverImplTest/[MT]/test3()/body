@@ -1,9 +1,9 @@
 {
-  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(new File("/tmp/mirrorTwoDotO").listFiles()[0],ReadMode.mmap);
-  final DataSource ds=segment.getDataSource("viewerCompanies");
+  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(INDEX_DIR.listFiles()[0],ReadMode.mmap);
+  final DataSource ds=segment.getDataSource("column7");
   final Block bl=ds.nextBlock();
   final BlockValSet valSet=bl.getBlockValueSet();
-  final int maxValue=((SegmentMetadataImpl)segment.getSegmentMetadata()).getColumnMetadataFor("viewerCompanies").getMaxNumberOfMultiValues();
+  final int maxValue=((SegmentMetadataImpl)segment.getSegmentMetadata()).getColumnMetadataFor("column7").getMaxNumberOfMultiValues();
   final BlockMultiValIterator it=(BlockMultiValIterator)valSet.iterator();
   while (it.hasNext()) {
     final int[] entry=new int[maxValue];
