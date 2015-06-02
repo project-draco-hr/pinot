@@ -1,13 +1,13 @@
 {
-  final String resourceName=instanceRequest.getQuery().getQuerySource().getTableName();
-  final TableDataManager tableDataManager=_instanceDataManager.getTableDataManager(resourceName);
+  LOGGER.info("InstanceRequest request {} segments : {}",instanceRequest.getSearchSegments().size(),Arrays.toString(instanceRequest.getSearchSegments().toArray(new String[0])));
+  final String tableName=instanceRequest.getQuery().getQuerySource().getTableName();
+  final TableDataManager tableDataManager=_instanceDataManager.getTableDataManager(tableName);
   if (tableDataManager == null || instanceRequest.getSearchSegmentsSize() == 0) {
     return new ArrayList<IndexSegment>();
   }
-  final List<IndexSegment> queryableSegmentDataManagerList=new ArrayList<IndexSegment>();
   final List<SegmentDataManager> matchedSegmentDataManagerFromServer=tableDataManager.getSegments(instanceRequest.getSearchSegments());
-  LOGGER.info("InstanceRequest request " + instanceRequest.getSearchSegments().size() + " segments : "+ Arrays.toString(instanceRequest.getSearchSegments().toArray(new String[0])));
-  LOGGER.info("TableDataManager found " + matchedSegmentDataManagerFromServer.size() + " segments before pruning : "+ Arrays.toString(matchedSegmentDataManagerFromServer.toArray(new SegmentDataManager[0])));
+  LOGGER.info("TableDataManager found {} segments before pruning : {}",matchedSegmentDataManagerFromServer.size(),Arrays.toString(matchedSegmentDataManagerFromServer.toArray(new SegmentDataManager[0])));
+  final List<IndexSegment> queryableSegmentDataManagerList=new ArrayList<IndexSegment>();
   for (  final SegmentDataManager segmentDataManager : matchedSegmentDataManagerFromServer) {
     final IndexSegment indexSegment=segmentDataManager.getSegment();
     if (!_segmentPrunerService.prune(indexSegment,instanceRequest.getQuery())) {

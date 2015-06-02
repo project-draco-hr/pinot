@@ -14,12 +14,10 @@
     _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.TOTAL_QUERY_TIME,deserRequestTime - queryStartTime);
     LOGGER.info("instance request : {}",queryRequest);
     brokerRequest=queryRequest.getQuery();
-    instanceResponse=_serverMetrics.timePhase(queryRequest.getQuery(),ServerQueryPhase.QUERY_PROCESSING,new Callable<DataTable>(){
-      @Override public DataTable call() throws Exception {
-        return _queryExecutor.processQuery(queryRequest);
-      }
-    }
-);
+    long startTime=System.nanoTime();
+    instanceResponse=_queryExecutor.processQuery(queryRequest);
+    long totalNanos=System.nanoTime() - startTime;
+    _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.QUERY_PROCESSING,totalNanos);
   }
  catch (  Exception e) {
     LOGGER.error("Got exception while processing request. Returning error response",e);
