@@ -1,12 +1,18 @@
 {
-  String maxName=null;
-  int max=0;
-  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
-    Set<String> values=getDimensionValues(dimensionSpec.getName());
-    if (values.size() >= max) {
-      max=values.size();
-      maxName=dimensionSpec.getName();
+  lock.readLock().lock();
+  try {
+    String maxName=null;
+    int max=0;
+    for (    DimensionSpec dimensionSpec : config.getDimensions()) {
+      Set<String> values=getDimensionValues(dimensionSpec.getName());
+      if (values.size() >= max) {
+        max=values.size();
+        maxName=dimensionSpec.getName();
+      }
     }
+    return maxName;
   }
-  return maxName;
+  finally {
+    lock.readLock().unlock();
+  }
 }

@@ -1,8 +1,14 @@
 {
-  MetricTimeSeries existing=store.putIfAbsent(record.getDimensionKey(),record.getMetricTimeSeries());
-  if (existing != null) {
-    existing.aggregate(record.getMetricTimeSeries());
+  lock.writeLock().lock();
+  try {
+    MetricTimeSeries existing=store.putIfAbsent(record.getDimensionKey(),record.getMetricTimeSeries());
+    if (existing != null) {
+      existing.aggregate(record.getMetricTimeSeries());
+    }
+    setMinTime(Collections.min(record.getMetricTimeSeries().getTimeWindowSet()));
+    setMaxTime(Collections.max(record.getMetricTimeSeries().getTimeWindowSet()));
   }
-  setMinTime(Collections.min(record.getMetricTimeSeries().getTimeWindowSet()));
-  setMaxTime(Collections.max(record.getMetricTimeSeries().getTimeWindowSet()));
+  finally {
+    lock.writeLock().unlock();
+  }
 }

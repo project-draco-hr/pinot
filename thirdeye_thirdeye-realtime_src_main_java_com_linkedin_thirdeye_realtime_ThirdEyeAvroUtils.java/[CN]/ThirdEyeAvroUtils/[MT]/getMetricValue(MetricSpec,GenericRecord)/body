@@ -3,5 +3,8 @@
     return 1;
   }
   String metricStr=getRecordValue(metricSpec.getName(),record);
+  if (NULL_VALUE.equals(metricStr)) {
+    return 0;
+  }
   return NumberUtils.valueOf(metricStr,metricSpec.getType());
 }

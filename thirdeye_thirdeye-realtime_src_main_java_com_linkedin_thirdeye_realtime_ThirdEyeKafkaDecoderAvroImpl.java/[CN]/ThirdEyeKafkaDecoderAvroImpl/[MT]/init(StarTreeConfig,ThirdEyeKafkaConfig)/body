@@ -8,6 +8,7 @@
   InputStream schemaInputStream=URI.create(schemaUri).toURL().openStream();
   Schema schema=Schema.parse(schemaInputStream);
   schemaInputStream.close();
+  LOG.info("Init decoder for {} with schema {}",starTreeConfig.getCollection(),schema);
   this.datumReader=new GenericDatumReader<GenericRecord>(schema);
   String recordOffsetProp=kafkaConfig.getDecoderConfig().getProperty(PROP_RECORD_OFFSET);
   if (recordOffsetProp != null) {

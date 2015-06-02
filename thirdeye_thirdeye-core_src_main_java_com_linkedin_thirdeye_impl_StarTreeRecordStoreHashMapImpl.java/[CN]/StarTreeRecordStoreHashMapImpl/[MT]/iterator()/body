@@ -1,7 +1,13 @@
 {
-  List<StarTreeRecord> records=new ArrayList<>(store.size());
-  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : store.entrySet()) {
-    records.add(new StarTreeRecordImpl(config,entry.getKey(),entry.getValue()));
+  lock.readLock().lock();
+  try {
+    List<StarTreeRecord> records=new ArrayList<>(store.size());
+    for (    Map.Entry<DimensionKey,MetricTimeSeries> entry : store.entrySet()) {
+      records.add(new StarTreeRecordImpl(config,entry.getKey(),entry.getValue()));
+    }
+    return records.iterator();
   }
-  return records.iterator();
+  finally {
+    lock.readLock().unlock();
+  }
 }
