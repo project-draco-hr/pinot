@@ -9,7 +9,8 @@
     }
   }
  catch (  Exception e) {
-    throw new RuntimeException("Failed to deserialize the tableConfig from propertyStore");
+    LOGGER.error("Caught exception",e);
+    Utils.rethrowException(e);
   }
   final List<String> instanceIds=new ArrayList<String>();
   instanceIds.addAll(getAllInstancesForBrokerTenant(brokerTenantName));
