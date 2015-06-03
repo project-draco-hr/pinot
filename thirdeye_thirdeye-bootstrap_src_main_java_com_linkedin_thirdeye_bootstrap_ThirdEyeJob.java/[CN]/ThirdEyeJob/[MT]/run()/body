@@ -136,11 +136,11 @@ LOGGER.info("Skipping cleanup");
  else {
 int cleanupDaysAgo=Integer.valueOf(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),DEFAULT_CLEANUP_DAYS_AGO));
 DateTime cleanupDaysAgoDate=(new DateTime()).minusDays(cleanupDaysAgo);
-Path dimensionIndexdir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.DIMENSION_INDEX);
+Path dimensionIndexDir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.DIMENSION_INDEX);
 Path metricIndexDir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.METRIC_INDEX);
-LOGGER.info("Cleaning up {} {} days ago from paths {} and {}",cleanupDaysAgo,cleanupDaysAgoDate.getMillis(),dimensionIndexdir,metricIndexDir);
+LOGGER.info("Cleaning up {} {} days ago from paths {} and {}",cleanupDaysAgo,cleanupDaysAgoDate.getMillis(),dimensionIndexDir,metricIndexDir);
 FileSystem fileSystem=FileSystem.get(new Configuration());
-FileStatus[] fileStatus=fileSystem.listStatus(dimensionIndexdir,new PathFilter(){
+FileStatus[] fileStatus=fileSystem.listStatus(dimensionIndexDir,new PathFilter(){
 @Override public boolean accept(Path path){
 return path.getName().startsWith(StarTreeConstants.DATA_DIR_PREFIX);
 }
@@ -176,7 +176,7 @@ if (fileSystem.exists(startreeBootstrapPath2)) {
 }
 String schedule=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getName());
 LOGGER.info("schedule : {} ",schedule);
-purgeLowerGranularity(minTime,maxTime,schedule,dimensionIndexdir,metricIndexDir);
+purgeLowerGranularity(minTime,maxTime,schedule,dimensionIndexDir,metricIndexDir);
 }
 }
  else {

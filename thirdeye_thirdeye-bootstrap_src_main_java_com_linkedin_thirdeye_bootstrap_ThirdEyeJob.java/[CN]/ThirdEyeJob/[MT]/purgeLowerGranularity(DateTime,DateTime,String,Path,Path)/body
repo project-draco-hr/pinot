@@ -1,8 +1,10 @@
 {
+  LOGGER.info("Created folder with higher granularity {} ",new Path(dimensionIndexDir,Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(minTime),StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime))));
+  LOGGER.info("Created folder with higher granularity {} ",new Path(metricIndexDir,Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(minTime),StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime))));
   DateTime start=minTime;
   DateTime end;
   FileSystem fileSystem=FileSystem.get(new Configuration());
-  while (!start.isEqual(maxTime.getMillis())) {
+  while (start.compareTo(maxTime) < 0) {
     if (schedule.equals(FlowSchedule.DAILY.name())) {
       end=start.plusHours(1);
     }
@@ -13,14 +15,14 @@
       return;
     }
     Path folder=new Path(Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(start),StarTreeConstants.DATE_TIME_FORMATTER.print(end)));
-    Path dimensionFolder=new Path(dimensionIndexdir,folder);
+    Path dimensionFolder=new Path(dimensionIndexDir,folder);
     Path metricFolder=new Path(metricIndexDir,folder);
     if (fileSystem.exists(dimensionFolder)) {
-      LOGGER.info("Deleting folder {} with overlapping data and lower granularity than {}",dimensionFolder,schedule);
+      LOGGER.info("Deleting folder {} with overlapping data and lower granularity",dimensionFolder);
       fileSystem.delete(dimensionFolder,true);
     }
     if (fileSystem.exists(metricFolder)) {
-      LOGGER.info("Deleting folder {} with overlapping data and lower granularity than {}",metricFolder,schedule);
+      LOGGER.info("Deleting folder {} with overlapping data and lower granularity",metricFolder);
       fileSystem.delete(metricFolder,true);
     }
     start=end;

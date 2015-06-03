@@ -1,10 +1,8 @@
 {
   Properties config=new Properties();
-  String thirdeyeCleanupDaysAgo=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),DEFAULT_CLEANUP_DAYS_AGO);
-  config.setProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),thirdeyeCleanupDaysAgo);
-  String thirdeyeCleanupSkip=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),DEFAULT_CLEANUP_SKIP);
-  config.setProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),thirdeyeCleanupSkip);
-  String schedule=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getName());
-  config.setProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getName(),schedule);
+  config.setProperty(AnalysisJobConstants.ANALYSIS_INPUT_AVRO_SCHEMA.toString(),getSchemaPath(root,collection));
+  config.setProperty(AnalysisJobConstants.ANALYSIS_CONFIG_PATH.toString(),getConfigPath(root,collection));
+  config.setProperty(AnalysisJobConstants.ANALYSIS_INPUT_PATH.toString(),inputPaths);
+  config.setProperty(AnalysisJobConstants.ANALYSIS_OUTPUT_PATH.toString(),getAnalysisPath(root,collection));
   return config;
 }
