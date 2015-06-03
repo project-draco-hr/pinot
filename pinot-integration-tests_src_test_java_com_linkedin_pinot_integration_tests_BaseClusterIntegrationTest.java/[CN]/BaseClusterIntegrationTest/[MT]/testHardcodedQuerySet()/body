@@ -1,10 +1,11 @@
 {
   for (  String query : getHardCodedQuerySet()) {
     try {
-      System.out.println(query);
+      LOGGER.info("Trying to send query : {}",query);
       runQuery(query,Collections.singletonList(query.replace("'mytable'","mytable")));
     }
  catch (    Exception e) {
+      LOGGER.error("Getting erro for query : {}",query);
     }
   }
 }

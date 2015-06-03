@@ -2,15 +2,15 @@
   PINOT_SCHEMA=getTestSchema(getSchemaMap());
   AVRO_RECORD_TRANSFORMER=new AvroRecordToPinotRowGenerator(PINOT_SCHEMA);
   final IndexSegment indexSegment=getRealtimeSegment();
-  setUpTestQueries("mirror");
-  CONFIG_BUILDER=new TestingServerPropertiesBuilder("mirror");
+  setUpTestQueries("testTable");
+  CONFIG_BUILDER=new TestingServerPropertiesBuilder("testTable");
   final PropertiesConfiguration serverConf=CONFIG_BUILDER.build();
   serverConf.setDelimiterParsingDisabled(false);
   final FileBasedInstanceDataManager instanceDataManager=FileBasedInstanceDataManager.getInstanceDataManager();
   instanceDataManager.init(new FileBasedInstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
   instanceDataManager.start();
-  instanceDataManager.getTableDataManager("mirror");
-  instanceDataManager.getTableDataManager("mirror").addSegment(indexSegment);
+  instanceDataManager.getTableDataManager("testTable");
+  instanceDataManager.getTableDataManager("testTable").addSegment(indexSegment);
   QUERY_EXECUTOR=new ServerQueryExecutorV1Impl(false);
   QUERY_EXECUTOR.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager,new ServerMetrics(new MetricsRegistry()));
 }

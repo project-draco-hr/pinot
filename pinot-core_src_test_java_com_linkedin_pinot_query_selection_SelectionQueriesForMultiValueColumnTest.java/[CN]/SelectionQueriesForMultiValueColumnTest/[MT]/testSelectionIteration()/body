@@ -9,9 +9,11 @@
   final PriorityQueue<Serializable[]> pq=(PriorityQueue<Serializable[]>)block.getSelectionResult();
   final DataSchema dataSchema=block.getSelectionDataSchema();
   System.out.println(dataSchema);
+  Serializable[] selectionArray=new Serializable[]{2147279568,2147339302,2147344388,2147344388,2147393520,2147393520,2147434110,2147434110,2147434110,2147434110};
+  int i=0;
   while (!pq.isEmpty()) {
     final Serializable[] row=pq.poll();
     System.out.println(SelectionOperatorUtils.getRowStringFromSerializable(row,dataSchema));
-    Assert.assertEquals(row[0],2147339302);
+    Assert.assertEquals(row[0],selectionArray[i++]);
   }
 }

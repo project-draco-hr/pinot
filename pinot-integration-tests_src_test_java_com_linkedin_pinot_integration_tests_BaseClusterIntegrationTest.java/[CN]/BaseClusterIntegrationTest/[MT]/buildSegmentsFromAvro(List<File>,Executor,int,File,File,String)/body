@@ -1,13 +1,13 @@
 {
   int segmentCount=avroFiles.size();
-  System.out.println("Building " + segmentCount + " segments in parallel");
+  LOGGER.info("Building " + segmentCount + " segments in parallel");
   for (int i=1; i <= segmentCount; ++i) {
     final int segmentIndex=i - 1;
     final int segmentNumber=i + baseSegmentIndex;
     executor.execute(new Runnable(){
       @Override public void run(){
         try {
-          System.out.println("Starting to build segment " + segmentNumber);
+          LOGGER.info("Starting to build segment " + segmentNumber);
           File outputDir=new File(baseDirectory,"segment-" + segmentNumber);
           final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avroFiles.get(segmentIndex),outputDir,TimeUnit.DAYS,tableName);
           genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber));
@@ -16,7 +16,7 @@
           driver.build();
           String segmentName=outputDir.list()[0];
           TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/" + segmentName,new File(segmentTarDir,segmentName).getAbsolutePath());
-          System.out.println("Completed segment " + segmentNumber + " : "+ segmentName);
+          LOGGER.info("Completed segment " + segmentNumber + " : "+ segmentName);
         }
  catch (        Exception e) {
           throw new RuntimeException(e);

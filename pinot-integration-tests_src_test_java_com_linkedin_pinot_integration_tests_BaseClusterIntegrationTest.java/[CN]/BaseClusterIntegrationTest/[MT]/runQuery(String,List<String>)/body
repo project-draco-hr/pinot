@@ -19,10 +19,10 @@
       JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
       JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
       if (firstAggregationResult.has("value")) {
-        LOGGER.info("Trying to execute sql query: " + sqlQueries.get(0));
+        LOGGER.debug("Trying to execute sql query: " + sqlQueries.get(0));
         statement.execute(sqlQueries.get(0));
         ResultSet rs=statement.getResultSet();
-        LOGGER.info("Trying to get result from sql: " + rs);
+        LOGGER.debug("Trying to get result from sql: " + rs);
         String bqlValue=firstAggregationResult.getString("value");
         rs.first();
         String sqlValue=rs.getString(1);
@@ -30,8 +30,8 @@
           bqlValue=bqlValue.replaceAll("\\..*","");
           sqlValue=sqlValue.replaceAll("\\..*","");
         }
-        LOGGER.info("bql value: " + bqlValue);
-        LOGGER.info("sql value: " + sqlValue);
+        LOGGER.debug("bql value: " + bqlValue);
+        LOGGER.debug("sql value: " + sqlValue);
         if (GATHER_FAILED_QUERIES) {
           if (!EqualityUtils.isEqual(bqlValue,sqlValue)) {
             saveFailedQuery(pqlQuery,sqlQueries,"Values did not match for query " + pqlQuery + ", expected "+ sqlValue+ ", got "+ bqlValue);
@@ -59,7 +59,7 @@
             LOGGER.info("Trying to execute sql query: " + sqlQueries.get(aggregationGroupIndex));
             statement.execute(sqlQueries.get(aggregationGroupIndex));
             ResultSet rs=statement.getResultSet();
-            LOGGER.info("Trying to get result from sql: " + rs);
+            LOGGER.debug("Trying to get result from sql: " + rs);
             rs.beforeFirst();
             try {
               while (rs.next()) {
@@ -73,9 +73,9 @@
  catch (            Exception e) {
               LOGGER.error("Catch exception when constructing H2 results for group by query",e);
             }
-            LOGGER.info("Trying to get result from sql: " + correctValues.toString());
-            LOGGER.info("Trying to compare result from bql: " + actualValues);
-            LOGGER.info("Trying to compare result from sql: " + correctValues);
+            LOGGER.debug("Trying to get result from sql: " + correctValues.toString());
+            LOGGER.debug("Trying to compare result from bql: " + actualValues);
+            LOGGER.debug("Trying to compare result from sql: " + correctValues);
             if (correctValues.size() < 10000) {
               Set<String> pinotKeys=actualValues.keySet();
               for (              String pinotKey : pinotKeys) {
@@ -136,5 +136,4 @@
       Assert.fail("Query did not return valid JSON while running query " + pqlQuery,exception);
     }
   }
-  System.out.println();
 }

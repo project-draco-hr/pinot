@@ -1,10 +1,10 @@
 {
   BrokerRequest brokerRequest=getMinQuery();
   QuerySource querySource=new QuerySource();
-  querySource.setTableName("midas");
+  querySource.setTableName("testTable");
   brokerRequest.setQuerySource(querySource);
   InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
-  addMidasSearchSegmentsToInstanceRequest(instanceRequest);
+  addTestTableSearchSegmentsToInstanceRequest(instanceRequest);
   try {
     DataTable instanceResponse=_queryExecutor.processQuery(instanceRequest);
     System.out.println(instanceResponse.getDouble(0,0));

@@ -7,7 +7,7 @@
     final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(groupBy.pql));
     InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
     instanceRequest.setSearchSegments(new ArrayList<String>());
-    instanceRequest.getSearchSegments().add("mirror_mirror");
+    instanceRequest.getSearchSegments().add("testTable_testTable");
     DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
     instanceResponseMap.clear();
     instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
