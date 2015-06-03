@@ -126,6 +126,15 @@ LOGGER.info("Load {} #=> response code: {}",outputTarGzFile,responseCode);
  else {
 throw new RuntimeException("Creation of" + outputTarGzFile + " failed");
 }
+boolean changePermission=Boolean.parseBoolean(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CHANGE_PERMISSION.getName(),DEFAULT_CHANGE_PERMISSION));
+if (changePermission) {
+String dimensionIndexDir=PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getDimensionIndexDir(root,collection,Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(minTime),StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime)));
+FsShell shell=new FsShell(new Configuration());
+LOGGER.info("Changing permission of {} to {}",dimensionIndexDir,THIRDEYE_FOLDER_PERMISSION);
+shell.run(new String[]{"-chmod","-R",THIRDEYE_FOLDER_PERMISSION,dimensionIndexDir});
+LOGGER.info("Changing permission of {} to {}",metricIndexDir,THIRDEYE_FOLDER_PERMISSION);
+shell.run(new String[]{"-chmod","-R",THIRDEYE_FOLDER_PERMISSION,metricIndexDir});
+}
 }
  else if (PhaseSpec.CLEANUP.equals(phaseSpec)) {
 boolean cleanupSkip=Boolean.parseBoolean(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_SKIP.getName(),DEFAULT_CLEANUP_SKIP));
