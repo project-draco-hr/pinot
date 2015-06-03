@@ -8,12 +8,12 @@
   globalPlan.print();
   globalPlan.execute();
   final DataTable instanceResponse=globalPlan.getInstanceResponse();
-  System.out.println(instanceResponse);
+  LOGGER.info("instanceResponse: {}",instanceResponse);
   final DefaultReduceService defaultReduceService=new DefaultReduceService();
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   final BrokerResponse brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  System.out.println(new JSONArray(brokerResponse.getAggregationResults()));
-  System.out.println("Time used : " + brokerResponse.getTimeUsedMs());
+  LOGGER.info("Aggregation Results : {}",new JSONArray(brokerResponse.getAggregationResults()));
+  LOGGER.info("Time used : {}",brokerResponse.getTimeUsedMs());
   assertEmptyBrokerResponse(brokerResponse);
 }

@@ -8,9 +8,9 @@
     aggregationFunctionGroupByOperatorList.add(aggregationFunctionGroupByOperator);
   }
   final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
-  System.out.println("running query: ");
+  LOGGER.info("running query: ");
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
-    System.out.println(block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.info("AggreagtionResult {} : {}",i,block.getAggregationGroupByOperatorResult().get(i));
   }
 }
