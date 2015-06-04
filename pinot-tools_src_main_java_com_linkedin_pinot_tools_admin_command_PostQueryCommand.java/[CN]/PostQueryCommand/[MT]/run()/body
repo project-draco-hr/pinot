@@ -1,7 +1,8 @@
 {
   final JSONObject json=new JSONObject();
   json.put("pql",_query);
-  final URLConnection conn=new URL(_brokerUrl + "/query").openConnection();
+  String brokerUrl="http://localhost:" + _brokerPort;
+  final URLConnection conn=new URL(brokerUrl + "/query").openConnection();
   conn.setDoOutput(true);
   final BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
   String request=json.toString();
