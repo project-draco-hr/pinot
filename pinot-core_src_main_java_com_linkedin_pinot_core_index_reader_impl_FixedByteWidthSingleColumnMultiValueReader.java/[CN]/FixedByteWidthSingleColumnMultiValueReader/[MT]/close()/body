@@ -1,5 +1,11 @@
 {
-  IOUtils.closeQuietly(raf);
-  headerSectionReader.close();
-  dataSectionReader.close();
+  if (isMMap) {
+    MmapUtils.unloadByteBuffer(headerSectionByteBuffer);
+    MmapUtils.unloadByteBuffer(dataSectionByteBuffer);
+    raf.close();
+  }
+ else {
+    headerSectionByteBuffer.clear();
+    dataSectionByteBuffer.clear();
+  }
 }

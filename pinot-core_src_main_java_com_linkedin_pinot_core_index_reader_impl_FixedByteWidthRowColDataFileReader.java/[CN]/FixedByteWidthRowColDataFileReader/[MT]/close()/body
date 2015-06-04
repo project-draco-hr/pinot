@@ -1,5 +1,9 @@
 {
-  IOUtils.closeQuietly(file);
-  file=null;
-  MmapUtils.unloadByteBuffer(byteBuffer);
+  if (isMMap) {
+    MmapUtils.unloadByteBuffer(byteBuffer);
+    file.close();
+  }
+ else {
+    byteBuffer.clear();
+  }
 }

@@ -1,26 +1,27 @@
 {
   rows=numDocs;
   final int headerSize=numDocs * SIZE_OF_INT * NUM_COLS_IN_HEADER;
-  ByteBuffer byteBuffer;
   raf=new RandomAccessFile(file,"rw");
+  this.isMmap=isMMap;
   if (isMMap) {
-    byteBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,0,headerSize);
+    headerSectionBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,0,headerSize);
   }
  else {
-    byteBuffer=ByteBuffer.allocateDirect(headerSize);
-    raf.getChannel().read(byteBuffer);
+    headerSectionBuffer=ByteBuffer.allocateDirect(headerSize);
+    raf.getChannel().read(headerSectionBuffer);
   }
-  headerSectionReader=new FixedByteWidthRowColDataFileReader(byteBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT,SIZE_OF_INT});
+  headerSectionReader=new FixedByteWidthRowColDataFileReader(headerSectionBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT,SIZE_OF_INT});
   final int startIndex=headerSectionReader.getInt(numDocs - 1,0);
   final int length=headerSectionReader.getInt(numDocs - 1,1);
   totalNumValues=startIndex + length;
   final int dataSizeInBytes=((totalNumValues * columnSizeInBits) + 7) / 8;
   if (isMMap) {
-    dataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,headerSize,dataSizeInBytes);
+    dataSectionBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,headerSize,dataSizeInBytes);
   }
  else {
-    dataBuffer=ByteBuffer.allocateDirect(dataSizeInBytes);
-    raf.getChannel().read(dataBuffer,headerSize);
+    dataSectionBuffer=ByteBuffer.allocateDirect(dataSizeInBytes);
+    raf.getChannel().read(dataSectionBuffer,headerSize);
+    raf.close();
   }
-  dataSectionReader=FixedBitWidthRowColDataFileReader.forByteBuffer(dataBuffer,totalNumValues,1,new int[]{columnSizeInBits},signed);
+  dataSectionReader=FixedBitWidthRowColDataFileReader.forByteBuffer(dataSectionBuffer,totalNumValues,1,new int[]{columnSizeInBits},signed);
 }

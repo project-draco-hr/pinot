@@ -9,9 +9,8 @@
   }
   final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
-  System.out.println("Result 1: ");
   for (int i=0; i < _numAggregations; ++i) {
-    System.out.println(block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.info("Result 1: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList1=new ArrayList<AggregationFunctionGroupByOperator>();
   final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getTotalDocs(),5000);
@@ -23,20 +22,16 @@
   }
   final MAggregationGroupByOperator aggregationGroupByOperator1=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator1,aggregationFunctionGroupByOperatorList1);
   final IntermediateResultsBlock block1=(IntermediateResultsBlock)aggregationGroupByOperator1.nextBlock();
-  System.out.println("Result 2: ");
   for (int i=0; i < _numAggregations; ++i) {
-    System.out.println(block1.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.info("Result 2: {}",block1.getAggregationGroupByOperatorResult().get(i));
   }
   CombineService.mergeTwoBlocks(getAggregationGroupByNoFilterBrokerRequest(),block,block1);
-  System.out.println("Combined Result : ");
   for (int i=0; i < _numAggregations; ++i) {
-    System.out.println(block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.info("Combined Result: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
   final DataTable dataTable=block.getAggregationGroupByResultDataTable();
-  System.out.println("Decode AggregationResult from DataTable: ");
   final List<Map<String,Serializable>> results=AggregationGroupByOperatorService.transformDataTableToGroupByResult(dataTable);
-  System.out.println("Decode AggregationResult from DataTable: ");
   for (int i=0; i < _numAggregations; ++i) {
-    System.out.println(results.get(i));
+    LOGGER.info("Decode AggregationResult from DataTable: {}",results.get(i));
   }
 }

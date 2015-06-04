@@ -5,10 +5,10 @@
   rootPlanNode.showTree("");
   final MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
-  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
-  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
-  System.out.println(resultBlock.getAggregationGroupByResultDataTable());
+  LOGGER.info("RunningTime : {}",resultBlock.getTimeUsedMs());
+  LOGGER.info("NumDocsScanned : {}",resultBlock.getNumDocsScanned());
+  LOGGER.info("TotalDocs : {}",resultBlock.getTotalDocs());
+  LOGGER.info("Result: {}",resultBlock.getAggregationGroupByResultDataTable());
   Assert.assertEquals(resultBlock.getNumDocsScanned(),582);
   Assert.assertEquals(resultBlock.getTotalDocs(),10001);
   final AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(_aggregationInfos,brokerRequest.getGroupBy());
@@ -25,5 +25,5 @@
   instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationGroupByResultDataTable());
   final List<Map<String,Serializable>> reducedResults=aggregationGroupByOperatorService.reduceGroupByOperators(instanceResponseMap);
   final List<JSONObject> jsonResult=aggregationGroupByOperatorService.renderGroupByOperators(reducedResults);
-  System.out.println(jsonResult);
+  LOGGER.info("Result: {}",jsonResult);
 }

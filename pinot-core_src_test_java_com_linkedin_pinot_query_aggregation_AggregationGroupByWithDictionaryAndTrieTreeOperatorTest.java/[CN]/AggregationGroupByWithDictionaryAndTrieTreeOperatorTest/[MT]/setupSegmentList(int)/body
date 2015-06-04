@@ -12,7 +12,7 @@
     final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
     driver.init(config);
     driver.build();
-    System.out.println("built at : " + segmentDir.getAbsolutePath());
+    LOGGER.info("built at : {}",segmentDir.getAbsolutePath());
     final File indexSegmentDir=new File(segmentDir,driver.getSegmentName());
     _indexSegmentList.add(ColumnarSegmentLoader.load(indexSegmentDir,ReadMode.heap));
   }

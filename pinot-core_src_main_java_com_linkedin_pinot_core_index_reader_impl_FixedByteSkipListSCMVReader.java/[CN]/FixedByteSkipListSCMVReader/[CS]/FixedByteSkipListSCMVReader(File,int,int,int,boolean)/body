@@ -3,6 +3,7 @@
   float averageValuesPerDoc=totalNumValues / numDocs;
   this.docsPerChunk=(int)(Math.ceil(PREFERRED_NUM_VALUES_PER_CHUNK / averageValuesPerDoc));
   this.numChunks=(numDocs + docsPerChunk - 1) / docsPerChunk;
+  this.isMmap=isMmap;
   chunkOffsetHeaderSize=numChunks * SIZE_OF_INT * NUM_COLS_IN_HEADER;
   bitsetSize=(totalNumValues + 7) / 8;
   rawDataSize=totalNumValues * columnSizeInBytes;
@@ -26,5 +27,6 @@
     rawDataBuffer=ByteBuffer.allocateDirect(rawDataSize);
     raf.getChannel().read(rawDataBuffer);
     rawDataReader=new FixedByteWidthRowColDataFileReader(rawDataBuffer,totalNumValues,1,new int[]{columnSizeInBytes});
+    raf.close();
   }
 }

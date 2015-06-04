@@ -5,9 +5,9 @@
   rootPlanNode.showTree("");
   final MAggregationOperator operator=(MAggregationOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
-  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
-  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  LOGGER.info("RunningTime : {}",resultBlock.getTimeUsedMs());
+  LOGGER.info("NumDocsScanned : {}",resultBlock.getNumDocsScanned());
+  LOGGER.info("TotalDocs : {}",resultBlock.getTotalDocs());
   Assert.assertEquals(resultBlock.getNumDocsScanned(),582);
   Assert.assertEquals(resultBlock.getTotalDocs(),10001);
   final ReduceService reduceService=new DefaultReduceService();
@@ -23,5 +23,5 @@
   instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getAggregationResultDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationResultDataTable());
   final BrokerResponse reducedResults=reduceService.reduceOnDataTable(getAggregationNoFilterBrokerRequest(),instanceResponseMap);
-  System.out.println(reducedResults);
+  LOGGER.info("Reduced Result : {}",reducedResults);
 }

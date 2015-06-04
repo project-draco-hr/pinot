@@ -1,0 +1,14 @@
+{
+  Process plsof=new ProcessBuilder(new String[]{"lsof","|","grep",f.getAbsolutePath()}).start();
+  BufferedReader plsofReader=new BufferedReader(new InputStreamReader(plsof.getInputStream()));
+  String line;
+  int numOpenFiles=0;
+  while ((line=plsofReader.readLine()) != null) {
+    if (line.contains(f.getAbsolutePath())) {
+      numOpenFiles++;
+    }
+  }
+  plsofReader.close();
+  plsof.destroy();
+  return numOpenFiles;
+}
