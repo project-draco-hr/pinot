@@ -19,16 +19,8 @@ synchronized (getGlobalLock()) {
 synchronized (getGlobalLock()) {
           if (!_segmentsMap.containsKey(segmentId)) {
             PinotHelixPropertyStoreZnRecordProvider propertyStoreHelper=PinotHelixPropertyStoreZnRecordProvider.forSchema(propertyStore);
-            String path=StringUtil.join("/",propertyStoreHelper.getRelativePath(),tableConfig.getValidationConfig().getSchemaName());
-            List<String> schemas=propertyStore.getChildNames(path,AccessOption.PERSISTENT);
-            List<Integer> schemasIds=new ArrayList<Integer>();
-            for (            String id : schemas) {
-              schemasIds.add(Integer.parseInt(id));
-            }
-            Collections.sort(schemasIds);
-            String latest=String.valueOf(schemasIds.get(schemasIds.size() - 1));
-            LOGGER.info("found schema {} with version {}",tableConfig.getValidationConfig().getSchemaName(),latest);
-            ZNRecord record=propertyStoreHelper.get(tableConfig.getValidationConfig().getSchemaName() + "/" + latest);
+            ZNRecord record=propertyStoreHelper.get(tableConfig.getValidationConfig().getSchemaName());
+            LOGGER.info("found schema {} ",tableConfig.getValidationConfig().getSchemaName());
             SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record));
             LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);
             _segmentsMap.put(segmentId,manager);
