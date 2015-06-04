@@ -1,7 +1,6 @@
 {
   final String segmentId=message.getPartitionName();
   final String tableName=message.getResourceName();
-  ZkHelixPropertyStore<ZNRecord> propertyStore=ZkUtils.getZkPropertyStore(context.getManager(),_helixClusterName);
   SegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(propertyStore,tableName,segmentId);
   InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(propertyStore,_instanceId);
   AbstractTableConfig tableConfig=ZKMetadataProvider.getRealtimeTableConfig(propertyStore,tableName);

@@ -4,10 +4,10 @@
     final DataOutputStream out=new DataOutputStream(baos);
     out.writeInt(metadata.size());
     for (    Entry<String,String> entry : metadata.entrySet()) {
-      byte[] keyBytes=entry.getKey().getBytes();
+      byte[] keyBytes=entry.getKey().getBytes(UTF8);
       out.writeInt(keyBytes.length);
       out.write(keyBytes);
-      byte[] valueBytes=entry.getValue().getBytes();
+      byte[] valueBytes=entry.getValue().getBytes(UTF8);
       out.writeInt(valueBytes.length);
       out.write(valueBytes);
     }

@@ -1,7 +1,6 @@
 {
   final String segmentId=message.getPartitionName();
   final String tableName=message.getResourceName();
-  ZkHelixPropertyStore<ZNRecord> propertyStore=ZkUtils.getZkPropertyStore(context.getManager(),_helixClusterName);
   OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(propertyStore,tableName,segmentId);
   LOGGER.info("Trying to load segment : " + segmentId + " for table : "+ tableName);
   try {

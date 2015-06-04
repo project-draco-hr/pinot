@@ -5,7 +5,7 @@
     byteBuffer=file.getChannel().map(FileChannel.MapMode.READ_ONLY,0,totalSizeInBytes);
   }
  else {
-    byteBuffer=ByteBuffer.allocate(totalSizeInBytes);
+    byteBuffer=ByteBuffer.allocateDirect(totalSizeInBytes);
     file.getChannel().read(byteBuffer);
   }
   ownsByteBuffer=true;

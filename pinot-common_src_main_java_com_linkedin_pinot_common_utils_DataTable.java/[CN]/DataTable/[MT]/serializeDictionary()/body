@@ -4,14 +4,14 @@
     final DataOutputStream out=new DataOutputStream(baos);
     out.writeInt(dictionary.size());
     for (    String key : dictionary.keySet()) {
-      byte[] bytes=key.getBytes();
+      byte[] bytes=key.getBytes(UTF8);
       out.writeInt(bytes.length);
       out.write(bytes);
       Map<Integer,String> map=dictionary.get(key);
       out.writeInt(map.size());
       for (      Entry<Integer,String> entry : map.entrySet()) {
         out.writeInt(entry.getKey());
-        byte[] valueBytes=entry.getValue().getBytes();
+        byte[] valueBytes=entry.getValue().getBytes(UTF8);
         out.writeInt(valueBytes.length);
         out.write(valueBytes);
       }

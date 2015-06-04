@@ -5,9 +5,10 @@
   startServerInstance(pinotHelixProperties);
   _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,instanceId,InstanceType.PARTICIPANT,zkServer);
   final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
-  final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory(helixClusterName,instanceId,_serverInstance.getInstanceDataManager(),new ColumnarSegmentMetadataLoader(),pinotHelixProperties);
-  stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
   _helixManager.connect();
+  ZkHelixPropertyStore<ZNRecord> zkPropertyStore=ZkUtils.getZkPropertyStore(_helixManager,helixClusterName);
+  final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory(helixClusterName,instanceId,_serverInstance.getInstanceDataManager(),new ColumnarSegmentMetadataLoader(),pinotHelixProperties,zkPropertyStore);
+  stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
   _helixAdmin=_helixManager.getClusterManagmentTool();
   addInstanceTagIfNeeded(helixClusterName,instanceId);
 }

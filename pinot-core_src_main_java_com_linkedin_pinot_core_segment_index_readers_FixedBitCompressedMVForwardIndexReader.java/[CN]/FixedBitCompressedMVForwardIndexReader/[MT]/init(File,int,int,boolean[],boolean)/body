@@ -7,7 +7,7 @@
     byteBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,0,headerSize);
   }
  else {
-    byteBuffer=ByteBuffer.allocate(headerSize);
+    byteBuffer=ByteBuffer.allocateDirect(headerSize);
     raf.getChannel().read(byteBuffer);
   }
   headerSectionReader=new FixedByteWidthRowColDataFileReader(byteBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT,SIZE_OF_INT});
@@ -19,7 +19,7 @@
     dataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_ONLY,headerSize,dataSizeInBytes);
   }
  else {
-    dataBuffer=ByteBuffer.allocate(dataSizeInBytes);
+    dataBuffer=ByteBuffer.allocateDirect(dataSizeInBytes);
     raf.getChannel().read(dataBuffer,headerSize);
   }
   dataSectionReader=FixedBitWidthRowColDataFileReader.forByteBuffer(dataBuffer,totalNumValues,1,new int[]{columnSizeInBits},signed);

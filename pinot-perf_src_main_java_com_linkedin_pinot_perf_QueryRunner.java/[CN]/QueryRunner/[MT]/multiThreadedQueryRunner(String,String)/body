@@ -1,0 +1,35 @@
+{
+  PerfBenchmarkDriverConf conf=(PerfBenchmarkDriverConf)new Yaml().load(new FileInputStream(confFile));
+  conf.setStartBroker(false);
+  conf.setStartController(false);
+  conf.setStartServer(false);
+  conf.setStartZookeeper(false);
+  conf.setUploadIndexes(false);
+  conf.setRunQueries(true);
+  conf.setConfigureResources(false);
+  final PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
+  final List<String> queries=IOUtils.readLines(new FileInputStream(new File(queryFile)));
+  final Random random=new Random();
+  final int targetQps=10;
+  final int numClients=3;
+  final int sleepMillis=1000 / (numClients * targetQps);
+  ArrayList<Callable<Void>> tasks=new ArrayList<Callable<Void>>();
+  for (int i=0; i < numClients; i++) {
+    Callable<Void> callable=new Callable<Void>(){
+      @Override public Void call() throws Exception {
+        while (true) {
+          String query=queries.get(random.nextInt(queries.size()));
+          JSONObject response=driver.postQuery(query);
+          Thread.sleep(sleepMillis);
+        }
+      }
+    }
+;
+    tasks.add(callable);
+  }
+  List<Future<Void>> invokeAll=Executors.newFixedThreadPool(numClients).invokeAll(tasks);
+  for (int i=0; i < numClients; i++) {
+    Future<Void> future=invokeAll.get(i);
+    future.get();
+  }
+}

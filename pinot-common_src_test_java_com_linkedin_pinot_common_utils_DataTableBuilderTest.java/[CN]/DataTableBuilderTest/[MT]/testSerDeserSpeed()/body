@@ -25,7 +25,8 @@
   builder.addMetaData("numDocsScanned","25");
   builder.seal();
   DataTable dataTable=builder.build();
-  DataTable newDataTable=new DataTable(dataTable.toBytes());
+  byte[] bytes=dataTable.toBytes();
+  DataTable newDataTable=new DataTable(bytes);
   Assert.assertEquals(dataTable.numRows,newDataTable.numRows);
   Assert.assertEquals(dataTable.numCols,newDataTable.numCols);
   for (int i=0; i < newDataTable.numRows; i++) {
@@ -35,10 +36,9 @@ case STRING:
         Assert.assertEquals(dataTable.getString(i,j),newDataTable.getString(i,j));
       break;
 case OBJECT:
-    Assert.assertEquals(dataTable.getObject(i,j),newDataTable.getObject(i,j));
-  break;
+    break;
 case BOOLEAN:
-break;
+  break;
 case BYTE:
 break;
 case BYTE_ARRAY:

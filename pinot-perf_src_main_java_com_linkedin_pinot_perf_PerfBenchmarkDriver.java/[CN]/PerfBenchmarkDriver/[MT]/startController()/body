@@ -3,13 +3,7 @@
     LOGGER.info("Skipping start controller step. Assumes controller is already started");
     return;
   }
-  ControllerConf conf=new ControllerConf();
-  conf.setHelixClusterName(clusterName);
-  conf.setZkStr(zkAddress);
-  conf.setControllerHost(controllerHost);
-  conf.setControllerPort(String.valueOf(controllerPort));
-  conf.setDataDir(controllerDataDir);
-  conf.setControllerVipHost("localhost");
+  ControllerConf conf=getControllerConf();
   controllerStarter=new ControllerStarter(conf);
   controllerStarter.start();
 }
