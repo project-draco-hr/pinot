@@ -2,21 +2,19 @@
   if (fieldSpec.getName() == null) {
     fieldSpec.setName(columnName);
   }
-  if (fieldSpecMap.containsKey(columnName)) {
-    return;
-  }
   if (columnName != null) {
-    fieldSpecMap.put(columnName,fieldSpec);
     if (fieldSpec.getFieldType() == FieldType.DIMENSION) {
-      dimensions.add(columnName);
-      Collections.sort(dimensions);
+      if (dimensions.add(columnName)) {
+        dimensionFieldSpecs.add((DimensionFieldSpec)fieldSpec);
+      }
     }
  else     if (fieldSpec.getFieldType() == FieldType.METRIC) {
-      metrics.add(columnName);
-      Collections.sort(metrics);
+      if (metrics.add(columnName)) {
+        metricFieldSpecs.add((MetricFieldSpec)fieldSpec);
+      }
     }
  else     if (fieldSpec.getFieldType() == FieldType.TIME) {
-      timeColumnName=columnName;
+      timeFieldSpec=(TimeFieldSpec)fieldSpec;
     }
   }
 }

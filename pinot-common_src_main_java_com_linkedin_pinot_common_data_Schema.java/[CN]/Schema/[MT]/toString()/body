@@ -1,24 +1,15 @@
 {
-  final StringBuilder result=new StringBuilder();
-  final String newLine=System.getProperty("line.separator");
-  result.append(this.getClass().getName());
-  result.append(" Object {");
-  result.append(newLine);
-  final Field[] fields=this.getClass().getDeclaredFields();
-  for (  final Field field : fields) {
-    result.append("  ");
-    try {
-      result.append(field.getName());
-      result.append(": ");
-      result.append(field.get(this));
-    }
- catch (    final IllegalAccessException ex) {
-      if (LOGGER.isWarnEnabled()) {
-        LOGGER.warn("Caught exception while processing field " + field,ex);
-      }
-    }
-    result.append(newLine);
+  JSONObject ret=new JSONObject();
+  try {
+    ret.put("metricFieldSpecs",new ObjectMapper().writeValueAsString(metricFieldSpecs));
+    ret.put("dimensionFieldSpecs",new ObjectMapper().writeValueAsString(dimensionFieldSpecs));
+    ret.put("timeFieldSpec",new ObjectMapper().writeValueAsString(timeFieldSpec));
+    ret.put("schemaName",schemaName);
+    ret.put("schemaVersion",schemaVersion);
   }
-  result.append("}");
-  return result.toString();
+ catch (  Exception e) {
+    LOGGER.error("error processing toString on Schema : ",this.schemaName,e);
+    return null;
+  }
+  return ret.toString();
 }

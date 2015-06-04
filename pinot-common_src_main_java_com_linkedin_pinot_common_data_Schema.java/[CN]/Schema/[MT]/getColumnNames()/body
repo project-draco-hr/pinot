@@ -1,3 +1,9 @@
 {
-  return fieldSpecMap.keySet();
+  Set<String> ret=new HashSet<String>();
+  ret.addAll(metrics);
+  ret.addAll(dimensions);
+  if (timeFieldSpec != null) {
+    ret.add(timeFieldSpec.getName());
+  }
+  return ret;
 }

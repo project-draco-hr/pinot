@@ -1,0 +1,12 @@
+{
+  return (DimensionFieldSpec)CollectionUtils.find(dimensionFieldSpecs,new Predicate(){
+    @Override public boolean evaluate(    Object object){
+      if (object instanceof DimensionFieldSpec) {
+        DimensionFieldSpec spec=(DimensionFieldSpec)object;
+        return spec.getName().equals(dimensionName);
+      }
+      return false;
+    }
+  }
+);
+}
