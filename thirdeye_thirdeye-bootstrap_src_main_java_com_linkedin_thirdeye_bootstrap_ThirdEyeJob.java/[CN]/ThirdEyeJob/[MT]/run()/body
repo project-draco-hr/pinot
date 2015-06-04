@@ -18,6 +18,7 @@
   String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getName(),inputConfig);
   FlowSpec flowSpec=null;
 switch (phaseSpec) {
+case WAIT:
 case ANALYSIS:
 case AGGREGATION:
 case ROLLUP_PHASE1:
@@ -136,6 +137,34 @@ LOGGER.info("Changing permission of {} to {}",dimensionIndexDir,thirdeyeFolderPe
 shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,dimensionIndexDir});
 LOGGER.info("Changing permission of {} to {}",metricIndexDir,thirdeyeFolderPermission);
 shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,metricIndexDir});
+}
+ else if (PhaseSpec.WAIT.equals(phaseSpec)) {
+boolean pollEnable=Boolean.parseBoolean(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_POLL_ENABLE.getName(),DEFAULT_POLL_ENABLE));
+LOGGER.info("Poll enable {}",pollEnable);
+if (pollEnable) {
+FileSystem fileSystem=FileSystem.get(new Configuration());
+long elapsedTime=0;
+long pollStart=(new DateTime()).getMillis();
+long pollFrequency=Long.parseLong(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_POLL_FREQUENCY.getName(),DEFAULT_POLL_FREQUENCY));
+long pollTimeout=Long.parseLong(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_POLL_TIMEOUT.getName(),DEFAULT_POLL_TIMEOUT));
+LOGGER.info("Polling input paths {} with poll frequency {} and poll timeout {}",inputPaths,pollFrequency,pollTimeout);
+String[] inputs=inputConfig.getProperty(ThirdEyeJobConstants.INPUT_PATHS.getName()).split(INPUT_PATHS_JOINER);
+for (String input : inputs) {
+Path inputPath=new Path(input);
+LOGGER.info("Beginning polling for path {}",inputPath);
+while (!fileSystem.exists(inputPath) && elapsedTime < pollTimeout) {
+LOGGER.info("Path {} doesn't exist, will check again after {} milliseconds",inputPath,pollFrequency);
+TimeUnit.MILLISECONDS.sleep(pollFrequency);
+elapsedTime=new DateTime().getMillis() - pollStart;
+}
+if (fileSystem.exists(inputPath)) {
+LOGGER.info("Path {} is available",inputPath);
+}
+ else {
+throw new IllegalStateException("Timed out waiting for input paths");
+}
+}
+}
 }
  else if (PhaseSpec.CLEANUP.equals(phaseSpec)) {
 boolean cleanupSkip=Boolean.parseBoolean(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_SKIP.getName(),DEFAULT_CLEANUP_SKIP));
