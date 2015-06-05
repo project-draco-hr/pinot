@@ -1,0 +1,14 @@
+{
+  dimensionValues=new HashMap<String,ArrayList<String>>();
+  String str;
+  for (int dimensionIdx=0; dimensionIdx < config.dimensions.size(); dimensionIdx++) {
+    Set<String> uniqueValues=new HashSet<String>();
+    for (int cardinalityCount=0; cardinalityCount < config.dimensionCardinality[dimensionIdx]; cardinalityCount++) {
+      while (uniqueValues.contains((str=RandomStringUtils.randomAlphabetic(dimensionIdx + 1)))) {
+        ;
+      }
+      uniqueValues.add("d" + dimensionIdx + "_"+ str);
+    }
+    dimensionValues.put(config.dimensions.get(dimensionIdx),new ArrayList<String>(uniqueValues));
+  }
+}
