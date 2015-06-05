@@ -12,9 +12,16 @@
     for (    final PlanNode planNode : _planNodeList) {
       _executorService.execute(new Runnable(){
         @Override public void run(){
-          Operator operator=planNode.run();
-          queue.add(operator);
-          latch.countDown();
+          try {
+            Operator operator=planNode.run();
+            queue.add(operator);
+          }
+ catch (          Exception e) {
+            LOGGER.error("Getting exception when trying to run a planNode",e);
+          }
+ finally {
+            latch.countDown();
+          }
         }
       }
 );

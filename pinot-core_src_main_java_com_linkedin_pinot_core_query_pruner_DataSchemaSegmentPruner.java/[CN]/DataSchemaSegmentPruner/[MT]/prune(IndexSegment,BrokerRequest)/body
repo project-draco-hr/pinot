@@ -1,6 +1,6 @@
 {
   Schema schema=segment.getSegmentMetadata().getSchema();
-  if (!filterQueryMatchedSchema(schema,brokerRequest.getFilterQuery(),brokerRequest.getFilterSubQueryMap())) {
+  if (brokerRequest.getFilterQuery() != null && !filterQueryMatchedSchema(schema,brokerRequest.getFilterQuery(),brokerRequest.getFilterSubQueryMap())) {
     return true;
   }
   if (brokerRequest.getAggregationsInfo() != null) {
