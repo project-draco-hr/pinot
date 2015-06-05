@@ -46,22 +46,10 @@
     }
   }
 );
-  environment.healthChecks().register(CollectionConsistencyHealthCheck.NAME,new CollectionConsistencyHealthCheck(rootDir,starTreeManager));
-  environment.healthChecks().register(TimeRangeHealthCheck.NAME,new TimeRangeHealthCheck(rootDir,starTreeManager));
-  environment.healthChecks().register(StarTreeHealthCheck.NAME,new StarTreeHealthCheck(rootDir,starTreeManager));
-  environment.healthChecks().register(TimeRangeContiguityHealthCheck.NAME,new TimeRangeContiguityHealthCheck(rootDir,starTreeManager));
   environment.healthChecks().register(KafkaDataLagHealthCheck.NAME,new KafkaDataLagHealthCheck(kafkaConsumerManager));
   environment.healthChecks().register(KafkaConsumerLagHealthCheck.NAME,new KafkaConsumerLagHealthCheck(kafkaConsumerManager));
-  TimeSeriesResource timeSeriesResource=new TimeSeriesResource(starTreeManager);
-  FunnelResource funnelResource=new FunnelResource(starTreeManager);
-  HeatMapResource heatMapResource=new HeatMapResource(starTreeManager,parallelQueryExecutor);
   environment.jersey().register(new CollectionsResource(starTreeManager,environment.metrics(),dataUpdateManager,rootDir));
   environment.jersey().register(new AdminResource());
-  environment.jersey().register(new AggregateResource(starTreeManager));
-  environment.jersey().register(timeSeriesResource);
-  environment.jersey().register(funnelResource);
-  environment.jersey().register(heatMapResource);
-  environment.jersey().register(new DashboardResource(starTreeManager,timeSeriesResource,funnelResource,heatMapResource,config.getFeedbackAddress()));
   environment.jersey().register(new QueryResource(new ThirdEyeQueryExecutor(parallelQueryExecutor,starTreeManager)));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new KafkaTask(kafkaConsumerManager));
