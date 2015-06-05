@@ -1,0 +1,14 @@
+{
+  if (filterQuery.getNestedFilterQueryIds() == null || filterQuery.getNestedFilterQueryIds().isEmpty()) {
+    return schema.isExisted(filterQuery.getColumn());
+  }
+ else {
+    for (    Integer queryId : filterQuery.getNestedFilterQueryIds()) {
+      FilterQuery fq=filterQueryMap.getFilterQueryMap().get(queryId);
+      if (!filterQueryMatchedSchema(schema,fq,filterQueryMap)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}

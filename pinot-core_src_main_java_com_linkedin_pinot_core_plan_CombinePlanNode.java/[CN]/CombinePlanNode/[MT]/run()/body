@@ -10,7 +10,7 @@
     final CountDownLatch latch=new CountDownLatch(_planNodeList.size());
     final ConcurrentLinkedQueue<Operator> queue=new ConcurrentLinkedQueue<Operator>();
     for (    final PlanNode planNode : _planNodeList) {
-      cachedThreadPool.execute(new Runnable(){
+      _executorService.execute(new Runnable(){
         @Override public void run(){
           Operator operator=planNode.run();
           queue.add(operator);

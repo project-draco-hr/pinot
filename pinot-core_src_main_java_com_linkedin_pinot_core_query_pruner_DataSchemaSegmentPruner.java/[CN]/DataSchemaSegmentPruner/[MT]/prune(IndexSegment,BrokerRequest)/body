@@ -1,5 +1,8 @@
 {
   Schema schema=segment.getSegmentMetadata().getSchema();
+  if (!filterQueryMatchedSchema(schema,brokerRequest.getFilterQuery(),brokerRequest.getFilterSubQueryMap())) {
+    return true;
+  }
   if (brokerRequest.getAggregationsInfo() != null) {
     for (    AggregationInfo aggregationInfo : brokerRequest.getAggregationsInfo()) {
       if (aggregationInfo.getAggregationParams().containsKey(COLUMN_KEY)) {
