@@ -21,6 +21,15 @@
     }
   }
 );
+  Desktop desktop=Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+  if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+    try {
+      desktop.browse(new URI("http://localhost:9000/query/"));
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+    }
+  }
   System.out.println("quickstart setup complete");
   try {
     BufferedReader br=new BufferedReader(new InputStreamReader(System.in));

@@ -29,6 +29,7 @@
           KeyedFuture<ServerInstance,NettyClientConnection> c=connectionPool.checkoutObject(ins);
           for (          Map.Entry<ServerInstance,NettyClientConnection> entry : c.get().entrySet()) {
             if (!entry.getValue().validate()) {
+              LOGGER.info("destroying a connection for : {} ",instanceId);
               connectionPool.destroyObject(ins,entry.getValue());
             }
           }
@@ -47,6 +48,7 @@
           if (!conn.validate()) {
             for (            Map.Entry<ServerInstance,NettyClientConnection> entry : c.get().entrySet()) {
               if (!entry.getValue().validate()) {
+                LOGGER.info("destroying a connection for : {} ",instanceId);
                 connectionPool.destroyObject(ins,entry.getValue());
               }
             }
