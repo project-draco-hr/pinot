@@ -8,6 +8,9 @@
   _connPool.start();
   _routingTable.start();
   _state.set(State.RUNNING);
+  if (listener != null) {
+    listener.init(_connPool,DEFAULT_BROKER_TIME_OUT);
+  }
   LOGGER.info("Network running !!");
   LOGGER.info("Starting Jetty server !!");
   _server.start();

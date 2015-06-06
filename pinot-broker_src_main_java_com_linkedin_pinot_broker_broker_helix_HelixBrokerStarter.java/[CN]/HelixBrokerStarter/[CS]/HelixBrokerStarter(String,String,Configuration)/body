@@ -1,4 +1,5 @@
 {
+  _liveInstancesListener=new LiveInstancesChangeListenerImpl(helixClusterName);
   _pinotHelixProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf(pinotHelixProperties);
   final String brokerId=_pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE + NetUtil.getHostAddress() + "_"+ _pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT));
   _pinotHelixProperties.addProperty("pinot.broker.id",brokerId);
@@ -18,4 +19,5 @@
   _helixBrokerRoutingTable=new HelixBrokerRoutingTable(_helixExternalViewBasedRouting,brokerId,_helixManager);
   addInstanceTagIfNeeded(helixClusterName,brokerId);
   _helixManager.addExternalViewChangeListener(_helixBrokerRoutingTable);
+  _helixManager.addLiveInstanceChangeListener(_liveInstancesListener);
 }
