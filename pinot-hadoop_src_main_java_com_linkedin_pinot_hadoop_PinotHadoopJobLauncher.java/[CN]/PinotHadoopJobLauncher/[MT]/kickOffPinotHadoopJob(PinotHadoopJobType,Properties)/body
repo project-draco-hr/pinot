@@ -1,0 +1,16 @@
+{
+switch (jobType) {
+case SegmentCreation:
+    new SegmentCreationJob(SEGMENT_CREATION_JOB_NAME,jobConf).run();
+  break;
+case SegmentTarPush:
+new SegmentTarPushJob(SEGMENT_PUSH_TAR_JOB_NAME,jobConf).run();
+break;
+case SegmentCreationAndTarPush:
+new SegmentCreationJob(StringUtil.join(":",SEGMENT_CREATION_JOB_NAME,SEGMENT_CREATION_AND_TAR_PUSH_JOB_NAME),jobConf).run();
+new SegmentTarPushJob(StringUtil.join(":",SEGMENT_PUSH_TAR_JOB_NAME,SEGMENT_CREATION_AND_TAR_PUSH_JOB_NAME),jobConf).run();
+break;
+default :
+throw new RuntimeException("Not a valid jobType - " + jobType);
+}
+}

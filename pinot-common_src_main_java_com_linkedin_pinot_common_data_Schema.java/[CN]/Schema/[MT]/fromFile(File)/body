@@ -1,5 +1,5 @@
 {
-  JsonNode node=new ObjectMapper().readTree(schemaFile);
+  JsonNode node=new ObjectMapper().readTree(new FileInputStream(schemaFile));
   Schema schema=new ObjectMapper().readValue(node,Schema.class);
   schema.setJSONSchema(node.toString());
   return schema;

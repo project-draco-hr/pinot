@@ -1,0 +1,28 @@
+{
+  String fileName=path.getName();
+  if (!fileName.endsWith(".tar.gz")) {
+    return;
+  }
+  long length=fs.getFileStatus(path).getLen();
+  for (  String host : _hosts) {
+    InputStream inputStream=null;
+    try {
+      inputStream=fs.open(path);
+      fileName=fileName.split(".tar")[0];
+      LOGGER.info("******** Upoading file: {} to Host: {} and Port: {} *******",fileName,host,_port);
+      try {
+        int responseCode=FileUploadUtils.sendSegmentFile(host,_port,fileName,inputStream,length);
+        LOGGER.info("Response code: {}",responseCode);
+      }
+ catch (      Exception e) {
+        LOGGER.error("******** Error Upoading file: {} to Host: {} and Port: {}  *******",fileName,host,_port);
+        LOGGER.error(e.getMessage());
+        e.printStackTrace();
+        throw new RuntimeException("Got Error during send tar files to push hosts!");
+      }
+    }
+  finally {
+      inputStream.close();
+    }
+  }
+}

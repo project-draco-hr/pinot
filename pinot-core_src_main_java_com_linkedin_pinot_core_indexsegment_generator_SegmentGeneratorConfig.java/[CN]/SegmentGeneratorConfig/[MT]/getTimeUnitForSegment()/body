@@ -1,3 +1,16 @@
 {
-  return TimeUnit.valueOf(properties.get(MetadataKeys.Segment.TIME_UNIT).toString());
+  if (properties.containsKey(MetadataKeys.Segment.TIME_UNIT)) {
+    return TimeUnit.valueOf(properties.get(MetadataKeys.Segment.TIME_UNIT).toString());
+  }
+ else {
+    if (schema.getTimeFieldSpec() != null) {
+      if (schema.getTimeFieldSpec().getOutgoingGranularitySpec() != null) {
+        return schema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType();
+      }
+      if (schema.getTimeFieldSpec().getIncomingGranularitySpec() != null) {
+        return schema.getTimeFieldSpec().getIncomingGranularitySpec().getTimeType();
+      }
+    }
+    return TimeUnit.DAYS;
+  }
 }

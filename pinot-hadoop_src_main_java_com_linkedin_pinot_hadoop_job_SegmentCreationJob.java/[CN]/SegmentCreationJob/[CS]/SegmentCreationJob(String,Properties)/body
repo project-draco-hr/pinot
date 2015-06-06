@@ -1,0 +1,22 @@
+{
+  super(new Configuration());
+  getConf().set("mapreduce.job.user.classpath.first","true");
+  _jobName=jobName;
+  _properties=properties;
+  _inputSegmentDir=_properties.getProperty(PATH_TO_INPUT);
+  String schemaFilePath=_properties.getProperty(PATH_TO_SCHEMA);
+  _outputDir=_properties.getProperty(PATH_TO_OUTPUT);
+  _stagingDir=new File(_outputDir,TEMP).getAbsolutePath();
+  _depsJarPath=_properties.getProperty(PATH_TO_DEPS_JAR,null);
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("path.to.input: {}",_inputSegmentDir);
+  LOGGER.info("path.to.deps.jar: {}",_depsJarPath);
+  LOGGER.info("path.to.output: {}",_outputDir);
+  LOGGER.info("path.to.schema: {}",schemaFilePath);
+  _dataSchema=Schema.fromFile(new File(schemaFilePath));
+  LOGGER.info("schema: {}",_dataSchema);
+  LOGGER.info("*********************************************************************");
+  if (getConf().get(SEGMENT_TABLE_NAME,null) == null) {
+    getConf().set(SEGMENT_TABLE_NAME,_dataSchema.getSchemaName());
+  }
+}

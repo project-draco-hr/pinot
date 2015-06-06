@@ -1,0 +1,34 @@
+{
+  final FileSystem fs=FileSystem.get(new Configuration());
+  final Path hdfsDataPath=new Path(dataFilePath);
+  final File dataPath=new File(_currentDiskWorkDir,"data");
+  if (dataPath.exists()) {
+    dataPath.delete();
+  }
+  dataPath.mkdir();
+  final Path localAvroPath=new Path(dataPath + "/" + hdfsDataPath.getName());
+  fs.copyToLocalFile(hdfsDataPath,localAvroPath);
+  LOGGER.info("Data schema is : {}",schema);
+  SegmentGeneratorConfig segmentGeneratorConfig=new SegmentGeneratorConfig(schema);
+  segmentGeneratorConfig.setTableName(_tableName);
+  segmentGeneratorConfig.setInputFilePath(new File(dataPath,hdfsDataPath.getName()).getAbsolutePath());
+  FileFormat fileFormat=getFileFormat(dataFilePath);
+  segmentGeneratorConfig.setInputFileFormat(fileFormat);
+  segmentGeneratorConfig.setSegmentNamePostfix(seqId);
+  segmentGeneratorConfig.setRecordeReaderConfig(getReaderConfig(fileFormat));
+  segmentGeneratorConfig.setIndexOutputDir(_localDiskSegmentDirectory);
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  driver.init(segmentGeneratorConfig);
+  driver.build();
+  String segmentName=(new File(_localDiskSegmentDirectory).listFiles()[0]).getName();
+  String localSegmentPath=new File(_localDiskSegmentDirectory,segmentName).getAbsolutePath();
+  String localTarPath=_localDiskSegmentTarPath + "/" + segmentName+ ".tar.gz";
+  LOGGER.info("Trying to tar the segment to: {}",localTarPath);
+  TarGzCompressionUtils.createTarGzOfDirectory(localSegmentPath,localTarPath);
+  String hdfsTarPath=_localHdfsSegmentTarPath + "/" + segmentName+ ".tar.gz";
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("Copy from : {} to {}",localTarPath,hdfsTarPath);
+  LOGGER.info("*********************************************************************");
+  fs.copyFromLocalFile(true,true,new Path(localTarPath),new Path(hdfsTarPath));
+  return segmentName;
+}

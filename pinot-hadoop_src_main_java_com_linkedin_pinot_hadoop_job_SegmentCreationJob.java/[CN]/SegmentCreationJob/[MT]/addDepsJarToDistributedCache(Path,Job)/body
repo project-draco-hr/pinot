@@ -1,0 +1,17 @@
+{
+  LOGGER.info("Trying to add all the deps jar files from directory: {}",path);
+  FileSystem fs=FileSystem.get(getConf());
+  FileStatus[] fileStatusArr=fs.listStatus(path);
+  for (  FileStatus fileStatus : fileStatusArr) {
+    if (fileStatus.isDirectory()) {
+      addDepsJarToDistributedCache(fileStatus.getPath(),job);
+    }
+ else {
+      Path depJarPath=fileStatus.getPath();
+      if (depJarPath.getName().endsWith(".jar")) {
+        LOGGER.info("Adding deps jar files: {}",path);
+        job.addCacheArchive(path.toUri());
+      }
+    }
+  }
+}

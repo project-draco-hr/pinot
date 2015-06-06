@@ -1,0 +1,34 @@
+{
+  String line=value.toString();
+  String[] lineSplits=line.split(" ");
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("mapper input : {}",value);
+  LOGGER.info("PATH_TO_OUTPUT : {}",_outputPath);
+  LOGGER.info("TABLE_NAME : {}",_tableName);
+  LOGGER.info("num lines : {}",lineSplits.length);
+  for (  String split : lineSplits) {
+    LOGGER.info("Command line : {}",split);
+  }
+  LOGGER.info("*********************************************************************");
+  if (lineSplits.length != 3) {
+    throw new RuntimeException("Input to the mapper is malformed, please contact the pinot team");
+  }
+  _inputFilePath=lineSplits[1].trim();
+  Schema schema=new ObjectMapper().readValue(context.getConfiguration().get("data.schema"),Schema.class);
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("input data file path : {}",_inputFilePath);
+  LOGGER.info("local hdfs segment tar path: {}",_localHdfsSegmentTarPath);
+  LOGGER.info("local disk segment path: {}",_localDiskSegmentDirectory);
+  LOGGER.info("local disk segment tar path: {}",_localDiskSegmentTarPath);
+  LOGGER.info("data schema: {}",_localDiskSegmentTarPath);
+  LOGGER.info("*********************************************************************");
+  try {
+    createSegment(_inputFilePath,schema,lineSplits[2]);
+    LOGGER.info("finished segment creation job successfully");
+  }
+ catch (  Exception e) {
+    LOGGER.error("Got exceptions during creating segments!",e);
+  }
+  context.write(new LongWritable(Long.parseLong(lineSplits[2])),new Text(FileSystem.get(new Configuration()).listStatus(new Path(_localHdfsSegmentTarPath + "/"))[0].getPath().getName()));
+  LOGGER.info("finished the job successfully");
+}

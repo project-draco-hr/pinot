@@ -1,0 +1,66 @@
+{
+  LOGGER.info("Starting {}",getClass().getSimpleName());
+  FileSystem fs=FileSystem.get(getConf());
+  Path inputPathPattern=new Path(_inputSegmentDir);
+  if (fs.exists(new Path(_stagingDir))) {
+    LOGGER.warn("Found the temp folder, deleting it");
+    fs.delete(new Path(_stagingDir),true);
+  }
+  fs.mkdirs(new Path(_stagingDir));
+  fs.mkdirs(new Path(_stagingDir + "/input/"));
+  if (fs.exists(new Path(_outputDir))) {
+    LOGGER.warn("Found the output folder, deleting it");
+    fs.delete(new Path(_outputDir),true);
+  }
+  fs.mkdirs(new Path(_outputDir));
+  List<FileStatus> inputDataFiles=new ArrayList<FileStatus>();
+  FileStatus[] fileStatusArr=fs.globStatus(inputPathPattern);
+  for (  FileStatus fileStatus : fileStatusArr) {
+    inputDataFiles.addAll(getDataFilesFromPath(fs,fileStatus.getPath()));
+  }
+  for (int seqId=0; seqId < inputDataFiles.size(); ++seqId) {
+    FileStatus file=inputDataFiles.get(seqId);
+    String completeFilePath=" " + file.getPath().toString() + " "+ seqId;
+    Path newOutPutFile=new Path((_stagingDir + "/input/" + file.getPath().toString().replace('.','_').replace('/','_').replace(':','_')+ ".txt"));
+    FSDataOutputStream stream=fs.create(newOutPutFile);
+    stream.writeUTF(completeFilePath);
+    stream.flush();
+    stream.close();
+  }
+  Job job=Job.getInstance(getConf());
+  job.setJarByClass(SegmentCreationJob.class);
+  job.setJobName(_jobName);
+  job.setMapperClass(HadoopSegmentCreationMapper.class);
+  if (System.getenv("HADOOP_TOKEN_FILE_LOCATION") != null) {
+    job.getConfiguration().set("mapreduce.job.credentials.binary",System.getenv("HADOOP_TOKEN_FILE_LOCATION"));
+  }
+  job.setInputFormatClass(TextInputFormat.class);
+  job.setOutputFormatClass(TextOutputFormat.class);
+  job.setMapOutputKeyClass(LongWritable.class);
+  job.setMapOutputValueClass(Text.class);
+  FileInputFormat.addInputPath(job,new Path(_stagingDir + "/input/"));
+  FileOutputFormat.setOutputPath(job,new Path(_stagingDir + "/output/"));
+  job.getConfiguration().setInt(JobContext.NUM_MAPS,inputDataFiles.size());
+  job.getConfiguration().set("data.schema",new ObjectMapper().writeValueAsString(_dataSchema));
+  job.setMaxReduceAttempts(1);
+  job.setMaxMapAttempts(0);
+  job.setNumReduceTasks(0);
+  for (  Object key : _properties.keySet()) {
+    job.getConfiguration().set(key.toString(),_properties.getProperty(key.toString()));
+  }
+  if (_depsJarPath != null && _depsJarPath.length() > 0) {
+    addDepsJarToDistributedCache(new Path(_depsJarPath),job);
+  }
+  job.waitForCompletion(true);
+  if (!job.isSuccessful()) {
+    throw new RuntimeException("Job failed : " + job);
+  }
+  LOGGER.info("Moving Segment Tar files from {} to: {}",_stagingDir + "/output/segmentTar",_outputDir);
+  FileStatus[] segmentArr=fs.listStatus(new Path(_stagingDir + "/output/segmentTar"));
+  for (  FileStatus segment : segmentArr) {
+    fs.rename(segment.getPath(),new Path(_outputDir,segment.getPath().getName()));
+  }
+  LOGGER.info("Cleanup the working directory.");
+  LOGGER.info("Deleting the dir: {}",_stagingDir);
+  fs.delete(new Path(_stagingDir),true);
+}

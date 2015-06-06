@@ -1,0 +1,18 @@
+{
+  if (args.length != 2) {
+    usage();
+    System.exit(1);
+  }
+  PinotHadoopJobType jobType=null;
+  Properties jobConf=null;
+  try {
+    jobType=PinotHadoopJobType.valueOf(args[0]);
+    jobConf=new Properties();
+    jobConf.load(new FileInputStream(args[1]));
+  }
+ catch (  Exception e) {
+    usage();
+    System.exit(1);
+  }
+  kickOffPinotHadoopJob(jobType,jobConf);
+}

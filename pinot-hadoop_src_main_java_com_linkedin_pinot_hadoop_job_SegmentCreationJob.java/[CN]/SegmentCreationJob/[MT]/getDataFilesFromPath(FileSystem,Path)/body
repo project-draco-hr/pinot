@@ -1,0 +1,26 @@
+{
+  ArrayList<FileStatus> dataFileStatusList=new ArrayList<FileStatus>();
+  FileStatus[] fileStatusArr=fs.listStatus(inBaseDir);
+  for (  FileStatus fileStatus : fileStatusArr) {
+    if (fileStatus.isDirectory()) {
+      LOGGER.info("Trying to add all the data files from directory: {}",fileStatus.getPath());
+      dataFileStatusList.addAll(getDataFilesFromPath(fs,fileStatus.getPath()));
+    }
+ else {
+      String fileName=fileStatus.getPath().getName();
+      if (fileName.endsWith(".avro")) {
+        LOGGER.info("Adding avro files: {}",fileStatus.getPath());
+        dataFileStatusList.add(fileStatus);
+      }
+      if (fileName.endsWith(".csv")) {
+        LOGGER.info("Adding csv files: {}",fileStatus.getPath());
+        dataFileStatusList.add(fileStatus);
+      }
+      if (fileName.endsWith(".json")) {
+        LOGGER.info("Adding json files: {}",fileStatus.getPath());
+        dataFileStatusList.add(fileStatus);
+      }
+    }
+  }
+  return dataFileStatusList;
+}
