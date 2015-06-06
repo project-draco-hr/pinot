@@ -1,19 +1,19 @@
 {
-  ZkTestUtils.startLocalZkServer();
-  _zkClient=new ZkClient(ZkTestUtils.DEFAULT_ZK_STR);
+  ZkStarter.startLocalZkServer();
+  _zkClient=new ZkClient(ZkStarter.DEFAULT_ZK_STR);
   final String instanceId="localhost_helixController";
-  _pinotResourceManager=new PinotHelixResourceManager(ZkTestUtils.DEFAULT_ZK_STR,HELIX_CLUSTER_NAME,instanceId,null,10000L,true);
+  _pinotResourceManager=new PinotHelixResourceManager(ZkStarter.DEFAULT_ZK_STR,HELIX_CLUSTER_NAME,instanceId,null,10000L,true);
   _pinotResourceManager.start();
-  final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZkTestUtils.DEFAULT_ZK_STR);
+  final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZkStarter.DEFAULT_ZK_STR);
   _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
   Thread.sleep(3000);
   final Configuration pinotHelixBrokerProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf();
   pinotHelixBrokerProperties.addProperty(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,8943);
-  _helixBrokerStarter=new HelixBrokerStarter(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,pinotHelixBrokerProperties);
+  _helixBrokerStarter=new HelixBrokerStarter(HELIX_CLUSTER_NAME,ZkStarter.DEFAULT_ZK_STR,pinotHelixBrokerProperties);
   Thread.sleep(1000);
-  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,5,true);
-  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkTestUtils.DEFAULT_ZK_STR,1,true);
+  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkStarter.DEFAULT_ZK_STR,5,true);
+  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZkStarter.DEFAULT_ZK_STR,1,true);
   final String tableName="company";
   JSONObject buildCreateOfflineTableV2JSON=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,null,null,1);
   AbstractTableConfig config=AbstractTableConfig.init(buildCreateOfflineTableV2JSON.toString());

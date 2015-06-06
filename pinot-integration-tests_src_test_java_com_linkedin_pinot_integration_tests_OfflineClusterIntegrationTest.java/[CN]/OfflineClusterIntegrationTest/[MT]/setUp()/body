@@ -32,7 +32,7 @@
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
   final CountDownLatch latch=new CountDownLatch(1);
-  HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZkTestUtils.DEFAULT_ZK_STR);
+  HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZkStarter.DEFAULT_ZK_STR);
   manager.connect();
   manager.addExternalViewChangeListener(new ExternalViewChangeListener(){
     @Override public void onExternalViewChange(    List<ExternalView> externalViewList,    NotificationContext changeContext){

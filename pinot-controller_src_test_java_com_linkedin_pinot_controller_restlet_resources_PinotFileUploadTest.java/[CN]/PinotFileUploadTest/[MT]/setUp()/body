@@ -2,8 +2,8 @@
   startZk();
   startController();
   _pinotHelixResourceManager=_controllerStarter.getHelixResourceManager();
-  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(getHelixClusterName(),ZkTestUtils.DEFAULT_ZK_STR,5,true);
-  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(getHelixClusterName(),ZkTestUtils.DEFAULT_ZK_STR,5,true);
+  ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(getHelixClusterName(),ZkStarter.DEFAULT_ZK_STR,5,true);
+  ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(getHelixClusterName(),ZkStarter.DEFAULT_ZK_STR,5,true);
   Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER").size(),5);
   String OfflineTableConfigJson=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(TABLE_NAME,null,null,2,"RandomAssignmentStrategy").toString();
   AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(OfflineTableConfigJson);

@@ -1,6 +1,6 @@
 {
-  ZkTestUtils.startLocalZkServer();
-  _zkClient=new ZkClient(StringUtil.join("/",StringUtils.chomp(ZkTestUtils.DEFAULT_ZK_STR,"/")),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
+  ZkStarter.startLocalZkServer();
+  _zkClient=new ZkClient(StringUtil.join("/",StringUtils.chomp(ZkStarter.DEFAULT_ZK_STR,"/")),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
   String helixClusterName="TestTimeBoundaryService";
   _zkClient.deleteRecursive("/" + helixClusterName + "/PROPERTYSTORE");
   _zkClient.createPersistent("/" + helixClusterName + "/PROPERTYSTORE",true);

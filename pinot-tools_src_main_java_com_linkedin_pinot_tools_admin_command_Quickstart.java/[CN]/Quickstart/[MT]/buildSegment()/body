@@ -1,0 +1,18 @@
+{
+  Schema schema=Schema.fromFile(schemaFile);
+  SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
+  config.setTableName("baseballStats");
+  config.setInputFileFormat(FileFormat.CSV);
+  config.setIndexOutputDir(new File(tempDir,"segments").getAbsolutePath());
+  config.setSegmentName("baseballStats_1");
+  RecordReaderConfig readerConfig=new RecordReaderConfig();
+  readerConfig.setCsvDateColumns(new HashSet<String>());
+  readerConfig.setCsvDelimiter(",");
+  CSVRecordReader reader=new CSVRecordReader(dataFile.getAbsolutePath(),readerConfig,schema);
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  driver.init(config,reader);
+  driver.build();
+  File tarsDir=new File(tempDir,"tars");
+  tarsDir.mkdir();
+  TarGzCompressionUtils.createTarGzOfDirectory(new File(tempDir,"segments").listFiles()[0].getAbsolutePath(),new File(tarsDir,"baseballStats_1").getAbsolutePath());
+}
