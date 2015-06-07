@@ -1,0 +1,80 @@
+{
+  File dataFile=new File(Quickstart.class.getClassLoader().getResource("sample_data/baseball.csv").toExternalForm());
+  File tempDirOne=new File("/tmp/" + System.currentTimeMillis());
+  tempDirOne.mkdir();
+  if (true) {
+    InputStream s=Quickstart.class.getClassLoader().getResource("sample_data/baseball.csv").openStream();
+    IOUtils.copy(s,new FileOutputStream(new File(tempDirOne,"baseball.csv")));
+    dataFile=new File(tempDirOne,"baseball.csv");
+  }
+  File schemaFile=new File(Quickstart.class.getClassLoader().getResource("sample_data/baseball.schema").toExternalForm());
+  if (true) {
+    InputStream s=Quickstart.class.getClassLoader().getResource("sample_data/baseball.schema").openStream();
+    IOUtils.copy(s,new FileOutputStream(new File(tempDirOne,"baseball.schema")));
+    schemaFile=new File(tempDirOne,"baseball.schema");
+  }
+  System.out.println("schema file : " + schemaFile.getAbsolutePath());
+  System.out.println("data file : " + dataFile.getAbsolutePath());
+  File tempDir=new File("/tmp/" + String.valueOf(System.currentTimeMillis()));
+  String tableName="baseballStats";
+  final QuickstartRunner runner=new QuickstartRunner(schemaFile,dataFile,tempDir,tableName);
+  runner.clean();
+  System.out.println("**************************** : starting all");
+  runner.startAll();
+  System.out.println("**************************** : started all");
+  runner.addSchema();
+  System.out.println("**************************** : schema added");
+  runner.addTable();
+  System.out.println("**************************** : tabled added");
+  runner.buildSegment();
+  System.out.println("**************************** : segment build");
+  runner.pushSegment();
+  System.out.println("**************************** : segment pushed");
+  Runtime.getRuntime().addShutdownHook(new Thread(){
+    @Override public void run(){
+      try {
+        runner.clean();
+        runner.stop();
+      }
+ catch (      Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+);
+  Desktop desktop=Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+  if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+    try {
+      desktop.browse(new URI("http://localhost:9000/query/"));
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+  System.out.println("quickstart setup complete");
+  try {
+    BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    String line;
+    while ((line=br.readLine()) != null) {
+      try {
+        if (line.startsWith("run")) {
+          String query=line.substring(line.indexOf("run") + "run".length(),line.length());
+          System.out.println("running query : " + query);
+          System.out.println(runner.runQuery(query).toString(1));
+          continue;
+        }
+        runner.printUsageAndInfo();
+      }
+ catch (      Exception e) {
+        System.out.println("cannot understand command : " + line + " : only commands understood is : run <QUERY> ");
+        return false;
+      }
+    }
+  }
+ catch (  IOException io) {
+    io.printStackTrace();
+    return false;
+  }
+  return false;
+}
