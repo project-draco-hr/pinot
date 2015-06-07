@@ -6,7 +6,15 @@
     if (f.isAnnotationPresent(SubCommands.class)) {
       SubCommands subCommands=f.getAnnotation(SubCommands.class);
       for (      SubCommand subCommand : subCommands.value()) {
-        System.out.println("\t" + subCommand.name());
+        Class<?> subCommandClass=subCommand.impl();
+        Command command=null;
+        try {
+          command=(Command)subCommandClass.newInstance();
+          System.out.println("\t" + subCommand.name() + "\t<"+ command.description()+ ">");
+        }
+ catch (        Exception e) {
+          System.out.println("Internal Error: Error instantiating class.");
+        }
       }
     }
   }
