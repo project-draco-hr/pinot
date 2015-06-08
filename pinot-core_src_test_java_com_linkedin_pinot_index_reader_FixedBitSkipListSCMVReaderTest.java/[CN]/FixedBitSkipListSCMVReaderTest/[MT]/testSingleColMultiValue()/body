@@ -41,9 +41,7 @@
         Assert.assertEquals(readValues[j],data[i][j]);
       }
     }
-    Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(f),0);
     heapReader.close();
-    Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(f),0);
     FixedBitSkipListSCMVReader mmapReader=new FixedBitSkipListSCMVReader(f,numDocs,totalNumValues,maxBits,false,true);
     for (int i=0; i < data.length; i++) {
       final int numValues=mmapReader.getIntArray(i,readValues);
@@ -52,9 +50,7 @@
         Assert.assertEquals(readValues[j],data[i][j]);
       }
     }
-    Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(f),2);
     mmapReader.close();
-    Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(f),0);
     f.delete();
     maxBits=maxBits + 1;
   }

@@ -29,18 +29,14 @@
         System.out.println(i + "  Expected:" + values[i]+ " Actual:"+ readInt);
         Assert.assertEquals(readInt,values[i]);
       }
-      Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(file),0);
       heapReader.close();
-      Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(file),0);
       FixedBitWidthRowColDataFileReader mmapReader=FixedBitWidthRowColDataFileReader.forMmap(file,numElements,1,new int[]{maxBits});
       for (int i=0; i < numElements; i++) {
         int readInt=mmapReader.getInt(i,0);
         System.out.println(i + "  Expected:" + values[i]+ " Actual:"+ readInt);
         Assert.assertEquals(readInt,values[i]);
       }
-      Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(file),2);
       mmapReader.close();
-      Assert.assertEquals(FileReaderTestUtils.getNumOpenFiles(file),0);
       System.out.println("END MAX BITS:" + maxBits);
     }
   finally {
