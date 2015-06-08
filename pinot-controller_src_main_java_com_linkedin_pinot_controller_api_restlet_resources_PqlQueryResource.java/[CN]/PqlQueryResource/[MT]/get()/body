@@ -7,7 +7,9 @@
   }
  catch (  final RecognitionException e) {
     LOGGER.error("Caught exception while processing get request",e);
-    return new StringRepresentation(QueryException.PQL_PARSING_ERROR.toString());
+    ProcessingException parsingException=QueryException.PQL_PARSING_ERROR.deepCopy();
+    parsingException.setMessage(e.toString());
+    return new StringRepresentation(parsingException.toString());
   }
   if (!compiledJSON.has("collection")) {
     return new StringRepresentation("your request does not contain the collection information");
