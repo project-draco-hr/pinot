@@ -1,0 +1,20 @@
+{
+  List<SegmentDescriptor> segments=dataCache.getSegmentDescriptors(serverUri,collection);
+  if (segments.isEmpty()) {
+    throw new NotFoundException("No data loaded in server for " + collection);
+  }
+  DateTime earliestDataTime=null;
+  DateTime latestDataTime=null;
+  for (  SegmentDescriptor segment : segments) {
+    if (segment.getStartDataTime() != null && (earliestDataTime == null || segment.getStartDataTime().compareTo(earliestDataTime) < 0)) {
+      earliestDataTime=segment.getStartDataTime();
+    }
+    if (segment.getEndDataTime() != null && (latestDataTime == null || segment.getEndDataTime().compareTo(latestDataTime) > 0)) {
+      latestDataTime=segment.getEndDataTime();
+    }
+  }
+  if (earliestDataTime == null || latestDataTime == null) {
+    throw new NotFoundException("No data loaded in server for " + collection);
+  }
+  return getDashboardView(collection,metricFunction,metricViewType,dimensionViewType,latestDataTime.getMillis() - baselineOffsetMillis,latestDataTime.getMillis(),uriInfo);
+}
