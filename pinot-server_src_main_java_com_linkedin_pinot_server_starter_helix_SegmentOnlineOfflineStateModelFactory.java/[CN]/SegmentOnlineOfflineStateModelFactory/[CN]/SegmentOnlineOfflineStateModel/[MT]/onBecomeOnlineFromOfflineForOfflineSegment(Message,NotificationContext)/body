@@ -20,7 +20,8 @@
         try {
           if (!isNewSegmentMetadata(segmentMetadataFromServer,segmentMetadataForCheck)) {
             LOGGER.info("Trying to bootstrap segment from local!");
-            INSTANCE_DATA_MANAGER.addSegment(segmentMetadataFromServer);
+            AbstractTableConfig tableConfig=ZKMetadataProvider.getRealtimeTableConfig(propertyStore,tableName);
+            INSTANCE_DATA_MANAGER.addSegment(segmentMetadataFromServer,tableConfig);
             return;
           }
         }
@@ -42,10 +43,11 @@
       for (retryCount=0; retryCount < SEGMENT_LOAD_MAX_RETRY_COUNT; ++retryCount) {
         long attemptStartTime=System.currentTimeMillis();
         try {
+          AbstractTableConfig tableConfig=ZKMetadataProvider.getRealtimeTableConfig(propertyStore,tableName);
           final String uri=offlineSegmentZKMetadata.getDownloadUrl();
           final String localSegmentDir=downloadSegmentToLocal(uri,tableName,segmentId);
           final SegmentMetadata segmentMetadata=SEGMENT_METADATA_LOADER.loadIndexSegmentMetadataFromDir(localSegmentDir);
-          INSTANCE_DATA_MANAGER.addSegment(segmentMetadata);
+          INSTANCE_DATA_MANAGER.addSegment(segmentMetadata,tableConfig);
           break;
         }
  catch (        Exception e) {
