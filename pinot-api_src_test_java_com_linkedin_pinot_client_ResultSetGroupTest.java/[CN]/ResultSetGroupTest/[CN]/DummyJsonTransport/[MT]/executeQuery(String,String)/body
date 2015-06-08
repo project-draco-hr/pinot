@@ -1,6 +1,13 @@
 {
   try {
-    String jsonText=IOUtils.toString(getClass().getResourceAsStream(_resource));
+    StringBuilder builder=new StringBuilder();
+    InputStream stream=getClass().getResourceAsStream(_resource);
+    int lastByte=stream.read();
+    while (lastByte != -1) {
+      builder.append((char)lastByte);
+      lastByte=stream.read();
+    }
+    String jsonText=builder.toString();
     return BrokerResponse.fromJson(new JSONObject(jsonText));
   }
  catch (  Exception e) {

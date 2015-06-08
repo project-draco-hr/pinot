@@ -1,0 +1,16 @@
+{
+  try {
+    if (brokerResponse.has("aggregationResults")) {
+      _aggregationResults=brokerResponse.getJSONArray("aggregationResults");
+    }
+    if (brokerResponse.has("exceptions")) {
+      _exceptions=brokerResponse.getJSONArray("exceptions");
+    }
+    if (brokerResponse.has("selectionResults")) {
+      _selectionResults=brokerResponse.getJSONObject("selectionResults");
+    }
+  }
+ catch (  JSONException e) {
+    throw new PinotClientException(e);
+  }
+}

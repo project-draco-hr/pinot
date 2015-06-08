@@ -1,7 +1,7 @@
 {
   try {
     ZkClient client=new ZkClient(zkUrl);
-    client.setZkSerializer(new ByteArraySerializer());
+    client.setZkSerializer(new BytesPushThroughSerializer());
     byte[] brokerResourceNodeData=client.readData("/EXTERNALVIEW/brokerResource",true);
     JSONObject jsonObject=new JSONObject(new String(brokerResourceNodeData));
     JSONObject brokerResourceNode=jsonObject.getJSONObject("mapFields");
