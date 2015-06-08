@@ -19,7 +19,7 @@
     final String[] groupResult=groupByResult.get(j);
     for (int i=0; i < 15; ++i) {
       LOGGER.info("Comparing group: {}",i);
-      Assert.assertEquals(aggResult[i],brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getDouble("value"));
+      Assert.assertEquals(0,DoubleComparisonUtil.defaultDoubleCompare(aggResult[i],brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getDouble("value")));
       if (groupResult.length < 2) {
         continue;
       }
