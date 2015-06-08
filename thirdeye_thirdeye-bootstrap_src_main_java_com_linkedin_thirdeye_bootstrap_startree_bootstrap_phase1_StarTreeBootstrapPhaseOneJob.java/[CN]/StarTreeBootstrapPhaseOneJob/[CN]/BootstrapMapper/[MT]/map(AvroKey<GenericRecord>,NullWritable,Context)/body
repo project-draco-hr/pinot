@@ -5,17 +5,19 @@
     context.getCounter(StarTreeBootstrapPhase1Counter.NULL_TIME_RECORDS).increment(1);
     return;
   }
-  try {
-    Long time=Long.parseLong(timeObj.toString());
-    if (time == 0) {
-      LOGGER.error("Dropping record because " + config.getTimeColumnName() + " is set to 0");
-      context.getCounter(StarTreeBootstrapPhase1Counter.ZERO_TIME_RECORDS).increment(1);
-      return;
+  if (dateTimeFormatter == null) {
+    try {
+      Long time=Long.parseLong(timeObj.toString());
+      if (time == 0) {
+        LOGGER.error("Dropping record because " + config.getTimeColumnName() + " is set to 0");
+        context.getCounter(StarTreeBootstrapPhase1Counter.ZERO_TIME_RECORDS).increment(1);
+        return;
+      }
+      if (time < 0)       throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
     }
-    if (time < 0)     throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
-  }
- catch (  NumberFormatException ex) {
-    throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
+ catch (    NumberFormatException ex) {
+      throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
+    }
   }
   long start=System.currentTimeMillis();
   Map<String,String> dimensionValuesMap=new HashMap<String,String>();
@@ -30,10 +32,19 @@
     dimensionValuesMap.put(dimensionName,dimensionValue);
   }
   DimensionKey key=new DimensionKey(dimensionValues);
-  Long sourceTimeWindow=Long.parseLong(record.datum().get(config.getTimeColumnName()).toString());
-  sourceTimeWindow=sourceTimeWindow * inputTimeUnitSize;
-  long timeWindow=aggregationTimeUnit.convert(sourceTimeWindow,sourceTimeUnit);
-  timeWindow=timeWindow / aggregationGranularitySize;
+  String timeStr=record.datum().get(config.getTimeColumnName()).toString();
+  Long timeWindow;
+  if (dateTimeFormatter == null) {
+    Long sourceTimeWindow=Long.parseLong(timeStr);
+    sourceTimeWindow=sourceTimeWindow * inputTimeUnitSize;
+    timeWindow=aggregationTimeUnit.convert(sourceTimeWindow,sourceTimeUnit);
+    timeWindow/=aggregationGranularitySize;
+  }
+ else {
+    DateTime sourceTimeWindow=dateTimeFormatter.parseDateTime(timeStr);
+    timeWindow=aggregationTimeUnit.convert(sourceTimeWindow.getMillis(),TimeUnit.MILLISECONDS);
+    timeWindow/=aggregationGranularitySize;
+  }
   MetricTimeSeries series=new MetricTimeSeries(metricSchema);
   for (int i=0; i < metricNames.size(); i++) {
     String metricName=metricNames.get(i);

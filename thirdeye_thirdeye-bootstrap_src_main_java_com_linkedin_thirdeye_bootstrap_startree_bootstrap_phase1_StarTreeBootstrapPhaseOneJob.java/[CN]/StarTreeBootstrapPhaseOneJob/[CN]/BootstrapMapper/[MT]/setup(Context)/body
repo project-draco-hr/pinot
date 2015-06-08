@@ -15,6 +15,12 @@
     aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
     aggregationGranularitySize=config.getAggregationGranularitySize();
     dimensionValues=new String[dimensionNames.size()];
+    if (starTreeConfig.getTime().getFormat() != null) {
+      if (!(inputTimeUnitSize == 1 && TimeUnit.MILLISECONDS.equals(sourceTimeUnit))) {
+        throw new IllegalArgumentException("Input time granularity must be 1 MILLISECONDS if format is provided: " + "granularity is " + inputTimeUnitSize + " "+ sourceTimeUnit+ " and "+ "format is "+ starTreeConfig.getTime().getFormat());
+      }
+      dateTimeFormatter=DateTimeFormat.forPattern(starTreeConfig.getTime().getFormat());
+    }
   }
  catch (  Exception e) {
     throw new IOException(e);
