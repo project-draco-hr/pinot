@@ -6,8 +6,8 @@
   _segmentDir.mkdirs();
   _tarDir.mkdirs();
   startZk();
-  kafkaStarter=KafkaTestUtils.startServer(KafkaTestUtils.DEFAULT_KAFKA_PORT,KafkaTestUtils.DEFAULT_BROKER_ID,KafkaTestUtils.DEFAULT_ZK_STR,KafkaTestUtils.getDefaultKafkaConfiguration());
-  KafkaTestUtils.createTopic(KAFKA_TOPIC,KafkaTestUtils.DEFAULT_ZK_STR);
+  kafkaStarter=KafkaStarterUtils.startServer(KafkaStarterUtils.DEFAULT_KAFKA_PORT,KafkaStarterUtils.DEFAULT_BROKER_ID,KafkaStarterUtils.DEFAULT_ZK_STR,KafkaStarterUtils.getDefaultKafkaConfiguration());
+  KafkaStarterUtils.createTopic(KAFKA_TOPIC,KafkaStarterUtils.DEFAULT_ZK_STR);
   startController();
   startBroker();
   startServers(2);
@@ -18,7 +18,7 @@
     avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
   }
   File schemaFile=new File(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.schema").getFile());
-  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaTestUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
+  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
   final List<File> offlineAvroFiles=new ArrayList<File>(OFFLINE_SEGMENT_COUNT);
   for (int i=0; i < OFFLINE_SEGMENT_COUNT; i++) {
     offlineAvroFiles.add(avroFiles.get(i));
@@ -78,7 +78,7 @@
     FileUploadUtils.sendSegmentFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
   }
   latch.await();
-  pushAvroIntoKafka(realtimeAvroFiles,KafkaTestUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
+  pushAvroIntoKafka(realtimeAvroFiles,KafkaStarterUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
   int pinotRecordCount, h2RecordCount;
   long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;
   Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
