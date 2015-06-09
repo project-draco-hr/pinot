@@ -6,7 +6,7 @@
   ExecutorService parallelQueryExecutor=environment.lifecycle().executorService("parallel_query_executor").minThreads(Runtime.getRuntime().availableProcessors() / 2).maxThreads(Runtime.getRuntime().availableProcessors() / 2).build();
   ScheduledExecutorService anomalyDetectionTaskScheduler=environment.lifecycle().scheduledExecutorService("anomaly_detection_task_scheduler").build();
   final StarTreeManager starTreeManager=new StarTreeManagerImpl();
-  final DataUpdateManager dataUpdateManager=new DataUpdateManager(rootDir);
+  final DataUpdateManager dataUpdateManager=new DataUpdateManager(rootDir,config.isAutoExpire());
   final KafkaConsumerManager kafkaConsumerManager=new KafkaConsumerManager(rootDir,starTreeManager,dataUpdateManager,environment.metrics());
   final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval(),rootDir);
   environment.lifecycle().manage(anomalyDetectionTaskManager);
@@ -54,4 +54,5 @@
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new KafkaTask(kafkaConsumerManager));
   environment.admin().addTask(new MergeTask(starTreeManager,dataUpdateManager));
+  environment.admin().addTask(new ExpireTask(dataUpdateManager));
 }
