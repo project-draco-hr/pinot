@@ -1,13 +1,6 @@
 {
-  ZkStarter.startLocalZkServer(2122);
-  if (ControllerStarter.class.getClassLoader().getResource("repo/webapp") != null) {
-    File webappPath=new File(ControllerStarter.class.getClassLoader().getResource("repo/webapp").toExternalForm());
-    System.out.println(webappPath.getAbsolutePath() + "***********************************************");
-    controller=ControllerStarter.startDefault(webappPath);
-  }
- else {
-    controller=ControllerStarter.startDefault();
-  }
-  broker=HelixBrokerStarter.startDefault().getBrokerServerBuilder();
-  server=HelixServerStarter.startDefault();
+  StartZookeeper();
+  StartController();
+  StartBroker();
+  StartServer();
 }

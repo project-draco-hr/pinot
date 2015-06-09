@@ -1,4 +1,5 @@
 {
-  JSONObject request=ControllerRequestBuilder.addOfflineTableRequest(tableName,"","",1);
-  AbstractBaseCommand.sendPostRequest("http://localhost:9000/tables",request.toString());
+  AddTableCommand tableAdder=new AddTableCommand();
+  tableAdder.setFilePath(_tableCreateRequestJsonFile).setControllerPort(_controllerPort);
+  tableAdder.execute();
 }

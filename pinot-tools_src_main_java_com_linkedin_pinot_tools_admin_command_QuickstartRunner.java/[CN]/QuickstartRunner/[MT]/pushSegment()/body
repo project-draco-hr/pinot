@@ -1,5 +1,5 @@
 {
-  for (  File file : new File(tempDir,"tars").listFiles()) {
-    FileUploadUtils.sendSegmentFile("localhost","9000",file.getName(),new FileInputStream(file),file.length());
-  }
+  UploadSegmentCommand segmentUploader=new UploadSegmentCommand();
+  segmentUploader.setControllerHost(_localHost).setControllerPort(_controllerPort).setSegmentDir(new File(_tempDir,"segments").getAbsolutePath());
+  segmentUploader.execute();
 }

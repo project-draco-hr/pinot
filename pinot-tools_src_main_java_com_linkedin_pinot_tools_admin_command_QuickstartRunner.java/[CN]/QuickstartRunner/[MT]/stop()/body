@@ -1,16 +1,9 @@
 {
-  if (isStopped) {
+  if (_isStopped) {
     return;
   }
-  if (server != null) {
-    server.stop();
-  }
-  if (broker != null) {
-    broker.stop();
-  }
-  if (controller != null) {
-    controller.stop();
-  }
-  ZkStarter.stopLocalZkServer(true);
-  isStopped=true;
+  StopProcessCommand stopper=new StopProcessCommand();
+  stopper.stopController().stopBroker().stopServer().stopZookeeper();
+  stopper.execute();
+  _isStopped=true;
 }

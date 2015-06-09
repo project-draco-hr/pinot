@@ -1,3 +1,6 @@
 {
-  return AbstractBaseCommand.postQuery(query,"http://localhost:5001");
+  PostQueryCommand queryCommand=new PostQueryCommand();
+  queryCommand.setBrokerPort(Integer.toString(_brokerPort)).setQuery(query);
+  String result=queryCommand.run();
+  return new JSONObject(result);
 }
