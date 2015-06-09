@@ -1,0 +1,16 @@
+{
+  InputStream inputStream=ClassLoader.getSystemResourceAsStream("test-dashboard.yml");
+  CustomDashboardSpec spec=objectMapper.readValue(inputStream,CustomDashboardSpec.class);
+  Assert.assertNotNull(spec);
+  Assert.assertNotNull(spec.getComponents());
+  Assert.assertEquals(spec.getComponents().size(),2);
+  Assert.assertEquals(spec.getCollection(),"c");
+  CustomDashboardComponentSpec fst=spec.getComponents().get(0);
+  Assert.assertEquals(fst.getMetrics(),metrics);
+  Assert.assertNull(fst.getDimensions());
+  CustomDashboardComponentSpec sec=spec.getComponents().get(1);
+  Assert.assertEquals(sec.getMetrics(),metrics);
+  Assert.assertNotNull(sec.getDimensions());
+  Assert.assertEquals(sec.getDimensions().get("A"),"A0");
+  Assert.assertEquals(sec.getDimensions().get("C"),"C1");
+}

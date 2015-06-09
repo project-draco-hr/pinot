@@ -6,5 +6,9 @@
   environment.jersey().register(new DashboardResource(config.getServerUri(),dataCache,queryCache,environment.getObjectMapper()));
   environment.jersey().register(new FlotTimeSeriesResource(config.getServerUri(),queryCache,environment.getObjectMapper()));
   environment.jersey().register(new MetadataResource(config.getServerUri(),dataCache));
+  if (config.getCustomDashboardRoot() != null) {
+    File customDashboardDir=new File(config.getCustomDashboardRoot());
+    environment.jersey().register(new CustomDashboardResource(customDashboardDir,config.getServerUri(),queryCache,dataCache));
+  }
   environment.admin().addTask(new ClearCachesTask(dataCache,queryCache));
 }

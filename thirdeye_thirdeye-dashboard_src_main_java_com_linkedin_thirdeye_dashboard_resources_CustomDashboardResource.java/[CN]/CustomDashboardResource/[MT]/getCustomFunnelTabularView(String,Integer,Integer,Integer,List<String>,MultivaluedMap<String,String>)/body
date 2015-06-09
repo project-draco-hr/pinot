@@ -1,0 +1,61 @@
+{
+  String metricFunction="AGGREGATE_1_HOURS(" + METRIC_FUNCTION_JOINER.join(metricList) + ")";
+  DateTime currentEnd=new DateTime(year,month,day,0,0);
+  DateTime currentStart=currentEnd.minusDays(1);
+  DateTime baselineEnd=currentEnd.minusWeeks(1);
+  DateTime baselineStart=baselineEnd.minusDays(1);
+  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(queryParams);
+  String baselineSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineEnd,dimensionValues);
+  String currentSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentEnd,dimensionValues);
+  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSql);
+  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSql);
+  Map<Long,Number[]> baselineData=extractFunnelData(baselineResult.get());
+  Map<Long,Number[]> currentData=extractFunnelData(currentResult.get());
+  List<Pair<Long,Number[]>> table=new ArrayList<>();
+  DateTime currentCursor=new DateTime(currentStart.getMillis());
+  DateTime baselineCursor=new DateTime(baselineStart.getMillis());
+  while (currentCursor.compareTo(currentEnd) < 0 && baselineCursor.compareTo(baselineEnd) < 0) {
+    Number[] baselineValues=baselineData.get(baselineCursor.getMillis());
+    Number[] currentValues=currentData.get(currentCursor.getMillis());
+    long hourOfDay=currentCursor.getHourOfDay();
+    if (baselineValues == null || currentValues == null) {
+      table.add(new Pair<Long,Number[]>(hourOfDay,null));
+    }
+ else {
+      Number[] change=new Number[baselineValues.length];
+      for (int i=0; i < baselineValues.length; i++) {
+        if (baselineValues[i] == null || currentValues[i] == null || baselineValues[i].doubleValue() == 0.0) {
+          change[i]=null;
+        }
+ else {
+          change[i]=(currentValues[i].doubleValue() - baselineValues[i].doubleValue()) / baselineValues[i].doubleValue();
+        }
+      }
+      table.add(new Pair<>(hourOfDay,change));
+    }
+    currentCursor=currentCursor.plusHours(1);
+    baselineCursor=baselineCursor.plusHours(1);
+  }
+  Map<String,Integer> metricNameToIndex=new HashMap<>();
+  List<String> resultMetrics=baselineResult.get().getMetrics();
+  for (int i=0; i < resultMetrics.size(); i++) {
+    metricNameToIndex.put(resultMetrics.get(i),i);
+  }
+  List<Pair<Long,Number[]>> filteredTable=new ArrayList<>();
+  for (  Pair<Long,Number[]> pair : table) {
+    Number[] filtered=new Number[metricList.size()];
+    for (int i=0; i < metricList.size(); i++) {
+      String metricName=metricList.get(i);
+      Integer metricIdx=metricNameToIndex.get(metricName);
+      if (pair.getSecond() == null) {
+        filtered[i]=0;
+      }
+ else {
+        Number value=pair.getSecond()[metricIdx];
+        filtered[i]=value;
+      }
+    }
+    filteredTable.add(new Pair<>(pair.getFirst(),filtered));
+  }
+  return new CustomFunnelTabularView(metricList,filteredTable);
+}
