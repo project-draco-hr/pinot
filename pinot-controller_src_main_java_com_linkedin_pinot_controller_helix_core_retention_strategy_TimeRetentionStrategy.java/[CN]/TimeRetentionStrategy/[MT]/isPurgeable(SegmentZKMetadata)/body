@@ -4,6 +4,9 @@
   }
   try {
     TimeUnit segmentTimeUnit=segmentZKMetadata.getTimeUnit();
+    if (segmentTimeUnit == null) {
+      return false;
+    }
     long endsMills=segmentTimeUnit.toMillis(segmentZKMetadata.getEndTime());
     Duration segmentTimeUntilNow=new Duration(endsMills,System.currentTimeMillis());
     if (_retentionDuration.isShorterThan(segmentTimeUntilNow)) {
