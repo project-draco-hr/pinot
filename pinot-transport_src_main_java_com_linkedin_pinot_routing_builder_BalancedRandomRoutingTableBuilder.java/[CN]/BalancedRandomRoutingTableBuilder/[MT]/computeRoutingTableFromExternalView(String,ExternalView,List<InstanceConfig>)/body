@@ -1,4 +1,5 @@
 {
+  RoutingTableInstancePruner pruner=new RoutingTableInstancePruner(instanceConfigList);
   List<Map<String,Set<String>>> routingTables=new ArrayList<Map<String,Set<String>>>();
   for (int i=0; i < _numberOfRoutingTables; ++i) {
     routingTables.add(new HashMap<String,Set<String>>());
@@ -7,7 +8,7 @@
   for (  String segment : segmentSet) {
     Map<String,String> instanceToStateMap=externalView.getStateMap(segment);
     for (    String instance : instanceToStateMap.keySet().toArray(new String[0])) {
-      if (!instanceToStateMap.get(instance).equals("ONLINE")) {
+      if (!instanceToStateMap.get(instance).equals("ONLINE") || pruner.isShuttingDown(instance)) {
         instanceToStateMap.remove(instance);
       }
     }

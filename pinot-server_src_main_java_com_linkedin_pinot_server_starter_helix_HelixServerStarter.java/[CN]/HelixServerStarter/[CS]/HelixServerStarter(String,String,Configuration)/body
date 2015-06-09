@@ -1,14 +1,16 @@
 {
+  _helixClusterName=helixClusterName;
   _pinotHelixProperties=pinotHelixProperties;
-  final String instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress()) + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
-  pinotHelixProperties.addProperty("pinot.server.instance.id",instanceId);
+  _instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress()) + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
+  pinotHelixProperties.addProperty("pinot.server.instance.id",_instanceId);
   startServerInstance(pinotHelixProperties);
-  _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,instanceId,InstanceType.PARTICIPANT,zkServer);
+  _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,_instanceId,InstanceType.PARTICIPANT,zkServer);
   final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
   _helixManager.connect();
   ZkHelixPropertyStore<ZNRecord> zkPropertyStore=ZkUtils.getZkPropertyStore(_helixManager,helixClusterName);
-  final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory(helixClusterName,instanceId,_serverInstance.getInstanceDataManager(),new ColumnarSegmentMetadataLoader(),pinotHelixProperties,zkPropertyStore);
+  final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory(helixClusterName,_instanceId,_serverInstance.getInstanceDataManager(),new ColumnarSegmentMetadataLoader(),pinotHelixProperties,zkPropertyStore);
   stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
   _helixAdmin=_helixManager.getClusterManagmentTool();
-  addInstanceTagIfNeeded(helixClusterName,instanceId);
+  addInstanceTagIfNeeded(helixClusterName,_instanceId);
+  setShuttingDownStatus(false);
 }

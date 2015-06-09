@@ -1,8 +1,11 @@
 {
   try {
     LOGGER.info("BrokerResourceOnlineOfflineStateModel.onBecomeOnlineFromOffline() : " + message);
+    Builder keyBuilder=_helixManager.getHelixDataAccessor().keyBuilder();
     String resourceName=message.getPartitionName();
-    _helixExternalViewBasedRouting.markDataResourceOnline(resourceName,HelixHelper.getExternalViewForResouce(_helixManager.getClusterManagmentTool(),_helixManager.getClusterName(),resourceName));
+    HelixDataAccessor helixDataAccessor=_helixManager.getHelixDataAccessor();
+    List<InstanceConfig> instanceConfigList=helixDataAccessor.getChildValues(keyBuilder.instanceConfigs());
+    _helixExternalViewBasedRouting.markDataResourceOnline(resourceName,HelixHelper.getExternalViewForResouce(_helixManager.getClusterManagmentTool(),_helixManager.getClusterName(),resourceName),instanceConfigList);
   }
  catch (  Exception e) {
     LOGGER.error("Caught exception during OFFLINE -> ONLINE transition",e);

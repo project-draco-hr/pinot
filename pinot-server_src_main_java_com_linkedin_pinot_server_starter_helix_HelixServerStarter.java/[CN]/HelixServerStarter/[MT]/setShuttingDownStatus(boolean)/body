@@ -1,0 +1,6 @@
+{
+  HelixConfigScope scope=new HelixConfigScopeBuilder(ConfigScopeProperty.PARTICIPANT,_helixClusterName).forParticipant(_instanceId).build();
+  Map<String,String> propToUpdate=new HashMap<String,String>();
+  propToUpdate.put(CommonConstants.Helix.IS_SHUTDOWN_IN_PROGRESS,String.valueOf(shuttingDown));
+  _helixAdmin.setConfig(scope,propToUpdate);
+}

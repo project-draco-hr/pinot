@@ -1,0 +1,15 @@
+{
+  LOGGER.info("HelixBrokerRoutingTable.onExternalViewChange");
+  PropertyKey externalViews=keyBuilder.externalViews();
+  HelixDataAccessor helixDataAccessor=_helixManager.getHelixDataAccessor();
+  List<ExternalView> externalViewList=helixDataAccessor.getChildValues(externalViews);
+  List<InstanceConfig> instanceConfigList=helixDataAccessor.getChildValues(keyBuilder.instanceConfigs());
+  Set<String> servingClusterList=getServingDataResource(externalViewList);
+  for (  ExternalView externalView : externalViewList) {
+    String resourceName=externalView.getResourceName();
+    if (servingClusterList.contains(resourceName)) {
+      LOGGER.info("Trying to update ExternalView for data resource : " + resourceName + ", ExternalView: "+ externalView);
+      _helixExternalViewBasedRouting.markDataResourceOnline(resourceName,HelixHelper.getExternalViewForResouce(_helixManager.getClusterManagmentTool(),_helixManager.getClusterName(),resourceName),instanceConfigList);
+    }
+  }
+}
