@@ -1,0 +1,43 @@
+{
+  try {
+    String text=new String(payload,"UTF-8");
+    JSONObject message=new JSONObject(text);
+    Map<String,Object> rowEntries=new HashMap<String,Object>();
+    for (    FieldSpec dimension : schema.getDimensionFieldSpecs()) {
+      if (message.has(dimension.getName())) {
+        Object entry=stringToDataType(dimension.getDataType(),message.getString(dimension.getName()));
+        rowEntries.put(dimension.getName(),entry);
+      }
+ else {
+        Object entry=AvroRecordReader.getDefaultNullValue(dimension);
+        rowEntries.put(dimension.getName(),entry);
+      }
+    }
+    for (    FieldSpec metric : schema.getMetricFieldSpecs()) {
+      if (message.has(metric.getName())) {
+        Object entry=stringToDataType(metric.getDataType(),message.getString(metric.getName()));
+        rowEntries.put(metric.getName(),entry);
+      }
+ else {
+        Object entry=AvroRecordReader.getDefaultNullValue(metric);
+        rowEntries.put(metric.getName(),entry);
+      }
+    }
+    TimeFieldSpec spec=schema.getTimeFieldSpec();
+    if (message.has(spec.getName())) {
+      Object entry=stringToDataType(spec.getDataType(),message.getString(spec.getName()));
+      rowEntries.put(spec.getName(),entry);
+    }
+ else {
+      Object entry=AvroRecordReader.getDefaultNullValue(spec);
+      rowEntries.put(spec.getName(),entry);
+    }
+    GenericRow row=new GenericRow();
+    row.init(rowEntries);
+    return row;
+  }
+ catch (  Exception e) {
+    LOGGER.error("error decoding , ",e);
+  }
+  return null;
+}

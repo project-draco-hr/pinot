@@ -1,0 +1,54 @@
+{
+  try {
+    final ClientEndpointConfig cec=ClientEndpointConfig.Builder.create().build();
+    final KafkaJSONMessageDecoder decoder=new KafkaJSONMessageDecoder();
+    decoder.init(null,schema,null);
+    client=ClientManager.createClient();
+    client.connectToServer(new Endpoint(){
+      @Override public void onOpen(      Session session,      EndpointConfig config){
+        try {
+          session.addMessageHandler(new MessageHandler.Whole<String>(){
+            @Override public void onMessage(            String message){
+              try {
+                JSONObject messageJSON=new JSONObject(message);
+                JSONObject extracted=new JSONObject();
+                if (messageJSON.has("venue")) {
+                  JSONObject venue=messageJSON.getJSONObject("venue");
+                  extracted.put("venue_name",venue.getString("venue_name"));
+                }
+                if (messageJSON.has("event")) {
+                  JSONObject event=messageJSON.getJSONObject("event");
+                  extracted.put("event_name",event.getString("event_name"));
+                  extracted.put("event_id",event.getString("event_id"));
+                  extracted.put("event_time",event.getLong("time"));
+                }
+                if (messageJSON.has("group")) {
+                  JSONObject group=messageJSON.getJSONObject("group");
+                  extracted.put("group_city",group.getString("group_city"));
+                  extracted.put("group_country",group.getString("group_country"));
+                  extracted.put("group_id",group.getLong("group_id"));
+                  extracted.put("group_name",group.getString("group_name"));
+                }
+                extracted.put("mtime",messageJSON.getLong("mtime"));
+                extracted.put("rsvp_count",1);
+                if (keepPublishing) {
+                  KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>("meetupRsvpEvents",extracted.toString().getBytes("UTF-8"));
+                  producer.send(data);
+                }
+              }
+ catch (              Exception e) {
+              }
+            }
+          }
+);
+          session.getBasicRemote().sendText("");
+        }
+ catch (        IOException e) {
+        }
+      }
+    }
+,cec,new URI("ws://stream.meetup.com/2/rsvps"));
+  }
+ catch (  Exception e) {
+  }
+}

@@ -1,0 +1,56 @@
+{
+  final String TAB="\t\t";
+  final String NEW_LINE="\n";
+  StringBuilder bld=new StringBuilder();
+  if (response.has("selectionResults") && response.getJSONObject("selectionResults") != null) {
+    JSONArray columns=response.getJSONObject("selectionResults").getJSONArray("columns");
+    String[] columnsArr=new String[columns.length()];
+    for (int i=0; i < columns.length(); i++) {
+      columnsArr[i]=columns.getString(i);
+    }
+    bld.append(StringUtils.join(columnsArr,TAB) + NEW_LINE);
+    JSONArray rows=response.getJSONObject("selectionResults").getJSONArray("results");
+    for (int i=0; i < rows.length(); i++) {
+      JSONArray a=rows.getJSONArray(i);
+      String[] rowsA=new String[a.length()];
+      for (int j=0; j < a.length(); j++) {
+        rowsA[j]=a.getString(j);
+      }
+      bld.append(StringUtils.join(rowsA,TAB) + NEW_LINE);
+    }
+    return bld.toString();
+  }
+ else   if (response.has("aggregationResults") && response.getJSONArray("aggregationResults").length() > 0 && !response.getJSONArray("aggregationResults").getJSONObject(0).has("groupByResult")) {
+    JSONArray aggs=response.getJSONArray("aggregationResults");
+    for (int i=0; i < aggs.length(); i++) {
+      bld.append(aggs.getJSONObject(i).getString("function") + TAB);
+    }
+    bld.append(NEW_LINE);
+    for (int i=0; i < aggs.length(); i++) {
+      bld.append(aggs.getJSONObject(i).getString("value") + TAB);
+    }
+    return bld.toString();
+  }
+ else {
+    JSONObject groupByResult=response.getJSONArray("aggregationResults").getJSONObject(0);
+    bld.append(groupByResult.getString("function") + TAB);
+    JSONArray rowCols=groupByResult.getJSONArray("groupByColumns");
+    String[] rowColsArr=new String[rowCols.length()];
+    for (int i=0; i < rowCols.length(); i++) {
+      rowColsArr[i]=rowCols.getString(i);
+    }
+    bld.append(StringUtils.join(rowColsArr,TAB) + NEW_LINE);
+    JSONArray groupByResults=groupByResult.getJSONArray("groupByResult");
+    for (int i=0; i < groupByResults.length(); i++) {
+      JSONObject entry=groupByResults.getJSONObject(i);
+      bld.append(entry.getString("value") + TAB);
+      JSONArray colVals=entry.getJSONArray("group");
+      String[] colValsArr=new String[colVals.length()];
+      for (int j=0; j < colVals.length(); j++) {
+        colValsArr[j]=colVals.getString(j);
+      }
+      bld.append(StringUtils.join(colValsArr,TAB) + NEW_LINE);
+    }
+    return bld.toString();
+  }
+}
