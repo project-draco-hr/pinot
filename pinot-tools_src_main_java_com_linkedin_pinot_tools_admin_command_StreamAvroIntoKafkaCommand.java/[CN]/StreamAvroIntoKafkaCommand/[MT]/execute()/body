@@ -1,0 +1,25 @@
+{
+  Properties properties=new Properties();
+  properties.put("metadata.broker.list",_kafkaBrokerList);
+  properties.put("serializer.class","kafka.serializer.DefaultEncoder");
+  properties.put("request.required.acks","1");
+  ProducerConfig producerConfig=new ProducerConfig(properties);
+  Producer<String,byte[]> producer=new Producer<String,byte[]>(producerConfig);
+  try {
+    DataFileStream<GenericRecord> reader=AvroUtils.getAvroReader(new File(_avroFile));
+    for (    GenericRecord genericRecord : reader) {
+      String recordJson=genericRecord.toString();
+      byte[] bytes=recordJson.getBytes("utf-8");
+      KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>(_kafkaTopic,bytes);
+      producer.send(data);
+      Uninterruptibles.sleepUninterruptibly(1000,TimeUnit.MILLISECONDS);
+    }
+    reader.close();
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException(e);
+  }
+  savePID(System.getProperty("java.io.tmpdir") + File.separator + ".streamAvro.pid");
+  return true;
+}
