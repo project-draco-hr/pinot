@@ -2,6 +2,9 @@
   if (frequency == null) {
     return Collections.emptyList();
   }
+  if (frequency.getMillis() < Duration.standardHours(1).getMillis()) {
+    frequency=Duration.standardDays(1);
+  }
   if (segmentIntervals.size() < 2) {
     return Collections.emptyList();
   }
