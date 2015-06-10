@@ -41,11 +41,11 @@
     }
   }
 ;
-  TimerService.timer.schedule(segmentStatusTask,ONE_MINUTE_IN_MILLSEC,ONE_MINUTE_IN_MILLSEC);
   indexingThread=new Thread(new Runnable(){
     @Override public void run(){
-      while (index()) {
+      while (((RealtimeSegmentImpl)realtimeSegment).index(kafkaStreamProvider.next()) && keepIndexing) {
       }
+      LOGGER.info("Indexing threshold reached, proceeding with index conversion");
       segmentStatusTask.cancel();
       LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
       LOGGER.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
@@ -82,4 +82,7 @@
   }
 );
   indexingThread.start();
+  LOGGER.debug("scheduling keepIndexing timer check");
+  TimerService.timer.schedule(segmentStatusTask,ONE_MINUTE_IN_MILLSEC,ONE_MINUTE_IN_MILLSEC);
+  LOGGER.debug("finished scheduling keepIndexing timer check");
 }

@@ -1,10 +1,14 @@
 {
-  if (!keepIndexing) {
-    return;
-  }
-  LOGGER.info("Current indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, success = "+ ((RealtimeSegmentImpl)realtimeSegment).getSuccessIndexedCount()+ " docs, total = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs()+ " docs in realtime segment");
-  if ((System.currentTimeMillis() >= segmentEndTimeThreshold) || ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() >= numIndexedEventsToStopIndexing) {
-    LOGGER.info("Stopped indexing due to reaching segment limit: " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw documents indexed, segment is aged "+ ((System.currentTimeMillis() - start) / (ONE_MINUTE_IN_MILLSEC))+ " minutes");
-    keepIndexing=false;
+  if (keepIndexing) {
+    LOGGER.info("Current indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, success = "+ ((RealtimeSegmentImpl)realtimeSegment).getSuccessIndexedCount()+ " docs, total = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs()+ " docs in realtime segment");
+    if ((System.currentTimeMillis() >= segmentEndTimeThreshold) || ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() >= numIndexedEventsToStopIndexing) {
+      if (((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() == 0) {
+        LOGGER.info("no new events coming in, extending the end time by another hour");
+        segmentEndTimeThreshold=System.currentTimeMillis() + this.timeInMillisToStopIndexing;
+        return;
+      }
+      LOGGER.info("Stopped indexing due to reaching segment limit: " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw documents indexed, segment is aged "+ ((System.currentTimeMillis() - start) / (ONE_MINUTE_IN_MILLSEC))+ " minutes");
+      keepIndexing=false;
+    }
   }
 }

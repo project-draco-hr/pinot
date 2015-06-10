@@ -23,7 +23,7 @@
     }
  else {
       Set<String> instancesToAssignRealtimeSegment=new HashSet<String>();
-      instancesToAssignRealtimeSegment.addAll(pinotClusterManager.getHelixAdmin().getInstancesInClusterWithTag(pinotClusterManager.getHelixClusterName(),resource));
+      instancesToAssignRealtimeSegment.addAll(pinotClusterManager.getServerInstancesForTable(resource,TableType.REALTIME));
       for (      String partition : state.getPartitionSet()) {
         RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(pinotClusterManager.getPropertyStore(),SegmentNameBuilder.Realtime.extractTableName(partition),partition);
         if (realtimeSegmentZKMetadata.getStatus() == Status.IN_PROGRESS) {
