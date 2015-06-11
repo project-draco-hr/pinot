@@ -41,28 +41,7 @@
         LOGGER.warn("setLastModified on dataDir failed - watch service will not be triggered!");
       }
       if (autoExpire) {
-        final DateTime expireUptoDate=minTime;
-        String lowerSchedule=null;
-        if (schedule.equals(StarTreeConstants.SCHEDULE.DAILY.name())) {
-          lowerSchedule=StarTreeConstants.SCHEDULE.HOURLY.name();
-        }
- else         if (schedule.equals(StarTreeConstants.SCHEDULE.MONTHLY.name())) {
-          lowerSchedule=StarTreeConstants.SCHEDULE.DAILY.name();
-        }
-        if (lowerSchedule != null) {
-          final String expireSchedule=lowerSchedule;
-          File[] expireDirs=collectionDir.listFiles(new FilenameFilter(){
-            @Override public boolean accept(            File dir,            String name){
-              return name.startsWith(StorageUtils.getDataDirPrefix()) && StorageUtils.isExpirable(name,expireSchedule,expireUptoDate);
-            }
-          }
-);
-          for (          File expireDir : expireDirs) {
-            String[] tokens=expireDir.getName().split("_");
-            LOGGER.info("Deleting lower granularity segment {}",expireDir);
-            deleteData(collection,tokens[1],StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(tokens[2]),StarTreeConstants.DATE_TIME_FORMATTER.parseDateTime(tokens[3]));
-          }
-        }
+        expireSegments(collectionDir,minTime,maxTime,schedule);
       }
     }
   finally {

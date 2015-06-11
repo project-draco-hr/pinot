@@ -1,0 +1,31 @@
+{
+  Lock lock=collectionLocks.get(collection);
+  if (lock == null) {
+    collectionLocks.putIfAbsent(collection,new ReentrantLock());
+    lock=collectionLocks.get(collection);
+  }
+  lock.lock();
+  LOGGER.info("Locked collection {} using lock {} for data delete",collection,lock);
+  try {
+    final String dataDirPrefix=StorageUtils.getDataDirPrefix(schedule);
+    final DateTime maxDateTime=maxTime;
+    File collectionDir=new File(rootDir,collection);
+    File[] matchingDirs=collectionDir.listFiles(new FilenameFilter(){
+      @Override public boolean accept(      File dir,      String name){
+        return name.startsWith(dataDirPrefix) && StorageUtils.getMaxTime(maxDateTime.getZone(),name).compareTo(maxDateTime) <= 0;
+      }
+    }
+);
+    if (matchingDirs == null || matchingDirs.length == 0) {
+      throw new FileNotFoundException("No directory with prefix " + dataDirPrefix + " and maxTime less than "+ maxTime);
+    }
+    for (    File dataDir : matchingDirs) {
+      FileUtils.forceDelete(dataDir);
+      LOGGER.info("Deleted {}",dataDir);
+    }
+  }
+  finally {
+    lock.unlock();
+    LOGGER.info("Unlocked collection {} using lock {} for data delete",collection,lock);
+  }
+}
