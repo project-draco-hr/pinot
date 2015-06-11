@@ -5,7 +5,7 @@
     offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_pinotHelixResourceManager.getPropertyStore(),offlineTableName);
   }
  catch (  Exception e) {
-    LOGGER.error("Error getting offline table config from property store!");
+    LOGGER.error("Error getting offline table config from property store!",e);
     return tableToDeletionStrategyMap;
   }
   if (offlineTableConfig.getValidationConfig().getSegmentPushType().equalsIgnoreCase("REFRESH")) {
