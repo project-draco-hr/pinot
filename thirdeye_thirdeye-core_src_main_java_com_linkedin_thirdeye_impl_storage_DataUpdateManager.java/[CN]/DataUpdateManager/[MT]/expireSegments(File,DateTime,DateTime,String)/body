@@ -8,8 +8,8 @@
 );
   for (  File higherDataDir : higherDataDirs) {
     String lowerSchedule=StarTreeConstants.Schedule.valueOf(StorageUtils.getSchedule(higherDataDir.getName())).getLowerSchedule();
-    DateTime maxDateTime=StorageUtils.getMaxTime(maxTime.getZone(),higherDataDir.getName());
-    DateTime startDateTime=StorageUtils.getMinTime(minTime.getZone(),higherDataDir.getName());
+    DateTime maxDateTime=StorageUtils.getMaxTime(higherDataDir.getName());
+    DateTime startDateTime=StorageUtils.getMinTime(higherDataDir.getName());
     while (startDateTime.compareTo(maxDateTime) < 0) {
       DateTime endDateTime=StarTreeConstants.Schedule.valueOf(lowerSchedule).getEndDateTime(startDateTime);
       final String lowerDir=StorageUtils.getDataDirPrefix(lowerSchedule,startDateTime,endDateTime);
