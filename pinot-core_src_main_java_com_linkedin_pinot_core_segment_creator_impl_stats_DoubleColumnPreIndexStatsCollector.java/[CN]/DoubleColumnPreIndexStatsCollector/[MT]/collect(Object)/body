@@ -1,7 +1,7 @@
 {
   if (entry instanceof Object[]) {
     for (    final Object e : (Object[])entry) {
-      doubleSet.add(((Double)e).doubleValue());
+      doubleSet.add(((Number)e).doubleValue());
     }
     if (maxNumberOfMultiValues < ((Object[])entry).length) {
       maxNumberOfMultiValues=((Object[])entry).length;
@@ -9,6 +9,7 @@
     updateTotalNumberOfEntries((Object[])entry);
     return;
   }
-  addressSorted(entry);
-  doubleSet.add(((Double)entry).doubleValue());
+  double value=((Number)entry).doubleValue();
+  addressSorted(value);
+  doubleSet.add(value);
 }

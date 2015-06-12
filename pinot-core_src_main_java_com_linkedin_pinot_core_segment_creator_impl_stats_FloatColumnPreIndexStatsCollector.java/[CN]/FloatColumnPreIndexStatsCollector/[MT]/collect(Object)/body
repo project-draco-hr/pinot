@@ -1,7 +1,7 @@
 {
   if (entry instanceof Object[]) {
     for (    final Object e : (Object[])entry) {
-      floatSet.add(((Float)e).floatValue());
+      floatSet.add(((Number)e).floatValue());
     }
     if (maxNumberOfMultiValues < ((Object[])entry).length) {
       maxNumberOfMultiValues=((Object[])entry).length;
@@ -9,6 +9,7 @@
     updateTotalNumberOfEntries((Object[])entry);
     return;
   }
-  addressSorted(entry);
-  floatSet.add(((Float)entry).floatValue());
+  float value=((Number)entry).floatValue();
+  addressSorted(value);
+  floatSet.add(value);
 }

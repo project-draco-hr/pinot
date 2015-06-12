@@ -1,0 +1,25 @@
+{
+  FieldSpec spec=new DimensionFieldSpec("column1",DataType.BOOLEAN,true);
+  AbstractColumnStatisticsCollector statsCollector=new StringColumnPreIndexStatsCollector(spec);
+  statsCollector.collect("false");
+  Assert.assertTrue(statsCollector.isSorted());
+  statsCollector.collect("false");
+  Assert.assertTrue(statsCollector.isSorted());
+  statsCollector.collect("false");
+  Assert.assertTrue(statsCollector.isSorted());
+  statsCollector.collect("true");
+  Assert.assertTrue(statsCollector.isSorted());
+  statsCollector.collect("true");
+  Assert.assertTrue(statsCollector.isSorted());
+  statsCollector.collect("false");
+  Assert.assertFalse(statsCollector.isSorted());
+  statsCollector.collect("false");
+  Assert.assertFalse(statsCollector.isSorted());
+  statsCollector.collect("true");
+  Assert.assertFalse(statsCollector.isSorted());
+  statsCollector.seal();
+  Assert.assertEquals(statsCollector.getCardinality(),2);
+  Assert.assertEquals((statsCollector.getMinValue()).toString(),"false");
+  Assert.assertEquals((statsCollector.getMaxValue()).toString(),"true");
+  Assert.assertFalse(statsCollector.isSorted());
+}
