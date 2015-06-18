@@ -1,0 +1,32 @@
+{
+  File inProgress=new File(column + "_inv.inprogress");
+  if (!inProgress.exists() && invertedIndexFile.exists()) {
+    return new BitmapInvertedIndexReader(invertedIndexFile,metadata.getCardinality(),mode == ReadMode.mmap);
+  }
+  FileUtils.touch(inProgress);
+  if (invertedIndexFile.exists()) {
+    FileUtils.deleteQuietly(invertedIndexFile);
+  }
+  InvertedIndexCreator creator=new BitmapInvertedIndexCreator(indexDir,metadata.getCardinality(),metadata.toFieldSpec());
+  if (!metadata.isSingleValue()) {
+    SingleColumnMultiValueReader mvFwdIndex=(SingleColumnMultiValueReader)fwdIndex;
+    int[] container=new int[metadata.getMaxNumberOfMultiValues()];
+    for (int i=0; i < metadata.getTotalDocs(); i++) {
+      int len=mvFwdIndex.getIntArray(i,container);
+      Integer[] dicIds=new Integer[len];
+      for (int j=0; j < len; j++) {
+        dicIds[j]=container[j];
+      }
+      creator.add(i,dicIds);
+    }
+  }
+ else {
+    FixedBitCompressedSVForwardIndexReader svFwdIndex=(FixedBitCompressedSVForwardIndexReader)fwdIndex;
+    for (int i=0; i < metadata.getTotalDocs(); i++) {
+      creator.add(i,svFwdIndex.getInt(i));
+    }
+  }
+  creator.seal();
+  FileUtils.deleteQuietly(inProgress);
+  return new BitmapInvertedIndexReader(invertedIndexFile,metadata.getCardinality(),mode == ReadMode.mmap);
+}

@@ -3,8 +3,8 @@
   File invertedIndexFile=new File(indexDir,column + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
   FixedBitCompressedSVForwardIndexReader fwdIndexReader=new FixedBitCompressedSVForwardIndexReader(fwdIndexFile,metadata.getTotalDocs(),metadata.getBitsPerElement(),mode == ReadMode.mmap,metadata.hasNulls());
   BitmapInvertedIndexReader invertedIndex=null;
-  if (invertedIndexFile.exists() && loadInverted) {
-    invertedIndex=new BitmapInvertedIndexReader(invertedIndexFile,metadata.getCardinality(),mode == ReadMode.mmap);
+  if (loadInverted) {
+    invertedIndex=createAndLoadInvertedIndexFor(column,fwdIndexReader,metadata,invertedIndexFile,mode,indexDir);
   }
   return new UnsortedSVColumnIndexContainer(column,metadata,fwdIndexReader,dictionary,invertedIndex);
 }
