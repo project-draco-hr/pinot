@@ -1,10 +1,7 @@
 {
   Properties config=new Properties();
-  String thirdeyeCleanupDaysAgo=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),DEFAULT_CLEANUP_DAYS_AGO);
-  config.setProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),thirdeyeCleanupDaysAgo);
-  String thirdeyeCleanupSkip=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),DEFAULT_CLEANUP_SKIP);
-  config.setProperty(ThirdEyeJobConstants.THIRDEYE_CLEANUP_DAYSAGO.getName(),thirdeyeCleanupSkip);
-  String schedule=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getName());
-  config.setProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getName(),schedule);
+  config.setProperty(RollupPhaseFourConstants.ROLLUP_PHASE4_CONFIG_PATH.toString(),getConfigPath(root,collection));
+  config.setProperty(RollupPhaseFourConstants.ROLLUP_PHASE4_INPUT_PATH.toString(),getMetricIndexDir(root,collection,flowSpec,minTime,maxTime) + File.separator + ROLLUP_PHASE3.getName()+ ","+ getMetricIndexDir(root,collection,flowSpec,minTime,maxTime)+ File.separator+ ROLLUP_PHASE1.getName()+ File.separator+ "aboveThreshold");
+  config.setProperty(RollupPhaseFourConstants.ROLLUP_PHASE4_OUTPUT_PATH.toString(),getMetricIndexDir(root,collection,flowSpec,minTime,maxTime) + File.separator + ROLLUP_PHASE4.getName());
   return config;
 }
