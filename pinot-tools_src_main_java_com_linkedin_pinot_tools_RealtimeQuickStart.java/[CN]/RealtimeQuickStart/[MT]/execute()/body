@@ -1,0 +1,76 @@
+{
+  _quickStartDataDir=new File("quickStartData" + System.currentTimeMillis());
+  String quickStartDataDirName=_quickStartDataDir.getName();
+  if (!_quickStartDataDir.exists()) {
+    _quickStartDataDir.mkdir();
+  }
+  File schema=new File(quickStartDataDirName + "/rsvp_pinot_schema.json");
+  File tableCreate=new File(quickStartDataDirName + "/rsvp_create_table_request.json");
+  FileUtils.copyURLToFile(RealtimeQuickStart.class.getClassLoader().getResource("sample_data/rsvp_pinot_schema.json"),schema);
+  FileUtils.copyURLToFile(RealtimeQuickStart.class.getClassLoader().getResource("sample_data/rsvp_create_table_request.json"),tableCreate);
+  printStatus(color.CYAN,"Starting Kafka");
+  ZkStarter.startLocalZkServer();
+  final KafkaServerStartable kafkaStarter=KafkaStarterUtils.startServer(KafkaStarterUtils.DEFAULT_KAFKA_PORT,KafkaStarterUtils.DEFAULT_BROKER_ID,KafkaStarterUtils.DEFAULT_ZK_STR,KafkaStarterUtils.getDefaultKafkaConfiguration());
+  KafkaStarterUtils.createTopic("meetupRSVPEvents",KafkaStarterUtils.DEFAULT_ZK_STR);
+  final QuickstartRunner runner=new QuickstartRunner(schema,null,new File("/tm/" + System.currentTimeMillis()),"meetupRsvp",tableCreate.getAbsolutePath());
+  runner.startAll();
+  printStatus(color.CYAN,"Starting controller, server and broker");
+  runner.addSchema();
+  runner.addTable();
+  printStatus(color.CYAN,"Added schema and table");
+  printStatus(color.YELLOW,"Realtime quickstart setup complete");
+  final MeetupRsvpStream meetupRSVPProvider=new MeetupRsvpStream(schema);
+  meetupRSVPProvider.run();
+  printStatus(color.CYAN,"Starting meetup data stream and publishing to kafka");
+  Thread.sleep(5000);
+  String q1="select count(*) from meetupRsvp limit 0";
+  printStatus(color.YELLOW,"Total number of documents in the table");
+  printStatus(color.CYAN,"Query : " + q1);
+  printStatus(color.YELLOW,prettyprintResponse(runner.runQuery(q1)));
+  printStatus(color.GREEN,"***************************************************");
+  String q2="select sum(rsvp_count) from meetupRsvp group by group_city top 10 limit 0";
+  printStatus(color.YELLOW,"Top 10 cities with the most rsvp");
+  printStatus(color.CYAN,"Query : " + q2);
+  printStatus(color.YELLOW,prettyprintResponse(runner.runQuery(q2)));
+  printStatus(color.GREEN,"***************************************************");
+  String q3="select * from meetupRsvp order by mtime limit 10";
+  printStatus(color.YELLOW,"Show 10 most recent rsvps");
+  printStatus(color.CYAN,"Query : " + q3);
+  printStatus(color.YELLOW,prettyprintResponse(runner.runQuery(q3)));
+  printStatus(color.GREEN,"***************************************************");
+  String q4="select sum(rsvp_count) from meetupRsvp group by event_name top 10 limit 0";
+  printStatus(color.YELLOW,"Show top 10 rsvp'ed events");
+  printStatus(color.CYAN,"Query : " + q4);
+  printStatus(color.YELLOW,prettyprintResponse(runner.runQuery(q4)));
+  printStatus(color.GREEN,"***************************************************");
+  String q5="select count(*) from meetupRsvp limit 0";
+  printStatus(color.YELLOW,"Total number of documents in the table");
+  printStatus(color.CYAN,"Query : " + q5);
+  printStatus(color.YELLOW,prettyprintResponse(runner.runQuery(q5)));
+  printStatus(color.GREEN,"***************************************************");
+  printStatus(color.GREEN,"you can always go to http://localhost:9000/query/index.html to play around in the query console");
+  Runtime.getRuntime().addShutdownHook(new Thread(){
+    @Override public void run(){
+      try {
+        printStatus(color.GREEN,"***** shutting down realtime quickstart *****");
+        meetupRSVPProvider.stopPublishing();
+        FileUtils.deleteDirectory(_quickStartDataDir);
+        runner.stop();
+        runner.clean();
+        KafkaStarterUtils.stopServer(kafkaStarter);
+        ZkStarter.stopLocalZkServer();
+      }
+ catch (      Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+);
+  long st=System.currentTimeMillis();
+  while (true) {
+    if (System.currentTimeMillis() - st >= (60 * 60) * 1000) {
+      break;
+    }
+  }
+  printStatus(color.YELLOW,"running since an hour, stopping now");
+}
