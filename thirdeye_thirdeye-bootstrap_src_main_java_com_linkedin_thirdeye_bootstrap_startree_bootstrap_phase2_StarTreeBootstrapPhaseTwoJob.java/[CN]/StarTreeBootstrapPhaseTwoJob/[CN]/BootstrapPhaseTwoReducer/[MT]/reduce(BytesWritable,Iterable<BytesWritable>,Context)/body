@@ -34,8 +34,8 @@
     }
   }
   FixedBufferUtil.createLeafBufferFiles(new File(localTmpDataDir),nodeId,starTreeConfig,records,dictionary);
-  long minDataTimeMillis=TimeUnit.MILLISECONDS.convert(minDataTime * config.getBucketSize(),TimeUnit.valueOf(config.getTimeUnit()));
-  long maxDataTimeMillis=TimeUnit.MILLISECONDS.convert(maxDataTime * config.getBucketSize(),TimeUnit.valueOf(config.getTimeUnit()));
-  indexMetadata=new IndexMetadata(minDataTime,maxDataTime,minDataTimeMillis,maxDataTimeMillis,config.getTimeUnit(),config.getBucketSize());
+  long minDataTimeMillis=TimeUnit.MILLISECONDS.convert(minDataTime * config.getBucketSize(),TimeUnit.valueOf(config.getAggregationGranularity()));
+  long maxDataTimeMillis=TimeUnit.MILLISECONDS.convert(maxDataTime * config.getBucketSize(),TimeUnit.valueOf(config.getAggregationGranularity()));
+  indexMetadata=new IndexMetadata(minDataTime,maxDataTime,minDataTimeMillis,maxDataTimeMillis,config.getAggregationGranularity(),config.getBucketSize());
   LOGGER.info("END: processing {}",nodeId);
 }
