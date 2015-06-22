@@ -1,5 +1,10 @@
 {
   _controllerAddress="http://localhost:" + _controllerPort;
+  if (!_exec) {
+    System.out.println("Dry Running Command: " + toString());
+    System.out.println("Use the -exec option to actually execute the command.");
+    return true;
+  }
   String res=AbstractBaseCommand.sendPostRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forTableCreate(),node.toString());
   _logger.info(res);
   return true;
