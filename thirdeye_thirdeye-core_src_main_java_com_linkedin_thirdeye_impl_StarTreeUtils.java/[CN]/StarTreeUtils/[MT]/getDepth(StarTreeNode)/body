@@ -1,0 +1,16 @@
+{
+  if (root == null) {
+    return 0;
+  }
+  int maxDepth=0;
+  List<Integer> depths=new ArrayList<Integer>();
+  for (  StarTreeNode child : root.getChildren()) {
+    depths.add(getDepth(child));
+  }
+  depths.add(getDepth(root.getOtherNode()));
+  depths.add(getDepth(root.getStarNode()));
+  if (depths.size() != 0) {
+    maxDepth=Collections.max(depths);
+  }
+  return 1 + maxDepth;
+}

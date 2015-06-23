@@ -22,5 +22,10 @@
   FileOutputFormat.setOutputPath(job,new Path(getAndCheck(StarTreeGenerationConstants.STAR_TREE_GEN_OUTPUT_PATH.toString())));
   job.waitForCompletion(true);
   LOGGER.info("Finished running star tree generation job");
+  Counters counters=job.getCounters();
+  for (  Enum e : StarTreeGenerationCounters.values()) {
+    Counter counter=counters.findCounter(e);
+    LOGGER.info(counter.getDisplayName() + " : " + counter.getValue());
+  }
   return job;
 }

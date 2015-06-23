@@ -30,6 +30,9 @@
     LOGGER.info("Number of leaf Nodes" + prevLeafNodes);
   }
  while (prevLeafNodes != leafNodes.size());
+  context.getCounter(StarTreeGenerationCounters.NUM_LEAF_NODES).setValue(starTree.getStats().getLeafCount());
+  context.getCounter(StarTreeGenerationCounters.STARTREE_DEPTH).setValue(StarTreeUtils.getDepth(starTree.getRoot()));
+  context.getCounter(StarTreeGenerationCounters.NODE_COUNT).setValue(starTree.getStats().getNodeCount());
   starTree.close();
   FileSystem dfs=FileSystem.get(context.getConfiguration());
   Path src, dst;
