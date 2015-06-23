@@ -1,0 +1,15 @@
+{
+  try {
+    int remainingAttempts=_attemptCount - 1;
+    boolean result=operation.call();
+    while (!result && 0 < remainingAttempts) {
+      result=operation.call();
+      remainingAttempts--;
+    }
+    return result;
+  }
+ catch (  Exception e) {
+    Utils.rethrowException(e);
+    return false;
+  }
+}

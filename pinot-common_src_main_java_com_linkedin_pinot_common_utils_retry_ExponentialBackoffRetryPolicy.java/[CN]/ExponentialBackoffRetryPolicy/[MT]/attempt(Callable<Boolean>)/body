@@ -1,0 +1,22 @@
+{
+  try {
+    ThreadLocalRandom random=ThreadLocalRandom.current();
+    int remainingAttempts=_maximumAttemptCount - 1;
+    long minimumSleepTime=_minimumMilliseconds;
+    long maximumSleepTime=(long)(minimumSleepTime * _retryScaleFactor);
+    boolean result=operation.call();
+    while ((!result) && (0 < remainingAttempts)) {
+      long sleepTime=random.nextLong(minimumSleepTime,maximumSleepTime);
+      Uninterruptibles.sleepUninterruptibly(sleepTime,TimeUnit.MILLISECONDS);
+      result=operation.call();
+      remainingAttempts--;
+      minimumSleepTime*=_retryScaleFactor;
+      maximumSleepTime*=_retryScaleFactor;
+    }
+    return result;
+  }
+ catch (  Exception e) {
+    Utils.rethrowException(e);
+    return false;
+  }
+}
