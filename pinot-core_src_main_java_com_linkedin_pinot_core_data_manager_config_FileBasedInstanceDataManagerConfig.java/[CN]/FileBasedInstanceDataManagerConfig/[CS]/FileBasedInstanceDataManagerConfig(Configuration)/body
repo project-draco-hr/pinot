@@ -3,9 +3,9 @@
   checkRequiredKeys();
   for (  String tableName : getTableNames()) {
     Configuration tableConfig=_instanceDataManagerConfiguration.subset(tableName);
-    tableConfig.addProperty(kEY_OF_TABLE_NAME,tableName);
-    if (!tableConfig.containsKey(kEY_OF_TABLE_DATA_DIRECTORY)) {
-      tableConfig.addProperty(kEY_OF_TABLE_DATA_DIRECTORY,getInstanceDataDir() + "/" + tableName+ "/index/node"+ getInstanceId());
+    tableConfig.addProperty(KEY_OF_TABLE_NAME,tableName);
+    if (!tableConfig.containsKey(KEY_OF_TABLE_DATA_DIRECTORY)) {
+      tableConfig.addProperty(KEY_OF_TABLE_DATA_DIRECTORY,getInstanceDataDir() + "/" + tableName+ "/index/node"+ getInstanceId());
     }
     _tableDataManagerConfigMap.put(tableName,new TableDataManagerConfig(tableConfig));
   }
