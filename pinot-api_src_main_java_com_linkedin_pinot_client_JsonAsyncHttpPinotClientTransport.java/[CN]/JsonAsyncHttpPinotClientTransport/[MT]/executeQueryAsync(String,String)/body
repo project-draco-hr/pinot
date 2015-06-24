@@ -19,14 +19,15 @@
           return get(1000L,TimeUnit.DAYS);
         }
  catch (        TimeoutException e) {
+          LOGGER.error("Caught timeout during synchronous get",e);
           throw new InterruptedException();
         }
       }
       @Override public BrokerResponse get(      long timeout,      TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         try {
-          LOGGER.info("Sending query to {}",url);
+          LOGGER.debug("Sending query {} to {}",query,url);
           Response httpResponse=response.get(timeout,unit);
-          LOGGER.info("Completed query, HTTP status is {}",httpResponse.getStatusCode());
+          LOGGER.debug("Completed query, HTTP status is {}",httpResponse.getStatusCode());
           if (httpResponse.getStatusCode() != 200) {
             throw new PinotClientException("Pinot returned HTTP status " + httpResponse.getStatusCode() + ", expected 200");
           }
