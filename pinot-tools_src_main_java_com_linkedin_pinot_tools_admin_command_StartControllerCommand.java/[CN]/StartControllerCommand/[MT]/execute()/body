@@ -1,11 +1,14 @@
 {
   final ControllerConf conf=new ControllerConf();
-  conf.setControllerHost("localhost");
+  if (_controllerHost == null) {
+    _controllerHost=NetUtil.getHostAddress();
+  }
+  conf.setControllerHost(_controllerHost);
   conf.setControllerPort(_controllerPort);
   conf.setDataDir(_dataDir);
   conf.setZkStr(_zkAddress);
   conf.setHelixClusterName(_clusterName);
-  conf.setControllerVipHost("localhost");
+  conf.setControllerVipHost(_controllerHost);
   conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
   conf.setValidationControllerFrequencyInSeconds(3600);
   ZkClient zkClient=new ZkClient(_zkAddress);
@@ -13,6 +16,7 @@
   if (zkClient.exists(helixClusterName)) {
     zkClient.deleteRecursive(helixClusterName);
   }
+  LOGGER.info("Executing command: " + toString());
   final ControllerStarter starter=new ControllerStarter(conf);
   starter.start();
   savePID(System.getProperty("java.io.tmpdir") + File.separator + ".pinotAdminController.pid");

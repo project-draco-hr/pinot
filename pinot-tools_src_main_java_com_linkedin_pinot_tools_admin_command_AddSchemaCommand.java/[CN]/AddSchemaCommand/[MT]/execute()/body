@@ -1,10 +1,14 @@
 {
+  if (_controllerHost == null) {
+    _controllerHost=NetUtil.getHostAddress();
+  }
   if (!_exec) {
-    System.out.println("Dry Running Command: " + toString());
-    System.out.println("Use the -exec option to actually execute the command.");
+    LOGGER.warn("Dry Running Command: " + toString());
+    LOGGER.warn("Use the -exec option to actually execute the command.");
     return true;
   }
   File schemaFile=new File(_schemaFile);
+  LOGGER.info("Executing command: " + toString());
   if (!schemaFile.exists()) {
     throw new FileNotFoundException("file does not exist, + " + _schemaFile);
   }

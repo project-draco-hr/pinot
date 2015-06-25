@@ -1,11 +1,15 @@
 {
+  if (_controllerHost == null) {
+    _controllerHost=NetUtil.getHostAddress();
+  }
   _controllerAddress="http://" + _controllerHost + ":"+ _controllerPort;
   if (!_exec) {
-    System.out.println("Dry Running Command: " + toString());
-    System.out.println("Use the -exec option to actually execute the command.");
+    LOGGER.warn("Dry Running Command: " + toString());
+    LOGGER.warn("Use the -exec option to actually execute the command.");
     return true;
   }
+  LOGGER.info("Executing command: " + toString());
   String res=AbstractBaseCommand.sendPostRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forTableCreate(),node.toString());
-  _logger.info(res);
+  LOGGER.info(res);
   return true;
 }

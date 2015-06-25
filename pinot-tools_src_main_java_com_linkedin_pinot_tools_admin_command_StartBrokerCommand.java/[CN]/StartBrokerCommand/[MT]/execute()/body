@@ -1,9 +1,11 @@
 {
+  if (_brokerHost == null) {
+    _brokerHost=NetUtil.getHostAddress();
+  }
   Configuration configuration=new PropertiesConfiguration();
-  String brokerInstanceName=_brokerInstName + "_" + _brokerHostName+ "_"+ _brokerPort;
   configuration.addProperty(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,_brokerPort);
-  configuration.setProperty("instanceId",brokerInstanceName);
   configuration.setProperty("pinot.broker.routing.table.builder.class","random");
+  LOGGER.info("Executing command: " + toString());
   final HelixBrokerStarter pinotHelixBrokerStarter=new HelixBrokerStarter(_clusterName,_zkAddress,configuration);
   savePID(System.getProperty("java.io.tmpdir") + File.separator + ".pinotAdminBroker.pid");
   return true;
