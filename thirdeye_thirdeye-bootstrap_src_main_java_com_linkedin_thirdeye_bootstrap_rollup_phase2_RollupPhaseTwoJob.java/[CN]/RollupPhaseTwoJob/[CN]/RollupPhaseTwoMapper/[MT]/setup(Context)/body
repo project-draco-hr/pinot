@@ -3,6 +3,7 @@
   Configuration configuration=context.getConfiguration();
   FileSystem fileSystem=FileSystem.get(configuration);
   Path configPath=new Path(configuration.get(ROLLUP_PHASE2_CONFIG_PATH.toString()));
+  analysisResults=new Path(configuration.get(ROLLUP_PHASE2_ANALYSIS_PATH.toString()),StarTreeConstants.ANALYSIS_RESULTS_FILE);
   try {
     StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
     config=RollupPhaseTwoConfig.fromStarTreeConfig(starTreeConfig);

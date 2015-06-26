@@ -1,0 +1,29 @@
+{
+  try {
+    FileSystem fileSystem=FileSystem.get(new Configuration());
+    JSONParser parser=new JSONParser();
+    JSONObject jsonResult=(JSONObject)parser.parse((new InputStreamReader(fileSystem.open(analysisResults))));
+    jsonResult=(JSONObject)jsonResult.get(DIMENSION_VALUES_OBJECT);
+    LOGGER.info("Dimension values object {}",jsonResult);
+    Map<String,Integer> dimensionCardinality=new HashMap<String,Integer>();
+    for (    String dimension : dimensionNames) {
+      dimensionCardinality.put(dimension,((List<String>)jsonResult.get(dimension)).size());
+    }
+    SortedSet<Entry<String,Integer>> sortedDimensionCardinality=new TreeSet<Entry<String,Integer>>(new Comparator<Entry<String,Integer>>(){
+      @Override public int compare(      Entry<String,Integer> dimension1,      Entry<String,Integer> dimension2){
+        return dimension2.getValue().compareTo(dimension1.getValue());
+      }
+    }
+);
+    sortedDimensionCardinality.addAll(dimensionCardinality.entrySet());
+    LOGGER.info("Sorted order {}",sortedDimensionCardinality);
+    Iterator<Entry<String,Integer>> it=sortedDimensionCardinality.iterator();
+    rollupOrder=new ArrayList<String>();
+    while (it.hasNext()) {
+      rollupOrder.add(it.next().getKey());
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.info("exception {}",e);
+  }
+}
