@@ -1,0 +1,45 @@
+{
+  ExecutorService addSegmentExecutor=Executors.newFixedThreadPool(5);
+  for (int i=0; i < 5; ++i) {
+    addSegmentExecutor.execute(new Runnable(){
+      @Override public void run(){
+        for (int i=0; i < 20; ++i) {
+          addOneSegment(TABLE_NAME);
+          try {
+            Thread.sleep(1000);
+          }
+ catch (          InterruptedException e) {
+            Assert.assertFalse(true,"Exception caught during sleep.");
+          }
+        }
+      }
+    }
+);
+  }
+  addSegmentExecutor.shutdown();
+  while (!addSegmentExecutor.isTerminated()) {
+  }
+  final String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(TABLE_NAME);
+  IdealState idealState=_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,offlineTableName);
+  Assert.assertEquals(idealState.getPartitionSet().size(),100);
+  ExecutorService deleteSegmentExecutor=Executors.newFixedThreadPool(5);
+  for (  final String segment : idealState.getPartitionSet()) {
+    deleteSegmentExecutor.execute(new Runnable(){
+      @Override public void run(){
+        deleteOneSegment(offlineTableName,segment);
+        try {
+          Thread.sleep(1000);
+        }
+ catch (        InterruptedException e) {
+          Assert.assertFalse(true,"Exception caught during sleep.");
+        }
+      }
+    }
+);
+  }
+  deleteSegmentExecutor.shutdown();
+  while (!deleteSegmentExecutor.isTerminated()) {
+  }
+  idealState=_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,offlineTableName);
+  Assert.assertEquals(idealState.getPartitionSet().size(),0);
+}

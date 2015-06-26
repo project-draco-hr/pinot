@@ -1,6 +1,6 @@
 {
   final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
-  HelixHelper.deleteResourceFromBrokerResource(_helixAdmin,_helixClusterName,realtimeTableName);
+  HelixHelper.removeResourceFromBrokerIdealState(_helixZkManager,realtimeTableName);
   if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(realtimeTableName)) {
     return;
   }

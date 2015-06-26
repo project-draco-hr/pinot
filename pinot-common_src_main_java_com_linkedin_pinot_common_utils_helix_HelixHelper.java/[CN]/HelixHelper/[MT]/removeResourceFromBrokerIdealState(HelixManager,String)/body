@@ -1,0 +1,16 @@
+{
+  Function<IdealState,IdealState> updater=new Function<IdealState,IdealState>(){
+    @Override public IdealState apply(    IdealState idealState){
+      if (idealState.getPartitionSet().contains(resourceTag)) {
+        idealState.getPartitionSet().remove(resourceTag);
+        return idealState;
+      }
+ else {
+        return null;
+      }
+    }
+  }
+;
+  LOGGER.info("Trying to remove resource from idealstats");
+  HelixHelper.updateIdealState(helixManager,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,updater,DEFAULT_RETRY_POLICY);
+}

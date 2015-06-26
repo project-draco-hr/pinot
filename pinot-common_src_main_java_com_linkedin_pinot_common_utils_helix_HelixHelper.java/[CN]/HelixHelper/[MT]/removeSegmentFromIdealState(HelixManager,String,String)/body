@@ -1,0 +1,16 @@
+{
+  Function<IdealState,IdealState> updater=new Function<IdealState,IdealState>(){
+    @Override public IdealState apply(    IdealState idealState){
+      final Set<String> currentInstanceSet=idealState.getInstanceSet(segmentName);
+      if (!currentInstanceSet.isEmpty() && idealState.getPartitionSet().contains(segmentName)) {
+        idealState.getPartitionSet().remove(segmentName);
+        return idealState;
+      }
+ else {
+        return null;
+      }
+    }
+  }
+;
+  updateIdealState(helixManager,tableName,updater,DEFAULT_RETRY_POLICY);
+}

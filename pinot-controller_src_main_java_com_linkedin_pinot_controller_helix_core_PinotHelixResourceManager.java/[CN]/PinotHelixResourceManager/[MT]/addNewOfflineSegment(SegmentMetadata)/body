@@ -1,0 +1,25 @@
+{
+  final AbstractTableConfig offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,segmentMetadata.getTableName());
+  final String segmentName=segmentMetadata.getName();
+  final String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(segmentMetadata.getTableName());
+  if (!SEGMENT_ASSIGNMENT_STRATEGY_MAP.containsKey(offlineTableName)) {
+    SEGMENT_ASSIGNMENT_STRATEGY_MAP.put(offlineTableName,SegmentAssignmentStrategyFactory.getSegmentAssignmentStrategy(offlineTableConfig.getValidationConfig().getSegmentAssignmentStrategy()));
+  }
+  final SegmentAssignmentStrategy segmentAssignmentStrategy=SEGMENT_ASSIGNMENT_STRATEGY_MAP.get(offlineTableName);
+  Callable<List<String>> getInstancesForSegment=new Callable<List<String>>(){
+    @Override public List<String> call() throws Exception {
+      final IdealState currentIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,offlineTableName);
+      final Set<String> currentInstanceSet=currentIdealState.getInstanceSet(segmentName);
+      if (currentInstanceSet.isEmpty()) {
+        final String serverTenant=ControllerTenantNameBuilder.getOfflineTenantNameForTenant(offlineTableConfig.getTenantConfig().getServer());
+        final int replicas=Integer.parseInt(offlineTableConfig.getValidationConfig().getReplication());
+        return segmentAssignmentStrategy.getAssignedInstances(_helixAdmin,_helixClusterName,segmentMetadata,replicas,serverTenant);
+      }
+ else {
+        return new ArrayList<String>(currentIdealState.getInstanceSet(segmentName));
+      }
+    }
+  }
+;
+  HelixHelper.addSegmentToIdealState(_helixZkManager,offlineTableName,segmentName,getInstancesForSegment);
+}

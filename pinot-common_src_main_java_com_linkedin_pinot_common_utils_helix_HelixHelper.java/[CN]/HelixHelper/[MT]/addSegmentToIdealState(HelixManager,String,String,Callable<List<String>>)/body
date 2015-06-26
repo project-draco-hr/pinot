@@ -1,0 +1,21 @@
+{
+  Function<IdealState,IdealState> updater=new Function<IdealState,IdealState>(){
+    @Override public IdealState apply(    IdealState idealState){
+      List<String> targetInstances=null;
+      try {
+        targetInstances=getIntancesForSegment.call();
+      }
+ catch (      Exception e) {
+        LOGGER.error("Unable to get new instances for segment uploading.");
+        return null;
+      }
+      for (      final String instance : targetInstances) {
+        idealState.setPartitionState(segmentName,instance,ONLINE);
+      }
+      idealState.setNumPartitions(idealState.getNumPartitions() + 1);
+      return idealState;
+    }
+  }
+;
+  updateIdealState(helixManager,tableName,updater,DEFAULT_RETRY_POLICY);
+}
