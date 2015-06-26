@@ -11,6 +11,7 @@
     LOGGER.info("Timeout is :" + _timeoutMS);
     conn=c.getOne(_timeoutMS,TimeUnit.MILLISECONDS);
     while (!conn.validate()) {
+      LOGGER.warn("Checked out invalid connection, destroying it and checking out new one");
       _connPool.destroyObject(_server,conn);
       c=_connPool.checkoutObject(_server);
       conn=c.getOne(_timeoutMS,TimeUnit.MILLISECONDS);
