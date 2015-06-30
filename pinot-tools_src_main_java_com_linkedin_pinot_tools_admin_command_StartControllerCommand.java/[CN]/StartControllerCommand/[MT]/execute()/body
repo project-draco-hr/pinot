@@ -11,11 +11,6 @@
   conf.setControllerVipHost(_controllerHost);
   conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
   conf.setValidationControllerFrequencyInSeconds(3600);
-  ZkClient zkClient=new ZkClient(_zkAddress);
-  String helixClusterName="/" + _clusterName;
-  if (zkClient.exists(helixClusterName)) {
-    zkClient.deleteRecursive(helixClusterName);
-  }
   LOGGER.info("Executing command: " + toString());
   final ControllerStarter starter=new ControllerStarter(conf);
   starter.start();
