@@ -8,7 +8,6 @@
   try {
     KeyedFuture<ServerInstance,NettyClientConnection> c=_connPool.checkoutObject(_server);
     byte[] serializedRequest=_request.getRequestForService(_server,_segmentIds);
-    LOGGER.info("Timeout is :" + _timeoutMS);
     conn=c.getOne(_timeoutMS,TimeUnit.MILLISECONDS);
     while (!conn.validate()) {
       LOGGER.warn("Checked out invalid connection, destroying it and checking out new one");

@@ -13,7 +13,7 @@
   _resourceManager=new PooledNettyClientResourceManager(_eventLoopGroup,new HashedWheelTimer(),clientMetrics);
   _poolTimeoutExecutor=new ScheduledThreadPoolExecutor(50);
   final ConnectionPoolConfig cfg=conf.getConnPool();
-  _requestSenderPool=new ThreadPoolExecutor(cfg.getThreadPool().getCorePoolSize(),cfg.getThreadPool().getMaxPoolSize(),cfg.getThreadPool().getIdleTimeoutMs(),TimeUnit.MILLISECONDS,new LinkedBlockingQueue<Runnable>());
+  _requestSenderPool=Executors.newCachedThreadPool();
   ConnectionPoolConfig connPoolCfg=conf.getConnPool();
   _connPool=new KeyedPoolImpl<ServerInstance,NettyClientConnection>(connPoolCfg.getMinConnectionsPerServer(),connPoolCfg.getMaxConnectionsPerServer(),connPoolCfg.getIdleTimeoutMs(),connPoolCfg.getMaxBacklogPerServer(),_resourceManager,_poolTimeoutExecutor,_requestSenderPool,_registry);
   _resourceManager.setPool(_connPool);
