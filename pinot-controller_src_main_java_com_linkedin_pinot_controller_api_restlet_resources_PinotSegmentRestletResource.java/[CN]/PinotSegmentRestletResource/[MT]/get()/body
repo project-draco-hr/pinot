@@ -1,0 +1,18 @@
+{
+  StringRepresentation presentation=null;
+  try {
+    final String tableName=(String)getRequest().getAttributes().get("tableName");
+    final String segmentName=(String)getRequest().getAttributes().get("segmentName");
+    if (segmentName != null) {
+      return getSegmentMetadata(tableName,segmentName);
+    }
+    final String grouping=getQueryValue("grouping") == null ? "instances" : "arrivalDay";
+    return getSegmentMetadataForTable(tableName,grouping);
+  }
+ catch (  final Exception e) {
+    presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
+    LOGGER.error("Caught exception while processing get request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return presentation;
+}

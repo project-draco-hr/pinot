@@ -2,9 +2,7 @@
   StringRepresentation presentation=null;
   try {
     final Instance instance=mapper.readValue(ByteStreams.toByteArray(entity.getStream()),Instance.class);
-    final PinotResourceManagerResponse resp=manager.addInstance(instance);
-    LOGGER.info("instace create request recieved for instance : " + instance.toInstanceId());
-    presentation=new StringRepresentation(resp.toJSON().toString());
+    presentation=addInstance(instance);
   }
  catch (  final Exception e) {
     presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));

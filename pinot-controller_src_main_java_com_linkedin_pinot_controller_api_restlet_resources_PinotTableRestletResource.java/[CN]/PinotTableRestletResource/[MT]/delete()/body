@@ -1,15 +1,9 @@
 {
   StringRepresentation presentation=null;
   final String tableName=(String)getRequest().getAttributes().get("tableName");
-  if (tableName == null) {
-    return new StringRepresentation("tableName is not present");
-  }
   final String type=getReference().getQueryAsForm().getValues("type");
-  if (type == null || type.equalsIgnoreCase("offline")) {
-    manager.deleteOfflineTable(tableName);
-  }
-  if (type == null || type.equalsIgnoreCase("realtime")) {
-    manager.deleteRealtimeTable(tableName);
+  if (deleteTable(tableName,type)) {
+    return new StringRepresentation("tableName is not present");
   }
   return presentation;
 }

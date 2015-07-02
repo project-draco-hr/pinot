@@ -1,0 +1,10 @@
+{
+  JSONObject object=new JSONObject();
+  JSONArray tableArray=new JSONArray();
+  List<String> tableNames=manager.getAllPinotTableNames();
+  for (  String pinotTableName : tableNames) {
+    tableArray.add(TableNameBuilder.extractRawTableName(pinotTableName));
+  }
+  object.put("tables",tableArray);
+  return new StringRepresentation(object.toString());
+}

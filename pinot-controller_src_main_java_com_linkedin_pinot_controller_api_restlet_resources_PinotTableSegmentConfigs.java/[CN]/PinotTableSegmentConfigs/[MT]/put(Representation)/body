@@ -5,9 +5,7 @@
   }
   AbstractTableConfig config=null;
   try {
-    config=AbstractTableConfig.init(entity.getText());
-    manager.updateSegmentsValidationAndRetentionConfigFor(config.getTableName(),TableType.valueOf(config.getTableType()),config.getValidationConfig());
-    return new StringRepresentation("done");
+    return updateSegmentConfig(tableName,entity,config);
   }
  catch (  final Exception e) {
     LOGGER.error("errpr updating segments configs for table {}",config.getTableName(),e);

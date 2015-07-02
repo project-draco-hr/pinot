@@ -1,0 +1,13 @@
+{
+  Representation rep=null;
+  File dataFile=null;
+  try {
+    rep=uploadSchema(dataFile);
+  }
+ catch (  final Exception e) {
+    rep=PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
+    LOGGER.error("Caught exception in file upload",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return rep;
+}

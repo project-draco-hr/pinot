@@ -5,9 +5,7 @@
   }
   AbstractTableConfig config=null;
   try {
-    config=AbstractTableConfig.init(entity.getText());
-    manager.updateMetadataConfigFor(config.getTableName(),TableType.valueOf(config.getTableType()),config.getCustomConfigs());
-    return new StringRepresentation("done");
+    return updateTableMetadata(tableName,entity,config);
   }
  catch (  final Exception e) {
     LOGGER.error("errpr updating medata configs for table {}",config.getTableName(),e);

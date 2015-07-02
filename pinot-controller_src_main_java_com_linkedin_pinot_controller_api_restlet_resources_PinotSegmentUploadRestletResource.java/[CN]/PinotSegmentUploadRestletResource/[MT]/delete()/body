@@ -4,21 +4,7 @@
     final String tableName=(String)getRequest().getAttributes().get("tableName");
     final String segmentName=(String)getRequest().getAttributes().get("segmentName");
     LOGGER.info("Getting segment deletion request, tableName: " + tableName + " segmentName: "+ segmentName);
-    if (tableName == null || segmentName == null) {
-      throw new RuntimeException("either table name or segment name is null");
-    }
-    PinotResourceManagerResponse res=null;
-    if (ZKMetadataProvider.isSegmentExisted(manager.getPropertyStore(),TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName)) {
-      res=manager.deleteSegment(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
-      rep=new StringRepresentation(res.toString());
-    }
-    if (ZKMetadataProvider.isSegmentExisted(manager.getPropertyStore(),TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName),segmentName)) {
-      res=manager.deleteSegment(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
-      rep=new StringRepresentation(res.toString());
-    }
-    if (res == null) {
-      rep=new StringRepresentation("Cannot find the segment: " + segmentName + " in table: "+ tableName);
-    }
+    rep=deleteSegment(rep,tableName,segmentName);
   }
  catch (  final Exception e) {
     rep=exceptionToStringRepresentation(e);

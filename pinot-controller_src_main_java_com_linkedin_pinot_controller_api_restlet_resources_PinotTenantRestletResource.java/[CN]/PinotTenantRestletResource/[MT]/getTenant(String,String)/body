@@ -1,0 +1,19 @@
+{
+  StringRepresentation presentation;
+  JSONObject resourceGetRet=new JSONObject();
+  if (type == null) {
+    resourceGetRet.put("ServerInstances",_pinotHelixResourceMananger.getAllInstancesForServerTenant(tenantName));
+    resourceGetRet.put("BrokerInstances",_pinotHelixResourceMananger.getAllInstancesForBrokerTenant(tenantName));
+  }
+ else {
+    if (type.equalsIgnoreCase("server")) {
+      resourceGetRet.put("ServerInstances",_pinotHelixResourceMananger.getAllInstancesForServerTenant(tenantName));
+    }
+    if (type.equalsIgnoreCase("broker")) {
+      resourceGetRet.put("BrokerInstances",_pinotHelixResourceMananger.getAllInstancesForBrokerTenant(tenantName));
+    }
+  }
+  resourceGetRet.put(TENANT_NAME,tenantName);
+  presentation=new StringRepresentation(resourceGetRet.toString(),MediaType.APPLICATION_JSON);
+  return presentation;
+}

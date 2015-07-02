@@ -1,48 +1,14 @@
 {
-  StringRepresentation presentation=null;
+  StringRepresentation presentation;
   try {
     final String tenantName=(String)getRequest().getAttributes().get(TENANT_NAME);
     final String type=getReference().getQueryAsForm().getValues("type");
-    if (type == null) {
-      presentation=new StringRepresentation("Not specify the type for the tenant name. Please try to append:" + "/?type=SERVER or /?type=BROKER ");
-    }
- else {
-      TenantRole tenantRole=TenantRole.valueOf(type.toUpperCase());
-      PinotResourceManagerResponse res=null;
-switch (tenantRole) {
-case BROKER:
-        if (_pinotHelixResourceMananger.isBrokerTenantDeletable(tenantName)) {
-          res=_pinotHelixResourceMananger.deleteBrokerTenantFor(tenantName);
-        }
- else {
-          res=new PinotResourceManagerResponse();
-          res.status=STATUS.failure;
-          res.errorMessage="Broker Tenant is not null, cannot delete it.";
-        }
-      break;
-case SERVER:
-    if (_pinotHelixResourceMananger.isServerTenantDeletable(tenantName)) {
-      res=_pinotHelixResourceMananger.deleteOfflineServerTenantFor(tenantName);
-      if (res.isSuccessfull()) {
-        res=_pinotHelixResourceMananger.deleteRealtimeServerTenantFor(tenantName);
-      }
-    }
- else {
-      res=new PinotResourceManagerResponse();
-      res.status=STATUS.failure;
-      res.errorMessage="Server Tenant is not null, cannot delete it.";
-    }
-  break;
-default :
-break;
-}
-presentation=new StringRepresentation(res.toString());
-}
-}
- catch (final Exception e) {
-presentation=exceptionToStringRepresentation(e);
-LOGGER.error("Caught exception while processing delete request",e);
-setStatus(Status.SERVER_ERROR_INTERNAL);
-}
-return presentation;
+    presentation=deleteTenant(tenantName,type);
+  }
+ catch (  final Exception e) {
+    presentation=exceptionToStringRepresentation(e);
+    LOGGER.error("Caught exception while processing delete request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return presentation;
 }

@@ -5,9 +5,7 @@
   }
   AbstractTableConfig config=null;
   try {
-    config=AbstractTableConfig.init(entity.getText());
-    manager.updateIndexingConfigFor(config.getTableName(),TableType.valueOf(config.getTableType()),config.getIndexingConfig());
-    return new StringRepresentation("done");
+    return updateIndexingConfig(tableName,entity,config);
   }
  catch (  final Exception e) {
     LOGGER.error("errpr updating indexing configs for table {}",config.getTableName(),e);

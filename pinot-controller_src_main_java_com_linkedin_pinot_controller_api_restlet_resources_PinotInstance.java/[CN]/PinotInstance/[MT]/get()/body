@@ -1,5 +1,5 @@
 {
-  StringRepresentation presentation=null;
+  StringRepresentation presentation;
   try {
     final String instanceName=(String)getRequest().getAttributes().get(INSTANCE_NAME);
     final String status=getReference().getQueryAsForm().getValues(STATUS);
@@ -7,12 +7,7 @@
       presentation=new StringRepresentation("Not a valid GET call, do nothing!");
     }
  else {
-      if (status.equals(ENABLE)) {
-        presentation=new StringRepresentation(manager.enableInstance(instanceName).toJSON().toString());
-      }
-      if (status.equals(DISABLE)) {
-        presentation=new StringRepresentation(manager.disableInstance(instanceName).toJSON().toString());
-      }
+      presentation=toggleInstanceStatus(instanceName,status);
     }
   }
  catch (  final Exception e) {

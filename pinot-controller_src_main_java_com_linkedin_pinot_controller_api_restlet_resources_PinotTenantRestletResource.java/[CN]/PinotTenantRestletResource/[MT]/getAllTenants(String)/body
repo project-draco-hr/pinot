@@ -1,0 +1,12 @@
+{
+  StringRepresentation presentation;
+  final JSONObject ret=new JSONObject();
+  if (type == null || type.equalsIgnoreCase("server")) {
+    ret.put("SERVER_TENANTS",_pinotHelixResourceMananger.getAllServerTenantNames());
+  }
+  if (type == null || type.equalsIgnoreCase("broker")) {
+    ret.put("BROKER_TENANTS",_pinotHelixResourceMananger.getAllBrokerTenantNames());
+  }
+  presentation=new StringRepresentation(ret.toString(),MediaType.APPLICATION_JSON);
+  return presentation;
+}

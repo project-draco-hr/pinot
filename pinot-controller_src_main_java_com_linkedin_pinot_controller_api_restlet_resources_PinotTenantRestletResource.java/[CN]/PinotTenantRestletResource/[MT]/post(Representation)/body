@@ -1,25 +1,13 @@
 {
-  StringRepresentation presentation=null;
+  StringRepresentation presentation;
   try {
-    PinotResourceManagerResponse response=null;
     final Tenant tenant=_objectMapper.readValue(entity.getText(),Tenant.class);
-switch (tenant.getTenantRole()) {
-case BROKER:
-      response=_pinotHelixResourceMananger.createBrokerTenant(tenant);
-    presentation=new StringRepresentation(response.toString());
-  break;
-case SERVER:
-response=_pinotHelixResourceMananger.createServerTenant(tenant);
-presentation=new StringRepresentation(response.toString());
-break;
-default :
-throw new RuntimeException("Not a valid tenant creation call");
-}
-}
- catch (final Exception e) {
-presentation=exceptionToStringRepresentation(e);
-LOGGER.error("Caught exception while processing put request",e);
-setStatus(Status.SERVER_ERROR_INTERNAL);
-}
-return presentation;
+    presentation=createTenant(tenant);
+  }
+ catch (  final Exception e) {
+    presentation=exceptionToStringRepresentation(e);
+    LOGGER.error("Caught exception while processing put request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return presentation;
 }

@@ -1,0 +1,14 @@
+{
+  try {
+    final String schemaName=(String)getRequest().getAttributes().get("schemaName");
+    if (schemaName != null) {
+      return getSchema(schemaName);
+    }
+ else {
+      return getAllSchemas();
+    }
+  }
+ catch (  Exception e) {
+    return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
+  }
+}

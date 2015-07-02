@@ -1,0 +1,10 @@
+{
+  Representation presentation;
+  final JSONArray ret=new JSONArray();
+  for (  final File file : baseDataDir.listFiles()) {
+    final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/segments/"+ file.getName();
+    ret.put(url);
+  }
+  presentation=new StringRepresentation(ret.toString());
+  return presentation;
+}

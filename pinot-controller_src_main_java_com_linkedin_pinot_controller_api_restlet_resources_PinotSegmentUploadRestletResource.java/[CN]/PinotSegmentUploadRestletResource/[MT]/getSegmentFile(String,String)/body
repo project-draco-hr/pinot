@@ -1,0 +1,11 @@
+{
+  Representation presentation;
+  final File dataFile=new File(baseDataDir,StringUtil.join("/",tableName,segmentName));
+  if (dataFile.exists()) {
+    presentation=new FileRepresentation(dataFile,MediaType.ALL,0);
+  }
+ else {
+    presentation=new StringRepresentation("Table or segment is not found!");
+  }
+  return presentation;
+}

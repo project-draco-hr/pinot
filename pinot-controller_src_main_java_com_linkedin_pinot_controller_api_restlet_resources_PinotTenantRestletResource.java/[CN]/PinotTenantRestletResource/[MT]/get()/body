@@ -2,34 +2,12 @@
   StringRepresentation presentation=null;
   try {
     final String tenantName=(String)getRequest().getAttributes().get(TENANT_NAME);
+    final String type=getReference().getQueryAsForm().getValues("type");
     if (tenantName == null) {
-      final JSONObject ret=new JSONObject();
-      final String type=getReference().getQueryAsForm().getValues("type");
-      if (type == null || type.equals("server")) {
-        ret.put("SERVER_TENANTS",_pinotHelixResourceMananger.getAllServerTenantNames());
-      }
-      if (type == null || type.equals("broker")) {
-        ret.put("BROKER_TENANTS",_pinotHelixResourceMananger.getAllBrokerTenantNames());
-      }
-      presentation=new StringRepresentation(ret.toString(),MediaType.APPLICATION_JSON);
+      presentation=getAllTenants(type);
     }
  else {
-      final String type=getReference().getQueryAsForm().getValues("type");
-      JSONObject resourceGetRet=new JSONObject();
-      if (type == null) {
-        resourceGetRet.put("ServerInstances",_pinotHelixResourceMananger.getAllInstancesForServerTenant(tenantName));
-        resourceGetRet.put("BrokerInstances",_pinotHelixResourceMananger.getAllInstancesForBrokerTenant(tenantName));
-      }
- else {
-        if (type.equals("server")) {
-          resourceGetRet.put("ServerInstances",_pinotHelixResourceMananger.getAllInstancesForServerTenant(tenantName));
-        }
-        if (type.equals("broker")) {
-          resourceGetRet.put("BrokerInstances",_pinotHelixResourceMananger.getAllInstancesForBrokerTenant(tenantName));
-        }
-      }
-      resourceGetRet.put(TENANT_NAME,tenantName);
-      presentation=new StringRepresentation(resourceGetRet.toString(),MediaType.APPLICATION_JSON);
+      presentation=getTenant(tenantName,type);
     }
   }
  catch (  final Exception e) {

@@ -1,0 +1,17 @@
+{
+  PinotResourceManagerResponse response;
+  StringRepresentation presentation;
+switch (tenant.getTenantRole()) {
+case BROKER:
+    response=_pinotHelixResourceMananger.createBrokerTenant(tenant);
+  presentation=new StringRepresentation(response.toString());
+break;
+case SERVER:
+response=_pinotHelixResourceMananger.createServerTenant(tenant);
+presentation=new StringRepresentation(response.toString());
+break;
+default :
+throw new RuntimeException("Not a valid tenant creation call");
+}
+return presentation;
+}

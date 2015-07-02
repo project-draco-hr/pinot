@@ -1,0 +1,12 @@
+{
+  final SegmentMetadata metadata=new SegmentMetadataImpl(indexDir);
+  final File tableDir=new File(baseDataDir,metadata.getTableName());
+  File segmentFile=new File(tableDir,dataFile.getName());
+  if (segmentFile.exists()) {
+    FileUtils.deleteQuietly(segmentFile);
+  }
+  FileUtils.moveFile(dataFile,segmentFile);
+  manager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
+  setStatus(Status.SUCCESS_OK);
+  return new StringRepresentation("");
+}

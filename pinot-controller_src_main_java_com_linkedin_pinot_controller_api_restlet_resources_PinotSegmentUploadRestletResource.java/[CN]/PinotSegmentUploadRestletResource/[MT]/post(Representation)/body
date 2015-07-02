@@ -27,16 +27,7 @@
         tmpSegmentDir.mkdirs();
       }
       TarGzCompressionUtils.unTar(dataFile,tmpSegmentDir);
-      final SegmentMetadata metadata=new SegmentMetadataImpl(tmpSegmentDir.listFiles()[0]);
-      final File tableDir=new File(baseDataDir,metadata.getTableName());
-      File segmentFile=new File(tableDir,dataFile.getName());
-      if (segmentFile.exists()) {
-        FileUtils.deleteQuietly(segmentFile);
-      }
-      FileUtils.moveFile(dataFile,segmentFile);
-      manager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
-      setStatus(Status.SUCCESS_OK);
-      return new StringRepresentation("");
+      return uploadSegment(tmpSegmentDir.listFiles()[0],dataFile);
     }
  else {
       rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);

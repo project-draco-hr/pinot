@@ -1,0 +1,53 @@
+{
+  JSONObject ret=new JSONObject();
+  ret.put("tableName",tableName);
+  JSONArray brokers=new JSONArray();
+  JSONArray servers=new JSONArray();
+  if (type == null || type.toLowerCase().equals("broker")) {
+    if (manager.hasOfflineTable(tableName)) {
+      JSONObject e=new JSONObject();
+      e.put("tableType","offline");
+      JSONArray a=new JSONArray();
+      for (      String ins : manager.getBrokerInstancesForTable(tableName,TableType.OFFLINE)) {
+        a.add(ins);
+      }
+      e.put("instances",a);
+      brokers.add(e);
+    }
+    if (manager.hasRealtimeTable(tableName)) {
+      JSONObject e=new JSONObject();
+      e.put("tableType","realtime");
+      JSONArray a=new JSONArray();
+      for (      String ins : manager.getBrokerInstancesForTable(tableName,TableType.REALTIME)) {
+        a.add(ins);
+      }
+      e.put("instances",a);
+      brokers.add(e);
+    }
+  }
+  if (type == null || type.toLowerCase().equals("server")) {
+    if (manager.hasOfflineTable(tableName)) {
+      JSONObject e=new JSONObject();
+      e.put("tableType","offline");
+      JSONArray a=new JSONArray();
+      for (      String ins : manager.getServerInstancesForTable(tableName,TableType.OFFLINE)) {
+        a.add(ins);
+      }
+      e.put("instances",a);
+      servers.add(e);
+    }
+    if (manager.hasRealtimeTable(tableName)) {
+      JSONObject e=new JSONObject();
+      e.put("tableType","realtime");
+      JSONArray a=new JSONArray();
+      for (      String ins : manager.getServerInstancesForTable(tableName,TableType.REALTIME)) {
+        a.add(ins);
+      }
+      e.put("instances",a);
+      servers.add(e);
+    }
+  }
+  ret.put("brokers",brokers);
+  ret.put("server",servers);
+  return new StringRepresentation(ret.toString());
+}

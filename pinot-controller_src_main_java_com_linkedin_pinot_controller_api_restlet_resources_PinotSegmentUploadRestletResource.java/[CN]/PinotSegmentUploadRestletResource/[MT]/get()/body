@@ -4,32 +4,12 @@
     final String tableName=(String)getRequest().getAttributes().get("tableName");
     final String segmentName=(String)getRequest().getAttributes().get("segmentName");
     if ((tableName == null) && (segmentName == null)) {
-      final JSONArray ret=new JSONArray();
-      for (      final File file : baseDataDir.listFiles()) {
-        final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/segments/"+ file.getName();
-        ret.put(url);
-      }
-      presentation=new StringRepresentation(ret.toString());
-      return presentation;
+      return getAllSegments();
     }
  else     if ((tableName != null) && (segmentName == null)) {
-      final JSONArray ret=new JSONArray();
-      File tableDir=new File(baseDataDir,tableName);
-      if (tableDir.exists()) {
-        for (        final File file : tableDir.listFiles()) {
-          final String url="http://" + StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()) + "/segments/"+ tableName+ "/"+ file.getName();
-          ret.put(url);
-        }
-      }
-      presentation=new StringRepresentation(ret.toString());
-      return presentation;
+      return getSegmentsForTable(tableName);
     }
-    final File dataFile=new File(baseDataDir,StringUtil.join("/",tableName,segmentName));
-    if (dataFile.exists()) {
-      presentation=new FileRepresentation(dataFile,MediaType.ALL,0);
-      return presentation;
-    }
-    presentation=new StringRepresentation("Table or segment is not found!");
+    presentation=getSegmentFile(tableName,segmentName);
   }
  catch (  final Exception e) {
     presentation=exceptionToStringRepresentation(e);

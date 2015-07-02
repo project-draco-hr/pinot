@@ -1,0 +1,12 @@
+{
+  JSONObject ret=new JSONObject();
+  if (manager.hasOfflineTable(tableName)) {
+    AbstractTableConfig config=manager.getTableConfig(tableName,TableType.OFFLINE);
+    ret.put("offline",config.toJSON());
+  }
+  if (manager.hasRealtimeTable(tableName)) {
+    AbstractTableConfig config=manager.getTableConfig(tableName,TableType.REALTIME);
+    ret.put("realtime",config.toJSON());
+  }
+  return new StringRepresentation(ret.toString());
+}

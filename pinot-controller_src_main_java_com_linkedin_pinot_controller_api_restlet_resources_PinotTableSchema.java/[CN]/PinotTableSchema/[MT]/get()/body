@@ -1,24 +1,4 @@
 {
   final String tableName=(String)getRequest().getAttributes().get("tableName");
-  if (manager.hasRealtimeTable(tableName)) {
-    try {
-      AbstractTableConfig config=manager.getTableConfig(tableName,TableType.REALTIME);
-      return new StringRepresentation(manager.getSchema(config.getValidationConfig().getSchemaName()).getJSONSchema().toString());
-    }
- catch (    Exception e) {
-      LOGGER.error("error fetching schema for a realtime table : {} ",tableName,e);
-      return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
-    }
-  }
- else {
-    AbstractTableConfig config;
-    try {
-      config=manager.getTableConfig(tableName,TableType.OFFLINE);
-      return new StringRepresentation(manager.getSchema(config.getValidationConfig().getSchemaName()).getJSONSchema().toString());
-    }
- catch (    Exception e) {
-      LOGGER.error("error fetching schema for a offline table : {} ",tableName,e);
-      return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
-    }
-  }
+  return getTableSchema(tableName);
 }

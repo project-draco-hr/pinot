@@ -2,14 +2,7 @@
   final String tableName=(String)getRequest().getAttributes().get("tableName");
   if (tableName == null) {
     try {
-      JSONObject object=new JSONObject();
-      JSONArray tableArray=new JSONArray();
-      List<String> tableNames=manager.getAllPinotTableNames();
-      for (      String pinotTableName : tableNames) {
-        tableArray.add(TableNameBuilder.extractRawTableName(pinotTableName));
-      }
-      object.put("tables",tableArray);
-      return new StringRepresentation(object.toString());
+      return getAllTables();
     }
  catch (    Exception e) {
       LOGGER.error("Error processing table list",e);
@@ -17,16 +10,7 @@
     }
   }
   try {
-    JSONObject ret=new JSONObject();
-    if (manager.hasOfflineTable(tableName)) {
-      AbstractTableConfig config=manager.getTableConfig(tableName,TableType.OFFLINE);
-      ret.put("offline",config.toJSON());
-    }
-    if (manager.hasRealtimeTable(tableName)) {
-      AbstractTableConfig config=manager.getTableConfig(tableName,TableType.REALTIME);
-      ret.put("realtime",config.toJSON());
-    }
-    return new StringRepresentation(ret.toString());
+    return getTable(tableName);
   }
  catch (  Exception e) {
     LOGGER.error("error processing get table config",e);
