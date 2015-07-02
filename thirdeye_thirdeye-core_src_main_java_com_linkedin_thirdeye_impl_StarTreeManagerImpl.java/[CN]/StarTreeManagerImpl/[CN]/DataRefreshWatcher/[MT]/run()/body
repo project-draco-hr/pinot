@@ -15,13 +15,26 @@
       }
       for (      WatchEvent<?> event : key.pollEvents()) {
         if (event.kind() == OVERFLOW) {
-          LOGGER.info("Received a overflow event");
+          LOGGER.info("Received an overflow event");
+          for (          Entry<String,ConcurrentMap<File,StarTree>> collectionEntry : trees.entrySet()) {
+            for (            Entry<File,StarTree> mapEntry : collectionEntry.getValue().entrySet()) {
+              if (!mapEntry.getKey().exists()) {
+                collectionEntry.getValue().remove(mapEntry.getKey());
+              }
+            }
+          }
           continue;
         }
         WatchEvent<Path> ev=(WatchEvent<Path>)event;
         Path path=dir.resolve(ev.context());
         File file=path.toFile();
         LOGGER.info("{} {}",ev.kind(),path);
+        if (ev.kind().equals(ENTRY_DELETE)) {
+          for (          Entry<String,ConcurrentMap<File,StarTree>> entry : trees.entrySet()) {
+            entry.getValue().remove(path.toFile());
+          }
+          continue;
+        }
         if (file.getName().startsWith(StorageUtils.getDataDirPrefix())) {
           StorageUtils.waitForModifications(file,REFRESH_WAIT_SLEEP_MILLIS,REFRESH_WAIT_TIMEOUT_MILLIS);
 synchronized (trees) {
