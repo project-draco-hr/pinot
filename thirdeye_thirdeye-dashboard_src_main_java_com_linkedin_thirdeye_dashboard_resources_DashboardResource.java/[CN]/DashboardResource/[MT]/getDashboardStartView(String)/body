@@ -17,5 +17,9 @@
   if (earliestDataTime == null || latestDataTime == null) {
     throw new NotFoundException("No data loaded in server for " + collection);
   }
-  return new DashboardStartView(schema,earliestDataTime,latestDataTime);
+  List<String> customDashboardNames=null;
+  if (customDashboardResource != null) {
+    customDashboardNames=customDashboardResource.getCustomDashboardNames(collection);
+  }
+  return new DashboardStartView(collection,schema,earliestDataTime,latestDataTime,customDashboardNames);
 }

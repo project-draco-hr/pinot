@@ -22,10 +22,14 @@
   if (earliestDataTime == null || latestDataTime == null) {
     throw new NotFoundException("No data loaded in server for " + collection);
   }
+  List<String> customDashboardNames=null;
+  if (customDashboardResource != null) {
+    customDashboardNames=customDashboardResource.getCustomDashboardNames(collection);
+  }
   try {
     View metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
     View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,uriInfo);
-    return new DashboardView(dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime);
+    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime,customDashboardNames);
   }
  catch (  Exception e) {
     if (e instanceof WebApplicationException) {
