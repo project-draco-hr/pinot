@@ -4,5 +4,7 @@
   if (!indexFile.createNewFile()) {
     throw new IOException(indexFile + " already exists");
   }
-  IOUtils.copy(new ByteArrayInputStream(indexBytes),new FileOutputStream(indexFile));
+  FileOutputStream indexFileOutputStream=new FileOutputStream(indexFile);
+  IOUtils.copy(new ByteArrayInputStream(indexBytes),indexFileOutputStream);
+  indexFileOutputStream.close();
 }

@@ -14,5 +14,7 @@
   if (!bufferFile.createNewFile()) {
     throw new IOException(bufferFile + " already exists");
   }
-  IOUtils.copy(new ByteArrayInputStream(bufferBytes),new FileOutputStream(bufferFile));
+  FileOutputStream bufferFileOutputStream=new FileOutputStream(bufferFile);
+  IOUtils.copy(new ByteArrayInputStream(bufferBytes),bufferFileOutputStream);
+  bufferFileOutputStream.close();
 }
