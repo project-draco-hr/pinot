@@ -1,0 +1,7 @@
+{
+  long start=System.currentTimeMillis();
+  while ((System.currentTimeMillis() - start) < timeout && previousHash == manager.getStarTrees(collection).hashCode()) {
+    TimeUnit.MILLISECONDS.sleep(1000);
+  }
+  Assert.assertTrue("Watch system did not trigger",(System.currentTimeMillis() - start) < timeout);
+}
