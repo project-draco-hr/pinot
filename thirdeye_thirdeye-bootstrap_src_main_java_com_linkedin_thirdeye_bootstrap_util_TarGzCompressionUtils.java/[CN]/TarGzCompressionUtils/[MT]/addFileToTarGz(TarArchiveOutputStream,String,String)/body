@@ -2,19 +2,28 @@
   File f=new File(path);
   String entryName=base + f.getName();
   TarArchiveEntry tarEntry=new TarArchiveEntry(f,entryName);
-  tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-  tOut.putArchiveEntry(tarEntry);
-  if (f.isFile()) {
-    IOUtils.copy(new FileInputStream(f),tOut);
-    tOut.closeArchiveEntry();
-  }
+  FileInputStream fis=null;
+  try {
+    tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+    tOut.putArchiveEntry(tarEntry);
+    if (f.isFile()) {
+      fis=new FileInputStream(f);
+      IOUtils.copy(fis,tOut);
+      tOut.closeArchiveEntry();
+    }
  else {
-    tOut.closeArchiveEntry();
-    File[] children=f.listFiles();
-    if (children != null) {
-      for (      File child : children) {
-        addFileToTarGz(tOut,child.getAbsolutePath(),entryName + "/");
+      tOut.closeArchiveEntry();
+      File[] children=f.listFiles();
+      if (children != null) {
+        for (        File child : children) {
+          addFileToTarGz(tOut,child.getAbsolutePath(),entryName + "/");
+        }
       }
+    }
+  }
+  finally {
+    if (fis != null) {
+      fis.close();
     }
   }
 }
