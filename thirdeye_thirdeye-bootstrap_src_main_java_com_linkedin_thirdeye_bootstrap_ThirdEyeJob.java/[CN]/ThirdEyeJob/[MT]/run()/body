@@ -30,7 +30,6 @@ case STARTREE_GENERATION:
   break;
 case STARTREE_BOOTSTRAP_PHASE1:
 case STARTREE_BOOTSTRAP_PHASE2:
-case SERVER_PUSH:
 case SERVER_PACKAGE:
 case SERVER_UPLOAD:
 case CLEANUP:
@@ -62,22 +61,7 @@ maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
  else {
 throw new IllegalStateException("Must specify either " + ThirdEyeJobConstants.THIRDEYE_TIME_PATH.getName() + " or "+ ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getName()+ " and "+ ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getName());
 }
-if (PhaseSpec.SERVER_PUSH.equals(phaseSpec)) {
-serverPackage(root,collection,flowSpec,minTime,maxTime);
-serverUpload(root,collection,flowSpec,minTime,maxTime);
-String metricIndexDir=PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getMetricIndexDir(root,collection,flowSpec,minTime,maxTime);
-String thirdeyeFolderPermission=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FOLDER_PERMISSION.getName(),DEFAULT_FOLDER_PERMISSION);
-if (!thirdeyeFolderPermission.matches(FOLDER_PERMISSION_REGEX)) {
-throw new IllegalArgumentException("Invalid folder permission mode. Must provide octal " + FOLDER_PERMISSION_REGEX);
-}
-String dimensionIndexDir=PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getDimensionIndexDir(root,collection,Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(minTime),StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime)));
-FsShell shell=new FsShell(new Configuration());
-LOGGER.info("Changing permission of {} to {}",dimensionIndexDir,thirdeyeFolderPermission);
-shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,dimensionIndexDir});
-LOGGER.info("Changing permission of {} to {}",metricIndexDir,thirdeyeFolderPermission);
-shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,metricIndexDir});
-}
- else if (PhaseSpec.SERVER_PACKAGE.equals(phaseSpec)) {
+if (PhaseSpec.SERVER_PACKAGE.equals(phaseSpec)) {
 serverPackage(root,collection,flowSpec,minTime,maxTime);
 }
  else if (PhaseSpec.SERVER_UPLOAD.equals(phaseSpec)) {

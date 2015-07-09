@@ -7,45 +7,41 @@
   Path dataPath=new Path(bootstrapPhase2Output);
   String outputTarGzFile=metricIndexDir + "/data.tar.gz";
   Path outputTarGzFilePath=new Path(outputTarGzFile);
-  if (!fileSystem.exists(outputTarGzFilePath)) {
-    LOGGER.info("START: Creating output {} to upload to server ",outputTarGzFilePath.getName());
-    TarGzBuilder builder=new TarGzBuilder(outputTarGzFile,fileSystem,fileSystem);
-    RemoteIterator<LocatedFileStatus> listFiles=fileSystem.listFiles(dataPath,false);
-    List<IndexMetadata> indexMetadataList=new ArrayList<IndexMetadata>();
-    while (listFiles.hasNext()) {
-      Path path=listFiles.next().getPath();
-      IndexMetadata localIndexMetadata=builder.getMetadataObjectBootstrap(path);
-      if (localIndexMetadata != null) {
-        indexMetadataList.add(localIndexMetadata);
-      }
-    }
-    if (indexMetadataList.size() == 0) {
-      throw new IllegalStateException("No metadata files found");
-    }
-    Path metadataPath=new Path(bootstrapPhase2Output,StarTreeConstants.METADATA_FILE_NAME);
-    IndexMetadata mergedIndexMetadata=mergeIndexMetadata(indexMetadataList,minTime.getMillis(),maxTime.getMillis(),schedule);
-    writeMergedIndexMetadataServerPush(fileSystem,metadataPath,mergedIndexMetadata);
-    listFiles=fileSystem.listFiles(dataPath,false);
-    while (listFiles.hasNext()) {
-      Path path=listFiles.next().getPath();
-      LOGGER.info("Adding {}, to {}",path,outputTarGzFile);
-      if (path.getName().equals(StarTreeConstants.TREE_FILE_NAME) || path.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
-        builder.addFileEntry(path);
-      }
- else {
-        builder.addTarGzFile(path);
-      }
-    }
-    builder.addFileEntry(configPath);
-    builder.finish();
-    if (fileSystem.exists(outputTarGzFilePath)) {
-      LOGGER.info("Successfully created {}.",outputTarGzFilePath);
-    }
- else {
-      throw new RuntimeException("Creation of" + outputTarGzFile + " failed");
+  LOGGER.info("START: Creating output {} to upload to server ",outputTarGzFilePath.getName());
+  fileSystem.delete(new Path(dataPath,StarTreeConstants.METADATA_FILE_NAME),false);
+  TarGzBuilder builder=new TarGzBuilder(outputTarGzFile,fileSystem,fileSystem);
+  RemoteIterator<LocatedFileStatus> listFiles=fileSystem.listFiles(dataPath,false);
+  List<IndexMetadata> indexMetadataList=new ArrayList<IndexMetadata>();
+  while (listFiles.hasNext()) {
+    Path path=listFiles.next().getPath();
+    IndexMetadata localIndexMetadata=builder.getMetadataObjectBootstrap(path);
+    if (localIndexMetadata != null) {
+      indexMetadataList.add(localIndexMetadata);
     }
   }
+  if (indexMetadataList.size() == 0) {
+    throw new IllegalStateException("No metadata files found");
+  }
+  Path metadataPath=new Path(bootstrapPhase2Output,StarTreeConstants.METADATA_FILE_NAME);
+  IndexMetadata mergedIndexMetadata=mergeIndexMetadata(indexMetadataList,minTime.getMillis(),maxTime.getMillis(),schedule);
+  writeMergedIndexMetadataServerPush(fileSystem,metadataPath,mergedIndexMetadata);
+  listFiles=fileSystem.listFiles(dataPath,false);
+  while (listFiles.hasNext()) {
+    Path path=listFiles.next().getPath();
+    LOGGER.info("Adding {}, to {}",path,outputTarGzFile);
+    if (path.getName().equals(StarTreeConstants.TREE_FILE_NAME) || path.getName().equals(StarTreeConstants.METADATA_FILE_NAME)) {
+      builder.addFileEntry(path);
+    }
  else {
-    LOGGER.info(outputTarGzFile + " already exists. Skipping the tar.gz creation step");
+      builder.addTarGzFile(path);
+    }
+  }
+  builder.addFileEntry(configPath);
+  builder.finish();
+  if (fileSystem.exists(outputTarGzFilePath)) {
+    LOGGER.info("Successfully created {}.",outputTarGzFilePath);
+  }
+ else {
+    throw new RuntimeException("Creation of" + outputTarGzFile + " failed");
   }
 }

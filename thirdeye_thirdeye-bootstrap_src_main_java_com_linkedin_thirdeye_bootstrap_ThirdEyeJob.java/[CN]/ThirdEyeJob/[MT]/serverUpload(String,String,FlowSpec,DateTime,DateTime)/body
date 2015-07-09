@@ -20,6 +20,16 @@
     LOGGER.info("Load {} #=> response code: {}",outputTarGzFile,responseCode);
   }
  else {
-    throw new RuntimeException("Uploading of" + outputTarGzFile + " failed");
+    throw new RuntimeException("Uploading of " + outputTarGzFile + " failed : package does not exist");
   }
+  String thirdeyeFolderPermission=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FOLDER_PERMISSION.getName(),DEFAULT_FOLDER_PERMISSION);
+  if (!thirdeyeFolderPermission.matches(FOLDER_PERMISSION_REGEX)) {
+    throw new IllegalArgumentException("Invalid folder permission mode. Must provide octal " + FOLDER_PERMISSION_REGEX);
+  }
+  String dimensionIndexDir=PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getDimensionIndexDir(root,collection,Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(minTime),StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime)));
+  FsShell shell=new FsShell(new Configuration());
+  LOGGER.info("Changing permission of {} to {}",dimensionIndexDir,thirdeyeFolderPermission);
+  shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,dimensionIndexDir});
+  LOGGER.info("Changing permission of {} to {}",metricIndexDir,thirdeyeFolderPermission);
+  shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,metricIndexDir});
 }
