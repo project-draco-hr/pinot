@@ -6,7 +6,7 @@ case INTRA_DAY:
     String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_DAY_PERIOD),new DateTime(currentMillis),dimensionValues);
   LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
 QueryResult result=queryCache.getQueryResult(serverUri,sql);
-return new MetricViewTabular(objectMapper,result,currentMillis - baselineMillis,INTRA_DAY_PERIOD);
+return new MetricViewTabular(schema,objectMapper,result,currentMillis - baselineMillis,INTRA_DAY_PERIOD);
 case TIME_SERIES_FULL:
 case TIME_SERIES_OVERLAY:
 case FUNNEL:

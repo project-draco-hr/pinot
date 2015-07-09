@@ -31,7 +31,7 @@ Map<String,QueryResult> results=new HashMap<>(resultFutures.size());
 for (Map.Entry<String,Future<QueryResult>> entry : resultFutures.entrySet()) {
 results.put(entry.getKey(),entry.getValue().get());
 }
-return new DimensionViewHeatMap(objectMapper,results);
+return new DimensionViewHeatMap(schema,objectMapper,results);
 default :
 throw new NotFoundException("No dimension view implementation for " + dimensionViewType);
 }
