@@ -7,8 +7,13 @@
   if (configFile.exists()) {
     return Response.status(Response.Status.CONFLICT).entity("Config already exists for " + name).build();
   }
+  if (!collectionDir.exists()) {
+    FileUtils.forceMkdir(collectionDir);
+    LOG.info("Created {} for custom dashboards",collectionDir);
+  }
   try (OutputStream outputStream=new FileOutputStream(configFile)){
     IOUtils.copy(new ByteArrayInputStream(config),outputStream);
+    LOG.info("Created custom dashboard {} for collection {}",name,collection);
   }
  catch (  Exception e) {
     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Could not write to " + configFile).build();
