@@ -18,7 +18,7 @@
   final String res=sb.toString();
   final JSONObject ret=new JSONObject(res);
   ret.put("totalTime",(stop - start));
-  if (ret.getLong("numDocsScanned") > 0) {
+  if ((ret.getLong("numDocsScanned") > 0) && verbose) {
     LOGGER.info("reqStr = " + reqStr);
     LOGGER.info(" Client side time in ms:" + (stop - start));
     LOGGER.info("numDocScanned : " + ret.getLong("numDocsScanned"));

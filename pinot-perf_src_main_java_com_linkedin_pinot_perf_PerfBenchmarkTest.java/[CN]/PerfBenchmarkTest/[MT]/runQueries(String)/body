@@ -1,7 +1,6 @@
 {
-  String confFile=args[0];
-  String queryFile=args[1];
-  PerfBenchmarkDriverConf conf=(PerfBenchmarkDriverConf)new Yaml().load(new FileInputStream(confFile));
+  System.out.println("Running queries....");
+  PerfBenchmarkDriverConf conf=new PerfBenchmarkDriverConf();
   conf.setStartBroker(false);
   conf.setStartController(false);
   conf.setStartServer(false);
@@ -9,5 +8,6 @@
   conf.setUploadIndexes(false);
   conf.setRunQueries(true);
   conf.setConfigureResources(false);
-  multiThreadedQueryRunner(conf,queryFile);
+  QueryRunner.singleThreadedQueryRunner(conf,queryFile);
+  LOGGER.info("Running queries completed.");
 }

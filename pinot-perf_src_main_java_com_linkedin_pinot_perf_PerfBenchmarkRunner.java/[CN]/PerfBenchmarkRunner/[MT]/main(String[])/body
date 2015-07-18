@@ -1,12 +1,12 @@
 {
   if (args.length > 0) {
-    if (args[0].equalsIgnoreCase("startServerWithPreLoadedSegments")) {
+    if (args[0].equalsIgnoreCase("startAllButServer") || args[0].equalsIgnoreCase("startAll")) {
+      startComponents(true,true,true,false);
+    }
+    if (args[0].equalsIgnoreCase("startServerWithPreLoadedSegments") || args[0].equalsIgnoreCase("startAll")) {
       String offlineTableName=args[1];
       String indexRootDirectory=args[2];
       startServerWithPreLoadedSegments(indexRootDirectory,offlineTableName);
-    }
-    if (args[0].equalsIgnoreCase("startAllButServer")) {
-      startComponents(true,true,true,false);
     }
   }
  else {

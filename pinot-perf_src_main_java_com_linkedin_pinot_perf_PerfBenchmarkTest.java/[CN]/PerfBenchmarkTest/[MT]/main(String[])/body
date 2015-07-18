@@ -1,0 +1,17 @@
+{
+  if (args.length != 3) {
+    LOGGER.error("Incorrect number of arguments.");
+    LOGGER.info("PerfBenchmarkTest <DataDir> <offlineTableName> <PathToQueryFile>");
+    return;
+  }
+  try {
+    PerfBenchmarkTest.execute(args[0],args[1],args[2]);
+    LOGGER.info("Benchmark test completed");
+    System.exit(0);
+  }
+ catch (  Exception e) {
+    LOGGER.error(e.getMessage());
+    e.printStackTrace();
+    System.exit(1);
+  }
+}
