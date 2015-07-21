@@ -20,6 +20,7 @@ synchronized (trees) {
         File treeFile=new File(dataDir,StarTreeConstants.TREE_FILE_NAME);
         ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(treeFile));
         StarTreeNode root=(StarTreeNode)inputStream.readObject();
+        inputStream.close();
         StarTree starTree=new StarTreeImpl(config,dataDir,root);
         trees.get(collection).put(dataDir,starTree);
         starTree.open();
