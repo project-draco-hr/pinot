@@ -1,0 +1,26 @@
+{
+  String trueValue=config.getProperty("trueValue");
+  if (trueValue == null) {
+    throw new IllegalArgumentException("Ternary operator must provide true value");
+  }
+  String falseValue=config.getProperty("falseValue");
+  if (falseValue == null) {
+    throw new IllegalArgumentException("Ternary operator must provide false value");
+  }
+  TernaryOperators operator=TernaryOperators.valueOf(config.getProperty("operator"));
+  long value=Long.valueOf(dimensionValue);
+  long conditionValue=Long.valueOf(config.getProperty("condition"));
+switch (operator) {
+case EQ:
+    return value == conditionValue ? trueValue : falseValue;
+case LT:
+  return value < conditionValue ? trueValue : falseValue;
+case LE:
+return value <= conditionValue ? trueValue : falseValue;
+case GT:
+return value > conditionValue ? trueValue : falseValue;
+case GE:
+return value >= conditionValue ? trueValue : falseValue;
+}
+throw new IllegalStateException("Could not apply " + config + " to value "+ dimensionValue);
+}

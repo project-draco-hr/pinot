@@ -1,74 +1,23 @@
 {
-  Object timeObj=record.datum().get(config.getTimeColumnName());
-  if (timeObj == null) {
-    LOGGER.error("Dropping record because " + config.getTimeColumnName() + " is set to null");
-    context.getCounter(StarTreeBootstrapPhase1Counter.NULL_TIME_RECORDS).increment(1);
+  long start=System.currentTimeMillis();
+  StarTreeRecord parsedRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
+  if (parsedRecord == null) {
+    context.getCounter(StarTreeBootstrapPhase1Counter.INVALID_TIME_RECORDS).increment(1);
     return;
   }
-  if (dateTimeFormatter == null) {
-    try {
-      Long time=Long.parseLong(timeObj.toString());
-      if (time == 0) {
-        LOGGER.error("Dropping record because " + config.getTimeColumnName() + " is set to 0");
-        context.getCounter(StarTreeBootstrapPhase1Counter.ZERO_TIME_RECORDS).increment(1);
-        return;
-      }
-      if (time < 0)       throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
-    }
- catch (    NumberFormatException ex) {
-      throw new IllegalStateException("Value for dimension " + starTreeConfig.getTime().getColumnName() + " in "+ record.datum()+ " cannot be parsed");
-    }
-  }
-  long start=System.currentTimeMillis();
-  Map<String,String> dimensionValuesMap=new HashMap<String,String>();
-  for (int i=0; i < dimensionNames.size(); i++) {
-    String dimensionName=dimensionNames.get(i);
-    String dimensionValue="";
-    Object val=record.datum().get(dimensionName);
-    if (val != null) {
-      dimensionValue=val.toString();
-    }
-    dimensionValues[i]=dimensionValue;
-    dimensionValuesMap.put(dimensionName,dimensionValue);
-  }
-  DimensionKey key=new DimensionKey(dimensionValues);
-  String timeStr=record.datum().get(config.getTimeColumnName()).toString();
-  Long timeWindow;
-  if (dateTimeFormatter == null) {
-    Long sourceTimeWindow=Long.parseLong(timeStr);
-    sourceTimeWindow=sourceTimeWindow * inputTimeUnitSize;
-    timeWindow=aggregationTimeUnit.convert(sourceTimeWindow,sourceTimeUnit);
-    timeWindow/=aggregationGranularitySize;
-  }
- else {
-    DateTime sourceTimeWindow=dateTimeFormatter.parseDateTime(timeStr);
-    timeWindow=aggregationTimeUnit.convert(sourceTimeWindow.getMillis(),TimeUnit.MILLISECONDS);
-    timeWindow/=aggregationGranularitySize;
-  }
-  MetricTimeSeries series=new MetricTimeSeries(metricSchema);
-  for (int i=0; i < metricNames.size(); i++) {
-    String metricName=metricNames.get(i);
-    Object object=record.datum().get(metricName);
-    String metricValueStr="0";
-    if (object != null) {
-      metricValueStr=object.toString();
-    }
-    try {
-      Number metricValue=metricTypes.get(i).toNumber(metricValueStr);
-      series.increment(timeWindow,metricName,metricValue);
-      context.getCounter(config.getCollectionName(),metricName).increment(metricValue.longValue());
-    }
- catch (    NumberFormatException e) {
-      throw new NumberFormatException("Exception trying to convert " + metricValueStr + " to "+ metricTypes.get(i)+ " for metricName:"+ metricName);
+  for (  Long time : parsedRecord.getMetricTimeSeries().getTimeWindowSet()) {
+    for (    MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+      Number metricValue=parsedRecord.getMetricTimeSeries().get(time,metricSpec.getName());
+      context.getCounter(config.getCollectionName(),metricSpec.getName()).increment(metricValue.longValue());
     }
   }
   Map<UUID,StarTreeRecord> collector=new HashMap<UUID,StarTreeRecord>();
   MetricTimeSeries emptyTimeSeries=new MetricTimeSeries(metricSchema);
-  StarTreeRecord starTreeRecord=new StarTreeRecordImpl(starTreeConfig,key,emptyTimeSeries);
+  StarTreeRecord starTreeRecord=new StarTreeRecordImpl(starTreeConfig,parsedRecord.getDimensionKey(),emptyTimeSeries);
   StarTreeJobUtils.collectRecords(starTreeConfig,starTreeRootNode,starTreeRecord,collector);
   if (debug) {
-    LOGGER.info("processing {}",key);
-    LOGGER.info("times series {}",series);
+    LOGGER.info("processing {}",parsedRecord.getDimensionKey());
+    LOGGER.info("times series {}",parsedRecord.getMetricTimeSeries());
   }
   for (  UUID uuid : collector.keySet()) {
     if (!leafNodesMap.containsKey(uuid)) {
@@ -79,14 +28,14 @@
     List<int[]> leafRecords=nodeIdToleafRecordsMap.get(uuid);
     Map<String,Map<String,Integer>> forwardIndex=forwardIndexMap.get(uuid);
     Map<String,Map<Integer,String>> reverseForwardIndex=StarTreeUtils.toReverseIndex(forwardIndex);
-    int[] bestMatch=StarTreeJobUtils.findBestMatch(key,dimensionNames,leafRecords,forwardIndex);
+    int[] bestMatch=StarTreeJobUtils.findBestMatch(parsedRecord.getDimensionKey(),dimensionNames,leafRecords,forwardIndex);
     String[] dimValues=StarTreeUtils.convertToStringValue(reverseForwardIndex,bestMatch,dimensionNames);
     DimensionKey matchedDimensionKey=new DimensionKey(dimValues);
     if (debug) {
       LOGGER.info("Match: {} under {}",matchedDimensionKey,leafNodesMap.get(uuid).getPath());
     }
     BootstrapPhaseMapOutputKey outputKey=new BootstrapPhaseMapOutputKey(uuid,matchedDimensionKey.toMD5());
-    BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,series);
+    BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,parsedRecord.getMetricTimeSeries());
     BytesWritable keyWritable=new BytesWritable(outputKey.toBytes());
     BytesWritable valWritable=new BytesWritable(outputValue.toBytes());
     context.write(keyWritable,valWritable);

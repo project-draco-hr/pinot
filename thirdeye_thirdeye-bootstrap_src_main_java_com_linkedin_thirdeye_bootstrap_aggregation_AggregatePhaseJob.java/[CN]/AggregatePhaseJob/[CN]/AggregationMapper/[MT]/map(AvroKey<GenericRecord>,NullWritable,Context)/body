@@ -8,31 +8,17 @@
     }
     dimensionValues[i]=dimensionValue;
   }
-  DimensionKey key=new DimensionKey(dimensionValues);
-  String sourceTimeWindow=record.datum().get(config.getTimeColumnName()).toString();
-  long aggregationTimeWindow=-1;
-  if (rollupThresholdFunction.getRollupAggregationGranularity() != null) {
-    aggregationTimeUnit=TimeUnit.valueOf(rollupThresholdFunction.getRollupAggregationGranularity().getUnit().toString());
-    aggregationTimeWindow=aggregationTimeUnit.convert(Long.parseLong(sourceTimeWindow),sourceTimeUnit);
-  }
-  MetricTimeSeries series=new MetricTimeSeries(metricSchema);
-  for (int i=0; i < metricNames.size(); i++) {
-    String metricName=metricNames.get(i);
-    Object object=record.datum().get(metricName);
-    String metricValueStr="0";
-    if (object != null) {
-      metricValueStr=object.toString();
-    }
-    try {
-      Number metricValue=metricTypes.get(i).toNumber(metricValueStr);
-      series.increment(aggregationTimeWindow,metricName,metricValue);
-    }
- catch (    NumberFormatException e) {
-      throw new NumberFormatException("Exception trying to convert " + metricValueStr + " to "+ metricTypes.get(i)+ " for metricName:"+ metricName);
+  StarTreeRecord starTreeRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
+  MetricTimeSeries originalSeries=starTreeRecord.getMetricTimeSeries();
+  MetricTimeSeries flattenedSeries=new MetricTimeSeries(metricSchema);
+  for (  Long time : originalSeries.getTimeWindowSet()) {
+    for (int i=0; i < metricNames.size(); i++) {
+      String name=metricNames.get(i);
+      flattenedSeries.increment(-1,name,originalSeries.get(time,name));
     }
   }
-  byte[] serializedKey=key.toBytes();
-  byte[] serializedMetrics=series.toBytes();
+  byte[] serializedKey=starTreeRecord.getDimensionKey().toBytes();
+  byte[] serializedMetrics=flattenedSeries.toBytes();
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   baos.write(serializedKey.length);
   baos.write(serializedKey);
