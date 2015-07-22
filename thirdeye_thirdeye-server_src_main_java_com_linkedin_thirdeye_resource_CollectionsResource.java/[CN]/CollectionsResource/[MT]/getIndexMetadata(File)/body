@@ -1,0 +1,12 @@
+{
+  File indexMetadataFile=new File(dataDir,StarTreeConstants.METADATA_FILE_NAME);
+  Properties properties=new Properties();
+  InputStream inputStream=new FileInputStream(indexMetadataFile);
+  try {
+    properties.load(inputStream);
+  }
+  finally {
+    inputStream.close();
+  }
+  return IndexMetadata.fromProperties(properties);
+}
