@@ -95,6 +95,32 @@
  else {
         cell.addStat(currentDist.cumulativeProbability(current.doubleValue()));
       }
+      if (baselineStats.getSum() > 0) {
+        cell.addStat(baselineStats.getSum());
+      }
+ else {
+        cell.addStat(null);
+      }
+      if (currentStats.getSum() > 0) {
+        cell.addStat(currentStats.getSum());
+      }
+ else {
+        cell.addStat(null);
+      }
+      if (baselineStats.getSum() > 0) {
+        double baselineRatio=baseline == null ? 0 : baseline.doubleValue() / baselineStats.getSum();
+        cell.addStat(baselineRatio);
+      }
+ else {
+        cell.addStat(null);
+      }
+      if (currentStats.getSum() > 0) {
+        double currentRatio=current == null ? 0 : current.doubleValue() / currentStats.getSum();
+        cell.addStat(currentRatio);
+      }
+ else {
+        cell.addStat(null);
+      }
       if (baselineStats.getSum() > 0 && currentStats.getSum() > 0) {
         double currentContribution=current == null ? 0 : current.doubleValue() / currentStats.getSum();
         double baselineContribution=baseline == null ? 0 : baseline.doubleValue() / baselineStats.getSum();
@@ -118,7 +144,7 @@
         cell.addStat(0);
       }
     }
-    heatMaps.add(new HeatMap(objectMapper,entry.getKey(),metricAliases.get(entry.getKey()),dimension,dimensionAliases.get(dimension),entry.getValue(),Arrays.asList("baseline_value","current_value","baseline_cdf_value","current_cdf_value","contribution_difference","volume_difference","snapshot_category")));
+    heatMaps.add(new HeatMap(objectMapper,entry.getKey(),metricAliases.get(entry.getKey()),dimension,dimensionAliases.get(dimension),entry.getValue(),Arrays.asList("baseline_value","current_value","baseline_cdf_value","current_cdf_value","baseline_total","current_total","baseline_ratio","current_ratio","contribution_difference","volume_difference","snapshot_category")));
   }
   return heatMaps;
 }
