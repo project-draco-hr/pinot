@@ -9,6 +9,7 @@
   final DataUpdateManager dataUpdateManager=new DataUpdateManager(rootDir,config.isAutoExpire());
   final KafkaConsumerManager kafkaConsumerManager=new KafkaConsumerManager(rootDir,starTreeManager,dataUpdateManager,environment.metrics());
   final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval(),rootDir);
+  final MetricRegistry metricRegistry=environment.metrics();
   environment.lifecycle().manage(anomalyDetectionTaskManager);
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
@@ -16,7 +17,14 @@
         String[] collections=rootDir.list();
         if (collections != null) {
           for (          String collection : collections) {
+            final String collectionName=collection;
             starTreeManager.restore(rootDir,collection);
+            metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collection,DATA_TIME_LAG_MILLIS),new Gauge<Long>(){
+              @Override public Long getValue(){
+                return System.currentTimeMillis() - starTreeManager.getMaxDataTime(collectionName);
+              }
+            }
+);
           }
         }
         if (config.isAutoConsume()) {
