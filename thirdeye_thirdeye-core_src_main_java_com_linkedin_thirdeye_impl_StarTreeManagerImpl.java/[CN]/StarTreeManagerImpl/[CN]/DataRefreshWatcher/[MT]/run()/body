@@ -48,6 +48,12 @@ synchronized (trees) {
             indexMetadataFile.close();
             IndexMetadata indexMetadata=IndexMetadata.fromProperties(indexMetadataProps);
             allIndexMetadata.put(root.getId(),indexMetadata);
+            Long previous=maxDataTime.putIfAbsent(config.getCollection(),indexMetadata.getMaxDataTimeMillis());
+            if (previous != null) {
+              if (indexMetadata.getMaxDataTimeMillis() > previous) {
+                maxDataTime.put(config.getCollection(),indexMetadata.getMaxDataTimeMillis());
+              }
+            }
             Map<File,StarTree> existingTrees=trees.get(config.getCollection());
             if (existingTrees == null) {
               LOGGER.error("There is a watch on collection {} but no open trees!",config.getCollection());

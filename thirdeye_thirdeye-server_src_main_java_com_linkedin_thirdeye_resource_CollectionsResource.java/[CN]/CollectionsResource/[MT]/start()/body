@@ -1,30 +1,16 @@
 {
-  for (  final String collection : manager.getCollections()) {
+  for (  String collection : manager.getCollections()) {
+    final String collectionName=collection;
     lastPostDataMillis.putIfAbsent(collection,new AtomicLong(System.currentTimeMillis()));
     metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collection,LAST_POST_DATA_MILLIS),new Gauge<Long>(){
       @Override public Long getValue(){
-        return lastPostDataMillis.get(collection).get();
+        return lastPostDataMillis.get(collectionName).get();
       }
     }
 );
-    File collectionDir=new File(rootDir,collection);
-    File[] dataDirs=collectionDir.listFiles(new FilenameFilter(){
-      @Override public boolean accept(      File dir,      String name){
-        return name.startsWith(StorageUtils.getDataDirPrefix());
-      }
-    }
-);
-    long maxDataMillis=0L;
-    for (    File dataDir : dataDirs) {
-      IndexMetadata indexMetadata=getIndexMetadata(dataDir);
-      if (indexMetadata.getMaxDataTimeMillis() > maxDataMillis) {
-        maxDataMillis=indexMetadata.getMaxDataTimeMillis();
-      }
-    }
-    maxDataTimeMillis.putIfAbsent(collection,new AtomicLong(maxDataMillis));
-    metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collection,MAX_DATA_TIME_MILLIS),new Gauge<Long>(){
+    metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collection,DATA_TIME_LAG_MILLIS),new Gauge<Long>(){
       @Override public Long getValue(){
-        return maxDataTimeMillis.get(collection).get();
+        return System.currentTimeMillis() - manager.getMaxDataTime(collectionName);
       }
     }
 );

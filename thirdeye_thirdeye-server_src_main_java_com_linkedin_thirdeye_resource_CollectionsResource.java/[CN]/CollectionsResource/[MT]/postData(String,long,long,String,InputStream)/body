@@ -16,31 +16,13 @@
  else {
     value.set((System.currentTimeMillis()));
   }
-  File collectionDir=new File(rootDir,collection);
-  final String schedulePrefix=schedule;
-  final DateTime minTimePrefix=minTime;
-  final DateTime maxTimePrefix=maxTime;
-  File[] dataDirs=collectionDir.listFiles(new FilenameFilter(){
-    @Override public boolean accept(    File dir,    String name){
-      return name.startsWith(StorageUtils.getDataDirPrefix(schedulePrefix,minTimePrefix,maxTimePrefix));
-    }
-  }
-);
-  if (dataDirs.length == 0) {
-    throw new IllegalStateException("server upload failed");
-  }
-  IndexMetadata indexMetadata=getIndexMetadata(dataDirs[0]);
-  AtomicLong maxDataTimeValue=maxDataTimeMillis.putIfAbsent(collection,new AtomicLong(indexMetadata.getMaxDataTimeMillis()));
-  if (maxDataTimeValue == null) {
-    metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collection,MAX_DATA_TIME_MILLIS),new Gauge<Long>(){
+  if (!metricRegistry.getGauges().containsKey(MetricRegistry.name(CollectionsResource.class,collection,DATA_TIME_LAG_MILLIS))) {
+    metricRegistry.register(MetricRegistry.name(CollectionsResource.class,collection,DATA_TIME_LAG_MILLIS),new Gauge<Long>(){
       @Override public Long getValue(){
-        return maxDataTimeMillis.get(collectionName).get();
+        return System.currentTimeMillis() - manager.getMaxDataTime(collectionName);
       }
     }
 );
-  }
- else {
-    if (indexMetadata.getMaxDataTimeMillis() > maxDataTimeValue.get())     maxDataTimeValue.set(indexMetadata.getMaxDataTimeMillis());
   }
   return Response.ok().build();
 }

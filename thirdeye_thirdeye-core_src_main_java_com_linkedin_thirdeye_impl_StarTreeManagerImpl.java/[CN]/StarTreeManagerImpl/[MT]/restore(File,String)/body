@@ -16,6 +16,7 @@ synchronized (trees) {
       File configFile=new File(collectionDir,StarTreeConstants.CONFIG_FILE_NAME);
       StarTreeConfig config=StarTreeConfig.decode(new FileInputStream(configFile));
       configs.put(collection,config);
+      long maxDataTimeMillis=0;
       for (      File dataDir : dataDirs) {
         File treeFile=new File(dataDir,StarTreeConstants.TREE_FILE_NAME);
         ObjectInputStream inputStream=new ObjectInputStream(new FileInputStream(treeFile));
@@ -31,7 +32,11 @@ synchronized (trees) {
         indexMetadataFile.close();
         IndexMetadata indexMetadata=IndexMetadata.fromProperties(indexMetadataProps);
         allIndexMetadata.put(root.getId(),indexMetadata);
+        if (indexMetadata.getMaxDataTimeMillis() > maxDataTimeMillis) {
+          maxDataTimeMillis=indexMetadata.getMaxDataTimeMillis();
+        }
       }
+      maxDataTime.put(collection,maxDataTimeMillis);
       StarTreeConfig inMemoryConfig=new StarTreeConfig(config.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),config.getAnomalyDetectionFunctionClass(),config.getAnomalyDetectionFunctionConfig(),config.getAnomalyHandlerClass(),config.getAnomalyHandlerConfig(),config.getAnomalyDetectionMode(),config.getDimensions(),config.getMetrics(),config.getTime(),config.getJoinSpec(),config.getRollup(),config.getSplit(),false);
       final StarTree mutableTree=new StarTreeImpl(inMemoryConfig);
       mutableTree.open();
