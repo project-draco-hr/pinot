@@ -1,0 +1,23 @@
+{
+  AggregationFunction aggregationFunction=new DistinctCountHLLAggregationFunction();
+  aggregationFunction.init(_paramsInfo);
+  StringBuilder sb1=new StringBuilder();
+  StringBuilder sb2=new StringBuilder();
+  StringBuilder sb3=new StringBuilder();
+  int maxSize=100000;
+  for (int i=1; i <= maxSize; i+=maxSize / 17) {
+    if (i == 1)     continue;
+    RandomNumberArray arr=new RandomNumberArray(i * 10,1);
+    long t1=System.nanoTime();
+    List<Serializable> aggregationResults=getHLLRandomResultValues(arr,10,i);
+    long t2=System.nanoTime();
+    List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+    long t3=System.nanoTime();
+    long estimate=((HyperLogLog)(combinedResult.get(0))).cardinality();
+    long precise=arr.getPreciseCardinality();
+    TestUtils.assertApproximation(estimate,precise,0.1);
+    println(i + ", " + ""+ (t2 - t1)+ ""+ ", "+ (t3 - t2)+ ", "+ getErrorString(precise,estimate));
+    sb1.append(estimate + ", ");
+    sb2.append(precise + ", ");
+  }
+}

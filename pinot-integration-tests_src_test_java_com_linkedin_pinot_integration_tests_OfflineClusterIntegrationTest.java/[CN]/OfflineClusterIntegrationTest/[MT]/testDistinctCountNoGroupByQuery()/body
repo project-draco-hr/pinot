@@ -1,0 +1,17 @@
+{
+  String query;
+  String[] testColumns=new String[]{"AirTime","ArrDelayMinutes","ArrTimeBlk","Carrier"};
+  boolean hasWhere=true;
+  LOGGER.debug("========================== Test Total " + testColumns.length * 2 + " Queries ==========================");
+  for (  String column : testColumns) {
+    for (int i=0; i < 2; i++) {
+      query="select distinctcount(" + column + ") from 'mytable'";
+      if (hasWhere) {
+        query+=" where DaysSinceEpoch >= 16312";
+      }
+      super.runQuery(query,Collections.singletonList(query.replace("'mytable'","mytable").replace("distinctcount(","count(distinct ")));
+      LOGGER.debug("========================== End ==========================");
+      hasWhere=!hasWhere;
+    }
+  }
+}

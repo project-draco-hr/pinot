@@ -1,0 +1,35 @@
+{
+  final List<TestGroupByAggreationQuery> groupByCalls=new ArrayList<TestGroupByAggreationQuery>();
+  for (int i=1; i <= 5; i++) {
+    if (i == 2) {
+      continue;
+    }
+    groupByCalls.add(new TestGroupByAggreationQuery("select distinctcount(column2) from testTable group by column" + i + " limit 0",null));
+    groupByCalls.add(new TestGroupByAggreationQuery("select distinctcounthll(column2) from testTable group by column" + i + " limit 0",null));
+  }
+  boolean isAccurate=true;
+  JSONArray accurateValue=null;
+  int counter=0;
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  for (  final TestGroupByAggreationQuery groupBy : groupByCalls) {
+    LOGGER.info("running " + counter + " : "+ groupBy.pql);
+    final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(groupBy.pql));
+    InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
+    instanceRequest.setSearchSegments(new ArrayList<String>());
+    instanceRequest.getSearchSegments().add(segmentName);
+    final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
+    instanceResponseMap.clear();
+    instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
+    final BrokerResponse brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
+    JSONArray val=brokerResponse.getAggregationResults().get(0).getJSONArray("groupByResult");
+    if (isAccurate) {
+      accurateValue=val;
+      isAccurate=false;
+    }
+ else {
+      TestUtils.assertJSONArrayApproximation(val,accurateValue,0.1);
+      isAccurate=true;
+    }
+  }
+}

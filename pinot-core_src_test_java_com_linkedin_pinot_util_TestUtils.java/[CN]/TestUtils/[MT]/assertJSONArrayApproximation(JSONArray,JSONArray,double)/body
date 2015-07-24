@@ -1,0 +1,15 @@
+{
+  LOGGER.info("====== assertJSONArrayApproximation ======");
+  try {
+    HashMap<String,Double> mapEstimate=genMapFromJSONArray(jsonArrayEstimate);
+    HashMap<String,Double> mapActual=genMapFromJSONArray(jsonArrayActual);
+    Assert.assertEquals(mapEstimate.keySet().size(),mapActual.keySet().size());
+    for (    String key : mapEstimate.keySet()) {
+      Assert.assertEquals(mapActual.containsKey(key),true);
+      assertApproximation(mapEstimate.get(key),mapActual.get(key),precision);
+    }
+  }
+ catch (  JSONException e) {
+    e.printStackTrace();
+  }
+}

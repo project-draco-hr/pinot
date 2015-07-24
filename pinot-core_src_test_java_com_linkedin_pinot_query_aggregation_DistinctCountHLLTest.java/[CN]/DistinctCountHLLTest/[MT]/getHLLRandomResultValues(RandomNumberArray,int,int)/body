@@ -1,0 +1,9 @@
+{
+  List<Serializable> hllResultList=new ArrayList<Serializable>();
+  for (int i=0; i < numOfListCombined; ++i) {
+    HyperLogLog hllResult=new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
+    arr.offerNumberInRangeTo(hllResult,i * numOfItemsPerList,(i + 1) * numOfItemsPerList);
+    hllResultList.add(hllResult);
+  }
+  return hllResultList;
+}

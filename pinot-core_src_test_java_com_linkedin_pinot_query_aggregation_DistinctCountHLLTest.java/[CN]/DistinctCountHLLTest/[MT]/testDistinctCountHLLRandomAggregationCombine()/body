@@ -1,0 +1,30 @@
+{
+  AggregationFunction hllAggregationFunction=new DistinctCountHLLAggregationFunction();
+  hllAggregationFunction.init(_paramsInfo);
+  AggregationFunction setAggregationFunction=new DistinctCountAggregationFunction();
+  setAggregationFunction.init(_paramsInfo);
+  final int numOfItemsPerList=100;
+  final int numOfListCombined=100000;
+  println("#list_combined, HLL_time(nano), IntOpenHashSet(nano), time_ratio, estimate, precise, error");
+  StringBuilder sb1=new StringBuilder();
+  StringBuilder sb2=new StringBuilder();
+  for (int i=1; i <= numOfListCombined; i+=numOfListCombined / 17) {
+    if (i == 1) {
+      continue;
+    }
+    RandomNumberArray arr=new RandomNumberArray(i * numOfItemsPerList,DUPLICATION_PER_ITEM);
+    List<Serializable> hllAggregationResults=getHLLRandomResultValues(arr,i,numOfItemsPerList);
+    long t1=System.nanoTime();
+    List<Serializable> hllCombinedResult=hllAggregationFunction.combine(hllAggregationResults,CombineLevel.SEGMENT);
+    long t2=System.nanoTime();
+    List<Serializable> setAggregationResults=getIntOpenHashSets(arr,i,numOfItemsPerList);
+    long t3=System.nanoTime();
+    List<Serializable> setCombinedResult=setAggregationFunction.combine(setAggregationResults,CombineLevel.SEGMENT);
+    long t4=System.nanoTime();
+    long estimate=((HyperLogLog)(hllCombinedResult.get(0))).cardinality();
+    long precise=arr.getPreciseCardinality();
+    TestUtils.assertApproximation(estimate,precise,0.15);
+    assertEquals(((IntOpenHashSet)(setCombinedResult.get(0))).size(),precise);
+    println(i + ", " + (t2 - t1)+ ", "+ (t4 - t3)+ ", "+ (t2 - t1 + 0.0) / (t4 - t3 + 0.0) + ", " + estimate + ", " + precise + ", " + getErrorString(precise,estimate));
+  }
+}

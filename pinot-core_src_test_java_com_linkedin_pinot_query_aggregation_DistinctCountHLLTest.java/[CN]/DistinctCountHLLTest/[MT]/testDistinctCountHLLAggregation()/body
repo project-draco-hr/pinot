@@ -1,0 +1,20 @@
+{
+  AggregationFunction aggregationFunction=new DistinctCountHLLAggregationFunction();
+  aggregationFunction.init(_paramsInfo);
+  int _sizeOfCombineList=1000;
+  StringBuilder sb1=new StringBuilder();
+  StringBuilder sb2=new StringBuilder();
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> aggregationResults=getHLLResultValues(i);
+    List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+    long estimate=((HyperLogLog)(combinedResult.get(0))).cardinality();
+    TestUtils.assertApproximation(estimate,i,0.1);
+    sb1.append(estimate + ", ");
+    sb2.append(i + ", ");
+  }
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> combinedResults=getHLLResultValues(i);
+    long reduceSize=(Long)aggregationFunction.reduce(combinedResults);
+    TestUtils.assertApproximation(reduceSize,i,0.1);
+  }
+}

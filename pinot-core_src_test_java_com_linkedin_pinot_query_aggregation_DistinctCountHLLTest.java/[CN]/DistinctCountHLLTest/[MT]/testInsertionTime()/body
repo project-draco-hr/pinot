@@ -1,0 +1,21 @@
+{
+  int numOfItems=10000000;
+  println("#items_inserted, HLL_time(nano), IntOpenHashSet(nano), time_ratio, estimate, precise, error");
+  for (int i=0; i < numOfItems; i+=numOfItems / 17) {
+    if (i == 0) {
+      continue;
+    }
+    RandomNumberArray arr=new RandomNumberArray(i,DUPLICATION_PER_ITEM);
+    HyperLogLog hllResult=new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
+    IntOpenHashSet set=new IntOpenHashSet();
+    long t1=System.nanoTime();
+    arr.offerAllNumberTo(hllResult);
+    long t2=System.nanoTime();
+    arr.offerAllNumberTo(set);
+    long t3=System.nanoTime();
+    long estimate=hllResult.cardinality();
+    long precise=set.size();
+    println(i + ", " + ""+ (t2 - t1)+ ", "+ (t3 - t2)+ ", "+ (t2 - t1 + 0.0) / (t3 - t2 + 0.0) + ", " + estimate + ", " + precise + ", " + getErrorString(precise,estimate));
+  }
+  assertEquals(true,true);
+}

@@ -1,0 +1,20 @@
+{
+  int numOfItems=10000000;
+  println("#items_inserted, HLL_ser_size, openHashSet_ser_size, ser_size_ratio, estimate, precise, error");
+  for (int i=0; i < numOfItems; i+=numOfItems / 17) {
+    if (i == 0) {
+      continue;
+    }
+    RandomNumberArray arr=new RandomNumberArray(i,DUPLICATION_PER_ITEM);
+    HyperLogLog hllResult=new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
+    IntOpenHashSet set=new IntOpenHashSet();
+    arr.offerAllNumberTo(hllResult);
+    arr.offerAllNumberTo(set);
+    int hllSize=getSerializedSize(hllResult);
+    int setSize=getSerializedSize(set);
+    long estimate=hllResult.cardinality();
+    long precise=set.size();
+    println(i + ", " + hllSize+ ", "+ setSize+ ", "+ (hllSize + 0.0) / (setSize + 0.0) + ", " + estimate + ", " + precise + ", " + getErrorString(precise,estimate));
+  }
+  assertEquals(true,true);
+}
