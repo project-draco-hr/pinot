@@ -1,0 +1,17 @@
+{
+  if ((aggregationResultList == null) || aggregationResultList.isEmpty()) {
+    return null;
+  }
+  HyperLogLog hllResult=aggregationResultList.get(0);
+  for (int i=1; i < aggregationResultList.size(); ++i) {
+    try {
+      hllResult.addAll(aggregationResultList.get(i));
+    }
+ catch (    CardinalityMergeException e) {
+      e.printStackTrace();
+    }
+  }
+  aggregationResultList.clear();
+  aggregationResultList.add(hllResult);
+  return aggregationResultList;
+}

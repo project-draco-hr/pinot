@@ -1,0 +1,15 @@
+{
+  if ((combinedResultList == null) || combinedResultList.isEmpty()) {
+    return 0L;
+  }
+  HyperLogLog reducedResult=combinedResultList.get(0);
+  for (int i=1; i < combinedResultList.size(); ++i) {
+    try {
+      reducedResult.addAll(combinedResultList.get(i));
+    }
+ catch (    CardinalityMergeException e) {
+      e.printStackTrace();
+    }
+  }
+  return reducedResult.cardinality();
+}

@@ -1,0 +1,34 @@
+{
+  HyperLogLog ret=new HyperLogLog(_bitSize);
+  int docId=0;
+  Dictionary dictionaryReader=block[0].getMetadata().getDictionary();
+  BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  if (block[0].getMetadata().getDataType() == DataType.STRING) {
+    while ((docId=docIdIterator.next()) != Constants.EOF) {
+      if (blockValIterator.skipTo(docId)) {
+        int dictionaryIndex=blockValIterator.nextIntVal();
+        if (dictionaryIndex != Dictionary.NULL_VALUE_INDEX) {
+          ret.offer(dictionaryReader.get(dictionaryIndex));
+        }
+ else {
+          ret.offer(Integer.MIN_VALUE);
+        }
+      }
+    }
+  }
+ else {
+    while ((docId=docIdIterator.next()) != Constants.EOF) {
+      if (blockValIterator.skipTo(docId)) {
+        int dictionaryIndex=blockValIterator.nextIntVal();
+        if (dictionaryIndex != Dictionary.NULL_VALUE_INDEX) {
+          ret.offer(((Number)dictionaryReader.get(dictionaryIndex)));
+        }
+ else {
+          ret.offer(Integer.MIN_VALUE);
+        }
+      }
+    }
+  }
+  return ret;
+}
