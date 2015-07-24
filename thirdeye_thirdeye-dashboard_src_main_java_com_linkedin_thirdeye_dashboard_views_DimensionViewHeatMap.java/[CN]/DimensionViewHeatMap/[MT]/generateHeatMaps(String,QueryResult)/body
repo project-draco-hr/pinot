@@ -15,25 +15,6 @@
   for (  String metricName : queryResult.getMetrics()) {
     snapshotValues.put(metricName,new HashSet<String>());
   }
-  try {
-    String[][] snapshot=SnapshotUtils.snapshot(2,queryResult);
-    for (int i=0; i < queryResult.getMetrics().size(); i++) {
-      String[] snapshotCombinations=snapshot[i];
-      String metricName=queryResult.getMetrics().get(i);
-      for (      String combinationString : snapshotCombinations) {
-        if (SnapshotUtils.REST.equals(combinationString)) {
-          continue;
-        }
-        List<String> combination=objectMapper.readValue(combinationString.getBytes(),LIST_TYPE_REFERENCE);
-        String value=combination.get(dimensionIdx);
-        snapshotValues.get(metricName).add(value);
-      }
-    }
-    LOGGER.info("snapshotValues={}",snapshotValues);
-  }
- catch (  Exception e) {
-    LOGGER.error("Error generating snapshot",e);
-  }
   Map<String,List<HeatMapCell>> allCells=new HashMap<>();
   Map<String,DescriptiveStatistics> allBaselineStats=new HashMap<>();
   Map<String,DescriptiveStatistics> allCurrentStats=new HashMap<>();
