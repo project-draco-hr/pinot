@@ -76,17 +76,17 @@
  else {
         cell.addStat(currentDist.cumulativeProbability(current.doubleValue()));
       }
-      if (baselineStats.getSum() > 0) {
+      if (Double.isNaN(baselineStats.getSum())) {
+        cell.addStat(null);
+      }
+ else {
         cell.addStat(baselineStats.getSum());
       }
- else {
+      if (Double.isNaN(baselineStats.getSum())) {
         cell.addStat(null);
       }
-      if (currentStats.getSum() > 0) {
+ else {
         cell.addStat(currentStats.getSum());
-      }
- else {
-        cell.addStat(null);
       }
       if (baselineStats.getSum() > 0) {
         double baselineRatio=baseline == null ? 0 : baseline.doubleValue() / baselineStats.getSum();
