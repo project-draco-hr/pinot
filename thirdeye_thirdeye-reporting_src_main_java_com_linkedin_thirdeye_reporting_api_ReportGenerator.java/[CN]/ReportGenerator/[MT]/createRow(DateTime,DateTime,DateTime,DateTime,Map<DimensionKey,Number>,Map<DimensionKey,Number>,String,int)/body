@@ -1,0 +1,22 @@
+{
+  List<ReportRow> reportRows=new ArrayList<ReportRow>();
+  for (  Entry<DimensionKey,Number> entry : currentReportOutput.entrySet()) {
+    String dimension;
+    if (dimensionPosition == -1) {
+      dimension="-";
+    }
+ else {
+      dimension=entry.getKey().getDimensionValues()[dimensionPosition];
+    }
+    ReportRow row=null;
+    try {
+      row=new ReportRow(currentStartHour,currentEndHour,baselineStartHour,baselineEndHour,entry.getKey(),dimension,metric,baselineReportOutput.get(entry.getKey()) == null ? 0 : baselineReportOutput.get(entry.getKey()).longValue(),entry.getValue().longValue());
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+    }
+    row.setRatio(DOUBLE_FORMAT.format((row.getCurrent().doubleValue() - row.getBaseline().doubleValue()) / (row.getBaseline().doubleValue()) * 100));
+    reportRows.add(row);
+  }
+  return reportRows;
+}

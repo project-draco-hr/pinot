@@ -1,0 +1,37 @@
+{
+  String metricFunction=buildMetricFunction(aggregationGranularity,metrics);
+  DateTime start=new DateTime(timeRange.getStart(),DateTimeZone.UTC);
+  if (enableCache) {
+    start=start.withMillisOfDay(0);
+  }
+  DateTime end=new DateTime(timeRange.getEnd(),DateTimeZone.UTC);
+  String sql=SqlUtils.getSql(metricFunction,collection.getName(),start,end,dimensionValues);
+  String url;
+  try {
+    url="http://" + collection.getHost() + ":"+ collection.getPort()+ "/query/"+ URLEncoder.encode(sql,"UTF-8");
+    LOGGER.info("getting data between {} and {} : {}",start,end,url);
+  }
+ catch (  UnsupportedEncodingException e) {
+    LOGGER.error("failed to generate ThirdEye server query",e);
+    return null;
+  }
+  if (enableCache) {
+    String cached=queryDataCache.get(url);
+    if (cached != null) {
+      LOGGER.info("cache hit for {}",url);
+      return new ThirdEyeServerQueryResult(metrics,cached);
+    }
+  }
+  Response response=Request.Get(url).execute();
+  HttpResponse httpResponse=response.returnResponse();
+  int statusCode=httpResponse.getStatusLine().getStatusCode();
+  if (statusCode != HttpStatus.SC_OK) {
+    throw new IOException("Status code not 200 - status=" + statusCode + " url="+ url);
+  }
+  String responseString=EntityUtils.toString(httpResponse.getEntity());
+  ThirdEyeServerQueryResult result=new ThirdEyeServerQueryResult(metrics,responseString);
+  if (enableCache) {
+    queryDataCache.put(url,responseString);
+  }
+  return result;
+}

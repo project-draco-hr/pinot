@@ -1,0 +1,44 @@
+{
+  if (series.getSchema().getNames().contains(metricName) == false) {
+    throw new FunctionDidNotEvaluateException("'" + metricName + "' does not exist in the MetricTimeSeries");
+  }
+  List<AnomalyResult> results=new ArrayList<AnomalyResult>();
+  double threshold=getEffectiveThreshold(dimensionKey);
+  int pointsEvaluated=0;
+  for (  Long timeWindow : series.getTimeWindowSet()) {
+    if (timeInterval.contains(timeWindow) == false) {
+      continue;
+    }
+    long oldTime=timeWindow - TimeGranularityUtils.toMillis(baselineTimePeriod);
+    if (series.getTimeWindowSet().contains(oldTime)) {
+      double oldValue=series.get(oldTime,metricName).doubleValue();
+      double newValue=series.get(timeWindow,metricName).doubleValue();
+      double percentChange;
+      if (oldValue > 0) {
+        percentChange=100.0 * (newValue - oldValue) / oldValue;
+      }
+ else {
+        percentChange=0.0;
+      }
+      double absoluteChange=newValue - oldValue;
+      ResultProperties properties=new ResultProperties();
+      properties.setProperty("oldValue","" + oldValue);
+      properties.setProperty("newValue","" + newValue);
+      properties.setProperty("usingThreshold","" + threshold);
+      properties.setProperty("absoluteChange","" + absoluteChange);
+      boolean isAnomaly;
+      if (percentDelta < 0) {
+        isAnomaly=percentChange <= threshold;
+      }
+ else {
+        isAnomaly=percentChange >= threshold;
+      }
+      results.add(new AnomalyResult(isAnomaly,timeWindow,percentChange,properties));
+      pointsEvaluated++;
+    }
+  }
+  if (pointsEvaluated == 0) {
+    throw new FunctionDidNotEvaluateException("not enough data present in the MetricTimeSeries");
+  }
+  return results;
+}

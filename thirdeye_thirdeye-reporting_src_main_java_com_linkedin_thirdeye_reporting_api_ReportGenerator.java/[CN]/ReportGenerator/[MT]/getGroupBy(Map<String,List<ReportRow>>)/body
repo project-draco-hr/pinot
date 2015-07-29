@@ -1,0 +1,17 @@
+{
+  List<GroupBy> groupBy=new ArrayList<GroupBy>();
+  for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
+    for (    ReportRow row : entry.getValue()) {
+      String startTime;
+      if (row.getDimension().equals("Total")) {
+        startTime="Total";
+      }
+ else {
+        startTime=ReportConstants.DATE_TIME_FORMATTER.print(row.getCurrentStart());
+      }
+      groupBy.add(new GroupBy(startTime,row.getDimension()));
+    }
+    break;
+  }
+  return groupBy;
+}

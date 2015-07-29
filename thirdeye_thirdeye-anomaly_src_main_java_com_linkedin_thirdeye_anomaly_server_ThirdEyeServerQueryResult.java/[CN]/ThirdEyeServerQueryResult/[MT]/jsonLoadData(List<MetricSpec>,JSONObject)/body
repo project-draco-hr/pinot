@@ -1,0 +1,9 @@
+{
+  Iterator<String> it=jsonObject.keys();
+  while (it.hasNext()) {
+    String key=it.next();
+    DimensionKey dimensionKey=getDimensionKey(new JSONArray(key));
+    MetricTimeSeries timeSeries=getMetricTimeSeries(metricsSpecs,jsonObject.getJSONObject(key));
+    data.put(dimensionKey,timeSeries);
+  }
+}

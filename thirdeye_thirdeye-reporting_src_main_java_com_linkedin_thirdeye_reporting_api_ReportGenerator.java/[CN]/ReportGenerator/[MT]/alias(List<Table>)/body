@@ -1,0 +1,29 @@
+{
+  AliasSpec aliasSpec=reportConfig.getAliases();
+  for (  Table table : tables) {
+    if (aliasSpec.getMetric() != null) {
+      for (      Entry<String,String> metricAlias : aliasSpec.getMetric().entrySet()) {
+        if (table.getMetricReportRows().get(metricAlias.getKey()) != null) {
+          List<ReportRow> reportRows=table.getMetricReportRows().remove(metricAlias.getKey());
+          table.getMetricReportRows().put(metricAlias.getValue(),reportRows);
+        }
+      }
+    }
+    String groupBy=table.tableSpec.getGroupBy();
+    if (groupBy != null) {
+      List<String> groupByValues=table.tableSpec.getFilter() == null ? null : table.tableSpec.getFilter().getIncludeDimensions();
+      Map<String,String> groupByValuesAlias=aliasSpec.getDimensionValues() == null ? null : aliasSpec.getDimensionValues().get(groupBy);
+      if (groupByValues != null && groupByValuesAlias != null) {
+        for (        GroupBy group : table.getGroupBy()) {
+          if (groupByValuesAlias.get(group.getDimension()) != null) {
+            group.setDimension(groupByValuesAlias.get(group.getDimension()));
+          }
+        }
+      }
+      Map<String,String> dimensionAlias=aliasSpec.getDimension();
+      if (dimensionAlias != null && dimensionAlias.get(groupBy) != null) {
+        table.tableSpec.setGroupBy(dimensionAlias.get(groupBy));
+      }
+    }
+  }
+}

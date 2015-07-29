@@ -1,0 +1,11 @@
+{
+  Set<String> dimensions=new HashSet<>();
+  for (  DimensionSpec dimensionSpec : starTreeConfig.getDimensions()) {
+    String dimension=dimensionSpec.getName();
+    if (dimensionValues.containsKey(dimension) || collectionDriverConfig.isNeverExploreDimension(dimension)) {
+      continue;
+    }
+    dimensions.add(dimension);
+  }
+  return dimensions;
+}

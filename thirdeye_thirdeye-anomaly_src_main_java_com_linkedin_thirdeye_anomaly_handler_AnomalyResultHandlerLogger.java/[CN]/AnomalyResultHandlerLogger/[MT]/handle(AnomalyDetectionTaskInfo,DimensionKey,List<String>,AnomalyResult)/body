@@ -1,0 +1,16 @@
+{
+  if (result.isAnomaly()) {
+    DateTime resultDateTime=new DateTime(result.getTimeWindow(),DateTimeZone.UTC);
+    if (result.getProperties() == null || result.getProperties().isEmpty()) {
+      LOGGER.warn("{} : {} : {} is anomaly",resultDateTime,dimensionKey,result.getAnomalyScore());
+    }
+ else {
+      StringBuilder sb=new StringBuilder();
+      for (      Map.Entry<Object,Object> entry : result.getProperties().entrySet()) {
+        sb.append("! ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+      }
+      sb.setLength(sb.length() - 1);
+      LOGGER.warn("{} : {} : {} is anomaly\n{}",resultDateTime,dimensionKey,result.getAnomalyScore(),sb.toString());
+    }
+  }
+}

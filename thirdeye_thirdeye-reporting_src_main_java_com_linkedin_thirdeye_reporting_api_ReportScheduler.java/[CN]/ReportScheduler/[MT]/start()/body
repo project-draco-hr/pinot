@@ -1,0 +1,29 @@
+{
+  LOGGER.info("Starting report scheduler");
+  quartzScheduler=StdSchedulerFactory.getDefaultScheduler();
+  quartzScheduler.start();
+  File[] reportConfigFiles=reportConfigFolder.listFiles(new FileFilter(){
+    @Override public boolean accept(    File pathname){
+      return pathname.getName().endsWith(ReportConstants.YAML_FILE_SUFFIX);
+    }
+  }
+);
+  try {
+    for (    File reportConfigFile : reportConfigFiles) {
+      ReportConfig reportConfig=ReportConfig.decode(new FileInputStream(reportConfigFile));
+      LOGGER.info("Config {}",reportConfig.encode());
+      JobDataMap newJobDataMap=new JobDataMap();
+      newJobDataMap.put(ReportConstants.CONFIG_FILE_KEY,reportConfigFile.getPath());
+      newJobDataMap.put(ReportConstants.SERVER_URI_KEY,serverUri);
+      newJobDataMap.put(ReportConstants.DASHBOARD_URI_KEY,dashboardUri);
+      for (      Entry<String,ScheduleSpec> entry : reportConfig.getSchedules().entrySet()) {
+        JobDetail job=JobBuilder.newJob(ReportGenerator.class).withDescription(entry.getKey()).usingJobData(newJobDataMap).build();
+        Trigger trigger=TriggerBuilder.newTrigger().withDescription(entry.getKey()).startNow().withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0)).build();
+        quartzScheduler.scheduleJob(job,trigger);
+      }
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error(e.toString());
+  }
+}

@@ -1,0 +1,12 @@
+{
+  ArrayList<MetricSpec> metrics=new ArrayList<MetricSpec>();
+  Set<String> metricNames=function.getMetrics();
+  for (  String metricName : metricNames) {
+    MetricSpec metricSpec=findMetricSpec(metricName,starTreeConfig.getMetrics());
+    if (metricSpec == null) {
+      metricSpec=new MetricSpec(metricName,MetricType.DOUBLE);
+    }
+    metrics.add(metricSpec);
+  }
+  return metrics;
+}

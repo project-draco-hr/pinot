@@ -1,0 +1,10 @@
+{
+  TimeRange applicationRunTimeWindow=config.getExplicitTimeRange();
+  long startTimeWindow=applicationRunTimeWindow.getStart();
+  startTimeWindow=TimeGranularityUtils.truncateBy(startTimeWindow,config.getDetectionInterval());
+  long endTimeWindow=applicationRunTimeWindow.getEnd();
+  LOGGER.info("begin processing for {} to {}",startTimeWindow,endTimeWindow);
+  loadAndRunTasks(config,new TimeRange(startTimeWindow,endTimeWindow));
+  taskExecutors.shutdown();
+  taskExecutors.awaitTermination(1,TimeUnit.HOURS);
+}

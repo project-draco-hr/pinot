@@ -1,0 +1,16 @@
+{
+  MetricTimeSeries timeSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(metricSpec));
+  Iterator<String> it=jsonObject.keys();
+  while (it.hasNext()) {
+    String datetimeMillisString=it.next();
+    long timeWindow=Long.valueOf(datetimeMillisString);
+    JSONArray valueArray=jsonObject.getJSONArray(datetimeMillisString);
+    for (int i=0; i < valueArray.length(); i++) {
+      Number value=valueArray.getDouble(i);
+      String name=metrics.get(i);
+      timeSeries.set(timeWindow,name,value);
+    }
+  }
+  LOGGER.debug("query returned time series of size : {}",timeSeries.getTimeWindowSet().size());
+  return timeSeries;
+}

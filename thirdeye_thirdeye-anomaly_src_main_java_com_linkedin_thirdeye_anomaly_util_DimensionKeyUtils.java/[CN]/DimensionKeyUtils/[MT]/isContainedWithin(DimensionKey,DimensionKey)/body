@@ -1,0 +1,19 @@
+{
+  String[] d1Values=d1.getDimensionValues();
+  String[] d2Values=d2.getDimensionValues();
+  if (d1Values.length != d2Values.length) {
+    LOGGER.error("dimensions do not match in num fields");
+  }
+  for (int i=0; i < d1Values.length; i++) {
+    if (d1Values[i].equals(d2Values[i])) {
+      continue;
+    }
+ else     if (d1Values[i].equals("*")) {
+      continue;
+    }
+ else {
+      return false;
+    }
+  }
+  return true;
+}
