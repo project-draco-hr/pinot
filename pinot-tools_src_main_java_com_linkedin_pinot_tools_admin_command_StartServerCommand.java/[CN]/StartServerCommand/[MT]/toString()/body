@@ -1,3 +1,8 @@
 {
-  return ("StartServerCommand -clusterName " + _clusterName + " -serverHost "+ _serverHost+ " -serverPort "+ _serverPort+ " -dataDir "+ _dataDir+ " -segmentDir "+ _segmentDir+ " -zkAddress "+ _zkAddress);
+  if (_configFileName != null) {
+    return ("StartServer -clusterName " + _clusterName + " -serverHost "+ _serverHost+ " -serverPort "+ _serverPort+ " -configFileName "+ _configFileName+ " -zkAddress "+ _zkAddress);
+  }
+ else {
+    return ("StartServer -clusterName " + _clusterName + " -serverHost "+ _serverHost+ " -serverPort "+ _serverPort+ " -dataDir "+ _dataDir+ " -segmentDir "+ _segmentDir+ " -zkAddress "+ _zkAddress);
+  }
 }

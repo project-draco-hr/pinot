@@ -1,16 +1,23 @@
 {
-  final ControllerConf conf=new ControllerConf();
   if (_controllerHost == null) {
     _controllerHost=NetUtil.getHostAddress();
   }
-  conf.setControllerHost(_controllerHost);
-  conf.setControllerPort(_controllerPort);
-  conf.setDataDir(_dataDir);
-  conf.setZkStr(_zkAddress);
-  conf.setHelixClusterName(_clusterName);
-  conf.setControllerVipHost(_controllerHost);
-  conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
-  conf.setValidationControllerFrequencyInSeconds(3600);
+  ControllerConf conf=readConfigFromFile(_configFileName);
+  if (conf == null) {
+    if (_configFileName != null) {
+      LOGGER.error("Error: Unable to find file {}.",_configFileName);
+      return false;
+    }
+    conf=new ControllerConf();
+    conf.setControllerHost(_controllerHost);
+    conf.setControllerPort(_controllerPort);
+    conf.setDataDir(_dataDir);
+    conf.setZkStr(_zkAddress);
+    conf.setHelixClusterName(_clusterName);
+    conf.setControllerVipHost(_controllerHost);
+    conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
+    conf.setValidationControllerFrequencyInSeconds(3600);
+  }
   LOGGER.info("Executing command: " + toString());
   final ControllerStarter starter=new ControllerStarter(conf);
   starter.start();

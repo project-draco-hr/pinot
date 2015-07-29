@@ -1,3 +1,8 @@
 {
-  return ("StartBrokerCommand -brokerHost " + _brokerHost + " -brokerPort "+ _brokerPort+ " -zkAddress "+ _zkAddress);
+  if (_configFileName != null) {
+    return ("StartBroker -zkAddress " + _zkAddress + " -configFileName "+ _configFileName);
+  }
+ else {
+    return ("StartBroker -brokerHost " + _brokerHost + " -brokerPort "+ _brokerPort+ " -zkAddress "+ _zkAddress);
+  }
 }

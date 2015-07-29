@@ -1,3 +1,8 @@
 {
-  return ("StartControllerCommand -clusterName " + _clusterName + " -controllerHost "+ _controllerHost+ " -controllerPort "+ _controllerPort+ " -dataDir "+ _dataDir+ " -zkAddress "+ _zkAddress);
+  if (_configFileName != null) {
+    return ("StartController -configFileName " + _configFileName);
+  }
+ else {
+    return ("StartController -clusterName " + _clusterName + " -controllerHost "+ _controllerHost+ " -controllerPort "+ _controllerPort+ " -dataDir "+ _dataDir+ " -zkAddress "+ _zkAddress);
+  }
 }
