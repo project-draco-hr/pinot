@@ -1,10 +1,10 @@
 {
   if (bitOffset < 0) {
-    throw new IllegalArgumentException();
+    throw new IllegalArgumentException("Negative bitOffset value " + bitOffset);
   }
   final int byteToSet=bitOffset / 8;
   if (byteToSet > nrBytes) {
-    throw new IllegalArgumentException();
+    throw new IllegalArgumentException("bitOffset value " + bitOffset + " (byte offset "+ byteToSet+ ") exceeds buffer capacity of "+ nrBytes+ " bytes");
   }
   final int offset=bitOffset % 8;
   byte b=buf.get(byteToSet);
