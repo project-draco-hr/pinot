@@ -1,5 +1,9 @@
 {
-  Map<String,String> dimensionValues=ImmutableSortedMap.of("A","A1","B","B1","C","!","D","!");
+  MultivaluedMap<String,String> dimensionValues=new MultivaluedMapImpl();
+  dimensionValues.putSingle("A","A1");
+  dimensionValues.putSingle("B","B1");
+  dimensionValues.putSingle("C","!");
+  dimensionValues.putSingle("D","!");
   String groupByClause=SqlUtils.getDimensionGroupByClause(dimensionValues);
   Assert.assertEquals(groupByClause,"GROUP BY 'C','D'");
 }

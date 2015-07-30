@@ -1,5 +1,5 @@
 {
-  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  MultivaluedMap<String,String> dimensionValues=uriInfo.getQueryParameters();
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
 switch (metricViewType) {
 case INTRA_DAY:
@@ -10,7 +10,7 @@ return new MetricViewTabular(schema,objectMapper,result,currentMillis - baseline
 case TIME_SERIES_FULL:
 case TIME_SERIES_OVERLAY:
 case FUNNEL:
-return new MetricViewTimeSeries(schema,dimensionValues);
+return new MetricViewTimeSeries(schema,ViewUtils.flattenDisjunctions(dimensionValues));
 default :
 throw new NotFoundException("No metric view implementation for " + metricViewType);
 }

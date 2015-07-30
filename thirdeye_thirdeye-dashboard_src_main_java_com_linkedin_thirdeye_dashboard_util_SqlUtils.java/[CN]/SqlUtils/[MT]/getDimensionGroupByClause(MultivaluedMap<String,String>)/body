@@ -1,7 +1,7 @@
 {
   List<String> components=new ArrayList<>();
-  for (  Map.Entry<String,String> entry : dimensionValues.entrySet()) {
-    if ("!".equals(entry.getValue())) {
+  for (  Map.Entry<String,List<String>> entry : dimensionValues.entrySet()) {
+    if (entry.getValue().size() == 1 && "!".equals(entry.getValue().get(0))) {
       components.add(String.format("'%s'",entry.getKey()));
     }
   }

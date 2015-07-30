@@ -132,7 +132,7 @@
   for (  String[] combination : query.getDimensionCombinations(config.getDimensions())) {
     dimensionKeys.add(new DimensionKey(combination));
   }
-  Map<StarTree,Map<DimensionKey,Future<MetricTimeSeries>>> timeSeriesFutures=new HashMap<>();
+  Map<StarTree,Multimap<DimensionKey,Future<MetricTimeSeries>>> timeSeriesFutures=new HashMap<>();
   final List<StarTree> starTrees=new ArrayList<>(starTreeManager.getStarTrees(config.getCollection()).values());
   StarTree mutableTree=starTreeManager.getMutableStarTree(config.getCollection());
   if (mutableTree != null) {
@@ -143,9 +143,11 @@
     if (!treeIdsToQuery.contains(treeId) && !realTimeTreeIdsToQuery.contains(treeId)) {
       continue;
     }
-    timeSeriesFutures.put(starTree,new HashMap<DimensionKey,Future<MetricTimeSeries>>());
+    Multimap<DimensionKey,Future<MetricTimeSeries>> singleKeyResultMap=LinkedListMultimap.create();
+    timeSeriesFutures.put(starTree,singleKeyResultMap);
     for (    final DimensionKey dimensionKey : dimensionKeys) {
-      timeSeriesFutures.get(starTree).put(dimensionKey,executorService.submit(new Callable<MetricTimeSeries>(){
+      DimensionKey flattenedKey=flattenDisjunctions(config,query,dimensionKey);
+      timeSeriesFutures.get(starTree).put(flattenedKey,executorService.submit(new Callable<MetricTimeSeries>(){
         @Override public MetricTimeSeries call() throws Exception {
           TimeRange timeRange=timeRangesToQuery.get(treeId);
           return starTree.getTimeSeries(new StarTreeQueryImpl(config,dimensionKey,timeRange));
@@ -155,15 +157,17 @@
     }
   }
   Map<DimensionKey,MetricTimeSeries> mergedResults=new HashMap<>();
-  for (  Map<DimensionKey,Future<MetricTimeSeries>> resultMap : timeSeriesFutures.values()) {
-    for (    Map.Entry<DimensionKey,Future<MetricTimeSeries>> entry : resultMap.entrySet()) {
-      MetricTimeSeries additionalSeries=entry.getValue().get();
-      MetricTimeSeries currentSeries=mergedResults.get(entry.getKey());
-      if (currentSeries == null) {
-        currentSeries=new MetricTimeSeries(additionalSeries.getSchema());
-        mergedResults.put(entry.getKey(),currentSeries);
+  for (  Multimap<DimensionKey,Future<MetricTimeSeries>> resultMap : timeSeriesFutures.values()) {
+    for (    Map.Entry<DimensionKey,Collection<Future<MetricTimeSeries>>> entry : resultMap.asMap().entrySet()) {
+      for (      Future<MetricTimeSeries> seriesFuture : entry.getValue()) {
+        MetricTimeSeries additionalSeries=seriesFuture.get();
+        MetricTimeSeries currentSeries=mergedResults.get(entry.getKey());
+        if (currentSeries == null) {
+          currentSeries=new MetricTimeSeries(additionalSeries.getSchema());
+          mergedResults.put(entry.getKey(),currentSeries);
+        }
+        currentSeries.aggregate(additionalSeries);
       }
-      currentSeries.aggregate(additionalSeries);
     }
   }
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : mergedResults.entrySet()) {

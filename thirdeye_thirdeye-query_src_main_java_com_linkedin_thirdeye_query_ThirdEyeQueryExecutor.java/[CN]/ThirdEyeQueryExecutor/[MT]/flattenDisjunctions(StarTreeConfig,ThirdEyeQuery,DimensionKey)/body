@@ -1,0 +1,13 @@
+{
+  String[] flattenedValues=new String[config.getDimensions().size()];
+  for (int i=0; i < config.getDimensions().size(); i++) {
+    String dimensionName=config.getDimensions().get(i).getName();
+    String dimensionValue=dimensionKey.getDimensionValues()[i];
+    Collection queryValues=query.getDimensionValues().get(dimensionName);
+    if (!query.getGroupByColumns().contains(dimensionName) && queryValues.size() > 1) {
+      dimensionValue=OR_JOINER.join(queryValues);
+    }
+    flattenedValues[i]=dimensionValue;
+  }
+  return new DimensionKey(flattenedValues);
+}

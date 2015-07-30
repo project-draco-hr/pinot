@@ -2,12 +2,12 @@
   String metricFunction="AGGREGATE_1_HOURS(" + METRIC_FUNCTION_JOINER.join(metricList) + ")";
   DateTime current=new DateTime(year,month,day,0,0);
   DateTime baseline=current.minusWeeks(1);
-  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(queryParams);
+  MultivaluedMap<String,String> dimensionValues=queryParams;
   if (groupBy != null) {
     if (dimensionValues.containsKey(groupBy)) {
       throw new IllegalArgumentException("Cannot group by fixed dimension");
     }
-    dimensionValues.put(groupBy,"!");
+    dimensionValues.put(groupBy,Arrays.asList("!"));
   }
   String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
   QueryResult result=queryCache.getQueryResult(serverUri,sql);

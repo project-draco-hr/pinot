@@ -4,8 +4,8 @@
   for (  CustomDashboardComponentSpec componentSpec : spec.getComponents()) {
     MultivaluedMap<String,String> dimensionValues=new MultivaluedMapImpl();
     if (componentSpec.getDimensions() != null) {
-      for (      Map.Entry<String,String> entry : componentSpec.getDimensions().entrySet()) {
-        dimensionValues.putSingle(entry.getKey(),entry.getValue());
+      for (      Map.Entry<String,List<String>> entry : componentSpec.getDimensions().entrySet()) {
+        dimensionValues.put(entry.getKey(),entry.getValue());
       }
     }
     List<String> metrics=componentSpec.getMetrics();

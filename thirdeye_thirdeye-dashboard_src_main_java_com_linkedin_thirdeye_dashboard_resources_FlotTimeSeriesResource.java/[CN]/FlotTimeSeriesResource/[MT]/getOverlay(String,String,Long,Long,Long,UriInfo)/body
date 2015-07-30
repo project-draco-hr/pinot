@@ -3,7 +3,7 @@
   DateTime baselineRangeEnd=new DateTime(baselineMillis);
   DateTime currentRangeStart=new DateTime(currentMillis - windowMillis);
   DateTime currentRangeEnd=new DateTime(currentMillis);
-  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  MultivaluedMap<String,String> dimensionValues=uriInfo.getQueryParameters();
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
   String baselineSeriesSql=SqlUtils.getSql(metricFunction,collection,baselineRangeStart,baselineRangeEnd,dimensionValues);
   String currentSeriesSql=SqlUtils.getSql(metricFunction,collection,currentRangeStart,currentRangeEnd,dimensionValues);

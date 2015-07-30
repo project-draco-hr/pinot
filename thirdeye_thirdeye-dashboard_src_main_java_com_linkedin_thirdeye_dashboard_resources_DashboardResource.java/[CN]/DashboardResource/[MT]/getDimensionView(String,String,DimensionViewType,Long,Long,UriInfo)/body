@@ -2,14 +2,14 @@
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
   DateTime baseline=new DateTime(baselineMillis);
   DateTime current=new DateTime(currentMillis);
-  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  MultivaluedMap<String,String> dimensionValues=uriInfo.getQueryParameters();
   Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
 switch (dimensionViewType) {
 case MULTI_TIME_SERIES:
     List<String> multiTimeSeriesDimensions=new ArrayList<>();
   for (  String dimension : schema.getDimensions()) {
     if (!dimensionValues.containsKey(dimension)) {
-      dimensionValues.put(dimension,"!");
+      dimensionValues.put(dimension,Arrays.asList("!"));
       String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
       LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
       dimensionValues.remove(dimension);
@@ -20,7 +20,7 @@ return new DimensionViewMultiTimeSeries(multiTimeSeriesDimensions);
 case HEAT_MAP:
 for (String dimension : schema.getDimensions()) {
 if (!dimensionValues.containsKey(dimension)) {
-  dimensionValues.put(dimension,"!");
+  dimensionValues.put(dimension,Arrays.asList("!"));
   String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
   LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
   dimensionValues.remove(dimension);
