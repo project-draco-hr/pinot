@@ -1,4 +1,10 @@
 {
-  nrBytes=numBytes;
+  if (nrBytes < 1) {
+    throw new IllegalArgumentException("CustomBitSet requires at least one byte of storage, asked for " + nrBytes);
+  }
+  if (buffer.capacity() < nrBytes) {
+    throw new IllegalArgumentException("Requested bit set capacity is " + nrBytes + " bytes, but the underlying byte buffer has a capacity of "+ buffer.capacity()+ ", which is less than requested");
+  }
+  this.nrBytes=nrBytes;
   this.buf=buffer;
 }
