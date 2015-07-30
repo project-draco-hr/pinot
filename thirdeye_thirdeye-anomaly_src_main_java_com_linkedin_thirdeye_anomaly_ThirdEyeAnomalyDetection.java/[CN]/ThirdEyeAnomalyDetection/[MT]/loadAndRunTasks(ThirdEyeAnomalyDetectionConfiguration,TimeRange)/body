@@ -1,0 +1,33 @@
+{
+  List<AnomalyDetectionDriverConfig> collectionDriverConfigurations=thirdEyeAnomalyDetectionConfig.getCollectionDriverConfigurations();
+  AnomalyDatabaseConfig anomalyDatabase=thirdEyeAnomalyDetectionConfig.getAnomalyDatabaseConfig();
+  AnomalyDetectionFunctionFactory functionFactory;
+switch (thirdEyeAnomalyDetectionConfig.getMode()) {
+case RuleBased:
+{
+      functionFactory=new RuleBasedFunctionFactory();
+      break;
+    }
+case Generic:
+{
+    functionFactory=new GenericFunctionFactory();
+    break;
+  }
+default :
+{
+  functionFactory=null;
+  break;
+}
+}
+List<AnomalyDetectionTask> tasks=null;
+try {
+tasks=new AnomalyDetectionTaskBuilder(collectionDriverConfigurations,anomalyDatabase).buildTasks(timeRange,functionFactory);
+}
+ catch (Exception e) {
+LOGGER.error("failed to load tasks",e);
+System.exit(-1);
+}
+for (AnomalyDetectionTask task : tasks) {
+taskExecutors.execute(task);
+}
+}

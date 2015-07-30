@@ -1,0 +1,14 @@
+{
+  this.function=function;
+  this.handler=handler;
+  this.starTreeConfig=starTreeConfig;
+  this.collectionDriverConfig=collectionDriverConfig;
+  this.taskInfo=taskInfo;
+  if (collectionDriverConfig.getContributionEstimateMetric() != null) {
+    dimensionKeyContributionMetric=collectionDriverConfig.getContributionEstimateMetric();
+  }
+ else {
+    dimensionKeyContributionMetric=function.getMetrics().iterator().next();
+  }
+  metricsRequiredByTask=getMetricsRequiredByTask(starTreeConfig,collectionDriverConfig,function);
+}

@@ -1,0 +1,10 @@
+{
+  dimensions=queryResult.getDimensions();
+  metrics=queryResult.getMetrics();
+  MetricSchema metricSchema=MetricSchema.fromMetricSpecs(metricSpecs);
+  for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+    DimensionKey dimensionKey=dimensionKeyFromString(entry.getKey());
+    MetricTimeSeries metricTimeSeries=metricTimeSeriesFromMap(metricSchema,metrics,entry.getValue());
+    data.put(dimensionKey,metricTimeSeries);
+  }
+}

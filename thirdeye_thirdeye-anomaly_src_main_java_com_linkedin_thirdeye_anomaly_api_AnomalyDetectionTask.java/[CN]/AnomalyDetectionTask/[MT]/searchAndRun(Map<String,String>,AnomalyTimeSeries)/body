@@ -1,0 +1,37 @@
+{
+  int explorationDepth=getExplorationDepth(dimensionValues);
+  AnomalyDetectionDataset dataset=getDataset(dimensionValues);
+  sanityCheckDataset(dataset);
+  Map<DimensionKey,Double> dimensionKeyContributionMap=computeDatasetProportions(dataset,dimensionKeyContributionMetric);
+  for (  DimensionKey dimensionKey : dataset.getDimensionKeys()) {
+    if (dimensionKeyContributionMap != null) {
+      double proportion=dimensionKeyContributionMap.get(dimensionKey);
+      if (proportion <= collectionDriverConfig.getContributionMinProportion()) {
+        LOGGER.info("skipping series {} - proportion ({}) below threshold",dimensionKey,String.format("%.4f",proportion));
+        continue;
+      }
+    }
+    LOGGER.info("evaluating series for key {}",dimensionKey);
+    MetricTimeSeries series=dataset.getMetricTimeSeries(dimensionKey);
+    List<AnomalyResult> anomalyResults=null;
+    try {
+      anomalyResults=function.analyze(dimensionKey,series,taskInfo.getTimeRange());
+    }
+ catch (    FunctionDidNotEvaluateException e) {
+      LOGGER.warn("failed to execute function - {}",function.toString(),e);
+      continue;
+    }
+    handleAnomalyResults(anomalies,dimensionKey,dimensionKeyContributionMap.get(dimensionKey),anomalyResults);
+    LOGGER.info("analysis on {} between {} ({}) finished",dimensionKey,taskInfo.getTimeRange(),DateTimeZone.getDefault());
+  }
+  if (explorationDepth >= collectionDriverConfig.getMaxExplorationDepth()) {
+    return;
+  }
+ else {
+    for (    String dimension : getDimensionKeysToGroupBy(dimensionValues)) {
+      dimensionValues.put(dimension,GROUP_BY_VALUE);
+      searchAndRun(dimensionValues,anomalies);
+      dimensionValues.remove(dimension);
+    }
+  }
+}

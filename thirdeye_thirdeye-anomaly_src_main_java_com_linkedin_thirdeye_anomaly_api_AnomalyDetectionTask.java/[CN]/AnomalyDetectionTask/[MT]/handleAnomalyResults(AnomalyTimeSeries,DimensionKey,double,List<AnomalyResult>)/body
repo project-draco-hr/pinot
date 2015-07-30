@@ -1,0 +1,21 @@
+{
+  List<String> metrics=new ArrayList<String>(function.getMetrics());
+  Collections.sort(anomalyResults);
+  for (  AnomalyResult anomalyResult : anomalyResults) {
+    if (taskInfo.getTimeRange().contains(anomalyResult.getTimeWindow()) == false) {
+      continue;
+    }
+    if (shouldSupressAnomalyResult(anomalies,dimensionKey,anomalyResult)) {
+      continue;
+    }
+ else {
+      anomalies.put(anomalyResult.getTimeWindow(),dimensionKey);
+    }
+    try {
+      handler.handle(taskInfo,dimensionKey,dimensionKeyContribution,metrics,anomalyResult);
+    }
+ catch (    IOException e) {
+      LOGGER.error("failed to handle AnomalyResult from {}",dimensionKey);
+    }
+  }
+}

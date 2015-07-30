@@ -1,0 +1,11 @@
+{
+  double anomalyVolumeBucketSize=(anomalyVolumeRange.getSecond() - anomalyVolumeRange.getFirst()) / anomalyVolumeNumBuckets;
+  int anomalyVolumeIndex=(int)((anomalyVolume - anomalyVolumeRange.getFirst()) / anomalyVolumeBucketSize);
+  if (anomalyVolumeIndex < 0) {
+    anomalyVolumeIndex=0;
+  }
+ else   if (anomalyVolumeIndex >= anomalyVolumeNumBuckets) {
+    anomalyVolumeIndex=anomalyVolumeNumBuckets - 1;
+  }
+  return anomalyVolumeIndex;
+}

@@ -1,0 +1,17 @@
+{
+  GenericFunctionTableRow genericFunctionTableRow=(GenericFunctionTableRow)functionTableRow;
+  String jarUrlString=genericFunctionTableRow.getJarUrl();
+  String className=genericFunctionTableRow.getClassName();
+  LOGGER.info("loading jar at '{}'",jarUrlString);
+  URL jarUrl=new URL(jarUrlString);
+  URLClassLoader loader=new URLClassLoader(new URL[]{jarUrl});
+  Class<?> functionClass=Class.forName(className,true,loader);
+  AnomalyDetectionFunction function=(AnomalyDetectionFunction)functionClass.newInstance();
+  FunctionProperties functionProperties=null;
+  if (genericFunctionTableRow.getFunctionProperties() != null) {
+    functionProperties=new FunctionProperties();
+    functionProperties.load(new StringReader(genericFunctionTableRow.getFunctionProperties()));
+  }
+  function.init(starTreeConfig,functionProperties);
+  return function;
+}

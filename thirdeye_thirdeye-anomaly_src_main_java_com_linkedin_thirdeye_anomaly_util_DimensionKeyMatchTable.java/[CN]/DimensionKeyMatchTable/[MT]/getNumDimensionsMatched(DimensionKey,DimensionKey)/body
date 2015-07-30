@@ -1,0 +1,17 @@
+{
+  int degreeOfMatch=0;
+  for (  DimensionSpec dimensionSpec : dimensionSpecs) {
+    String pattern=patternKey.getDimensionValue(dimensionSpecs,dimensionSpec.getName());
+    String value=valueKey.getDimensionValue(dimensionSpecs,dimensionSpec.getName());
+    if (pattern.equals(value)) {
+      degreeOfMatch++;
+    }
+ else     if (pattern.equals(MATCH_ALL_DIMENSION)) {
+      continue;
+    }
+ else {
+      return -1;
+    }
+  }
+  return degreeOfMatch;
+}

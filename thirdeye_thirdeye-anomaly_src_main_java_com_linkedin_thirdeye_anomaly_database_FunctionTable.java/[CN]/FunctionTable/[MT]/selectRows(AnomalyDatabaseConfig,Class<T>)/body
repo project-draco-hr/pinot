@@ -1,0 +1,37 @@
+{
+  List<T> functionTableRows=new LinkedList<>();
+  Connection conn=null;
+  Statement stmt=null;
+  ResultSet rs=null;
+  try {
+    conn=dbConfig.getConnection();
+    stmt=conn.createStatement();
+    rs=stmt.executeQuery(buildFunctionTableSelectStmt(dbConfig));
+    while (rs.next()) {
+      T row=rowClass.newInstance();
+      row.init(rs);
+      functionTableRows.add(row);
+    }
+    return functionTableRows;
+  }
+ catch (  SQLException e) {
+    LOGGER.error("load rule sql exception",e);
+  }
+ finally {
+    try {
+      if (conn != null) {
+        conn.close();
+      }
+      if (stmt != null) {
+        stmt.close();
+      }
+      if (rs != null) {
+        rs.close();
+      }
+    }
+ catch (    SQLException e) {
+      e.printStackTrace();
+    }
+  }
+  return null;
+}

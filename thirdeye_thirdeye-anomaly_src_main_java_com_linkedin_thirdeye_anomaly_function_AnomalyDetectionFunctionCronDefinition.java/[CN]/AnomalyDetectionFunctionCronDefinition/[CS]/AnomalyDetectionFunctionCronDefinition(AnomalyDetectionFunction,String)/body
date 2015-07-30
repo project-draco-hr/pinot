@@ -1,0 +1,11 @@
+{
+  super(childFunc);
+  evalTimeZone=TimeZone.getTimeZone("PST");
+  try {
+    cronExpression=new CronExpression(cronString);
+    cronExpression.setTimeZone(evalTimeZone);
+  }
+ catch (  ParseException e) {
+    throw new IllegalFunctionException("Invalid cron definition for rule");
+  }
+}

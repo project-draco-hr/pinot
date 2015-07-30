@@ -1,0 +1,22 @@
+{
+  Map<String,Integer> metricPosition=new HashMap<String,Integer>();
+  for (int position=0; position < starTreeConfig.getMetrics().size(); position++) {
+    metricPosition.put(starTreeConfig.getMetrics().get(position).getName(),position);
+  }
+  for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
+    List<ReportRow> tableRows=entry.getValue();
+    String metric=entry.getKey();
+    MetricTimeSeries currentSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics()));
+    MetricTimeSeries baselineSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics()));
+    for (int i=0; i < tableRows.size(); i++) {
+      currentSeries.set(i,metric,tableRows.get(i).getCurrent());
+      baselineSeries.set(i,metric,tableRows.get(i).getBaseline());
+    }
+    ReportRow summary=new ReportRow(tableRows.get(0));
+    summary.setCurrent(currentSeries.getMetricSums()[metricPosition.get(metric)]);
+    summary.setBaseline(baselineSeries.getMetricSums()[metricPosition.get(metric)]);
+    summary.setRatio(DOUBLE_FORMAT.format((summary.getCurrent().doubleValue() - summary.getBaseline().doubleValue()) / (summary.getBaseline().doubleValue()) * 100));
+    summary.setDimension("Total");
+    tableRows.add(summary);
+  }
+}

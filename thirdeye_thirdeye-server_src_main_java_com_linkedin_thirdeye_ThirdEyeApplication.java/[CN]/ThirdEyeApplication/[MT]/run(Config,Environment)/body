@@ -8,9 +8,7 @@
   final StarTreeManager starTreeManager=new StarTreeManagerImpl();
   final DataUpdateManager dataUpdateManager=new DataUpdateManager(rootDir,config.isAutoExpire());
   final KafkaConsumerManager kafkaConsumerManager=new KafkaConsumerManager(rootDir,starTreeManager,dataUpdateManager,environment.metrics());
-  final AnomalyDetectionTaskManager anomalyDetectionTaskManager=new AnomalyDetectionTaskManager(starTreeManager,anomalyDetectionTaskScheduler,config.getAnomalyDetectionInterval(),rootDir);
   final MetricRegistry metricRegistry=environment.metrics();
-  environment.lifecycle().manage(anomalyDetectionTaskManager);
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
       if (config.isAutoRestore()) {
