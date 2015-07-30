@@ -1,7 +1,7 @@
 {
-  int searchStartBitIndex=startBitIndex + 1;
-  int bytePosition=searchStartBitIndex / 8;
-  int bitPosition=searchStartBitIndex % 8;
+  long searchStartBitIndex=startBitIndex + 1;
+  int bytePosition=Ints.checkedCast(searchStartBitIndex / 8);
+  int bitPosition=Ints.checkedCast(searchStartBitIndex % 8);
   if (bytePosition >= nrBytes) {
     return -1;
   }
@@ -21,7 +21,7 @@
     currentByte=buf.get(bytePosition) & 0xFF;
     numberOfBitsOnInCurrentByte=bitCountArray[currentByte];
   }
-  int currentBitPosition=nextSetBit(bytePosition * 8);
+  long currentBitPosition=nextSetBit(bytePosition * 8);
   while (0 < numberOfBitsToSkip && currentBitPosition != -1) {
     currentBitPosition=nextSetBit(currentBitPosition + 1);
     numberOfBitsToSkip--;

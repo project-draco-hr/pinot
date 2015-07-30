@@ -1,10 +1,9 @@
 {
-  int mult=startBitIndex;
-  int bytePosition=mult >>> 3;
-  int startBitOffset=mult & 7;
-  int sum=startBitOffset + (endBitIndex - startBitIndex);
-  int endBitOffset=(8 - (sum & 7)) & 7;
-  int numberOfBytesUsed=((sum + 7) >>> 3);
+  int bytePosition=Ints.checkedCast(startBitIndex >>> 3);
+  int startBitOffset=Ints.checkedCast(startBitIndex & 7);
+  long sum=startBitOffset + (endBitIndex - startBitIndex);
+  int endBitOffset=Ints.checkedCast((8 - (sum & 7)) & 7);
+  int numberOfBytesUsed=Ints.checkedCast((sum + 7) >>> 3);
   int i=-1;
   long number=0;
   while (true) {
