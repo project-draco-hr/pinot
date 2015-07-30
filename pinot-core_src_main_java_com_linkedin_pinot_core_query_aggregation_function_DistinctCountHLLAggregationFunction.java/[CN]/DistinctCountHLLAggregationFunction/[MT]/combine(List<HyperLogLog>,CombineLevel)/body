@@ -8,7 +8,8 @@
       hllResult.addAll(aggregationResultList.get(i));
     }
  catch (    CardinalityMergeException e) {
-      e.printStackTrace();
+      LOGGER.error("Caught exception while merging Cardinality using HyperLogLog",e);
+      Utils.rethrowException(e);
     }
   }
   aggregationResultList.clear();

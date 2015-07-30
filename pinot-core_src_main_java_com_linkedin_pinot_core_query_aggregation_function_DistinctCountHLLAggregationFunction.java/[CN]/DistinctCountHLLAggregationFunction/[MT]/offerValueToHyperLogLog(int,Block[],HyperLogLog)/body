@@ -1,0 +1,19 @@
+{
+  Dictionary dictionaryReader=block[0].getMetadata().getDictionary();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  boolean isStringType=(block[0].getMetadata().getDataType() == DataType.STRING);
+  if (blockValIterator.skipTo(docId)) {
+    int dictionaryIndex=blockValIterator.nextIntVal();
+    if (dictionaryIndex != Dictionary.NULL_VALUE_INDEX) {
+      if (isStringType) {
+        hll.offer(dictionaryReader.get(dictionaryIndex));
+      }
+ else {
+        hll.offer(((Number)dictionaryReader.get(dictionaryIndex)));
+      }
+    }
+ else {
+      hll.offer(Integer.MIN_VALUE);
+    }
+  }
+}

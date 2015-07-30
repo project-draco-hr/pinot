@@ -9,7 +9,8 @@
     aggregationResult0.addAll(aggregationResult1);
   }
  catch (  CardinalityMergeException e) {
-    e.printStackTrace();
+    LOGGER.error("Caught exception while merging Cardinality using HyperLogLog",e);
+    Utils.rethrowException(e);
   }
   return aggregationResult0;
 }

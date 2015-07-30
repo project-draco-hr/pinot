@@ -2,20 +2,6 @@
   if (mergedResult == null) {
     mergedResult=new HyperLogLog(_bitSize);
   }
-  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
-  if (blockValIterator.skipTo(docId)) {
-    int dictId=blockValIterator.nextIntVal();
-    if (dictId != Dictionary.NULL_VALUE_INDEX) {
-      if (block[0].getMetadata().getDataType() == DataType.STRING) {
-        mergedResult.offer(block[0].getMetadata().getDictionary().get(dictId));
-      }
- else {
-        mergedResult.offer(((Number)block[0].getMetadata().getDictionary().get(dictId)));
-      }
-    }
- else {
-      mergedResult.offer(Integer.MIN_VALUE);
-    }
-  }
+  offerValueToHyperLogLog(docId,block,mergedResult);
   return mergedResult;
 }
