@@ -1,0 +1,11 @@
+{
+  if (executionInterval == null) {
+    return;
+  }
+synchronized (tasks) {
+    LOGGER.info("Resetting all anomaly detection tasks");
+    for (    ScheduledFuture task : tasks) {
+      task.cancel(true);
+    }
+  }
+}

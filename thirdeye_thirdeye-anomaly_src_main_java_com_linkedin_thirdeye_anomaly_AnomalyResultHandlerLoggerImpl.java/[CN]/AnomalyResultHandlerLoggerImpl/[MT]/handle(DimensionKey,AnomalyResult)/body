@@ -1,0 +1,15 @@
+{
+  if (result.isAnomaly()) {
+    if (result.getProperties() == null) {
+      LOGGER.warn("{} is anomaly",dimensionKey);
+    }
+ else {
+      StringBuilder sb=new StringBuilder();
+      for (      Map.Entry<Object,Object> entry : result.getProperties().entrySet()) {
+        sb.append("! ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+      }
+      sb.setLength(sb.length() - 1);
+      LOGGER.warn("{} is anomaly\n{}",dimensionKey,sb.toString());
+    }
+  }
+}

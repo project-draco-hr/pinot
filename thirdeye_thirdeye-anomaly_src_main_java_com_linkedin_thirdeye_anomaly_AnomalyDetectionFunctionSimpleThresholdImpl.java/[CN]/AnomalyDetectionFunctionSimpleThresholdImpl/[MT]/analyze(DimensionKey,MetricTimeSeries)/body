@@ -1,0 +1,12 @@
+{
+  Number sum=0;
+  for (  Long time : metricTimeSeries.getTimeWindowSet()) {
+    sum=NumberUtils.sum(sum,metricTimeSeries.get(time,metricName),metricType);
+  }
+  if (NumberUtils.difference(sum,metricThreshold,metricType).intValue() < 0) {
+    Properties props=new Properties();
+    props.setProperty(PROP_METRIC_VALUE,sum.toString());
+    return new AnomalyResult(true,props);
+  }
+  return new AnomalyResult(false);
+}

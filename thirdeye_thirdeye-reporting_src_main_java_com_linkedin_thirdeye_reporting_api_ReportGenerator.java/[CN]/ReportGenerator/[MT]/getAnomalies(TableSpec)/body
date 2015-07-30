@@ -1,9 +1,0 @@
-{
-  List<AnomalyReportTable> anomalyTables=new ArrayList<AnomalyReportTable>();
-  for (  String metric : tableSpec.getMetrics()) {
-    AnomalyDatabaseConfig dbConfig=new AnomalyDatabaseConfig("jhong-ld1/thirdeye","rule","anomaly","alert","",false);
-    AnomalyReportGenerator anomalyReportGenerator=new AnomalyReportGenerator(dbConfig);
-    anomalyTables.add(anomalyReportGenerator.getAnomalyTable(collection,metric,reportConfig.getStartTime().getMillis(),reportConfig.getEndTime().getMillis(),20));
-  }
-  return anomalyTables;
-}
