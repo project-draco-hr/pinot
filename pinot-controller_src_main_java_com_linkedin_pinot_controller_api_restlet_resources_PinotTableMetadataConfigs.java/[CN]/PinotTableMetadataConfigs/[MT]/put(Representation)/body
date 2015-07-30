@@ -3,12 +3,11 @@
   if (tableName == null) {
     return new StringRepresentation("tableName is not present");
   }
-  AbstractTableConfig config=null;
   try {
-    return updateTableMetadata(tableName,entity,config);
+    return updateTableMetadata(tableName,entity);
   }
  catch (  final Exception e) {
-    LOGGER.error("errpr updating medata configs for table {}",config.getTableName(),e);
+    LOGGER.error("Caught exception while updating metadata for table {}",tableName,e);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }
