@@ -1,0 +1,17 @@
+{
+  StarTreeTable table=new LinkedListStarTreeTable();
+  for (  List<Integer> combination : generateCombinations()) {
+    table.append(new StarTreeTableRow(combination,metrics));
+  }
+  table.sort(ImmutableList.of(0));
+  StarTreeTableGroupByStats result=table.groupBy(0);
+  Assert.assertEquals(result.getMinRecordId(0),Integer.valueOf(0));
+  Assert.assertEquals(result.getMinRecordId(1),Integer.valueOf(64));
+  table.sort(ImmutableList.of(0,1));
+  Iterator<StarTreeTableRow> itr=table.getAllCombinations();
+  result=table.groupBy(1);
+  Assert.assertEquals(result.getMinRecordId(0),Integer.valueOf(0));
+  Assert.assertEquals(result.getMinRecordId(2),Integer.valueOf(32));
+  Assert.assertEquals(result.getMinRecordId(1),Integer.valueOf(64));
+  Assert.assertEquals(result.getMinRecordId(3),Integer.valueOf(96));
+}

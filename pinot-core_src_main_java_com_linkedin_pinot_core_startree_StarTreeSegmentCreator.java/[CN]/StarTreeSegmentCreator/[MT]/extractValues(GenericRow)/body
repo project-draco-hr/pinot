@@ -1,0 +1,35 @@
+{
+  List<Integer> dimensions=new ArrayList<Integer>();
+  for (  String dimensionName : schema.getDimensionNames()) {
+    Integer valueId;
+    if (schema.getFieldSpecFor(dimensionName).isSingleValueField() && !starTreeIndexSpec.getExcludedDimensions().contains(dimensionName)) {
+      Object value=row.getValue(dimensionName);
+      valueId=dictionaryCreatorMap.get(dimensionName).indexOfSV(value);
+    }
+ else {
+      valueId=V1Constants.STARTREE_ALL_NUMBER.intValue();
+    }
+    dimensions.add(valueId);
+  }
+  List<Number> metrics=new ArrayList<Number>(schema.getMetricNames().size());
+  for (  MetricFieldSpec metricFieldSpec : schema.getMetricFieldSpecs()) {
+    Object value=row.getValue(metricFieldSpec.getName());
+switch (metricFieldSpec.getDataType()) {
+case INT:
+      metrics.add((Integer)value);
+    break;
+case LONG:
+  metrics.add((Long)value);
+break;
+case DOUBLE:
+metrics.add((Double)value);
+break;
+case FLOAT:
+metrics.add((Float)value);
+break;
+default :
+throw new IllegalStateException("Unsupported data type " + metricFieldSpec.getDataType());
+}
+}
+return new StarTreeTableRow(dimensions,metrics);
+}

@@ -1,0 +1,34 @@
+{
+  currentMatchingNodes.clear();
+  StarTreeTableRow tableRow=extractValues(row);
+  findMatchingLeaves(starTreeBuilder.getTree(),tableRow.getDimensions(),currentMatchingNodes);
+  for (  StarTreeIndexNode node : currentMatchingNodes) {
+    Map<Integer,Integer> pathValues=node.getPathValues();
+    if (!pathValues.containsValue(StarTreeIndexNode.all())) {
+      StarTreeTableRange range=starTreeBuilder.getDocumentIdRange(node.getNodeId());
+      StarTreeTable subTable=starTreeBuilder.getTable().view(range.getStartDocumentId(),range.getDocumentCount());
+      Integer nextMatchingDocumentId=starTreeBuilder.getNextDocumentId(tableRow.getDimensions());
+      if (nextMatchingDocumentId == null) {
+        throw new IllegalStateException("Could not assign document ID for row " + tableRow);
+      }
+      for (      final String column : dictionaryCreatorMap.keySet()) {
+        Object columnValueToIndex=row.getValue(column);
+        if (schema.getFieldSpecFor(column).isSingleValueField()) {
+          System.out.println(column + ": " + columnValueToIndex);
+          int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
+          ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
+          if (config.createInvertedIndexEnabled()) {
+            invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,(Object)dictionaryIndex);
+          }
+        }
+ else {
+          int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+          ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
+          if (config.createInvertedIndexEnabled()) {
+            invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,dictionaryIndex);
+          }
+        }
+      }
+    }
+  }
+}

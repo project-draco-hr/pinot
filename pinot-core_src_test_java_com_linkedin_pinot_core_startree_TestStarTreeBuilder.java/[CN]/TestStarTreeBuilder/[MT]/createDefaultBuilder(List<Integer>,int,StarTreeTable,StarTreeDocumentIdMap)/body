@@ -1,0 +1,10 @@
+{
+  StarTreeBuilder builder=new DefaultStarTreeBuilder();
+  builder.init(splitOrder,maxLeafRecords,table,documentIdMap);
+  List<List<Integer>> combinations=generateCombinations();
+  for (  List<Integer> combination : combinations) {
+    builder.append(new StarTreeTableRow(combination,metrics));
+  }
+  builder.build();
+  return builder;
+}

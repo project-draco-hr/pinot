@@ -1,0 +1,33 @@
+{
+  if (node.getLevel() >= splitOrder.size() || table.size() <= maxLeafRecords) {
+    return 0;
+  }
+  Integer splitDimensionId=splitOrder.get(node.getLevel());
+  int aggregateCombinations=0;
+  Iterator<StarTreeTableRow> uniqueItr=table.getUniqueCombinations(Collections.singletonList(splitDimensionId));
+  while (uniqueItr.hasNext()) {
+    StarTreeTableRow row=uniqueItr.next();
+    table.append(row);
+    aggregateCombinations++;
+  }
+  List<Integer> pathDimensions=node.getPathDimensions();
+  pathDimensions.add(splitDimensionId);
+  table.sort(pathDimensions);
+  node.setChildDimensionName(splitDimensionId);
+  node.setChildren(new HashMap<Integer,StarTreeIndexNode>());
+  StarTreeTableGroupByStats groupByStats=table.groupBy(splitDimensionId);
+  int subTreeAggregateCombinations=0;
+  for (  Integer valueId : groupByStats.getValues()) {
+    StarTreeIndexNode child=new StarTreeIndexNode();
+    child.setDimensionName(splitDimensionId);
+    child.setDimensionValue(valueId);
+    child.setParent(node);
+    child.setLevel(node.getLevel() + 1);
+    node.getChildren().put(valueId,child);
+    Integer minRecordId=groupByStats.getMinRecordId(valueId) + subTreeAggregateCombinations;
+    Integer rawRecordCount=groupByStats.getRawCount(valueId);
+    StarTreeTable subTable=table.view(minRecordId,rawRecordCount);
+    subTreeAggregateCombinations+=constructStarTree(child,subTable);
+  }
+  return aggregateCombinations + subTreeAggregateCombinations;
+}

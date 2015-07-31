@@ -1,0 +1,93 @@
+{
+  LOG.info("Writing aggregate segment...");
+  long startMillis=System.currentTimeMillis();
+  int currentAggregateDocumentId=0;
+  Iterator<StarTreeTableRow> itr=starTreeBuilder.getTable().getAllCombinations();
+  while (itr.hasNext()) {
+    StarTreeTableRow next=itr.next();
+    if (next.getDimensions().contains(StarTreeIndexNode.all())) {
+      for (      final String column : dictionaryCreatorMap.keySet()) {
+        Object dictionaryIndex=null;
+        if (starTreeDimensionDictionary.containsKey(column)) {
+          Integer dimensionId=starTreeDimensionDictionary.get(column);
+          Integer dimensionValue=next.getDimensions().get(dimensionId);
+          if (dimensionValue == StarTreeIndexNode.all()) {
+            Object allValue=StarTreeIndexNode.getAllValue(schema.getFieldSpecFor(column));
+            if (schema.getFieldSpecFor(column).isSingleValueField()) {
+              dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(allValue);
+            }
+ else {
+              dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(allValue);
+            }
+          }
+ else {
+            dictionaryIndex=dimensionValue;
+          }
+        }
+ else         if (starTreeMetricDictionary.containsKey(column)) {
+          Integer metricId=starTreeMetricDictionary.get(column);
+          Object columnValueToIndex=next.getMetrics().get(metricId);
+          if (schema.getFieldSpecFor(column).isSingleValueField()) {
+            dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
+          }
+ else {
+            dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+          }
+        }
+ else {
+          Object columnValueToIndex=StarTreeIndexNode.getAllValue(schema.getFieldSpecFor(column));
+          if (schema.getFieldSpecFor(column).isSingleValueField()) {
+            dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
+          }
+ else {
+            dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+          }
+        }
+        if (schema.getFieldSpecFor(column).isSingleValueField()) {
+          ((SingleValueForwardIndexCreator)aggregateForwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(Integer)dictionaryIndex);
+        }
+ else {
+          ((MultiValueForwardIndexCreator)aggregateForwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(int[])dictionaryIndex);
+        }
+        if (config.createInvertedIndexEnabled()) {
+          aggregateInvertedIndexCreatorMap.get(column).add(currentAggregateDocumentId,dictionaryIndex);
+        }
+      }
+      currentAggregateDocumentId++;
+    }
+  }
+  long endMillis=System.currentTimeMillis();
+  LOG.info("Done writing aggregate segment (took {} ms)",endMillis - startMillis);
+  for (  final String column : forwardIndexCreatorMap.keySet()) {
+    forwardIndexCreatorMap.get(column).close();
+    if (config.createInvertedIndexEnabled()) {
+      invertedIndexCreatorMap.get(column).seal();
+    }
+    dictionaryCreatorMap.get(column).close();
+  }
+  for (  final String column : aggregateForwardIndexCreatorMap.keySet()) {
+    aggregateForwardIndexCreatorMap.get(column).close();
+    if (config.createInvertedIndexEnabled()) {
+      aggregateInvertedIndexCreatorMap.get(column).seal();
+    }
+  }
+  writeMetadata(outDir,starTreeBuilder.getTotalRawDocumentCount());
+  LOG.info("Writing " + V1Constants.STARTREE_FILE);
+  startMillis=System.currentTimeMillis();
+  File starTreeFile=new File(starTreeDir,V1Constants.STARTREE_FILE);
+  OutputStream starTreeOutputStream=new FileOutputStream(starTreeFile);
+  starTreeBuilder.getTree().writeTree(starTreeOutputStream);
+  starTreeOutputStream.close();
+  endMillis=System.currentTimeMillis();
+  LOG.info("Wrote StarTree file (took {} ms)",endMillis - startMillis);
+  File[] dictionaryFiles=outDir.listFiles(new FilenameFilter(){
+    @Override public boolean accept(    File dir,    String name){
+      return name.endsWith(V1Constants.Dict.FILE_EXTENTION);
+    }
+  }
+);
+  for (  File dictionaryFile : dictionaryFiles) {
+    FileUtils.copyFile(dictionaryFile,new File(starTreeDir,dictionaryFile.getName()));
+  }
+  writeMetadata(starTreeDir,starTreeBuilder.getTotalAggregateDocumentCount());
+}

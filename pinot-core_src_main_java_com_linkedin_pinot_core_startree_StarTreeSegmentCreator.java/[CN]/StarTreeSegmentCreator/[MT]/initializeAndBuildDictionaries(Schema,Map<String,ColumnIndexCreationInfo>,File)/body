@@ -1,0 +1,21 @@
+{
+  for (  final FieldSpec spec : schema.getAllFieldSpecs()) {
+    final ColumnIndexCreationInfo info=columnInfo.get(spec.getName());
+    if (info.isCreateDictionary()) {
+      dictionaryCreatorMap.put(spec.getName(),new SegmentDictionaryCreator(info.hasNulls(),info.getSortedUniqueElementsArray(),spec,file));
+    }
+ else {
+      throw new RuntimeException("Creation of indices without dictionaries is not implemented!");
+    }
+    dictionaryCreatorMap.get(spec.getName()).build();
+  }
+  for (  DimensionFieldSpec spec : schema.getDimensionFieldSpecs()) {
+    Object allValue=StarTreeIndexNode.getAllValue(spec);
+    if (schema.getFieldSpecFor(spec.getName()).isSingleValueField()) {
+      Object allIndex=dictionaryCreatorMap.get(spec.getName()).indexOfSV(allValue);
+    }
+ else {
+      Object allIndex=dictionaryCreatorMap.get(spec.getName()).indexOfMV(allValue);
+    }
+  }
+}

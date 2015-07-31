@@ -1,0 +1,20 @@
+{
+  for (int i=0; i < increments.size(); i++) {
+    Number increment=increments.get(i);
+    if (increment instanceof Integer) {
+      base.set(i,base.get(i).intValue() + increment.intValue());
+    }
+ else     if (increment instanceof Long) {
+      base.set(i,base.get(i).longValue() + increment.longValue());
+    }
+ else     if (increment instanceof Float) {
+      base.set(i,base.get(i).floatValue() + increment.floatValue());
+    }
+ else     if (increment instanceof Double) {
+      base.set(i,base.get(i).doubleValue() + increment.doubleValue());
+    }
+ else {
+      throw new IllegalStateException("Unsupported metric type: " + increment.getClass());
+    }
+  }
+}

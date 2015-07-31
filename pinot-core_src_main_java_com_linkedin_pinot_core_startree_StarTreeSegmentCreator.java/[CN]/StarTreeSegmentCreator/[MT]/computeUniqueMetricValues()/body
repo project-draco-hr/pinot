@@ -1,0 +1,18 @@
+{
+  Map<String,Set<Object>> uniqueMetricValues=new HashMap<String,Set<Object>>();
+  Iterator<StarTreeTableRow> tableIterator=starTreeBuilder.getTable().getAllCombinations();
+  while (tableIterator.hasNext()) {
+    StarTreeTableRow row=tableIterator.next();
+    for (int i=0; i < schema.getMetricNames().size(); i++) {
+      String metricName=schema.getMetricNames().get(i);
+      Object metricValue=row.getMetrics().get(i);
+      Set<Object> uniqueValues=uniqueMetricValues.get(metricName);
+      if (uniqueValues == null) {
+        uniqueValues=new HashSet<Object>();
+        uniqueMetricValues.put(metricName,uniqueValues);
+      }
+      uniqueValues.add(metricValue);
+    }
+  }
+  return uniqueMetricValues;
+}

@@ -1,0 +1,9 @@
+{
+  if (node == null || node.isLeaf()) {
+    return node;
+  }
+  Integer childDimensionName=node.getChildDimensionName();
+  Integer childDimensionValue=dimensions.get(childDimensionName);
+  StarTreeIndexNode child=node.getChildren().get(childDimensionValue);
+  return getMatchingNode(child,dimensions);
+}

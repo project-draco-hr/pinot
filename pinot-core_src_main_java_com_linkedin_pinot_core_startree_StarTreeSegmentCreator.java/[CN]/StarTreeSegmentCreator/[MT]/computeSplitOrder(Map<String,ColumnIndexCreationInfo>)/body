@@ -1,0 +1,21 @@
+{
+  List<String> splitOrder;
+  if (starTreeIndexSpec.getSplitOrder() == null) {
+    splitOrder=new ArrayList<String>(schema.getDimensionNames());
+    Collections.sort(splitOrder,new Comparator<String>(){
+      @Override public int compare(      String o1,      String o2){
+        Object[] o1UniqueElements=columnInfo.get(o1).getSortedUniqueElementsArray();
+        Object[] o2UniqueElements=columnInfo.get(o2).getSortedUniqueElementsArray();
+        return o2UniqueElements.length - o1UniqueElements.length;
+      }
+    }
+);
+  }
+ else {
+    splitOrder=new ArrayList<String>(starTreeIndexSpec.getSplitOrder());
+  }
+  if (starTreeIndexSpec.getSplitExcludes() != null) {
+    splitOrder.removeAll(starTreeIndexSpec.getSplitExcludes());
+  }
+  return splitOrder;
+}

@@ -1,0 +1,17 @@
+{
+  Schema schema=SchemaBuilder.builder().record("TestRecord").fields().name("D0").prop("pinotType","DIMENSION").type().stringBuilder().endString().noDefault().name("D1").prop("pinotType","DIMENSION").type().stringBuilder().endString().noDefault().name("D2").prop("pinotType","DIMENSION").type().stringBuilder().endString().noDefault().name("daysSinceEpoch").prop("pinotType","TIME").type().longBuilder().endLong().noDefault().name("M0").prop("pinotType","METRIC").type().longBuilder().endLong().noDefault().name("M1").prop("pinotType","METRIC").type().doubleBuilder().endDouble().noDefault().endRecord();
+  DatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(schema);
+  DataFileWriter<GenericRecord> fileWriter=new DataFileWriter<GenericRecord>(datumWriter);
+  fileWriter.create(schema,file);
+  for (int i=0; i < numRecords; i++) {
+    GenericRecord record=new GenericData.Record(schema);
+    record.put("D0",String.valueOf(i % 2));
+    record.put("D1",String.valueOf(i % 4));
+    record.put("D2",String.valueOf(i % 8));
+    record.put("daysSinceEpoch",(long)(i % numTimeBuckets));
+    record.put("M0",1L);
+    record.put("M1",1.0);
+    fileWriter.append(record);
+  }
+  fileWriter.close();
+}

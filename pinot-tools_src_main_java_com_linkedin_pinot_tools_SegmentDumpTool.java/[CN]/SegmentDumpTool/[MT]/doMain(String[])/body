@@ -1,0 +1,48 @@
+{
+  CmdLineParser parser=new CmdLineParser(this);
+  parser.parseArgument(args);
+  File segmentDir=new File(segmentPath);
+  File starTreeDir=new File(segmentDir,V1Constants.STARTREE_DIR);
+  SegmentMetadata metadata=new SegmentMetadataImpl(segmentDir);
+  if (dumpStarTree) {
+    segmentDir=starTreeDir;
+  }
+  if (columnNames == null) {
+    columnNames=new ArrayList<String>(metadata.getSchema().getColumnNames());
+    Collections.sort(columnNames);
+  }
+  IndexSegment indexSegment=Loaders.IndexSegment.load(segmentDir,ReadMode.mmap);
+  Map<String,Dictionary> dictionaries=new HashMap<String,Dictionary>();
+  Map<String,BlockSingleValIterator> iterators=new HashMap<String,BlockSingleValIterator>();
+  for (  String columnName : columnNames) {
+    DataSource dataSource=indexSegment.getDataSource(columnName);
+    dataSource.open();
+    Block block=dataSource.nextBlock();
+    BlockValSet blockValSet=block.getBlockValueSet();
+    BlockSingleValIterator itr=(BlockSingleValIterator)blockValSet.iterator();
+    iterators.put(columnName,itr);
+    dictionaries.put(columnName,dataSource.getDictionary());
+  }
+  for (  String columnName : columnNames) {
+    System.out.print(columnName);
+    System.out.print("\t");
+  }
+  System.out.println();
+  for (int i=0; i < indexSegment.getTotalDocs(); i++) {
+    for (    String columnName : columnNames) {
+      FieldSpec.DataType columnType=metadata.getSchema().getFieldSpecFor(columnName).getDataType();
+      BlockSingleValIterator itr=iterators.get(columnName);
+      Integer encodedValue=itr.nextIntVal();
+      Object value=dictionaries.get(columnName).get(encodedValue);
+      System.out.print(value);
+      System.out.print("\t");
+    }
+    System.out.println();
+  }
+  if (dumpStarTree) {
+    System.out.println();
+    File starTreeFile=new File(starTreeDir,V1Constants.STARTREE_FILE);
+    StarTreeIndexNode tree=StarTreeIndexNode.fromBytes(new FileInputStream(starTreeFile));
+    StarTreeIndexNode.printTree(tree,0);
+  }
+}

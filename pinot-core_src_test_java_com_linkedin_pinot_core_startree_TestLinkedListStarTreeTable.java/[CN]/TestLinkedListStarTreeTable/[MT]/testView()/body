@@ -1,0 +1,28 @@
+{
+  StarTreeTable table=new LinkedListStarTreeTable();
+  for (  List<Integer> combination : generateCombinations()) {
+    table.append(new StarTreeTableRow(combination,metrics));
+  }
+  table.sort(ImmutableList.of(0,1));
+  StarTreeTable view=table.view(0,64);
+  Assert.assertEquals(view.size(),64);
+  Iterator<StarTreeTableRow> itr=view.getAllCombinations();
+  while (itr.hasNext()) {
+    List<Integer> row=itr.next().getDimensions();
+    Assert.assertEquals(row.get(0),Integer.valueOf(0));
+  }
+  view=table.view(64,64);
+  Assert.assertEquals(view.size(),64);
+  itr=view.getAllCombinations();
+  while (itr.hasNext()) {
+    List<Integer> row=itr.next().getDimensions();
+    Assert.assertEquals(row.get(0),Integer.valueOf(1));
+  }
+  view=view.view(0,32);
+  Assert.assertEquals(view.size(),32);
+  itr=view.getAllCombinations();
+  while (itr.hasNext()) {
+    List<Integer> row=itr.next().getDimensions();
+    Assert.assertEquals(row.get(1),Integer.valueOf(1));
+  }
+}

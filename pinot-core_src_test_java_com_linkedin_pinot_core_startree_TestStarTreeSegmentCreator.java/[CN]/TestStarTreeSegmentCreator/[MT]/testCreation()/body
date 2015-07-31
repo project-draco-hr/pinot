@@ -1,0 +1,13 @@
+{
+  BasicConfigurator.configure();
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avroFile,indexDir,"daysSinceEpoch",TimeUnit.DAYS,"testTable");
+  config.setSegmentNamePostfix("1");
+  config.setTimeColumnName("daysSinceEpoch");
+  StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
+  starTreeIndexSpec.setSplitExcludes(Arrays.asList("D1","daysSinceEpoch"));
+  starTreeIndexSpec.setMaxLeafRecords(4);
+  config.getSchema().setStarTreeIndexSpecs(ImmutableList.of(starTreeIndexSpec));
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(config);
+  driver.build();
+}

@@ -1,0 +1,82 @@
+{
+  this.config=config;
+  this.columnInfo=columnInfo;
+  this.schema=schema;
+  this.outDir=outDir;
+  this.starTreeDimensionDictionary=new HashMap<String,Integer>();
+  this.starTreeMetricDictionary=new HashMap<String,Integer>();
+  initializeAndBuildDictionaries(schema,columnInfo,outDir);
+  for (int i=0; i < schema.getDimensionNames().size(); i++) {
+    starTreeDimensionDictionary.put(schema.getDimensionNames().get(i),i);
+  }
+  LOG.info("StarTree dimension dictionary: {}",starTreeDimensionDictionary);
+  for (int i=0; i < schema.getMetricNames().size(); i++) {
+    starTreeMetricDictionary.put(schema.getMetricNames().get(i),i);
+  }
+  LOG.info("StarTree metric dictionary: {}",starTreeDimensionDictionary);
+  splitOrder=computeSplitOrder(columnInfo);
+  LOG.info("Computed split order {}",splitOrder);
+  List<Integer> splitOrderIndexes=new ArrayList<Integer>();
+  for (  String dimensionName : splitOrder) {
+    Integer dimensionId=starTreeDimensionDictionary.get(dimensionName);
+    splitOrderIndexes.add(dimensionId);
+  }
+  Collections.reverse(splitOrderIndexes);
+  StarTreeTable table=new LinkedListStarTreeTable();
+  StarTreeDocumentIdMap documentIdMap=new HashMapStarTreeDocumentIdMap();
+  starTreeBuilder.init(splitOrderIndexes,starTreeIndexSpec.getMaxLeafRecords(),table,documentIdMap);
+  LOG.info("Building StarTree table...");
+  int count=0;
+  long startMillis=System.currentTimeMillis();
+  recordReader.rewind();
+  while (recordReader.hasNext()) {
+    GenericRow row=recordReader.next();
+    StarTreeTableRow starTreeTableRow=extractValues(row);
+    starTreeBuilder.append(starTreeTableRow);
+    count++;
+  }
+  long endMillis=System.currentTimeMillis();
+  LOG.info("Finished building StarTree table ({} documents, took {} ms)",count,endMillis - startMillis);
+  LOG.info("Building StarTree (computing aggregates)...");
+  startMillis=System.currentTimeMillis();
+  starTreeBuilder.build();
+  endMillis=System.currentTimeMillis();
+  LOG.info("Finished building StarTree, took {} ms",endMillis - startMillis);
+  LOG.info("Re-computing unique metric values for dictionary encoding...");
+  startMillis=System.currentTimeMillis();
+  Map<String,Set<Object>> uniqueMetricValues=computeUniqueMetricValues();
+  resetMetricDictionaries(uniqueMetricValues);
+  endMillis=System.currentTimeMillis();
+  LOG.info("Finished re-computing unique metric values (took {} ms)",endMillis - startMillis);
+  starTreeDir=new File(outDir,V1Constants.STARTREE_DIR);
+  if (!starTreeDir.mkdir()) {
+    throw new RuntimeException("Could not create star tree directory " + starTreeDir.getAbsolutePath());
+  }
+  int totalAggDocs=starTreeBuilder.getTotalAggregateDocumentCount();
+  int totalRawDocs=starTreeBuilder.getTotalRawDocumentCount();
+  for (  final String column : dictionaryCreatorMap.keySet()) {
+    ColumnIndexCreationInfo indexCreationInfo=columnInfo.get(column);
+    Object[] uniqueValues=indexCreationInfo.getSortedUniqueElementsArray();
+    if (schema.getMetricNames().contains(column)) {
+      uniqueValues=uniqueMetricValues.get(column).toArray();
+    }
+    if (schema.getFieldSpecFor(column).isSingleValueField()) {
+      if (indexCreationInfo.isSorted()) {
+        forwardIndexCreatorMap.put(column,new SingleValueSortedForwardIndexCreator(outDir,uniqueValues.length,schema.getFieldSpecFor(column)));
+        aggregateForwardIndexCreatorMap.put(column,new SingleValueSortedForwardIndexCreator(starTreeDir,uniqueValues.length,schema.getFieldSpecFor(column)));
+      }
+ else {
+        forwardIndexCreatorMap.put(column,new SingleValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),outDir,uniqueValues.length,totalRawDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+        aggregateForwardIndexCreatorMap.put(column,new SingleValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),starTreeDir,indexCreationInfo.getSortedUniqueElementsArray().length,totalAggDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+      }
+    }
+ else {
+      forwardIndexCreatorMap.put(column,new MultiValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),outDir,uniqueValues.length,totalRawDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+      aggregateForwardIndexCreatorMap.put(column,new MultiValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),starTreeDir,uniqueValues.length,totalAggDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
+    }
+    if (config.createInvertedIndexEnabled()) {
+      invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(outDir,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+      aggregateInvertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(starTreeDir,indexCreationInfo.getSortedUniqueElementsArray().length,schema.getFieldSpecFor(column)));
+    }
+  }
+}

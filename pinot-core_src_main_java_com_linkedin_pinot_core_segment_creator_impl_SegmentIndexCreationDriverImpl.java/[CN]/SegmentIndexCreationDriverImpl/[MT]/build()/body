@@ -11,6 +11,19 @@
     totalRecordReadTime+=(stop - start);
     totalStatsCollectorTime+=(stop1 - stop);
   }
+  if (isStarTree) {
+    Map<String,Object> allValues=new HashMap<String,Object>();
+    for (    MetricFieldSpec spec : dataSchema.getMetricFieldSpecs()) {
+      allValues.put(spec.getName(),0);
+    }
+    for (    DimensionFieldSpec spec : dataSchema.getDimensionFieldSpecs()) {
+      Object allValue=StarTreeIndexNode.getAllValue(spec);
+      allValues.put(spec.getName(),allValue);
+    }
+    GenericRow allRow=new GenericRow();
+    allRow.init(allValues);
+    statsCollector.collectRow(allRow);
+  }
   buildIndexCreationInfo();
   LOGGER.info("Finished building StatsCollector!");
   LOGGER.info("Collected stats for {} documents",totalDocs);

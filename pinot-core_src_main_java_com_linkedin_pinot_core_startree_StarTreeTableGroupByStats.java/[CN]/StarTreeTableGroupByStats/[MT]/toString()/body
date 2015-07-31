@@ -1,0 +1,11 @@
+{
+  Objects.ToStringHelper helper=Objects.toStringHelper(this);
+  for (  Integer value : getValues()) {
+    List<Integer> stats=new ArrayList<Integer>();
+    stats.add(getRawCount(value));
+    stats.add(getUniqueCount(value));
+    stats.add(getMinRecordId(value));
+    helper.add(String.valueOf(value),stats);
+  }
+  return helper.toString();
+}

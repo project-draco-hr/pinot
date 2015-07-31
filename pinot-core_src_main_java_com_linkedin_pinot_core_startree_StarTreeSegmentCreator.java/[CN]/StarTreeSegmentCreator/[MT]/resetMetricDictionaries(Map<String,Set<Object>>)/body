@@ -1,0 +1,10 @@
+{
+  for (  MetricFieldSpec spec : schema.getMetricFieldSpecs()) {
+    String column=spec.getName();
+    ColumnIndexCreationInfo info=columnInfo.get(column);
+    Object[] valuesWithAggregates=uniqueMetricValues.get(column).toArray();
+    Arrays.sort(valuesWithAggregates);
+    dictionaryCreatorMap.put(column,new SegmentDictionaryCreator(info.hasNulls(),valuesWithAggregates,spec,outDir));
+    dictionaryCreatorMap.get(column).build();
+  }
+}
