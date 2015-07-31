@@ -31,7 +31,7 @@
   }
   for (int i=0; i < 4; i++) {
     String serverTag="serverTag_" + i;
-    res=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forServerTenantCreate(serverTag));
+    res=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forServerTenantDelete(serverTag));
     System.out.println(res);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_OFFLINE").size(),0);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_REALTIME").size(),0);
