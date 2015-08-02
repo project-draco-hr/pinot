@@ -1,0 +1,10 @@
+{
+  JSONObject object=new JSONObject();
+  JSONArray instanceArray=new JSONArray();
+  List<String> instanceNames=_pinotHelixResourceManager.getAllInstanceNames();
+  for (  String instanceName : instanceNames) {
+    instanceArray.put(instanceName);
+  }
+  object.put("Instances",instanceArray);
+  return new StringRepresentation(object.toString());
+}

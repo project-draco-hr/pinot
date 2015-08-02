@@ -1,0 +1,21 @@
+{
+  JSONArray ret=new JSONArray();
+  boolean tableExists=false;
+  if ((type == null || TableType.OFFLINE.name().equalsIgnoreCase(type)) && _pinotHelixResourceManager.hasOfflineTable(tableName)) {
+    String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+    JSONObject offline=new JSONObject();
+    tableExists=true;
+    offline.put(TABLE_NAME,offlineTableName);
+    offline.put(STATE,toggleTableState(offlineTableName,state).toJSON().toString());
+    ret.put(offline);
+  }
+  if ((type == null || TableType.REALTIME.name().equalsIgnoreCase(type)) && _pinotHelixResourceManager.hasRealtimeTable(tableName)) {
+    String realTimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+    JSONObject realTime=new JSONObject();
+    tableExists=true;
+    realTime.put(TABLE_NAME,realTimeTableName);
+    realTime.put(STATE,toggleTableState(realTimeTableName,state).toJSON().toString());
+    ret.put(realTime);
+  }
+  return (tableExists) ? new StringRepresentation(ret.toString()) : new StringRepresentation("Error: Table " + tableName + " not found.");
+}

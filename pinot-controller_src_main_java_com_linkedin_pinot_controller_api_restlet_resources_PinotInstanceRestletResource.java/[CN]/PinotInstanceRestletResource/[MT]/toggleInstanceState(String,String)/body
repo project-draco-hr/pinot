@@ -1,0 +1,14 @@
+{
+  if (StateType.ENABLE.name().equalsIgnoreCase(state)) {
+    return new StringRepresentation(_pinotHelixResourceManager.enableInstance(instanceName).toJSON().toString());
+  }
+ else   if (StateType.DISABLE.name().equalsIgnoreCase(state)) {
+    return new StringRepresentation(_pinotHelixResourceManager.disableInstance(instanceName).toJSON().toString());
+  }
+ else   if (StateType.DROP.name().equalsIgnoreCase(state)) {
+    return new StringRepresentation(_pinotHelixResourceManager.dropInstance(instanceName).toJSON().toString());
+  }
+ else {
+    return new StringRepresentation("Incorrect URI: must be of form: /instances/{instanceName}[?{state}={enable|disable|drop}]");
+  }
+}

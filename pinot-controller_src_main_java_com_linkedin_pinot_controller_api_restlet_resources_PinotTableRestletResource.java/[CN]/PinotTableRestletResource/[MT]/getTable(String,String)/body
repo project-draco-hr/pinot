@@ -1,0 +1,12 @@
+{
+  JSONObject ret=new JSONObject();
+  if ((tableType == null || TableType.OFFLINE.name().equalsIgnoreCase(tableType)) && _pinotHelixResourceManager.hasOfflineTable(tableName)) {
+    AbstractTableConfig config=_pinotHelixResourceManager.getTableConfig(tableName,TableType.OFFLINE);
+    ret.put(TableType.OFFLINE.name(),config.toJSON());
+  }
+  if ((tableType == null || TableType.REALTIME.name().equalsIgnoreCase(tableType)) && _pinotHelixResourceManager.hasRealtimeTable(tableName)) {
+    AbstractTableConfig config=_pinotHelixResourceManager.getTableConfig(tableName,TableType.REALTIME);
+    ret.put(TableType.REALTIME.name(),config.toJSON());
+  }
+  return new StringRepresentation(ret.toString());
+}

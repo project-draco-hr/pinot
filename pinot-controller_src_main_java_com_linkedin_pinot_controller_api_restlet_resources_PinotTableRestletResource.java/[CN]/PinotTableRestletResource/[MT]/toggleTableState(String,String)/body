@@ -1,0 +1,14 @@
+{
+  if (StateType.ENABLE.name().equalsIgnoreCase(state)) {
+    return _pinotHelixResourceManager.toggleTableState(tableName,true);
+  }
+ else   if (StateType.DISABLE.name().equalsIgnoreCase(state)) {
+    return _pinotHelixResourceManager.toggleTableState(tableName,false);
+  }
+ else   if (StateType.DROP.name().equalsIgnoreCase(state)) {
+    return _pinotHelixResourceManager.dropTable(tableName);
+  }
+ else {
+    return new PinotResourceManagerResponse(INVALID_STATE_ERROR,false);
+  }
+}

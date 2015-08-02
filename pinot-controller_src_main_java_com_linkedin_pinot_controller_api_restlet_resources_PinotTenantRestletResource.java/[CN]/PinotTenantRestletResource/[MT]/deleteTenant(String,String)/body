@@ -8,26 +8,26 @@
     PinotResourceManagerResponse res=null;
 switch (tenantRole) {
 case BROKER:
-      if (_pinotHelixResourceMananger.isBrokerTenantDeletable(tenantName)) {
-        res=_pinotHelixResourceMananger.deleteBrokerTenantFor(tenantName);
+      if (_pinotHelixResourceManager.isBrokerTenantDeletable(tenantName)) {
+        res=_pinotHelixResourceManager.deleteBrokerTenantFor(tenantName);
       }
  else {
         res=new PinotResourceManagerResponse();
-        res.status=STATUS.failure;
-        res.errorMessage="Broker Tenant is not null, cannot delete it.";
+        res.status=ResponseStatus.failure;
+        res.message="Broker Tenant is not null, cannot delete it.";
       }
     break;
 case SERVER:
-  if (_pinotHelixResourceMananger.isServerTenantDeletable(tenantName)) {
-    res=_pinotHelixResourceMananger.deleteOfflineServerTenantFor(tenantName);
+  if (_pinotHelixResourceManager.isServerTenantDeletable(tenantName)) {
+    res=_pinotHelixResourceManager.deleteOfflineServerTenantFor(tenantName);
     if (res.isSuccessfull()) {
-      res=_pinotHelixResourceMananger.deleteRealtimeServerTenantFor(tenantName);
+      res=_pinotHelixResourceManager.deleteRealtimeServerTenantFor(tenantName);
     }
   }
  else {
     res=new PinotResourceManagerResponse();
-    res.status=STATUS.failure;
-    res.errorMessage="Server Tenant is not null, cannot delete it.";
+    res.status=ResponseStatus.failure;
+    res.message="Server Tenant is not null, cannot delete it.";
   }
 break;
 default :

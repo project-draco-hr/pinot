@@ -11,15 +11,17 @@
       _helixAdmin.setResourceIdealState(_helixClusterName,tableName,idealState);
     }
  else {
-      LOGGER.info("Segment: {} is not in IdealStates",segmentId);
+      res.message="Segment " + segmentId + " not in IDEALSTATE.";
+      LOGGER.info("Segment: {} is not in IDEALSTATE",segmentId);
     }
     _segmentDeletionManager.deleteSegment(tableName,segmentId);
-    res.status=STATUS.success;
+    res.message="Segment successfully deleted.";
+    res.status=ResponseStatus.success;
   }
  catch (  final Exception e) {
     LOGGER.error("Caught exception while deleting segment",e);
-    res.status=STATUS.failure;
-    res.errorMessage=e.getMessage();
+    res.status=ResponseStatus.failure;
+    res.message=e.getMessage();
   }
   return res;
 }

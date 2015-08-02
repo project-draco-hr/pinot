@@ -1,0 +1,19 @@
+{
+  if (!ZKMetadataProvider.isSegmentExisted(_pinotHelixResourceManager.getPropertyStore(),tableName,segmentName)) {
+    return new StringRepresentation("Error: segment " + segmentName + " not found.");
+  }
+  JSONArray ret=new JSONArray();
+  JSONObject jsonObj=new JSONObject();
+  jsonObj.put(TABLE_NAME,tableName);
+  ZkHelixPropertyStore<ZNRecord> propertyStore=_pinotHelixResourceManager.getPropertyStore();
+  if (tableType == tableType.OFFLINE) {
+    OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(propertyStore,tableName,segmentName);
+    jsonObj.put(STATE,offlineSegmentZKMetadata.toMap());
+  }
+  if (tableType == TableType.REALTIME) {
+    RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(propertyStore,tableName,segmentName);
+    jsonObj.put(STATE,realtimeSegmentZKMetadata.toMap());
+  }
+  ret.put(jsonObj);
+  return new StringRepresentation(ret.toString());
+}

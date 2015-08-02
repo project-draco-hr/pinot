@@ -1,8 +1,8 @@
 {
-  if (manager.hasRealtimeTable(tableName)) {
+  if (_pinotHelixResourceManager.hasRealtimeTable(tableName)) {
     try {
-      AbstractTableConfig config=manager.getTableConfig(tableName,TableType.REALTIME);
-      return new StringRepresentation(manager.getSchema(config.getValidationConfig().getSchemaName()).getJSONSchema().toString());
+      AbstractTableConfig config=_pinotHelixResourceManager.getTableConfig(tableName,TableType.REALTIME);
+      return new StringRepresentation(_pinotHelixResourceManager.getSchema(config.getValidationConfig().getSchemaName()).getJSONSchema().toString());
     }
  catch (    Exception e) {
       LOGGER.error("error fetching schema for a realtime table : {} ",tableName,e);
@@ -12,8 +12,8 @@
  else {
     AbstractTableConfig config;
     try {
-      config=manager.getTableConfig(tableName,TableType.OFFLINE);
-      return new StringRepresentation(manager.getSchema(config.getValidationConfig().getSchemaName()).getJSONSchema().toString());
+      config=_pinotHelixResourceManager.getTableConfig(tableName,TableType.OFFLINE);
+      return new StringRepresentation(_pinotHelixResourceManager.getSchema(config.getValidationConfig().getSchemaName()).getJSONSchema().toString());
     }
  catch (    Exception e) {
       LOGGER.error("error fetching schema for a offline table : {} ",tableName,e);

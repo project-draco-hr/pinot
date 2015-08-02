@@ -1,13 +1,27 @@
 {
   StringRepresentation presentation=null;
   try {
-    final String tableName=(String)getRequest().getAttributes().get("tableName");
-    final String segmentName=(String)getRequest().getAttributes().get("segmentName");
-    if (segmentName != null) {
-      return getSegmentMetadata(tableName,segmentName);
+    final String tableName=(String)getRequest().getAttributes().get(TABLE_NAME);
+    final String segmentName=(String)getRequest().getAttributes().get(SEGMENT_NAME);
+    final String state=getReference().getQueryAsForm().getValues(STATE);
+    final String tableType=getReference().getQueryAsForm().getValues(TABLE_TYPE);
+    if (tableType != null && !isValidTableType(tableType)) {
+      return new StringRepresentation(INVALID_TABLE_TYPE_ERROR);
     }
-    final String grouping=getQueryValue("grouping") == null ? "instances" : "arrivalDay";
-    return getSegmentMetadataForTable(tableName,grouping);
+    if (state != null) {
+      if (!isValidState(state)) {
+        return new StringRepresentation(INVALID_STATE_ERROR);
+      }
+ else {
+        return toggleSegmentState(tableName,segmentName,state,tableType);
+      }
+    }
+ else     if (segmentName != null) {
+      return getSegmentMetadataForTable(tableName,segmentName,tableType);
+    }
+ else {
+      return getAllSegmentsMetadataForTable(tableName,tableType);
+    }
   }
  catch (  final Exception e) {
     presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));

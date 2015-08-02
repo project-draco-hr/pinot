@@ -1,0 +1,25 @@
+{
+  Representation presentation;
+  try {
+    final String instanceName=(String)getRequest().getAttributes().get(INSTANCE_NAME);
+    final String state=getReference().getQueryAsForm().getValues(STATE);
+    if (!isValidState(state)) {
+      return new StringRepresentation(INVALID_STATE_ERROR);
+    }
+    if (instanceName == null) {
+      presentation=getAllInstances();
+    }
+ else     if (_pinotHelixResourceManager.instanceExists(instanceName)) {
+      presentation=toggleInstanceState(instanceName,state);
+    }
+ else {
+      presentation=new StringRepresentation("Error: Instance " + instanceName + " not found.");
+    }
+  }
+ catch (  final Exception e) {
+    presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
+    LOGGER.error("Caught exception while processing post request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
+  return presentation;
+}

@@ -3,12 +3,12 @@
     throw new RuntimeException("either table name or segment name is null");
   }
   PinotResourceManagerResponse res=null;
-  if (ZKMetadataProvider.isSegmentExisted(manager.getPropertyStore(),TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName)) {
-    res=manager.deleteSegment(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
+  if (ZKMetadataProvider.isSegmentExisted(_pinotHelixResourceManager.getPropertyStore(),TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName)) {
+    res=_pinotHelixResourceManager.deleteSegment(TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
     rep=new StringRepresentation(res.toString());
   }
-  if (ZKMetadataProvider.isSegmentExisted(manager.getPropertyStore(),TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName),segmentName)) {
-    res=manager.deleteSegment(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
+  if (ZKMetadataProvider.isSegmentExisted(_pinotHelixResourceManager.getPropertyStore(),TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName),segmentName)) {
+    res=_pinotHelixResourceManager.deleteSegment(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName),segmentName);
     rep=new StringRepresentation(res.toString());
   }
   if (res == null) {

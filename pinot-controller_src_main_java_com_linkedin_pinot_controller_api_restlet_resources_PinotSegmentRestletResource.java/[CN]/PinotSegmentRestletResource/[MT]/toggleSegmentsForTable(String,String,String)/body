@@ -1,0 +1,30 @@
+{
+  List<String> segmentsToToggle;
+  JSONArray ret=new JSONArray();
+  if (segmentName != null) {
+    segmentsToToggle=new ArrayList<String>();
+    segmentsToToggle.add(segmentName);
+  }
+ else {
+    segmentsToToggle=_pinotHelixResourceManager.getAllSegmentsForResource(tableName);
+  }
+  long timeOutInSeconds=10;
+  for (  String segmentToToggle : segmentsToToggle) {
+    JSONObject jsonObj=new JSONObject();
+    jsonObj.put(TABLE_NAME,tableName);
+    if (StateType.ENABLE.name().equalsIgnoreCase(state)) {
+      jsonObj.put(STATE,_pinotHelixResourceManager.toggleSegmentState(tableName,segmentToToggle,true,timeOutInSeconds).toJSON().toString());
+    }
+ else     if (StateType.DISABLE.name().equalsIgnoreCase(state)) {
+      jsonObj.put(STATE,_pinotHelixResourceManager.toggleSegmentState(tableName,segmentToToggle,false,timeOutInSeconds));
+    }
+ else     if (StateType.DROP.name().equalsIgnoreCase(state)) {
+      jsonObj.put(STATE,_pinotHelixResourceManager.dropSegment(tableName,segmentToToggle).toJSON().toString());
+    }
+ else {
+      jsonObj.put(STATE,new PinotResourceManagerResponse(INVALID_STATE_ERROR,false).toJSON().toString());
+    }
+    ret.put(jsonObj);
+  }
+  return ret;
+}

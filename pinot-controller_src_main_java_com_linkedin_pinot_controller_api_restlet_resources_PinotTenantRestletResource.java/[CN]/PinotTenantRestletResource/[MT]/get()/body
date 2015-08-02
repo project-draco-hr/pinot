@@ -2,12 +2,22 @@
   StringRepresentation presentation=null;
   try {
     final String tenantName=(String)getRequest().getAttributes().get(TENANT_NAME);
-    final String type=getReference().getQueryAsForm().getValues("type");
+    final String state=getReference().getQueryAsForm().getValues(STATE);
+    ;
+    final String type=getReference().getQueryAsForm().getValues(TABLE_TYPE);
     if (tenantName == null) {
       presentation=getAllTenants(type);
     }
- else {
+ else     if (state == null) {
       presentation=getTenant(tenantName,type);
+    }
+ else {
+      if (isValidState(state)) {
+        presentation=toggleTenantState(tenantName,state,type);
+      }
+ else {
+        return new StringRepresentation(INVALID_STATE_ERROR);
+      }
     }
   }
  catch (  final Exception e) {

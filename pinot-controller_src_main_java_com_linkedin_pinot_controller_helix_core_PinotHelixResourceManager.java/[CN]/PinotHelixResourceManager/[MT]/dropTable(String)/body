@@ -1,0 +1,12 @@
+{
+  if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(tableName)) {
+    return new PinotResourceManagerResponse("Error: Table " + tableName + " not found.",false);
+  }
+  if (getAllSegmentsForResource(tableName).size() != 0) {
+    return new PinotResourceManagerResponse("Error: Table " + tableName + " has segments, drop them first.",false);
+  }
+  _helixAdmin.dropResource(_helixClusterName,tableName);
+  ZKMetadataProvider.removeResourceSegmentsFromPropertyStore(getPropertyStore(),tableName);
+  ZKMetadataProvider.removeResourceConfigFromPropertyStore(getPropertyStore(),tableName);
+  return new PinotResourceManagerResponse("Table " + tableName + " successfully dropped.",true);
+}

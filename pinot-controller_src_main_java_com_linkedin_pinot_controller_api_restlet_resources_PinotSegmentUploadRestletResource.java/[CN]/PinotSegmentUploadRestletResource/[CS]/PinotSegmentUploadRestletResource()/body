@@ -1,7 +1,5 @@
 {
-  conf=(ControllerConf)getApplication().getContext().getAttributes().get(ControllerConf.class.toString());
-  manager=(PinotHelixResourceManager)getApplication().getContext().getAttributes().get(PinotHelixResourceManager.class.toString());
-  baseDataDir=new File(conf.getDataDir());
+  baseDataDir=new File(_controllerConf.getDataDir());
   if (!baseDataDir.exists()) {
     FileUtils.forceMkdir(baseDataDir);
   }
@@ -13,6 +11,6 @@
   if (!tempUntarredPath.exists()) {
     tempUntarredPath.mkdirs();
   }
-  vip=StringUtil.join("://","http",StringUtil.join(":",conf.getControllerVipHost(),conf.getControllerPort()));
+  vip=StringUtil.join("://","http",StringUtil.join(":",_controllerConf.getControllerVipHost(),_controllerConf.getControllerPort()));
   LOGGER.info("controller download url base is : " + vip);
 }

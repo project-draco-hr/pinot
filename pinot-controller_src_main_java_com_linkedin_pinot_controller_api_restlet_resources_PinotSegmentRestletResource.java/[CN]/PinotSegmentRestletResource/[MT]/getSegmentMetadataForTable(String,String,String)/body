@@ -1,0 +1,12 @@
+{
+  JSONArray ret=new JSONArray();
+  if ((tableType == null || TableType.OFFLINE.name().equalsIgnoreCase(tableType)) && _pinotHelixResourceManager.hasOfflineTable(tableName)) {
+    String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+    ret.put(getSegmentMetaData(offlineTableName,segmentName,TableType.OFFLINE));
+  }
+  if ((tableType == null || TableType.REALTIME.name().equalsIgnoreCase(tableType)) && _pinotHelixResourceManager.hasRealtimeTable(tableName)) {
+    String realtimeTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+    ret.put(getSegmentMetaData(realtimeTableName,segmentName,TableType.REALTIME));
+  }
+  return new StringRepresentation(ret.toString());
+}

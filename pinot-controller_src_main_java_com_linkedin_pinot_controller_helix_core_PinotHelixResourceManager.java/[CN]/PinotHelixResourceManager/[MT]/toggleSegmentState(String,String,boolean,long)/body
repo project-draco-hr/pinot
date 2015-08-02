@@ -1,0 +1,30 @@
+{
+  String status=(enable) ? "ONLINE" : "OFFLINE";
+  HelixDataAccessor helixDataAccessor=_helixZkManager.getHelixDataAccessor();
+  PropertyKey idealStatePropertyKey=helixDataAccessor.keyBuilder().idealStates(tableName);
+  boolean updateSuccessful;
+  long deadline=System.currentTimeMillis() + 1000 * timeOutInSeconds;
+  do {
+    final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+    final Set<String> instanceSet=idealState.getInstanceSet(segmentName);
+    if (instanceSet == null || instanceSet.isEmpty()) {
+      return new PinotResourceManagerResponse("Segment " + segmentName + " not found.",false);
+    }
+    for (    final String instance : instanceSet) {
+      idealState.setPartitionState(segmentName,instance,status);
+    }
+    updateSuccessful=helixDataAccessor.updateProperty(idealStatePropertyKey,idealState);
+  }
+ while (!updateSuccessful && (System.currentTimeMillis() <= deadline));
+  IdealState updatedIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+  Map<String,String> instanceStateMap=updatedIdealState.getInstanceStateMap(segmentName);
+  for (  String state : instanceStateMap.values()) {
+    if (!status.equals(state)) {
+      return new PinotResourceManagerResponse("Error: External View does not reflect ideal State, timed out (10s).",false);
+    }
+  }
+  if (!ifExternalViewChangeReflectedForState(tableName,segmentName,status,_externalViewOnlineToOfflineTimeout)) {
+    return new PinotResourceManagerResponse("Error: Failed to update external view, timeout",false);
+  }
+  return new PinotResourceManagerResponse(("Success: Segment " + segmentName + " is now "+ status),true);
+}

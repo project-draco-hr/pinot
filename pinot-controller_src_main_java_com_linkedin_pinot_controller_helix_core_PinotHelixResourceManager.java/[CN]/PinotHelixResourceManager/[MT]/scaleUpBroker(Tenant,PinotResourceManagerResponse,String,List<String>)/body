@@ -2,9 +2,9 @@
   List<String> unTaggedInstanceList=_pinotHelixAdmin.getOnlineUnTaggedBrokerInstanceList();
   int numberOfInstancesToAdd=tenant.getNumberOfInstances() - instancesInClusterWithTag.size();
   if (unTaggedInstanceList.size() < numberOfInstancesToAdd) {
-    res.status=STATUS.failure;
-    res.errorMessage="Failed to allocate broker instances to Tag : " + tenant.getTenantName() + ", Current number of untagged broker instances : "+ unTaggedInstanceList.size()+ ", Current number of tagged broker instances : "+ instancesInClusterWithTag.size()+ ", Request asked number is : "+ tenant.getNumberOfInstances();
-    LOGGER.error(res.errorMessage);
+    res.status=ResponseStatus.failure;
+    res.message="Failed to allocate broker instances to Tag : " + tenant.getTenantName() + ", Current number of untagged broker instances : "+ unTaggedInstanceList.size()+ ", Current number of tagged broker instances : "+ instancesInClusterWithTag.size()+ ", Request asked number is : "+ tenant.getNumberOfInstances();
+    LOGGER.error(res.message);
     return res;
   }
   for (int i=0; i < numberOfInstancesToAdd; ++i) {
@@ -12,6 +12,6 @@
     retagInstance(instanceName,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE,brokerTenantTag);
     addInstanceToBrokerIdealState(brokerTenantTag,instanceName);
   }
-  res.status=STATUS.success;
+  res.status=ResponseStatus.success;
   return res;
 }

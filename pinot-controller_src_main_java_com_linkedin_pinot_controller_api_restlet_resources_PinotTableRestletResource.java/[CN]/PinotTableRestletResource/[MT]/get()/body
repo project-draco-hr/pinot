@@ -1,5 +1,10 @@
 {
-  final String tableName=(String)getRequest().getAttributes().get("tableName");
+  final String tableName=(String)getRequest().getAttributes().get(TABLE_NAME);
+  final String state=getReference().getQueryAsForm().getValues(STATE);
+  final String tableType=getReference().getQueryAsForm().getValues(TABLE_TYPE);
+  if (tableType != null && !isValidTableType(tableType)) {
+    return new StringRepresentation(INVALID_TABLE_TYPE_ERROR);
+  }
   if (tableName == null) {
     try {
       return getAllTables();
@@ -10,10 +15,18 @@
     }
   }
   try {
-    return getTable(tableName);
+    if (state == null) {
+      return getTable(tableName,tableType);
+    }
+ else     if (isValidState(state)) {
+      return setTablestate(tableName,tableType,state);
+    }
+ else {
+      return new StringRepresentation(INVALID_STATE_ERROR);
+    }
   }
  catch (  Exception e) {
-    LOGGER.error("error processing get table config",e);
+    LOGGER.error("Error processing get table config",e);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }

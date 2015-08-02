@@ -1,9 +1,9 @@
 {
   StringRepresentation presentation=null;
-  final String tableName=(String)getRequest().getAttributes().get("tableName");
-  final String type=getReference().getQueryAsForm().getValues("type");
+  final String tableName=(String)getRequest().getAttributes().get(TABLE_NAME);
+  final String type=getReference().getQueryAsForm().getValues(TABLE_TYPE);
   if (deleteTable(tableName,type)) {
-    return new StringRepresentation("tableName is not present");
+    return new StringRepresentation("Error: Unable to find table " + tableName);
   }
   return presentation;
 }

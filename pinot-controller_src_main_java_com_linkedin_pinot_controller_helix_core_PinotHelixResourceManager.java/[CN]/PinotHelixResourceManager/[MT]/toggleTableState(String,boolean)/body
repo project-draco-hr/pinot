@@ -1,0 +1,7 @@
+{
+  if (!_helixAdmin.getResourcesInCluster(_helixClusterName).contains(tableName)) {
+    return new PinotResourceManagerResponse("Error: Table " + tableName + " not found.",false);
+  }
+  _helixAdmin.enableResource(_helixClusterName,tableName,status);
+  return (status) ? new PinotResourceManagerResponse("Table " + tableName + " successfully enabled.",true) : new PinotResourceManagerResponse("Table " + tableName + " successfully disabled.",true);
+}
