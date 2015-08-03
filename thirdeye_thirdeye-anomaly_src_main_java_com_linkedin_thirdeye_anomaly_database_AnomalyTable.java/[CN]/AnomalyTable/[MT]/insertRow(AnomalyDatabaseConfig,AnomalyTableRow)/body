@@ -4,23 +4,24 @@
   try {
     conn=dbConfig.getConnection();
     preparedStmt=conn.prepareStatement(buildAnomlayTableInsertStmt(dbConfig.getAnomalyTableName()));
-    preparedStmt.setInt(1,row.getFunctionId());
-    preparedStmt.setString(2,row.getFunctionDescription());
-    preparedStmt.setString(3,row.getFunctionName());
-    preparedStmt.setString(4,row.getCollection());
+    preparedStmt.setString(1,row.getFunctionTable());
+    preparedStmt.setInt(2,row.getFunctionId());
+    preparedStmt.setString(3,row.getFunctionDescription());
+    preparedStmt.setString(4,row.getFunctionName());
+    preparedStmt.setString(5,row.getCollection());
     SimpleDateFormat sdf=new SimpleDateFormat(dbConfig.getDateFormat());
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     String dateString=sdf.format(row.getTimeWindow());
-    preparedStmt.setString(5,dateString);
-    preparedStmt.setInt(6,row.getNonStarCount());
-    preparedStmt.setString(7,row.getDimensions());
-    preparedStmt.setDouble(8,row.getDimensionsContribution());
-    preparedStmt.setString(9,serializeMetrics(row.getMetrics()));
-    preparedStmt.setDouble(10,row.getAnomalyScore());
-    preparedStmt.setDouble(11,row.getAnomalyVolume());
+    preparedStmt.setString(6,dateString);
+    preparedStmt.setInt(7,row.getNonStarCount());
+    preparedStmt.setString(8,row.getDimensions());
+    preparedStmt.setDouble(9,row.getDimensionsContribution());
+    preparedStmt.setString(10,serializeMetrics(row.getMetrics()));
+    preparedStmt.setDouble(11,row.getAnomalyScore());
+    preparedStmt.setDouble(12,row.getAnomalyVolume());
     StringWriter writer=new StringWriter();
-    row.getProperties().store(new PrintWriter(writer),"");
-    preparedStmt.setString(12,writer.getBuffer().toString());
+    row.getProperties().store(new PrintWriter(writer),"ResultProperties");
+    preparedStmt.setString(13,writer.getBuffer().toString());
     preparedStmt.executeUpdate();
   }
  catch (  SQLException|JsonProcessingException e) {

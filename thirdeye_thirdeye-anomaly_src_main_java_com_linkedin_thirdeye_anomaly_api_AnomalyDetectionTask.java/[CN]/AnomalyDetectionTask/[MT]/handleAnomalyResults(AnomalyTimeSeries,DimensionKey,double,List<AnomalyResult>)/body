@@ -3,6 +3,7 @@
   Collections.sort(anomalyResults);
   for (  AnomalyResult anomalyResult : anomalyResults) {
     if (taskInfo.getTimeRange().contains(anomalyResult.getTimeWindow()) == false) {
+      LOGGER.debug("function produced anomaly result not in window {}",taskInfo.getTimeRange());
       continue;
     }
     if (shouldSupressAnomalyResult(anomalies,dimensionKey,anomalyResult)) {

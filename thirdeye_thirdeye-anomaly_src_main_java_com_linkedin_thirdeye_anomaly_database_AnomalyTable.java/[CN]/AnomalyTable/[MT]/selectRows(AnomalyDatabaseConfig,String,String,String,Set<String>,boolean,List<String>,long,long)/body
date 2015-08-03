@@ -11,6 +11,7 @@
     while (rs.next()) {
       AnomalyTableRow row=new AnomalyTableRow();
       row.setId(rs.getInt("id"));
+      row.setFunctionTable(rs.getString("function_table"));
       row.setFunctionId(rs.getInt("function_id"));
       row.setFunctionName(rs.getString("function_name"));
       row.setFunctionDescription(rs.getString("function_description"));
@@ -42,8 +43,9 @@
     }
     return results;
   }
- catch (  SQLException|JsonProcessingException e) {
-    e.printStackTrace();
+ catch (  SQLException e) {
+    LOGGER.error("there was a problem retrieving rows",e);
+    throw e;
   }
  finally {
     try {
@@ -58,8 +60,7 @@
       }
     }
  catch (    SQLException e) {
-      e.printStackTrace();
+      LOGGER.error("close exception",e);
     }
   }
-  return null;
 }

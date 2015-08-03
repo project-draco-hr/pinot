@@ -4,11 +4,16 @@
   this.dimensionNames=new ArrayList<>(fixedDimensions.keySet());
   int numDimensions=dimensionNames.size();
   offsets=new int[numDimensions];
-  numCombinations=1;
-  for (int i=0; i < numDimensions; i++) {
-    String dimension=dimensionNames.get(i);
-    int dimensionSize=fixedDimensions.get(dimension).size();
-    offsets[i]=numCombinations;
-    numCombinations*=dimensionSize;
+  if (numDimensions > 0) {
+    numCombinations=1;
+    for (int i=0; i < numDimensions; i++) {
+      String dimension=dimensionNames.get(i);
+      int dimensionSize=fixedDimensions.get(dimension).size();
+      offsets[i]=numCombinations;
+      numCombinations*=dimensionSize;
+    }
+  }
+ else {
+    numCombinations=0;
   }
 }

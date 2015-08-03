@@ -8,7 +8,8 @@
     dimensionKeyContributionMetric=collectionDriverConfig.getContributionEstimateMetric();
   }
  else {
-    dimensionKeyContributionMetric=function.getMetrics().iterator().next();
+    LOGGER.warn("no metric provided for thresholding collection {}",starTreeConfig.getCollection());
+    dimensionKeyContributionMetric=starTreeConfig.getMetrics().get(0).getName();
   }
   metricsRequiredByTask=getMetricsRequiredByTask(starTreeConfig,collectionDriverConfig,function);
 }
