@@ -5,10 +5,13 @@
   try {
     StarTreeConfig starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
     config=AggregationJobConfig.fromStarTreeConfig(starTreeConfig);
+    dimensionNames=config.getDimensionNames();
     metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     aggregationStats=new AggregationStats(metricSchema);
+    dimensionStats=new DimensionStats();
     statOutputDir=configuration.get(AGG_OUTPUT_PATH.toString()) + "_stats/";
+    dimensionStatsOutputDir=configuration.get(AGG_DIMENSION_STATS_PATH.toString());
   }
  catch (  Exception e) {
     throw new IOException(e);

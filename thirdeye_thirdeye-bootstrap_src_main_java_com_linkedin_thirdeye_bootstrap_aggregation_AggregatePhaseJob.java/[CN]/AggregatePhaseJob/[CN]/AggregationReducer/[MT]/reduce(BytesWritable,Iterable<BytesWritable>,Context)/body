@@ -4,6 +4,10 @@
     MetricTimeSeries series=MetricTimeSeries.fromBytes(writable.copyBytes(),metricSchema);
     out.aggregate(series);
   }
+  DimensionKey key=DimensionKey.fromBytes(aggregationKey.getBytes());
+  for (int i=0; i < dimensionNames.size(); i++) {
+    dimensionStats.record(dimensionNames.get(i),key.getDimensionValues()[i]);
+  }
   aggregationStats.record(out);
   byte[] serializedBytes=out.toBytes();
   context.write(aggregationKey,new BytesWritable(serializedBytes));
