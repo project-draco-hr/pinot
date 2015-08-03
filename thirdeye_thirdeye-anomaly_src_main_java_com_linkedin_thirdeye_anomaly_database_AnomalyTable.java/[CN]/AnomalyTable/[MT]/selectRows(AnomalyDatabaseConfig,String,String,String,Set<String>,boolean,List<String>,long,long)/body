@@ -3,7 +3,7 @@
   Statement stmt=null;
   ResultSet rs=null;
   try {
-    String sql=buildAnomalyTableSelectStatement(dbConfig,functionName,functionDescription,collection,metrics,topLevelOnly,startTimeWindow,endTimeWindow);
+    String sql=buildAnomalyTableSelectStatement(dbConfig,functionName,functionDescription,collection,topLevelOnly,orderBy,startTimeWindow,endTimeWindow);
     conn=dbConfig.getConnection();
     stmt=conn.createStatement();
     rs=stmt.executeQuery(sql);
@@ -22,8 +22,23 @@
       row.setMetrics(deserializeMetrics(rs.getString("metrics")));
       row.setAnomalyScore(rs.getDouble("anomaly_score"));
       row.setAnomalyVolume(rs.getDouble("anomaly_volume"));
-      row.setProperties(rs.getString("properties"));
-      results.add(row);
+      ResultProperties properties=new ResultProperties();
+      try {
+        properties.load(new StringReader(rs.getString("properties")));
+      }
+ catch (      IOException e) {
+        LOGGER.warn("unable to deserialize anomaly result properties",e);
+        properties=null;
+      }
+      row.setProperties(properties);
+      if (metrics != null) {
+        if (row.getMetrics() != null && row.getMetrics().size() == metrics.size() && metrics.containsAll(row.getMetrics())) {
+          results.add(row);
+        }
+      }
+ else {
+        results.add(row);
+      }
     }
     return results;
   }

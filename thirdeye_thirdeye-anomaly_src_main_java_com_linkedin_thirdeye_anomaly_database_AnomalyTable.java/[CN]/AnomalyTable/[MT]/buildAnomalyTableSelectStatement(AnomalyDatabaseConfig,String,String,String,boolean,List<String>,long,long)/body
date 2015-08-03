@@ -10,16 +10,15 @@
   if (ruleDescription != null) {
     sb.append(" function_description LIKE '" + ruleDescription + "' AND");
   }
-  if (metrics != null) {
-    sb.append(" metrics ='" + serializeMetrics(metrics) + "' AND");
-  }
   if (topLevelOnly) {
     sb.append(" non_star_count = 0 AND");
   }
   SimpleDateFormat sdf=new SimpleDateFormat(dbconfig.getDateFormat());
   sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
   sb.append(" time_window BETWEEN '" + sdf.format(startTimeWindow) + "' AND '"+ sdf.format(endTimeWidnow)+ "'");
-  sb.append(" ORDER BY non_star_count, anomaly_volume DESC, time_window DESC, ABS(anomaly_score) DESC");
+  if (orderBy != null && orderBy.size() > 0) {
+    sb.append(" ORDER BY ").append(COMMA.join(orderBy));
+  }
   sb.append(";");
   return sb.toString();
 }

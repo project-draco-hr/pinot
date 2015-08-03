@@ -18,7 +18,9 @@
     preparedStmt.setString(9,serializeMetrics(row.getMetrics()));
     preparedStmt.setDouble(10,row.getAnomalyScore());
     preparedStmt.setDouble(11,row.getAnomalyVolume());
-    preparedStmt.setString(12,row.getProperties());
+    StringWriter writer=new StringWriter();
+    row.getProperties().store(new PrintWriter(writer),"");
+    preparedStmt.setString(12,writer.getBuffer().toString());
     preparedStmt.executeUpdate();
   }
  catch (  SQLException|JsonProcessingException e) {

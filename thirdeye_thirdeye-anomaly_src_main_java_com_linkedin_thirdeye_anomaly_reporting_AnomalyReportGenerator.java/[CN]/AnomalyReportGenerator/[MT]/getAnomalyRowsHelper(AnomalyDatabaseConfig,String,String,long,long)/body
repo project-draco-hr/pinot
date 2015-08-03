@@ -1,0 +1,9 @@
+{
+  Set<String> metrics=null;
+  if (metric != null) {
+    metrics=new HashSet<>();
+    metrics.add(metric);
+  }
+  List<String> orderBy=Arrays.asList(new String[]{"non_star_count","dimensions_contribution DESC","time_window DESC","ABS(anomaly_score) DESC"});
+  return AnomalyTable.selectRows(dbConfig,collection,null,null,metrics,false,orderBy,startTimeWindow,endTimeWindow);
+}
