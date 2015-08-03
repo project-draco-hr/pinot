@@ -16,6 +16,9 @@
     metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     rollupOrder=config.getRollupOrder();
+    if (rollupOrder == null) {
+      getRollupOrder();
+    }
     keyWritable=new BytesWritable();
     valWritable=new BytesWritable();
   }

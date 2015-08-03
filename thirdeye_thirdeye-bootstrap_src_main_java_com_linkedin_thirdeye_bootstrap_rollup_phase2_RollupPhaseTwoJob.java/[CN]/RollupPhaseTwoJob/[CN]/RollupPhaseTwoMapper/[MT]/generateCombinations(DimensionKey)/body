@@ -2,10 +2,6 @@
   String[] dimensionsValues=dimensionKey.getDimensionValues();
   List<DimensionKey> combinations=new ArrayList<DimensionKey>();
   String[] comb=Arrays.copyOf(dimensionsValues,dimensionsValues.length);
-  FileSystem fileSystem=FileSystem.get(new Configuration());
-  if (rollupOrder == null) {
-    getRollupOrder();
-  }
   for (  String dimensionToRollup : rollupOrder) {
     comb=Arrays.copyOf(comb,comb.length);
     comb[dimensionNameToIndexMapping.get(dimensionToRollup)]="?";
