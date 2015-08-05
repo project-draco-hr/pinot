@@ -1,9 +1,9 @@
 {
   try {
-    FileTemplateLoader ftl=new FileTemplateLoader(new File(templatePath.substring(0,templatePath.lastIndexOf('/'))));
+    FileTemplateLoader ftl=new FileTemplateLoader(new File(templatePath));
     Configuration emailConfiguration=new Configuration();
     emailConfiguration.setTemplateLoader(ftl);
-    Template emailReportTemplate=emailConfiguration.getTemplate(new File(templatePath).getName());
+    Template emailReportTemplate=emailConfiguration.getTemplate(scheduleSpec.getEmailTemplate());
     Map<String,Object> rootMap=new HashMap<String,Object>();
     rootMap.put(ReportConstants.REPORT_CONFIG_OBJECT,reportConfig);
     rootMap.put(ReportConstants.TABLES_OBJECT,tables);
