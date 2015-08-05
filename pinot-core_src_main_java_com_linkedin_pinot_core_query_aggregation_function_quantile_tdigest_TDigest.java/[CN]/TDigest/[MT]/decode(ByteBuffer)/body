@@ -1,0 +1,12 @@
+{
+  int v=buf.get();
+  int z=0x7f & v;
+  int shift=7;
+  while ((v & 0x80) != 0) {
+    Preconditions.checkState(shift <= 28);
+    v=buf.get();
+    z+=(v & 0x7f) << shift;
+    shift+=7;
+  }
+  return z;
+}

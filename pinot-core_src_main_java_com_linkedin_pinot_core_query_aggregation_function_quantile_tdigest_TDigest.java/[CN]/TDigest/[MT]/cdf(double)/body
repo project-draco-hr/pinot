@@ -1,0 +1,35 @@
+{
+  GroupTree values=summary;
+  if (values.size() == 0) {
+    return Double.NaN;
+  }
+ else   if (values.size() == 1) {
+    return x < values.first().mean() ? 0 : 1;
+  }
+ else {
+    double r=0;
+    Iterator<Group> it=values.iterator();
+    Group a=it.next();
+    Group b=it.next();
+    double left=(b.mean() - a.mean()) / 2;
+    double right=left;
+    while (it.hasNext()) {
+      if (x < a.mean() + right) {
+        return (r + a.count() * interpolate(x,a.mean() - left,a.mean() + right)) / count;
+      }
+      r+=a.count();
+      a=b;
+      b=it.next();
+      left=right;
+      right=(b.mean() - a.mean()) / 2;
+    }
+    left=right;
+    a=b;
+    if (x < a.mean() + right) {
+      return (r + a.count() * interpolate(x,a.mean() - left,a.mean() + right)) / count;
+    }
+ else {
+      return 1;
+    }
+  }
+}

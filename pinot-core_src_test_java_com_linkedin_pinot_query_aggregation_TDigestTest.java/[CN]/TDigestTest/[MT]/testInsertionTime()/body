@@ -1,0 +1,24 @@
+{
+  int numOfItems=1000000;
+  for (  Byte quantile : functionMap.keySet()) {
+    LOGGER.info("[Test Quantile " + quantile + "]");
+    println("#items_inserted, TDigest_time(nano), DoubleArrayList_time(nano), time_ratio, estimate, precise, error");
+    for (int i=0; i < numOfItems; i+=numOfItems / 17) {
+      if (i == 0) {
+        continue;
+      }
+      RandomNumberArray arr=new RandomNumberArray(i,DUPLICATION_PER_ITEM);
+      TDigest digest=new TDigest(compressionFactor);
+      DoubleArrayList list=new DoubleArrayList();
+      long t1=System.nanoTime();
+      arr.offerAllNumberTo(digest);
+      double estimate=digest.getQuantile(quantile);
+      long t2=System.nanoTime();
+      arr.offerAllNumberTo(list);
+      double actual=QuantileUtil.getValueOnQuantile(list,quantile);
+      long t3=System.nanoTime();
+      println(i + ", " + ""+ (t2 - t1)+ ", "+ (t3 - t2)+ ", "+ (t2 - t1 + 0.0) / (t3 - t2 + 0.0) + ", " + estimate + ", " + actual + ", " + getErrorString(actual,estimate));
+    }
+  }
+  assertEquals(true,true);
+}

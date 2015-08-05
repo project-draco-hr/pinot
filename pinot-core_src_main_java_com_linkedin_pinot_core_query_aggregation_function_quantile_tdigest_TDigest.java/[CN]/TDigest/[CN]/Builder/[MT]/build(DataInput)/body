@@ -1,0 +1,22 @@
+{
+  int encoding=buf.readInt();
+  if (encoding == VERBOSE_ENCODING) {
+    double compression=buf.readDouble();
+    TDigest r=new TDigest(compression);
+    int n=buf.readInt();
+    double[] means=new double[n];
+    for (int i=0; i < n; i++) {
+      means[i]=buf.readDouble();
+    }
+    for (int i=0; i < n; i++) {
+      r.add(means[i],buf.readInt());
+    }
+    return r;
+  }
+ else   if (encoding == SMALL_ENCODING) {
+    throw new IllegalStateException("Not support small encoding yet");
+  }
+ else {
+    throw new IllegalStateException("Invalid format for serialized histogram");
+  }
+}

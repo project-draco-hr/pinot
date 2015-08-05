@@ -1,0 +1,12 @@
+{
+  TDigest reduced=new TDigest(compression,gen);
+  if (recordAllData) {
+    reduced.recordAllData();
+  }
+  List<Group> tmp=Lists.newArrayList(other);
+  Collections.shuffle(tmp,gen);
+  for (  Group group : tmp) {
+    reduced.add(group.mean(),group.count(),group);
+  }
+  summary=reduced.summary;
+}

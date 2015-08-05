@@ -1,0 +1,32 @@
+{
+  for (  Byte quantile : functionMap.keySet()) {
+    LOGGER.info("[Test Quantile " + quantile + " (combine)]");
+    AggregationFunction aggregationFunction=functionMap.get(quantile);
+    AggregationFunction aggregationAccurateFunction=accurateFunctionMap.get(quantile);
+    aggregationFunction.init(_paramsInfo);
+    aggregationAccurateFunction.init(_paramsInfo);
+    int _sizeOfCombineList=1000;
+    StringBuilder sb1=new StringBuilder();
+    StringBuilder sb2=new StringBuilder();
+    for (int i=1; i <= _sizeOfCombineList; ++i) {
+      List<Serializable> aggregationResults=getTDigestResultValues(i);
+      List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+      double estimate=((TDigest)(combinedResult.get(0))).getQuantile(quantile);
+      List<Serializable> aggregationResults2=getDoubleArrayListResultValues(i);
+      List<Serializable> combinedResult2=aggregationAccurateFunction.combine(aggregationResults2,CombineLevel.SEGMENT);
+      double actual=(Double)QuantileUtil.getValueOnQuantile((DoubleArrayList)combinedResult2.get(0),quantile);
+      TestUtils.assertApproximation(estimate,actual,0.05);
+      sb1.append((int)estimate + ", ");
+      sb2.append(i + ", ");
+    }
+    assertEquals(sb1.toString(),sb2.toString());
+    LOGGER.info("[Test Quantile " + quantile + " (reduce)]");
+    for (int i=1; i <= _sizeOfCombineList; ++i) {
+      List<Serializable> combinedResults=getTDigestResultValues(i);
+      List<Serializable> combinedResults2=getDoubleArrayListResultValues(i);
+      double estimate=(Double)aggregationFunction.reduce(combinedResults);
+      double actual=(Double)aggregationAccurateFunction.reduce(combinedResults2);
+      TestUtils.assertApproximation(estimate,actual,0.05);
+    }
+  }
+}

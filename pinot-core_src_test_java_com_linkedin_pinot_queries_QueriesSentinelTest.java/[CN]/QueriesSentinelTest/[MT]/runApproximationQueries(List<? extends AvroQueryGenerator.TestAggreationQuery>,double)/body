@@ -1,0 +1,39 @@
+{
+  boolean isAccurate=true;
+  Object accurateValue=null;
+  int counter=0;
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  for (  final AvroQueryGenerator.TestAggreationQuery query : queries) {
+    LOGGER.info("**************************");
+    LOGGER.info("running " + counter + " : "+ query.getPql());
+    final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(query.getPql()));
+    InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
+    instanceRequest.setSearchSegments(new ArrayList<String>());
+    instanceRequest.getSearchSegments().add(segmentName);
+    final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
+    instanceResponseMap.clear();
+    instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
+    final BrokerResponse brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
+    Object val;
+    if (query instanceof AvroQueryGenerator.TestSimpleAggreationQuery) {
+      val=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getString("value"));
+    }
+ else {
+      val=brokerResponse.getAggregationResults().get(0).getJSONArray("groupByResult");
+    }
+    if (isAccurate) {
+      accurateValue=val;
+      isAccurate=false;
+    }
+ else {
+      if (query instanceof AvroQueryGenerator.TestSimpleAggreationQuery) {
+        TestUtils.assertApproximation((Double)val,(Double)accurateValue,precision);
+      }
+ else {
+        TestUtils.assertJSONArrayApproximation((JSONArray)val,(JSONArray)accurateValue,precision);
+      }
+      isAccurate=true;
+    }
+  }
+}

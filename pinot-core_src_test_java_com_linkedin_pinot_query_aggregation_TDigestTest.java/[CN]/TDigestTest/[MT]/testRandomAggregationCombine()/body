@@ -1,0 +1,32 @@
+{
+  final int numOfItemsPerList=100;
+  final int numOfListCombined=1000;
+  for (  Byte quantile : functionMap.keySet()) {
+    LOGGER.info("[Test Quantile " + quantile + "]");
+    AggregationFunction aggregationFunction=functionMap.get(quantile);
+    AggregationFunction aggregationAccurateFunction=accurateFunctionMap.get(quantile);
+    aggregationFunction.init(_paramsInfo);
+    aggregationAccurateFunction.init(_paramsInfo);
+    println("#list_combined, TDigest_time(nano), DoubleArrayList_time(nano), time_ratio, estimate, precise, error");
+    StringBuilder sb1=new StringBuilder();
+    StringBuilder sb2=new StringBuilder();
+    for (int i=1; i <= numOfListCombined; i+=numOfListCombined / 17) {
+      if (i == 1) {
+        continue;
+      }
+      RandomNumberArray arr=new RandomNumberArray(i * numOfItemsPerList,DUPLICATION_PER_ITEM);
+      List<Serializable> aggregationResults=getTDigestResultValues(arr,i,numOfItemsPerList);
+      long t1=System.nanoTime();
+      List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+      double estimate=((TDigest)(combinedResult.get(0))).getQuantile(quantile);
+      long t2=System.nanoTime();
+      List<Serializable> aggregationResults2=getDoubleArrayListResultValues(arr,i,numOfItemsPerList);
+      long t3=System.nanoTime();
+      List<Serializable> combinedResult2=aggregationAccurateFunction.combine(aggregationResults2,CombineLevel.SEGMENT);
+      double actual=(Double)QuantileUtil.getValueOnQuantile((DoubleArrayList)combinedResult2.get(0),quantile);
+      long t4=System.nanoTime();
+      TestUtils.assertApproximation(estimate,actual,0.05);
+      println(i + ", " + (t2 - t1)+ ", "+ (t4 - t3)+ ", "+ (t2 - t1 + 0.0) / (t4 - t3 + 0.0) + ", " + estimate + ", " + actual + ", " + getErrorString(actual,estimate));
+    }
+  }
+}

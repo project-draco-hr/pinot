@@ -1,0 +1,15 @@
+{
+  buf.putInt(SMALL_ENCODING);
+  buf.putDouble(compression());
+  buf.putInt(summary.size());
+  double x=0;
+  for (  Group group : summary) {
+    double delta=group.mean() - x;
+    x=group.mean();
+    buf.putFloat((float)delta);
+  }
+  for (  Group group : summary) {
+    int n=group.count();
+    encode(buf,n);
+  }
+}
