@@ -1,7 +1,8 @@
 {
+  DBSpec dbSpec=reportConfig.getDbconfig();
   List<AnomalyReportTable> anomalyTables=new ArrayList<AnomalyReportTable>();
   for (  String metric : tableSpec.getMetrics()) {
-    AnomalyDatabaseConfig dbConfig=new AnomalyDatabaseConfig("jhong-ld1/thirdeye","rule","anomaly","alert","",false);
+    AnomalyDatabaseConfig dbConfig=new AnomalyDatabaseConfig(dbSpec.getUrl(),dbSpec.getFunctionTableName(),dbSpec.getAnomalyTableName(),dbSpec.getUser(),dbSpec.getPassword(),dbSpec.isUseConnectionPool());
     AnomalyReportGenerator anomalyReportGenerator=new AnomalyReportGenerator(dbConfig);
     anomalyTables.add(anomalyReportGenerator.getAnomalyTable(collection,metric,reportConfig.getStartTime().getMillis(),reportConfig.getEndTime().getMillis(),20));
   }

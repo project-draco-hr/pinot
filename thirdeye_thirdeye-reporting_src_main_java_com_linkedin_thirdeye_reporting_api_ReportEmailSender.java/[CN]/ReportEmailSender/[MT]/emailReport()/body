@@ -1,14 +1,15 @@
 {
   try {
+    FileTemplateLoader ftl=new FileTemplateLoader(new File(templatePath));
     Configuration emailConfiguration=new Configuration();
-    Template emailReportTemplate=emailConfiguration.getTemplate(ReportConstants.REPORT_EMAIL_TEMPLATE_PATH);
+    emailConfiguration.setTemplateLoader(ftl);
+    Template emailReportTemplate=emailConfiguration.getTemplate("thirdeye-report-email-template.ftl");
     Map<String,Object> rootMap=new HashMap<String,Object>();
     rootMap.put(ReportConstants.REPORT_CONFIG_OBJECT,reportConfig);
     rootMap.put(ReportConstants.TABLES_OBJECT,tables);
     rootMap.put(ReportConstants.ANOMALY_TABLES_OBJECT,anomalyReportTables);
     Writer emailOutput=new StringWriter();
     emailReportTemplate.process(rootMap,emailOutput);
-    System.out.println(emailOutput.toString());
     Properties props=new Properties();
     props.setProperty(ReportConstants.MAIL_SMTP_HOST_KEY,ReportConstants.MAIL_SMTP_HOST_VALUE);
     Session session=Session.getDefaultInstance(props,null);
@@ -21,6 +22,7 @@
     }
     emailReportMessage.setSubject(reportConfig.getName());
     emailReportMessage.setContent(emailOutput.toString(),"text/html");
+    LOGGER.info("Sending email from {} to {} with body {} ",scheduleSpec.getEmailFrom(),scheduleSpec.getEmailTo(),emailOutput.toString());
     Transport.send(emailReportMessage);
   }
  catch (  Exception e) {
