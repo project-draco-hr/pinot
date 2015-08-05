@@ -2,12 +2,7 @@
   if ((timeTypeString == null) || timeTypeString.isEmpty()) {
     return null;
   }
-  TimeUnit timeUnit=null;
-  try {
-    timeUnit=TimeUnit.valueOf(timeTypeString);
-  }
- catch (  Exception e) {
-  }
+  TimeUnit timeUnit=TimeUtils.timeUnitFromString(timeTypeString);
   if (timeUnit == null) {
     if (timeTypeString.equalsIgnoreCase(DAYS_SINCE_EPOCH)) {
       timeUnit=TimeUnit.DAYS;

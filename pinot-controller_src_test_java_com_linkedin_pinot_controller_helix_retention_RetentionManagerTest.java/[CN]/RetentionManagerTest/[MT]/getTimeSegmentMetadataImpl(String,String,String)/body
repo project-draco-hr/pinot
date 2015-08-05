@@ -6,7 +6,7 @@
   final long creationTime=System.currentTimeMillis();
   final String segmentName=_testTableName + creationTime;
   SegmentMetadata segmentMetadata=new SegmentMetadata(){
-    TimeUnit segmentTimeUnit=TimeUnit.valueOf(timeUnit);
+    TimeUnit segmentTimeUnit=TimeUtils.timeUnitFromString(timeUnit);
     Duration _timeGranularity=new Duration(segmentTimeUnit.toMillis(1));
     Interval _timeInterval=new Interval(segmentTimeUnit.toMillis(Long.parseLong(startTime)),segmentTimeUnit.toMillis(Long.parseLong(endTime)));
     @Override public Map<String,String> toMap(){
