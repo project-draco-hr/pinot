@@ -1,0 +1,33 @@
+{
+  String identifier=null;
+  for (  AstNode astNode : getChildren()) {
+    if (astNode instanceof IdentifierAstNode) {
+      IdentifierAstNode node=(IdentifierAstNode)astNode;
+      if (identifier == null) {
+        identifier=node.getName();
+      }
+ else {
+        throw new Pql2CompilationException("More than one identifier specified to an aggregation function");
+      }
+    }
+ else     if (astNode instanceof StarExpressionAstNode) {
+      identifier="*";
+    }
+ else     if (astNode instanceof StringLiteralAstNode) {
+      StringLiteralAstNode node=(StringLiteralAstNode)astNode;
+      identifier=node.getText();
+    }
+ else {
+      throw new Pql2CompilationException("Child node of aggregation function is not an identifier, star or string literal.");
+    }
+  }
+  String function=_name;
+  if ("count".equalsIgnoreCase(function)) {
+    function="count";
+    identifier="*";
+  }
+  AggregationInfo aggregationInfo=new AggregationInfo();
+  aggregationInfo.setAggregationType(function);
+  aggregationInfo.putToAggregationParams("column",identifier);
+  return aggregationInfo;
+}

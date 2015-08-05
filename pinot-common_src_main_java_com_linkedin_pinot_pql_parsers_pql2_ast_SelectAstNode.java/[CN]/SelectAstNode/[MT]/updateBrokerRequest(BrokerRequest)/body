@@ -1,0 +1,27 @@
+{
+  QuerySource querySource=new QuerySource();
+  querySource.setTableName(_resourceName);
+  brokerRequest.setQuerySource(querySource);
+  sendBrokerRequestUpdateToChildren(brokerRequest);
+  Selection selections=brokerRequest.getSelections();
+  if (selections != null) {
+    if (_recordLimit != -1) {
+      selections.setSize(_recordLimit);
+    }
+    if (_offset != -1) {
+      selections.setOffset(_offset);
+    }
+  }
+  GroupBy groupBy=brokerRequest.getGroupBy();
+  if (groupBy != null) {
+    if (_topN != -1) {
+      groupBy.setTopN(_topN);
+    }
+ else {
+      groupBy.setTopN(10);
+    }
+  }
+  if (brokerRequest.getAggregationsInfoSize() != 0 && brokerRequest.isSetSelections()) {
+    brokerRequest.setSelections(null);
+  }
+}

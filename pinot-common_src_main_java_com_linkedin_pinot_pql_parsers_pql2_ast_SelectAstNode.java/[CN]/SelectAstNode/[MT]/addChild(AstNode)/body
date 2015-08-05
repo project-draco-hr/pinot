@@ -1,0 +1,19 @@
+{
+  if (childNode instanceof LimitAstNode) {
+    LimitAstNode node=(LimitAstNode)childNode;
+    _recordLimit=node.getCount();
+    _offset=node.getOffset();
+  }
+ else   if (childNode instanceof TableNameAstNode) {
+    TableNameAstNode node=(TableNameAstNode)childNode;
+    _tableName=node.getTableName();
+    _resourceName=node.getResourceName();
+  }
+ else   if (childNode instanceof TopAstNode) {
+    TopAstNode node=(TopAstNode)childNode;
+    _topN=node.getCount();
+  }
+ else {
+    super.addChild(childNode);
+  }
+}

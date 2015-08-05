@@ -1,0 +1,14 @@
+{
+  if (_rootNode == null) {
+    _rootNode=node;
+  }
+  AstNode parentNode=null;
+  if (!_nodeStack.isEmpty()) {
+    parentNode=_nodeStack.peek();
+  }
+  if (parentNode != null) {
+    parentNode.addChild(node);
+  }
+  node.setParent(parentNode);
+  _nodeStack.push(node);
+}

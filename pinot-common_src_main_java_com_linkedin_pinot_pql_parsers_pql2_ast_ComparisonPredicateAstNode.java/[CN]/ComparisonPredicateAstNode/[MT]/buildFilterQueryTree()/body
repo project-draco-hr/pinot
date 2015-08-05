@@ -1,0 +1,62 @@
+{
+  if ("=".equals(_operand)) {
+    if (_identifier != null && _literal != null) {
+      return new FilterQueryTree(_identifier.getName(),Collections.singletonList(_literal.getValueAsString()),FilterOperator.EQUALITY,null);
+    }
+ else {
+      throw new Pql2CompilationException("Comparison is not between a column and a constant");
+    }
+  }
+ else   if ("<>".equals(_operand)) {
+    if (_identifier != null && _literal != null) {
+      return new FilterQueryTree(_identifier.getName(),Collections.singletonList(_literal.getValueAsString()),FilterOperator.NOT,null);
+    }
+ else {
+      throw new Pql2CompilationException("Comparison is not between a column and a constant");
+    }
+  }
+ else {
+    boolean identifierIsOnLeft=true;
+    if (getChildren().get(0) instanceof LiteralAstNode) {
+      identifierIsOnLeft=false;
+    }
+    String comparison;
+    String value=_literal.getValueAsString();
+    if ("<".equals(_operand)) {
+      if (identifierIsOnLeft) {
+        comparison="(*\t\t" + value + ")";
+      }
+ else {
+        comparison="(" + value + "\t\t*)";
+      }
+    }
+ else     if ("<=".equals(_operand)) {
+      if (identifierIsOnLeft) {
+        comparison="(*\t\t" + value + "]";
+      }
+ else {
+        comparison="[" + value + "\t\t*)";
+      }
+    }
+ else     if (">".equals(_operand)) {
+      if (identifierIsOnLeft) {
+        comparison="(" + value + "\t\t*)";
+      }
+ else {
+        comparison="(*\t\t" + value + "*)";
+      }
+    }
+ else     if (">=".equals(_operand)) {
+      if (identifierIsOnLeft) {
+        comparison="[" + value + "\t\t*)";
+      }
+ else {
+        comparison="(*\t\t" + value + "*)";
+      }
+    }
+ else {
+      throw new Pql2CompilationException("");
+    }
+    return new FilterQueryTree(_identifier.getName(),Collections.singletonList(comparison),FilterOperator.RANGE,null);
+  }
+}

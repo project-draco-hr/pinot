@@ -1,0 +1,15 @@
+{
+  Selection selections=brokerRequest.getSelections();
+  for (  AstNode astNode : getChildren()) {
+    if (astNode instanceof OrderByExpressionAstNode) {
+      OrderByExpressionAstNode node=(OrderByExpressionAstNode)astNode;
+      SelectionSort elem=new SelectionSort();
+      elem.setColumn(node.getColumn());
+      elem.setIsAsc("asc".equalsIgnoreCase(node.getOrdering()));
+      selections.addToSelectionSortSequence(elem);
+    }
+ else {
+      throw new Pql2CompilationException("Child node of ORDER BY node is not an expression node");
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  Set<String> leftRangeFilterColumns=new HashSet<>();
+  for (  FilterQuery filterQuery : left.getFilterSubQueryMap().getFilterQueryMap().values()) {
+    if (filterQuery.getOperator() == FilterOperator.RANGE) {
+      String column=filterQuery.getColumn();
+      if (leftRangeFilterColumns.contains(column)) {
+        return false;
+      }
+ else {
+        leftRangeFilterColumns.add(column);
+      }
+    }
+  }
+  Set<String> rightRangeFilterColumns=new HashSet<>();
+  for (  FilterQuery filterQuery : right.getFilterSubQueryMap().getFilterQueryMap().values()) {
+    if (filterQuery.getOperator() == FilterOperator.RANGE) {
+      String column=filterQuery.getColumn();
+      if (rightRangeFilterColumns.contains(column)) {
+        return false;
+      }
+ else {
+        rightRangeFilterColumns.add(column);
+      }
+    }
+  }
+  return true;
+}

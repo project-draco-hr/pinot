@@ -1,0 +1,24 @@
+{
+  try {
+    CharStream charStream=new ANTLRInputStream(expression);
+    PQL2Lexer lexer=new PQL2Lexer(charStream);
+    lexer.setTokenFactory(new CommonTokenFactory(true));
+    TokenStream tokenStream=new UnbufferedTokenStream<CommonToken>(lexer);
+    PQL2Parser parser=new PQL2Parser(tokenStream);
+    parser.setErrorHandler(new BailErrorStrategy());
+    ParseTree parseTree=parser.root();
+    ParseTreeWalker walker=new ParseTreeWalker();
+    Pql2AstListener listener=new Pql2AstListener();
+    walker.walk(listener,parseTree);
+    AstNode rootNode=listener.getRootNode();
+    BrokerRequest brokerRequest=new BrokerRequest();
+    rootNode.updateBrokerRequest(brokerRequest);
+    return brokerRequest;
+  }
+ catch (  Pql2CompilationException e) {
+    throw e;
+  }
+catch (  Exception e) {
+    throw new Pql2CompilationException(e.getMessage());
+  }
+}

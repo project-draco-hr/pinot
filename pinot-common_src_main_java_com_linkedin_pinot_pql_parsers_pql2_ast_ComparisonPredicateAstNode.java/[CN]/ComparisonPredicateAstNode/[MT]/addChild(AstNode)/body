@@ -1,0 +1,20 @@
+{
+  if (childNode instanceof IdentifierAstNode) {
+    if (_identifier == null) {
+      _identifier=(IdentifierAstNode)childNode;
+    }
+ else {
+      throw new Pql2CompilationException("Comparison between two columns is not supported.");
+    }
+  }
+ else   if (childNode instanceof LiteralAstNode) {
+    LiteralAstNode node=(LiteralAstNode)childNode;
+    if (_literal == null) {
+      _literal=node;
+    }
+ else {
+      throw new Pql2CompilationException("Comparison between two constants is not supported.");
+    }
+  }
+  super.addChild(childNode);
+}

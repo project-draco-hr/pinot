@@ -16,8 +16,13 @@
   final long startTime=System.nanoTime();
   final BrokerRequest brokerRequest;
   try {
-    final JSONObject compiled=requestCompiler.compile(pql);
-    brokerRequest=convertToBrokerRequest(compiled);
+    if (request.has("dialect") && "pql2".equals(request.getString("dialect"))) {
+      brokerRequest=pql2Compiler.compileToBrokerRequest(pql);
+    }
+ else {
+      final JSONObject compiled=requestCompiler.compile(pql);
+      brokerRequest=convertToBrokerRequest(compiled);
+    }
     if (isTraceEnabled)     brokerRequest.setEnableTrace(true);
   }
  catch (  Exception e) {

@@ -1,0 +1,51 @@
+{
+  List<FilterQueryTree> orPredicates=null;
+  List<FilterQueryTree> andPredicates=null;
+  int childrenCount=getChildren().size();
+  if (childrenCount == 1) {
+    return ((PredicateAstNode)getChildren().get(0)).buildFilterQueryTree();
+  }
+  for (int i=0; i < childrenCount; i+=2) {
+    PredicateAstNode predicate=(PredicateAstNode)getChildren().get(i);
+    BooleanOperatorAstNode nextOperator=null;
+    if (i + 1 < childrenCount) {
+      nextOperator=(BooleanOperatorAstNode)getChildren().get(i + 1);
+    }
+    if (nextOperator == null) {
+      if (andPredicates != null) {
+        andPredicates.add(predicate.buildFilterQueryTree());
+        if (orPredicates != null) {
+          orPredicates.add(buildPredicate(andPredicates,FilterOperator.AND));
+        }
+      }
+ else {
+        orPredicates.add(predicate.buildFilterQueryTree());
+      }
+    }
+ else     if (nextOperator == BooleanOperatorAstNode.AND) {
+      if (andPredicates == null) {
+        andPredicates=new ArrayList<>();
+      }
+      andPredicates.add(predicate.buildFilterQueryTree());
+    }
+ else {
+      if (orPredicates == null) {
+        orPredicates=new ArrayList<>();
+      }
+      if (andPredicates != null) {
+        andPredicates.add(predicate.buildFilterQueryTree());
+        orPredicates.add(buildPredicate(andPredicates,FilterOperator.AND));
+        andPredicates=null;
+      }
+ else {
+        orPredicates.add(predicate.buildFilterQueryTree());
+      }
+    }
+  }
+  if (orPredicates != null) {
+    return buildPredicate(orPredicates,FilterOperator.OR);
+  }
+ else {
+    return buildPredicate(andPredicates,FilterOperator.AND);
+  }
+}

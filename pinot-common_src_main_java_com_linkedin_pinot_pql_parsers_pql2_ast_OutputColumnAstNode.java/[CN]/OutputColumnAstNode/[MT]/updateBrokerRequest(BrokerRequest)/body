@@ -1,0 +1,20 @@
+{
+  for (  AstNode astNode : getChildren()) {
+    if (astNode instanceof FunctionCallAstNode) {
+      FunctionCallAstNode node=(FunctionCallAstNode)astNode;
+      brokerRequest.addToAggregationsInfo(node.buildAggregationInfo());
+    }
+ else     if (astNode instanceof IdentifierAstNode) {
+      Selection selection=brokerRequest.getSelections();
+      if (selection == null) {
+        selection=new Selection();
+        brokerRequest.setSelections(selection);
+      }
+      IdentifierAstNode node=(IdentifierAstNode)astNode;
+      selection.addToSelectionColumns(node.getName());
+    }
+ else {
+      throw new Pql2CompilationException("Output column is neither a function nor an identifier");
+    }
+  }
+}

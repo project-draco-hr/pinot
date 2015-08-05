@@ -1,0 +1,13 @@
+{
+  GroupBy groupBy=new GroupBy();
+  for (  AstNode astNode : getChildren()) {
+    if (astNode instanceof IdentifierAstNode) {
+      IdentifierAstNode node=(IdentifierAstNode)astNode;
+      groupBy.addToColumns(node.getName());
+    }
+ else {
+      throw new Pql2CompilationException("Child of group by clause is not an identifier.");
+    }
+  }
+  brokerRequest.setGroupBy(groupBy);
+}

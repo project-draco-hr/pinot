@@ -1,0 +1,14 @@
+{
+  if (childNode instanceof IdentifierAstNode) {
+    if (_identifier == null) {
+      IdentifierAstNode node=(IdentifierAstNode)childNode;
+      _identifier=node.getName();
+    }
+ else {
+      throw new Pql2CompilationException("IN predicate has more than one identifier.");
+    }
+  }
+ else {
+    super.addChild(childNode);
+  }
+}
