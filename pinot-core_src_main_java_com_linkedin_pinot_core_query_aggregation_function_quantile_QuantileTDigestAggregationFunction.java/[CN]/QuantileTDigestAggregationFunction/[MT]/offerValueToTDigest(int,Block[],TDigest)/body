@@ -1,0 +1,13 @@
+{
+  Dictionary dictionaryReader=block[0].getMetadata().getDictionary();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  if (blockValIterator.skipTo(docId)) {
+    int dictionaryIndex=blockValIterator.nextIntVal();
+    if (dictionaryIndex != Dictionary.NULL_VALUE_INDEX) {
+      digest.offer(((Number)dictionaryReader.get(dictionaryIndex)).doubleValue());
+    }
+ else {
+      LOGGER.info("ignore NULL_VALUE_INDEX");
+    }
+  }
+}
