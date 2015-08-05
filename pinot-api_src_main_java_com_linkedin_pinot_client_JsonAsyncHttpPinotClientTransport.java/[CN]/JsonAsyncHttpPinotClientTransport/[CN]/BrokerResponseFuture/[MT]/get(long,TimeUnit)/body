@@ -1,0 +1,15 @@
+{
+  try {
+    LOGGER.debug("Sending query {} to {}",_query,_url);
+    Response httpResponse=_response.get(timeout,unit);
+    LOGGER.debug("Completed query, HTTP status is {}",httpResponse.getStatusCode());
+    if (httpResponse.getStatusCode() != 200) {
+      throw new PinotClientException("Pinot returned HTTP status " + httpResponse.getStatusCode() + ", expected 200");
+    }
+    String responseBody=httpResponse.getResponseBody();
+    return BrokerResponse.fromJson(new JSONObject(responseBody));
+  }
+ catch (  Exception e) {
+    throw new ExecutionException(e);
+  }
+}

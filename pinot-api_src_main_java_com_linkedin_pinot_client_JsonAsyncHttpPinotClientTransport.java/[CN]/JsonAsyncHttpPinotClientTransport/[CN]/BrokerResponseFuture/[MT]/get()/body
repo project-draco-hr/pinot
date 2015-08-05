@@ -1,0 +1,9 @@
+{
+  try {
+    return get(1000L,TimeUnit.DAYS);
+  }
+ catch (  TimeoutException e) {
+    LOGGER.error("Caught timeout during synchronous get",e);
+    throw new InterruptedException();
+  }
+}
