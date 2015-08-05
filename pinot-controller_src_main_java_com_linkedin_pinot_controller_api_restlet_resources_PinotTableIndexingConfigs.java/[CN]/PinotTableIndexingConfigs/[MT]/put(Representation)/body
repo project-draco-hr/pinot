@@ -3,12 +3,11 @@
   if (tableName == null) {
     return new StringRepresentation("tableName is not present");
   }
-  AbstractTableConfig config=null;
   try {
-    return updateIndexingConfig(tableName,entity,config);
+    return updateIndexingConfig(tableName,entity);
   }
  catch (  final Exception e) {
-    LOGGER.error("errpr updating indexing configs for table {}",config.getTableName(),e);
+    LOGGER.error("Error updating indexing configs for table {}",tableName,e);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }

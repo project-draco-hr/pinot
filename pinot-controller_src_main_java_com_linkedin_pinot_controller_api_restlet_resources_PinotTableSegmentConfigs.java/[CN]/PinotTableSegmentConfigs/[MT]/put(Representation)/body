@@ -3,12 +3,11 @@
   if (tableName == null) {
     return new StringRepresentation("tableName is not present");
   }
-  AbstractTableConfig config=null;
   try {
-    return updateSegmentConfig(tableName,entity,config);
+    return updateSegmentConfig(tableName,entity);
   }
  catch (  final Exception e) {
-    LOGGER.error("errpr updating segments configs for table {}",config.getTableName(),e);
+    LOGGER.error("Error updating segments configs for table {}",tableName,e);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }
