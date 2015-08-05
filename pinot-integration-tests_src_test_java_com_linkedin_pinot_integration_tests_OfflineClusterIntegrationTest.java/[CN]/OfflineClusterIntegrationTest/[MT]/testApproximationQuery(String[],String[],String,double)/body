@@ -1,0 +1,28 @@
+{
+  String query;
+  boolean hasWhere=true;
+  LOGGER.debug("========================== Test Total " + testColumns.length * 2 + " Queries ==========================");
+  for (  String column : testColumns) {
+    for (int i=0; i < 2; i++) {
+      query="select " + functionNames[0] + "("+ column+ ") from 'mytable'";
+      if (hasWhere) {
+        query+=" where DaysSinceEpoch >= 16312";
+      }
+      if (groupByColumn != null) {
+        query+=" group by " + groupByColumn;
+        JSONArray accurate=getGroupByArrayFromJSONAggregationResults(postQuery(query));
+        query=query.replace(functionNames[0],functionNames[1]);
+        JSONArray estimate=getGroupByArrayFromJSONAggregationResults(postQuery(query));
+        TestUtils.assertJSONArrayApproximation(estimate,accurate,precision);
+      }
+ else {
+        double accurate=Double.parseDouble(getSingleStringValueFromJSONAggregationResults(postQuery(query)));
+        query=query.replace(functionNames[0],functionNames[1]);
+        double estimate=Double.parseDouble(getSingleStringValueFromJSONAggregationResults(postQuery(query)));
+        TestUtils.assertApproximation(estimate,accurate,precision);
+      }
+      LOGGER.debug("========================== End ==========================");
+      hasWhere=!hasWhere;
+    }
+  }
+}
