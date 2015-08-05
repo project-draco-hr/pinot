@@ -1,0 +1,14 @@
+{
+  this.httpHost=new HttpHost(hostname,port);
+  this.httpClient=HttpClients.createDefault();
+  CacheBuilder builder=CacheBuilder.newBuilder();
+  if (config.isExpireAfterAccess()) {
+    builder.expireAfterAccess(config.getExpirationTime(),config.getExpirationUnit());
+  }
+ else {
+    builder.expireAfterWrite(config.getExpirationTime(),config.getExpirationUnit());
+  }
+  this.resultCache=builder.build(new ResultCacheLoader());
+  this.schemaCache=CacheBuilder.newBuilder().expireAfterWrite(Long.MAX_VALUE,TimeUnit.MILLISECONDS).build(new SchemaCacheLoader());
+  LOG.info("Created DefaultThirdEyeClient to {}",httpHost);
+}

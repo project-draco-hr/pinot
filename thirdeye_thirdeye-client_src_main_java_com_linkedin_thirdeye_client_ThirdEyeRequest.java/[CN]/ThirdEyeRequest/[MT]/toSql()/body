@@ -1,0 +1,12 @@
+{
+  if (metricFunction == null) {
+    throw new IllegalStateException("Must provide metric function, e.g. `AGGREGATE_1_HOURS(m1)`");
+  }
+  if (collection == null) {
+    throw new IllegalStateException("Must provide collection name");
+  }
+  if (startTime == null || endTime == null) {
+    throw new IllegalStateException("Must provide start and end time");
+  }
+  return SqlUtils.getSql(metricFunction,collection,startTime,endTime,dimensionValues);
+}
