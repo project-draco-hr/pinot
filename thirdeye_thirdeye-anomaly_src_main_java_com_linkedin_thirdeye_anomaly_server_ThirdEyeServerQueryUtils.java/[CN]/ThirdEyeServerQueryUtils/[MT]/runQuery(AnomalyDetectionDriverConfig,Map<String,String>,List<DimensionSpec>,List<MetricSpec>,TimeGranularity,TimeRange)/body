@@ -1,0 +1,25 @@
+{
+  String metricFunction=buildMetricFunction(aggregationGranularity,metricSpecs);
+  DateTime start=new DateTime(timeRange.getStart(),DateTimeZone.UTC);
+  if (enableCache) {
+    start=start.withMillisOfDay(0);
+  }
+  DateTime end=new DateTime(timeRange.getEnd(),DateTimeZone.UTC);
+  String sql=SqlUtils.getSql(metricFunction,collection.getCollectionName(),start,end,dimensionValues);
+  String urlString="http://" + collection.getThirdEyeServerHost() + ":"+ collection.getThirdEyeServerPort()+ "/query/"+ URLEncoder.encode(sql,"UTF-8");
+  LOGGER.info("getting data between {} and {} : {}",start,end,urlString);
+  if (enableCache) {
+    QueryResult cachedQueryResult=queryDataCache.get(urlString);
+    if (cachedQueryResult != null) {
+      LOGGER.info("cache hit for {}",urlString);
+      return new ThirdEyeServerQueryResult(dimensionSpecs,metricSpecs,cachedQueryResult);
+    }
+  }
+  URL url=new URL(urlString);
+  QueryResult queryResult=OBJECT_MAPPER.readValue((new InputStreamReader(url.openStream(),"UTF-8")),QueryResult.class);
+  ThirdEyeServerQueryResult result=new ThirdEyeServerQueryResult(dimensionSpecs,metricSpecs,queryResult);
+  if (enableCache) {
+    queryDataCache.put(urlString,queryResult);
+  }
+  return result;
+}

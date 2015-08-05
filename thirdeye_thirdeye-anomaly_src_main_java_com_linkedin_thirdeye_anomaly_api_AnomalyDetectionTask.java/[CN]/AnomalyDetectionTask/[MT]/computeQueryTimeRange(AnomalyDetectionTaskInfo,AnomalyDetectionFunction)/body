@@ -1,0 +1,12 @@
+{
+  long end=taskInfo.getTimeRange().getEnd();
+  TimeGranularity functionGranularity=function.getTrainingWindowTimeGranularity();
+  long start;
+  if (functionGranularity != null) {
+    start=taskInfo.getTimeRange().getStart() - TimeGranularityUtils.toMillis(functionGranularity) - TimeGranularityUtils.toMillis(function.getAggregationTimeGranularity());
+  }
+ else {
+    start=0;
+  }
+  return new TimeRange(start,end);
+}

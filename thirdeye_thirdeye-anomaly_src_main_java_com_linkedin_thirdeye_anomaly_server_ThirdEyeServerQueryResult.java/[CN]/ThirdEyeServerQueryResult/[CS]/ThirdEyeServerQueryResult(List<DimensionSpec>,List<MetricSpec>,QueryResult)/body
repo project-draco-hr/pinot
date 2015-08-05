@@ -1,0 +1,16 @@
+{
+  int[] dimensionOrderMapping=new int[dimensionSpecs.size()];
+  dimensions=new ArrayList<String>(dimensionSpecs.size());
+  for (int i=0; i < dimensionSpecs.size(); i++) {
+    String dimensionName=dimensionSpecs.get(i).getName();
+    dimensions.add(dimensionName);
+    dimensionOrderMapping[i]=queryResult.getDimensions().indexOf(dimensionName);
+  }
+  metrics=queryResult.getMetrics();
+  MetricSchema metricSchema=MetricSchema.fromMetricSpecs(metricSpecs);
+  for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+    DimensionKey dimensionKey=dimensionKeyFromString(dimensionOrderMapping,entry.getKey());
+    MetricTimeSeries metricTimeSeries=metricTimeSeriesFromMap(metricSchema,metrics,entry.getValue());
+    data.put(dimensionKey,metricTimeSeries);
+  }
+}

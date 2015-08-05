@@ -9,7 +9,8 @@
       AnomalyDetectionTaskInfo taskInfo=new AnomalyDetectionTaskInfo(functionTableRow.getFunctionName(),functionTableRow.getFunctionId(),functionTableRow.getFunctionDescription(),timeRange);
       AnomalyResultHandler resultHandler=new AnomalyResultHandlerDatabase(dbConfig);
       resultHandler.init(starTreeConfig,new HandlerProperties());
-      AnomalyDetectionTask task=new AnomalyDetectionTask(starTreeConfig,collectionDriverConfig,taskInfo,function,resultHandler);
+      AnomalyDetectionFunctionHistory functionHistory=new AnomalyDetectionFunctionHistory(starTreeConfig,dbConfig,functionTableRow.getFunctionId());
+      AnomalyDetectionTask task=new AnomalyDetectionTaskImpl(starTreeConfig,collectionDriverConfig,taskInfo,function,resultHandler,functionHistory);
       tasks.add(task);
     }
  catch (    Exception e) {
