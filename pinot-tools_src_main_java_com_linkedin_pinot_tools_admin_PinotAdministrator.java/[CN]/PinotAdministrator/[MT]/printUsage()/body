@@ -1,6 +1,6 @@
 {
-  System.out.println("Usage: pinot-admin.sh <subCommand>");
-  System.out.println("Valid subCommands are:");
+  LOGGER.info("Usage: pinot-admin.sh <subCommand>");
+  LOGGER.info("Valid subCommands are:");
   Class<PinotAdministrator> obj=PinotAdministrator.class;
   for (  Field f : obj.getDeclaredFields()) {
     if (f.isAnnotationPresent(SubCommands.class)) {
@@ -10,12 +10,13 @@
         Command command=null;
         try {
           command=(Command)subCommandClass.newInstance();
-          System.out.println("\t" + subCommand.name() + "\t<"+ command.description()+ ">");
+          LOGGER.info("\t" + subCommand.name() + "\t<"+ command.description()+ ">");
         }
  catch (        Exception e) {
-          System.out.println("Internal Error: Error instantiating class.");
+          LOGGER.info("Internal Error: Error instantiating class.");
         }
       }
     }
   }
+  LOGGER.info("For other crud operations, please refer to ${ControllerAddress}/help.");
 }

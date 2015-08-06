@@ -1,13 +1,12 @@
 {
   ControllerConf conf=null;
-  if (configFileName != null) {
-    File configFile=new File(_configFileName);
-    if (configFile.exists()) {
-      conf=new ControllerConf(configFile);
-    }
- else {
-      return null;
-    }
+  if (configFileName == null) {
+    return null;
   }
+  File configFile=new File(_configFileName);
+  if (!configFile.exists()) {
+    return null;
+  }
+  conf=new ControllerConf(configFile);
   return (validateConfig(conf)) ? conf : null;
 }
