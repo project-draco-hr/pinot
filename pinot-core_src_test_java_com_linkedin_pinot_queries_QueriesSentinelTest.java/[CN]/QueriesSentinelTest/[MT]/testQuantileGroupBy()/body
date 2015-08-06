@@ -4,8 +4,8 @@
   for (int i=2; i <= 2; i++) {
     if (i == 2) {
     }
-    groupByCalls.add(new TestGroupByAggreationQuery("select quantileacc50(column1) from testTable group by column" + i + " top "+ top+ " limit 0",null));
-    groupByCalls.add(new TestGroupByAggreationQuery("select quantile50(column1) from testTable group by column" + i + " top "+ top+ " limit 0",null));
+    groupByCalls.add(new TestGroupByAggreationQuery("select percentile50(column1) from testTable group by column" + i + " top "+ top+ " limit 0",null));
+    groupByCalls.add(new TestGroupByAggreationQuery("select percentileest50(column1) from testTable group by column" + i + " top "+ top+ " limit 0",null));
   }
   runApproximationQueries(groupByCalls,0.05);
 }
