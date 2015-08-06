@@ -6,6 +6,17 @@ synchronized (sync) {
     this.rootDir=rootDir;
     this.isInit=true;
     this.starTreeConfig=starTreeConfig;
+    InputStream indexMetadataFile=new FileInputStream(new File(rootDir,StarTreeConstants.METADATA_FILE_NAME));
+    Properties indexMetadataProps=new Properties();
+    indexMetadataProps.load(indexMetadataFile);
+    indexMetadataFile.close();
+    indexMetadata=IndexMetadata.fromProperties(indexMetadataProps);
+    if (indexMetadata.getIndexFormat().equals(IndexFormat.FIXED_SIZE)) {
+      LOGGER.info("START: Converting data from Fixed format to  Variable format at {}",rootDir);
+      FixedToVariableFormatConvertor convertor=new FixedToVariableFormatConvertor(rootDir);
+      convertor.convert();
+      LOGGER.info("DONE: Converted data from Fixed format to  Variable format at {}",rootDir);
+    }
     if (recordStoreConfig != null) {
       Object metricStoreMutableProp=recordStoreConfig.get(PROP_METRIC_STORE_MUTABLE);
       if (metricStoreMutableProp != null) {

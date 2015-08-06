@@ -11,14 +11,12 @@
       context.getCounter(config.getCollectionName(),metricSpec.getName()).increment(metricValue.longValue());
     }
   }
-  Map<UUID,StarTreeRecord> collector=new HashMap<UUID,StarTreeRecord>();
+  collector.clear();
   MetricTimeSeries emptyTimeSeries=new MetricTimeSeries(metricSchema);
   StarTreeRecord starTreeRecord=new StarTreeRecordImpl(starTreeConfig,parsedRecord.getDimensionKey(),emptyTimeSeries);
   StarTreeJobUtils.collectRecords(starTreeConfig,starTreeRootNode,starTreeRecord,collector);
-  if (debug) {
-    LOGGER.info("processing {}",parsedRecord.getDimensionKey());
-    LOGGER.info("times series {}",parsedRecord.getMetricTimeSeries());
-  }
+  LOGGER.debug("processing {}",parsedRecord.getDimensionKey());
+  LOGGER.debug("times series {}",parsedRecord.getMetricTimeSeries());
   for (  UUID uuid : collector.keySet()) {
     if (!leafNodesMap.containsKey(uuid)) {
       String msg="Got a mapping to non existant leaf node:" + uuid + " - "+ collector.get(uuid)+ " input :"+ starTreeRecord;
@@ -35,10 +33,27 @@
       LOGGER.info("Match: {} under {}",matchedDimensionKey,leafNodesMap.get(uuid).getPath());
     }
     BootstrapPhaseMapOutputKey outputKey=new BootstrapPhaseMapOutputKey(uuid,matchedDimensionKey.toMD5());
-    BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,parsedRecord.getMetricTimeSeries());
-    BytesWritable keyWritable=new BytesWritable(outputKey.toBytes());
-    BytesWritable valWritable=new BytesWritable(outputValue.toBytes());
-    context.write(keyWritable,valWritable);
+    BootstrapPhaseMapOutputValue bootstrapPhaseMapOutputValue=outputKeyValueCache.get(outputKey);
+    if (bootstrapPhaseMapOutputValue == null) {
+      MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
+      timeSeries.aggregate(parsedRecord.getMetricTimeSeries());
+      BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,timeSeries);
+      outputKeyValueCache.put(outputKey,outputValue);
+      totalDimensionKeys=totalDimensionKeys + 1;
+      totalTimeSeriesSize=totalTimeSeriesSize + parsedRecord.getMetricTimeSeries().getTimeWindowSet().size();
+    }
+ else {
+      int oldSize=bootstrapPhaseMapOutputValue.metricTimeSeries.getTimeWindowSet().size();
+      bootstrapPhaseMapOutputValue.metricTimeSeries.aggregate(parsedRecord.getMetricTimeSeries());
+      int newSize=bootstrapPhaseMapOutputValue.metricTimeSeries.getTimeWindowSet().size();
+      totalTimeSeriesSize=totalTimeSeriesSize + (newSize - oldSize);
+    }
+  }
+  if (totalTimeSeriesSize > maxTimeSeriesToCache) {
+    flushCache(context);
+    outputKeyValueCache.clear();
+    totalDimensionKeys=0;
+    totalTimeSeriesSize=0;
   }
   long end=System.currentTimeMillis();
   inputCount=inputCount + 1;

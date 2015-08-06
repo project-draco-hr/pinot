@@ -1,0 +1,9 @@
+{
+  LOGGER.info("Flushing cache");
+  for (  BootstrapPhaseMapOutputKey outputKey : outputKeyValueCache.keySet()) {
+    BytesWritable keyWritable=new BytesWritable(outputKey.toBytes());
+    BootstrapPhaseMapOutputValue outputValue=outputKeyValueCache.get(outputKey);
+    BytesWritable valWritable=new BytesWritable(outputValue.toBytes());
+    context.write(keyWritable,valWritable);
+  }
+}

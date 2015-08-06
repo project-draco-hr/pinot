@@ -56,7 +56,7 @@
             records.put(catchAllKey,timeSeries);
           }
           DimensionDictionary dictionary=new DimensionDictionary(node.getRecordStore().getForwardIndex());
-          FixedBufferUtil.createLeafBufferFiles(leafBufferDir,node.getId().toString(),starTree.getConfig(),records,dictionary);
+          VariableSizeBufferUtil.createLeafBufferFiles(leafBufferDir,node.getId().toString(),starTree.getConfig(),records,dictionary);
         }
  catch (        Exception e) {
           LOGGER.error("Error creating leaf buffer files for {}",node.getId(),e);
@@ -71,7 +71,7 @@
     oos.flush();
     InputStream treeStream=new ByteArrayInputStream(baos.toByteArray());
     LOGGER.info("Combining data files into {}",segmentBufferDir);
-    FixedBufferUtil.combineDataFiles(treeStream,leafBufferDir,segmentBufferDir);
+    VariableSizeBufferUtil.combineDataFiles(treeStream,leafBufferDir,segmentBufferDir);
     File metadataFile=new File(segmentBufferDir,StarTreeConstants.METADATA_FILE_NAME);
     LOGGER.info("Creating index metadata {}",metadataFile);
     TimeUnit aggregationGranularity=starTree.getConfig().getTime().getBucket().getUnit();
@@ -80,7 +80,7 @@
     Long maxDataTimeMillis=TimeUnit.MILLISECONDS.convert(maxDataTime.get() * bucketSize,aggregationGranularity);
     Long startTime=aggregationGranularity.convert(minTime.getMillis(),TimeUnit.MILLISECONDS) / bucketSize;
     Long endTime=aggregationGranularity.convert(maxTime.getMillis(),TimeUnit.MILLISECONDS) / bucketSize;
-    IndexMetadata metadata=new IndexMetadata(minDataTime.get(),maxDataTime.get(),minDataTimeMillis,maxDataTimeMillis,startTime,endTime,minTime.getMillis(),maxTime.getMillis(),schedule,aggregationGranularity.toString(),bucketSize);
+    IndexMetadata metadata=new IndexMetadata(minDataTime.get(),maxDataTime.get(),minDataTimeMillis,maxDataTimeMillis,startTime,endTime,minTime.getMillis(),maxTime.getMillis(),schedule,aggregationGranularity.toString(),bucketSize,IndexFormat.VARIABLE_SIZE);
     OutputStream metadataStream=new FileOutputStream(metadataFile);
     metadata.toProperties().store(metadataStream,"This segment was created via DataUpdateManager#persistTree");
     metadataStream.close();

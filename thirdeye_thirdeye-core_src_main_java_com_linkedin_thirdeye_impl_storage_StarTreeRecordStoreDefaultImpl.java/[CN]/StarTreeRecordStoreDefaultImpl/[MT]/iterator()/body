@@ -3,7 +3,7 @@
   List<StarTreeRecord> records=new ArrayList<StarTreeRecord>(dimensionKeys.size());
   for (  DimensionKey dimensionKey : dimensionKeys) {
     Map<DimensionKey,Integer> logicalOffsets=dimensionStore.findMatchingKeys(dimensionKey);
-    MetricTimeSeries timeSeries=metricStore.getTimeSeries(logicalOffsets.values(),null);
+    MetricTimeSeries timeSeries=metricStore.getTimeSeries(new ArrayList(logicalOffsets.values()),null);
     records.add(new StarTreeRecordImpl.Builder().setDimensionKey(dimensionKey).setMetricTimeSeries(timeSeries).build(config));
   }
   return records.iterator();

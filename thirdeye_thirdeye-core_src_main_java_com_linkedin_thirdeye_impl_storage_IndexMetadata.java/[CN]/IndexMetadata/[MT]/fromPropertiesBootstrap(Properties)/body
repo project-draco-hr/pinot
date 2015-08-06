@@ -6,6 +6,7 @@
   String maxDataTimeMillis=properties.getProperty(StarTreeMetadataProperties.MAX_DATA_TIME_MILLIS);
   String aggregationGranularity=properties.getProperty(StarTreeMetadataProperties.AGGREGATION_GRANULARITY);
   String bucketSize=properties.getProperty(StarTreeMetadataProperties.BUCKET_SIZE);
+  IndexFormat indexFormat=IndexFormat.valueOf(properties.getProperty(StarTreeMetadataProperties.INDEX_FORMAT,IndexFormat.FIXED_SIZE.name()));
   if (minDataTime == null || maxDataTime == null || minDataTimeMillis == null || maxDataTimeMillis == null || aggregationGranularity == null || bucketSize == null) {
     throw new IllegalStateException("Cannot find required metadata properties");
   }
@@ -15,5 +16,6 @@
   indexMetadata.setMaxDataTimeMillis(Long.valueOf(maxDataTimeMillis));
   indexMetadata.setAggregationGranularity(aggregationGranularity);
   indexMetadata.setBucketSize(Integer.valueOf(bucketSize));
+  indexMetadata.setIndexFormat(indexFormat);
   return indexMetadata;
 }

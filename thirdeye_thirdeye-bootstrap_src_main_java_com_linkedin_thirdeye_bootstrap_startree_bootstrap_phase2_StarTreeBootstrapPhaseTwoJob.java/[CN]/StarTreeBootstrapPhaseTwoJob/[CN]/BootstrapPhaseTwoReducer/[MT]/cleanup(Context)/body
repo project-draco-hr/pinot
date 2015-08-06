@@ -8,7 +8,7 @@
   for (  File f : listFiles) {
     LOGGER.info(f.getAbsolutePath());
   }
-  FixedBufferUtil.combineDataFiles(dfs.open(pathToTree),new File(localTmpDataDir),new File(localOutputDataDir));
+  VariableSizeBufferUtil.combineDataFiles(dfs.open(pathToTree),new File(localTmpDataDir),new File(localOutputDataDir));
   Collection<File> listFilesAfterCombine=FileUtils.listFiles(new File(localOutputDataDir),null,true);
   LOGGER.info("Files under " + localOutputDataDir + " after combining");
   for (  File f : listFilesAfterCombine) {
@@ -18,7 +18,7 @@
   TarGzBuilder builder=new TarGzBuilder(outputTarGz,localFS,localFS);
   builder.addFileEntry(new Path(localOutputDataDir,StarTreeConstants.TREE_FILE_NAME));
   if (indexMetadata != null) {
-    FixedBufferUtil.writeMetadataBootstrap(indexMetadata,new File(localOutputDataDir));
+    VariableSizeBufferUtil.writeMetadataBootstrap(indexMetadata,new File(localOutputDataDir));
     builder.addFileEntry(new Path(localOutputDataDir,StarTreeConstants.METADATA_FILE_NAME));
   }
   Collection<File> dimFiles=FileUtils.listFiles(new File(localOutputDataDir + "/dimensionStore"),null,true);

@@ -11,6 +11,7 @@
   String timeGranularity=getAndCheck(properties,StarTreeMetadataProperties.TIME_GRANULARITY);
   String aggregationGranularity=getAndCheck(properties,StarTreeMetadataProperties.AGGREGATION_GRANULARITY);
   String bucketSize=getAndCheck(properties,StarTreeMetadataProperties.BUCKET_SIZE);
+  IndexFormat indexFormat=IndexFormat.valueOf(properties.getProperty(StarTreeMetadataProperties.INDEX_FORMAT,IndexFormat.FIXED_SIZE.name()));
   indexMetadata.setMinDataTime(Long.valueOf(minDataTime));
   indexMetadata.setMaxDataTime(Long.valueOf(maxDataTime));
   indexMetadata.setMinDataTimeMillis(Long.valueOf(minDataTimeMillis));
@@ -22,5 +23,6 @@
   indexMetadata.setTimeGranularity(timeGranularity);
   indexMetadata.setAggregationGranularity(aggregationGranularity);
   indexMetadata.setBucketSize(Integer.valueOf(bucketSize));
+  indexMetadata.setIndexFormat(indexFormat);
   return indexMetadata;
 }

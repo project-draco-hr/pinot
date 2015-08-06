@@ -15,6 +15,8 @@
     aggregationTimeUnit=TimeUnit.valueOf(config.getAggregationGranularity());
     aggregationGranularitySize=config.getAggregationGranularitySize();
     dimensionValues=new String[dimensionNames.size()];
+    maxTimeSeriesToCache=(int)(0.05 * 1000 * 1000* 1000) / (8 + metricSchema.getRowSizeInBytes());
+    LOGGER.info("MAX_TIMESERIES_IN_CACHE=" + maxTimeSeriesToCache);
     if (starTreeConfig.getTime().getFormat() != null) {
       if (!(inputTimeUnitSize == 1 && TimeUnit.MILLISECONDS.equals(sourceTimeUnit))) {
         throw new IllegalArgumentException("Input time granularity must be 1 MILLISECONDS if format is provided: " + "granularity is " + inputTimeUnitSize + " "+ sourceTimeUnit+ " and "+ "format is "+ starTreeConfig.getTime().getFormat());
@@ -43,12 +45,9 @@
     new File(localStagingDir).mkdirs();
     TarGzCompressionUtils.unTar(new File(tarGZName),new File(localStagingDir));
     Collection<File> listFiles=FileUtils.listFiles(new File("."),FileFileFilter.FILE,DirectoryFileFilter.DIRECTORY);
-    boolean b=true;
+    boolean b=false;
     for (    File f : listFiles) {
       LOGGER.info(f.getAbsolutePath());
-      if (b && f.getName().endsWith("idx")) {
-        LOGGER.info(FileUtils.readFileToString(f));
-      }
     }
   }
  catch (  Exception e) {
