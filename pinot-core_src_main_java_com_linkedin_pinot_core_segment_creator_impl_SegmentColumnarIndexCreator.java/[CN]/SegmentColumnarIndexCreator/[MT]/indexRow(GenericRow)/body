@@ -1,17 +1,13 @@
 {
   for (  final String column : dictionaryCreatorMap.keySet()) {
     Object columnValueToIndex=row.getValue(column);
-    Object dictionaryIndex;
-    if (dictionaryCache.get(column).containsKey(columnValueToIndex)) {
-      dictionaryIndex=dictionaryCache.get(column).get(columnValueToIndex);
+    if (schema.getFieldSpecFor(column).isSingleValueField()) {
+      int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
+      ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
     }
  else {
-      dictionaryIndex=dictionaryCreatorMap.get(column).indexOf(columnValueToIndex);
-      dictionaryCache.get(column).put(columnValueToIndex,dictionaryIndex);
-    }
-    forwardIndexCreatorMap.get(column).index(docIdCounter,dictionaryIndex);
-    if (config.createInvertedIndexEnabled()) {
-      invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+      int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+      ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
     }
   }
   docIdCounter++;

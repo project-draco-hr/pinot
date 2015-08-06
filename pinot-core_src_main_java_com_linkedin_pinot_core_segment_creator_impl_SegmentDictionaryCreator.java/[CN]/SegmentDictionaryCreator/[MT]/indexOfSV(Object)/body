@@ -1,17 +1,13 @@
 {
 switch (spec.getDataType()) {
 case INT:
-    final int intValue=((Integer)e).intValue();
-  return new Integer(searchableByteBuffer.binarySearch(0,intValue));
+    return intValueToIndexMap.get(e);
 case FLOAT:
-final float floatValue=((Float)e).floatValue();
-return new Integer(searchableByteBuffer.binarySearch(0,floatValue));
+  return floatValueToIndexMap.get(e);
 case DOUBLE:
-final double doubleValue=((Double)e).doubleValue();
-return new Integer(searchableByteBuffer.binarySearch(0,doubleValue));
+return doubleValueToIndexMap.get(e);
 case LONG:
-final long longValue=((Long)e).longValue();
-return new Integer(searchableByteBuffer.binarySearch(0,longValue));
+return longValueToIndexMap.get(e);
 case STRING:
 case BOOLEAN:
 final StringBuilder bld=new StringBuilder();
@@ -19,9 +15,8 @@ bld.append(e.toString());
 for (int i=0; i < (stringColumnMaxLength - ((String)e).getBytes(Charset.forName("UTF-8")).length); i++) {
 bld.append(V1Constants.Str.STRING_PAD_CHAR);
 }
-return new Integer(searchableByteBuffer.binarySearch(0,bld.toString()));
+return stringValueToIndexMap.get(bld.toString());
 default :
-break;
+throw new UnsupportedOperationException("Unsupported data type : " + spec.getDataType() + " for column : "+ spec.getName());
 }
-throw new UnsupportedOperationException("unsupported data type : " + spec.getDataType() + " : "+ " for column : "+ spec.getName());
 }
