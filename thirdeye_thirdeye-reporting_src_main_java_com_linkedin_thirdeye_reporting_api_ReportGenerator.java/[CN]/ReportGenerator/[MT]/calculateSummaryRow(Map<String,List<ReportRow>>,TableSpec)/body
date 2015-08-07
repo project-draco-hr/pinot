@@ -6,6 +6,9 @@
   for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
     List<ReportRow> tableRows=entry.getValue();
     String metric=entry.getKey();
+    if (tableRows.size() == 0) {
+      throw new IllegalStateException("No rows found for metric " + metric);
+    }
     MetricTimeSeries currentSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics()));
     MetricTimeSeries baselineSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics()));
     for (int i=0; i < tableRows.size(); i++) {

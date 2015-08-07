@@ -20,7 +20,7 @@
     for (    String emailIdTo : scheduleSpec.getEmailTo().split(",")) {
       emailReportMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(emailIdTo,scheduleSpec.getNameTo()));
     }
-    emailReportMessage.setSubject(reportConfig.getName());
+    emailReportMessage.setSubject(ReportConstants.REPORT_SUBJECT_PREFIX + " " + reportConfig.getCollection().toUpperCase()+ " ("+ reportConfig.getEndTimeString()+ ") "+ reportConfig.getName());
     emailReportMessage.setContent(emailOutput.toString(),"text/html");
     LOGGER.info("Sending email from {} to {}  ",scheduleSpec.getEmailFrom(),scheduleSpec.getEmailTo());
     Transport.send(emailReportMessage);

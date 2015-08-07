@@ -1,10 +1,10 @@
 {
   DBSpec dbSpec=reportConfig.getDbconfig();
-  List<AnomalyReportTable> anomalyTables=new ArrayList<AnomalyReportTable>();
+  Map<String,AnomalyReportTable> anomalyTables=new HashMap<String,AnomalyReportTable>();
   for (  String metric : tableSpec.getMetrics()) {
     AnomalyDatabaseConfig dbConfig=new AnomalyDatabaseConfig(dbSpec.getUrl(),dbSpec.getFunctionTableName(),dbSpec.getAnomalyTableName(),dbSpec.getUser(),dbSpec.getPassword(),dbSpec.isUseConnectionPool());
     AnomalyReportGenerator anomalyReportGenerator=new AnomalyReportGenerator(dbConfig);
-    anomalyTables.add(anomalyReportGenerator.getAnomalyTable(collection,metric,reportConfig.getStartTime().getMillis(),reportConfig.getEndTime().getMillis(),20));
+    anomalyTables.put(metric,anomalyReportGenerator.getAnomalyTable(collection,metric,reportConfig.getStartTime().getMillis(),reportConfig.getEndTime().getMillis(),20));
   }
   return anomalyTables;
 }

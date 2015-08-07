@@ -1,5 +1,5 @@
 {
-  List<GroupBy> groupBy=new ArrayList<GroupBy>();
+  List<TableReportRow> tableReportRows=new ArrayList<TableReportRow>();
   for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
     for (    ReportRow row : entry.getValue()) {
       String startTime;
@@ -7,11 +7,19 @@
         startTime="Total";
       }
  else {
-        startTime=ReportConstants.DATE_TIME_FORMATTER.print(row.getCurrentStart());
+        startTime=ReportConstants.HOUR_FORMATTER.print(row.getCurrentStart()).toLowerCase();
       }
-      groupBy.add(new GroupBy(startTime,row.getDimension()));
+      TableReportRow tableReportRow=new TableReportRow();
+      tableReportRow.setGroupByDimensions(new GroupBy(startTime,row.getDimension()));
+      tableReportRows.add(tableReportRow);
     }
     break;
   }
-  return groupBy;
+  for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
+    List<ReportRow> metricRows=entry.getValue();
+    for (int i=0; i < metricRows.size(); i++) {
+      tableReportRows.get(i).getRows().add(metricRows.get(i));
+    }
+  }
+  return tableReportRows;
 }
