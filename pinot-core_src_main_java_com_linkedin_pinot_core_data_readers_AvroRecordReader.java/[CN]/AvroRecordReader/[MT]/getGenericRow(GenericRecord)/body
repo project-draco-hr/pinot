@@ -11,8 +11,8 @@
     if (value instanceof Array) {
       value=transformAvroArrayToObjectArray((Array)value,spec);
     }
-    if (value == null && spec.isSingleValueField()) {
-      value=getDefaultNullValue(spec);
+    if (value == null) {
+      value=spec.getDefaultNullValue();
     }
     _fieldMap.put(field.name(),value);
   }
