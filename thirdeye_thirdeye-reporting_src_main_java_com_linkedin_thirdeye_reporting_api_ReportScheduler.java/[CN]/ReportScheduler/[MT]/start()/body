@@ -20,7 +20,7 @@
       newJobDataMap.put(ReportConstants.TEMPLATE_PATH_KEY,reportEmailTemplatePath);
       for (      Entry<String,ScheduleSpec> entry : reportConfig.getSchedules().entrySet()) {
         JobDetail job=JobBuilder.newJob(ReportGenerator.class).withDescription(entry.getKey()).usingJobData(newJobDataMap).build();
-        Trigger trigger=TriggerBuilder.newTrigger().withDescription(entry.getKey()).startNow().withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0)).build();
+        Trigger trigger=TriggerBuilder.newTrigger().withDescription(entry.getKey()).withSchedule(CronScheduleBuilder.cronSchedule(entry.getValue().getCron())).build();
         LOGGER.info("Scheduling job {} with trigger {}",job.getDescription(),entry.getValue().getCron());
         quartzScheduler.scheduleJob(job,trigger);
       }
