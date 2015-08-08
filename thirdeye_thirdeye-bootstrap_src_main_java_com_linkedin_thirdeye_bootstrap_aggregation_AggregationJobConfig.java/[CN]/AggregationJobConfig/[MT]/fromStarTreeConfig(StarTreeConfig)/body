@@ -1,19 +1,28 @@
 {
-  List<String> metricNames=new ArrayList<String>(config.getMetrics().size());
-  List<MetricType> metricTypes=new ArrayList<MetricType>(config.getMetrics().size());
-  for (  MetricSpec spec : config.getMetrics()) {
-    metricNames.add(spec.getName());
-    metricTypes.add(spec.getType());
-  }
-  List<String> dimensionNames=new ArrayList<String>(config.getDimensions().size());
-  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
-    dimensionNames.add(dimensionSpec.getName());
-  }
-  Map<String,String> rollupFunctionConfig=new HashMap<String,String>();
-  if (config.getRollup().getFunctionConfig() != null) {
-    for (    Map.Entry<Object,Object> entry : config.getRollup().getFunctionConfig().entrySet()) {
-      rollupFunctionConfig.put((String)entry.getKey(),(String)entry.getValue());
+  List<String> metricNames=null;
+  List<MetricType> metricTypes=null;
+  List<String> dimensionNames=null;
+  Map<String,String> rollupFunctionConfig=null;
+  try {
+    metricNames=new ArrayList<String>(config.getMetrics().size());
+    metricTypes=new ArrayList<MetricType>(config.getMetrics().size());
+    for (    MetricSpec spec : config.getMetrics()) {
+      metricNames.add(spec.getName());
+      metricTypes.add(spec.getType());
     }
+    dimensionNames=new ArrayList<String>(config.getDimensions().size());
+    for (    DimensionSpec dimensionSpec : config.getDimensions()) {
+      dimensionNames.add(dimensionSpec.getName());
+    }
+    rollupFunctionConfig=new HashMap<String,String>();
+    if (config.getRollup().getFunctionConfig() != null) {
+      for (      Map.Entry<Object,Object> entry : config.getRollup().getFunctionConfig().entrySet()) {
+        rollupFunctionConfig.put((String)entry.getKey(),(String)entry.getValue());
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new IllegalStateException("Error reading starTreeConfig " + config.encode());
   }
   return new AggregationJobConfig(dimensionNames,metricNames,metricTypes,config.getTime().getColumnName(),config.getTime().getInput().getUnit().toString(),config.getTime().getBucket().getUnit().toString(),config.getRollup().getFunctionClass(),rollupFunctionConfig);
 }
