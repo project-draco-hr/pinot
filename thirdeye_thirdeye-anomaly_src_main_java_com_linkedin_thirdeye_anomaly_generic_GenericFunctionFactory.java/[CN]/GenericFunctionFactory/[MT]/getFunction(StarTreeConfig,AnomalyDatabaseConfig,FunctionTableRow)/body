@@ -2,10 +2,17 @@
   GenericFunctionTableRow genericFunctionTableRow=(GenericFunctionTableRow)functionTableRow;
   String jarUrlString=genericFunctionTableRow.getJarUrl();
   String className=genericFunctionTableRow.getClassName();
-  LOGGER.info("loading jar at '{}'",jarUrlString);
-  URL jarUrl=new URL(jarUrlString);
-  URLClassLoader loader=new URLClassLoader(new URL[]{jarUrl});
-  Class<?> functionClass=Class.forName(className,true,loader);
+  Class<?> functionClass;
+  if (jarUrlString != null && jarUrlString.length() > 0) {
+    LOGGER.info("loading jar at '{}'",jarUrlString);
+    URL jarUrl=new URL(jarUrlString);
+    URLClassLoader loader=new URLClassLoader(new URL[]{jarUrl});
+    functionClass=Class.forName(className,true,loader);
+  }
+ else {
+    LOGGER.info("loading builtin function '{}'",className);
+    functionClass=Class.forName(BUILTIN_FUNCTION_QUALIFIED_NAME_PREFIX + className);
+  }
   AnomalyDetectionFunction function=(AnomalyDetectionFunction)functionClass.newInstance();
   FunctionProperties functionProperties=null;
   if (genericFunctionTableRow.getFunctionProperties() != null) {

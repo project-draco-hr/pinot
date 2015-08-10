@@ -1,0 +1,47 @@
+{
+  DoubleMatrix[] trainingTimeSeries=getTrainingData(inputTimeSeries,inputTimeStamps);
+  DoubleMatrix[] processTrainingTimeSeries=RemoveTimeStamps(trainingTimeSeries,inputTimeStamps);
+  if (processTrainingTimeSeries.length <= seasonal) {
+    throw new AnomalyException("timestamp not long enough for one season.");
+  }
+  DoubleMatrix GG=new DoubleMatrix(numStates,numStates);
+  DoubleMatrix FF=new DoubleMatrix(outputStates,numStates);
+  for (int ii=0; ii < order; ii++) {
+    GG.put(0,ii,1);
+  }
+  if (order == 2) {
+    GG.put(1,1,1);
+  }
+  if (seasonal > 0) {
+    for (int ii=order; ii < numStates; ii++) {
+      GG.put(order,ii,-1);
+    }
+    for (int ii=order + 1; ii < numStates; ii++) {
+      GG.put(ii,(ii - 1),1);
+    }
+  }
+  FF.put(0,0,1);
+  if (seasonal > 0) {
+    FF.put(0,1,1);
+  }
+  DoubleMatrix m0=new DoubleMatrix(numStates,1);
+  DoubleMatrix c0=new DoubleMatrix(numStates,numStates);
+  double estimateVariance=EstimateTrainingVariance(processTrainingTimeSeries);
+  double estimateMean=EstimateTrainingMean(processTrainingTimeSeries);
+  LOGGER.warning("estimated input data variance");
+  LOGGER.warning(String.format("%f",estimateVariance));
+  if (estimateVariance == 0) {
+    throw new AnomalyException("no output");
+  }
+  for (int ii=0; ii < numStates; ii++) {
+    c0.put(ii,ii,estimateVariance);
+  }
+  m0.put(0,0,estimateMean);
+  BrentOptimizer optimizer=new BrentOptimizer(1e-6,1e-12);
+  UnivariatePointValuePair solution=optimizer.optimize(new UnivariateObjectiveFunction(new StateSpaceUnivariateObj(GG,FF,r,m0,c0,processTrainingTimeSeries)),new MaxEval(100),GoalType.MAXIMIZE,new SearchInterval(0.0001,estimateVariance));
+  double EstimatedStateNoise=solution.getPoint();
+  DoubleMatrix StateNoiseMatrix=DoubleMatrix.eye(numStates).muli(EstimatedStateNoise);
+  DoubleMatrix ObservationNoiseMatrix=DoubleMatrix.eye(outputStates).muli(EstimatedStateNoise * r);
+  StateSpaceModel Subject=new StateSpaceModel(GG,FF,StateNoiseMatrix,ObservationNoiseMatrix,m0,c0,processTrainingTimeSeries);
+  return Subject;
+}

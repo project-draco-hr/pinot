@@ -1,0 +1,20 @@
+{
+  if (steps_ahead > 0) {
+    predicted_means_=new DoubleMatrix[steps_ahead];
+    predicted_variances_=new DoubleMatrix[steps_ahead];
+    DoubleMatrix previous_state_mean=estimated_state_means_[estimated_state_means_.length - 1];
+    DoubleMatrix previous_state_covariance=estimated_state_covariances_[estimated_state_covariances_.length - 1];
+    for (int ii=0; ii < steps_ahead; ii++) {
+      DoubleMatrix a=state_transition_matrix_.mmul(previous_state_mean);
+      DoubleMatrix R=state_transition_matrix_.mmul(previous_state_covariance).mmul(state_transition_matrix_.transpose()).addi(transition_covariance_matrix_);
+      predicted_means_[ii]=observation_matrix_.mmul(a);
+      predicted_variances_[ii]=observation_matrix_.mmul(R).mmul(observation_matrix_.transpose()).addi(observation_covariance_matrix_);
+      previous_state_mean=a;
+      previous_state_covariance=R;
+    }
+  }
+ else {
+    predicted_means_=predicted_observation_means_;
+    predicted_variances_=predicted_observation_covariances_;
+  }
+}

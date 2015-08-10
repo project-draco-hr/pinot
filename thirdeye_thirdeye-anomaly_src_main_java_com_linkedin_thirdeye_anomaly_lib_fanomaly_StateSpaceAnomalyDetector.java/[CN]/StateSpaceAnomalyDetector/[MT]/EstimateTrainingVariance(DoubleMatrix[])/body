@@ -1,0 +1,12 @@
+{
+  double estimateVariance=0;
+  double count=0;
+  for (int ii=0; ii < seasonal + 1; ii++) {
+    if (processTrainingTimeSeries[ii] != null) {
+      count=count + 1;
+      estimateVariance=estimateVariance + processTrainingTimeSeries[ii].get(0,0) * processTrainingTimeSeries[ii].get(0,0);
+    }
+  }
+  estimateVariance=estimateVariance / count;
+  return estimateVariance;
+}

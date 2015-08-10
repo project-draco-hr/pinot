@@ -1,0 +1,43 @@
+{
+  int numObservations=series.getTimeWindowSet().size();
+  double[] observations=new double[numObservations];
+  long[] timestamps=new long[numObservations];
+  int observationIndex=0;
+  TreeSet<Long> sortedTimestamps=new TreeSet<Long>(series.getTimeWindowSet());
+  for (  long observationTimeStamp : sortedTimestamps) {
+    observations[observationIndex]=series.get(observationTimeStamp,metric).doubleValue();
+    timestamps[observationIndex]=observationTimeStamp;
+    observationIndex++;
+  }
+  Set<Long> omitTimestamps=new HashSet<Long>();
+  for (  AnomalyResult ar : anomalyHistory) {
+  }
+  long trainStartInput=sortedTimestamps.first();
+  long trainEndInput=sortedTimestamps.last();
+  StateSpaceAnomalyDetector stateSpaceDetector=new StateSpaceAnomalyDetector(trainStartInput,trainEndInput,-1,bucketUnit.toMillis(bucketSize),omitTimestamps,seasonal,order,order + seasonal - 1,1,r);
+  Map<Long,FanomalyDataPoint> fAnomalyDataPoints;
+  try {
+    LOGGER.info("detecting anomalies using fanomaly");
+    long offset=TimeUnit.MILLISECONDS.convert(bucketSize,bucketUnit);
+    long startTime=System.nanoTime();
+    fAnomalyDataPoints=stateSpaceDetector.DetectAnomaly(observations,timestamps,offset);
+    LOGGER.info("jblas took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
+  }
+ catch (  Exception e) {
+    throw new FunctionDidNotEvaluateException("something went wrong",e);
+  }
+  List<AnomalyResult> anomalyResults=new LinkedList<AnomalyResult>();
+  for (  long timeWindow : new TreeSet<>(fAnomalyDataPoints.keySet())) {
+    FanomalyDataPoint fAnomalyDataPoint=fAnomalyDataPoints.get(timeWindow);
+    if (fAnomalyDataPoint.pValue < pValueThreshold) {
+      ResultProperties resultProperties=new ResultProperties();
+      resultProperties.put("actualValue","" + fAnomalyDataPoint.actualValue);
+      resultProperties.put("predictedValue","" + fAnomalyDataPoint.predictedValue);
+      resultProperties.put("stdError","" + fAnomalyDataPoint.stdError);
+      resultProperties.put("pValue","" + fAnomalyDataPoint.pValue);
+      resultProperties.put("predictedDate","" + fAnomalyDataPoint.predictedDate);
+      anomalyResults.add(new AnomalyResult(true,timeWindow,fAnomalyDataPoint.pValue,fAnomalyDataPoint.actualValue,resultProperties));
+    }
+  }
+  return anomalyResults;
+}

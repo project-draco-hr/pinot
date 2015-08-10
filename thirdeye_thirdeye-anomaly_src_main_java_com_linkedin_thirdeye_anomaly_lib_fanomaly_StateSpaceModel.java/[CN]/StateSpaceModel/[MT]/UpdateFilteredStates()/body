@@ -1,0 +1,21 @@
+{
+  for (int ii=0; ii < number_of_observations_; ii++) {
+    DoubleMatrix previous_state_mean=(ii == 0) ? initial_state_mean_ : estimated_state_means_[ii - 1];
+    DoubleMatrix previous_state_covariance=(ii == 0) ? initial_state_covariance_ : estimated_state_covariances_[ii - 1];
+    DoubleMatrix a=state_transition_matrix_.mmul(previous_state_mean);
+    DoubleMatrix R=state_transition_matrix_.mmul(previous_state_covariance).mmul(state_transition_matrix_.transpose()).addi(transition_covariance_matrix_);
+    predicted_observation_means_[ii]=observation_matrix_.mmul(a);
+    predicted_observation_covariances_[ii]=observation_matrix_.mmul(R).mmul(observation_matrix_.transpose()).addi(observation_covariance_matrix_);
+    if (observations_[ii] == null) {
+      estimated_state_means_[ii]=a;
+      estimated_state_covariances_[ii]=R;
+    }
+ else {
+      DoubleMatrix inv_predicted_observation_covariances=InverseMatrix.inverse(predicted_observation_covariances_[ii],0);
+      estimated_state_means_[ii]=R.mmul(observation_matrix_.transpose()).mmuli(inv_predicted_observation_covariances).mmul(observations_[ii].sub(predicted_observation_means_[ii])).addi(a);
+      estimated_state_covariances_[ii]=R.sub(R.mmul(observation_matrix_.transpose()).mmuli(inv_predicted_observation_covariances).mmul(observation_matrix_).mmuli(R));
+      estimated_means_[ii]=observation_matrix_.mmul(estimated_state_means_[ii]);
+      estimated_covariances_[ii]=observation_matrix_.mmul(estimated_state_covariances_[ii]).mmul(observation_matrix_.transpose()).addi(observation_covariance_matrix_);
+    }
+  }
+}
