@@ -9,7 +9,6 @@ for (int i=0; i < sortedList.length; i++) {
   intValueToIndexMap.put(entry,i);
 }
 intDictionaryWrite.close();
-dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.INT_DICTIONARY_COL_SIZE);
 break;
 case FLOAT:
 final FixedByteWidthRowColDataFileWriter floatDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.FLOAT_DICTIONARY_COL_SIZE);
@@ -20,7 +19,6 @@ floatDictionaryWrite.setFloat(i,0,entry);
 floatValueToIndexMap.put(entry,i);
 }
 floatDictionaryWrite.close();
-dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.FLOAT_DICTIONARY_COL_SIZE);
 break;
 case LONG:
 final FixedByteWidthRowColDataFileWriter longDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.LONG_DICTIONARY_COL_SIZE);
@@ -31,7 +29,6 @@ longDictionaryWrite.setLong(i,0,entry);
 longValueToIndexMap.put(entry,i);
 }
 longDictionaryWrite.close();
-dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.LONG_DICTIONARY_COL_SIZE);
 break;
 case DOUBLE:
 final FixedByteWidthRowColDataFileWriter doubleDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,sortedList.length,1,V1Constants.Dict.DOUBLE_DICTIONARY_COL_SIZE);
@@ -42,7 +39,6 @@ doubleDictionaryWrite.setDouble(i,0,entry);
 doubleValueToIndexMap.put(entry,i);
 }
 doubleDictionaryWrite.close();
-dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,V1Constants.Dict.DOUBLE_DICTIONARY_COL_SIZE);
 break;
 case STRING:
 case BOOLEAN:
@@ -74,7 +70,6 @@ stringDictionaryWrite.setString(i,0,revised[i]);
 stringValueToIndexMap.put(revised[i],i);
 }
 stringDictionaryWrite.close();
-dataReader=FixedByteWidthRowColDataFileReader.forMmap(dictionaryFile,sortedList.length,1,new int[]{stringColumnMaxLength});
 break;
 default :
 break;
