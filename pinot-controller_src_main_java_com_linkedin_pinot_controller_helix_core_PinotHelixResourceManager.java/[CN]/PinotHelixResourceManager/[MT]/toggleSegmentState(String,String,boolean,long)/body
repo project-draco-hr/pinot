@@ -1,7 +1,7 @@
 {
   String status=(enable) ? "ONLINE" : "OFFLINE";
   HelixDataAccessor helixDataAccessor=_helixZkManager.getHelixDataAccessor();
-  PropertyKey idealStatePropertyKey=helixDataAccessor.keyBuilder().idealStates(tableName);
+  PropertyKey idealStatePropertyKey=_keyBuilder.idealStates(tableName);
   boolean updateSuccessful;
   long deadline=System.currentTimeMillis() + 1000 * timeOutInSeconds;
   do {

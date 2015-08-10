@@ -3,10 +3,9 @@
     return new PinotResourceManagerResponse("Instance " + instanceName + " does not exist.",false);
   }
   HelixDataAccessor helixDataAccessor=_helixZkManager.getHelixDataAccessor();
-  Builder keyBuilder=helixDataAccessor.keyBuilder();
-  LiveInstance liveInstance=helixDataAccessor.getProperty(keyBuilder.liveInstance(instanceName));
+  LiveInstance liveInstance=helixDataAccessor.getProperty(_keyBuilder.liveInstance(instanceName));
   if (liveInstance != null) {
-    PropertyKey currentStatesKey=_helixDataAccessor.keyBuilder().currentStates(instanceName,liveInstance.getSessionId());
+    PropertyKey currentStatesKey=_keyBuilder.currentStates(instanceName,liveInstance.getSessionId());
     List<CurrentState> currentStates=_helixDataAccessor.getChildValues(currentStatesKey);
     if (currentStates != null) {
       for (      CurrentState currentState : currentStates) {

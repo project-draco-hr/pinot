@@ -1,6 +1,6 @@
 {
   int incInstances=serverTenant.getNumberOfInstances() - allServingServers.size();
-  List<String> unTaggedInstanceList=_pinotHelixAdmin.getOnlineUnTaggedServerInstanceList();
+  List<String> unTaggedInstanceList=getOnlineUnTaggedServerInstanceList();
   if (unTaggedInstanceList.size() < incInstances) {
     res.status=ResponseStatus.failure;
     res.message="Failed to allocate hardware resouces with tenant info: " + serverTenant + ", Current number of untagged instances : "+ unTaggedInstanceList.size()+ ", Current number of servering instances : "+ allServingServers.size()+ ", Current number of tagged offline server instances : "+ taggedOfflineServers.size()+ ", Current number of tagged realtime server instances : "+ taggedRealtimeServers.size();

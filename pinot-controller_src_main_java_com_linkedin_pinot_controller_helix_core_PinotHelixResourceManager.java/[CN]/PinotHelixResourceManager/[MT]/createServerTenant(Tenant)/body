@@ -1,7 +1,7 @@
 {
   PinotResourceManagerResponse res=new PinotResourceManagerResponse();
   int numberOfInstances=serverTenant.getNumberOfInstances();
-  List<String> unTaggedInstanceList=_pinotHelixAdmin.getOnlineUnTaggedServerInstanceList();
+  List<String> unTaggedInstanceList=getOnlineUnTaggedServerInstanceList();
   if (unTaggedInstanceList.size() < numberOfInstances) {
     res.status=ResponseStatus.failure;
     res.message="Failed to allocate server instances to Tag : " + serverTenant.getTenantName() + ", Current number of untagged server instances : "+ unTaggedInstanceList.size()+ ", Request asked number is : "+ serverTenant.getNumberOfInstances();

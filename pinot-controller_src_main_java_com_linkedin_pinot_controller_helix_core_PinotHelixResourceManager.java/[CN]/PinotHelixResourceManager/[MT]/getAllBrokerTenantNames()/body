@@ -2,8 +2,7 @@
   Set<String> tenantSet=new HashSet<String>();
   List<String> instancesInCluster=_helixAdmin.getInstancesInCluster(_helixClusterName);
   for (  String instanceName : instancesInCluster) {
-    Builder keyBuilder=_helixDataAccessor.keyBuilder();
-    InstanceConfig config=_helixDataAccessor.getProperty(keyBuilder.instanceConfig(instanceName));
+    InstanceConfig config=_helixDataAccessor.getProperty(_keyBuilder.instanceConfig(instanceName));
     for (    String tag : config.getTags()) {
       if (tag.equals(CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE) || tag.equals(CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE)) {
         continue;

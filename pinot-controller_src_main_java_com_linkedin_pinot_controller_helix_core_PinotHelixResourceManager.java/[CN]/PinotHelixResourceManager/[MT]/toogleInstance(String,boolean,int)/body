@@ -8,7 +8,7 @@
   String beforeToggleStates=(toggle) ? SegmentOnlineOfflineStateModel.OFFLINE : SegmentOnlineOfflineStateModel.ONLINE;
   while (System.currentTimeMillis() < deadline) {
     toggleSucceed=true;
-    PropertyKey liveInstanceKey=_helixDataAccessor.keyBuilder().liveInstance(instanceName);
+    PropertyKey liveInstanceKey=_keyBuilder.liveInstance(instanceName);
     LiveInstance liveInstance=_helixDataAccessor.getProperty(liveInstanceKey);
     if (liveInstance == null) {
       if (toggle) {
@@ -18,7 +18,7 @@
         return PinotResourceManagerResponse.SUCCESS_RESPONSE;
       }
     }
-    PropertyKey instanceCurrentStatesKey=_helixDataAccessor.keyBuilder().currentStates(instanceName,liveInstance.getSessionId());
+    PropertyKey instanceCurrentStatesKey=_keyBuilder.currentStates(instanceName,liveInstance.getSessionId());
     List<CurrentState> instanceCurrentStates=_helixDataAccessor.getChildValues(instanceCurrentStatesKey);
     if (instanceCurrentStates == null) {
       return PinotResourceManagerResponse.SUCCESS_RESPONSE;

@@ -8,7 +8,7 @@
   }
   final String segmentName=segmentZKMetadata.getSegmentName();
   HelixDataAccessor helixDataAccessor=_helixZkManager.getHelixDataAccessor();
-  PropertyKey idealStatePropertyKey=helixDataAccessor.keyBuilder().idealStates(tableName);
+  PropertyKey idealStatePropertyKey=_keyBuilder.idealStates(tableName);
   boolean updateSuccessful;
   do {
     final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
