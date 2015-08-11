@@ -1,0 +1,13 @@
+{
+  DateTime start=new DateTime(timeRange.getStart(),DateTimeZone.UTC);
+  start=start.withMillisOfDay(0);
+  DateTime end=new DateTime(timeRange.getEnd(),DateTimeZone.UTC);
+  ThirdEyeRequest request=new ThirdEyeRequest().setCollection(collection).setStartTime(start).setEndTime(end).setMetricFunction(buildMetricFunction(aggregationGranularity,metricSpecs));
+  if (groupByDimension != null) {
+    request.setGroupBy(groupByDimension);
+  }
+  for (  Entry<String,String> entry : fixedDimensionValues.entrySet()) {
+    request.addDimensionValue(entry.getKey(),entry.getValue());
+  }
+  return request;
+}

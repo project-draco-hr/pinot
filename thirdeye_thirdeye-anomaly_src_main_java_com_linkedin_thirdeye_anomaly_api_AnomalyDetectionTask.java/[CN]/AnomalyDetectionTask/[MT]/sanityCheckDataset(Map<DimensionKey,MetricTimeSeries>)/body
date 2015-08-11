@@ -1,0 +1,14 @@
+{
+  TimeRange taskTimeRange=taskInfo.getTimeRange();
+  for (  DimensionKey dimensionKey : dataset.keySet()) {
+    MetricTimeSeries metricTimeSeries=dataset.get(dimensionKey);
+    Set<Long> seriesTimeWindowSet=metricTimeSeries.getTimeWindowSet();
+    if (seriesTimeWindowSet.contains(taskTimeRange.getStart()) == false) {
+      LOGGER.warn("dataset series {} does not contain expected start time window {}",dimensionKey,taskTimeRange.getStart());
+    }
+    long lastExpectedTimeWindow=taskTimeRange.getEnd() - TimeGranularityUtils.toMillis(function.getAggregationTimeGranularity());
+    if (lastExpectedTimeWindow != taskTimeRange.getStart() && seriesTimeWindowSet.contains(lastExpectedTimeWindow) == false) {
+      LOGGER.warn("dataset series {} does not contain last expected time window {}",dimensionKey,lastExpectedTimeWindow);
+    }
+  }
+}

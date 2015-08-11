@@ -1,3 +1,10 @@
 {
-  new ThirdEyeAnomalyDetection(args[0]).run();
+  ObjectMapper mapper=new ObjectMapper(new YAMLFactory());
+  ThirdEyeAnomalyDetectionConfiguration config=mapper.readValue(new File(args[0]),ThirdEyeAnomalyDetectionConfiguration.class);
+  if (config.getExplicitTimeRange() != null) {
+    runWithExplicitTimeRange(config);
+  }
+ else {
+    runWithScheduler(config);
+  }
 }

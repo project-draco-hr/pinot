@@ -1,0 +1,13 @@
+{
+  String urlString="http://" + collectionToHostAndPort.get(collection).toString() + "/collections/"+ collection;
+  LOGGER.info("getting star-tree : {}",urlString);
+  StarTreeConfig cached=starTreeCache.get(urlString);
+  if (cached != null) {
+    LOGGER.info("cache hit for {}",urlString);
+    return cached;
+  }
+  URL url=new URL(urlString);
+  StarTreeConfig result=OBJECT_MAPPER.readValue(new InputStreamReader(url.openStream(),"UTF-8"),StarTreeConfig.class);
+  starTreeCache.put(urlString,result);
+  return result;
+}

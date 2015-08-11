@@ -1,0 +1,14 @@
+{
+  Map<DimensionKey,Double> result=new HashMap<>();
+  double totalSum=0;
+  for (  Entry<DimensionKey,MetricTimeSeries> entry : dataset.entrySet()) {
+    int metricIndex=entry.getValue().getSchema().getNames().indexOf(metricName);
+    double dkValue=entry.getValue().getMetricSums()[metricIndex].doubleValue();
+    result.put(entry.getKey(),dkValue);
+    totalSum+=dkValue;
+  }
+  for (  DimensionKey dk : dataset.keySet()) {
+    result.put(dk,result.get(dk) / totalSum);
+  }
+  return result;
+}

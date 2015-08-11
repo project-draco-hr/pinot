@@ -1,0 +1,32 @@
+{
+  List<AnomalyDetectionDriverConfig> collectionDriverConfigurations=config.getCollectionDriverConfigurations();
+  AnomalyDatabaseConfig anomalyDatabase=config.getAnomalyDatabaseConfig();
+  ThirdEyeMultiClient thirdEyeMultiClient=new ThirdEyeMultiClient(collectionDriverConfigurations);
+  AnomalyDetectionFunctionFactory functionFactory;
+switch (config.getMode()) {
+case RuleBased:
+{
+      functionFactory=new RuleBasedFunctionFactory();
+      break;
+    }
+case Generic:
+{
+    functionFactory=new GenericFunctionFactory();
+    break;
+  }
+default :
+{
+  functionFactory=null;
+  break;
+}
+}
+List<AnomalyDetectionTask> tasks=new AnomalyDetectionTaskBuilder(collectionDriverConfigurations,anomalyDatabase,thirdEyeMultiClient).buildTasks(timeRange,functionFactory);
+ExecutorService taskExecutors=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+for (AnomalyDetectionTask task : tasks) {
+taskExecutors.execute(task);
+}
+taskExecutors.shutdown();
+taskExecutors.awaitTermination(config.getMaxWaitToCompletion().getSize(),config.getMaxWaitToCompletion().getUnit());
+thirdEyeMultiClient.close();
+return null;
+}
