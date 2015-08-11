@@ -25,4 +25,5 @@
   baos.write(serializedMetrics.length);
   baos.write(serializedMetrics);
   context.write(new BytesWritable(serializedKey),new BytesWritable(serializedMetrics));
+  context.getCounter(AggregationCounter.NUMBER_OF_RECORDS).increment(1);
 }
