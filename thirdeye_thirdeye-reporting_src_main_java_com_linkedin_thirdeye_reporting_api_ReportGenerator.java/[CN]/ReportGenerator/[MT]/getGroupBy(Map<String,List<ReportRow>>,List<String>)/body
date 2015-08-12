@@ -8,7 +8,7 @@
         startTime="Total";
       }
  else {
-        startTime=ReportConstants.HOUR_FORMATTER.print(row.getCurrentStart()).toLowerCase();
+        startTime=ReportConstants.HOUR_FORMATTER.print(row.getCurrentStart().withZone(DateTimeZone.forID(reportConfig.getTimezone()))).toLowerCase();
       }
       TableReportRow tableReportRow=new TableReportRow();
       tableReportRow.setGroupByDimensions(new GroupBy(startTime,row.getDimension()));

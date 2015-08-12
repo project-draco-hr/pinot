@@ -4,7 +4,7 @@
   for (  String metric : tableSpec.getMetrics()) {
     AnomalyDatabaseConfig dbConfig=new AnomalyDatabaseConfig(dbSpec.getUrl(),dbSpec.getFunctionTableName(),dbSpec.getAnomalyTableName(),dbSpec.getUser(),dbSpec.getPassword(),dbSpec.isUseConnectionPool());
     AnomalyReportGenerator anomalyReportGenerator=new AnomalyReportGenerator(dbConfig);
-    anomalyTables.put(metric,anomalyReportGenerator.getAnomalyTable(collection,metric,reportConfig.getStartTime().getMillis(),reportConfig.getEndTime().getMillis(),20));
+    anomalyTables.put(metric,anomalyReportGenerator.getAnomalyTable(collection,metric,reportConfig.getStartTime().getMillis(),reportConfig.getEndTime().getMillis(),20,reportConfig.getTimezone()));
   }
   return anomalyTables;
 }

@@ -12,7 +12,7 @@
     for (    Entry<String,String> e : dimensions.entrySet()) {
       dimensionValues[dimensionSchema.indexOf(e.getKey())]=e.getValue();
     }
-    DateTime timestamp=new DateTime(row.getTimeWindow(),DateTimeZone.UTC).toDateTime(DateTimeZone.getDefault());
+    DateTime timestamp=new DateTime(row.getTimeWindow()).withZone(DateTimeZone.forID(timezone));
     AnomalyReportTableRow reportTableRow=new AnomalyReportTableRow(timestamp,new DimensionKey(dimensionValues).toString(),row.getFunctionDescription(),row.getFunctionName().toLowerCase().contains("percent"),row.getAnomalyScore(),row.getAnomalyVolume());
     reportTableRows.add(reportTableRow);
     if (reportTableRows.size() >= topK) {

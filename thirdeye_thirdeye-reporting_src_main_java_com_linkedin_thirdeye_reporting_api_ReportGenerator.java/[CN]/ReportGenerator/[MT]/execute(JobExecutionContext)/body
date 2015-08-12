@@ -24,11 +24,11 @@
       DateTime baselineEndHour=currentEndHour.minus(TimeUnit.MILLISECONDS.convert(baselineSize,baselineUnit));
       DateTime currentStartHour=currentEndHour.minus(TimeUnit.MILLISECONDS.convert(scheduleSpec.getReportWindow() * scheduleSpec.getAggregationSize(),scheduleSpec.getAggregationUnit()));
       DateTime baselineStartHour=baselineEndHour.minus(TimeUnit.MILLISECONDS.convert(scheduleSpec.getReportWindow() * scheduleSpec.getAggregationSize(),scheduleSpec.getAggregationUnit()));
-      reportConfig.setStartTime(currentStartHour);
-      reportConfig.setStartTimeString(ReportConstants.DATE_TIME_FORMATTER.print(currentStartHour) + " " + ReportConstants.TIMEZONE);
-      reportConfig.setEndTime(currentEndHour);
-      reportConfig.setEndTimeString(ReportConstants.DATE_TIME_FORMATTER.print(currentEndHour) + " " + ReportConstants.TIMEZONE);
-      URL thirdeyeUri=getThirdeyeURL(tableSpec,scheduleSpec,baselineEndHour.minus(TimeUnit.MILLISECONDS.convert(aggregationSize,aggregationUnit)),currentEndHour.minus(TimeUnit.MILLISECONDS.convert(aggregationSize,aggregationUnit)));
+      reportConfig.setStartTime(currentStartHour.withZone(DateTimeZone.forID(reportConfig.getTimezone())));
+      reportConfig.setStartTimeString(ReportConstants.DATE_TIME_FORMATTER.print(reportConfig.getStartTime()) + " " + reportConfig.getTimezone());
+      reportConfig.setEndTime(currentEndHour.withZone(DateTimeZone.forID(reportConfig.getTimezone())));
+      reportConfig.setEndTimeString(ReportConstants.DATE_TIME_FORMATTER.print(reportConfig.getEndTime()) + " " + reportConfig.getTimezone());
+      URL thirdeyeUri=getThirdeyeURL(tableSpec,scheduleSpec,baselineEndHour.minus(TimeUnit.MILLISECONDS.convert(DEFAULT_AGGREGATION_GRANULARITY,DEFAULT_AGGREGATION_UNIT)),currentEndHour.minus(TimeUnit.MILLISECONDS.convert(DEFAULT_AGGREGATION_GRANULARITY,DEFAULT_AGGREGATION_UNIT)));
       LOGGER.info("Generating Thirdeye URL {}",thirdeyeUri);
       Map<String,String> dimensionValues=new HashMap<String,String>();
       if (tableSpec.getGroupBy() != null) {
