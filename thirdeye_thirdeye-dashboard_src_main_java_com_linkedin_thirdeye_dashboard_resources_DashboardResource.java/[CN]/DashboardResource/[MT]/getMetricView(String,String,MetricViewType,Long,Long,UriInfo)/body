@@ -3,10 +3,22 @@
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
 switch (metricViewType) {
 case INTRA_DAY:
-    String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_DAY_PERIOD),new DateTime(currentMillis),dimensionValues);
-  LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
+    String timeUnit=metricFunction.split("_")[2];
+  int aggregationWindow=Integer.parseInt(metricFunction.split("_")[1]);
+long INTRA_PERIOD;
+if (timeUnit.startsWith(TimeUnit.HOURS.toString())) {
+INTRA_PERIOD=INTRA_DAY_PERIOD;
+}
+ else if (aggregationWindow == 1) {
+INTRA_PERIOD=INTRA_WEEK_PERIOD;
+}
+ else {
+INTRA_PERIOD=INTRA_MONTH_PERIOD;
+}
+String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_PERIOD),new DateTime(currentMillis),dimensionValues);
+LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
 QueryResult result=queryCache.getQueryResult(serverUri,sql);
-return new MetricViewTabular(schema,objectMapper,result,currentMillis - baselineMillis,INTRA_DAY_PERIOD);
+return new MetricViewTabular(schema,objectMapper,result,currentMillis - baselineMillis,INTRA_PERIOD);
 case TIME_SERIES_FULL:
 case TIME_SERIES_OVERLAY:
 case FUNNEL:
