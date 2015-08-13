@@ -3,13 +3,8 @@
   try {
     List<AnomalyTableRow> anomalyTableRows=AnomalyTable.selectRows(dbConfig,functionId,queryTimeRange);
     for (    AnomalyTableRow anomalyTableRow : anomalyTableRows) {
-      try {
-        DimensionKey dimensionKey=dimensionKeyFromJson(starTreeConfig.getDimensions(),anomalyTableRow.getDimensions());
-        functionHistory.put(dimensionKey,new AnomalyResult(true,anomalyTableRow.getTimeWindow(),anomalyTableRow.getAnomalyScore(),anomalyTableRow.getAnomalyVolume(),anomalyTableRow.getProperties()));
-      }
- catch (      IOException e) {
-        LOGGER.warn("malformed dimension key json string",e);
-      }
+      DimensionKey dimensionKey=dimensionKeyFromMap(starTreeConfig.getDimensions(),anomalyTableRow.getDimensions());
+      functionHistory.put(dimensionKey,new AnomalyResult(true,anomalyTableRow.getTimeWindow(),anomalyTableRow.getAnomalyScore(),anomalyTableRow.getAnomalyVolume(),anomalyTableRow.getProperties()));
     }
   }
  catch (  SQLException e) {

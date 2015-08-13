@@ -9,5 +9,10 @@
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
   String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,uriInfo.getQueryParameters(),reverseDimensionGroups);
   QueryResult queryResult=queryCache.getQueryResult(serverUri,sql).checkEmpty();
-  return FlotTimeSeries.fromQueryResult(schema,objectMapper,queryResult);
+  List<FlotTimeSeries> allSeries=FlotTimeSeries.fromQueryResult(schema,objectMapper,queryResult);
+  if (displayAnomalies) {
+    List<AnomalyTableRow> anomalies=AnomalyTable.selectRows(anomalyDatabase,collection,null,null,null,null,null,false,null,new TimeRange(baselineMillis,currentMillis));
+    allSeries.addAll(FlotTimeSeries.anomaliesFromQueryResult(schema,objectMapper,queryResult,ANOMALY_LABEL_PREFIX,anomalies));
+  }
+  return allSeries;
 }

@@ -1,8 +1,17 @@
 {
-  try {
-    searchAndRun(new HashMap<String,String>(),null,new AnomalyTimeSeries(),1.0);
+  LOGGER.info("start executing AnomalyDetetcionTask : {}",taskInfo);
+  final LinkedBlockingQueue<Future<?>> futures=new LinkedBlockingQueue<Future<?>>();
+  futures.add(SHARED_EXECUTORS.submit(getRunnableSearchAndRun(futures,null,1.0,new HashMap<String,String>())));
+  while (!futures.isEmpty()) {
+    try {
+      futures.poll().get();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+catch (    ExecutionException e) {
+      e.printStackTrace();
+    }
   }
- catch (  Exception e) {
-    LOGGER.error("did not complete {}",taskInfo,e);
-  }
+  LOGGER.info("done executing AnomalyDetetcionTask : {}",taskInfo);
 }

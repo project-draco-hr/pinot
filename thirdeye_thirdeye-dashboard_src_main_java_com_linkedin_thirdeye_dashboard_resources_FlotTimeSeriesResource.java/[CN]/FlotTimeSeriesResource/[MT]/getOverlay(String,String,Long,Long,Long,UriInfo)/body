@@ -14,16 +14,29 @@
   String currentSeriesSql=SqlUtils.getSql(metricFunction,collection,currentRangeStart,currentRangeEnd,dimensionValues,reverseDimensionGroups);
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSeriesSql);
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSeriesSql);
+  List<AnomalyTableRow> anomalies=null;
+  if (displayAnomalies) {
+    anomalies=AnomalyTable.selectRows(anomalyDatabase,collection,null,null,null,null,null,false,null,new TimeRange(currentMillis - windowMillis,currentMillis));
+  }
   List<FlotTimeSeries> baselineSeries=FlotTimeSeries.fromQueryResult(schema,objectMapper,baselineResult.get().checkEmpty(),BASELINE_LABEL_PREFIX);
-  List<FlotTimeSeries> currentSeries=FlotTimeSeries.fromQueryResult(schema,objectMapper,currentResult.get().checkEmpty());
+  QueryResult currentQueryResult=currentResult.get().checkEmpty();
+  List<FlotTimeSeries> currentSeries=FlotTimeSeries.fromQueryResult(schema,objectMapper,currentQueryResult);
+  List<FlotTimeSeries> anomalySeries;
+  if (displayAnomalies) {
+    anomalySeries=FlotTimeSeries.anomaliesFromQueryResult(schema,objectMapper,currentQueryResult,ANOMALY_LABEL_PREFIX,anomalies);
+  }
+ else {
+    anomalySeries=new ArrayList<>(0);
+  }
   long offsetMillis=currentMillis - baselineMillis;
   for (  FlotTimeSeries series : baselineSeries) {
     for (    Number[] point : series.getData()) {
       point[0]=point[0].longValue() + offsetMillis;
     }
   }
-  List<FlotTimeSeries> combinedSeries=new ArrayList<>(baselineSeries.size() + currentSeries.size());
-  combinedSeries.addAll(baselineSeries);
+  List<FlotTimeSeries> combinedSeries=new ArrayList<>(baselineSeries.size() + currentSeries.size() + anomalySeries.size());
   combinedSeries.addAll(currentSeries);
+  combinedSeries.addAll(baselineSeries);
+  combinedSeries.addAll(anomalySeries);
   return combinedSeries;
 }

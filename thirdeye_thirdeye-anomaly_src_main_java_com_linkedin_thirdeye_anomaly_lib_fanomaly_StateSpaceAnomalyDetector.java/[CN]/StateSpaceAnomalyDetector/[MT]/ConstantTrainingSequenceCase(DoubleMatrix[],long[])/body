@@ -1,7 +1,7 @@
 {
-  DoubleMatrix[] trainingTimeSeries=getTrainingData(inputTimeSeries,inputTimeStamps);
-  DoubleMatrix[] processTrainingTimeSeries=RemoveTimeStamps(trainingTimeSeries,inputTimeStamps);
-  double estimateMean=EstimateTrainingMean(processTrainingTimeSeries);
+  DoubleMatrix[] trainingTimeSeries=DataUtils.getTrainingData(inputTimeSeries,inputTimeStamps,trainStart,trainEnd);
+  DoubleMatrix[] processTrainingTimeSeries=DataUtils.removeTimeStamps(trainingTimeSeries,inputTimeStamps,omitTimestamps);
+  double estimateMean=DataUtils.estimateTrainingMean(processTrainingTimeSeries,seasonal);
   Map<Long,FanomalyDataPoint> output=new HashMap<Long,FanomalyDataPoint>();
   for (int ii=0; ii < processTrainingTimeSeries.length; ii++) {
     if (processTrainingTimeSeries[ii] == null) {

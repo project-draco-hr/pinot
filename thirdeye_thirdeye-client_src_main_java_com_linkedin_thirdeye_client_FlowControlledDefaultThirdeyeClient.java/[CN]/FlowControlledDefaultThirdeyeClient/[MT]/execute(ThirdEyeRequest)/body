@@ -1,0 +1,9 @@
+{
+  requestPermits.acquireUninterruptibly();
+  try {
+    return super.execute(request);
+  }
+  finally {
+    requestPermits.release();
+  }
+}

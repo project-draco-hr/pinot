@@ -1,0 +1,13 @@
+{
+  String urlString="http://" + host + ":"+ port+ "/collections/"+ collection+ "/segments";
+  URL url=new URL(urlString);
+  final CollectionType listType=OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class,SegmentDescriptor.class);
+  List<SegmentDescriptor> segments=OBJECT_MAPPER.readValue(new InputStreamReader(url.openStream(),"UTF-8"),listType);
+  DateTime latestDataTime=null;
+  for (  SegmentDescriptor segment : segments) {
+    if (segment.getEndDataTime() != null && (latestDataTime == null || segment.getEndDataTime().compareTo(latestDataTime) > 0)) {
+      latestDataTime=segment.getEndDataTime();
+    }
+  }
+  return latestDataTime.getMillis();
+}

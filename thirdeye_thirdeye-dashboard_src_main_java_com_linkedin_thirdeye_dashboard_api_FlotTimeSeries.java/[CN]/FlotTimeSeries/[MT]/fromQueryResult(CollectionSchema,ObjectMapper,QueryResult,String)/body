@@ -1,10 +1,7 @@
 {
   List<FlotTimeSeries> allSeries=new ArrayList<>();
   String dimensionNamesJson=objectMapper.writeValueAsString(queryResult.getDimensions());
-  Map<String,String> aliases=new HashMap<>();
-  for (int i=0; i < schema.getMetrics().size(); i++) {
-    aliases.put(schema.getMetrics().get(i),schema.getMetricAliases().get(i));
-  }
+  Map<String,String> aliases=getAliases(schema);
   for (  Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
     Map<String,List<Number[]>> timeSeriesByMetric=new HashMap<>();
     for (    String metric : queryResult.getMetrics()) {
@@ -47,7 +44,7 @@
           label.append(" (N/A)");
         }
       }
-      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),series));
+      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),series,null));
     }
   }
   return allSeries;

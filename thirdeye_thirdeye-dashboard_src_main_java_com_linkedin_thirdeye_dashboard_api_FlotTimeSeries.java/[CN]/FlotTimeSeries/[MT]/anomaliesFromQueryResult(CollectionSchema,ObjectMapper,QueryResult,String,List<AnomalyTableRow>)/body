@@ -1,0 +1,54 @@
+{
+  Multimap<DimensionKey,AnomalyTableRow> anomaliesByDimensionKey=groupAnomaliesByDimensionKey(schema,anomalies);
+  List<FlotTimeSeries> allSeries=new ArrayList<>();
+  String dimensionNamesJson=objectMapper.writeValueAsString(queryResult.getDimensions());
+  Map<String,String> aliases=getAliases(schema);
+  for (  Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+    Map<String,List<Number[]>> timeSeriesByMetric=new HashMap<>();
+    Map<String,MultivaluedMap<String,String>> annotationsByMetric=new HashMap<>();
+    for (    String metric : queryResult.getMetrics()) {
+      timeSeriesByMetric.put(metric,new ArrayList<Number[]>());
+      annotationsByMetric.put(metric,new MultivaluedMapImpl());
+    }
+    String[] dimensionValues=objectMapper.reader(String[].class).readValue(entry.getKey());
+    DimensionKey dimensionKey=new DimensionKey(dimensionValues);
+    for (    AnomalyTableRow anomaly : anomaliesByDimensionKey.get(dimensionKey)) {
+      long timeWindow=anomaly.getTimeWindow();
+      String timeWindowString=Long.toString(timeWindow);
+      Number[] metricValuesInResult=entry.getValue().get(timeWindowString);
+      for (      String anomalousMetric : anomaly.getMetrics()) {
+        int anomalousMetricIndex=queryResult.getMetrics().indexOf(anomalousMetric);
+        if (anomalousMetricIndex != -1) {
+          Number metricValue=(metricValuesInResult != null) ? metricValuesInResult[anomalousMetricIndex] : 0;
+          timeSeriesByMetric.get(anomalousMetric).add(new Number[]{timeWindow,metricValue});
+          annotationsByMetric.get(anomalousMetric).add(timeWindowString,anomalyTableRowToAnnotation(anomaly));
+        }
+      }
+    }
+    for (    Map.Entry<String,List<Number[]>> metricSeriesEntry : timeSeriesByMetric.entrySet()) {
+      List<Number[]> series=metricSeriesEntry.getValue();
+      Collections.sort(series,COMPARATOR_BY_TIME);
+      StringBuilder label=new StringBuilder();
+      label.append(labelPrefix);
+      String metricName=metricSeriesEntry.getKey();
+      String metricAlias=aliases.get(metricName);
+      if (metricAlias == null) {
+        label.append(metricName);
+      }
+ else {
+        label.append(metricAlias);
+      }
+      if (series.size() == 1) {
+        label.append(String.format(" (%d anomaly)",series.size()));
+      }
+ else {
+        label.append(String.format(" (%d anomalies)",series.size()));
+      }
+      if (queryResult.getData().size() > 1) {
+        label.append(" (").append(entry.getKey()).append(")");
+      }
+      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),series,annotationsByMetric.get(metricName)));
+    }
+  }
+  return allSeries;
+}

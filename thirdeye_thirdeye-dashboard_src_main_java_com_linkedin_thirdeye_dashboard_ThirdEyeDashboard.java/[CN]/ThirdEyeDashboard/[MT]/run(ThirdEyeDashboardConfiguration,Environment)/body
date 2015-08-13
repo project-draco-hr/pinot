@@ -18,7 +18,7 @@
     environment.jersey().register(collectionConfigResource);
   }
   environment.jersey().register(new DashboardResource(config.getServerUri(),dataCache,config.getFeedbackEmailAddress(),queryCache,environment.getObjectMapper(),customDashboardResource,configCache));
-  environment.jersey().register(new FlotTimeSeriesResource(config.getServerUri(),dataCache,queryCache,environment.getObjectMapper(),configCache));
+  environment.jersey().register(new FlotTimeSeriesResource(config.getServerUri(),dataCache,queryCache,environment.getObjectMapper(),configCache,config.getAnomalyDatabaseConfig()));
   environment.jersey().register(new MetadataResource(config.getServerUri(),dataCache));
   environment.admin().addTask(new ClearCachesTask(dataCache,queryCache,configCache));
 }

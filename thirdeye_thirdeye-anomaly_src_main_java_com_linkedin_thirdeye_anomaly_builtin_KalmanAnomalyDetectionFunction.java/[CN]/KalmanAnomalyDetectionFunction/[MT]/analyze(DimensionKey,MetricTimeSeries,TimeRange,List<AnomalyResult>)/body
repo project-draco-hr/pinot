@@ -11,17 +11,24 @@
   }
   Set<Long> omitTimestamps=new HashSet<Long>();
   for (  AnomalyResult ar : anomalyHistory) {
+    omitTimestamps.add(ar.getTimeWindow());
   }
   long trainStartInput=sortedTimestamps.first();
   long trainEndInput=sortedTimestamps.last();
   StateSpaceAnomalyDetector stateSpaceDetector=new StateSpaceAnomalyDetector(trainStartInput,trainEndInput,-1,bucketUnit.toMillis(bucketSize),omitTimestamps,seasonal,order,order + seasonal - 1,1,r);
+  final String FUNCTION_INVOCATION_STATE_KEY=getKVMapKeyString(functionConfig,dimensionKey);
+  Double initialEstimatedStateNoise=NON_DURABLE_STATE_KV_PAIRS.get(FUNCTION_INVOCATION_STATE_KEY);
+  if (initialEstimatedStateNoise != null) {
+    stateSpaceDetector.setInitialEstimatedStateNoise(initialEstimatedStateNoise);
+  }
   Map<Long,FanomalyDataPoint> fAnomalyDataPoints;
   try {
     LOGGER.info("detecting anomalies using fanomaly");
     long offset=TimeUnit.MILLISECONDS.convert(bucketSize,bucketUnit);
     long startTime=System.nanoTime();
     fAnomalyDataPoints=stateSpaceDetector.DetectAnomaly(observations,timestamps,offset);
-    LOGGER.info("jblas took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
+    LOGGER.info("algorithm took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
+    NON_DURABLE_STATE_KV_PAIRS.put(FUNCTION_INVOCATION_STATE_KEY,stateSpaceDetector.getEstimatedStateNoise());
   }
  catch (  Exception e) {
     throw new FunctionDidNotEvaluateException("something went wrong",e);

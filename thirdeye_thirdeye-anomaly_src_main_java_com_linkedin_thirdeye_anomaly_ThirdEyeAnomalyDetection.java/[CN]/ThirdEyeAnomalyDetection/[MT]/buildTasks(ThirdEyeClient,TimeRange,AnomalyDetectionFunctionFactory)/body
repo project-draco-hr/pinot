@@ -1,0 +1,24 @@
+{
+  List<AnomalyDetectionTask> tasks=new LinkedList<AnomalyDetectionTask>();
+  AnomalyDetectionDriverConfig driverConfig=config.getDriverConfig();
+  List<? extends FunctionTableRow> rows=FunctionTable.selectRows(config.getAnomalyDatabaseConfig(),functionFactory.getFunctionRowClass(),config.getCollectionName());
+  StarTreeConfig starTreeConfig=ServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+  for (  FunctionTableRow functionTableRow : rows) {
+    if (config.getFunctionIdToEvaluate() != null && config.getFunctionIdToEvaluate() != functionTableRow.getFunctionId()) {
+      continue;
+    }
+    try {
+      AnomalyDetectionFunction function=functionFactory.getFunction(starTreeConfig,config.getAnomalyDatabaseConfig(),functionTableRow);
+      AnomalyDetectionTaskInfo taskInfo=new AnomalyDetectionTaskInfo(functionTableRow.getFunctionName(),functionTableRow.getFunctionId(),functionTableRow.getFunctionDescription(),timeRange);
+      AnomalyResultHandler resultHandler=new AnomalyResultHandlerDatabase(config.getAnomalyDatabaseConfig());
+      resultHandler.init(starTreeConfig,new HandlerProperties());
+      AnomalyDetectionFunctionHistory functionHistory=new AnomalyDetectionFunctionHistory(starTreeConfig,config.getAnomalyDatabaseConfig(),functionTableRow.getFunctionId());
+      AnomalyDetectionTask task=new AnomalyDetectionTask(starTreeConfig,driverConfig,taskInfo,function,resultHandler,functionHistory,thirdEyeClient);
+      tasks.add(task);
+    }
+ catch (    Exception e) {
+      LOGGER.error("could not create function for function_id={}",functionTableRow.getFunctionId(),e);
+    }
+  }
+  return tasks;
+}

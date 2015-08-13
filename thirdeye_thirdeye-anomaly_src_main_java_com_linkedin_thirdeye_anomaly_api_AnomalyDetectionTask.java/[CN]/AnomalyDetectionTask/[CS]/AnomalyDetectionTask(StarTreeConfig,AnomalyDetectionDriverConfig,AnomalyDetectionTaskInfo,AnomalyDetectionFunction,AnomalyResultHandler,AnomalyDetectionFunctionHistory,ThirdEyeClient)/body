@@ -2,18 +2,18 @@
   this.function=function;
   this.handler=handler;
   this.starTreeConfig=starTreeConfig;
-  this.collectionDriverConfig=collectionDriverConfig;
+  this.driverConfig=driverConfig;
   this.taskInfo=taskInfo;
   this.functionHistory=functionHistory;
   this.thirdEyeClient=thirdEyeClient;
-  if (collectionDriverConfig.getContributionEstimateMetric() != null) {
-    dimensionKeyContributionMetric=collectionDriverConfig.getContributionEstimateMetric();
+  if (driverConfig.getContributionEstimateMetric() != null) {
+    dimensionKeyContributionMetric=driverConfig.getContributionEstimateMetric();
   }
  else {
     LOGGER.warn("no metric provided for thresholding collection {}",starTreeConfig.getCollection());
     dimensionKeyContributionMetric=starTreeConfig.getMetrics().get(0).getName();
   }
-  metricsRequiredByTask=getMetricsRequiredByTask(starTreeConfig,collectionDriverConfig,function);
+  metricsRequiredByTask=getMetricsRequiredByTask(starTreeConfig,driverConfig,function);
   queryTimeRange=computeQueryTimeRange(taskInfo,function);
   functionHistory.init(queryTimeRange);
 }

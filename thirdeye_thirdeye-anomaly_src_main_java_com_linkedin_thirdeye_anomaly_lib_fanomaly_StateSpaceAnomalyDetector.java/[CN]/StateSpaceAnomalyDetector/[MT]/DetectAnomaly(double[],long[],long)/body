@@ -8,7 +8,7 @@
       inputTimeSeries[ii]=new DoubleMatrix(new double[]{inputData[ii]});
     }
   }
-  StateSpaceModel Subject=EstimateStateSpaceModel(inputTimeSeries,inputTimeStamps);
+  StateSpaceModel Subject=estimateStateSpaceModel(inputTimeSeries,inputTimeStamps);
   if (Subject == null) {
     Map<Long,FanomalyDataPoint> output=ConstantTrainingSequenceCase(inputTimeSeries,inputTimeStamps);
     return output;
@@ -21,8 +21,20 @@
     DoubleMatrix[] trainingSequence=Subject.GetTrainingSequence();
     Map<Long,FanomalyDataPoint> output=new HashMap<Long,FanomalyDataPoint>();
     for (int ii=0; ii < trainingSequence.length; ii++) {
-      double MeanTmp=estimatedMean[ii].get(0,0);
-      double VarianceTmp=estimatedCovariance[ii].get(0,0);
+      double MeanTmp;
+      if (estimatedMean[ii] != null) {
+        MeanTmp=estimatedMean[ii].get(0,0);
+      }
+ else {
+        MeanTmp=Double.NaN;
+      }
+      double VarianceTmp;
+      if (estimatedCovariance[ii] != null) {
+        VarianceTmp=estimatedCovariance[ii].get(0,0);
+      }
+ else {
+        VarianceTmp=Double.NaN;
+      }
       if (trainingSequence[ii] == null) {
         output.put(inputTimeStamps[ii],new FanomalyDataPoint(MeanTmp,Double.NaN,Double.NaN,Math.sqrt(VarianceTmp),inputTimeStamps[ii],ii));
       }
@@ -35,9 +47,9 @@
     return output;
   }
  else {
-    DoubleMatrix[] predictionSequence=getPredictionData(inputTimeSeries,inputTimeStamps);
+    DoubleMatrix[] predictionSequence=DataUtils.getPredictionData(inputTimeSeries,inputTimeStamps,trainEnd,stepsAhead);
     if (predictionSequence == null) {
-      throw new AnomalyException("no output");
+      throw new FunctionDidNotEvaluateException("no output");
     }
     Map<Long,FanomalyDataPoint> output=new HashMap<Long,FanomalyDataPoint>();
     long monitorStart=trainEnd + offset;
