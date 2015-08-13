@@ -22,7 +22,7 @@
   Map<String,Map<Long,Number>> groupedSeries=new HashMap<>();
   final Map<String,Long> aggregates=new HashMap<>();
   for (  Map.Entry<String,Map<String,Number[]>> entry : result.getData().entrySet()) {
-    String dimensionValue="ALL";
+    String dimensionValue="";
     if (groupByIdx >= 0) {
       List<String> values=objectMapper.readValue(entry.getKey(),LIST_REF);
       dimensionValue=values.get(groupByIdx);
@@ -44,7 +44,9 @@
     }
   }
 );
-  chosenValues=chosenValues.subList(0,5);
+  if (chosenValues.size() > 5) {
+    chosenValues=chosenValues.subList(0,5);
+  }
   List<Long> times=new ArrayList<>();
   DateTime cursor=new DateTime(baseline.getMillis());
   while (cursor.compareTo(current) < 0) {
