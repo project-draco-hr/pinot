@@ -1,0 +1,20 @@
+{
+  if (!configFile.isAbsolute()) {
+    return Response.status(Response.Status.BAD_REQUEST).entity("Path is not absolute: " + configFile).build();
+  }
+  if (configFile.exists()) {
+    return Response.status(Response.Status.CONFLICT).entity(GROUPS_FILE_NAME + " already exists").build();
+  }
+  if (!configFile.getParentFile().exists()) {
+    FileUtils.forceMkdir(configFile.getParentFile());
+    LOG.info("Created {}",configFile.getParentFile());
+  }
+  try (OutputStream outputStream=new FileOutputStream(configFile)){
+    IOUtils.copy(new ByteArrayInputStream(config),outputStream);
+    LOG.info("Created {}",configFile);
+  }
+ catch (  Exception e) {
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Could not write to " + configFile).build();
+  }
+  return Response.ok().build();
+}

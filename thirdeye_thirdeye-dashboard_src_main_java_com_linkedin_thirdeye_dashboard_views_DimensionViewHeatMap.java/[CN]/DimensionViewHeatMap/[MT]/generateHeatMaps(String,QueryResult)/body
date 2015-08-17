@@ -24,8 +24,9 @@
     allBaselineStats.put(metric,new DescriptiveStatistics());
     allCurrentStats.put(metric,new DescriptiveStatistics());
   }
-  for (  Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
-    List<String> combination=objectMapper.readValue(entry.getKey(),LIST_TYPE_REFERENCE);
+  Map<List<String>,Map<String,Number[]>> processedResult=ViewUtils.processDimensionGroups(queryResult,objectMapper,dimensionGroupMap,dimensionRegexMap,dimension);
+  for (  Map.Entry<List<String>,Map<String,Number[]>> entry : processedResult.entrySet()) {
+    List<String> combination=entry.getKey();
     String value=combination.get(dimensionIdx);
     long minTime=-1;
     long maxTime=-1;

@@ -9,7 +9,12 @@
     }
     dimensionValues.put(groupBy,Arrays.asList("!"));
   }
-  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
+  Map<String,Map<String,List<String>>> dimensionGroups=null;
+  DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
+  if (dimensionGroupSpec != null) {
+    dimensionGroups=dimensionGroupSpec.getReverseMapping();
+  }
+  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues,dimensionGroups);
   QueryResult result=queryCache.getQueryResult(serverUri,sql);
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
   int groupByIdx=-1;

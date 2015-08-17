@@ -12,7 +12,12 @@ INTRA_PERIOD=INTRA_WEEK_PERIOD;
  else if (timeUnit.startsWith(TimeUnit.DAYS.toString())) {
 INTRA_PERIOD=INTRA_MONTH_PERIOD;
 }
-String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_PERIOD),new DateTime(currentMillis),dimensionValues);
+Map<String,Map<String,List<String>>> dimensionGroups=null;
+DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
+if (dimensionGroupSpec != null) {
+dimensionGroups=dimensionGroupSpec.getReverseMapping();
+}
+String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_PERIOD),new DateTime(currentMillis),dimensionValues,dimensionGroups);
 LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
 QueryResult result=queryCache.getQueryResult(serverUri,sql);
 return new MetricViewTabular(schema,objectMapper,result,currentMillis - baselineMillis,INTRA_PERIOD);

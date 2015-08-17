@@ -1,0 +1,11 @@
+{
+  File collectionDir=new File(collectionConfigRoot,key);
+  File configFile=new File(collectionDir,GROUPS_FILE_NAME);
+  if (!configFile.exists()) {
+    DimensionGroupSpec emptySpec=new DimensionGroupSpec();
+    emptySpec.setCollection(key);
+    emptySpec.setGroups(new ArrayList<DimensionGroup>(0));
+    return emptySpec;
+  }
+  return yamlObjectMapper.readValue(configFile,DimensionGroupSpec.class);
+}

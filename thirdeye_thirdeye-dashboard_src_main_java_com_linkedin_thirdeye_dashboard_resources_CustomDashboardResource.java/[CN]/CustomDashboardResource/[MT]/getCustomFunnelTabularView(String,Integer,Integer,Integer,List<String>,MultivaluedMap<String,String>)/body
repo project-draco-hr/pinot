@@ -4,8 +4,15 @@
   DateTime currentStart=currentEnd.minusDays(1);
   DateTime baselineEnd=currentEnd.minusWeeks(1);
   DateTime baselineStart=baselineEnd.minusDays(1);
-  String baselineSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineEnd,queryParams);
-  String currentSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentEnd,queryParams);
+  Map<String,Map<String,List<String>>> dimensionGroups=null;
+  DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
+  if (dimensionGroupSpec != null) {
+    dimensionGroups=dimensionGroupSpec.getReverseMapping();
+  }
+  String baselineSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineEnd,queryParams,dimensionGroups);
+  String currentSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentEnd,queryParams,dimensionGroups);
+  LOG.info("Generated SQL: {}",baselineSql);
+  LOG.info("Generated SQL: {}",currentSql);
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSql);
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSql);
   Map<Long,Number[]> baselineData=extractFunnelData(baselineResult.get());

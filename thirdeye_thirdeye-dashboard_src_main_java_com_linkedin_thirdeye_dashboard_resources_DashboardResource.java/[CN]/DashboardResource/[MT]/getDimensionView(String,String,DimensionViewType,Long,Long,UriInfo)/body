@@ -3,6 +3,11 @@
   DateTime baseline=new DateTime(baselineMillis);
   DateTime current=new DateTime(currentMillis);
   MultivaluedMap<String,String> dimensionValues=uriInfo.getQueryParameters();
+  Map<String,Map<String,List<String>>> reverseDimensionGroups=null;
+  DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
+  if (dimensionGroupSpec != null) {
+    reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
+  }
   Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
 switch (dimensionViewType) {
 case MULTI_TIME_SERIES:
@@ -10,7 +15,7 @@ case MULTI_TIME_SERIES:
   for (  String dimension : schema.getDimensions()) {
     if (!dimensionValues.containsKey(dimension)) {
       dimensionValues.put(dimension,Arrays.asList("!"));
-      String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
+      String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues,reverseDimensionGroups);
       LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
       dimensionValues.remove(dimension);
       multiTimeSeriesDimensions.add(dimension);
@@ -18,20 +23,33 @@ case MULTI_TIME_SERIES:
   }
 return new DimensionViewMultiTimeSeries(multiTimeSeriesDimensions);
 case HEAT_MAP:
+case TABULAR:
 for (String dimension : schema.getDimensions()) {
 if (!dimensionValues.containsKey(dimension)) {
   dimensionValues.put(dimension,Arrays.asList("!"));
-  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues);
+  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues,reverseDimensionGroups);
   LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
   dimensionValues.remove(dimension);
   resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
 }
 }
+Map<String,Map<String,String>> dimensionGroups=null;
+Map<String,Map<Pattern,String>> dimensionRegex=null;
+DimensionGroupSpec groupSpec=configCache.getDimensionGroupSpec(collection);
+if (groupSpec != null) {
+dimensionGroups=groupSpec.getMapping();
+dimensionRegex=groupSpec.getRegexMapping();
+}
 Map<String,QueryResult> results=new HashMap<>(resultFutures.size());
 for (Map.Entry<String,Future<QueryResult>> entry : resultFutures.entrySet()) {
 results.put(entry.getKey(),entry.getValue().get());
 }
-return new DimensionViewHeatMap(schema,objectMapper,results);
+if (DimensionViewType.HEAT_MAP.equals(dimensionViewType)) {
+return new DimensionViewHeatMap(schema,objectMapper,results,dimensionGroups,dimensionRegex);
+}
+ else if (DimensionViewType.TABULAR.equals(dimensionViewType)) {
+return new DimensionViewTabular(schema,objectMapper,results,dimensionGroups,dimensionRegex);
+}
 default :
 throw new NotFoundException("No dimension view implementation for " + dimensionViewType);
 }

@@ -1,0 +1,15 @@
+{
+  Map<String,Map<Pattern,String>> mapping=new HashMap<>();
+  for (  DimensionGroup group : groups) {
+    if (group.getRegex() != null) {
+      Map<Pattern,String> subMap=mapping.get(group.getDimension());
+      if (subMap == null) {
+        subMap=new HashMap<>();
+        mapping.put(group.getDimension(),subMap);
+      }
+      Pattern pattern=Pattern.compile(group.getRegex());
+      subMap.put(pattern,group.getName());
+    }
+  }
+  return mapping;
+}

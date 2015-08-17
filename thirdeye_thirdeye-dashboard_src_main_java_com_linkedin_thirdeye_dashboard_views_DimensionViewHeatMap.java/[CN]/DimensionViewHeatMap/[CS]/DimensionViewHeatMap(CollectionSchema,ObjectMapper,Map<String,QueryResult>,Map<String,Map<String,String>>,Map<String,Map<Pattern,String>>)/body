@@ -1,0 +1,12 @@
+{
+  super("dimension/heat-map.ftl");
+  this.schema=schema;
+  this.objectMapper=objectMapper;
+  this.dimensionGroupMap=dimensionGroupMap;
+  this.dimensionRegexMap=dimensionRegexMap;
+  this.heatMaps=new ArrayList<>();
+  for (  Map.Entry<String,QueryResult> entry : queryResults.entrySet()) {
+    this.heatMaps.addAll(generateHeatMaps(entry.getKey(),entry.getValue()));
+  }
+  Collections.sort(heatMaps);
+}

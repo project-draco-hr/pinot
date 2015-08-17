@@ -1,0 +1,15 @@
+{
+  if (!configFile.isAbsolute()) {
+    return Response.status(Response.Status.BAD_REQUEST).entity("Path is not absolute: " + configFile).build();
+  }
+  if (!configFile.exists()) {
+    return Response.status(Response.Status.NOT_FOUND).build();
+  }
+  try (InputStream inputStream=new FileInputStream(configFile)){
+    byte[] config=IOUtils.toByteArray(inputStream);
+    return Response.ok(config,MediaType.APPLICATION_OCTET_STREAM).build();
+  }
+ catch (  Exception e) {
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Could not read from " + configFile).build();
+  }
+}

@@ -1,8 +1,13 @@
 {
   DateTime baseline=new DateTime(baselineMillis);
   DateTime current=new DateTime(currentMillis);
+  Map<String,Map<String,List<String>>> reverseDimensionGroups=null;
+  DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
+  if (dimensionGroupSpec != null) {
+    reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
+  }
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
-  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,uriInfo.getQueryParameters());
+  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,uriInfo.getQueryParameters(),reverseDimensionGroups);
   QueryResult queryResult=queryCache.getQueryResult(serverUri,sql).checkEmpty();
   return FlotTimeSeries.fromQueryResult(schema,objectMapper,queryResult);
 }
