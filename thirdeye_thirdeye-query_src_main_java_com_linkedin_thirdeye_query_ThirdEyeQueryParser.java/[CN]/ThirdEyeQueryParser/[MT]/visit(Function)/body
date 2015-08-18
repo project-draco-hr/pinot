@@ -4,13 +4,13 @@
     terminalState.push(TerminalState.FUNCTION_MOVING_AVERAGE);
     function.getParameters().accept(this);
     TimeGranularity window=parseTimeGranularity(function.getName());
-    query.addFunction(new ThirdEyeMovingAverageFunction(functionMetrics,window));
+    query.addFunction(new ThirdEyeMovingAverageFunction(window));
   }
  else   if (function.getName().startsWith("AGGREGATE_")) {
     terminalState.push(TerminalState.FUNCTION_AGGREGATE);
     function.getParameters().accept(this);
     TimeGranularity window=parseTimeGranularity(function.getName());
-    query.addFunction(new ThirdEyeAggregateFunction(functionMetrics,window));
+    query.addFunction(new ThirdEyeAggregateFunction(window));
   }
  else   if ("SUM".equals(function.getName())) {
     terminalState.push(TerminalState.FUNCTION_SUM);

@@ -1,8 +1,9 @@
 {
-  List<MetricType> metricTypes=new ArrayList<>(metricNames.size());
-  for (  String metricName : metricNames) {
+  List<MetricType> metricTypes=new ArrayList<>();
+  for (  String metricName : timeSeries.getSchema().getNames()) {
     metricTypes.add(MetricType.DOUBLE);
   }
+  List<String> metricNames=timeSeries.getSchema().getNames();
   MetricTimeSeries movingAverage=new MetricTimeSeries(new MetricSchema(metricNames,metricTypes));
   if (timeSeries.getTimeWindowSet().isEmpty()) {
     return movingAverage;
