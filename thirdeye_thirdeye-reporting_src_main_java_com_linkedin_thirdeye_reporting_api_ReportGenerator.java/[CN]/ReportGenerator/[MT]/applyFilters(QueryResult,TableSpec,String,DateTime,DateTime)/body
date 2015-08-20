@@ -29,15 +29,22 @@
       }
     }
   }
-  int metricPosition=queryResult.getMetrics().indexOf(metric);
+  int metricPosition=0;
   MetricSchema schema=MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics());
+  for (int i=0; i < starTreeConfig.getMetrics().size(); i++) {
+    if (metric.equals(starTreeConfig.getMetrics().get(i).getName())) {
+      metricPosition=i;
+      break;
+    }
+  }
   for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
     DimensionKey dimensionKey=createDimensionKey(entry.getKey());
     Map<String,Number[]> data=entry.getValue();
     MetricTimeSeries series=new MetricTimeSeries(schema);
     for (    Entry<String,Number[]> dataEntry : data.entrySet()) {
       if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
-        series.set(Long.valueOf(dataEntry.getKey()),metric,dataEntry.getValue()[metricPosition]);
+        int position=queryResult.getMetrics().indexOf(metric);
+        series.set(Long.valueOf(dataEntry.getKey()),metric,dataEntry.getValue()[position]);
       }
     }
     Number[] seriesSums=series.getMetricSums();
