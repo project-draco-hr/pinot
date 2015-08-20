@@ -1,0 +1,8 @@
+{
+  File avroSchemaFile=new File(avroSchemaFileName);
+  if (!avroSchemaFile.exists()) {
+    throw new FileNotFoundException();
+  }
+  org.apache.avro.Schema avroSchema=new org.apache.avro.Schema.Parser().parse(avroSchemaFile);
+  return getPinotSchemaFromAvroSchema(avroSchema,fieldTypes,timeUnit);
+}

@@ -1,0 +1,17 @@
+{
+  Map<String,FieldSpec.FieldType> fieldTypes=new HashMap<String,FieldSpec.FieldType>();
+  for (  final Field field : avroSchema.getFields()) {
+    FieldSpec.FieldType fieldType;
+    if (field.name().contains(COUNT) || field.name().contains(METRIC)) {
+      fieldType=FieldSpec.FieldType.METRIC;
+    }
+ else     if (field.name().contains(DAY) || field.name().equalsIgnoreCase(DAYS_SINCE_EPOCH)) {
+      fieldType=FieldSpec.FieldType.TIME;
+    }
+ else {
+      fieldType=FieldSpec.FieldType.DIMENSION;
+    }
+    fieldTypes.put(field.name(),fieldType);
+  }
+  return fieldTypes;
+}

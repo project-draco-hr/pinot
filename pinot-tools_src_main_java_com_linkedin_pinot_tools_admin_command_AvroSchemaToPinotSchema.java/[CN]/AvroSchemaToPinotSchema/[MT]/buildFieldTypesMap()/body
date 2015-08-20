@@ -1,0 +1,17 @@
+{
+  Map<String,FieldSpec.FieldType> fieldTypes=new HashMap<String,FieldSpec.FieldType>();
+  if (_dimensions != null) {
+    for (    String column : _dimensions.split("\\s*,\\s*")) {
+      fieldTypes.put(column,FieldSpec.FieldType.DIMENSION);
+    }
+  }
+  if (_metrics != null) {
+    for (    String column : _metrics.split("\\s*,\\s*")) {
+      fieldTypes.put(column,FieldSpec.FieldType.METRIC);
+    }
+  }
+  if (_timeColumnName != null) {
+    fieldTypes.put(_timeColumnName,FieldSpec.FieldType.TIME);
+  }
+  return fieldTypes;
+}

@@ -1,0 +1,30 @@
+{
+  Schema pinotSchema=new Schema();
+  for (  final Field field : avroSchema.getFields()) {
+    FieldSpec spec;
+    FieldSpec.DataType columnType;
+    try {
+      columnType=AvroRecordReader.getColumnType(field);
+    }
+ catch (    UnsupportedOperationException e) {
+      LOGGER.warn("Unsupported field type for field {}, using String instead.",field.name());
+      columnType=FieldSpec.DataType.STRING;
+    }
+    FieldSpec.FieldType fieldType=fieldTypes.get(field.name());
+    if (fieldType == FieldSpec.FieldType.METRIC) {
+      spec=new MetricFieldSpec();
+      spec.setDataType(columnType);
+    }
+ else     if (fieldType == FieldSpec.FieldType.TIME) {
+      spec=new TimeFieldSpec(field.name(),columnType,timeUnit);
+    }
+ else {
+      spec=new DimensionFieldSpec();
+      spec.setDataType(columnType);
+    }
+    spec.setName(field.name());
+    spec.setSingleValueField(AvroRecordReader.isSingleValueField(field));
+    pinotSchema.addSchema(spec.getName(),spec);
+  }
+  return pinotSchema;
+}

@@ -1,0 +1,12 @@
+{
+  Schema schema=AvroUtils.getPinotSchemaFromAvroSchemaFile(_avroSchemaFileName,buildFieldTypesMap(),_timeUnit);
+  if (schema == null) {
+    return false;
+  }
+  ObjectMapper objectMapper=new ObjectMapper();
+  String schemaString=objectMapper.defaultPrettyPrintingWriter().writeValueAsString(schema);
+  PrintWriter printWriter=new PrintWriter(_pinotSchemaFileName);
+  printWriter.println(schemaString);
+  printWriter.close();
+  return true;
+}
