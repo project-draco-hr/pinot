@@ -1,0 +1,52 @@
+{
+  File configFile=new File(getClass().getClassLoader().getResource("integrationTest/" + CONFIG_FILE).getFile());
+  File schemaFile=new File(getClass().getClassLoader().getResource("integrationTest/" + SCHEMA_FILE).getFile());
+  File avroDataInput=new File(rootDir,COLLECTION);
+  avroDataInput=new File(avroDataInput,INPUT_DIR);
+  if (!avroDataInput.exists()) {
+    FileUtils.forceMkdir(avroDataInput);
+  }
+  DataGeneratorConfig config=new DataGeneratorConfig();
+  config.setMinTime(MIN_TIME.toString().substring(0,MIN_TIME.toString().indexOf('.')));
+  config.setMaxTime(MAX_TIME.toString().substring(0,MAX_TIME.toString().indexOf('.')));
+  config.setNumFiles(3);
+  config.setNumRecords(5000);
+  config.setCardinality("4,5,6,7");
+  config.setSchemaFile(schemaFile);
+  config.setStarTreeConfig(StarTreeConfig.decode(new FileInputStream(configFile)));
+  config.setOutputDataDirectory(avroDataInput);
+  DataGeneratorTool dataGeneratorTool=new DataGeneratorTool();
+  dataGeneratorTool.generateData(config);
+  assertTrue("Data generation failed",avroDataInput.list().length == 3);
+  LOGGER.info("Data generation completed");
+  inputFilePath=new Path(ROOT,INPUT_DIR);
+  Path outputDir=new Path(ROOT,COLLECTION);
+  fs.delete(inputFilePath,true);
+  fs.delete(outputDir,true);
+  fs.copyFromLocalFile(new Path(avroDataInput.getAbsolutePath()),inputFilePath);
+  assertTrue("Failed to copy input folder to hdfs",fs.exists(inputFilePath));
+  assertTrue("Failed to copy avro files to hdfs",fs.listStatus(inputFilePath).length == 3);
+  configFilePath=new Path(outputDir,CONFIG_FILE);
+  fs.copyFromLocalFile(new Path(configFile.getAbsolutePath()),configFilePath);
+  assertTrue("Failed to copy config file",fs.exists(configFilePath));
+  schemaFilePath=new Path(outputDir,SCHEMA_FILE);
+  fs.copyFromLocalFile(new Path(schemaFile.getAbsolutePath()),schemaFilePath);
+  assertTrue("Failed to copy schema file",fs.exists(schemaFilePath));
+  LOGGER.info("Moved data to hdfs");
+  Path dimensionIndexDir=new Path(outputDir,"DIMENSION_INDEX");
+  dimensionIndexDir=new Path(dimensionIndexDir,DATA_DIR);
+  aggregationOutputPath=new Path(dimensionIndexDir,"aggregation");
+  dimensionStatsPath=new Path(dimensionIndexDir,"dimension_stats");
+  rollupPhase1OutputPath=new Path(dimensionIndexDir,"rollup_phase1");
+  belowThresholdPath=new Path(rollupPhase1OutputPath,"belowThreshold");
+  aboveThresholdPath=new Path(rollupPhase1OutputPath,"aboveThreshold");
+  rollupPhase2OutputPath=new Path(dimensionIndexDir,"rollup_phase2");
+  rollupPhase3OutputPath=new Path(dimensionIndexDir,"rollup_phase3");
+  rollupPhase4OutputPath=new Path(dimensionIndexDir,"rollup_phase4");
+  starTreeGenerationOutput=new Path(dimensionIndexDir,"startree_generation");
+  Path metricIndexDir=new Path(outputDir,"METRIC_INDEX");
+  metricIndexDir=new Path(metricIndexDir,DATA_DIR);
+  starTreeBootstrapPhase1Output=new Path(metricIndexDir,"startree_bootstrap_phase1");
+  starTreeBootstrapPhase2Output=new Path(metricIndexDir,"startree_bootstrap_phase2");
+  serverPackageOutput=metricIndexDir;
+}

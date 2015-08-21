@@ -1,0 +1,33 @@
+{
+  LOGGER.info("Starting rollup_phase3 job");
+  Job job=Job.getInstance(conf);
+  job.setJobName("RollupPhase3Test");
+  job.setJarByClass(RollupPhaseThreeJob.class);
+  job.getConfiguration().set("mapreduce.reduce.shuffle.input.buffer.percent","0.40");
+  job.setMapperClass(RollupPhaseThreeMapper.class);
+  job.setInputFormatClass(SequenceFileInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setReducerClass(RollupPhaseThreeReducer.class);
+  job.setOutputKeyClass(BytesWritable.class);
+  job.setOutputValueClass(BytesWritable.class);
+  job.setOutputFormatClass(SequenceFileOutputFormat.class);
+  job.setNumReduceTasks(10);
+  Configuration configuration=job.getConfiguration();
+  configuration.set(ROLLUP_PHASE3_INPUT_PATH.toString(),rollupPhase2OutputPath.toString());
+  configuration.set(ROLLUP_PHASE3_CONFIG_PATH.toString(),configFilePath.toString());
+  configuration.set(ROLLUP_PHASE3_OUTPUT_PATH.toString(),rollupPhase3OutputPath.toString());
+  FileInputFormat.addInputPath(job,new Path(configuration.get(ROLLUP_PHASE3_INPUT_PATH.toString())));
+  FileOutputFormat.setOutputPath(job,new Path(configuration.get(ROLLUP_PHASE3_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+  assertTrue("rollup_phase3 job failed",job.isSuccessful());
+  assertTrue("rollup_phase3 folder not created",fs.exists(rollupPhase3OutputPath));
+  FileStatus[] rollupPhase3Status=fs.listStatus(rollupPhase3OutputPath,new PathFilter(){
+    @Override public boolean accept(    Path path){
+      return path.getName().startsWith("part");
+    }
+  }
+);
+  assertTrue("rollup_phase3 data not generated",rollupPhase3Status.length != 0);
+  LOGGER.info("rollup_phase3 job completed");
+}

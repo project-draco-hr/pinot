@@ -1,0 +1,17 @@
+{
+  LOGGER.info("Starting server_upload job");
+  new ThirdEyeJob("server_upload",properties).serverUpload(fs,ROOT,COLLECTION,FlowSpec.METRIC_INDEX,MIN_TIME,MAX_TIME);
+  String uri=THIRDEYE_SERVER.replaceAll(":[0-9][0-9]*",":" + THIRDEYE_ADMIN_PORT) + "/tasks/restore?collection=" + COLLECTION;
+  CloseableHttpClient httpClient=HttpClientBuilder.create().build();
+  HttpPost postRequest=new HttpPost(uri);
+  HttpResponse response=httpClient.execute(postRequest);
+  httpClient.close();
+  assertTrue("failed to restore collection " + COLLECTION,response.getStatusLine().getStatusCode() == 200);
+  uri=THIRDEYE_SERVER + "/collections/" + COLLECTION;
+  httpClient=HttpClientBuilder.create().build();
+  HttpGet getRequest=new HttpGet(uri);
+  response=httpClient.execute(getRequest);
+  httpClient.close();
+  assertTrue("failed to upload to server",response.getStatusLine().getStatusCode() == 200);
+  LOGGER.info("server_upload job completed");
+}

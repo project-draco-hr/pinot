@@ -43,12 +43,12 @@ DateTime maxTime;
 String minTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getName());
 String maxTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getName());
 String timePathProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_PATH.getName());
+FileSystem fileSystem=FileSystem.get(new Configuration());
 if (minTimeProp != null && maxTimeProp != null) {
 minTime=ISODateTimeFormat.dateTimeParser().parseDateTime(minTimeProp);
 maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
 }
  else if (timePathProp != null) {
-FileSystem fileSystem=FileSystem.get(new Configuration());
 InputStream inputStream=fileSystem.open(new Path(timePathProp));
 Properties timePathProps=new Properties();
 timePathProps.load(inputStream);
@@ -62,15 +62,14 @@ maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
 throw new IllegalStateException("Must specify either " + ThirdEyeJobConstants.THIRDEYE_TIME_PATH.getName() + " or "+ ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getName()+ " and "+ ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getName());
 }
 if (PhaseSpec.SERVER_PACKAGE.equals(phaseSpec)) {
-serverPackage(root,collection,flowSpec,minTime,maxTime);
+serverPackage(fileSystem,root,collection,flowSpec,minTime,maxTime);
 }
  else if (PhaseSpec.SERVER_UPLOAD.equals(phaseSpec)) {
-serverUpload(root,collection,flowSpec,minTime,maxTime);
+serverUpload(fileSystem,root,collection,flowSpec,minTime,maxTime);
 }
  else if (PhaseSpec.WAIT.equals(phaseSpec)) {
 boolean pollEnable=Boolean.parseBoolean(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_POLL_ENABLE.getName(),DEFAULT_POLL_ENABLE));
 if (pollEnable) {
-FileSystem fileSystem=FileSystem.get(new Configuration());
 long elapsedTime=0;
 long pollStart=(new DateTime()).getMillis();
 long pollFrequency=Long.parseLong(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_POLL_FREQUENCY.getName(),DEFAULT_POLL_FREQUENCY));
@@ -129,7 +128,6 @@ DateTime cleanupDaysAgoDate=(new DateTime()).minusDays(cleanupDaysAgo);
 Path dimensionIndexDir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.DIMENSION_INDEX);
 Path metricIndexDir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.METRIC_INDEX);
 LOGGER.info("Cleaning up {} {} days ago from paths {} and {}",cleanupDaysAgo,cleanupDaysAgoDate.getMillis(),dimensionIndexDir,metricIndexDir);
-FileSystem fileSystem=FileSystem.get(new Configuration());
 FileStatus[] fileStatus=fileSystem.listStatus(dimensionIndexDir,new PathFilter(){
 @Override public boolean accept(Path path){
 return path.getName().startsWith(StarTreeConstants.DATA_DIR_PREFIX);

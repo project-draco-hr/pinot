@@ -1,0 +1,37 @@
+{
+  LOGGER.info("Starting startree_bootstrap_phase1 job");
+  Job job=Job.getInstance(conf);
+  job.setJobName("StartreeBootstrapPhase1");
+  job.setJarByClass(StarTreeBootstrapPhaseOneJob.class);
+  Schema schema=new Schema.Parser().parse(fs.open(schemaFilePath));
+  job.setMapperClass(BootstrapMapper.class);
+  AvroJob.setInputKeySchema(job,schema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setPartitionerClass(NodeIdBasedPartitioner.class);
+  job.setReducerClass(StarTreeBootstrapReducer.class);
+  job.setOutputKeyClass(BytesWritable.class);
+  job.setOutputValueClass(BytesWritable.class);
+  job.setOutputFormatClass(SequenceFileOutputFormat.class);
+  job.setNumReduceTasks(10);
+  Configuration configuration=job.getConfiguration();
+  configuration.set(STAR_TREE_BOOTSTRAP_INPUT_PATH.toString(),inputFilePath.toString());
+  configuration.set(StarTreeBootstrapPhaseTwoConstants.STAR_TREE_GENERATION_OUTPUT_PATH.toString(),starTreeGenerationOutput.toString());
+  configuration.set(STAR_TREE_BOOTSTRAP_CONFIG_PATH.toString(),configFilePath.toString());
+  configuration.set(STAR_TREE_BOOTSTRAP_OUTPUT_PATH.toString(),starTreeBootstrapPhase1Output.toString());
+  configuration.set(STAR_TREE_BOOTSTRAP_INPUT_AVRO_SCHEMA.toString(),schemaFilePath.toString());
+  FileInputFormat.addInputPath(job,new Path(configuration.get(STAR_TREE_BOOTSTRAP_INPUT_PATH.toString())));
+  FileOutputFormat.setOutputPath(job,new Path(configuration.get(STAR_TREE_BOOTSTRAP_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+  assertTrue("startree_bootstrap_phase1 job failed",job.isSuccessful());
+  assertTrue("startree_bootstrap_phase1 folder not created",fs.exists(starTreeBootstrapPhase1Output));
+  FileStatus[] startreeBootstrapPhase1Status=fs.listStatus(starTreeBootstrapPhase1Output,new PathFilter(){
+    @Override public boolean accept(    Path path){
+      return path.getName().startsWith("part");
+    }
+  }
+);
+  assertTrue("startree_bootstrap_phase1 data not generated",startreeBootstrapPhase1Status.length != 0);
+  LOGGER.info("startree_bootstrap_phase1 job completed");
+}

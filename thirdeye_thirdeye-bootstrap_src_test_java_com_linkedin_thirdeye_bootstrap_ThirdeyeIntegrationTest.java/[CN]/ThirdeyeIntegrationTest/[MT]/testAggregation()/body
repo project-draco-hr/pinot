@@ -1,0 +1,45 @@
+{
+  LOGGER.info("Starting aggregation job");
+  Job job=Job.getInstance(conf);
+  job.setJobName("AggregationTest");
+  job.setJarByClass(AggregatePhaseJob.class);
+  Schema schema=new Schema.Parser().parse(fs.open(schemaFilePath));
+  job.setMapperClass(AggregationMapper.class);
+  AvroJob.setInputKeySchema(job,schema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setCombinerClass(AggregationReducer.class);
+  job.setReducerClass(AggregationReducer.class);
+  job.setOutputKeyClass(BytesWritable.class);
+  job.setOutputValueClass(BytesWritable.class);
+  job.setOutputFormatClass(SequenceFileOutputFormat.class);
+  job.setNumReduceTasks(10);
+  Configuration configuration=job.getConfiguration();
+  configuration.set(AGG_INPUT_PATH.toString(),inputFilePath.toString());
+  configuration.set(AGG_CONFIG_PATH.toString(),configFilePath.toString());
+  configuration.set(AGG_OUTPUT_PATH.toString(),aggregationOutputPath.toString());
+  configuration.set(AGG_INPUT_AVRO_SCHEMA.toString(),schemaFilePath.toString());
+  configuration.set(AGG_DIMENSION_STATS_PATH.toString(),dimensionStatsPath.toString());
+  FileInputFormat.addInputPath(job,new Path(configuration.get(AGG_INPUT_PATH.toString())));
+  FileOutputFormat.setOutputPath(job,new Path(configuration.get(AGG_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+  assertTrue("aggregation job failed",job.isSuccessful());
+  assertTrue("Dimension stats folder not created",fs.exists(dimensionStatsPath));
+  FileStatus[] dimensionStatus=fs.listStatus(dimensionStatsPath,new PathFilter(){
+    @Override public boolean accept(    Path path){
+      return path.getName().endsWith(".stat");
+    }
+  }
+);
+  assertTrue("Dimension stats not generated",dimensionStatus.length != 0);
+  assertTrue("Aggregation ouput folder not created",fs.exists(aggregationOutputPath));
+  FileStatus[] aggregationStatus=fs.listStatus(aggregationOutputPath,new PathFilter(){
+    @Override public boolean accept(    Path path){
+      return path.getName().startsWith("part");
+    }
+  }
+);
+  assertTrue("Aggregation results not generated",aggregationStatus.length != 0);
+  LOGGER.info("aggregation job completed");
+}

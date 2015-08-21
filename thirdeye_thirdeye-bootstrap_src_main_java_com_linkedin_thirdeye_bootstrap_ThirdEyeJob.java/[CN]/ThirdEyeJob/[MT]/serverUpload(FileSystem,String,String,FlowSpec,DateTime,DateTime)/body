@@ -3,7 +3,6 @@
   if (thirdEyeServerUri == null) {
     throw new IllegalArgumentException("Must provide " + ThirdEyeJobConstants.THIRDEYE_SERVER_URI.getName() + " in properties");
   }
-  FileSystem fileSystem=FileSystem.get(new Configuration());
   Path configPath=new Path(root + File.separator + collection+ File.separator+ StarTreeConstants.CONFIG_FILE_NAME);
   InputStream configData=fileSystem.open(configPath);
   int responseCode=StarTreeJobUtils.pushConfig(configData,thirdEyeServerUri,collection);
@@ -27,7 +26,7 @@
     throw new IllegalArgumentException("Invalid folder permission mode. Must provide octal " + FOLDER_PERMISSION_REGEX);
   }
   String dimensionIndexDir=PhaseSpec.STARTREE_BOOTSTRAP_PHASE2.getDimensionIndexDir(root,collection,Joiner.on(DATA_FOLDER_JOINER).join(StarTreeConstants.DATA_DIR_PREFIX,StarTreeConstants.DATE_TIME_FORMATTER.print(minTime),StarTreeConstants.DATE_TIME_FORMATTER.print(maxTime)));
-  FsShell shell=new FsShell(new Configuration());
+  FsShell shell=new FsShell(fileSystem.getConf());
   LOGGER.info("Changing permission of {} to {}",dimensionIndexDir,thirdeyeFolderPermission);
   shell.run(new String[]{"-chmod","-R",thirdeyeFolderPermission,dimensionIndexDir});
   LOGGER.info("Changing permission of {} to {}",metricIndexDir,thirdeyeFolderPermission);

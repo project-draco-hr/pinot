@@ -1,0 +1,24 @@
+{
+  LOGGER.info("Starting startree_generation job");
+  Job job=Job.getInstance(conf);
+  job.setJobName("StartreeGeneration");
+  job.setJarByClass(StarTreeGenerationJob.class);
+  job.setMapperClass(StarTreeGenerationMapper.class);
+  job.setInputFormatClass(SequenceFileInputFormat.class);
+  job.setMapOutputKeyClass(NullWritable.class);
+  job.setMapOutputValueClass(NullWritable.class);
+  job.setOutputFormatClass(NullOutputFormat.class);
+  job.setNumReduceTasks(0);
+  Configuration configuration=job.getConfiguration();
+  configuration.set(STAR_TREE_GEN_INPUT_PATH.toString(),rollupPhase4OutputPath.toString());
+  configuration.set(STAR_TREE_GEN_CONFIG_PATH.toString(),configFilePath.toString());
+  configuration.set(STAR_TREE_GEN_OUTPUT_PATH.toString(),starTreeGenerationOutput.toString());
+  FileInputFormat.addInputPath(job,new Path(configuration.get(STAR_TREE_GEN_INPUT_PATH.toString())));
+  FileOutputFormat.setOutputPath(job,new Path(configuration.get(STAR_TREE_GEN_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+  assertTrue("startree_generation job failed",job.isSuccessful());
+  assertTrue("startree_generation folder not created",fs.exists(starTreeGenerationOutput));
+  assertTrue("tree.bin not generated in startree_generation",fs.exists(new Path(starTreeGenerationOutput,"tree.bin")));
+  assertTrue("dimensionStore.tar.gz not generated in startree_generation",fs.exists(new Path(starTreeGenerationOutput,"dimensionStore.tar.gz")));
+  LOGGER.info("startree_generation job completed");
+}
