@@ -1,20 +1,27 @@
 {
-  int numObservations=series.getTimeWindowSet().size();
+  long trainStartInput=Collections.min(series.getTimeWindowSet());
+  long trainEndInput=Collections.max(series.getTimeWindowSet());
+  long bucketMillis=bucketUnit.toMillis(bucketSize);
+  int numObservations=(int)(1 + ((trainEndInput - trainStartInput) / bucketMillis));
   double[] observations=new double[numObservations];
   long[] timestamps=new long[numObservations];
-  int observationIndex=0;
-  TreeSet<Long> sortedTimestamps=new TreeSet<Long>(series.getTimeWindowSet());
-  for (  long observationTimeStamp : sortedTimestamps) {
-    observations[observationIndex]=series.get(observationTimeStamp,metric).doubleValue();
-    timestamps[observationIndex]=observationTimeStamp;
-    observationIndex++;
+  for (int i=0; i < numObservations; i++) {
+    long timeWindow=trainStartInput + (i * bucketMillis);
+    timestamps[i]=timeWindow;
+    if (series.getTimeWindowSet().contains(timeWindow)) {
+      observations[i]=series.get(timeWindow,metric).doubleValue();
+    }
+ else {
+      observations[i]=0.0;
+    }
+  }
+  if (numObservations != series.getTimeWindowSet().size()) {
+    LOGGER.warn("looks like there are holes in the data: expected {} timestamps, actual {}",numObservations,series.getTimeWindowSet().size());
   }
   Set<Long> omitTimestamps=new HashSet<Long>();
   for (  AnomalyResult ar : anomalyHistory) {
     omitTimestamps.add(ar.getTimeWindow());
   }
-  long trainStartInput=sortedTimestamps.first();
-  long trainEndInput=sortedTimestamps.last();
   StateSpaceAnomalyDetector stateSpaceDetector=new StateSpaceAnomalyDetector(trainStartInput,trainEndInput,-1,bucketUnit.toMillis(bucketSize),omitTimestamps,seasonal,order,order + seasonal - 1,1,r);
   final String FUNCTION_INVOCATION_STATE_KEY=getKVMapKeyString(functionConfig,dimensionKey);
   Double initialEstimatedStateNoise=NON_DURABLE_STATE_KV_PAIRS.get(FUNCTION_INVOCATION_STATE_KEY);

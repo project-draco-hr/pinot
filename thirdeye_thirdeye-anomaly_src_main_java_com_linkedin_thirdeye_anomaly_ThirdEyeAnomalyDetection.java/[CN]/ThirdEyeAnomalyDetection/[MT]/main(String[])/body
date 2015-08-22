@@ -1,4 +1,13 @@
 {
+  if (args.length != 1 || args[0].equalsIgnoreCase("--help")) {
+    System.out.println("usage: java -jar <this_jar> <your_config.yml>");
+    System.out.println("usage (for setup walkthrough): java -jar <this_jar> --setup");
+    return;
+  }
+  if (args[0].equals("--setup")) {
+    new ThirdEyeAnomalyDetectionSetup().setup();
+    return;
+  }
   ObjectMapper mapper=new ObjectMapper(new YAMLFactory());
   ThirdEyeAnomalyDetectionConfiguration config=mapper.readValue(new File(args[0]),ThirdEyeAnomalyDetectionConfiguration.class);
   if (config.getExplicitTimeRange() != null) {
