@@ -1,6 +1,17 @@
 {
-  Schema schema=AvroUtils.getPinotSchemaFromAvroSchemaFile(_avroSchemaFileName,buildFieldTypesMap(),_timeUnit);
+  Schema schema=null;
+  if (_avroSchemaFileName != null) {
+    schema=AvroUtils.getPinotSchemaFromAvroSchemaFile(_avroSchemaFileName,buildFieldTypesMap(),_timeUnit);
+  }
+ else   if (_avroDataFileName != null) {
+    schema=AvroUtils.extractSchemaFromAvro(new File(_avroDataFileName));
+  }
+ else {
+    LOGGER.error("Error: Missing required argument, please specify either -avroSchemaFileName, or -avroDataFileName");
+    return false;
+  }
   if (schema == null) {
+    LOGGER.error("Error: Could not read avro schema from file.");
     return false;
   }
   ObjectMapper objectMapper=new ObjectMapper();
