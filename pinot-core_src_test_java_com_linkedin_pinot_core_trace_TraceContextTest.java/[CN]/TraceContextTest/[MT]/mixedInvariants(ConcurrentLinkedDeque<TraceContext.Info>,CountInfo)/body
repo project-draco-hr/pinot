@@ -1,0 +1,13 @@
+{
+  while (queue.size() > 0) {
+    if (queue.peekFirst().message == TraceContext.CONSTANT.REGISTER_REQUEST) {
+      requestHandlerInvariants(queue,countInfo);
+    }
+ else     if (queue.peekFirst().message == TraceContext.CONSTANT.REGISTER_THREAD_TO_REQUEST) {
+      jobHandlerInvariants(queue,countInfo);
+    }
+ else {
+      throw new RuntimeException("Remaining Queue malformed: " + queue);
+    }
+  }
+}

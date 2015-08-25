@@ -1,0 +1,14 @@
+{
+  ConcurrentLinkedDeque<Trace> traceInfo=allTraceInfoMap.get(request.getRequestId());
+  if (traceInfo != null && _request.get() == null) {
+    logInfo(CONSTANT.REGISTER_THREAD_TO_REQUEST,request);
+    long threadId=Thread.currentThread().getId();
+    Trace trace=new Trace(threadId,parent);
+    _localTrace.set(trace);
+    _request.set(request);
+    traceInfo.offerLast(trace);
+  }
+ else {
+    logInfo(CONSTANT.REGISTER_THREAD_FAILURE,request);
+  }
+}

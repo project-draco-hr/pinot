@@ -1,0 +1,15 @@
+{
+  if (_request.get() == null) {
+    logInfo(CONSTANT.REQUEST_FOR_THREAD_NOT_FOUND,null);
+    return;
+  }
+  if (!_request.get().isEnableTrace()) {
+    return;
+  }
+  if (!_isActive.get()) {
+    long threadId=Thread.currentThread().getId();
+    logInfo(CONSTANT.START_NEW_TRACE,_request.get());
+    _isActive.set(true);
+  }
+  _localTrace.get().log(key,value);
+}

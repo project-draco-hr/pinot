@@ -1,0 +1,12 @@
+{
+  TraceContext.Info info1=queue.pollFirst();
+  TraceContext.Info info2=queue.pollFirst();
+  TraceContext.Info info3=queue.pollFirst();
+  assertEquals(info1.requestId,info2.requestId);
+  assertEquals(info2.requestId,info3.requestId);
+  assertEquals(info1.message,TraceContext.CONSTANT.REGISTER_THREAD_TO_REQUEST);
+  assertEquals(info2.message,TraceContext.CONSTANT.START_NEW_TRACE);
+  assertEquals(info3.message,TraceContext.CONSTANT.UNREGISTER_THREAD_FROM_REQUEST);
+  countInfo.numberOfJobsMap.putIfAbsent(info1.requestId,0);
+  countInfo.numberOfJobsMap.put(info1.requestId,countInfo.numberOfJobsMap.get(info1.requestId) + 1);
+}

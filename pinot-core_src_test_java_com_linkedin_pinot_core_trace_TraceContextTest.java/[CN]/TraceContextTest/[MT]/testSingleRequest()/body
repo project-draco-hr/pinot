@@ -1,0 +1,8 @@
+{
+  TraceContext.reset();
+  ExecutorService jobService=Executors.newFixedThreadPool(NUMBER_OF_THREADS,new NamedThreadFactory("jobService"));
+  InstanceRequest request=new InstanceRequest(0L,null);
+  request.setEnableTrace(true);
+  singleRequestCall(jobService,request,JOBS_PER_REQUEST);
+  runVerification(1,JOBS_PER_REQUEST);
+}

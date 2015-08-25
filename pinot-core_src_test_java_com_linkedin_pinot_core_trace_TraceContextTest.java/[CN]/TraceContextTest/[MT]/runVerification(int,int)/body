@@ -1,0 +1,25 @@
+{
+  CountInfo countInfo=new CountInfo(numberOfRequests,jobsPerRequest);
+  ConcurrentHashMap<Long,ConcurrentLinkedDeque<TraceContext.Info>> testInfoMap=TraceContext.getTestInfoMap();
+  for (  ConcurrentLinkedDeque<TraceContext.Info> queue : testInfoMap.values()) {
+    mixedInvariants(queue,countInfo);
+  }
+  countInfo.verify();
+  for (long rqId=0; rqId < numberOfRequests; rqId++) {
+    ConcurrentLinkedDeque<TraceContext.Trace> traceQueue=TraceContext.getAllTraceInfoMap().get(rqId);
+    assertEquals(traceQueue.size(),jobsPerRequest + 1);
+    Set<Integer> jobIdSet=new HashSet<Integer>();
+    for (    TraceContext.Trace trace : traceQueue) {
+      if (trace.getValue().size() > 0) {
+        Object obj=trace.getValue().get(0);
+        String[] tmp=((String)obj).split(":");
+        long reqId=Long.parseLong(tmp[0].trim());
+        assertEquals(rqId,reqId);
+        int jobId=Integer.parseInt(tmp[1].trim());
+        jobIdSet.add(jobId);
+      }
+    }
+    assertEquals(jobIdSet.size(),jobsPerRequest);
+    LOGGER.info("Trace Tree: {}",TraceContext.getTraceInfoOfRequestId(rqId));
+  }
+}

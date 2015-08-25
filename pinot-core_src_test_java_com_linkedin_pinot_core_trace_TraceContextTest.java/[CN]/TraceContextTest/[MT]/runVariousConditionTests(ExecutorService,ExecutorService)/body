@@ -1,0 +1,26 @@
+{
+  int reqStep=NUMBER_OF_REQUESTS / 5;
+  int jobStep=JOBS_PER_REQUEST / 5;
+  boolean shared=false;
+  if (requestService == jobService) {
+    shared=true;
+  }
+  for (int numberOfRequests=reqStep; numberOfRequests <= NUMBER_OF_REQUESTS; numberOfRequests+=reqStep) {
+    for (int jobsPerRequest=jobStep; jobsPerRequest < JOBS_PER_REQUEST; jobsPerRequest+=jobStep) {
+      if (shared) {
+        LOGGER.info("Shared exec service for #request: " + numberOfRequests + " #jobsPerRequest: "+ jobsPerRequest);
+      }
+ else {
+        LOGGER.info("Non-shared exec service for #request: " + numberOfRequests + " #jobsPerRequest: "+ jobsPerRequest);
+      }
+      if (shared && (numberOfRequests >= NUMBER_OF_THREADS)) {
+        LOGGER.info("Ignore tests for #request: " + numberOfRequests + ", since it will deadlock.");
+      }
+ else {
+        TraceContext.reset();
+        multipleRequestsCall(requestService,jobService,numberOfRequests,jobsPerRequest);
+        runVerification(numberOfRequests,jobsPerRequest);
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  TraceContext.reset();
+  ExecutorService sharedService=Executors.newFixedThreadPool(NUMBER_OF_THREADS,new NamedThreadFactory("sharedService"));
+  runVariousConditionTests(sharedService,sharedService);
+  ExecutorService requestService=Executors.newFixedThreadPool(NUMBER_OF_THREADS,new NamedThreadFactory("requestService"));
+  ExecutorService jobService=Executors.newFixedThreadPool(NUMBER_OF_THREADS,new NamedThreadFactory("jobService"));
+  runVariousConditionTests(requestService,jobService);
+}

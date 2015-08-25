@@ -1,0 +1,12 @@
+{
+  unregisterThreadFromRequest();
+  logInfo(CONSTANT.UNREGISTER_REQUEST,request);
+  if (!TEST_ENABLED) {
+    ConcurrentLinkedDeque<Trace> traces=allTraceInfoMap.remove(request.getRequestId());
+    if (traces == null) {
+      logInfo(CONSTANT.UNREGISTER_REQUEST_FAILURE,request);
+      return;
+    }
+    traces.clear();
+  }
+}

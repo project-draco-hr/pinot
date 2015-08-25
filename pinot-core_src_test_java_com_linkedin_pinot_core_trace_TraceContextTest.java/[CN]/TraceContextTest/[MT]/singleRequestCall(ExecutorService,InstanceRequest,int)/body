@@ -1,0 +1,18 @@
+{
+  TraceContext.register(request);
+  Future[] tasks=new Future[jobsPerRequest];
+  for (int i=0; i < jobsPerRequest; i++) {
+    final int taskId=i;
+    tasks[i]=jobService.submit(new TraceRunnable(){
+      @Override public void runJob(){
+        String tid=Thread.currentThread().getId() + "";
+        TraceContext.log(tid,request.getRequestId() + ": " + taskId);
+      }
+    }
+);
+  }
+  for (int i=0; i < jobsPerRequest; i++) {
+    tasks[i].get();
+  }
+  TraceContext.unregister(request);
+}
