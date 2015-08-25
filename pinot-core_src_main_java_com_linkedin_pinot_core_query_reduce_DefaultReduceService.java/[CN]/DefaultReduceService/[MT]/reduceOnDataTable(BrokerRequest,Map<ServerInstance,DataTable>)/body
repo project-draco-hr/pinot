@@ -25,6 +25,9 @@
     if (Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)) > brokerResponse.getTimeUsedMs()) {
       brokerResponse.setTimeUsedMs(Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)));
     }
+    if (brokerRequest.isEnableTrace()) {
+      reduceOnTraceInfos(brokerResponse.getTraceInfo(),serverInstance,instanceResponse.getMetadata().get("traceInfo"));
+    }
   }
   try {
     if (brokerRequest.isSetSelections() && (brokerRequest.getSelections().getSelectionColumns() != null) && (brokerRequest.getSelections().getSelectionColumns().size() >= 0)) {

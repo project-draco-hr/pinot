@@ -1,10 +1,17 @@
 {
   final String pql=request.getString("pql");
+  boolean isTraceEnabled=false;
+  try {
+    isTraceEnabled=Boolean.parseBoolean(request.getString("trace"));
+  }
+ catch (  Exception e) {
+  }
   final long startTime=System.nanoTime();
   final BrokerRequest brokerRequest;
   try {
     final JSONObject compiled=requestCompiler.compile(pql);
     brokerRequest=convertToBrokerRequest(compiled);
+    if (isTraceEnabled)     brokerRequest.setEnableTrace(true);
   }
  catch (  Exception e) {
     BrokerResponse brokerResponse=new BrokerResponse();

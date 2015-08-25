@@ -10,8 +10,8 @@
     final CountDownLatch latch=new CountDownLatch(_planNodeList.size());
     final ConcurrentLinkedQueue<Operator> queue=new ConcurrentLinkedQueue<Operator>();
     for (    final PlanNode planNode : _planNodeList) {
-      _executorService.execute(new Runnable(){
-        @Override public void run(){
+      _executorService.execute(new TraceRunnable(){
+        @Override public void runJob(){
           try {
             Operator operator=planNode.run();
             queue.add(operator);

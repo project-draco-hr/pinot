@@ -2,6 +2,7 @@
   DataTable instanceResponse;
   long start=System.currentTimeMillis();
   try {
+    TraceContext.register(instanceRequest);
     final BrokerRequest brokerRequest=instanceRequest.getQuery();
     LOGGER.info("Incoming query is : {}",brokerRequest);
     long startPruningTime=System.nanoTime();
@@ -31,6 +32,7 @@
     LOGGER.debug("InstanceResponse for Request Id - {} : {}",instanceRequest.getRequestId(),instanceResponse.toString());
     instanceResponse.getMetadata().put("timeUsedMs",Long.toString((end - start)));
     instanceResponse.getMetadata().put("requestId",Long.toString(instanceRequest.getRequestId()));
+    instanceResponse.getMetadata().put("traceInfo",TraceContext.getTraceInfoOfRequestId(instanceRequest.getRequestId()));
     return instanceResponse;
   }
  catch (  Exception e) {
@@ -49,5 +51,6 @@
     if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
       _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReaders(instanceRequest.getSearchSegments());
     }
+    TraceContext.unregister(instanceRequest);
   }
 }
