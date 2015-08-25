@@ -1,0 +1,19 @@
+{
+  printSectionTitle("basic mysql setup");
+  if (promptForYN("Create the function table?",userInput)) {
+    String sql=String.format(ResourceUtils.getResourceAsString("database/rulebased/create-rule-table.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName());
+    if (!config.getAnomalyDatabaseConfig().runSQL(sql)) {
+      if (!promptForYN("An error occured, do you wish to continue?",userInput)) {
+        System.err.println("Abort...");
+        System.exit(1);
+      }
+ else {
+        printSectionTitle("Here is the sql for your reference");
+        System.out.println(sql);
+      }
+    }
+  }
+  if (promptForYN("Create the anomaly table?",userInput)) {
+    AnomalyTable.createTable(config.getAnomalyDatabaseConfig());
+  }
+}

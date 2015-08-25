@@ -1,0 +1,16 @@
+{
+  Set<String> metrics=getFunction().getMetrics();
+  Collections.sort(anomalyResults);
+  for (  AnomalyResult anomalyResult : anomalyResults) {
+    if (!getTaskInfo().getTimeRange().contains(anomalyResult.getTimeWindow())) {
+      LOGGER.debug("function produced anomaly result not in window {}",getTaskInfo().getTimeRange());
+      continue;
+    }
+    try {
+      handler.handle(getTaskInfo(),dimensionKey,dimensionKeyContribution,metrics,anomalyResult);
+    }
+ catch (    IOException e) {
+      LOGGER.error("failed to handle AnomalyResult from {}",dimensionKey);
+    }
+  }
+}

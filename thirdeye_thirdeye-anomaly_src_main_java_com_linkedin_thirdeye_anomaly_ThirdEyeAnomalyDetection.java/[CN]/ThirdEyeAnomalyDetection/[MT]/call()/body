@@ -6,12 +6,12 @@
   ThirdEyeClient thirdEyeClient=new FlowControlledDefaultThirdeyeClient(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),thirdEyeClientConfig,1);
   AnomalyDetectionFunctionFactory functionFactory;
 switch (config.getMode()) {
-case RuleBased:
+case RULEBASED:
 {
       functionFactory=new RuleBasedFunctionFactory();
       break;
     }
-case Generic:
+case GENERIC:
 {
     functionFactory=new GenericFunctionFactory();
     break;
@@ -22,9 +22,9 @@ default :
   break;
 }
 }
-List<AnomalyDetectionTask> tasks=buildTasks(thirdEyeClient,timeRange,functionFactory);
+List<LocalDriverAnomalyDetectionTask> tasks=buildTasks(thirdEyeClient,timeRange,functionFactory);
 ExecutorService taskExecutors=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-for (AnomalyDetectionTask task : tasks) {
+for (LocalDriverAnomalyDetectionTask task : tasks) {
 taskExecutors.execute(task);
 }
 taskExecutors.shutdown();

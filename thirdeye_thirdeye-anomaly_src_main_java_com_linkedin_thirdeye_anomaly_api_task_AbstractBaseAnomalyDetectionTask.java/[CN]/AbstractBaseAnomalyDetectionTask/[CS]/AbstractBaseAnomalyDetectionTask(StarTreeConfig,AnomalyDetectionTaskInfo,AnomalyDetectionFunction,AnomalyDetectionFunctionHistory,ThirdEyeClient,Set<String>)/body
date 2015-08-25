@@ -1,0 +1,13 @@
+{
+  this.starTreeConfig=starTreeConfig;
+  this.taskInfo=taskInfo;
+  this.function=function;
+  this.functionHistory=functionHistory;
+  this.thirdEyeClient=thirdEyeClient;
+  Set<String> metricNames=new HashSet<>();
+  metricNames.addAll(function.getMetrics());
+  metricNames.addAll(additionalMetricsRequiredByTask);
+  metricsRequiredByTask=getMetricSpecsRequiredByTask(starTreeConfig,metricNames);
+  queryTimeRange=getTaskTimeSeriesRange(taskInfo,function);
+  functionHistory.init(queryTimeRange);
+}

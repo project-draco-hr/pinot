@@ -1,5 +1,5 @@
 {
-  List<AnomalyDetectionTask> tasks=new LinkedList<AnomalyDetectionTask>();
+  List<LocalDriverAnomalyDetectionTask> tasks=new LinkedList<LocalDriverAnomalyDetectionTask>();
   AnomalyDetectionDriverConfig driverConfig=config.getDriverConfig();
   List<? extends FunctionTableRow> rows=FunctionTable.selectRows(config.getAnomalyDatabaseConfig(),functionFactory.getFunctionRowClass(),config.getCollectionName());
   StarTreeConfig starTreeConfig=ServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
@@ -13,7 +13,7 @@
       AnomalyResultHandler resultHandler=new AnomalyResultHandlerDatabase(config.getAnomalyDatabaseConfig());
       resultHandler.init(starTreeConfig,new HandlerProperties());
       AnomalyDetectionFunctionHistory functionHistory=new AnomalyDetectionFunctionHistory(starTreeConfig,config.getAnomalyDatabaseConfig(),functionTableRow.getFunctionId());
-      AnomalyDetectionTask task=new AnomalyDetectionTask(starTreeConfig,driverConfig,taskInfo,function,resultHandler,functionHistory,thirdEyeClient);
+      LocalDriverAnomalyDetectionTask task=new LocalDriverAnomalyDetectionTask(starTreeConfig,driverConfig,taskInfo,function,resultHandler,functionHistory,thirdEyeClient);
       tasks.add(task);
     }
  catch (    Exception e) {

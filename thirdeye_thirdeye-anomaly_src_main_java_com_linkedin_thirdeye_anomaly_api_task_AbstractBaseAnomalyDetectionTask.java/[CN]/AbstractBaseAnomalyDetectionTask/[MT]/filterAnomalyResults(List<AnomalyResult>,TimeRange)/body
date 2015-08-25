@@ -1,0 +1,17 @@
+{
+  Iterator<AnomalyResult> it=anomalyResults.iterator();
+  while (it.hasNext()) {
+    AnomalyResult anomalyResult=it.next();
+    boolean remove=false;
+    if (anomalyResult.isAnomaly() == false) {
+      remove=true;
+    }
+    if (timeRange.contains(anomalyResult.getTimeWindow()) == false) {
+      LOGGER.debug("function produced anomaly result not in window {}",timeRange);
+      remove=true;
+    }
+    if (remove) {
+      it.remove();
+    }
+  }
+}

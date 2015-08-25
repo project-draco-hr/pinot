@@ -3,8 +3,8 @@
   System.out.println("Welcome to thirdeye-anomaly setup. This process will guide " + "you through the process of generating base configuration " + "templates and database tables.");
   ThirdEyeAnomalyDetectionConfiguration topLevelConfig=getTopLevelConfig(userInput);
   StarTreeConfig starTreeConfig=ServerUtils.getStarTreeConfig(topLevelConfig.getThirdEyeServerHost(),topLevelConfig.getThirdEyeServerPort(),topLevelConfig.getCollectionName());
-  topLevelConfig.setDriverConfig(getDriverConfig(userInput,starTreeConfig));
   topLevelConfig.setAnomalyDatabaseConfig(getDatabaseConfig(userInput));
+  topLevelConfig.setDriverConfig(getDriverConfig(userInput,starTreeConfig));
   YAMLFactory yamlFactory=new YAMLFactory();
   ObjectMapper mapper=new ObjectMapper(yamlFactory);
   mapper.setSerializationInclusion(Include.NON_NULL);
@@ -20,11 +20,20 @@
     throw new IllegalStateException("Couldn't create dir: " + parent);
   }
   yamlFactory.createGenerator(new FileOutputStream(configFile)).writeObject(topLevelConfig);
-  if (topLevelConfig.getMode() == Mode.Generic) {
-    initializeDatabase(topLevelConfig,userInput,starTreeConfig);
+switch (topLevelConfig.getMode()) {
+case GENERIC:
+{
+      initializeGenericAnomalyDatabase(topLevelConfig,userInput,starTreeConfig);
+      break;
+    }
+case RULEBASED:
+{
+    initializeRuleBasedAnomalyDatabase(topLevelConfig,userInput,starTreeConfig);
+    break;
   }
-  printSectionTitle("Congratulations, you are done!");
-  System.out.println("Config file has been saved to: " + configFile.getAbsolutePath());
-  System.out.println("usage: java -jar <this_jar> <your_config.yml>");
-  printDashboardMessage(topLevelConfig.getAnomalyDatabaseConfig(),mapper);
+}
+printSectionTitle("Congratulations, you are done!");
+System.out.println("Config file has been saved to: " + configFile.getAbsolutePath());
+System.out.println("usage: java -jar <this_jar> <your_config.yml>");
+printDashboardMessage(topLevelConfig.getAnomalyDatabaseConfig(),mapper);
 }
