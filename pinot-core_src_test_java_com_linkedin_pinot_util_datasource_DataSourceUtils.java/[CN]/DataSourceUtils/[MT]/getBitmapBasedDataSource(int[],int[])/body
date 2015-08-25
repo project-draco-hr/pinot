@@ -11,10 +11,13 @@
     @Override public boolean open(){
       return true;
     }
-    @Override public Block nextBlock(    BlockId BlockId){
+    @Override public Block getNextBlock(    BlockId BlockId){
       return new SingleValueBlock(dictionary,values);
     }
-    @Override public Block nextBlock(){
+    @Override public String getOperatorName(){
+      return "DataSourceUtils_DataSource";
+    }
+    @Override public Block getNextBlock(){
       if (blockCounter == 0) {
         return nextBlock(new BlockId(0));
       }
