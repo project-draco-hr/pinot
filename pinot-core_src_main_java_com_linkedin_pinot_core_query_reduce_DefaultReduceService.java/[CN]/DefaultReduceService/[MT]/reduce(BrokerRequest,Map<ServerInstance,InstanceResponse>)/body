@@ -12,10 +12,6 @@
       }
     }
     reduceOnExceptions(brokerResponse.getExceptions(),serverInstance,instanceResponse.getExceptions());
-    if (brokerRequest.isEnableTrace()) {
-      reduceOnSegmentStatistics(brokerResponse.getSegmentStatistics(),serverInstance,instanceResponse.getSegmentStatistics());
-      reduceOnTraceInfos(brokerResponse.getTraceInfo(),serverInstance,instanceResponse.getTraceInfo());
-    }
     brokerResponse.setNumDocsScanned(brokerResponse.getNumDocsScanned() + instanceResponse.getNumDocsScanned());
     brokerResponse.setTotalDocs(brokerResponse.getTotalDocs() + instanceResponse.getTotalDocs());
   }
