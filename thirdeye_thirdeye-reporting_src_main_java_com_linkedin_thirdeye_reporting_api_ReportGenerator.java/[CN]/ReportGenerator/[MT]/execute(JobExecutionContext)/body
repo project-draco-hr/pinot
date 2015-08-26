@@ -45,8 +45,8 @@
         for (        String metric : tableSpec.getMetrics()) {
           String currentSql=SqlUtils.getSql(metric,collection,currentStartHour,currentEndHour,dimensionValues);
           String baselineSql=SqlUtils.getSql(metric,collection,baselineStartHour,baselineEndHour,dimensionValues);
-          QueryResult currentQueryResult=getReport(currentSql);
-          QueryResult baselineQueryResult=getReport(baselineSql);
+          ThirdEyeRawResponse currentQueryResult=getReport(currentSql);
+          ThirdEyeRawResponse baselineQueryResult=getReport(baselineSql);
           Map<DimensionKey,Number> currentReportOutput=applyFilters(currentQueryResult,tableSpec,metric,currentStartHour,currentEndHour);
           Map<DimensionKey,Number> baselineReportOutput=applyFilters(baselineQueryResult,tableSpec,metric,baselineStartHour,baselineEndHour);
           List<ReportRow> reportRows;
