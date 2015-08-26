@@ -4,7 +4,7 @@
   String sql="SELECT metric1 FROM " + COLLECTION + " WHERE time BETWEEN '"+ getDateString(MIN_TIME)+ "' AND '"+ getDateString(MAX_TIME)+ "'";
   URL url=new URL(THIRDEYE_SERVER + "/query/" + URLEncoder.encode(sql,"UTF-8"));
   ObjectMapper OBJECT_MAPPER=new ObjectMapper();
-  QueryResult queryResult=OBJECT_MAPPER.readValue((new InputStreamReader(url.openStream(),"UTF-8")),QueryResult.class);
+  ThirdEyeRawResponse queryResult=OBJECT_MAPPER.readValue((new InputStreamReader(url.openStream(),"UTF-8")),ThirdEyeRawResponse.class);
   for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
     for (    Entry<String,Number[]> metricEntry : entry.getValue().entrySet()) {
       metric1SumActual+=metricEntry.getValue()[0].longValue();
