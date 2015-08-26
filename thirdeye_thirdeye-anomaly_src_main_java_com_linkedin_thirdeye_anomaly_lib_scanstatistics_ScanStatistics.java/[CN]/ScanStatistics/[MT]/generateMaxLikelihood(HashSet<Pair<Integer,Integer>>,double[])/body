@@ -1,0 +1,47 @@
+{
+  if (ScanWindowSet == null)   return null;
+  double maxValue=Double.NEGATIVE_INFINITY;
+  Pair<Integer,Integer> maxInterval=null;
+  for (  Pair<Integer,Integer> a_scanwindow : ScanWindowSet) {
+    DescriptiveStatistics inObj=getTimeSeriesStats(a_scanwindow,data,true);
+    DescriptiveStatistics outObj=getTimeSeriesStats(a_scanwindow,data,false);
+    if (inObj != null & outObj != null) {
+      DescriptiveStatistics allObj=new DescriptiveStatistics(data);
+      double inMean=inObj.getMean();
+      double outMean=outObj.getMean();
+      double allMean=allObj.getMean();
+      double allVar=allObj.getVariance();
+      double sharedVar=0;
+      int total_len=data.length;
+      for (int ii=0; ii < data.length; ii++) {
+        if (ii >= a_scanwindow.getKey() & ii < a_scanwindow.getValue()) {
+          sharedVar+=(data[ii] - inMean) * (data[ii] - inMean);
+        }
+ else {
+          sharedVar+=(data[ii] - outMean) * (data[ii] - outMean);
+        }
+      }
+      sharedVar=sharedVar / (double)total_len;
+      double currentValue=(double)total_len * Math.log(Math.sqrt(allVar)) - (double)total_len / 2.0 - (double)total_len * Math.log(Math.sqrt(sharedVar));
+      for (int ii=0; ii < total_len; ii++) {
+        currentValue=(data[ii] - allMean) * (data[ii] - allMean) / (2.0 * allVar);
+      }
+      int pattern_indicator;
+      if (_pattern == Pattern.UP) {
+        pattern_indicator=(inMean > outMean) ? 1 : 0;
+      }
+ else       if (_pattern == Pattern.DOWN) {
+        pattern_indicator=(inMean < outMean) ? 1 : 0;
+      }
+ else {
+        pattern_indicator=(inMean != outMean) ? 1 : 0;
+      }
+      if (currentValue > maxValue & pattern_indicator == 1) {
+        maxValue=currentValue;
+        maxInterval=a_scanwindow;
+      }
+    }
+  }
+  MaxInterval maxDataInterval=new MaxInterval(maxValue,maxInterval);
+  return maxDataInterval;
+}

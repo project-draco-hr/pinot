@@ -1,0 +1,12 @@
+{
+  if (end_index - start_index < _minWindowLength) {
+    return null;
+  }
+  HashSet<Pair<Integer,Integer>> scanWindows=new HashSet<Pair<Integer,Integer>>();
+  for (int idx=start_index; idx < end_index - _minWindowLength; idx=idx + _minIncrement) {
+    for (int idx2=idx + _minWindowLength; idx2 < end_index; idx2=idx2 + _minIncrement) {
+      scanWindows.add(new Pair<Integer,Integer>(idx,idx2));
+    }
+  }
+  return scanWindows;
+}

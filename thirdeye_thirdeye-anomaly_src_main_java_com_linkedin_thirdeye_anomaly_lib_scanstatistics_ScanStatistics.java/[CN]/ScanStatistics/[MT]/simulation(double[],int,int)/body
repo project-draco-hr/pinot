@@ -1,0 +1,18 @@
+{
+  double[][] simulationMatrix=new double[nrow][ncol];
+  DescriptiveStatistics dataObj=new DescriptiveStatistics(data);
+  double data_mean=dataObj.getMean();
+  double data_var=dataObj.getVariance();
+  for (int row_idx=0; row_idx < nrow; row_idx++) {
+    for (int col_idx=0; col_idx < ncol; col_idx++) {
+      if (col_idx < data.length) {
+        simulationMatrix[row_idx][col_idx]=data[col_idx];
+      }
+ else {
+        Random random_rv=new Random();
+        simulationMatrix[row_idx][col_idx]=data_mean + Math.sqrt(data_var) * random_rv.nextGaussian();
+      }
+    }
+  }
+  return simulationMatrix;
+}

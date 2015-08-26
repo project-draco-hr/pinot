@@ -1,0 +1,20 @@
+{
+  HashSet<Pair<Integer,Integer>> ScanWindowsSet=generateScanWindows(start_index,end_index);
+  double[] training_data=new double[start_index];
+  for (int ii=0; ii < start_index; ii++) {
+    training_data[ii]=data[ii];
+  }
+  double[][] SimulationMatrix=simulation(training_data,_numSimulation,data.length);
+  double[] maxLikelihoodArray=new double[_numSimulation];
+  for (int ii=0; ii < _numSimulation; ii++) {
+    maxLikelihoodArray[ii]=generateMaxLikelihood(ScanWindowsSet,SimulationMatrix[ii])._maxLikelihood;
+  }
+  double threshold=computeQuantile(maxLikelihoodArray);
+  MaxInterval realDataInterval=generateMaxLikelihood(ScanWindowsSet,data);
+  if (realDataInterval._maxLikelihood > threshold) {
+    return realDataInterval._interval;
+  }
+ else {
+    return null;
+  }
+}
