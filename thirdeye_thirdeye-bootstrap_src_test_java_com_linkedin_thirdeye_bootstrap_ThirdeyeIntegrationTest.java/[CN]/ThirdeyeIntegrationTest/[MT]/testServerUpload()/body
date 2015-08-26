@@ -1,7 +1,7 @@
 {
   LOGGER.info("Starting server_upload job");
   new ThirdEyeJob("server_upload",properties).serverUpload(fs,ROOT,COLLECTION,FlowSpec.METRIC_INDEX,MIN_TIME,MAX_TIME);
-  String uri=THIRDEYE_SERVER.replaceAll(":[0-9][0-9]*",":" + THIRDEYE_ADMIN_PORT) + "/tasks/restore?collection=" + COLLECTION;
+  String uri="http://localhost:8081/tasks/restore?collection=" + COLLECTION;
   CloseableHttpClient httpClient=HttpClientBuilder.create().build();
   HttpPost postRequest=new HttpPost(uri);
   HttpResponse response=httpClient.execute(postRequest);
