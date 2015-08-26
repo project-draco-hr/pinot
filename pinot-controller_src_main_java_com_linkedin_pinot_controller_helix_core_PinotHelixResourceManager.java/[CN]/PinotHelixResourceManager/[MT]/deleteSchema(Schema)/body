@@ -1,0 +1,10 @@
+{
+  if (schema != null) {
+    String propertyStorePath=ZKMetadataProvider.constructPropertyStorePathForSchema(schema.getSchemaName());
+    if (_propertyStore.exists(propertyStorePath,AccessOption.PERSISTENT)) {
+      _propertyStore.remove(propertyStorePath,AccessOption.PERSISTENT);
+      return true;
+    }
+  }
+  return false;
+}

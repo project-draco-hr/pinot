@@ -1,0 +1,18 @@
+{
+  final String schemaName=(String)getRequest().getAttributes().get(SCHEMA_NAME);
+  if (schemaName == null) {
+    LOGGER.error("Error: Null schema name.");
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    return new StringRepresentation("Error: Null schema name.");
+  }
+  StringRepresentation result=null;
+  try {
+    result=deleteSchema(schemaName);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while processing delete request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    result=new StringRepresentation("Error: Caught Exception " + e.getStackTrace());
+  }
+  return result;
+}
