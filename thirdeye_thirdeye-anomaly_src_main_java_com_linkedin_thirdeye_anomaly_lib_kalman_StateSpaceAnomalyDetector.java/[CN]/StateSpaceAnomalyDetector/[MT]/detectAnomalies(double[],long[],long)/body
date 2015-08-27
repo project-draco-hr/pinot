@@ -1,0 +1,65 @@
+{
+  DoubleMatrix[] inputTimeSeries=new DoubleMatrix[inputData.length];
+  for (int ii=0; ii < inputData.length; ii++) {
+    if (Double.isNaN(inputData[ii])) {
+      inputTimeSeries[ii]=null;
+    }
+ else {
+      inputTimeSeries[ii]=new DoubleMatrix(new double[]{inputData[ii]});
+    }
+  }
+  StateSpaceModel Subject=estimateStateSpaceModel(inputTimeSeries,inputTimeStamps);
+  if (Subject == null) {
+    Map<Long,StateSpaceDataPoint> output=constantTrainingSequenceCase(inputTimeSeries,inputTimeStamps);
+    return output;
+  }
+  Subject.calculatePrediction(stepsAhead);
+  DoubleMatrix[] estimatedMean=Subject.getEstimatedMeans();
+  DoubleMatrix[] estimatedCovariance=Subject.getEstimatedCovariances();
+  NormalDistribution pCal=new NormalDistribution(0,1);
+  if (stepsAhead == -1) {
+    DoubleMatrix[] trainingSequence=Subject.getTrainingSequence();
+    Map<Long,StateSpaceDataPoint> output=new HashMap<Long,StateSpaceDataPoint>();
+    for (int ii=0; ii < trainingSequence.length; ii++) {
+      double MeanTmp;
+      if (estimatedMean[ii] != null) {
+        MeanTmp=estimatedMean[ii].get(0,0);
+      }
+ else {
+        MeanTmp=Double.NaN;
+      }
+      double VarianceTmp;
+      if (estimatedCovariance[ii] != null) {
+        VarianceTmp=estimatedCovariance[ii].get(0,0);
+      }
+ else {
+        VarianceTmp=Double.NaN;
+      }
+      if (trainingSequence[ii] == null) {
+        output.put(inputTimeStamps[ii],new StateSpaceDataPoint(MeanTmp,Double.NaN,Double.NaN,Math.sqrt(VarianceTmp),inputTimeStamps[ii],ii));
+      }
+ else {
+        double Actual=trainingSequence[ii].get(0,0);
+        double aPvalue=1 - pCal.cumulativeProbability(Math.abs(Actual - MeanTmp) / Math.sqrt(VarianceTmp));
+        output.put(inputTimeStamps[ii],new StateSpaceDataPoint(MeanTmp,Actual,aPvalue,Math.sqrt(VarianceTmp),inputTimeStamps[ii],ii));
+      }
+    }
+    return output;
+  }
+ else {
+    DoubleMatrix[] predictionSequence=StateSpaceDataUtils.getPredictionData(inputTimeSeries,inputTimeStamps,trainEnd,stepsAhead);
+    if (predictionSequence == null) {
+      throw new FunctionDidNotEvaluateException("no output");
+    }
+    Map<Long,StateSpaceDataPoint> output=new HashMap<Long,StateSpaceDataPoint>();
+    long monitorStart=trainEnd + offset;
+    for (int ii=0; ii < predictionSequence.length; ii++) {
+      double MeanTmp=estimatedMean[ii].get(0,0);
+      double VarianceTmp=estimatedCovariance[ii].get(0,0);
+      double Actual=predictionSequence[ii].get(0,0);
+      double aPvalue=1 - pCal.cumulativeProbability(Math.abs(Actual - MeanTmp) / Math.sqrt(VarianceTmp));
+      output.put(monitorStart + ii * offset,new StateSpaceDataPoint(MeanTmp,Actual,aPvalue,Math.sqrt(VarianceTmp),monitorStart + ii * offset,ii));
+    }
+    return output;
+  }
+}

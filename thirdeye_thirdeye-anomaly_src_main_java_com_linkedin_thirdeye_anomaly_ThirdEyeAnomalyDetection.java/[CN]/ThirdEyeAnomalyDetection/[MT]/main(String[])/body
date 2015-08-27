@@ -1,19 +1,37 @@
 {
-  if (args.length != 1 || args[0].equalsIgnoreCase("--help")) {
-    System.out.println("usage: java -jar <this_jar> <your_config.yml>");
-    System.out.println("usage (for setup walkthrough): java -jar <this_jar> --setup");
+  Options options=new Options();
+  options.addOption(Option.builder().longOpt(OPT_SETUP).desc("setup thirdeye-anomaly detection").hasArg(false).build());
+  options.addOption(Option.builder("t").argName("start end").longOpt(OPT_TIME_RANGE).desc("Run anomaly detection on this time range in milliseconds.").hasArgs().numberOfArgs(2).build());
+  options.addOption(Option.builder("d").argName("size-unit").longOpt(OPT_DETECTION_INTERVAL).desc("The frequency to run anomaly detection. e.g., 1-HOURS").hasArg().build());
+  options.addOption(Option.builder("p").argName("minutes").longOpt(OPT_POLLING_INTERVAL).desc("The frequency that thirdeye-anomaly should poll thirdeye-server for new segments.").hasArg().build());
+  options.addOption("h",OPT_HELP,false,"");
+  CommandLineParser parser=new DefaultParser();
+  CommandLine cmd=parser.parse(options,args);
+  if (cmd.hasOption(OPT_HELP)) {
+    HelpFormatter formatter=new HelpFormatter();
+    formatter.printHelp("java -jar <this_jar> [OPTIONS] <your_config>.yml",options);
     return;
   }
-  if (args[0].equals("--setup")) {
+  if (cmd.hasOption(OPT_SETUP)) {
     new ThirdEyeAnomalyDetectionSetup().setup();
+    return;
+  }
+  args=cmd.getArgs();
+  if (args.length == 0) {
+    System.err.println("must provide a config file");
     return;
   }
   ObjectMapper mapper=new ObjectMapper(new YAMLFactory());
   ThirdEyeAnomalyDetectionConfiguration config=mapper.readValue(new File(args[0]),ThirdEyeAnomalyDetectionConfiguration.class);
-  if (config.getExplicitTimeRange() != null) {
-    runWithExplicitTimeRange(config);
+  if (cmd.hasOption(OPT_TIME_RANGE)) {
+    String[] timeRangeString=cmd.getOptionValues(OPT_TIME_RANGE);
+    TimeRange timeRange=new TimeRange(Long.valueOf(timeRangeString[0]),Long.valueOf(timeRangeString[1]));
+    runWithExplicitTimeRange(config,timeRange);
   }
  else {
-    runWithPolling(config);
+    String[] detectionIntervalArgs=cmd.getOptionValue(OPT_DETECTION_INTERVAL,"1-HOURS").split("-");
+    TimeGranularity detectionInterval=new TimeGranularity(Integer.valueOf(detectionIntervalArgs[0]),TimeUnit.valueOf(detectionIntervalArgs[1]));
+    long pollingMillis=TimeUnit.MINUTES.toMillis(Integer.valueOf(cmd.getOptionValue(OPT_POLLING_INTERVAL,"5")));
+    runWithPolling(config,detectionInterval,pollingMillis);
   }
 }

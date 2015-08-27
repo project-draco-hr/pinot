@@ -1,0 +1,12 @@
+{
+  long startTimeStamp=Collections.min(series.getTimeWindowSet());
+  long endTimeStamp=Collections.max(series.getTimeWindowSet());
+  long bucketMillis=bucketUnit.toMillis(bucketSize);
+  Pair<long[],double[]> arraysFromSeries=MetricTimeSeriesUtils.toArray(series,metric,bucketMillis,null,Double.NaN);
+  long[] timestamps=arraysFromSeries.getFirst();
+  double[] observations=arraysFromSeries.getSecond();
+  removeHolesByAveragingNeighbors(observations);
+  double[] observationsMinusSeasonality=STLDecompositionUtils.removeSeasonality(timestamps,observations,seasonal);
+  List<AnomalyResult> anomalyResults=new ArrayList<AnomalyResult>();
+  return anomalyResults;
+}

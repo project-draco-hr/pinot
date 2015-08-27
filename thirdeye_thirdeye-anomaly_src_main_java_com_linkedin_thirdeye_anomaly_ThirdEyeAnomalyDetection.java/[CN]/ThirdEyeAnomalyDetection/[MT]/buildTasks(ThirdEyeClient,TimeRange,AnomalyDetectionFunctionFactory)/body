@@ -2,7 +2,7 @@
   List<LocalDriverAnomalyDetectionTask> tasks=new LinkedList<LocalDriverAnomalyDetectionTask>();
   AnomalyDetectionDriverConfig driverConfig=config.getDriverConfig();
   List<? extends FunctionTableRow> rows=FunctionTable.selectRows(config.getAnomalyDatabaseConfig(),functionFactory.getFunctionRowClass(),config.getCollectionName());
-  StarTreeConfig starTreeConfig=ServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+  StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
   for (  FunctionTableRow functionTableRow : rows) {
     if (config.getFunctionIdToEvaluate() != null && config.getFunctionIdToEvaluate() != functionTableRow.getFunctionId()) {
       continue;

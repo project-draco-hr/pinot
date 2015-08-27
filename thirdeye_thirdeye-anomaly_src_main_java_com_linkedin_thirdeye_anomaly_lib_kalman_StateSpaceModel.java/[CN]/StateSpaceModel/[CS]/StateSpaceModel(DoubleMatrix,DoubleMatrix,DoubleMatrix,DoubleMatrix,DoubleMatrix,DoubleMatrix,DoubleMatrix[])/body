@@ -1,0 +1,35 @@
+{
+  dimension_of_states_=observation_matrix.getColumns();
+  dimension_of_observations_=observation_matrix.getRows();
+  observation_matrix_ref_=observation_matrix;
+  if (!state_transition_matrix.isSquare() || state_transition_matrix.getRows() != dimension_of_states_) {
+    throw new MatrixDimensionMismatchException(state_transition_matrix.getRows(),state_transition_matrix.getColumns(),dimension_of_states_,dimension_of_states_);
+  }
+  state_transition_matrix_ref_=state_transition_matrix;
+  if (!transition_covariance_matrix.isSquare() || transition_covariance_matrix.getRows() != dimension_of_states_) {
+    throw new MatrixDimensionMismatchException(transition_covariance_matrix.getRows(),transition_covariance_matrix.getColumns(),dimension_of_states_,dimension_of_states_);
+  }
+  transition_covariance_matrix_ref_=transition_covariance_matrix;
+  if (!observation_covariance_matrix.isSquare() || observation_covariance_matrix.getRows() != dimension_of_observations_) {
+    throw new MatrixDimensionMismatchException(observation_covariance_matrix.getRows(),observation_covariance_matrix.getColumns(),dimension_of_observations_,dimension_of_observations_);
+  }
+  observation_covariance_matrix_ref_=observation_covariance_matrix;
+  if (initial_state_mean.getRows() != dimension_of_states_ || initial_state_mean.getColumns() != 1) {
+    throw new MatrixDimensionMismatchException(initial_state_mean.getRows(),initial_state_mean.getColumns(),dimension_of_states_,1);
+  }
+  initial_state_mean_ref_=initial_state_mean;
+  if (!initial_state_covariance.isSquare() || initial_state_covariance.getRows() != dimension_of_states_) {
+    throw new MatrixDimensionMismatchException(initial_state_covariance.getRows(),initial_state_covariance.getColumns(),dimension_of_states_,dimension_of_states_);
+  }
+  initial_state_covariance_ref_=initial_state_covariance;
+  number_of_observations_=observations.length;
+  observations_ref_=observations;
+  estimated_state_means_=new DoubleMatrix[number_of_observations_];
+  estimated_state_covariances_=new DoubleMatrix[number_of_observations_];
+  predicted_observation_means_=new DoubleMatrix[number_of_observations_];
+  predicted_observation_covariances_=new DoubleMatrix[number_of_observations_];
+  estimated_means_=new DoubleMatrix[number_of_observations_];
+  estimated_covariances_=new DoubleMatrix[number_of_observations_];
+  updateFilteredStates();
+  calculateLogLikelihood();
+}

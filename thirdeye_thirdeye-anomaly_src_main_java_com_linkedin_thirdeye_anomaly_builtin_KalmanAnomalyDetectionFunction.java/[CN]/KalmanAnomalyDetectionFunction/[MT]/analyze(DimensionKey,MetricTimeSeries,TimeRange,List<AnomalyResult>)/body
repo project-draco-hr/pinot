@@ -2,23 +2,10 @@
   long trainStartInput=Collections.min(series.getTimeWindowSet());
   long trainEndInput=Collections.max(series.getTimeWindowSet());
   long bucketMillis=bucketUnit.toMillis(bucketSize);
-  int numObservations=(int)(1 + ((trainEndInput - trainStartInput) / bucketMillis));
-  double[] observations=new double[numObservations];
-  long[] timestamps=new long[numObservations];
-  for (int i=0; i < numObservations; i++) {
-    long timeWindow=trainStartInput + (i * bucketMillis);
-    timestamps[i]=timeWindow;
-    if (series.getTimeWindowSet().contains(timeWindow)) {
-      observations[i]=series.get(timeWindow,metric).doubleValue();
-    }
- else {
-      observations[i]=0.0;
-    }
-  }
-  if (numObservations != series.getTimeWindowSet().size()) {
-    LOGGER.warn("looks like there are holes in the data: expected {} timestamps, actual {}",numObservations,series.getTimeWindowSet().size());
-  }
   Set<Long> omitTimestamps=new HashSet<Long>();
+  Pair<long[],double[]> arraysFromSeries=MetricTimeSeriesUtils.toArray(series,metric,bucketMillis,omitTimestamps,0.0);
+  long[] timestamps=arraysFromSeries.getFirst();
+  double[] observations=arraysFromSeries.getSecond();
   for (  AnomalyResult ar : anomalyHistory) {
     omitTimestamps.add(ar.getTimeWindow());
   }
@@ -28,12 +15,12 @@
   if (initialEstimatedStateNoise != null) {
     stateSpaceDetector.setInitialEstimatedStateNoise(initialEstimatedStateNoise);
   }
-  Map<Long,FanomalyDataPoint> fAnomalyDataPoints;
+  Map<Long,StateSpaceDataPoint> resultsByTimeWindow;
   try {
-    LOGGER.info("detecting anomalies using fanomaly");
+    LOGGER.info("detecting anomalies using kalman filter");
     long offset=TimeUnit.MILLISECONDS.convert(bucketSize,bucketUnit);
     long startTime=System.nanoTime();
-    fAnomalyDataPoints=stateSpaceDetector.DetectAnomaly(observations,timestamps,offset);
+    resultsByTimeWindow=stateSpaceDetector.detectAnomalies(observations,timestamps,offset);
     LOGGER.info("algorithm took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
     NON_DURABLE_STATE_KV_PAIRS.put(FUNCTION_INVOCATION_STATE_KEY,stateSpaceDetector.getEstimatedStateNoise());
   }
@@ -41,8 +28,8 @@
     throw new FunctionDidNotEvaluateException("something went wrong",e);
   }
   List<AnomalyResult> anomalyResults=new LinkedList<AnomalyResult>();
-  for (  long timeWindow : new TreeSet<>(fAnomalyDataPoints.keySet())) {
-    FanomalyDataPoint fAnomalyDataPoint=fAnomalyDataPoints.get(timeWindow);
+  for (  long timeWindow : new TreeSet<>(resultsByTimeWindow.keySet())) {
+    StateSpaceDataPoint fAnomalyDataPoint=resultsByTimeWindow.get(timeWindow);
     if (fAnomalyDataPoint.pValue < pValueThreshold) {
       ResultProperties resultProperties=new ResultProperties();
       resultProperties.put("actualValue","" + fAnomalyDataPoint.actualValue);

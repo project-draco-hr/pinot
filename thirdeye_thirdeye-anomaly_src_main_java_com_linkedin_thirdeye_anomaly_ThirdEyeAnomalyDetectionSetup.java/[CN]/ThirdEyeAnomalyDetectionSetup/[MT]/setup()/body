@@ -2,7 +2,7 @@
   Scanner userInput=new Scanner(System.in);
   System.out.println("Welcome to thirdeye-anomaly setup. This process will guide " + "you through the process of generating base configuration " + "templates and database tables.");
   ThirdEyeAnomalyDetectionConfiguration topLevelConfig=getTopLevelConfig(userInput);
-  StarTreeConfig starTreeConfig=ServerUtils.getStarTreeConfig(topLevelConfig.getThirdEyeServerHost(),topLevelConfig.getThirdEyeServerPort(),topLevelConfig.getCollectionName());
+  StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(topLevelConfig.getThirdEyeServerHost(),topLevelConfig.getThirdEyeServerPort(),topLevelConfig.getCollectionName());
   topLevelConfig.setAnomalyDatabaseConfig(getDatabaseConfig(userInput));
   topLevelConfig.setDriverConfig(getDriverConfig(userInput,starTreeConfig));
   YAMLFactory yamlFactory=new YAMLFactory();

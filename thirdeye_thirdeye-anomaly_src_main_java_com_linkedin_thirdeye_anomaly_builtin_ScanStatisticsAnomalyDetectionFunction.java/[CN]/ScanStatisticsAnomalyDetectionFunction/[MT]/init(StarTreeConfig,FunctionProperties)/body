@@ -1,0 +1,18 @@
+{
+  metric=functionConfig.getProperty("metric");
+  pValueThreshold=Double.parseDouble(functionConfig.getProperty("pValueThreshold",PROP_DEFAULT_P_VALUE_THRESHOLD));
+  if (pValueThreshold <= 0) {
+    throw new IllegalFunctionException("pValueThreshold must be > 0");
+  }
+  trainSize=Integer.parseInt(functionConfig.getProperty("trainSize"));
+  trainUnit=TimeUnit.valueOf(functionConfig.getProperty("trainUnit"));
+  if (trainSize < 0) {
+    throw new IllegalFunctionException("trainSize must be >= 0");
+  }
+  bucketSize=Integer.parseInt(functionConfig.getProperty("bucketSize"));
+  bucketUnit=TimeUnit.valueOf(functionConfig.getProperty("bucketUnit"));
+  if (bucketSize < 0) {
+    throw new IllegalFunctionException("bucketSize must be >= 0");
+  }
+  seasonal=Integer.parseInt(functionConfig.getProperty("seasonal",PROP_DEFAULT_SEASONAL));
+}
