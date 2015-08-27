@@ -5,7 +5,7 @@
       RetentionStrategy deletionStrategy;
       deletionStrategy=_tableDeletionStrategy.get(tableName);
       if (deletionStrategy == null) {
-        LOGGER.info("No Retention strategy found for segment: " + segmentZKMetadata.getSegmentName());
+        LOGGER.info("No Retention strategy found for segment: {}",segmentZKMetadata.getSegmentName());
         continue;
       }
       if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
@@ -14,7 +14,7 @@
         }
       }
       if (deletionStrategy.isPurgeable(segmentZKMetadata)) {
-        LOGGER.info("Trying to delete segment: " + segmentZKMetadata.getSegmentName());
+        LOGGER.info("Trying to delete segment: {}",segmentZKMetadata.getSegmentName());
         _pinotHelixResourceManager.deleteSegment(tableName,segmentZKMetadata.getSegmentName());
       }
     }

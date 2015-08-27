@@ -9,7 +9,7 @@
     return tableToDeletionStrategyMap;
   }
   if (offlineTableConfig.getValidationConfig().getSegmentPushType().equalsIgnoreCase("REFRESH")) {
-    LOGGER.info("Table: " + offlineTableName + " is a fresh only table.");
+    LOGGER.info("Table: {} is a refresh only table.",offlineTableName);
     return tableToDeletionStrategyMap;
   }
   try {
@@ -17,7 +17,7 @@
     tableToDeletionStrategyMap.put(offlineTableName,timeRetentionStrategy);
   }
  catch (  Exception e) {
-    LOGGER.error("Error creating TimeRetentionStrategy for table: " + offlineTableName + ", Exception: "+ e);
+    LOGGER.error("Error creating TimeRetentionStrategy for table: {}",offlineTableName,e);
   }
   return tableToDeletionStrategyMap;
 }
