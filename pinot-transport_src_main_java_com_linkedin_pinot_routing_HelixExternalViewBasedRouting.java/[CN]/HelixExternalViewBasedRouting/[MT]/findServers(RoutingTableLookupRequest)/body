@@ -4,5 +4,8 @@
     return null;
   }
   List<ServerToSegmentSetMap> serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
+  if (serverToSegmentSetMaps.isEmpty()) {
+    return Collections.emptyMap();
+  }
   return serverToSegmentSetMaps.get(_random.nextInt(serverToSegmentSetMaps.size())).getRouting();
 }
