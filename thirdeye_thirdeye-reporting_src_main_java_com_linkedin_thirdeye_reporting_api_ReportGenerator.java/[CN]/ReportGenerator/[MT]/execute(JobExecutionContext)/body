@@ -28,6 +28,10 @@
       reportConfig.setStartTimeString(ReportConstants.DATE_TIME_FORMATTER.print(reportConfig.getStartTime()));
       reportConfig.setEndTime(currentEndHour.withZone(DateTimeZone.forID(reportConfig.getTimezone())));
       reportConfig.setEndTimeString(ReportConstants.DATE_TIME_FORMATTER.print(reportConfig.getEndTime()));
+      List<TimeRange> missingSegments=SegmentDescriptorUtils.checkSegments(serverUri,collection,currentStartHour,currentEndHour,baselineStartHour,baselineEndHour);
+      if (missingSegments != null && missingSegments.size() != 0) {
+        ReportEmailSender.sendErrorReport(missingSegments,scheduleSpec,reportConfig);
+      }
       URL thirdeyeUri=getThirdeyeURL(tableSpec,scheduleSpec,baselineEndHour.minus(TimeUnit.MILLISECONDS.convert(DEFAULT_AGGREGATION_GRANULARITY,DEFAULT_AGGREGATION_UNIT)),currentEndHour.minus(TimeUnit.MILLISECONDS.convert(DEFAULT_AGGREGATION_GRANULARITY,DEFAULT_AGGREGATION_UNIT)));
       LOGGER.info("Generating Thirdeye URL {}",thirdeyeUri);
       Map<String,String> dimensionValues=new HashMap<String,String>();

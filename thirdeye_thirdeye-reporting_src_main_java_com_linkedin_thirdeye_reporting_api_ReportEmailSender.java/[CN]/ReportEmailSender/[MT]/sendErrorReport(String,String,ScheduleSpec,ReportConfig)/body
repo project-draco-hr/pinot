@@ -1,0 +1,22 @@
+{
+  try {
+    Properties props=new Properties();
+    props.setProperty(ReportConstants.MAIL_SMTP_HOST_KEY,ReportConstants.MAIL_SMTP_HOST_VALUE);
+    Session session=Session.getDefaultInstance(props,null);
+    Message emailReportMessage=new MimeMessage(session);
+    for (    String emailIdFrom : scheduleSpec.getEmailFrom().split(",")) {
+      emailReportMessage.setFrom(new InternetAddress(emailIdFrom,scheduleSpec.getNameFrom()));
+    }
+    for (    String emailIdTo : scheduleSpec.getErrorEmailTo().split(",")) {
+      emailReportMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(emailIdTo,scheduleSpec.getNameTo()));
+    }
+    emailReportMessage.setSubject(subject);
+    emailReportMessage.setContent(message,"text/html");
+    LOGGER.info("Sending error email from {} to {}  ",scheduleSpec.getEmailFrom(),scheduleSpec.getEmailTo());
+    Transport.send(emailReportMessage);
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  throw new IllegalStateException("Data Segments missing");
+}
