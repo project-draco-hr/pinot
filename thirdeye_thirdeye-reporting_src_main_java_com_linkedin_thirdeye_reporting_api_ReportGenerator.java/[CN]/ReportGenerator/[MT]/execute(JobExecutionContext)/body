@@ -15,6 +15,7 @@
     TimeUnit lagUnit=scheduleSpec.getLagUnit();
     List<Table> tables=new ArrayList<Table>();
     Map<String,AnomalyReportTable> anomalyReportTables=null;
+    List<TimeRange> missingSegments=null;
     for (    TableSpec tableSpec : reportConfig.getTables()) {
       LOGGER.info("Collecting data for table {}",tableSpec);
       int baselineSize=tableSpec.getBaselineSize();
@@ -28,7 +29,7 @@
       reportConfig.setStartTimeString(ReportConstants.DATE_TIME_FORMATTER.print(reportConfig.getStartTime()));
       reportConfig.setEndTime(currentEndHour.withZone(DateTimeZone.forID(reportConfig.getTimezone())));
       reportConfig.setEndTimeString(ReportConstants.DATE_TIME_FORMATTER.print(reportConfig.getEndTime()));
-      List<TimeRange> missingSegments=SegmentDescriptorUtils.checkSegments(serverUri,collection,currentStartHour,currentEndHour,baselineStartHour,baselineEndHour);
+      missingSegments=SegmentDescriptorUtils.checkSegments(serverUri,collection,currentStartHour,currentEndHour,baselineStartHour,baselineEndHour);
       if (missingSegments != null && missingSegments.size() != 0) {
         ReportEmailSender.sendErrorReport(missingSegments,scheduleSpec,reportConfig);
       }
@@ -85,7 +86,7 @@
     if (reportConfig.getAliases() != null) {
       alias(tables,anomalyReportTables);
     }
-    ReportEmailSender reportEmailSender=new ReportEmailSender(tables,scheduleSpec,reportConfig,anomalyReportTables,templatePath);
+    ReportEmailSender reportEmailSender=new ReportEmailSender(tables,scheduleSpec,reportConfig,anomalyReportTables,missingSegments,templatePath);
     reportEmailSender.emailReport();
   }
  catch (  IOException e) {
