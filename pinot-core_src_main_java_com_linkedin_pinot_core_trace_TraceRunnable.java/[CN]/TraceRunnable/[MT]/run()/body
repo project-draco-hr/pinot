@@ -1,9 +1,9 @@
 {
-  TraceContext.registerThreadToRequest(request,parent);
+  if (request != null)   TraceContext.registerThreadToRequest(request,parent);
   try {
     runJob();
   }
   finally {
-    TraceContext.unregisterThreadFromRequest();
+    if (request != null)     TraceContext.unregisterThreadFromRequest();
   }
 }
