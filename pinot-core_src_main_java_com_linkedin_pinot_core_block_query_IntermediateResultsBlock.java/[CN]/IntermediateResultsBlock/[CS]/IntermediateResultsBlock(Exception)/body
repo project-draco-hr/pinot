@@ -2,4 +2,7 @@
   if (_processingExceptions == null) {
     _processingExceptions=new ArrayList<ProcessingException>();
   }
+  ProcessingException exception=QueryException.QUERY_EXECUTION_ERROR.deepCopy();
+  exception.setMessage(ExceptionUtils.getStackTrace(e));
+  _processingExceptions.add(exception);
 }
