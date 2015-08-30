@@ -1,0 +1,9 @@
+{
+  List<Serializable> resultList=new ArrayList<Serializable>();
+  for (int i=0; i < numOfListCombined; ++i) {
+    QuantileDigest digest=new QuantileDigest(maxError);
+    arr.offerNumberInRangeTo(digest,i * numOfItemsPerList,(i + 1) * numOfItemsPerList);
+    resultList.add(digest);
+  }
+  return resultList;
+}

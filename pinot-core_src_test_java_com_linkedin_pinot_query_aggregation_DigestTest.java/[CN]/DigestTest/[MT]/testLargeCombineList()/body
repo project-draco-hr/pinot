@@ -1,0 +1,28 @@
+{
+  for (  Byte percentile : functionMap.keySet()) {
+    LOGGER.info("[Test Percentile " + percentile + "]");
+    AggregationFunction aggregationFunction=functionMap.get(percentile);
+    AggregationFunction aggregationAccurateFunction=accurateFunctionMap.get(percentile);
+    aggregationFunction.init(_paramsInfo);
+    aggregationAccurateFunction.init(_paramsInfo);
+    StringBuilder sb1=new StringBuilder();
+    StringBuilder sb2=new StringBuilder();
+    StringBuilder sb3=new StringBuilder();
+    int maxSize=100000;
+    for (int i=1; i <= maxSize; i+=maxSize / 17) {
+      if (i == 1)       continue;
+      RandomNumberArray arr=new RandomNumberArray(i * 10,1);
+      long t1=System.nanoTime();
+      List<Serializable> aggregationResults=getQuantileDigestResultValues(arr,10,i);
+      long t2=System.nanoTime();
+      List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+      long t3=System.nanoTime();
+      long estimate=((QuantileDigest)(combinedResult.get(0))).getQuantile(((double)percentile) / 100);
+      List<Serializable> aggregationResults2=getDoubleArrayListResultValues(arr,10,i);
+      List<Serializable> combinedResult2=aggregationAccurateFunction.combine(aggregationResults2,CombineLevel.SEGMENT);
+      long actual=(long)PercentileUtil.getValueOnPercentile((DoubleArrayList)combinedResult2.get(0),percentile);
+      println(i + ", " + ""+ (t2 - t1)+ ""+ ", "+ (t3 - t2)+ ", "+ getErrorString(actual,estimate));
+      TestUtils.assertApproximation(estimate,actual,threshold);
+    }
+  }
+}

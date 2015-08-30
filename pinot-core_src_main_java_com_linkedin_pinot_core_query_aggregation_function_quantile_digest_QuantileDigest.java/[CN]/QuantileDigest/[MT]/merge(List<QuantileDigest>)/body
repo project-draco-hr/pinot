@@ -1,0 +1,10 @@
+{
+  if (digests.isEmpty()) {
+    throw new RuntimeException("Digests to be unioned should not be empty!");
+  }
+  QuantileDigest ret=digests.get(0);
+  for (int i=1; i < digests.size(); i++) {
+    ret.merge(digests.get(i));
+  }
+  return ret;
+}

@@ -1,0 +1,24 @@
+{
+  int numOfItems=1000000;
+  for (  Byte percentile : functionMap.keySet()) {
+    LOGGER.info("[Test Percentile " + percentile + "]");
+    println("#items_inserted, QuantileDigest_time(nano), DoubleArrayList_time(nano), time_ratio, estimate, precise, error");
+    for (int i=0; i < numOfItems; i+=numOfItems / 17) {
+      if (i == 0) {
+        continue;
+      }
+      RandomNumberArray arr=new RandomNumberArray(i,DUPLICATION_PER_ITEM);
+      QuantileDigest digest=new QuantileDigest(maxError);
+      DoubleArrayList list=new DoubleArrayList();
+      long t1=System.nanoTime();
+      arr.offerAllNumberTo(digest);
+      long estimate=digest.getQuantile(((double)percentile) / 100);
+      long t2=System.nanoTime();
+      arr.offerAllNumberTo(list);
+      long actual=(long)PercentileUtil.getValueOnPercentile(list,percentile);
+      long t3=System.nanoTime();
+      println(i + ", " + ""+ (t2 - t1)+ ", "+ (t3 - t2)+ ", "+ (t2 - t1 + 0.0) / (t3 - t2 + 0.0) + ", " + estimate + ", " + actual + ", " + getErrorString(actual,estimate));
+    }
+  }
+  assertEquals(true,true);
+}

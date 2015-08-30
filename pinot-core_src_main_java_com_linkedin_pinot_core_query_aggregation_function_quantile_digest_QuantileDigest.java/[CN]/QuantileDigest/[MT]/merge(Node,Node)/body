@@ -1,0 +1,43 @@
+{
+  if (node == null) {
+    return copyRecursive(other);
+  }
+ else   if (other == null) {
+    return node;
+  }
+ else   if (!inSameSubtree(node.bits,other.bits,Math.max(node.level,other.level))) {
+    return makeSiblings(node,copyRecursive(other));
+  }
+ else   if (node.level > other.level) {
+    long branch=other.bits & node.getBranchMask();
+    if (branch == 0) {
+      node.left=merge(node.left,other);
+    }
+ else {
+      node.right=merge(node.right,other);
+    }
+    return node;
+  }
+ else   if (node.level < other.level) {
+    Node result=createNode(other.bits,other.level,other.weightedCount);
+    long branch=node.bits & other.getBranchMask();
+    if (branch == 0) {
+      result.left=merge(node,other.left);
+      result.right=copyRecursive(other.right);
+    }
+ else {
+      result.left=copyRecursive(other.left);
+      result.right=merge(node,other.right);
+    }
+    return result;
+  }
+  double oldWeight=node.weightedCount;
+  weightedCount+=other.weightedCount;
+  node.weightedCount=node.weightedCount + other.weightedCount;
+  node.left=merge(node.left,other.left);
+  node.right=merge(node.right,other.right);
+  if (oldWeight < ZERO_WEIGHT_THRESHOLD && node.weightedCount >= ZERO_WEIGHT_THRESHOLD) {
+    nonZeroNodeCount++;
+  }
+  return node;
+}

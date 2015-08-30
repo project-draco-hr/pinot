@@ -1,0 +1,13 @@
+{
+  DataType type=block[0].getMetadata().getDataType();
+  if (!type.isInteger()) {
+    throw new RuntimeException("Only integer(byte, short, int, long) type columns can be used in percentileest, get: " + type);
+  }
+  BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
+  QuantileDigest ret=new QuantileDigest(_maxError);
+  int docId=0;
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    offerValueToTDigest(docId,block,ret);
+  }
+  return ret;
+}

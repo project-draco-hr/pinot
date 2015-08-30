@@ -1,0 +1,35 @@
+{
+  try {
+    double maxError=input.readDouble();
+    double alpha=input.readDouble();
+    QuantileDigest result=new QuantileDigest(maxError,alpha);
+    result.landmarkInSeconds=input.readLong();
+    result.min=input.readLong();
+    result.max=input.readLong();
+    result.totalNodeCount=input.readInt();
+    Deque<Node> stack=new ArrayDeque<>();
+    for (int i=0; i < result.totalNodeCount; i++) {
+      int flags=input.readByte();
+      Node node=deserializeNode(input);
+      if ((flags & Flags.HAS_RIGHT) != 0) {
+        node.right=stack.pop();
+      }
+      if ((flags & Flags.HAS_LEFT) != 0) {
+        node.left=stack.pop();
+      }
+      stack.push(node);
+      result.weightedCount+=node.weightedCount;
+      if (node.weightedCount >= ZERO_WEIGHT_THRESHOLD) {
+        result.nonZeroNodeCount++;
+      }
+    }
+    if (!stack.isEmpty()) {
+      Preconditions.checkArgument(stack.size() == 1,"Tree is corrupted. Expected a single root node");
+      result.root=stack.pop();
+    }
+    return result;
+  }
+ catch (  IOException e) {
+    throw Throwables.propagate(e);
+  }
+}

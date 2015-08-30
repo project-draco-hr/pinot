@@ -1,0 +1,31 @@
+{
+  for (  Byte percentile : functionMap.keySet()) {
+    LOGGER.info("[Test Percentile " + percentile + " (combine)]");
+    AggregationFunction aggregationFunction=functionMap.get(percentile);
+    AggregationFunction aggregationAccurateFunction=accurateFunctionMap.get(percentile);
+    aggregationFunction.init(_paramsInfo);
+    aggregationAccurateFunction.init(_paramsInfo);
+    int _sizeOfCombineList=1000;
+    StringBuilder sb1=new StringBuilder();
+    StringBuilder sb2=new StringBuilder();
+    for (int i=1; i <= _sizeOfCombineList; ++i) {
+      List<Serializable> aggregationResults=getQuantileDigestResultValues(i);
+      List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+      long estimate=((QuantileDigest)(combinedResult.get(0))).getQuantile(((double)percentile) / 100);
+      List<Serializable> aggregationResults2=getDoubleArrayListResultValues(i);
+      List<Serializable> combinedResult2=aggregationAccurateFunction.combine(aggregationResults2,CombineLevel.SEGMENT);
+      long actual=(long)PercentileUtil.getValueOnPercentile((DoubleArrayList)combinedResult2.get(0),percentile);
+      TestUtils.assertApproximation(estimate,actual,threshold);
+      sb1.append((int)estimate + ", ");
+      sb2.append(i + ", ");
+    }
+    LOGGER.info("[Test Percentile " + percentile + " (reduce)]");
+    for (int i=1; i <= _sizeOfCombineList; ++i) {
+      List<Serializable> combinedResults=getQuantileDigestResultValues(i);
+      List<Serializable> combinedResults2=getDoubleArrayListResultValues(i);
+      long estimate=(long)aggregationFunction.reduce(combinedResults);
+      double actual=(double)aggregationAccurateFunction.reduce(combinedResults2);
+      TestUtils.assertApproximation(estimate,actual,threshold);
+    }
+  }
+}

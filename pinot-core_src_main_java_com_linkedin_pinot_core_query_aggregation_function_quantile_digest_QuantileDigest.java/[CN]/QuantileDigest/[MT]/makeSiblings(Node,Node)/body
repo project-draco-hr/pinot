@@ -1,0 +1,14 @@
+{
+  int parentLevel=MAX_BITS - Long.numberOfLeadingZeros(node.bits ^ sibling.bits);
+  Node parent=createNode(node.bits,parentLevel,0);
+  long branch=sibling.bits & parent.getBranchMask();
+  if (branch == 0) {
+    parent.left=sibling;
+    parent.right=node;
+  }
+ else {
+    parent.left=node;
+    parent.right=sibling;
+  }
+  return parent;
+}

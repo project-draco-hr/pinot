@@ -1,0 +1,13 @@
+{
+  long nowInSeconds=TimeUnit.NANOSECONDS.toSeconds(ticker.read());
+  long targetLandmark=Math.max(one.landmarkInSeconds,two.landmarkInSeconds);
+  if (nowInSeconds - targetLandmark >= RESCALE_THRESHOLD_SECONDS) {
+    targetLandmark=nowInSeconds;
+  }
+  if (targetLandmark != one.landmarkInSeconds) {
+    one.rescale(targetLandmark);
+  }
+  if (targetLandmark != two.landmarkInSeconds) {
+    two.rescale(targetLandmark);
+  }
+}

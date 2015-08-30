@@ -1,0 +1,25 @@
+{
+  try {
+    output.writeDouble(maxError);
+    output.writeDouble(alpha);
+    output.writeLong(landmarkInSeconds);
+    output.writeLong(min);
+    output.writeLong(max);
+    output.writeInt(totalNodeCount);
+    postOrderTraversal(root,new Callback(){
+      @Override public boolean process(      Node node){
+        try {
+          serializeNode(output,node);
+        }
+ catch (        IOException e) {
+          Throwables.propagate(e);
+        }
+        return true;
+      }
+    }
+);
+  }
+ catch (  IOException e) {
+    Throwables.propagate(e);
+  }
+}
