@@ -1,0 +1,20 @@
+{
+  RuleBasedFunctionTableRow functionRow=new RuleBasedFunctionTableRow();
+  functionRow.setFunctionName(functionName);
+  functionRow.setFunctionDescription(functionDescription);
+  functionRow.setCollectionName(config.getCollectionName());
+  functionRow.setMetricName(formParams.getFirst("Metric"));
+  functionRow.setDelta(Double.valueOf(formParams.getFirst("Delta")));
+  functionRow.setAggregateUnit(TimeUnit.valueOf(formParams.getFirst("AggregateUnit")));
+  functionRow.setAggregateSize(Integer.valueOf(formParams.getFirst("AggregateSize")));
+  functionRow.setBaselineUnit(TimeUnit.valueOf(formParams.getFirst("BaselineUnit")));
+  functionRow.setBaselineSize(Integer.valueOf(formParams.getFirst("BaselineSize")));
+  functionRow.setConsecutiveBuckets(Integer.valueOf(formParams.getFirst("ConsecutiveBuckets")));
+  functionRow.setCronDefinition(formParams.getFirst("CronDefinition"));
+  functionRow.setDeltaTableName(formParams.getFirst("DeltaTable"));
+  if (functionRow.getDeltaTableName() != null) {
+    StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+    DeltaTable.create(config.getAnomalyDatabaseConfig(),starTreeConfig,functionRow.getDeltaTableName());
+  }
+  return functionRow;
+}

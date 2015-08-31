@@ -1,0 +1,16 @@
+{
+  long startTimeWindow=applicationRunTimeWindow.getStart();
+  long endTimeWindow=applicationRunTimeWindow.getEnd();
+  long currTimeWindow=startTimeWindow;
+  long overlapWindowMillis=TimeGranularityUtils.toMillis(overlappingMonitoringInterval);
+  while (currTimeWindow < endTimeWindow) {
+    LOGGER.info("begin processing for {} to {}",startTimeWindow,endTimeWindow);
+    try {
+      new ThirdEyeAnomalyDetection(config,new TimeRange(currTimeWindow - overlapWindowMillis,endTimeWindow)).call();
+    }
+ catch (    Exception e) {
+      LOGGER.error("uncaught exception",e);
+    }
+    currTimeWindow+=TimeGranularityUtils.toMillis(detectionInterval);
+  }
+}

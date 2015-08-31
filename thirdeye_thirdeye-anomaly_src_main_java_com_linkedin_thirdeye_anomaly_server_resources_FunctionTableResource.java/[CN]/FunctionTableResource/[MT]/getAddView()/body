@@ -1,0 +1,10 @@
+{
+switch (config.getMode()) {
+case GENERIC:
+    return new AddGenericView(config.getAnomalyDatabaseConfig().getUrl(),config.getAnomalyDatabaseConfig().getFunctionTableName(),config.getCollectionName(),FORM_ADD_RESPONSE_RESOURCE);
+case RULEBASED:
+  return new AddRuleBasedView(config.getAnomalyDatabaseConfig().getUrl(),config.getAnomalyDatabaseConfig().getFunctionTableName(),config.getCollectionName(),FORM_ADD_RESPONSE_RESOURCE);
+default :
+throw new IllegalStateException();
+}
+}

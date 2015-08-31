@@ -6,7 +6,8 @@
   try {
     conn=dbConfig.getConnection();
     stmt=conn.createStatement();
-    rs=stmt.executeQuery(buildFunctionTableSelectStmt(dbConfig,collection));
+    String sql=String.format(ResourceUtils.getResourceAsString("database/function/select-function-table-template.sql"),dbConfig.getFunctionTableName(),collection);
+    rs=stmt.executeQuery(sql);
     while (rs.next()) {
       T row=rowClass.newInstance();
       row.init(rs);

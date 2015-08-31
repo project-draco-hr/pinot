@@ -1,0 +1,12 @@
+{
+  try {
+    String sql=String.format(ResourceUtils.getResourceAsString("database/function/update-activate-function-template.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName(),functionId);
+    config.getAnomalyDatabaseConfig().runSQL(sql);
+  }
+ catch (  Exception e) {
+    StringWriter sw=new StringWriter();
+    e.printStackTrace(new PrintWriter(sw));
+    return Response.serverError().entity("An error occurred:\n" + sw.toString()).build();
+  }
+  return Response.ok().entity(formResponseHtmlHelper("Success! Function " + functionId + " marked as active.","/")).build();
+}

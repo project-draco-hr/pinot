@@ -1,0 +1,28 @@
+{
+  String[] lines=ResourceUtils.getResourceAsString("timeseries.csv").split("\n");
+  int numData=lines.length;
+  long[] timestamps=new long[numData];
+  double[] series=new double[numData];
+  for (int i=0; i < numData; i++) {
+    timestamps[i]=i;
+    String value=lines[i].split(",")[1];
+    if (value.equals("NA")) {
+      series[i]=0;
+    }
+ else {
+      series[i]=Double.valueOf(value);
+    }
+  }
+  long start=System.currentTimeMillis();
+  double[] data=STLDecompositionUtils.removeSeasonality(timestamps,series,168);
+  int split=800;
+  double[] train=Arrays.copyOfRange(data,0,split);
+  double[] monitor=Arrays.copyOfRange(data,split,data.length);
+  ScanStatistics scanStatistics=new ScanStatistics(1000,1,100000,0.05,Pattern.DOWN,1);
+  Range<Integer> anomaly=scanStatistics.getInterval(train,monitor);
+  Range<Integer> anomalyOffset=Range.closedOpen(anomaly.lowerEndpoint() + split,anomaly.upperEndpoint() + split);
+  System.out.println("N : " + data.length);
+  System.out.println("Split : " + split);
+  System.out.println("Anomaly : " + anomalyOffset);
+  System.out.println("Runtime: " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
+}

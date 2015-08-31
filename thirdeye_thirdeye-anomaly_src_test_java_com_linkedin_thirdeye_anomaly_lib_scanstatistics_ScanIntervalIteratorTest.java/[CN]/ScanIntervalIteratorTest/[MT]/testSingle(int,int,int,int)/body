@@ -1,0 +1,11 @@
+{
+  ScanIntervalIterator it=new ScanIntervalIterator(min,max,minWidth,maxWidth,1);
+  HashSet<Range<Integer>> found=new HashSet<>();
+  while (it.hasNext()) {
+    Range<Integer> curr=it.next();
+    found.add(curr);
+  }
+  HashSet<Range<Integer>> foundByBruteForce=bruteForce(min,max,minWidth,maxWidth);
+  Assert.assertEquals(found.size(),foundByBruteForce.size());
+  Assert.assertEquals(found,foundByBruteForce);
+}

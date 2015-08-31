@@ -1,0 +1,45 @@
+{
+  double maxValue=Double.NEGATIVE_INFINITY;
+  Range<Integer> maxInterval=null;
+  OnlineNormalStatistics dsAll=trainDataDs.copy();
+  for (  double d : monitoringData) {
+    dsAll.addValue(d);
+  }
+  double allVar=dsAll.getPopulationVariance();
+  double N=trainingData.length + monitoringData.length;
+  double sharedTerms=(dsAll.getSumSqDev() / (2 * allVar)) + (N * Math.log(Math.sqrt(allVar))) - (0.5 * N);
+  while (scanWindowIterator.hasNext()) {
+    Range<Integer> currentScanWindow=scanWindowIterator.next();
+    OnlineNormalStatistics inDs=new OnlineNormalStatistics();
+    OnlineNormalStatistics outDs=trainDataDs.copy();
+    getTimeSeriesStats(currentScanWindow,monitoringData,inDs,outDs);
+    double inMean=inDs.getMean();
+    double outMean=outDs.getMean();
+    double sharedVar=(outDs.getSumSqDev() + inDs.getSumSqDev()) / N;
+    double currentValue=sharedTerms - (N * Math.log(Math.sqrt(sharedVar)));
+    boolean matchesPattern=false;
+switch (_pattern) {
+case UP:
+{
+        matchesPattern=inMean > outMean;
+        break;
+      }
+case DOWN:
+{
+      matchesPattern=inMean < outMean;
+      break;
+    }
+case NOTEQUAL:
+{
+    matchesPattern=equalsDouble(inMean,outMean,0.001);
+    break;
+  }
+}
+if (currentValue > maxValue && matchesPattern) {
+maxValue=currentValue;
+maxInterval=currentScanWindow;
+}
+}
+MaxInterval maxDataInterval=new MaxInterval(maxValue,maxInterval);
+return maxDataInterval;
+}

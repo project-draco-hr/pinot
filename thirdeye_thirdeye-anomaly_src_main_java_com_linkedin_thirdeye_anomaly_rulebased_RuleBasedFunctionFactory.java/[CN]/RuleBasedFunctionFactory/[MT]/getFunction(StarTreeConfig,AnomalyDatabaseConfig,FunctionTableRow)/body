@@ -1,15 +1,15 @@
 {
   RuleBasedFunctionTableRow ruleBasedFunctionTableRow=(RuleBasedFunctionTableRow)functionTableRow;
-  TimeGranularity aggregateGranularity=new TimeGranularity(ruleBasedFunctionTableRow.getAggregateSize(),TimeUnit.valueOf(ruleBasedFunctionTableRow.getAggregateUnit()));
+  TimeGranularity aggregateGranularity=new TimeGranularity(ruleBasedFunctionTableRow.getAggregateSize(),ruleBasedFunctionTableRow.getAggregateUnit());
   if (aggregateGranularity.getSize() <= 0) {
     throw new IllegalFunctionException("aggregate size must be positive");
   }
-  TimeGranularity baselineGranularity=new TimeGranularity(ruleBasedFunctionTableRow.getBaselineSize(),TimeUnit.valueOf(ruleBasedFunctionTableRow.getBaselineUnit()));
+  TimeGranularity baselineGranularity=new TimeGranularity(ruleBasedFunctionTableRow.getBaselineSize(),ruleBasedFunctionTableRow.getBaselineUnit());
   if (baselineGranularity.getSize() <= 0) {
     throw new IllegalFunctionException("baseline size must be positive");
   }
   DimensionKeyMatchTable<Double> deltaTable=null;
-  if (ruleBasedFunctionTableRow.getDeltaTableName() != null) {
+  if (ruleBasedFunctionTableRow.getDeltaTableName() != null && ruleBasedFunctionTableRow.getDeltaTableName().length() > 0) {
     deltaTable=DeltaTable.load(dbconfig,starTreeConfig,ruleBasedFunctionTableRow.getDeltaTableName());
   }
   AnomalyDetectionFunction func;

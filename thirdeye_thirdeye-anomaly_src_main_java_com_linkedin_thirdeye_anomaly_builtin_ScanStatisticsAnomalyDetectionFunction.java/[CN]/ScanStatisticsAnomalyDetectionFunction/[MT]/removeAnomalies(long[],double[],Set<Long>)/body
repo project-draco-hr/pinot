@@ -1,0 +1,14 @@
+{
+  int collapsedIdx=0;
+  double[] dataWithAnomaliesRemoved=new double[timestamps.length];
+  for (int i=0; i < timestamps.length; i++) {
+    if (anomalousTimestamps.contains(timestamps[i])) {
+      continue;
+    }
+ else {
+      dataWithAnomaliesRemoved[collapsedIdx]=data[i];
+      collapsedIdx++;
+    }
+  }
+  return Arrays.copyOf(dataWithAnomaliesRemoved,collapsedIdx);
+}
