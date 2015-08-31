@@ -1,6 +1,18 @@
 {
   final String pql=request.getString("pql");
   boolean isTraceEnabled=false;
+  if (request.has("trace")) {
+    try {
+      isTraceEnabled=Boolean.parseBoolean(request.getString("trace"));
+      LOGGER.info("Trace is set to: " + isTraceEnabled);
+    }
+ catch (    Exception e) {
+      LOGGER.warn("Invalid trace value: {}",request.getString("trace"),e);
+    }
+  }
+ else {
+    LOGGER.warn("Request does not contain a key called \"trace\", so trace is disabled.");
+  }
   final long startTime=System.nanoTime();
   final BrokerRequest brokerRequest;
   try {

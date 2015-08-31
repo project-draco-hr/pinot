@@ -1,5 +1,7 @@
 {
+  LOGGER.info("Running query: " + getQuery());
   final String pqlString=getQuery().getValues("pql");
+  final String traceEnabled=getQuery().getValues("trace");
   LOGGER.info("*** found pql : " + pqlString);
   JSONObject compiledJSON;
   try {
@@ -39,6 +41,7 @@
     LOGGER.error("Caught exception while processing get request",e);
     return new StringRepresentation(QueryException.BROKER_INSTANCE_MISSING_ERROR.toString());
   }
-  final String resp=sendPQLRaw("http://" + config.getHostName().split("_")[1] + ":"+ config.getPort()+ "/query",pqlString);
+  String url="http://" + config.getHostName().split("_")[1] + ":"+ config.getPort()+ "/query";
+  final String resp=sendPQLRaw(url,pqlString,traceEnabled);
   return new StringRepresentation(resp);
 }
