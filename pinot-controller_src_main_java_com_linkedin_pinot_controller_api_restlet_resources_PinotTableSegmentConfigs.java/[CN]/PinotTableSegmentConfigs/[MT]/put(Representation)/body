@@ -1,13 +1,16 @@
 {
   final String tableName=(String)getRequest().getAttributes().get("tableName");
   if (tableName == null) {
-    return new StringRepresentation("tableName is not present");
+    LOGGER.error("Error: Table name null.");
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    return new StringRepresentation("Table name is not null");
   }
   try {
     return updateSegmentConfig(tableName,entity);
   }
  catch (  final Exception e) {
-    LOGGER.error("Error updating segments configs for table {}",tableName,e);
+    LOGGER.error("Caught exception while updating segment config ",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }

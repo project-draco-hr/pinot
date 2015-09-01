@@ -12,7 +12,10 @@
     rep=new StringRepresentation(res.toString());
   }
   if (res == null) {
-    rep=new StringRepresentation("Cannot find the segment: " + segmentName + " in table: "+ tableName);
+    String error=new String("Cannot find the segment: " + segmentName + " in table: "+ tableName);
+    LOGGER.error(error);
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    rep=new StringRepresentation(error);
   }
   return rep;
 }

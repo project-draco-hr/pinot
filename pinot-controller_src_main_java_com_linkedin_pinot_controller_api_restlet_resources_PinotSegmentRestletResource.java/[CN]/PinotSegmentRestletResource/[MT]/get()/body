@@ -6,10 +6,14 @@
     final String state=getReference().getQueryAsForm().getValues(STATE);
     final String tableType=getReference().getQueryAsForm().getValues(TABLE_TYPE);
     if (tableType != null && !isValidTableType(tableType)) {
+      LOGGER.error(INVALID_TABLE_TYPE_ERROR);
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
       return new StringRepresentation(INVALID_TABLE_TYPE_ERROR);
     }
     if (state != null) {
       if (!isValidState(state)) {
+        LOGGER.error(INVALID_STATE_ERROR);
+        setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
         return new StringRepresentation(INVALID_STATE_ERROR);
       }
  else {

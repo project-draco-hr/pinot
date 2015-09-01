@@ -1,6 +1,8 @@
 {
   if (tableName == null) {
-    return true;
+    LOGGER.error("Error: Table name null.");
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    return false;
   }
   if (type == null || type.equalsIgnoreCase(TableType.OFFLINE.name())) {
     _pinotHelixResourceManager.deleteOfflineTable(tableName);
@@ -8,5 +10,5 @@
   if (type == null || type.equalsIgnoreCase(TableType.REALTIME.name())) {
     _pinotHelixResourceManager.deleteRealtimeTable(tableName);
   }
-  return false;
+  return true;
 }

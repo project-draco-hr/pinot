@@ -8,12 +8,14 @@
     }
  catch (    Exception e) {
       LOGGER.error("Caught exception while adding table",e);
+      setStatus(Status.SERVER_ERROR_INTERNAL);
       return new StringRepresentation("Failed: " + e.getMessage());
     }
     return new StringRepresentation("Success");
   }
  catch (  Exception e) {
     LOGGER.error("error reading/serializing requestJSON",e);
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     return new StringRepresentation("Failed: " + e.getMessage());
   }
 }

@@ -3,7 +3,8 @@
     return updateTenantConfig("dummy");
   }
  catch (  Exception e) {
-    LOGGER.error("errpr updating medata configs for table {}",entity,e);
+    LOGGER.error("Caught exception while updating tenant config ",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }

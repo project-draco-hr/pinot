@@ -6,7 +6,7 @@
     FileUtils.deleteQuietly(segmentFile);
   }
   FileUtils.moveFile(dataFile,segmentFile);
-  _pinotHelixResourceManager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
-  setStatus(Status.SUCCESS_OK);
-  return new StringRepresentation("");
+  PinotResourceManagerResponse response=_pinotHelixResourceManager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
+  setStatus((response.isSuccessfull() ? Status.SUCCESS_OK : Status.SERVER_ERROR_INTERNAL));
+  return new StringRepresentation(response.toJSON().toString());
 }

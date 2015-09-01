@@ -9,6 +9,8 @@
     return _pinotHelixResourceManager.dropTable(tableName);
   }
  else {
+    LOGGER.error(INVALID_STATE_ERROR);
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     return new PinotResourceManagerResponse(INVALID_STATE_ERROR,false);
   }
 }

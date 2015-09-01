@@ -8,6 +8,10 @@
       ret.put(url);
     }
   }
+ else {
+    LOGGER.error("Error: Table " + tableName + " not found.");
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+  }
   presentation=new StringRepresentation(ret.toString());
   return presentation;
 }

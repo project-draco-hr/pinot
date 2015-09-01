@@ -16,13 +16,16 @@
         presentation=toggleTenantState(tenantName,state,type);
       }
  else {
+        LOGGER.error(INVALID_STATE_ERROR);
+        setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
         return new StringRepresentation(INVALID_STATE_ERROR);
       }
     }
   }
  catch (  final Exception e) {
     presentation=exceptionToStringRepresentation(e);
-    LOGGER.error("Caught exception while processing get request",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    LOGGER.error("Caught exception while fetching tenant ",e);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;

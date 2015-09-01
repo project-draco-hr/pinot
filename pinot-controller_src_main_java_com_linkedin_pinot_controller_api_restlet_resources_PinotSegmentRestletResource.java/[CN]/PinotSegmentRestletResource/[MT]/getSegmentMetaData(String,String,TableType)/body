@@ -1,6 +1,9 @@
 {
   if (!ZKMetadataProvider.isSegmentExisted(_pinotHelixResourceManager.getPropertyStore(),tableName,segmentName)) {
-    return new StringRepresentation("Error: segment " + segmentName + " not found.");
+    String error=new String("Error: segment " + segmentName + " not found.");
+    LOGGER.error(error);
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    return new StringRepresentation(error);
   }
   JSONArray ret=new JSONArray();
   JSONObject jsonObj=new JSONObject();

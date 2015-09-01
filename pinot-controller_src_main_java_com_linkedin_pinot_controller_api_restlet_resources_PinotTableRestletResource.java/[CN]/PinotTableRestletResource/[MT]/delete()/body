@@ -2,8 +2,11 @@
   StringRepresentation presentation=null;
   final String tableName=(String)getRequest().getAttributes().get(TABLE_NAME);
   final String type=getReference().getQueryAsForm().getValues(TABLE_TYPE);
-  if (deleteTable(tableName,type)) {
-    return new StringRepresentation("Error: Unable to find table " + tableName);
+  if (!deleteTable(tableName,type)) {
+    String error=new String("Error: Table " + tableName + " not found.");
+    LOGGER.error(error);
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    return new StringRepresentation(error);
   }
   return presentation;
 }

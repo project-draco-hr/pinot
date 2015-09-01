@@ -12,6 +12,7 @@
   allInstances.addAll(brokerInstances);
   if (StateType.DROP.name().equalsIgnoreCase(state)) {
     if (!allInstances.isEmpty()) {
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
       return new StringRepresentation("Error: Tenant " + tenantName + " has live instances, cannot be dropped.");
     }
     _pinotHelixResourceManager.deleteBrokerTenantFor(tenantName);

@@ -3,6 +3,8 @@
   final String state=getReference().getQueryAsForm().getValues(STATE);
   final String tableType=getReference().getQueryAsForm().getValues(TABLE_TYPE);
   if (tableType != null && !isValidTableType(tableType)) {
+    LOGGER.error(INVALID_TABLE_TYPE_ERROR);
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     return new StringRepresentation(INVALID_TABLE_TYPE_ERROR);
   }
   if (tableName == null) {
@@ -10,7 +12,8 @@
       return getAllTables();
     }
  catch (    Exception e) {
-      LOGGER.error("Error processing table list",e);
+      LOGGER.error("Caught exception while fetching table ",e);
+      setStatus(Status.SERVER_ERROR_INTERNAL);
       return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
     }
   }
@@ -22,11 +25,14 @@
       return setTablestate(tableName,tableType,state);
     }
  else {
+      LOGGER.error(INVALID_STATE_ERROR);
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
       return new StringRepresentation(INVALID_STATE_ERROR);
     }
   }
  catch (  Exception e) {
-    LOGGER.error("Error processing get table config",e);
+    LOGGER.error("Caught exception while fetching table ",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
 }
