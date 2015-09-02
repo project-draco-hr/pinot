@@ -1,0 +1,89 @@
+{
+  Set<String> includeTableSet=new HashSet<>();
+  String[] includeTables=_tables.split(",");
+  for (  String includeTable : includeTables) {
+    String name=stripTypeFromName(includeTable.trim());
+    if (name.length() > 0) {
+      includeTableSet.add(name);
+    }
+  }
+  Set<String> includeTagSet=new HashSet<>();
+  String[] includeTags=_tags.split(",");
+  for (  String includeTag : includeTags) {
+    String name=stripTypeFromName(includeTag.trim());
+    if (name.length() > 0) {
+      includeTagSet.add(name);
+    }
+  }
+  ClusterInfo clusterInfo=new ClusterInfo();
+  clusterInfo.clusterName=_clusterName;
+  ZKHelixAdmin zkHelixAdmin=new ZKHelixAdmin(_zkAddress);
+  List<String> instancesInCluster=zkHelixAdmin.getInstancesInCluster(_clusterName);
+  List<String> tables=zkHelixAdmin.getResourcesInCluster(_clusterName);
+  ZkClient zkClient=new ZkClient(_zkAddress);
+  zkClient.setZkSerializer(new ZNRecordStreamingSerializer());
+  LOGGER.info("Connecting to Zookeeper at: {}",_zkAddress);
+  zkClient.waitUntilConnected();
+  ZkBaseDataAccessor<ZNRecord> baseDataAccessor=new ZkBaseDataAccessor<>(zkClient);
+  ZKHelixDataAccessor zkHelixDataAccessor=new ZKHelixDataAccessor(_clusterName,baseDataAccessor);
+  PropertyKey property=zkHelixDataAccessor.keyBuilder().liveInstances();
+  List<String> liveInstances=zkHelixDataAccessor.getChildNames(property);
+  PropertyKey controllerLeaderKey=zkHelixDataAccessor.keyBuilder().controllerLeader();
+  LiveInstance controllerLeaderLiveInstance=zkHelixDataAccessor.getProperty(controllerLeaderKey);
+  ControllerInfo controllerInfo=new ControllerInfo();
+  controllerInfo.leaderName=controllerLeaderLiveInstance.getId();
+  clusterInfo.controllerInfo=controllerInfo;
+  for (  String server : instancesInCluster) {
+    if (server.startsWith("Server")) {
+      ServerInfo serverInfo=new ServerInfo();
+      serverInfo.name=server;
+      serverInfo.state=(liveInstances.contains(server)) ? "ONLINE" : "OFFLINE";
+      InstanceConfig config=zkHelixAdmin.getInstanceConfig(_clusterName,server);
+      serverInfo.tags=config.getRecord().getListField("TAG_LIST");
+      clusterInfo.addServerInfo(serverInfo);
+    }
+    if (server.startsWith("Broker")) {
+      BrokerInfo brokerInfo=new BrokerInfo();
+      brokerInfo.name=server;
+      brokerInfo.state=(liveInstances.contains(server)) ? "ONLINE" : "OFFLINE";
+      InstanceConfig config=zkHelixAdmin.getInstanceConfig(_clusterName,server);
+      brokerInfo.tags=config.getRecord().getListField("TAG_LIST");
+      clusterInfo.addBrokerInfo(brokerInfo);
+    }
+  }
+  for (  String table : tables) {
+    if ("brokerResource".equalsIgnoreCase(table)) {
+      continue;
+    }
+    TableInfo tableInfo=new TableInfo();
+    IdealState idealState=zkHelixAdmin.getResourceIdealState(_clusterName,table);
+    ExternalView externalView=zkHelixAdmin.getResourceExternalView(_clusterName,table);
+    Set<String> segmentsFromIdealState=idealState.getPartitionSet();
+    tableInfo.tableName=table;
+    tableInfo.tag=idealState.getRecord().getSimpleField("INSTANCE_GROUP_TAG");
+    String rawTableName=stripTypeFromName(tableInfo.tableName);
+    String rawTagName=stripTypeFromName(tableInfo.tag);
+    if (!includeTableSet.isEmpty() && !includeTableSet.contains(rawTableName)) {
+      continue;
+    }
+    if (!includeTagSet.isEmpty() && !includeTagSet.contains(rawTagName)) {
+      continue;
+    }
+    for (    String segment : segmentsFromIdealState) {
+      SegmentInfo segmentInfo=new SegmentInfo();
+      segmentInfo.name=segment;
+      Map<String,String> serverStateMapFromIS=idealState.getInstanceStateMap(segment);
+      Map<String,String> serverStateMapFromEV=externalView.getStateMap(segment);
+      for (      String serverName : serverStateMapFromIS.keySet()) {
+        segmentInfo.segmentStateMap.put(serverName,serverStateMapFromEV.get(serverName));
+      }
+      tableInfo.addSegmentInfo(segmentInfo);
+    }
+    clusterInfo.addTableInfo(tableInfo);
+  }
+  Yaml yaml=new Yaml();
+  StringWriter sw=new StringWriter();
+  yaml.dump(clusterInfo,sw);
+  LOGGER.info(sw.toString());
+  return false;
+}
