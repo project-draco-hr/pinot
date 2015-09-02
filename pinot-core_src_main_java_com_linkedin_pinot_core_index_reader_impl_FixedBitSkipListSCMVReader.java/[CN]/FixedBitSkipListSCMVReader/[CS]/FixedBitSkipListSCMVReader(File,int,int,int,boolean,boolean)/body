@@ -6,7 +6,7 @@
   this.numChunks=(numDocs + docsPerChunk - 1) / docsPerChunk;
   chunkOffsetHeaderSize=numChunks * SIZE_OF_INT * NUM_COLS_IN_HEADER;
   bitsetSize=(totalNumValues + 7) / 8;
-  rawDataSize=(totalNumValues * columnSizeInBits + 7) / 8;
+  rawDataSize=Ints.checkedCast(((long)totalNumValues * columnSizeInBits + 7) / 8);
   totalSize=chunkOffsetHeaderSize + bitsetSize + rawDataSize;
   raf=new RandomAccessFile(file,"rw");
   this.isMmap=isMmap;
