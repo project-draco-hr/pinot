@@ -4,10 +4,10 @@
   long[] timestamps=arraysFromSeries.getFirst();
   double[] observations=arraysFromSeries.getSecond();
   removeMissingValuesByAveragingNeighbors(observations);
-  double[] observationsMinusSeasonality=STLDecompositionUtils.removeSeasonality(timestamps,observations,seasonal);
+  double[] observationsMinusSeasonality=removeSeasonality(timestamps,observations,seasonal);
   int effectiveMaxWindowLength=(int)(detectionInterval.totalBuckets() / bucketMillis);
   effectiveMaxWindowLength=Math.min(effectiveMaxWindowLength,maxWindowLength);
-  ScanStatistics scanStatistics=new ScanStatistics(numSimulation,minWindowLength,effectiveMaxWindowLength,pValueThreshold,pattern,minIncrement);
+  ScanStatistics scanStatistics=new ScanStatistics(numSimulation,minWindowLength,effectiveMaxWindowLength,pValueThreshold,pattern,minIncrement,bootstrap);
   int numBucketsToScan=(int)((detectionInterval.getEnd() - detectionInterval.getStart()) / bucketMillis);
   int totalNumBuckets=observationsMinusSeasonality.length;
   int numTrain=totalNumBuckets - numBucketsToScan;
@@ -24,13 +24,14 @@
   long startTime=System.nanoTime();
   Range<Integer> anomalousInterval=scanStatistics.getInterval(trainingDataWithOutAnomalies,monitoringData);
   LOGGER.info("scan statistics took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
+  LOGGER.info("found interval : {}",anomalousInterval);
   List<AnomalyResult> anomalyResults=new ArrayList<AnomalyResult>();
   if (anomalousInterval != null) {
     for (int i=anomalousInterval.lowerEndpoint(); i < anomalousInterval.upperEndpoint(); i++) {
       ResultProperties properties=new ResultProperties();
       properties.setProperty("anomalyStart",new DateTime(monitoringTimestamps[anomalousInterval.lowerEndpoint()]).toString());
       properties.setProperty("anomalyEnd",new DateTime(monitoringTimestamps[anomalousInterval.upperEndpoint()]).toString());
-      anomalyResults.add(new AnomalyResult(true,timestamps[i],pValueThreshold,observations[i],properties));
+      anomalyResults.add(new AnomalyResult(true,monitoringTimestamps[i],pValueThreshold,observations[i],properties));
     }
   }
   return anomalyResults;

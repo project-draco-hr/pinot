@@ -29,15 +29,16 @@
   }
   List<AnomalyResult> anomalyResults=new LinkedList<AnomalyResult>();
   for (  long timeWindow : new TreeSet<>(resultsByTimeWindow.keySet())) {
-    StateSpaceDataPoint fAnomalyDataPoint=resultsByTimeWindow.get(timeWindow);
-    if (fAnomalyDataPoint.pValue < pValueThreshold) {
+    StateSpaceDataPoint stateSpaceDataPoint=resultsByTimeWindow.get(timeWindow);
+    if (stateSpaceDataPoint.pValue < pValueThreshold) {
       ResultProperties resultProperties=new ResultProperties();
-      resultProperties.put("actualValue","" + fAnomalyDataPoint.actualValue);
-      resultProperties.put("predictedValue","" + fAnomalyDataPoint.predictedValue);
-      resultProperties.put("stdError","" + fAnomalyDataPoint.stdError);
-      resultProperties.put("pValue","" + fAnomalyDataPoint.pValue);
-      resultProperties.put("predictedDate","" + fAnomalyDataPoint.predictedDate);
-      anomalyResults.add(new AnomalyResult(true,timeWindow,fAnomalyDataPoint.pValue,fAnomalyDataPoint.actualValue,resultProperties));
+      resultProperties.put("actualValue","" + stateSpaceDataPoint.actualValue);
+      resultProperties.put("predictedValue","" + stateSpaceDataPoint.predictedValue);
+      resultProperties.put("stdError","" + stateSpaceDataPoint.stdError);
+      resultProperties.put("pValue","" + stateSpaceDataPoint.pValue);
+      resultProperties.put("predictedDate","" + stateSpaceDataPoint.predictedDate);
+      resultProperties.setProperty("timestamp",new DateTime(timeWindow).toString());
+      anomalyResults.add(new AnomalyResult(true,timeWindow,stateSpaceDataPoint.pValue,stateSpaceDataPoint.actualValue,resultProperties));
     }
   }
   return anomalyResults;

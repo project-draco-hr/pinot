@@ -22,10 +22,10 @@ default :
   break;
 }
 }
-List<LocalDriverAnomalyDetectionTask> tasks=buildTasks(thirdEyeClient,timeRange,functionFactory);
+List<CallableAnomalyDetectionTask<Void>> tasks=buildTasks(thirdEyeClient,timeRange,functionFactory);
 ExecutorService taskExecutors=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-for (LocalDriverAnomalyDetectionTask task : tasks) {
-taskExecutors.execute(task);
+for (CallableAnomalyDetectionTask<Void> task : tasks) {
+taskExecutors.submit(task);
 }
 taskExecutors.shutdown();
 taskExecutors.awaitTermination(config.getMaxWaitToCompletion().getSize(),config.getMaxWaitToCompletion().getUnit());

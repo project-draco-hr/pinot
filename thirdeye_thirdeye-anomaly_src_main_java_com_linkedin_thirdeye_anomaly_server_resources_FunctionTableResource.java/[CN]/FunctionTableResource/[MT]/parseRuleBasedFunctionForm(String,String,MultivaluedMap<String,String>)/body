@@ -12,7 +12,7 @@
   functionRow.setConsecutiveBuckets(Integer.valueOf(formParams.getFirst("ConsecutiveBuckets")));
   functionRow.setCronDefinition(formParams.getFirst("CronDefinition"));
   functionRow.setDeltaTableName(formParams.getFirst("DeltaTable"));
-  if (functionRow.getDeltaTableName() != null) {
+  if (functionRow.getDeltaTableName() != null && functionRow.getDeltaTableName().length() > 0) {
     StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
     DeltaTable.create(config.getAnomalyDatabaseConfig(),starTreeConfig,functionRow.getDeltaTableName());
   }

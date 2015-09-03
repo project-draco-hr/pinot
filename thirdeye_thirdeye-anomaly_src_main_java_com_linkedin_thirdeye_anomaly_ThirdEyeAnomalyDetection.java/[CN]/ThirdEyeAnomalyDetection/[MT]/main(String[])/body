@@ -1,7 +1,7 @@
 {
   Options options=new Options();
   options.addOption(Option.builder().longOpt(OPT_SETUP).desc("Setup thirdeye-anomaly detection").hasArg(false).build());
-  options.addOption(Option.builder("t").argName("start end").longOpt(OPT_TIME_RANGE).desc("Run anomaly detection on this time range in milliseconds.").hasArgs().numberOfArgs(2).build());
+  options.addOption(Option.builder("t").argName("start end").longOpt(OPT_TIME_RANGE).desc("Run anomaly detection on this time range in milliseconds. If detection interval is also specified, " + "the application will run in simulated streaming mode.").hasArgs().numberOfArgs(2).build());
   options.addOption(Option.builder("d").argName("size-unit").longOpt(OPT_DETECTION_INTERVAL).desc("The frequency to run anomaly detection. default: 1-HOURS").hasArg().build());
   options.addOption(Option.builder("o").argName("size-unit").longOpt(OPT_OVERLAP_MONITORING_INTERVAL).desc("The amount of overlap in the monitoring window between runs. " + "The effective monitoring interval is the detectionInterval + overlapInterval" + "default: 0-HOURS").hasArg().build());
   options.addOption(Option.builder("p").argName("minutes").longOpt(OPT_POLLING_INTERVAL).desc("The frequency that thirdeye-anomaly should poll thirdeye-server for new segments.").hasArg().build());

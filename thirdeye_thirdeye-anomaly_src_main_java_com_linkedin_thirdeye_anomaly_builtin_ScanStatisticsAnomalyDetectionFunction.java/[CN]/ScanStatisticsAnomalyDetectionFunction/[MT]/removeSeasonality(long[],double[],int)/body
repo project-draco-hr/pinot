@@ -1,0 +1,18 @@
+{
+  STLDecomposition.Config config=new STLDecomposition.Config();
+  config.setNumberOfObservations(seasonality);
+  config.setNumberOfInnerLoopPasses(2);
+  config.setNumberOfRobustnessIterations(1);
+  config.setLowPassFilterBandwidth(0.5);
+  config.setTrendComponentBandwidth(0.5);
+  config.setPeriodic(true);
+  STLDecomposition stl=new STLDecomposition(config);
+  STLResult res=stl.decompose(timestamps,series);
+  double[] trend=res.getTrend();
+  double[] remainder=res.getRemainder();
+  double[] seasonalityRemoved=new double[trend.length];
+  for (int i=0; i < trend.length; i++) {
+    seasonalityRemoved[i]=trend[i] + remainder[i];
+  }
+  return seasonalityRemoved;
+}

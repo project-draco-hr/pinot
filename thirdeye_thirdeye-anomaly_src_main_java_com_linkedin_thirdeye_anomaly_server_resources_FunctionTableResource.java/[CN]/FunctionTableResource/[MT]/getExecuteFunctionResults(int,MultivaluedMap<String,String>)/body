@@ -1,0 +1,38 @@
+{
+  long start=Long.valueOf(formParams.getFirst("StartTime"));
+  long end=Long.valueOf(formParams.getFirst("EndTime"));
+  TimeRange timeRange=new TimeRange(start,end);
+  StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+  Map<String,String> fixedDimensionValues=new HashMap<String,String>();
+  for (  DimensionSpec ds : starTreeConfig.getDimensions()) {
+    String dimensionValue=formParams.getFirst(ds.getName());
+    if (!"*".equals(dimensionValue)) {
+      fixedDimensionValues.put(ds.getName(),dimensionValue);
+    }
+  }
+  FunctionTableRow functionTableRow=null;
+  for (  FunctionTableRow f : FunctionTable.selectRows(config.getAnomalyDatabaseConfig(),config.getMode() == Mode.RULEBASED ? RuleBasedFunctionTableRow.class : GenericFunctionTableRow.class,config.getCollectionName())) {
+    if (f.getFunctionId() == functionId) {
+      functionTableRow=f;
+    }
+  }
+  AnomalyDetectionFunctionFactory functionFactory;
+switch (config.getMode()) {
+case GENERIC:
+{
+      functionFactory=new GenericFunctionFactory();
+      break;
+    }
+case RULEBASED:
+{
+    functionFactory=new RuleBasedFunctionFactory();
+    break;
+  }
+default :
+throw new IllegalStateException();
+}
+AnomalyDetectionFunction function=functionFactory.getFunction(starTreeConfig,config.getAnomalyDatabaseConfig(),functionTableRow);
+AnomalyDetectionTaskInfo taskInfo=new AnomalyDetectionTaskInfo(functionTableRow.getFunctionName(),functionTableRow.getFunctionId(),functionTableRow.getFunctionDescription(),timeRange);
+List<AnomalyResult> anomalies=new FixedDimensionAnomalyDetectionTask(starTreeConfig,taskInfo,function,thirdEyeClient,fixedDimensionValues).call();
+return new ExecuteFunctionResultView(config.getAnomalyDatabaseConfig().getUrl(),config.getAnomalyDatabaseConfig().getFunctionTableName(),config.getCollectionName(),functionId,functionTableRow.getFunctionName(),functionTableRow.getFunctionDescription(),anomalies);
+}

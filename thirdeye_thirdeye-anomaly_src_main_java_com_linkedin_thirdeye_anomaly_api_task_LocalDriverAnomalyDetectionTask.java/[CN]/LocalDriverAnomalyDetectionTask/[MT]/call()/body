@@ -1,0 +1,18 @@
+{
+  LOGGER.info("start executing AnomalyDetetcionTask : {}",getTaskInfo());
+  final LinkedBlockingQueue<Future<?>> futures=new LinkedBlockingQueue<Future<?>>();
+  futures.add(SHARED_EXECUTORS.submit(getRunnableSearchAndRun(futures,null,1.0,new HashMap<String,String>())));
+  while (!futures.isEmpty()) {
+    try {
+      futures.poll().get();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+catch (    ExecutionException e) {
+      e.printStackTrace();
+    }
+  }
+  LOGGER.info("done executing AnomalyDetetcionTask : {}",getTaskInfo());
+  return null;
+}

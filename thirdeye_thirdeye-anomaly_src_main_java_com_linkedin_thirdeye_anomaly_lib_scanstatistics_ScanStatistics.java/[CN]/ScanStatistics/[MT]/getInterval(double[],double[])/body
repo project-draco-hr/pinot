@@ -11,7 +11,12 @@
   double[] simulationBuffer=new double[monitoringData.length];
   for (int ii=0; ii < _numSimulation; ii++) {
     LOGGER.info("started simulation {}",ii);
-    simulateInPlace(simulationBuffer,trainDataNormal);
+    if (_bootstrap) {
+      simulateBootstrapInPlace(simulationBuffer,trainingData);
+    }
+ else {
+      simulateGaussuanInPlace(simulationBuffer,trainDataNormal);
+    }
     ScanIntervalIterator simulationScanWindowIterator=new ScanIntervalIterator(0,monitoringData.length,_minWindowLength,_maxWindowLength,_minIncrement);
     MaxInterval simulationResult=generateMaxLikelihood(simulationScanWindowIterator,trainingData,simulationBuffer,trainDataDs);
     LOGGER.info("finished simulation {} : {}",ii,simulationResult.getMaxLikelihood());
