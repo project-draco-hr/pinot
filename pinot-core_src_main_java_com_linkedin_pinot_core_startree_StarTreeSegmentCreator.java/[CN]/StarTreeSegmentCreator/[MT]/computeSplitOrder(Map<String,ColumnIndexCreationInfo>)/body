@@ -4,9 +4,9 @@
     splitOrder=new ArrayList<String>(schema.getDimensionNames());
     Collections.sort(splitOrder,new Comparator<String>(){
       @Override public int compare(      String o1,      String o2){
-        Object[] o1UniqueElements=columnInfo.get(o1).getSortedUniqueElementsArray();
-        Object[] o2UniqueElements=columnInfo.get(o2).getSortedUniqueElementsArray();
-        return o2UniqueElements.length - o1UniqueElements.length;
+        int o1DistinctValueCount=columnInfo.get(o1).getDistinctValueCount();
+        int o2DistinctValueCount=columnInfo.get(o2).getDistinctValueCount();
+        return o2DistinctValueCount - o1DistinctValueCount;
       }
     }
 );
