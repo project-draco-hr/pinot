@@ -1,30 +1,78 @@
 {
-  Map<List<Integer>,List<Number>> uniqueCombinations=new HashMap<List<Integer>,List<Number>>();
-  for (  StarTreeTableRow combination : list) {
-    List<Integer> aliased=new ArrayList<Integer>(combination.getDimensions());
-    for (int i=0; i < aliased.size(); i++) {
-      if (excludedDimensions != null && excludedDimensions.contains(i)) {
-        aliased.set(i,StarTreeIndexNode.all());
-      }
+  final List<Integer> includedDimensions=new ArrayList<>();
+  for (int i=0; i < dimensionTypes.size(); i++) {
+    if (excludedDimensions == null || !excludedDimensions.contains(i)) {
+      includedDimensions.add(i);
     }
-    List<Number> aggregates=uniqueCombinations.get(aliased);
-    if (aggregates == null) {
-      aggregates=new ArrayList<Number>();
-      for (int i=0; i < combination.getMetrics().size(); i++) {
-        aggregates.add(0);
-      }
-      uniqueCombinations.put(aliased,aggregates);
-    }
-    aggregateOnto(aggregates,combination.getMetrics());
   }
-  final Iterator<Map.Entry<List<Integer>,List<Number>>> itr=uniqueCombinations.entrySet().iterator();
+  final Comparator<StarTreeTableRow> includedComparator=new Comparator<StarTreeTableRow>(){
+    @Override public int compare(    StarTreeTableRow o1,    StarTreeTableRow o2){
+      for (      Integer dimension : includedDimensions) {
+        Integer v1=o1.getDimensions().get(dimension);
+        Integer v2=o2.getDimensions().get(dimension);
+        if (!v1.equals(v2)) {
+          return v1 - v2;
+        }
+      }
+      return 0;
+    }
+  }
+;
+  List<ByteBuffer> listCopy=new LinkedList<>(list);
+  Collections.sort(listCopy,new Comparator<ByteBuffer>(){
+    @Override public int compare(    ByteBuffer o1,    ByteBuffer o2){
+      for (      Integer dimension : includedDimensions) {
+        o1.position(dimension * Integer.SIZE / 8);
+        o2.position(dimension * Integer.SIZE / 8);
+        Integer v1=o1.getInt();
+        Integer v2=o2.getInt();
+        if (!v1.equals(v2)) {
+          return v1 - v2;
+        }
+      }
+      return 0;
+    }
+  }
+);
+  final Iterator<ByteBuffer> itr=listCopy.iterator();
   return new Iterator<StarTreeTableRow>(){
+    private StarTreeTableRow nextToReturn=new StarTreeTableRow(dimensionTypes.size(),metricTypes.size());
+    private StarTreeTableRow nextFromItr=new StarTreeTableRow(dimensionTypes.size(),metricTypes.size());
+    private boolean shouldReset=true;
+    private boolean hasReturnedCurrent=true;
+    private boolean hasStarted=false;
     @Override public boolean hasNext(){
-      return itr.hasNext();
+      if (itr.hasNext() && hasReturnedCurrent) {
+        if (shouldReset) {
+          if (!hasStarted) {
+            ByteBuffer buffer=itr.next();
+            fromByteBuffer(buffer,nextFromItr);
+            hasStarted=true;
+          }
+          copyStarTreeTableRow(nextFromItr,nextToReturn,excludedDimensions);
+          shouldReset=false;
+        }
+        while (itr.hasNext()) {
+          ByteBuffer buffer=itr.next();
+          fromByteBuffer(buffer,nextFromItr);
+          if (includedComparator.compare(nextFromItr,nextToReturn) == 0) {
+            aggregateStarTreeTableRow(nextFromItr,nextToReturn);
+          }
+ else {
+            shouldReset=true;
+            break;
+          }
+        }
+        hasReturnedCurrent=false;
+      }
+      return itr.hasNext() || !hasReturnedCurrent;
     }
     @Override public StarTreeTableRow next(){
-      Map.Entry<List<Integer>,List<Number>> next=itr.next();
-      return new StarTreeTableRow(next.getKey(),next.getValue());
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      hasReturnedCurrent=true;
+      return nextToReturn;
     }
     @Override public void remove(){
       throw new UnsupportedOperationException();

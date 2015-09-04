@@ -15,16 +15,27 @@
   }
   LOG.info("StarTree metric dictionary: {}",starTreeDimensionDictionary);
   splitOrder=computeSplitOrder(columnInfo);
-  LOG.info("Computed split order {}",splitOrder);
+  LOG.info("Computed split order {} (excluded: {})",splitOrder,starTreeIndexSpec.getSplitExcludes());
   List<Integer> splitOrderIndexes=new ArrayList<Integer>();
   for (  String dimensionName : splitOrder) {
     Integer dimensionId=starTreeDimensionDictionary.get(dimensionName);
     splitOrderIndexes.add(dimensionId);
   }
-  Collections.reverse(splitOrderIndexes);
-  StarTreeTable table=new LinkedListStarTreeTable();
-  StarTreeDocumentIdMap documentIdMap=new HashMapStarTreeDocumentIdMap();
-  starTreeBuilder.init(splitOrderIndexes,starTreeIndexSpec.getMaxLeafRecords(),table,documentIdMap);
+  List<FieldSpec.DataType> dimensionTypes=new ArrayList<>();
+  for (  DimensionFieldSpec spec : schema.getDimensionFieldSpecs()) {
+    if (starTreeDimensionDictionary.containsKey(spec.getName())) {
+      dimensionTypes.add(spec.getDataType());
+    }
+  }
+  List<FieldSpec.DataType> metricTypes=new ArrayList<>();
+  for (  MetricFieldSpec spec : schema.getMetricFieldSpecs()) {
+    if (starTreeMetricDictionary.containsKey(spec.getName())) {
+      metricTypes.add(spec.getDataType());
+    }
+  }
+  starTreeTableFile=new File(System.getProperty("java.io.tmpdir"),STAR_TREE_TABLE_FILE_PREFIX + System.currentTimeMillis());
+  StarTreeTable table=new MmapLinkedListStarTreeTable(dimensionTypes,metricTypes,starTreeTableFile,DEFAULT_STAR_TREE_TABLE_INCREMENT);
+  starTreeBuilder.init(splitOrderIndexes,starTreeIndexSpec.getMaxLeafRecords(),table);
   LOG.info("Building StarTree table...");
   int count=0;
   long startMillis=System.currentTimeMillis();

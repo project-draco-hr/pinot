@@ -1,0 +1,28 @@
+{
+  int rowSize=0;
+  for (int i=0; i < dimensionTypes.size(); i++) {
+    rowSize+=Integer.SIZE / 8;
+  }
+  for (  FieldSpec.DataType dataType : metricTypes) {
+switch (dataType) {
+case SHORT:
+      rowSize+=Short.SIZE / 8;
+    break;
+case INT:
+  rowSize+=Integer.SIZE / 8;
+break;
+case LONG:
+rowSize+=Long.SIZE / 8;
+break;
+case FLOAT:
+rowSize+=Float.SIZE / 8;
+break;
+case DOUBLE:
+rowSize+=Double.SIZE / 8;
+break;
+default :
+throw new IllegalArgumentException("Unsupported metric type " + dataType);
+}
+}
+return rowSize;
+}

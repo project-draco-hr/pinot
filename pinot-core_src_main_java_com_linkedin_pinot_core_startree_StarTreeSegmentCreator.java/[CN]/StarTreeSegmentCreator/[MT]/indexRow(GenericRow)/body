@@ -7,14 +7,15 @@
     if (!pathValues.containsValue(StarTreeIndexNode.all())) {
       StarTreeTableRange range=starTreeBuilder.getDocumentIdRange(node.getNodeId());
       StarTreeTable subTable=starTreeBuilder.getTable().view(range.getStartDocumentId(),range.getDocumentCount());
-      Integer nextMatchingDocumentId=starTreeBuilder.getNextDocumentId(tableRow.getDimensions());
+      StarTreeTableRange aggregateAdjustedRange=starTreeBuilder.getAggregateAdjustedDocumentIdRange(node.getNodeId());
+      Integer nextMatchingDocumentId=nextDocumentIds.get(node.getNodeId());
       if (nextMatchingDocumentId == null) {
-        throw new IllegalStateException("Could not assign document ID for row " + tableRow);
+        nextMatchingDocumentId=aggregateAdjustedRange.getStartDocumentId();
       }
+      nextDocumentIds.put(node.getNodeId(),nextMatchingDocumentId + 1);
       for (      final String column : dictionaryCreatorMap.keySet()) {
         Object columnValueToIndex=row.getValue(column);
         if (schema.getFieldSpecFor(column).isSingleValueField()) {
-          System.out.println(column + ": " + columnValueToIndex);
           int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
           ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
           if (config.createInvertedIndexEnabled()) {

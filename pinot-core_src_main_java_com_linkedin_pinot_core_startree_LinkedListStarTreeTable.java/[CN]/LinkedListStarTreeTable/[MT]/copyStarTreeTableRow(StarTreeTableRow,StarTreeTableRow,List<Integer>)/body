@@ -1,0 +1,13 @@
+{
+  for (int i=0; i < dimensionTypes.size(); i++) {
+    if (excludedDimensions != null && excludedDimensions.contains(i)) {
+      dst.setDimension(i,StarTreeIndexNode.all());
+    }
+ else {
+      dst.setDimension(i,src.getDimensions().get(i));
+    }
+  }
+  for (int i=0; i < metricTypes.size(); i++) {
+    dst.setMetric(i,src.getMetrics().get(i));
+  }
+}

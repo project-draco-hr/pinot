@@ -1,0 +1,17 @@
+{
+  if (backingBuffer == null || backingBuffer.position() == backingBuffer.limit()) {
+    try {
+      if (!backingBufferDir.exists()) {
+        FileUtils.forceMkdir(backingBufferDir);
+      }
+      File backingBufferFile=new File(backingBufferDir,String.valueOf(fileCount));
+      FileChannel backingFileChannel=new RandomAccessFile(backingBufferFile,"rw").getChannel();
+      backingBuffer=backingFileChannel.map(FileChannel.MapMode.READ_WRITE,0,documentIncrement * rowSize);
+      fileCount++;
+      documentCount=0;
+    }
+ catch (    Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+}

@@ -1,15 +1,21 @@
 {
-  Collections.sort(list,new Comparator<StarTreeTableRow>(){
-    @Override public int compare(    StarTreeTableRow e1,    StarTreeTableRow e2){
-      for (      Integer sortDimension : sortDimensions) {
-        Integer v1=e1.getDimensions().get(sortDimension);
-        Integer v2=e2.getDimensions().get(sortDimension);
-        if (!v1.equals(v2)) {
-          return v1.compareTo(v2);
+  if (sortDimensions != null) {
+    final StarTreeTableRow fstRow=new StarTreeTableRow(dimensionTypes.size(),metricTypes.size());
+    final StarTreeTableRow secRow=new StarTreeTableRow(dimensionTypes.size(),metricTypes.size());
+    Collections.sort(list,new Comparator<ByteBuffer>(){
+      @Override public int compare(      ByteBuffer o1,      ByteBuffer o2){
+        for (        Integer sortDimension : sortDimensions) {
+          o1.position(sortDimension * Integer.SIZE / 8);
+          Integer v1=o1.getInt();
+          o2.position(sortDimension * Integer.SIZE / 8);
+          Integer v2=o2.getInt();
+          if (!v1.equals(v2)) {
+            return v1.compareTo(v2);
+          }
         }
+        return 0;
       }
-      return 0;
     }
-  }
 );
+  }
 }

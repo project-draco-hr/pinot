@@ -1,0 +1,15 @@
+{
+  for (  List<Integer> combination : generateCombinations()) {
+    table.append(new StarTreeTableRow(combination,metrics));
+  }
+  Iterator<StarTreeTableRow> itr=table.getUniqueCombinations(Arrays.asList(0,1,2));
+  StarTreeTableRow row=itr.next();
+  Assert.assertFalse(itr.hasNext());
+  Assert.assertEquals(row.getMetrics().get(0).intValue(),128);
+  itr=table.getUniqueCombinations(Arrays.asList(1,2));
+  for (int i=0; i < 2; i++) {
+    row=itr.next();
+    Assert.assertEquals(row.getMetrics().get(0).intValue(),64);
+  }
+  Assert.assertFalse(itr.hasNext());
+}

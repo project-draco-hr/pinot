@@ -1,8 +1,11 @@
 {
+  long startMillis;
+  long endMillis;
   if (node.getLevel() >= splitOrder.size() || table.size() <= maxLeafRecords) {
     return 0;
   }
   Integer splitDimensionId=splitOrder.get(node.getLevel());
+  LOG.info("Splitting on dimension {} at level {} (table.size={})",splitDimensionId,node.getLevel(),table.size());
   int aggregateCombinations=0;
   Iterator<StarTreeTableRow> uniqueItr=table.getUniqueCombinations(Collections.singletonList(splitDimensionId));
   while (uniqueItr.hasNext()) {
@@ -10,12 +13,21 @@
     table.append(row);
     aggregateCombinations++;
   }
+  LOG.info("Added {} aggregate combinations at {}",aggregateCombinations,node);
   List<Integer> pathDimensions=node.getPathDimensions();
   pathDimensions.add(splitDimensionId);
+  LOG.info("Sorting sub-table at {} by dimensions {}",node,pathDimensions);
+  startMillis=System.currentTimeMillis();
   table.sort(pathDimensions);
+  endMillis=System.currentTimeMillis();
+  LOG.info("Sort of sub-table {} took {} ms",node,endMillis - startMillis);
   node.setChildDimensionName(splitDimensionId);
   node.setChildren(new HashMap<Integer,StarTreeIndexNode>());
+  LOG.info("Computing group by stats at {}",node);
+  startMillis=System.currentTimeMillis();
   StarTreeTableGroupByStats groupByStats=table.groupBy(splitDimensionId);
+  endMillis=System.currentTimeMillis();
+  LOG.info("Group by stats computation at {} took {} ms",node,endMillis - startMillis);
   int subTreeAggregateCombinations=0;
   for (  Integer valueId : groupByStats.getValues()) {
     StarTreeIndexNode child=new StarTreeIndexNode();

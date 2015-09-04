@@ -5,7 +5,8 @@
     List<List<Integer>> sortedValues=new ArrayList<List<Integer>>();
     Iterator<StarTreeTableRow> itr=subTable.getAllCombinations();
     while (itr.hasNext()) {
-      sortedValues.add(itr.next().getDimensions());
+      List<Integer> copy=new ArrayList<>(itr.next().getDimensions());
+      sortedValues.add(copy);
     }
     final List<Integer> pathDimensions=node.getPathDimensions();
     Collections.sort(sortedValues,new Comparator<List<Integer>>(){

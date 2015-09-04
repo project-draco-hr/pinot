@@ -1,0 +1,20 @@
+{
+  Set<List<Integer>> uniqueCombinations=new HashSet<List<Integer>>();
+  for (  List<Integer> combination : generateCombinations()) {
+    table.append(new StarTreeTableRow(combination,metrics));
+    List<Integer> withExclusions=new ArrayList<Integer>(combination);
+    for (int i=0; i < withExclusions.size(); i++) {
+      if (excludedDimensions != null && excludedDimensions.contains(i)) {
+        withExclusions.set(i,StarTreeIndexNode.all());
+      }
+    }
+    uniqueCombinations.add(withExclusions);
+  }
+  Iterator<StarTreeTableRow> itr=table.getUniqueCombinations(excludedDimensions);
+  int actualCombinations=0;
+  while (itr.hasNext()) {
+    itr.next();
+    actualCombinations++;
+  }
+  Assert.assertEquals(actualCombinations,uniqueCombinations.size());
+}
