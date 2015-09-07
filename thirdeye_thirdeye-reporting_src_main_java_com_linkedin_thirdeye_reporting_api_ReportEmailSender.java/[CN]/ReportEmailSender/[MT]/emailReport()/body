@@ -3,28 +3,22 @@
     FileTemplateLoader ftl=new FileTemplateLoader(new File(templatePath));
     Configuration emailConfiguration=new Configuration();
     emailConfiguration.setTemplateLoader(ftl);
-    Template emailReportTemplate=emailConfiguration.getTemplate(scheduleSpec.getEmailTemplate());
-    Map<String,Object> rootMap=new HashMap<String,Object>();
-    rootMap.put(ReportConstants.REPORT_CONFIG_OBJECT,reportConfig);
-    rootMap.put(ReportConstants.TABLES_OBJECT,tables);
-    rootMap.put(ReportConstants.ANOMALY_TABLES_OBJECT,anomalyReportTables);
-    rootMap.put(ReportConstants.MISSING_SEGMENTS_OBJECT,missingSegments);
-    rootMap.put(ReportConstants.SCHEDULE_SPEC_OBJECT,scheduleSpec);
+    Template emailReportTemplate=emailConfiguration.getTemplate(reportObjects.getScheduleSpec().getEmailTemplate());
     Writer emailOutput=new StringWriter();
-    emailReportTemplate.process(rootMap,emailOutput);
+    emailReportTemplate.process(reportObjects,emailOutput);
     Properties props=new Properties();
     props.setProperty(ReportConstants.MAIL_SMTP_HOST_KEY,ReportConstants.MAIL_SMTP_HOST_VALUE);
     Session session=Session.getDefaultInstance(props,null);
     Message emailReportMessage=new MimeMessage(session);
-    for (    String emailIdFrom : scheduleSpec.getEmailFrom().split(",")) {
-      emailReportMessage.setFrom(new InternetAddress(emailIdFrom,scheduleSpec.getNameFrom()));
+    for (    String emailIdFrom : reportObjects.getScheduleSpec().getEmailFrom().split(",")) {
+      emailReportMessage.setFrom(new InternetAddress(emailIdFrom,reportObjects.getScheduleSpec().getNameFrom()));
     }
-    for (    String emailIdTo : scheduleSpec.getEmailTo().split(",")) {
-      emailReportMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(emailIdTo,scheduleSpec.getNameTo()));
+    for (    String emailIdTo : reportObjects.getScheduleSpec().getEmailTo().split(",")) {
+      emailReportMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(emailIdTo,reportObjects.getScheduleSpec().getNameTo()));
     }
-    emailReportMessage.setSubject(ReportConstants.REPORT_SUBJECT_PREFIX + " (" + reportConfig.getCollection().toUpperCase()+ ") "+ reportConfig.getName());
+    emailReportMessage.setSubject(ReportConstants.REPORT_SUBJECT_PREFIX + " (" + reportObjects.getReportConfig().getCollection().toUpperCase()+ ") "+ reportObjects.getReportConfig().getName());
     emailReportMessage.setContent(emailOutput.toString(),"text/html");
-    LOGGER.info("Sending email from {} to {}  ",scheduleSpec.getEmailFrom(),scheduleSpec.getEmailTo());
+    LOGGER.info("Sending email from {} to {}  ",reportObjects.getScheduleSpec().getEmailFrom(),reportObjects.getScheduleSpec().getEmailTo());
     Transport.send(emailReportMessage);
   }
  catch (  Exception e) {
