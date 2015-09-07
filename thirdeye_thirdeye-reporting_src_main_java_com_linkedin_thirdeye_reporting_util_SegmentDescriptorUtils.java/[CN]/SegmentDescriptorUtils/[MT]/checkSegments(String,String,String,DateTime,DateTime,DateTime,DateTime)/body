@@ -16,10 +16,10 @@
   }
 );
   for (  SegmentDescriptor segment : segmentDescriptors) {
-    LOGGER.info(segment.getStartWallTime().getMillis() + " " + segment.getEndWallTime().getMillis());
-    LOGGER.info("Segment : " + segment.getStartWallTime() + " "+ segment.getEndWallTime()+ " "+ segment.getFile());
+    LOGGER.info(segment.getStartWallTime(timezone).getMillis() + " " + segment.getEndWallTime(timezone).getMillis());
+    LOGGER.info("Segment : " + segment.getStartWallTime(timezone) + " "+ segment.getEndWallTime(timezone)+ " "+ segment.getFile());
   }
-  missingSegments.addAll(getMissingSegments(segmentDescriptors,currentStartHour,currentEndHour));
-  missingSegments.addAll(getMissingSegments(segmentDescriptors,baselineStartHour,baselineEndHour));
+  missingSegments.addAll(getMissingSegments(segmentDescriptors,timezone,currentStartHour,currentEndHour));
+  missingSegments.addAll(getMissingSegments(segmentDescriptors,timezone,baselineStartHour,baselineEndHour));
   return missingSegments;
 }

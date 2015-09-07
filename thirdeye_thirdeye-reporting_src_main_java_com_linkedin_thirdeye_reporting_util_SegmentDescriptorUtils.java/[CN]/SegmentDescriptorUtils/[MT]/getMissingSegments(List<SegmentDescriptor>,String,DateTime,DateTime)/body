@@ -19,8 +19,8 @@
     Long currentEnd=null;
     long currentStart;
     while (start < segmentDescriptors.size()) {
-      currentStart=segmentDescriptors.get(start).getStartWallTime().getMillis();
-      currentEnd=segmentDescriptors.get(start).getEndWallTime().getMillis();
+      currentStart=segmentDescriptors.get(start).getStartWallTime(timezone).getMillis();
+      currentEnd=segmentDescriptors.get(start).getEndWallTime(timezone).getMillis();
       if (previousEnd != null && currentStart != previousEnd) {
         missingRanges.add(new TimeRange(previousEnd,currentStart));
       }
