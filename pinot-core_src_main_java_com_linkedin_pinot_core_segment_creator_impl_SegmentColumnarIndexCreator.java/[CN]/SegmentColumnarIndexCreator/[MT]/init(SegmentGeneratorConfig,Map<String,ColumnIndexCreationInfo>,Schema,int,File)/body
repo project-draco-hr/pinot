@@ -38,8 +38,10 @@
  else {
       forwardIndexCreatorMap.put(column,new MultiValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),file,uniqueValueCount,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
     }
-    if (config.createInvertedIndexEnabled()) {
-      invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,uniqueValueCount,schema.getFieldSpecFor(column)));
-    }
+  }
+  for (  String column : config.getInvertedIndexCreationColumns()) {
+    ColumnIndexCreationInfo indexCreationInfo=indexCreationInfoMap.get(column);
+    int uniqueValueCount=indexCreationInfo.getDistinctValueCount();
+    invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,uniqueValueCount,schema.getFieldSpecFor(column)));
   }
 }

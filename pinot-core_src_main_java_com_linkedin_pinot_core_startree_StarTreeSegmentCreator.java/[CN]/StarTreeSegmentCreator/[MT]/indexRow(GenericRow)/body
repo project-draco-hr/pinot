@@ -18,14 +18,14 @@
         if (schema.getFieldSpecFor(column).isSingleValueField()) {
           int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
           ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
-          if (config.createInvertedIndexEnabled()) {
+          if (config.isCreateInvertedIndexEnabled()) {
             invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,(Object)dictionaryIndex);
           }
         }
  else {
           int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
           ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
-          if (config.createInvertedIndexEnabled()) {
+          if (config.isCreateInvertedIndexEnabled()) {
             invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,dictionaryIndex);
           }
         }

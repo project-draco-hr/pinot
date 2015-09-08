@@ -4,10 +4,16 @@
     if (schema.getFieldSpecFor(column).isSingleValueField()) {
       int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
       ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
+      if (invertedIndexCreatorMap.containsKey(column)) {
+        invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+      }
     }
  else {
       int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
       ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
+      if (invertedIndexCreatorMap.containsKey(column)) {
+        invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+      }
     }
   }
   docIdCounter++;
