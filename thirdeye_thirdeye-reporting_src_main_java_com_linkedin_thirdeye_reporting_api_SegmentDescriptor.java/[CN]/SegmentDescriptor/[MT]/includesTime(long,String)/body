@@ -1,0 +1,9 @@
+{
+  String[] tokens=file.getName().split("_");
+  long wallStartTime=StarTreeConstants.DATE_TIME_FORMATTER.withZone(DateTimeZone.forID(timezone)).parseDateTime(tokens[2]).getMillis();
+  long wallEndTime=StarTreeConstants.DATE_TIME_FORMATTER.withZone(DateTimeZone.forID(timezone)).parseDateTime(tokens[3]).getMillis();
+  if (time >= wallStartTime && time < wallEndTime) {
+    return true;
+  }
+  return false;
+}
