@@ -3,7 +3,7 @@
   thirdEyeClientConfig.setExpirationTime(DEFAULT_CACHE_EXPIRATION_MINUTES);
   thirdEyeClientConfig.setExpirationUnit(TimeUnit.MINUTES);
   thirdEyeClientConfig.setExpireAfterAccess(false);
-  ThirdEyeClient thirdEyeClient=new FlowControlledDefaultThirdeyeClient(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),thirdEyeClientConfig,1);
+  ThirdEyeClient thirdEyeClient=new FlowControlledDefaultThirdEyeClient(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),thirdEyeClientConfig,1);
   AnomalyDetectionFunctionFactory functionFactory;
 switch (config.getMode()) {
 case RULEBASED:
@@ -22,10 +22,10 @@ default :
   break;
 }
 }
-List<CallableAnomalyDetectionTask<Void>> tasks=buildTasks(thirdEyeClient,timeRange,functionFactory);
+List<WorkListAnomalyDetectionTask> tasks=buildTasks(thirdEyeClient,timeRange,functionFactory);
 ExecutorService taskExecutors=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-for (CallableAnomalyDetectionTask<Void> task : tasks) {
-taskExecutors.submit(task);
+for (WorkListAnomalyDetectionTask task : tasks) {
+taskExecutors.execute(task);
 }
 taskExecutors.shutdown();
 taskExecutors.awaitTermination(config.getMaxWaitToCompletion().getSize(),config.getMaxWaitToCompletion().getUnit());

@@ -8,6 +8,7 @@
   metricNames.addAll(function.getMetrics());
   metricNames.addAll(additionalMetricsRequiredByTask);
   metricsRequiredByTask=new ArrayList<>(metricNames);
-  queryTimeRange=getTaskTimeSeriesRange(taskInfo,function);
+  monitoringWindow=getMonitoringWindow(taskInfo.getTimeRange(),function.getMinimumMonitoringIntervalTimeGranularity());
+  queryTimeRange=getTaskTimeSeriesRange(monitoringWindow,function);
   functionHistory.init(queryTimeRange);
 }

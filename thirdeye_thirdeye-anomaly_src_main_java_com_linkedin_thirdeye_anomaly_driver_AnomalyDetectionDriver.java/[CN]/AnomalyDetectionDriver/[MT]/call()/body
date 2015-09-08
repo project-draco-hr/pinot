@@ -1,0 +1,20 @@
+{
+  List<DimensionKeySeries> dimensionKeySeries=new LinkedList<DimensionKeySeries>();
+  Entry<DimensionKey,MetricTimeSeries> totalSeriesEntry=getTotalSeries();
+  double totalSeriesSum=sumOverContributionMetric(totalSeriesEntry.getValue());
+  dimensionKeySeries.add(new DimensionKeySeries(totalSeriesEntry.getKey(),1.0));
+  explore(new HashMap<String,String>(),0,totalSeriesSum,dimensionKeySeries);
+  Collections.sort(dimensionKeySeries,new Comparator<DimensionKeySeries>(){
+    @Override public int compare(    DimensionKeySeries d1,    DimensionKeySeries d2){
+      double diff=d1.getContributionEstimate() - d2.getContributionEstimate();
+      if (diff == 0.0) {
+        return 0;
+      }
+ else {
+        return (diff > 0) ? -1 : 1;
+      }
+    }
+  }
+);
+  return dimensionKeySeries;
+}

@@ -1,8 +1,9 @@
 {
-  List<CallableAnomalyDetectionTask<Void>> tasks=new LinkedList<>();
+  List<WorkListAnomalyDetectionTask> tasks=new LinkedList<>();
   AnomalyDetectionDriverConfig driverConfig=config.getDriverConfig();
   List<? extends FunctionTableRow> rows=FunctionTable.selectActiveRows(config.getAnomalyDatabaseConfig(),functionFactory.getFunctionRowClass(),config.getCollectionName());
   StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+  List<DimensionKeySeries> dimensionsToEvaluate=new AnomalyDetectionDriver(driverConfig,starTreeConfig,timeRange,thirdEyeClient).call();
   for (  FunctionTableRow functionTableRow : rows) {
     if (config.getFunctionIdToEvaluate() != null && config.getFunctionIdToEvaluate() != functionTableRow.getFunctionId()) {
       continue;
@@ -19,7 +20,7 @@
  else {
         functionHistory=AnomalyDetectionFunctionHistoryNoOp.sharedInstance();
       }
-      CallableAnomalyDetectionTask<Void> task=new LocalDriverAnomalyDetectionTask(starTreeConfig,driverConfig,taskInfo,function,resultHandler,functionHistory,thirdEyeClient);
+      WorkListAnomalyDetectionTask task=new WorkListAnomalyDetectionTask(starTreeConfig,taskInfo,function,resultHandler,functionHistory,thirdEyeClient,dimensionsToEvaluate);
       tasks.add(task);
     }
  catch (    Exception e) {

@@ -1,0 +1,19 @@
+{
+  int[] partitionMapping=getPartitionMapping();
+  Multimap<Integer,DimensionKeySeries> resourcePartitions=ArrayListMultimap.create();
+  if (useHash) {
+    for (    DimensionKeySeries d : resource) {
+      BigInteger dimensionKeyHash=new BigInteger(d.getDimensionKey().toMD5());
+      int partitionIndex=dimensionKeyHash.mod(BigInteger.valueOf(partitions)).intValue();
+      resourcePartitions.put(partitionMapping[partitionIndex],d);
+    }
+  }
+ else {
+    int currPartition=0;
+    for (    DimensionKeySeries d : resource) {
+      resourcePartitions.put(partitionMapping[currPartition % partitions],d);
+      currPartition++;
+    }
+  }
+  return resourcePartitions;
+}

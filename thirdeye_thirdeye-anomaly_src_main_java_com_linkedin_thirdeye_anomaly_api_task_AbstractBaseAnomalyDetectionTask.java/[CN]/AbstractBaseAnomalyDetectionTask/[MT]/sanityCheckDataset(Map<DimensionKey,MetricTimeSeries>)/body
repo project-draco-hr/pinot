@@ -2,11 +2,11 @@
   for (  DimensionKey dimensionKey : dataset.keySet()) {
     MetricTimeSeries metricTimeSeries=dataset.get(dimensionKey);
     Set<Long> seriesTimeWindowSet=metricTimeSeries.getTimeWindowSet();
-    if (seriesTimeWindowSet.contains(taskInfo.getTimeRange().getStart()) == false) {
-      LOGGER.warn("dataset series {} does not contain expected start time window {}",dimensionKey,taskInfo.getTimeRange().getStart());
+    if (seriesTimeWindowSet.contains(monitoringWindow.getStart()) == false) {
+      LOGGER.warn("dataset series {} does not contain expected start time window {}",dimensionKey,monitoringWindow.getStart());
     }
-    long lastExpectedTimeWindow=taskInfo.getTimeRange().getEnd() - TimeGranularityUtils.toMillis(function.getAggregationTimeGranularity());
-    if (lastExpectedTimeWindow != taskInfo.getTimeRange().getStart() && seriesTimeWindowSet.contains(lastExpectedTimeWindow) == false) {
+    long lastExpectedTimeWindow=monitoringWindow.getEnd() - TimeGranularityUtils.toMillis(function.getAggregationTimeGranularity());
+    if (lastExpectedTimeWindow != monitoringWindow.getStart() && seriesTimeWindowSet.contains(lastExpectedTimeWindow) == false) {
       LOGGER.warn("dataset series {} does not contain expected end time window {}",dimensionKey,lastExpectedTimeWindow);
     }
   }

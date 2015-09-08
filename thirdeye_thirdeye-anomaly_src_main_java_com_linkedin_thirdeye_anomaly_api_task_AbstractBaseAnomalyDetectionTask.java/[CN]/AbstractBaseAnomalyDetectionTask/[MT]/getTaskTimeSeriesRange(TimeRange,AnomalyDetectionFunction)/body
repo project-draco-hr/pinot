@@ -1,0 +1,12 @@
+{
+  long end=monitoringInterval.getEnd();
+  TimeGranularity functionGranularity=function.getTrainingWindowTimeGranularity();
+  long start;
+  if (functionGranularity != null) {
+    start=monitoringInterval.getStart() - TimeGranularityUtils.toMillis(functionGranularity) - TimeGranularityUtils.toMillis(function.getAggregationTimeGranularity());
+  }
+ else {
+    start=0;
+  }
+  return new TimeRange(start,end);
+}

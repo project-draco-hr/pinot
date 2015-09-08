@@ -1,0 +1,14 @@
+{
+  List<AnomalyResult> anomalyResults=new ArrayList<AnomalyResult>();
+  ResultProperties startProperties=new ResultProperties();
+  startProperties.setProperty("anomalyStart",new DateTime(monitoringTimestamps[anomalousInterval.lowerEndpoint()]).toString());
+  startProperties.setProperty("anomalyEnd",new DateTime(monitoringTimestamps[anomalousInterval.upperEndpoint()]).toString());
+  startProperties.setProperty("bound","START");
+  anomalyResults.add(new AnomalyResult(true,monitoringTimestamps[anomalousInterval.lowerEndpoint()],pValueThreshold,monitoringData[anomalousInterval.lowerEndpoint()],startProperties));
+  ResultProperties endProperties=new ResultProperties();
+  endProperties.setProperty("anomalyStart",new DateTime(monitoringTimestamps[anomalousInterval.lowerEndpoint()]).toString());
+  endProperties.setProperty("anomalyEnd",new DateTime(monitoringTimestamps[anomalousInterval.upperEndpoint()]).toString());
+  endProperties.setProperty("bound","END");
+  anomalyResults.add(new AnomalyResult(true,monitoringTimestamps[anomalousInterval.lowerEndpoint()],pValueThreshold,monitoringData[anomalousInterval.lowerEndpoint()],endProperties));
+  return anomalyResults;
+}

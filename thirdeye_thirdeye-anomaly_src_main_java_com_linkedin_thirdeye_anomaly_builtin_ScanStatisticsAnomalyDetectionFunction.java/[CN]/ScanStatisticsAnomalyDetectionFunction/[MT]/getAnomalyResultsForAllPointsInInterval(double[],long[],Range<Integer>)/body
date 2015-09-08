@@ -1,0 +1,10 @@
+{
+  List<AnomalyResult> anomalyResults=new ArrayList<AnomalyResult>();
+  for (int i=anomalousInterval.lowerEndpoint(); i < anomalousInterval.upperEndpoint(); i++) {
+    ResultProperties properties=new ResultProperties();
+    properties.setProperty("anomalyStart",new DateTime(monitoringTimestamps[anomalousInterval.lowerEndpoint()]).toString());
+    properties.setProperty("anomalyEnd",new DateTime(monitoringTimestamps[anomalousInterval.upperEndpoint()]).toString());
+    anomalyResults.add(new AnomalyResult(true,monitoringTimestamps[i],pValueThreshold,monitoringData[i],properties));
+  }
+  return anomalyResults;
+}
