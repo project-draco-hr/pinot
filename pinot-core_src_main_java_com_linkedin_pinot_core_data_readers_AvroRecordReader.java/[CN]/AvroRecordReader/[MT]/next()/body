@@ -1,3 +1,11 @@
 {
-  return _schemaExtractor.transform(getGenericRow(_dataStream.next()));
+  try {
+    _genericRecord=_dataStream.next(_genericRecord);
+    return _schemaExtractor.transform(getGenericRow(_genericRecord));
+  }
+ catch (  IOException e) {
+    LOGGER.error("Caught exception while reading record",e);
+    Utils.rethrowException(e);
+    return null;
+  }
 }
