@@ -1,0 +1,19 @@
+{
+  ThirdEyeAnomalyDetectionConfiguration config=collectionToConfigMap.get(collection);
+  try {
+    String sql;
+    if (activate) {
+      sql=String.format(ResourceUtils.getResourceAsString("database/function/update-activate-function-template.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName(),functionId);
+    }
+ else {
+      sql=String.format(ResourceUtils.getResourceAsString("database/function/update-deactivate-function-template.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName(),functionId);
+    }
+    config.getAnomalyDatabaseConfig().runSQL(sql);
+  }
+ catch (  Exception e) {
+    StringWriter sw=new StringWriter();
+    e.printStackTrace(new PrintWriter(sw));
+    return Response.serverError().entity("An error occurred: " + sw.toString()).build();
+  }
+  return Response.ok().entity(formResponseHtmlHelper("Success! Function " + functionId + " marked as "+ ((activate) ? "active" : "inactive"),SLASH.join("",collection))).build();
+}

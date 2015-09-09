@@ -19,6 +19,7 @@
   long[] trainingTimestamps=Arrays.copyOfRange(timestamps,0,numTrain);
   double[] trainingDataWithOutAnomalies=removeAnomalies(trainingTimestamps,trainingData,anomalousTimestamps);
   double[] monitoringData=Arrays.copyOfRange(observationsMinusSeasonality,numTrain,observationsMinusSeasonality.length);
+  double[] monitoringDataOrig=Arrays.copyOfRange(observations,numTrain,observations.length);
   long[] monitoringTimestamps=Arrays.copyOfRange(timestamps,numTrain,observationsMinusSeasonality.length);
   LOGGER.info("detecting anomalies using scan statistics");
   long startTime=System.nanoTime();
@@ -28,10 +29,10 @@
   List<AnomalyResult> anomalyResults=new ArrayList<AnomalyResult>();
   if (anomalousInterval != null) {
     if (onlyAlertBoundaries) {
-      anomalyResults=getAnomalyResultsForBoundsOnly(monitoringData,monitoringTimestamps,anomalousInterval);
+      anomalyResults=getAnomalyResultsForBoundsOnly(monitoringDataOrig,monitoringTimestamps,anomalousInterval);
     }
  else {
-      anomalyResults=getAnomalyResultsForAllPointsInInterval(monitoringData,monitoringTimestamps,anomalousInterval);
+      anomalyResults=getAnomalyResultsForAllPointsInInterval(monitoringDataOrig,monitoringTimestamps,anomalousInterval);
     }
   }
   return anomalyResults;

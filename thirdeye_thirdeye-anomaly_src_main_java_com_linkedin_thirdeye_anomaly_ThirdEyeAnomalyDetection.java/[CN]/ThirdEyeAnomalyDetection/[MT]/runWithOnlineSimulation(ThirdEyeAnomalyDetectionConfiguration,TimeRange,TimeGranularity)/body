@@ -1,15 +1,16 @@
 {
   long startTimeWindow=applicationRunTimeWindow.getStart();
   long endTimeWindow=applicationRunTimeWindow.getEnd();
+  long detectionTimeWindowMillis=TimeGranularityUtils.toMillis(detectionInterval);
   long currTimeWindow=startTimeWindow;
   while (currTimeWindow < endTimeWindow) {
     LOGGER.info("begin processing for {} to {}",startTimeWindow,endTimeWindow);
     try {
-      new ThirdEyeAnomalyDetection(config,new TimeRange(currTimeWindow,endTimeWindow)).call();
+      new ThirdEyeAnomalyDetection(config,new TimeRange(currTimeWindow,currTimeWindow + detectionTimeWindowMillis)).call();
     }
  catch (    Exception e) {
       LOGGER.error("uncaught exception",e);
     }
-    currTimeWindow+=TimeGranularityUtils.toMillis(detectionInterval);
+    currTimeWindow+=detectionTimeWindowMillis;
   }
 }

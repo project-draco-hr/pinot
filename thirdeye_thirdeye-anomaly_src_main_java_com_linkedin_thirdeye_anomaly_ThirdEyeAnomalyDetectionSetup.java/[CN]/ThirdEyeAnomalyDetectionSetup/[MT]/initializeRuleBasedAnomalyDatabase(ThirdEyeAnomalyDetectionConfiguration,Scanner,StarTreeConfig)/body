@@ -2,7 +2,11 @@
   printSectionTitle("basic mysql setup");
   if (promptForYN("Create the function table?",userInput)) {
     String sql=String.format(ResourceUtils.getResourceAsString("database/rulebased/create-rule-table.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName());
-    if (!config.getAnomalyDatabaseConfig().runSQL(sql)) {
+    try {
+      config.getAnomalyDatabaseConfig().runSQL(sql);
+    }
+ catch (    SQLException e) {
+      e.printStackTrace();
       if (!promptForYN("An error occured, do you wish to continue?",userInput)) {
         System.err.println("Abort...");
         System.exit(1);

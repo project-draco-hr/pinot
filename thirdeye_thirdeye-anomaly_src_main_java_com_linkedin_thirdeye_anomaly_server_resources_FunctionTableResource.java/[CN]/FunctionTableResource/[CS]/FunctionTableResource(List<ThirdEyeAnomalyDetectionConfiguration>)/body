@@ -1,0 +1,12 @@
+{
+  collectionToThirdEyeClient=new HashMap<>();
+  collectionToConfigMap=new HashMap<>();
+  for (  ThirdEyeAnomalyDetectionConfiguration config : configs) {
+    DefaultThirdEyeClientConfig thirdEyeClientConfig=new DefaultThirdEyeClientConfig();
+    thirdEyeClientConfig.setExpirationTime(60);
+    thirdEyeClientConfig.setExpirationUnit(TimeUnit.MINUTES);
+    thirdEyeClientConfig.setExpireAfterAccess(false);
+    collectionToConfigMap.put(config.getCollectionName(),config);
+    collectionToThirdEyeClient.put(config.getCollectionName(),new FlowControlledDefaultThirdEyeClient(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),thirdEyeClientConfig,1));
+  }
+}

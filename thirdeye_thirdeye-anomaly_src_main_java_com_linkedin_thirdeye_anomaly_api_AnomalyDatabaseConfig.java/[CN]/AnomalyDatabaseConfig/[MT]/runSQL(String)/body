@@ -1,15 +1,13 @@
 {
   Connection conn=null;
   Statement stmt=null;
-  boolean success=false;
   try {
     conn=getConnection();
     stmt=conn.createStatement();
     stmt.execute(sql);
-    success=true;
   }
  catch (  SQLException e) {
-    e.printStackTrace();
+    throw e;
   }
  finally {
     try {
@@ -24,5 +22,4 @@
       e.printStackTrace();
     }
   }
-  return success;
 }

@@ -1,0 +1,5 @@
+{
+  ThirdEyeAnomalyDetectionConfiguration config=collectionToConfigMap.get(collection);
+  StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+  return new DeltaTableView(starTreeConfig,DeltaTable.load(config.getAnomalyDatabaseConfig(),starTreeConfig,deltaTableName),SLASH.join("",collection,"rulebased","deltatable",deltaTableName),config.getAnomalyDatabaseConfig().getUrl(),config.getAnomalyDatabaseConfig().getFunctionTableName(),config.getCollectionName());
+}

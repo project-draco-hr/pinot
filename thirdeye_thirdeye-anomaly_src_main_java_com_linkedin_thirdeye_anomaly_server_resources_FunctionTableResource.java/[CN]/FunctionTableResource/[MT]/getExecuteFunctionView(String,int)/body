@@ -1,0 +1,9 @@
+{
+  ThirdEyeAnomalyDetectionConfiguration config=collectionToConfigMap.get(collection);
+  StarTreeConfig starTreeConfig=ThirdEyeServerUtils.getStarTreeConfig(config.getThirdEyeServerHost(),config.getThirdEyeServerPort(),config.getCollectionName());
+  List<String> dimensionNames=new LinkedList<>();
+  for (  DimensionSpec ds : starTreeConfig.getDimensions()) {
+    dimensionNames.add(ds.getName());
+  }
+  return new ExecuteFunctionView(config.getAnomalyDatabaseConfig().getUrl(),config.getAnomalyDatabaseConfig().getFunctionTableName(),config.getCollectionName(),functionId,dimensionNames,SLASH.join("",collection,"functions","execute",functionId));
+}

@@ -13,5 +13,9 @@
   sb.append("PRIMARY KEY(").append(COMMA.join(dimensionNames)).append("));");
   String sql=sb.toString();
   LOGGER.info("creating delta table if not exists - {}",deltaTableName);
-  dbConfig.runSQL(sql);
+  try {
+    dbConfig.runSQL(sql);
+  }
+ catch (  SQLException e) {
+  }
 }

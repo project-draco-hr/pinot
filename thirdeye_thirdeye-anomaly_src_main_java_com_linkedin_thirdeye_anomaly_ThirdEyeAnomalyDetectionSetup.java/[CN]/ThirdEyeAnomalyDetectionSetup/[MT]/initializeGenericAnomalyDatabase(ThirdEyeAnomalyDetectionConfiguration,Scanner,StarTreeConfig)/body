@@ -2,7 +2,11 @@
   printSectionTitle("basic mysql setup");
   if (promptForYN("Create the function table?",userInput)) {
     String sql=String.format(ResourceUtils.getResourceAsString("database/generic/create-function-table.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName());
-    if (!config.getAnomalyDatabaseConfig().runSQL(sql)) {
+    try {
+      config.getAnomalyDatabaseConfig().runSQL(sql);
+    }
+ catch (    SQLException e) {
+      e.printStackTrace();
       if (!promptForYN("An error occured, do you wish to continue?",userInput)) {
         System.err.println("Abort...");
         System.exit(1);
@@ -22,7 +26,12 @@
     for (    String metric : metrics) {
       String sql=String.format(ResourceUtils.getResourceAsString("database/generic/insert-kalman-filter-default.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName(),config.getCollectionName(),metric.trim());
       System.out.println(sql);
-      config.getAnomalyDatabaseConfig().runSQL(sql);
+      try {
+        config.getAnomalyDatabaseConfig().runSQL(sql);
+      }
+ catch (      SQLException e) {
+        e.printStackTrace();
+      }
     }
   }
   if (promptForYN("Do you want to load the default (Scan statistics) algorithm?",userInput)) {
@@ -31,10 +40,20 @@
     for (    String metric : metrics) {
       String sqlUp=String.format(ResourceUtils.getResourceAsString("database/generic/insert-scan-statistics-default.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName(),"UP",config.getCollectionName(),metric.trim(),"UP");
       System.out.println(sqlUp);
-      config.getAnomalyDatabaseConfig().runSQL(sqlUp);
+      try {
+        config.getAnomalyDatabaseConfig().runSQL(sqlUp);
+      }
+ catch (      SQLException e) {
+        e.printStackTrace();
+      }
       String sqlDown=String.format(ResourceUtils.getResourceAsString("database/generic/insert-scan-statistics-default.sql"),config.getAnomalyDatabaseConfig().getFunctionTableName(),"DOWN",config.getCollectionName(),metric.trim(),"DOWN");
       System.out.println(sqlDown);
-      config.getAnomalyDatabaseConfig().runSQL(sqlDown);
+      try {
+        config.getAnomalyDatabaseConfig().runSQL(sqlDown);
+      }
+ catch (      SQLException e) {
+        e.printStackTrace();
+      }
     }
   }
 }
