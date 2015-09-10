@@ -26,18 +26,20 @@
   if (customDashboardResource != null) {
     customDashboardNames=customDashboardResource.getCustomDashboardNames(collection);
   }
-  List<FunnelHeatMapView> funnels=null;
+  List<FunnelHeatMapView> funnels=Collections.emptyList();
+  List<String> funnelNames=Collections.emptyList();
   String selectedFunnels=uriInfo.getQueryParameters().getFirst("funnels");
-  if (selectedFunnels.length() > 0) {
+  if (funnelResource != null && selectedFunnels != null && selectedFunnels.length() > 0) {
     MultivaluedMap<String,String> filterMap=uriInfo.getQueryParameters();
     filterMap.remove("funnels");
     DateTime current=new DateTime(currentMillis);
     funnels=funnelResource.computeFunnelViews(collection,selectedFunnels,current,filterMap);
+    funnelNames=funnelResource.getFunnelNamesFor(collection);
   }
   try {
     View metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
     View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,uriInfo);
-    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelResource.getFunnelNamesFor(collection),funnels);
+    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames,funnels);
   }
  catch (  Exception e) {
     if (e instanceof WebApplicationException) {
