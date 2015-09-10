@@ -5,8 +5,18 @@
   this.dimensionGroupMap=dimensionGroupMap;
   this.dimensionRegexMap=dimensionRegexMap;
   this.heatMaps=new ArrayList<>();
+  this.metricNames=new ArrayList<>();
+  this.dimensionNames=new ArrayList<>();
   for (  Map.Entry<String,QueryResult> entry : queryResults.entrySet()) {
     this.heatMaps.addAll(generateHeatMaps(entry.getKey(),entry.getValue()));
   }
   Collections.sort(heatMaps);
+  for (  HeatMap heatMap : heatMaps) {
+    if (!metricNames.contains(heatMap.getMetric())) {
+      metricNames.add(heatMap.getMetric());
+    }
+    if (!dimensionNames.contains(heatMap.getDimension())) {
+      dimensionNames.add(heatMap.getDimension());
+    }
+  }
 }
