@@ -1,9 +1,3 @@
 {
-  long requestId=(request == null) ? -1 : request.getRequestId();
-  Long tid=Thread.currentThread().getId();
-  LOGGER.debug("[TID: {}] {} in Request: {}",tid,info,requestId);
-  if (TEST_ENABLED) {
-    tidToTestInfoMap.putIfAbsent(tid,new ConcurrentLinkedDeque<Info>());
-    tidToTestInfoMap.get(tid).offerLast(new Info(info,requestId));
-  }
+  logInfo(info,(request == null) ? -1 : request.getRequestId());
 }

@@ -1,4 +1,10 @@
 {
-  ConcurrentLinkedDeque<Trace> deque=allTraceInfoMap.get(requestId);
-  return (deque == null) ? "trace for " + requestId + " not found" : TraceUtils.getTraceString(deque);
+  try {
+    ConcurrentLinkedDeque<Trace> deque=allTraceInfoMap.get(requestId);
+    return (deque == null) ? "{ \"error\": \"trace for " + requestId + " not found\" }" : TraceUtils.getTraceString(deque);
+  }
+ catch (  Exception e) {
+    logInfo(CONSTANT.RETRIEVE_TRACE_FAILURE,requestId);
+    return "{ \"error\": \"retrieve trace for " + requestId + " failed\" }";
+  }
 }
