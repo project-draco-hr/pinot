@@ -1,28 +1,18 @@
 {
-  long timeOutTimeStamp=System.currentTimeMillis() + timeOutInMills;
-  boolean isSucess=true;
-  while (System.currentTimeMillis() < timeOutTimeStamp) {
-    try {
-      Thread.sleep(2000);
-    }
- catch (    InterruptedException e) {
-    }
-    isSucess=true;
+  long externalViewChangeCompletedDeadline=System.currentTimeMillis() + timeoutMillis;
+  deadlineLoop:   while (System.currentTimeMillis() < externalViewChangeCompletedDeadline) {
+    Uninterruptibles.sleepUninterruptibly(2L,TimeUnit.SECONDS);
     ExternalView externalView=_helixAdmin.getResourceExternalView(_helixClusterName,tableName);
     Map<String,String> segmentStatsMap=externalView.getStateMap(segmentName);
     if (segmentStatsMap != null) {
       for (      String instance : segmentStatsMap.keySet()) {
-        if (!segmentStatsMap.get(instance).equalsIgnoreCase(targerStates)) {
-          isSucess=false;
+        final String segmentState=segmentStatsMap.get(instance);
+        if (!segmentState.equalsIgnoreCase(targetState) && !"ERROR".equalsIgnoreCase(segmentState)) {
+          continue deadlineLoop;
         }
       }
-    }
- else {
-      isSucess=false;
-    }
-    if (isSucess) {
-      break;
+      return true;
     }
   }
-  return isSucess;
+  return false;
 }
