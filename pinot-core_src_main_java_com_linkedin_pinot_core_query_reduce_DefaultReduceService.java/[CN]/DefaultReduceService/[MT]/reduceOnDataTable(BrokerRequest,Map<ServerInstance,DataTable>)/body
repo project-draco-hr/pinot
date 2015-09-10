@@ -8,6 +8,9 @@
     if (instanceResponse == null) {
       continue;
     }
+    if (brokerRequest.isEnableTrace() && instanceResponse.getMetadata() != null) {
+      brokerResponse.getTraceInfo().put(serverInstance.getHostname(),instanceResponse.getMetadata().get("traceInfo"));
+    }
     if (instanceResponse.getDataSchema() == null && instanceResponse.getMetadata() != null) {
       for (      String key : instanceResponse.getMetadata().keySet()) {
         if (key.startsWith("Exception")) {
@@ -24,9 +27,6 @@
     brokerResponse.setTotalDocs(brokerResponse.getTotalDocs() + Long.parseLong(instanceResponse.getMetadata().get(TOTAL_DOCS)));
     if (Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)) > brokerResponse.getTimeUsedMs()) {
       brokerResponse.setTimeUsedMs(Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)));
-    }
-    if (brokerRequest.isEnableTrace()) {
-      reduceOnTraceInfos(brokerResponse.getTraceInfo(),serverInstance,instanceResponse.getMetadata().get("traceInfo"));
     }
   }
   try {
