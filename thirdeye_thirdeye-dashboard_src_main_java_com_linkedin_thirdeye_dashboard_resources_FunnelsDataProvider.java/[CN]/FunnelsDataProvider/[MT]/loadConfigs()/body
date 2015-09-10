@@ -1,0 +1,17 @@
+{
+  ObjectMapper ymlReader=new ObjectMapper(new YAMLFactory());
+  for (  File f : funnelsRoot.listFiles()) {
+    File funnelsFile=new File(f,FUNNELS_CONFIG_FILE_NAME);
+    if (!funnelsFile.exists()) {
+      LOG.warn("did not find funnels config file {} , in folder {}",FUNNELS_CONFIG_FILE_NAME,f.getName());
+      continue;
+    }
+    try {
+      CustomFunnelSpec spec=ymlReader.readValue(funnelsFile,CustomFunnelSpec.class);
+      this.funnelSpecsMap.put(spec.getCollection(),spec);
+    }
+ catch (    Exception e) {
+      LOG.error("error loading the configFile",e);
+    }
+  }
+}

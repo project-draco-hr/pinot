@@ -1,4 +1,5 @@
 {
+  LOG.error("running the Dashboard application with configs, {}",config.toString());
   final HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClient()).build(getName());
   ExecutorService queryExecutor=environment.lifecycle().executorService("query_executor").build();
   ConfigCache configCache=new ConfigCache();
@@ -11,13 +12,18 @@
     customDashboardResource=new CustomDashboardResource(customDashboardDir,config.getServerUri(),queryCache,dataCache,configCache);
     environment.jersey().register(customDashboardResource);
   }
+  FunnelsDataProvider funnelsResource=null;
+  if (config.getFunnelConfigRoot() != null) {
+    funnelsResource=new FunnelsDataProvider(new File(config.getFunnelConfigRoot()),config.getServerUri(),queryCache,dataCache);
+    environment.jersey().register(funnelsResource);
+  }
   if (config.getCollectionConfigRoot() != null) {
     File collectionConfigDir=new File(config.getCollectionConfigRoot());
     configCache.setCollectionConfigRoot(collectionConfigDir);
     CollectionConfigResource collectionConfigResource=new CollectionConfigResource(collectionConfigDir,configCache);
     environment.jersey().register(collectionConfigResource);
   }
-  environment.jersey().register(new DashboardResource(config.getServerUri(),dataCache,config.getFeedbackEmailAddress(),queryCache,environment.getObjectMapper(),customDashboardResource,configCache));
+  environment.jersey().register(new DashboardResource(config.getServerUri(),dataCache,config.getFeedbackEmailAddress(),queryCache,environment.getObjectMapper(),customDashboardResource,configCache,funnelsResource));
   environment.jersey().register(new FlotTimeSeriesResource(config.getServerUri(),dataCache,queryCache,environment.getObjectMapper(),configCache,config.getAnomalyDatabaseConfig()));
   environment.jersey().register(new MetadataResource(config.getServerUri(),dataCache));
   environment.admin().addTask(new ClearCachesTask(dataCache,queryCache,configCache));
