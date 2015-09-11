@@ -8,32 +8,38 @@
       double[] detrend=new double[series.length];
       for (int i=0; i < series.length; i++) {
         detrend[i]=series[i] - trend[i];
-        if (robustness != null) {
-          detrend[i]*=robustness[i];
-        }
       }
       int numberOfObservations=config.getNumberOfObservations();
       ArrayList<double[]> cycleSubseries=new ArrayList<>(numberOfObservations);
       ArrayList<double[]> cycleTimes=new ArrayList<>(numberOfObservations);
+      ArrayList<double[]> cycleRobustnessWeights=new ArrayList<double[]>(numberOfObservations);
       for (int i=0; i < numberOfObservations; i++) {
         int subseriesLength=series.length / numberOfObservations;
         subseriesLength+=(i < series.length % numberOfObservations) ? 1 : 0;
         double[] subseriesValues=new double[subseriesLength];
         double[] subseriesTimes=new double[subseriesLength];
+        double[] subseriesRobustnessWeights=null;
+        if (robustness != null) {
+          subseriesRobustnessWeights=new double[subseriesLength];
+        }
         for (int cycleIdx=0; cycleIdx < subseriesLength; cycleIdx++) {
           subseriesValues[cycleIdx]=detrend[cycleIdx * numberOfObservations + i];
           subseriesTimes[cycleIdx]=times[cycleIdx * numberOfObservations + i];
+          if (subseriesRobustnessWeights != null) {
+            subseriesRobustnessWeights[cycleIdx]=robustness[cycleIdx * numberOfObservations + i];
+          }
         }
         cycleSubseries.add(subseriesValues);
         cycleTimes.add(subseriesTimes);
+        cycleRobustnessWeights.add(subseriesRobustnessWeights);
       }
       for (int i=0; i < cycleSubseries.size(); i++) {
         double[] smoothed;
         if (config.isPeriodic()) {
-          smoothed=meanSmooth(cycleSubseries.get(i));
+          smoothed=weightedMeanSmooth(cycleSubseries.get(i),cycleRobustnessWeights.get(i));
         }
  else {
-          smoothed=loessSmooth(cycleTimes.get(i),cycleSubseries.get(i),config.getSeasonalComponentBandwidth());
+          smoothed=loessSmooth(cycleTimes.get(i),cycleSubseries.get(i),config.getSeasonalComponentBandwidth(),cycleRobustnessWeights.get(i));
         }
         cycleSubseries.set(i,smoothed);
       }
@@ -44,14 +50,14 @@
           combinedSmoothed[numberOfObservations * cycleIdx + i]=subseriesValues[cycleIdx];
         }
       }
-      double[] filtered=lowPassFilter(combinedSmoothed);
+      double[] filtered=lowPassFilter(combinedSmoothed,robustness);
       for (int i=0; i < seasonal.length; i++) {
         seasonal[i]=combinedSmoothed[i] - filtered[i];
       }
       for (int i=0; i < series.length; i++) {
         trend[i]=series[i] - seasonal[i];
       }
-      trend=loessSmooth(trend,config.getTrendComponentBandwidth());
+      trend=loessSmooth(trend,config.getTrendComponentBandwidth(),robustness);
     }
     for (int i=0; i < series.length; i++) {
       remainder[i]=series[i] - trend[i] - seasonal[i];
