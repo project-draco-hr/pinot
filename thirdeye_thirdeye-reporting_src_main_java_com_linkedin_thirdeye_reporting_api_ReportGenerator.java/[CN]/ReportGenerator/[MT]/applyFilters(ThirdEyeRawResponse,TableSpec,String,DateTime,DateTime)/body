@@ -17,7 +17,7 @@
     if (tableSpec.getFilter() != null && tableSpec.getFilter().getIncludeDimensions() != null) {
       for (      String includeDimension : tableSpec.getFilter().getIncludeDimensions()) {
         filteredDimension[dimensionPosition]=includeDimension;
-        includeDimensions.add(createQueryKey(filteredDimension));
+        includeDimensions.add(DimensionKeyUtils.createQueryKey(filteredDimension));
       }
       for (      Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
         if (!includeDimensions.contains(entry.getKey())) {
@@ -37,18 +37,34 @@
       break;
     }
   }
-  for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
-    DimensionKey dimensionKey=createDimensionKey(entry.getKey());
-    Map<String,Number[]> data=entry.getValue();
-    MetricTimeSeries series=new MetricTimeSeries(schema);
-    for (    Entry<String,Number[]> dataEntry : data.entrySet()) {
-      if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
-        int position=queryResult.getMetrics().indexOf(metric);
-        series.set(Long.valueOf(dataEntry.getKey()),metric,dataEntry.getValue()[position]);
+  if (metric.startsWith("RATIO")) {
+    for (    Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+      DimensionKey dimensionKey=DimensionKeyUtils.createDimensionKey(entry.getKey());
+      Map<String,Number[]> data=entry.getValue();
+      double ratioSum=0;
+      for (      Entry<String,Number[]> dataEntry : data.entrySet()) {
+        if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
+          int position=queryResult.getMetrics().indexOf(metric);
+          ratioSum+=dataEntry.getValue()[position].doubleValue();
+        }
       }
+      reportOutput.put(dimensionKey,ratioSum);
     }
-    Number[] seriesSums=series.getMetricSums();
-    reportOutput.put(dimensionKey,seriesSums[metricPosition]);
+  }
+ else {
+    for (    Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+      DimensionKey dimensionKey=DimensionKeyUtils.createDimensionKey(entry.getKey());
+      Map<String,Number[]> data=entry.getValue();
+      MetricTimeSeries series=new MetricTimeSeries(schema);
+      for (      Entry<String,Number[]> dataEntry : data.entrySet()) {
+        if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
+          int position=queryResult.getMetrics().indexOf(metric);
+          series.set(Long.valueOf(dataEntry.getKey()),metric,dataEntry.getValue()[position]);
+        }
+      }
+      Number[] seriesSums=series.getMetricSums();
+      reportOutput.put(dimensionKey,seriesSums[metricPosition]);
+    }
   }
   return reportOutput;
 }

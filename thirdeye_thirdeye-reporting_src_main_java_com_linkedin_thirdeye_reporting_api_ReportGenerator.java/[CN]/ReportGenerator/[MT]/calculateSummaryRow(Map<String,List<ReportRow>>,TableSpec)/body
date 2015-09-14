@@ -11,13 +11,25 @@
     }
     MetricTimeSeries currentSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics()));
     MetricTimeSeries baselineSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics()));
-    for (int i=0; i < tableRows.size(); i++) {
-      currentSeries.set(i,metric,tableRows.get(i).getCurrent());
-      baselineSeries.set(i,metric,tableRows.get(i).getBaseline());
-    }
     ReportRow summary=new ReportRow(tableRows.get(0));
-    summary.setCurrent(currentSeries.getMetricSums()[metricPosition.get(metric)]);
-    summary.setBaseline(baselineSeries.getMetricSums()[metricPosition.get(metric)]);
+    if (metric.startsWith("RATIO")) {
+      double currentSum=0;
+      double baselineSum=0;
+      for (int i=0; i < tableRows.size(); i++) {
+        currentSum+=tableRows.get(i).getCurrent().doubleValue();
+        baselineSum+=tableRows.get(i).getBaseline().doubleValue();
+      }
+      summary.setCurrent(currentSum);
+      summary.setBaseline(baselineSum);
+    }
+ else {
+      for (int i=0; i < tableRows.size(); i++) {
+        currentSeries.set(i,metric,tableRows.get(i).getCurrent());
+        baselineSeries.set(i,metric,tableRows.get(i).getBaseline());
+      }
+      summary.setCurrent(currentSeries.getMetricSums()[metricPosition.get(metric)]);
+      summary.setBaseline(baselineSeries.getMetricSums()[metricPosition.get(metric)]);
+    }
     summary.setRatio(DOUBLE_FORMAT.format((summary.getCurrent().doubleValue() - summary.getBaseline().doubleValue()) / (summary.getBaseline().doubleValue()) * 100));
     summary.setDimension("Total");
     tableRows.add(summary);
