@@ -1,0 +1,14 @@
+{
+  String context;
+  if (allocationContext != null) {
+    context=allocationContext.getAbsolutePath() + " (" + details+ ")";
+  }
+ else {
+    context="no file (" + details + ")";
+  }
+  DIRECT_BYTE_BUFFER_USAGE.addAndGet(capacity);
+  LOGGER.info("Allocating byte buffer of size {} with context {}, currently allocated {} MB",capacity,context,DIRECT_BYTE_BUFFER_USAGE.get() / BYTES_IN_MEGABYTE);
+  final ByteBuffer byteBuffer=ByteBuffer.allocateDirect(capacity);
+  BUFFER_TO_CONTEXT_MAP.put(byteBuffer,context);
+  return byteBuffer;
+}

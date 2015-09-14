@@ -1,6 +1,9 @@
 {
   if (null == buffer)   return;
   if (!buffer.isDirect())   return;
+  final int bufferSize=buffer.capacity();
+  DIRECT_BYTE_BUFFER_USAGE.addAndGet(-bufferSize);
+  LOGGER.info("Releasing byte buffer of size {} with context {}, currently allocated {} MB",bufferSize,BUFFER_TO_CONTEXT_MAP.get(buffer),DIRECT_BYTE_BUFFER_USAGE.get() / BYTES_IN_MEGABYTE);
   try {
     Method cleanerMethod=buffer.getClass().getMethod("cleaner");
     Method cleanMethod=Class.forName("sun.misc.Cleaner").getMethod("clean");

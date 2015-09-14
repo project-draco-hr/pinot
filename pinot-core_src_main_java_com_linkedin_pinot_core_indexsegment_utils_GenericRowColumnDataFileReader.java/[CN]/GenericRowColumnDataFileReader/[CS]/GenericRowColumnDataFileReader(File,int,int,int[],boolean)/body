@@ -16,7 +16,7 @@
   long totalSize=rowSize * rows;
   if (isMmap)   byteBuffer=file.getChannel().map(FileChannel.MapMode.READ_ONLY,0,totalSize);
  else {
-    byteBuffer=ByteBuffer.allocateDirect((int)totalSize);
+    byteBuffer=MmapUtils.allocateDirectByteBuffer((int)totalSize,dataFile,this.getClass().getSimpleName() + " byteBuffer");
     file.getChannel().read(byteBuffer);
   }
 }
