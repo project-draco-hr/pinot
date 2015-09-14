@@ -1,10 +1,10 @@
 {
-  Representation rep=null;
+  Representation rep;
   try {
     final String tableName=(String)getRequest().getAttributes().get("tableName");
     final String segmentName=(String)getRequest().getAttributes().get("segmentName");
     LOGGER.info("Getting segment deletion request, tableName: " + tableName + " segmentName: "+ segmentName);
-    rep=deleteSegment(rep,tableName,segmentName);
+    rep=deleteSegment(tableName,segmentName);
   }
  catch (  final Exception e) {
     rep=exceptionToStringRepresentation(e);
