@@ -7,8 +7,12 @@
     if (segmentStatsMap != null) {
       for (      String instance : segmentStatsMap.keySet()) {
         final String segmentState=segmentStatsMap.get(instance);
-        if (!segmentState.equalsIgnoreCase(targetState) && !"ERROR".equalsIgnoreCase(segmentState)) {
-          continue deadlineLoop;
+        if (!segmentState.equalsIgnoreCase(targetState)) {
+          if ("ERROR".equalsIgnoreCase(segmentState) && !considerErrorStateAsDifferentFromTarget) {
+          }
+ else {
+            continue deadlineLoop;
+          }
         }
       }
       return true;
