@@ -28,8 +28,8 @@
     }
   }
   LOGGER.info("Wait until segment - " + segmentName + " to be OFFLINE in ExternalView");
-  if (!ifExternalViewChangeReflectedForState(tableName,segmentName,"OFFLINE",_externalViewOnlineToOfflineTimeout)) {
-    LOGGER.error("Cannot get OFFLINE state to be reflected on ExternalView changed for segment: " + segmentName);
+  if (!ifExternalViewChangeReflectedForState(tableName,segmentName,"OFFLINE",_externalViewOnlineToOfflineTimeout,false)) {
+    LOGGER.error("External view for segment {} did not reflect the ideal state of OFFLINE within the {} ms time limit",segmentName,_externalViewOnlineToOfflineTimeout);
     return false;
   }
   do {

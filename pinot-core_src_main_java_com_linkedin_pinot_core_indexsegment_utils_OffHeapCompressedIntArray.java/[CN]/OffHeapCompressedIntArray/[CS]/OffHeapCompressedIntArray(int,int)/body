@@ -3,6 +3,6 @@
   capacity=numOfElements;
   long requiredBufferSize=getRequiredBufferSize(numOfElements,numOfBitsPerElement);
   assert(requiredBufferSize <= Integer.MAX_VALUE);
-  buf=ByteBuffer.allocateDirect((int)requiredBufferSize);
+  buf=MmapUtils.allocateDirectByteBuffer((int)requiredBufferSize,null,this.getClass().getSimpleName() + " buf");
   tempBuf=getByteBuf();
 }

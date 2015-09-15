@@ -1,7 +1,7 @@
 {
   ByteBuffer dataBuffer;
   try {
-    dataBuffer=ByteBuffer.allocateDirect(rowCapacity * columnSizeInBytes);
+    dataBuffer=MmapUtils.allocateDirectByteBuffer(rowCapacity * columnSizeInBytes,null,this.getClass().getSimpleName() + " dataBuffer");
     dataBuffer.order(ByteOrder.nativeOrder());
     dataBuffers.add(dataBuffer);
     currentDataWriter=new FixedByteWidthRowColDataFileWriter(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});

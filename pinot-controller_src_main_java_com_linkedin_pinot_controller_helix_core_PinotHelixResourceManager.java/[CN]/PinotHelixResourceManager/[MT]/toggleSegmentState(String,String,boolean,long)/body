@@ -23,7 +23,7 @@
       return new PinotResourceManagerResponse("Error: External View does not reflect ideal State, timed out (10s).",false);
     }
   }
-  if (!ifExternalViewChangeReflectedForState(tableName,segmentName,status,_externalViewOnlineToOfflineTimeout)) {
+  if (!ifExternalViewChangeReflectedForState(tableName,segmentName,status,_externalViewOnlineToOfflineTimeout,true)) {
     return new PinotResourceManagerResponse("Error: Failed to update external view, timeout",false);
   }
   return new PinotResourceManagerResponse(("Success: Segment " + segmentName + " is now "+ status),true);
