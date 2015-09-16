@@ -9,6 +9,8 @@
     builder.expireAfterWrite(config.getExpirationTime(),config.getExpirationUnit());
   }
   this.resultCache=builder.build(new ResultCacheLoader());
+  this.rawResultCache=builder.build(new RawResultCacheLoader());
   this.schemaCache=CacheBuilder.newBuilder().expireAfterWrite(Long.MAX_VALUE,TimeUnit.MILLISECONDS).build(new SchemaCacheLoader());
+  this.starTreeConfigCache=CacheBuilder.newBuilder().expireAfterWrite(Long.MAX_VALUE,TimeUnit.MILLISECONDS).build(new StarTreeConfigCacheLoader());
   LOG.info("Created DefaultThirdEyeClient to {}",httpHost);
 }

@@ -1,0 +1,25 @@
+{
+  for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
+    List<ReportRow> tableRows=entry.getValue();
+    String metric=entry.getKey();
+    if (tableRows.size() == 0) {
+      throw new IllegalStateException("No rows found for metric " + metric);
+    }
+    if (metric.startsWith(RATIO_METRIC_PREFIX)) {
+      String[] tokens=metric.split("[\\W]");
+      String metric1=tokens[1];
+      String metric2=tokens[2];
+      List<ReportRow> metric1Rows=metricTableRows.get(metric1);
+      List<ReportRow> metric2Rows=metricTableRows.get(metric2);
+      List<ReportRow> metricRows=metricTableRows.get(metric);
+      if (metric1Rows == null || metric2Rows == null) {
+        throw new IllegalStateException("Ratio metrics not present in report");
+      }
+      ReportRow lastMetric1Row=metric1Rows.get(metric1Rows.size() - 1);
+      ReportRow lastMetric2Row=metric2Rows.get(metric2Rows.size() - 1);
+      ReportRow lastMetricRow=metricRows.get(metricRows.size() - 1);
+      lastMetricRow.setBaseline(lastMetric1Row.getBaseline().doubleValue() / lastMetric2Row.getBaseline().doubleValue());
+      lastMetricRow.setCurrent(lastMetric1Row.getCurrent().doubleValue() / lastMetric2Row.getCurrent().doubleValue());
+    }
+  }
+}

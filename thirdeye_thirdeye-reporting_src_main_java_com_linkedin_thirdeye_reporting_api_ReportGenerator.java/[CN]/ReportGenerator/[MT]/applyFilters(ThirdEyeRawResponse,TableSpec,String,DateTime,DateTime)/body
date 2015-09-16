@@ -30,41 +30,20 @@
     }
   }
   int metricPosition=0;
-  MetricSchema schema=MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics());
-  for (int i=0; i < starTreeConfig.getMetrics().size(); i++) {
-    if (metric.equals(starTreeConfig.getMetrics().get(i).getName())) {
-      metricPosition=i;
-      break;
-    }
-  }
-  if (metric.startsWith("RATIO")) {
-    for (    Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
-      DimensionKey dimensionKey=DimensionKeyUtils.createDimensionKey(entry.getKey());
-      Map<String,Number[]> data=entry.getValue();
-      double ratioSum=0;
-      for (      Entry<String,Number[]> dataEntry : data.entrySet()) {
-        if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
-          int position=queryResult.getMetrics().indexOf(metric);
-          ratioSum+=dataEntry.getValue()[position].doubleValue();
-        }
+  List<MetricSpec> metricSpecs=getMetricSpecs(metric);
+  MetricSchema schema=MetricSchema.fromMetricSpecs(metricSpecs);
+  for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+    DimensionKey dimensionKey=DimensionKeyUtils.createDimensionKey(entry.getKey());
+    Map<String,Number[]> data=entry.getValue();
+    MetricTimeSeries series=new MetricTimeSeries(schema);
+    for (    Entry<String,Number[]> dataEntry : data.entrySet()) {
+      if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
+        int position=queryResult.getMetrics().indexOf(metric);
+        series.set(Long.valueOf(dataEntry.getKey()),metric,dataEntry.getValue()[position]);
       }
-      reportOutput.put(dimensionKey,ratioSum);
     }
-  }
- else {
-    for (    Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
-      DimensionKey dimensionKey=DimensionKeyUtils.createDimensionKey(entry.getKey());
-      Map<String,Number[]> data=entry.getValue();
-      MetricTimeSeries series=new MetricTimeSeries(schema);
-      for (      Entry<String,Number[]> dataEntry : data.entrySet()) {
-        if (!String.valueOf(endTime.getMillis()).equals(dataEntry.getKey())) {
-          int position=queryResult.getMetrics().indexOf(metric);
-          series.set(Long.valueOf(dataEntry.getKey()),metric,dataEntry.getValue()[position]);
-        }
-      }
-      Number[] seriesSums=series.getMetricSums();
-      reportOutput.put(dimensionKey,seriesSums[metricPosition]);
-    }
+    Number[] seriesSums=series.getMetricSums();
+    reportOutput.put(dimensionKey,seriesSums[metricPosition]);
   }
   return reportOutput;
 }

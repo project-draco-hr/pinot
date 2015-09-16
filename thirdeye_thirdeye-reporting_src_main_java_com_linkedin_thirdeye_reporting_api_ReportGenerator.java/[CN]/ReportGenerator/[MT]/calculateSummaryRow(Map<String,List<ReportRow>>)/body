@@ -1,0 +1,23 @@
+{
+  for (  Entry<String,List<ReportRow>> entry : metricTableRows.entrySet()) {
+    List<ReportRow> tableRows=entry.getValue();
+    String metric=entry.getKey();
+    if (tableRows.size() == 0) {
+      throw new IllegalStateException("No rows found for metric " + metric);
+    }
+    ReportRow summary=new ReportRow(tableRows.get(0));
+    int metricPosition=0;
+    List<MetricSpec> metricSpecs=getMetricSpecs(metric);
+    MetricTimeSeries currentSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(metricSpecs));
+    MetricTimeSeries baselineSeries=new MetricTimeSeries(MetricSchema.fromMetricSpecs(metricSpecs));
+    for (int i=0; i < tableRows.size(); i++) {
+      currentSeries.set(i,metric,tableRows.get(i).getCurrent());
+      baselineSeries.set(i,metric,tableRows.get(i).getBaseline());
+    }
+    summary.setCurrent(currentSeries.getMetricSums()[metricPosition]);
+    summary.setBaseline(baselineSeries.getMetricSums()[metricPosition]);
+    summary.setRatio(DOUBLE_FORMAT.format((summary.getCurrent().doubleValue() - summary.getBaseline().doubleValue()) / (summary.getBaseline().doubleValue()) * 100));
+    summary.setDimension("Total");
+    tableRows.add(summary);
+  }
+}

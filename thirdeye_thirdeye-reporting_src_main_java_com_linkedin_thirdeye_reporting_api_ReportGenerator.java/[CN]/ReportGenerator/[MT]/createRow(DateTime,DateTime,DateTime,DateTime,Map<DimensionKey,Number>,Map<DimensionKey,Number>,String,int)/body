@@ -8,18 +8,7 @@
  else {
       dimension=entry.getKey().getDimensionValues()[dimensionPosition];
     }
-    ReportRow row=null;
-    try {
-      if (metric.startsWith("RATIO")) {
-        row=new ReportRow(currentStartHour,currentEndHour,baselineStartHour,baselineEndHour,entry.getKey(),dimension,metric,baselineReportOutput.get(entry.getKey()) == null ? 0 : baselineReportOutput.get(entry.getKey()),entry.getValue());
-      }
- else {
-        row=new ReportRow(currentStartHour,currentEndHour,baselineStartHour,baselineEndHour,entry.getKey(),dimension,metric,baselineReportOutput.get(entry.getKey()) == null ? 0 : baselineReportOutput.get(entry.getKey()).longValue(),entry.getValue().longValue());
-      }
-    }
- catch (    Exception e) {
-      e.printStackTrace();
-    }
+    ReportRow row=new ReportRow(currentStartHour,currentEndHour,baselineStartHour,baselineEndHour,entry.getKey(),dimension,metric,baselineReportOutput.get(entry.getKey()) == null ? 0 : baselineReportOutput.get(entry.getKey()),entry.getValue());
     row.setRatio(DOUBLE_FORMAT.format((row.getCurrent().doubleValue() - row.getBaseline().doubleValue()) / (row.getBaseline().doubleValue()) * 100));
     reportRows.add(row);
   }
