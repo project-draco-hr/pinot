@@ -37,18 +37,24 @@
       URL thirdeyeUri=ThirdeyeUrlUtils.getThirdeyeUri(reportConfig.getDashboardUri(),collection,scheduleSpec,tableSpec,baselineEndHour.minus(TimeUnit.MILLISECONDS.convert(DEFAULT_AGGREGATION_GRANULARITY,DEFAULT_AGGREGATION_UNIT)).getMillis(),currentEndHour.minus(TimeUnit.MILLISECONDS.convert(DEFAULT_AGGREGATION_GRANULARITY,DEFAULT_AGGREGATION_UNIT)).getMillis());
       LOGGER.info("Generating Thirdeye URL {}",thirdeyeUri);
       Map<String,String> dimensionValues=DimensionKeyUtils.createDimensionValues(tableSpec);
+      LOGGER.info("Generated dimension values");
       Map<String,List<ReportRow>> metricTableRows=new HashMap<>();
       List<TableReportRow> tableReportRows=new ArrayList<>();
       for (int i=0; i < scheduleSpec.getReportWindow(); i++) {
         currentEndHour=currentStartHour.plus(TimeUnit.MILLISECONDS.convert(aggregationSize,aggregationUnit));
         baselineEndHour=baselineStartHour.plus(TimeUnit.MILLISECONDS.convert(aggregationSize,aggregationUnit));
         for (        String metric : tableSpec.getMetrics()) {
+          LOGGER.info("Metric : " + metric);
           String currentSql=SqlUtils.getSql(metric,collection,currentStartHour,currentEndHour,dimensionValues);
           String baselineSql=SqlUtils.getSql(metric,collection,baselineStartHour,baselineEndHour,dimensionValues);
+          LOGGER.info("Current sql : " + currentSql);
+          LOGGER.info("Baseline sql : " + baselineSql);
           ThirdEyeRawResponse currentQueryResult=thirdeyeClient.getRawResponse(currentSql);
           ThirdEyeRawResponse baselineQueryResult=thirdeyeClient.getRawResponse(baselineSql);
+          LOGGER.info("Applying filters");
           Map<DimensionKey,Number> currentReportOutput=applyFilters(currentQueryResult,tableSpec,metric,currentStartHour,currentEndHour);
           Map<DimensionKey,Number> baselineReportOutput=applyFilters(baselineQueryResult,tableSpec,metric,baselineStartHour,baselineEndHour);
+          LOGGER.info("Creating report rows");
           List<ReportRow> reportRows;
           if (tableSpec.getGroupBy() != null) {
             reportRows=createRow(currentStartHour,currentEndHour,baselineStartHour,baselineEndHour,currentReportOutput,baselineReportOutput,metric,currentQueryResult.getDimensions().indexOf(tableSpec.getGroupBy()));
@@ -66,7 +72,9 @@
         currentStartHour=currentEndHour;
         baselineStartHour=baselineEndHour;
       }
+      LOGGER.info("Calculating summary row");
       calculateSummaryRow(metricTableRows);
+      LOGGER.info("Calculating ratio summary row");
       calculateRatioTotal(metricTableRows);
       tableReportRows=getGroupBy(metricTableRows,tableSpec.getMetrics());
       if (scheduleSpec.isFindAnomalies() && reportConfig.getDbconfig() != null) {
@@ -80,12 +88,15 @@
       Table table=new Table(tableReportRows,tableSpec,thirdeyeUri);
       tables.add(table);
     }
+    LOGGER.info("Applying aliases");
     AliasSpec.alias(reportConfig,tables,anomalyReportTables);
+    LOGGER.info("Creating data model");
     ReportEmailDataModel reportObjects=new ReportEmailDataModel(reportConfig,tables,anomalyReportTables,missingSegments,scheduleSpec,new ReportEmailCssSpec());
     ReportEmailSender reportEmailSender=new ReportEmailSender(reportObjects,templatePath);
     reportEmailSender.emailReport();
   }
  catch (  IOException e) {
+    e.printStackTrace();
     LOGGER.error(e.toString());
   }
 }
