@@ -1,7 +1,7 @@
 {
   String css=null;
-  ClassLoader classLoader=Thread.class.getClassLoader();
-  InputStream is=classLoader.getResourceAsStream("assets/css/" + cssFile);
+  URL resource=getClass().getClassLoader().getResource(cssFile);
+  InputStream is=resource.openStream();
   try {
     css=IOUtils.toString(is);
   }
