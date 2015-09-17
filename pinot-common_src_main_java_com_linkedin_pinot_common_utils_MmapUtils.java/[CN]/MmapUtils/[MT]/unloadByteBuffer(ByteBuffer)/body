@@ -2,8 +2,7 @@
   if (null == buffer)   return;
   if (!buffer.isDirect())   return;
   final int bufferSize=buffer.capacity();
-  DIRECT_BYTE_BUFFER_USAGE.addAndGet(-bufferSize);
-  LOGGER.info("Releasing byte buffer of size {} with context {}, currently allocated {} MB",bufferSize,BUFFER_TO_CONTEXT_MAP.get(buffer),DIRECT_BYTE_BUFFER_USAGE.get() / BYTES_IN_MEGABYTE);
+  final AllocationContext bufferContext=BUFFER_TO_CONTEXT_MAP.get(buffer);
   try {
     Method cleanerMethod=buffer.getClass().getMethod("cleaner");
     Method cleanMethod=Class.forName("sun.misc.Cleaner").getMethod("clean");
@@ -12,9 +11,29 @@
     Object cleaner=cleanerMethod.invoke(buffer);
     if (cleaner != null) {
       cleanMethod.invoke(cleaner);
-    }
+      if (bufferContext != null) {
+switch (bufferContext.allocationType) {
+case DIRECT_BYTE_BUFFER:
+          DIRECT_BYTE_BUFFER_USAGE.addAndGet(-bufferSize);
+        if (LOGGER.isInfoEnabled()) {
+          LOGGER.info("Releasing byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
+        }
+      break;
+case MMAP:
+    MMAP_BUFFER_USAGE.addAndGet(-bufferSize);
+  if (LOGGER.isInfoEnabled()) {
+    LOGGER.info("Unmapping byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
   }
- catch (  Exception e) {
-    LOGGER.warn("Caught (ignored) exception while unloading byte buffer",e);
-  }
+break;
+}
+BUFFER_TO_CONTEXT_MAP.remove(buffer);
+}
+ else {
+LOGGER.warn("Attempted to release byte buffer of size {} with no context",bufferSize);
+}
+}
+}
+ catch (Exception e) {
+LOGGER.warn("Caught (ignored) exception while unloading byte buffer",e);
+}
 }

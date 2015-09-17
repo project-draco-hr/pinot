@@ -11,5 +11,6 @@
     rowSizeInBytes+=colSize;
   }
   int totalSize=rowSizeInBytes * rows;
-  byteBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,totalSize);
+  byteBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,0,totalSize,file,this.getClass().getSimpleName() + " byteBuffer");
+  ownsByteBuffer=true;
 }

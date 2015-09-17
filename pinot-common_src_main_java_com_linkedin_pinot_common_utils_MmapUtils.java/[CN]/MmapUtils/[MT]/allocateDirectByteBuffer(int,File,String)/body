@@ -7,8 +7,10 @@
     context="no file (" + details + ")";
   }
   DIRECT_BYTE_BUFFER_USAGE.addAndGet(capacity);
-  LOGGER.info("Allocating byte buffer of size {} with context {}, currently allocated {} MB",capacity,context,DIRECT_BYTE_BUFFER_USAGE.get() / BYTES_IN_MEGABYTE);
+  if (LOGGER.isInfoEnabled()) {
+    LOGGER.info("Allocating byte buffer of size {} with context {}, allocation after operation {}",capacity,context,getTrackedAllocationStatus());
+  }
   final ByteBuffer byteBuffer=ByteBuffer.allocateDirect(capacity);
-  BUFFER_TO_CONTEXT_MAP.put(byteBuffer,context);
+  BUFFER_TO_CONTEXT_MAP.put(byteBuffer,new AllocationContext(context,AllocationType.DIRECT_BYTE_BUFFER));
   return byteBuffer;
 }
