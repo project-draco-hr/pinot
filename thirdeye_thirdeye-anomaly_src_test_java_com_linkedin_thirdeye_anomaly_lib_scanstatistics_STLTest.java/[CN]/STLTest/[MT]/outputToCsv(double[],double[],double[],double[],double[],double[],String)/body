@@ -1,0 +1,23 @@
+{
+  int numData=trend_r.length;
+  List<String[]> output_list=new ArrayList<String[]>();
+  for (int ii=0; ii < numData; ii++) {
+    String[] a_line=new String[6];
+    a_line[0]=Double.toString(trend_r[ii]);
+    a_line[1]=Double.toString(data_trend[ii]);
+    a_line[2]=Double.toString(seasonal_r[ii]);
+    a_line[3]=Double.toString(data_seasonal[ii]);
+    a_line[4]=Double.toString(residual_r[ii]);
+    a_line[5]=Double.toString(data_remainder[ii]);
+    output_list.add(ii,a_line);
+  }
+  File file=new File(outputFilename);
+  OutputStream fop=new FileOutputStream(file);
+  BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(fop));
+  for (  String[] element : output_list) {
+    String csvLine=Joiner.on(",").join(element);
+    writer.write(csvLine);
+    writer.newLine();
+  }
+  writer.close();
+}
