@@ -1,0 +1,21 @@
+{
+  List<AnomalyResult> results=null;
+  Session session=sessionFactory.openSession();
+  try {
+    ManagedSessionContext.bind(session);
+    Transaction transaction=session.beginTransaction();
+    try {
+      results=resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,anomalyFunction.getSpec().getId());
+      transaction.commit();
+    }
+ catch (    Exception e) {
+      transaction.rollback();
+      throw new RuntimeException(e);
+    }
+  }
+  finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+  return results;
+}

@@ -1,0 +1,28 @@
+{
+  if (inputTimeSeries.length != inputTimeStamps.length) {
+    throw new Exception("timestamp and data not equal length.");
+  }
+  for (int i=1; i < inputTimeStamps.length; i++) {
+    if (inputTimeStamps[i] < inputTimeStamps[i - 1]) {
+      throw new Exception("timestamp is not sorted.");
+    }
+  }
+  int startIndex=0;
+  int endIndex=inputTimeStamps.length;
+  for (int i=0; i < inputTimeStamps.length; i++) {
+    if (inputTimeStamps[i] >= trainStart) {
+      startIndex=i;
+      break;
+    }
+  }
+  for (int i=0; i < inputTimeStamps.length; i++) {
+    if (inputTimeStamps[i] > trainEnd) {
+      endIndex=i;
+      break;
+    }
+  }
+  if (trainStart < inputTimeStamps[0] || trainEnd > inputTimeStamps[inputTimeStamps.length - 1] || startIndex >= endIndex) {
+    throw new Exception("training data range not valid.");
+  }
+  return Arrays.copyOfRange(inputTimeSeries,startIndex,endIndex);
+}

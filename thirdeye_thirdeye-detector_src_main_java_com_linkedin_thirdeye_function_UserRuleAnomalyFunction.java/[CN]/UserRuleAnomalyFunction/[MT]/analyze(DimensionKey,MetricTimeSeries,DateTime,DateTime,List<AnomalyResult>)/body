@@ -1,0 +1,59 @@
+{
+  List<AnomalyResult> anomalyResults=new ArrayList<>();
+  Properties props=getProperties();
+  String metric=getSpec().getMetric();
+  double changeThreshold=Double.valueOf(props.getProperty(CHANGE_THRESHOLD));
+  double volumeThreshold=0;
+  if (props.containsKey(AVERAGE_VOLUME_THRESHOLD)) {
+    volumeThreshold=Double.valueOf(props.getProperty(AVERAGE_VOLUME_THRESHOLD));
+  }
+  long baselineMillis;
+  String baselineProp=props.getProperty(BASELINE);
+  if ("w/w".equals(baselineProp)) {
+    baselineMillis=TimeUnit.MILLISECONDS.convert(7,TimeUnit.DAYS);
+  }
+ else   if ("w/2w".equals(baselineProp)) {
+    baselineMillis=TimeUnit.MILLISECONDS.convert(14,TimeUnit.DAYS);
+  }
+ else   if ("w/3w".equals(baselineProp)) {
+    baselineMillis=TimeUnit.MILLISECONDS.convert(21,TimeUnit.DAYS);
+  }
+ else {
+    throw new IllegalArgumentException("Unsupported baseline " + baselineProp);
+  }
+  long bucketMillis=TimeUnit.MILLISECONDS.convert(getSpec().getBucketSize(),getSpec().getBucketUnit());
+  double averageValue=0;
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    averageValue+=timeSeries.get(time,metric).doubleValue();
+  }
+  long numBuckets=(windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis;
+  averageValue/=numBuckets;
+  if (averageValue < volumeThreshold) {
+    return anomalyResults;
+  }
+  DateTime current=windowEnd;
+  DateTime baseline=current.minus(baselineMillis);
+  while (baseline.compareTo(windowStart) >= 0) {
+    double currentValue=timeSeries.get(current.getMillis(),metric).doubleValue();
+    double baselineValue=timeSeries.get(baseline.getMillis(),metric).doubleValue();
+    if (baselineValue > 0) {
+      double percentChange=(currentValue - baselineValue) / baselineValue;
+      if (changeThreshold > 0 && percentChange > changeThreshold || changeThreshold < 0 && percentChange < changeThreshold) {
+        AnomalyResult anomalyResult=new AnomalyResult();
+        anomalyResult.setCollection(getSpec().getCollection());
+        anomalyResult.setMetric(metric);
+        anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
+        anomalyResult.setFunctionId(getSpec().getId());
+        anomalyResult.setProperties(getSpec().getProperties());
+        anomalyResult.setStartTimeUtc(current.getMillis());
+        anomalyResult.setEndTimeUtc(null);
+        anomalyResult.setScore(percentChange);
+        anomalyResult.setWeight(averageValue);
+        anomalyResults.add(anomalyResult);
+      }
+    }
+    current=current.minus(bucketMillis);
+    baseline=baseline.minus(bucketMillis);
+  }
+  return anomalyResults;
+}

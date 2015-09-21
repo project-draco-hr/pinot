@@ -1,0 +1,61 @@
+{
+  Properties props=getProperties();
+  int seasonal=Integer.valueOf(props.getProperty(SEASONAL,PROP_DEFAULT_SEASONAL));
+  int order=Integer.valueOf(props.getProperty(ORDER,PROP_DEFAULT_ORDER));
+  int r=Integer.valueOf(props.getProperty(R,PROP_DEFAULT_KNOB));
+  double pValueThreshold=Double.valueOf(props.getProperty(P_VALUE_THRESHOLD,PROP_DEFAULT_P_VALUE_THRESHOLD));
+  long trainStartInput=Collections.min(timeSeries.getTimeWindowSet());
+  long trainEndInput=Collections.max(timeSeries.getTimeWindowSet());
+  long bucketMillis=getSpec().getBucketUnit().toMillis(getSpec().getBucketSize());
+  String metric=getSpec().getMetric();
+  double averageValue=0;
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    averageValue+=timeSeries.get(time,metric).doubleValue();
+  }
+  long numBuckets=(windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis;
+  averageValue/=numBuckets;
+  Set<Long> omitTimestamps=new HashSet<Long>();
+  Pair<long[],double[]> arraysFromSeries=MetricTimeSeriesUtils.toArray(timeSeries,metric,bucketMillis,omitTimestamps,0.0);
+  long[] timestamps=arraysFromSeries.getFirst();
+  double[] observations=arraysFromSeries.getSecond();
+  for (  AnomalyResult ar : knownAnomalies) {
+    omitTimestamps.add(ar.getStartTimeUtc());
+  }
+  StateSpaceAnomalyDetector stateSpaceDetector=new StateSpaceAnomalyDetector(trainStartInput,trainEndInput,-1,bucketMillis,omitTimestamps,seasonal,order,order + seasonal - 1,1,r);
+  final String FUNCTION_INVOCATION_STATE_KEY=getKVMapKeyString(props,dimensionKey);
+  Double initialEstimatedStateNoise=NON_DURABLE_STATE_KV_PAIRS.get(FUNCTION_INVOCATION_STATE_KEY);
+  if (initialEstimatedStateNoise != null) {
+    stateSpaceDetector.setInitialEstimatedStateNoise(initialEstimatedStateNoise);
+  }
+  Map<Long,StateSpaceDataPoint> resultsByTimeWindow;
+  LOGGER.info("detecting anomalies using kalman filter");
+  long startTime=System.nanoTime();
+  resultsByTimeWindow=stateSpaceDetector.detectAnomalies(observations,timestamps,bucketMillis);
+  LOGGER.info("algorithm took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
+  NON_DURABLE_STATE_KV_PAIRS.put(FUNCTION_INVOCATION_STATE_KEY,stateSpaceDetector.getEstimatedStateNoise());
+  List<AnomalyResult> anomalyResults=new LinkedList<AnomalyResult>();
+  for (  long timeWindow : new TreeSet<>(resultsByTimeWindow.keySet())) {
+    StateSpaceDataPoint stateSpaceDataPoint=resultsByTimeWindow.get(timeWindow);
+    if (stateSpaceDataPoint.pValue < pValueThreshold) {
+      Properties resultProperties=new Properties();
+      resultProperties.put("actualValue","" + stateSpaceDataPoint.actualValue);
+      resultProperties.put("predictedValue","" + stateSpaceDataPoint.predictedValue);
+      resultProperties.put("stdError","" + stateSpaceDataPoint.stdError);
+      resultProperties.put("pValue","" + stateSpaceDataPoint.pValue);
+      resultProperties.put("predictedDate","" + stateSpaceDataPoint.predictedDate);
+      resultProperties.setProperty("timestamp",new DateTime(timeWindow).toString());
+      AnomalyResult anomalyResult=new AnomalyResult();
+      anomalyResult.setScore(stateSpaceDataPoint.pValue);
+      anomalyResult.setProperties(AnomalyResult.encodeCompactedProperties(resultProperties));
+      anomalyResult.setWeight(averageValue);
+      anomalyResult.setStartTimeUtc(timeWindow);
+      anomalyResult.setEndTimeUtc(null);
+      anomalyResult.setCollection(getSpec().getCollection());
+      anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
+      anomalyResult.setFunctionId(getSpec().getId());
+      anomalyResult.setMetric(getSpec().getMetric());
+      anomalyResults.add(anomalyResult);
+    }
+  }
+  return anomalyResults;
+}

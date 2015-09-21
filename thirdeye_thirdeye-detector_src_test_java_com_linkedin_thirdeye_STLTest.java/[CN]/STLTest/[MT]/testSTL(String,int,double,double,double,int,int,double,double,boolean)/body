@@ -1,0 +1,36 @@
+{
+  int size=500;
+  Random rng=new Random();
+  double[] dataPoints=new double[size];
+  double[] generated_trend=new double[size];
+  double[] generated_seasonal=new double[size];
+  double[] generated_residual=new double[size];
+  long[] timestamps=new long[size];
+  double[] slopes=new double[3];
+  for (int jj=0; jj < size; jj++) {
+    generated_trend[jj]=jj * slope * level + level;
+    generated_seasonal[jj]=level * Math.sin(((double)jj / (double)seasonality) * 2 * Math.PI);
+    generated_residual[jj]=rng.nextGaussian() * Math.sqrt(noisevariance);
+    dataPoints[jj]=generated_trend[jj] + generated_seasonal[jj] + generated_residual[jj];
+  }
+  double[][] data=removeSeasonality(timestamps,dataPoints,seasonality,innerloop,outerloop,lowpassbandwidth,trendcomponentbandwidth,true);
+  double[] data_trend=data[0];
+  double[] data_remainder=data[1];
+  double[] data_seasonal=data[2];
+  double[] data_seasonal_check=new double[seasonality];
+  double[] seasonal_check=new double[seasonality];
+  outputToCsv(generated_trend,data_trend,generated_seasonal,data_seasonal,generated_residual,data_remainder,outputfile);
+  double trend_pearson=CheckTimeSeriesSimularityPearson(generated_trend,data_trend);
+  double remainder_pearson=CheckTimeSeriesSimularityPearson(generated_residual,data_remainder);
+  double seasonal_pearson=CheckTimeSeriesSimularityPearson(generated_seasonal,data_seasonal);
+  boolean trend_pearson_test=trend_pearson > 0.75;
+  boolean remainder_pearson_test=remainder_pearson > 0.75;
+  boolean seasonal_pearson_test=seasonal_pearson > 0.75;
+  System.out.println(trend_pearson + "," + remainder_pearson+ ","+ seasonal_pearson);
+  for (int ll=0; ll < seasonality; ll++) {
+    seasonal_check[ll]=level * Math.sin(((double)ll / (double)seasonality) * 2 * Math.PI);
+    data_seasonal_check[ll]=data_seasonal[ll];
+  }
+  boolean reject_null=checkTimeSeriesSimularityTtest(seasonal_check,data_seasonal_check);
+  Assert.assertEquals(reject_null,false);
+}

@@ -1,0 +1,24 @@
+{
+  Session session=sessionFactory.openSession();
+  try {
+    ManagedSessionContext.bind(session);
+    Transaction transaction=session.beginTransaction();
+    try {
+      for (      AnomalyResult result : results) {
+        result.setFunctionId(anomalyFunction.getSpec().getId());
+        result.setFunctionType(anomalyFunction.getSpec().getType());
+        result.setFunctionProperties(anomalyFunction.getSpec().getProperties());
+        resultDAO.create(result);
+      }
+      transaction.commit();
+    }
+ catch (    Exception e) {
+      transaction.rollback();
+      throw new RuntimeException(e);
+    }
+  }
+  finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+}

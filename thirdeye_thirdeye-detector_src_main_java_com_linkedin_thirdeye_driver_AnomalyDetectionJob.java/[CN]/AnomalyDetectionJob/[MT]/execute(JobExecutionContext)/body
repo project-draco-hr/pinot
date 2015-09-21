@@ -1,0 +1,42 @@
+{
+  anomalyFunction=(AnomalyFunction)context.getJobDetail().getJobDataMap().get(FUNCTION);
+  thirdEyeClient=(ThirdEyeClient)context.getJobDetail().getJobDataMap().get(CLIENT);
+  resultDAO=(AnomalyResultDAO)context.getJobDetail().getJobDataMap().get(RESULT_DAO);
+  sessionFactory=(SessionFactory)context.getJobDetail().getJobDataMap().get(SESSION_FACTORY);
+  String windowEndProp=context.getJobDetail().getJobDataMap().getString(WINDOW_END);
+  if (windowEndProp == null) {
+    long delayMillis=0;
+    if (anomalyFunction.getSpec().getWindowDelay() != null) {
+      delayMillis=TimeUnit.MILLISECONDS.convert(anomalyFunction.getSpec().getWindowDelay(),anomalyFunction.getSpec().getWindowUnit());
+    }
+    windowEnd=DateTime.now().minus(delayMillis);
+  }
+ else {
+    windowEnd=ISODateTimeFormat.dateTimeParser().parseDateTime(windowEndProp);
+  }
+  long windowMillis=TimeUnit.MILLISECONDS.convert(anomalyFunction.getSpec().getWindowSize(),anomalyFunction.getSpec().getWindowUnit());
+  windowStart=windowEnd.minus(windowMillis);
+  metricFunction=String.format("AGGREGATE_%d_%s(%s)",anomalyFunction.getSpec().getBucketSize(),anomalyFunction.getSpec().getBucketUnit(),anomalyFunction.getSpec().getMetric());
+  collection=anomalyFunction.getSpec().getCollection();
+  knownAnomalies=getExistingAnomalies();
+  Queue<ThirdEyeRequest> queue=new LinkedList<>();
+  ThirdEyeRequest req=new ThirdEyeRequest().setCollection(anomalyFunction.getSpec().getCollection()).setMetricFunction(metricFunction).setStartTime(windowStart).setEndTime(windowEnd);
+  queue.add(req);
+  String exploreDimensionsString=anomalyFunction.getSpec().getExploreDimensions();
+  if (exploreDimensionsString != null) {
+    String[] exploreDimensions=exploreDimensionsString.split(",");
+    for (    String exploreDimension : exploreDimensions) {
+      ThirdEyeRequest groupByReq=new ThirdEyeRequest(req);
+      groupByReq.setGroupBy(exploreDimension);
+      queue.add(groupByReq);
+    }
+  }
+  while (!queue.isEmpty()) {
+    try {
+      List<ThirdEyeRequest> nextRequests=exploreCombination(queue.remove());
+    }
+ catch (    Exception e) {
+      throw new JobExecutionException(e);
+    }
+  }
+}

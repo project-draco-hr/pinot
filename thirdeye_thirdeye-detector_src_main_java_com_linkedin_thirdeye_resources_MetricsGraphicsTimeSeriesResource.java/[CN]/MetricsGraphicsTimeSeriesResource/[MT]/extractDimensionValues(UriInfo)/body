@@ -1,0 +1,10 @@
+{
+  Multimap<String,String> values=LinkedListMultimap.create();
+  for (  String key : uriInfo.getQueryParameters().keySet()) {
+    if (key.startsWith("dim_")) {
+      String dimensionName=key.substring("dim_".length());
+      values.putAll(dimensionName,uriInfo.getQueryParameters().get(key));
+    }
+  }
+  return values;
+}

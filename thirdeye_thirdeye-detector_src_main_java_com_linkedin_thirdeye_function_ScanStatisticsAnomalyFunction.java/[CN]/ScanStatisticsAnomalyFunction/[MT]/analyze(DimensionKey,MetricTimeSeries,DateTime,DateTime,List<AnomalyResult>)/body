@@ -1,0 +1,42 @@
+{
+  long bucketMillis=getSpec().getBucketUnit().toMillis(getSpec().getBucketSize());
+  String metric=getSpec().getMetric();
+  double averageValue=0;
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    averageValue+=timeSeries.get(time,metric).doubleValue();
+  }
+  long numBuckets=(windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis;
+  averageValue/=numBuckets;
+  Pair<long[],double[]> arraysFromSeries=MetricTimeSeriesUtils.toArray(timeSeries,metric,bucketMillis,null,Double.NaN);
+  long[] timestamps=arraysFromSeries.getFirst();
+  double[] observations=arraysFromSeries.getSecond();
+  removeMissingValuesByAveragingNeighbors(observations);
+  double[] observationsMinusSeasonality=removeSeasonality(timestamps,observations,seasonal);
+  int effectiveMaxWindowLength=(int)((windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis);
+  effectiveMaxWindowLength=Math.min(effectiveMaxWindowLength,maxWindowLength);
+  ScanStatistics scanStatistics=new ScanStatistics(numSimulations,minWindowLength,effectiveMaxWindowLength,pValueThreshold,pattern,minIncrement,bootstrap);
+  int totalNumBuckets=observationsMinusSeasonality.length;
+  int numTrain=totalNumBuckets - monitoringWindow;
+  Set<Long> anomalousTimestamps=new HashSet<Long>();
+  for (  AnomalyResult ar : knownAnomalies) {
+    anomalousTimestamps.add(ar.getStartTimeUtc());
+  }
+  double[] trainingData=Arrays.copyOfRange(observationsMinusSeasonality,0,numTrain);
+  long[] trainingTimestamps=Arrays.copyOfRange(timestamps,0,numTrain);
+  double[] trainingDataWithOutAnomalies=removeAnomalies(trainingTimestamps,trainingData,anomalousTimestamps);
+  double[] monitoringData=Arrays.copyOfRange(observationsMinusSeasonality,numTrain,observationsMinusSeasonality.length);
+  double[] monitoringDataOrig=Arrays.copyOfRange(observations,numTrain,observations.length);
+  long[] monitoringTimestamps=Arrays.copyOfRange(timestamps,numTrain,observationsMinusSeasonality.length);
+  LOGGER.info("detecting anomalies using scan statistics");
+  long startTime=System.nanoTime();
+  Range<Integer> anomalousInterval=scanStatistics.getInterval(trainingDataWithOutAnomalies,monitoringData);
+  LOGGER.info("scan statistics took {} seconds",TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime));
+  if (anomalousInterval != null) {
+    LOGGER.info("found interval : {}",anomalousInterval);
+  }
+  List<AnomalyResult> anomalyResults=new ArrayList<AnomalyResult>();
+  if (anomalousInterval != null) {
+    anomalyResults=getAnomalyResultsForBoundsOnly(dimensionKey,monitoringDataOrig,monitoringTimestamps,anomalousInterval,averageValue);
+  }
+  return anomalyResults;
+}

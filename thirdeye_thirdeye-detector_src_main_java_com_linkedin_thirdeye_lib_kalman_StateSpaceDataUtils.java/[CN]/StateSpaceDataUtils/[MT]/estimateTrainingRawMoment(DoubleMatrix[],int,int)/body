@@ -1,0 +1,11 @@
+{
+  double estimate=0;
+  double count=0;
+  for (int ii=0; ii < seasonal + 1; ii++) {
+    if (processTrainingTimeSeries[ii] != null) {
+      count++;
+      estimate+=Math.pow(processTrainingTimeSeries[ii].get(0,0),degree);
+    }
+  }
+  return estimate / count;
+}

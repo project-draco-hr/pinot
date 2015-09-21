@@ -1,0 +1,10 @@
+{
+synchronized (sync) {
+    String jobKey=jobKeys.get(id);
+    if (jobKey == null) {
+      throw new IllegalArgumentException("No scheduled job for function id " + id);
+    }
+    quartzScheduler.deleteJob(JobKey.jobKey(jobKey));
+    LOG.info("Stopped {}",jobKey);
+  }
+}

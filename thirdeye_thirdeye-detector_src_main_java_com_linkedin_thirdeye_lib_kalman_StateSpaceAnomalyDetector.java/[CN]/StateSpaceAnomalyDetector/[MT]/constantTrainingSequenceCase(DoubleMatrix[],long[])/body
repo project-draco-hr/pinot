@@ -1,0 +1,17 @@
+{
+  DoubleMatrix[] trainingTimeSeries=StateSpaceDataUtils.getTrainingData(inputTimeSeries,inputTimeStamps,trainStart,trainEnd);
+  StateSpaceDataUtils.removeTimeStamps(trainingTimeSeries,inputTimeStamps,omitTimestamps);
+  double estimateMean=StateSpaceDataUtils.estimateTrainingMean(trainingTimeSeries,seasonal);
+  Map<Long,StateSpaceDataPoint> output=new HashMap<Long,StateSpaceDataPoint>();
+  for (int ii=0; ii < trainingTimeSeries.length; ii++) {
+    if (trainingTimeSeries[ii] == null) {
+      output.put(inputTimeStamps[ii],new StateSpaceDataPoint(Double.NaN,Double.NaN,Double.NaN,0.0,inputTimeStamps[ii],ii));
+    }
+ else {
+      if (trainingTimeSeries[ii].get(0,0) == estimateMean) {
+        output.put(inputTimeStamps[ii],new StateSpaceDataPoint(estimateMean,estimateMean,1.0,0.0,inputTimeStamps[ii],ii));
+      }
+    }
+  }
+  return output;
+}

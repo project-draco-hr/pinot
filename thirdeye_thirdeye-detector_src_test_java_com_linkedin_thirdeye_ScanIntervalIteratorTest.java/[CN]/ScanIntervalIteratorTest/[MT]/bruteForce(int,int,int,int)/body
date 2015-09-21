@@ -1,0 +1,12 @@
+{
+  HashSet<Range<Integer>> found=new HashSet<>();
+  for (int i=min; i <= max; i++) {
+    for (int j=min; j < i; j++) {
+      int width=i - j;
+      if (width >= minWidth && width <= maxWidth) {
+        found.add(Range.closedOpen(j,i));
+      }
+    }
+  }
+  return found;
+}

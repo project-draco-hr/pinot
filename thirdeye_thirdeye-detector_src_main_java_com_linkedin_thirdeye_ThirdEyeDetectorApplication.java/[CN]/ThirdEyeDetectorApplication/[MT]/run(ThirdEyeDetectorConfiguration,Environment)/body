@@ -1,0 +1,32 @@
+{
+  final AnomalyFunctionSpecDAO anomalyFunctionSpecDAO=new AnomalyFunctionSpecDAO(hibernate.getSessionFactory());
+  final AnomalyResultDAO anomalyResultDAO=new AnomalyResultDAO(hibernate.getSessionFactory());
+  final ContextualEventDAO contextualEventDAO=new ContextualEventDAO(hibernate.getSessionFactory());
+  final ThirdEyeClient thirdEyeClient=new DefaultThirdEyeClient(config.getThirdEyeHost(),config.getThirdEyePort());
+  environment.lifecycle().manage(new Managed(){
+    @Override public void start() throws Exception {
+    }
+    @Override public void stop() throws Exception {
+      thirdEyeClient.close();
+    }
+  }
+);
+  SchedulerFactory schedulerFactory=new StdSchedulerFactory();
+  final Scheduler quartzScheduler=schedulerFactory.getScheduler();
+  environment.lifecycle().manage(new Managed(){
+    @Override public void start() throws Exception {
+      quartzScheduler.start();
+    }
+    @Override public void stop() throws Exception {
+      quartzScheduler.shutdown();
+    }
+  }
+);
+  AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory());
+  environment.jersey().register(new AnomalyFunctionSpecResource(anomalyFunctionSpecDAO));
+  environment.jersey().register(new AnomalyResultResource(anomalyResultDAO));
+  environment.jersey().register(new ContextualEventResource(contextualEventDAO));
+  environment.jersey().register(new MetricsGraphicsTimeSeriesResource(thirdEyeClient,anomalyResultDAO));
+  environment.admin().addTask(new ScheduleAnomalyDetectionJobTask(jobManager));
+  environment.admin().addTask(new AdHocAnomalyDetectionJobTask(jobManager));
+}
