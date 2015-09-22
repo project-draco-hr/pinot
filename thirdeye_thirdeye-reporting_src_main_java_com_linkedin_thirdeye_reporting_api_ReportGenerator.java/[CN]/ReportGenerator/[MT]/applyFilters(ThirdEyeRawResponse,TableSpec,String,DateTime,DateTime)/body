@@ -17,7 +17,7 @@
     if (tableSpec.getFilter() != null && tableSpec.getFilter().getIncludeDimensions() != null) {
       for (      String includeDimension : tableSpec.getFilter().getIncludeDimensions()) {
         filteredDimension[dimensionPosition]=includeDimension;
-        includeDimensions.add(createQueryKey(filteredDimension));
+        includeDimensions.add(DimensionKeyUtils.createQueryKey(filteredDimension));
       }
       for (      Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
         if (!includeDimensions.contains(entry.getKey())) {
@@ -30,15 +30,10 @@
     }
   }
   int metricPosition=0;
-  MetricSchema schema=MetricSchema.fromMetricSpecs(starTreeConfig.getMetrics());
-  for (int i=0; i < starTreeConfig.getMetrics().size(); i++) {
-    if (metric.equals(starTreeConfig.getMetrics().get(i).getName())) {
-      metricPosition=i;
-      break;
-    }
-  }
+  List<MetricSpec> metricSpecs=getMetricSpecs(metric);
+  MetricSchema schema=MetricSchema.fromMetricSpecs(metricSpecs);
   for (  Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
-    DimensionKey dimensionKey=createDimensionKey(entry.getKey());
+    DimensionKey dimensionKey=DimensionKeyUtils.createDimensionKey(entry.getKey());
     Map<String,Number[]> data=entry.getValue();
     MetricTimeSeries series=new MetricTimeSeries(schema);
     for (    Entry<String,Number[]> dataEntry : data.entrySet()) {

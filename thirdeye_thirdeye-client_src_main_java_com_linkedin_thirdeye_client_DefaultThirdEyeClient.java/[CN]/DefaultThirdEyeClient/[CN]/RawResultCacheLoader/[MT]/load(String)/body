@@ -1,0 +1,18 @@
+{
+  HttpGet req=new HttpGet("/query/" + URLEncoder.encode(sql,"UTF-8"));
+  CloseableHttpResponse res=httpClient.execute(httpHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    ThirdEyeRawResponse rawResponse=OBJECT_MAPPER.readValue(content,ThirdEyeRawResponse.class);
+    return rawResponse;
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+    res.close();
+  }
+}

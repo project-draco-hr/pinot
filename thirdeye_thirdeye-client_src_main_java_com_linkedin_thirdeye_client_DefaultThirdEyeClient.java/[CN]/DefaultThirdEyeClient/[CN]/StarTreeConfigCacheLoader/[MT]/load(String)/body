@@ -1,0 +1,18 @@
+{
+  HttpGet req=new HttpGet("/collections/" + URLEncoder.encode(collection,"UTF-8"));
+  CloseableHttpResponse res=httpClient.execute(httpHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    StarTreeConfig starTreeConfig=OBJECT_MAPPER.readValue(content,StarTreeConfig.class);
+    return starTreeConfig;
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+    res.close();
+  }
+}

@@ -1,0 +1,12 @@
+{
+  List<MetricSpec> metricSpecs=new ArrayList<MetricSpec>();
+  MetricSpec metricSpec=new MetricSpec(metric,MetricType.DOUBLE);
+  for (  MetricSpec spec : starTreeConfig.getMetrics()) {
+    if (spec.getName().equals(metric)) {
+      metricSpec=new MetricSpec(metric,MetricType.LONG);
+      break;
+    }
+  }
+  metricSpecs.add(metricSpec);
+  return metricSpecs;
+}
