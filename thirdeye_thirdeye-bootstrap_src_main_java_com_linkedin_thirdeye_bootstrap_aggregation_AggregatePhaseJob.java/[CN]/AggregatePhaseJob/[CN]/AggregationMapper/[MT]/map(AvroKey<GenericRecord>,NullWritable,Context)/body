@@ -10,15 +10,20 @@
   }
   StarTreeRecord starTreeRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
   MetricTimeSeries originalSeries=starTreeRecord.getMetricTimeSeries();
-  MetricTimeSeries flattenedSeries=new MetricTimeSeries(metricSchema);
-  for (  Long time : originalSeries.getTimeWindowSet()) {
-    for (int i=0; i < metricNames.size(); i++) {
-      String name=metricNames.get(i);
-      flattenedSeries.increment(-1,name,originalSeries.get(time,name));
+  MetricTimeSeries series=originalSeries;
+  LOGGER.info("Preserve time {} ",preserveTime);
+  if (!preserveTime) {
+    MetricTimeSeries flattenedSeries=new MetricTimeSeries(metricSchema);
+    for (    Long time : originalSeries.getTimeWindowSet()) {
+      for (int i=0; i < metricNames.size(); i++) {
+        String name=metricNames.get(i);
+        flattenedSeries.increment(-1,name,originalSeries.get(time,name));
+      }
     }
+    series=flattenedSeries;
   }
   byte[] serializedKey=starTreeRecord.getDimensionKey().toBytes();
-  byte[] serializedMetrics=flattenedSeries.toBytes();
+  byte[] serializedMetrics=series.toBytes();
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   baos.write(serializedKey.length);
   baos.write(serializedKey);

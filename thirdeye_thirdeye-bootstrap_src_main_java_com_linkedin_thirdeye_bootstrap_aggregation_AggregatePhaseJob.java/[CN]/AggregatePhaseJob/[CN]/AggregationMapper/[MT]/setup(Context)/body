@@ -16,6 +16,7 @@
     Map<String,String> params=config.getThresholdFuncParams();
     Constructor<?> constructor=Class.forName(className).getConstructor(Map.class);
     rollupThresholdFunction=(RollupThresholdFunction)constructor.newInstance(params);
+    preserveTime=Boolean.parseBoolean(configuration.get(AGG_PRESERVE_TIME_COMPACTION.toString()));
   }
  catch (  Exception e) {
     throw new IOException(e);

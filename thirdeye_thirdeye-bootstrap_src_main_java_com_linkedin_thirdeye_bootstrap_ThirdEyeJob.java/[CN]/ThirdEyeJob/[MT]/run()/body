@@ -128,6 +128,7 @@ DateTime cleanupDaysAgoDate=(new DateTime()).minusDays(cleanupDaysAgo);
 Path dimensionIndexDir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.DIMENSION_INDEX);
 Path metricIndexDir=new Path(getCollectionDir(root,collection) + File.separator + FlowSpec.METRIC_INDEX);
 LOGGER.info("Cleaning up {} {} days ago from paths {} and {}",cleanupDaysAgo,cleanupDaysAgoDate.getMillis(),dimensionIndexDir,metricIndexDir);
+boolean preserveAggregation=Boolean.parseBoolean(inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_PRESERVE_TIME_COMPACTION.getName(),DEFAULT_THIRDEYE_PRESERVE_TIME_COMPACTION));
 FileStatus[] fileStatus=fileSystem.listStatus(dimensionIndexDir,new PathFilter(){
 @Override public boolean accept(Path path){
 return path.getName().startsWith(StarTreeConstants.DATA_DIR_PREFIX);
@@ -135,10 +136,19 @@ return path.getName().startsWith(StarTreeConstants.DATA_DIR_PREFIX);
 }
 );
 for (FileStatus file : fileStatus) {
-DateTime lastModifiedDate=new DateTime(file.getModificationTime());
-if (lastModifiedDate.isBefore(cleanupDaysAgoDate.getMillis())) {
-LOGGER.info("Deleting {}",file.getPath());
-fileSystem.delete(file.getPath(),true);
+if (preserveAggregation) {
+FileStatus[] phases=fileSystem.listStatus(file.getPath(),new PathFilter(){
+  @Override public boolean accept(  Path path){
+    return !path.getName().equals(PhaseSpec.AGGREGATION.getName());
+  }
+}
+);
+for (FileStatus phase : phases) {
+  cleanupFolder(phase,cleanupDaysAgoDate,fileSystem);
+}
+}
+ else {
+cleanupFolder(file,cleanupDaysAgoDate,fileSystem);
 }
 }
 fileStatus=fileSystem.listStatus(metricIndexDir,new PathFilter(){

@@ -1,22 +1,39 @@
 {
   long start=System.currentTimeMillis();
-  StarTreeRecord parsedRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
-  if (parsedRecord == null) {
-    context.getCounter(StarTreeBootstrapPhase1Counter.INVALID_TIME_RECORDS).increment(1);
-    return;
+  DimensionKey aggregationDimensionKey;
+  MetricTimeSeries aggregationTimeSeries;
+  if (compaction) {
+    BytesWritable dimensionKeyBytes=(BytesWritable)key;
+    aggregationDimensionKey=DimensionKey.fromBytes(dimensionKeyBytes.getBytes());
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("dimension key {}",aggregationDimensionKey);
+    }
+    BytesWritable metricTimeSeriesBytes=(BytesWritable)value;
+    byte[] bytes=metricTimeSeriesBytes.getBytes();
+    aggregationTimeSeries=MetricTimeSeries.fromBytes(bytes,metricSchema);
   }
-  for (  Long time : parsedRecord.getMetricTimeSeries().getTimeWindowSet()) {
+ else {
+    AvroKey<GenericRecord> record=(AvroKey<GenericRecord>)key;
+    StarTreeRecord parsedRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
+    if (parsedRecord == null) {
+      context.getCounter(StarTreeBootstrapPhase1Counter.INVALID_TIME_RECORDS).increment(1);
+      return;
+    }
+    aggregationDimensionKey=parsedRecord.getDimensionKey();
+    aggregationTimeSeries=parsedRecord.getMetricTimeSeries();
+  }
+  for (  Long time : aggregationTimeSeries.getTimeWindowSet()) {
     for (    MetricSpec metricSpec : starTreeConfig.getMetrics()) {
-      Number metricValue=parsedRecord.getMetricTimeSeries().get(time,metricSpec.getName());
+      Number metricValue=aggregationTimeSeries.get(time,metricSpec.getName());
       context.getCounter(config.getCollectionName(),metricSpec.getName()).increment(metricValue.longValue());
     }
   }
   collector.clear();
   MetricTimeSeries emptyTimeSeries=new MetricTimeSeries(metricSchema);
-  StarTreeRecord starTreeRecord=new StarTreeRecordImpl(starTreeConfig,parsedRecord.getDimensionKey(),emptyTimeSeries);
+  StarTreeRecord starTreeRecord=new StarTreeRecordImpl(starTreeConfig,aggregationDimensionKey,emptyTimeSeries);
   StarTreeJobUtils.collectRecords(starTreeConfig,starTreeRootNode,starTreeRecord,collector);
-  LOGGER.debug("processing {}",parsedRecord.getDimensionKey());
-  LOGGER.debug("times series {}",parsedRecord.getMetricTimeSeries());
+  LOGGER.debug("processing {}",aggregationDimensionKey);
+  LOGGER.debug("times series {}",aggregationTimeSeries);
   for (  UUID uuid : collector.keySet()) {
     if (!leafNodesMap.containsKey(uuid)) {
       String msg="Got a mapping to non existant leaf node:" + uuid + " - "+ collector.get(uuid)+ " input :"+ starTreeRecord;
@@ -26,7 +43,7 @@
     List<int[]> leafRecords=nodeIdToleafRecordsMap.get(uuid);
     Map<String,Map<String,Integer>> forwardIndex=forwardIndexMap.get(uuid);
     Map<String,Map<Integer,String>> reverseForwardIndex=StarTreeUtils.toReverseIndex(forwardIndex);
-    int[] bestMatch=StarTreeJobUtils.findBestMatch(parsedRecord.getDimensionKey(),dimensionNames,leafRecords,forwardIndex);
+    int[] bestMatch=StarTreeJobUtils.findBestMatch(aggregationDimensionKey,dimensionNames,leafRecords,forwardIndex);
     String[] dimValues=StarTreeUtils.convertToStringValue(reverseForwardIndex,bestMatch,dimensionNames);
     DimensionKey matchedDimensionKey=new DimensionKey(dimValues);
     if (debug) {
@@ -36,15 +53,15 @@
     BootstrapPhaseMapOutputValue bootstrapPhaseMapOutputValue=outputKeyValueCache.get(outputKey);
     if (bootstrapPhaseMapOutputValue == null) {
       MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
-      timeSeries.aggregate(parsedRecord.getMetricTimeSeries());
+      timeSeries.aggregate(aggregationTimeSeries);
       BootstrapPhaseMapOutputValue outputValue=new BootstrapPhaseMapOutputValue(matchedDimensionKey,timeSeries);
       outputKeyValueCache.put(outputKey,outputValue);
       totalDimensionKeys=totalDimensionKeys + 1;
-      totalTimeSeriesSize=totalTimeSeriesSize + parsedRecord.getMetricTimeSeries().getTimeWindowSet().size();
+      totalTimeSeriesSize=totalTimeSeriesSize + aggregationTimeSeries.getTimeWindowSet().size();
     }
  else {
       int oldSize=bootstrapPhaseMapOutputValue.metricTimeSeries.getTimeWindowSet().size();
-      bootstrapPhaseMapOutputValue.metricTimeSeries.aggregate(parsedRecord.getMetricTimeSeries());
+      bootstrapPhaseMapOutputValue.metricTimeSeries.aggregate(aggregationTimeSeries);
       int newSize=bootstrapPhaseMapOutputValue.metricTimeSeries.getTimeWindowSet().size();
       totalTimeSeriesSize=totalTimeSeriesSize + (newSize - oldSize);
     }
