@@ -8,9 +8,11 @@ synchronized (sync) {
     JobDetail job=JobBuilder.newJob(AnomalyDetectionJob.class).withIdentity(jobKey).build();
     job.getJobDataMap().put(AnomalyDetectionJob.FUNCTION,anomalyFunction);
     job.getJobDataMap().put(AnomalyDetectionJob.CLIENT,thirdEyeClient);
-    job.getJobDataMap().put(AnomalyDetectionJob.WINDOW_END,windowEndISO8601String);
+    job.getJobDataMap().put(AnomalyDetectionJob.WINDOW_START,windowStartIsoString);
+    job.getJobDataMap().put(AnomalyDetectionJob.WINDOW_END,windowEndIsoString);
     job.getJobDataMap().put(AnomalyDetectionJob.RESULT_DAO,resultDAO);
     job.getJobDataMap().put(AnomalyDetectionJob.SESSION_FACTORY,sessionFactory);
+    job.getJobDataMap().put(AnomalyDetectionJob.METRIC_REGISTRY,metricRegistry);
     quartzScheduler.scheduleJob(job,trigger);
     LOG.info("Started {}: {}",jobKey,spec);
   }

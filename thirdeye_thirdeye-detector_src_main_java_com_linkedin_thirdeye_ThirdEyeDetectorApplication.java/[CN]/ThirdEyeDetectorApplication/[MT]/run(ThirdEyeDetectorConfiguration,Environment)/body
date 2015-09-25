@@ -22,7 +22,7 @@
     }
   }
 );
-  AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory());
+  AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics());
   environment.jersey().register(new AnomalyFunctionSpecResource(anomalyFunctionSpecDAO));
   environment.jersey().register(new AnomalyResultResource(anomalyResultDAO));
   environment.jersey().register(new ContextualEventResource(contextualEventDAO));

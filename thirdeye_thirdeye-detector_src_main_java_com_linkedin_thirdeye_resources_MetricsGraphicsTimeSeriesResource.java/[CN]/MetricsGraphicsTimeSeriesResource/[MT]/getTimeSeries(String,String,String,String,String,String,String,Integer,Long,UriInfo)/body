@@ -76,10 +76,22 @@
   timeSeries.setData(data);
   timeSeries.setxAccessor("time");
   timeSeries.setyAccessor("value");
-  List<AnomalyResult> anomalies=resultDAO.findAllByCollectionTimeAndMetric(collection,metric,startTime,endTime);
+  List<AnomalyResult> anomalies;
+  if (functionId == null) {
+    anomalies=resultDAO.findAllByCollectionTimeAndMetric(collection,metric,startTime,endTime);
+  }
+ else {
+    anomalies=resultDAO.findAllByCollectionTimeFunctionIdAndMetric(collection,metric,functionId,startTime,endTime);
+  }
   List<Map<String,Object>> markers=new ArrayList<>();
   for (  AnomalyResult anomaly : anomalies) {
-    markers.add(ImmutableMap.of("time",anomaly.getStartTimeUtc(),"label",(Object)anomaly.getId()));
+    if (anomaly.getEndTimeUtc() == null) {
+      markers.add(ImmutableMap.of("time",anomaly.getStartTimeUtc(),"label",(Object)anomaly.getId()));
+    }
+ else {
+      markers.add(ImmutableMap.of("time",anomaly.getStartTimeUtc(),"label",(Object)("START_" + anomaly.getId())));
+      markers.add(ImmutableMap.of("time",anomaly.getEndTimeUtc(),"label",(Object)("END_" + anomaly.getId())));
+    }
   }
   timeSeries.setMarkers(markers);
   timeSeries.setAnomalyResults(anomalies);

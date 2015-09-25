@@ -10,7 +10,10 @@
   }
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : res.entrySet()) {
     try {
+      long startTime=System.currentTimeMillis();
       List<AnomalyResult> results=anomalyFunction.analyze(entry.getKey(),entry.getValue(),windowStart,windowEnd,knownAnomalies);
+      long endTime=System.currentTimeMillis();
+      histogram.update(endTime - startTime);
       handleResults(results);
       results.removeAll(knownAnomalies);
       if (!results.isEmpty()) {

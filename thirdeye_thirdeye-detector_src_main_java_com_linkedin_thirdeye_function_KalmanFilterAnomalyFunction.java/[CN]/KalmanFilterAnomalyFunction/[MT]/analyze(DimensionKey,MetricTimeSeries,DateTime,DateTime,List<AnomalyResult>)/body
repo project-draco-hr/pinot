@@ -43,7 +43,7 @@
       resultProperties.put("stdError","" + stateSpaceDataPoint.stdError);
       resultProperties.put("pValue","" + stateSpaceDataPoint.pValue);
       resultProperties.put("predictedDate","" + stateSpaceDataPoint.predictedDate);
-      resultProperties.setProperty("timestamp",new DateTime(timeWindow).toString());
+      resultProperties.setProperty("timestamp",new DateTime(timeWindow,DateTimeZone.UTC).toString());
       AnomalyResult anomalyResult=new AnomalyResult();
       anomalyResult.setScore(stateSpaceDataPoint.pValue);
       anomalyResult.setProperties(AnomalyResult.encodeCompactedProperties(resultProperties));
