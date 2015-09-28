@@ -18,7 +18,7 @@
     }
   }
 ;
-  List<ByteBuffer> listCopy=new LinkedList<>(list);
+  final List<ByteBuffer> listCopy=new LinkedList<>(list);
   Collections.sort(listCopy,new Comparator<ByteBuffer>(){
     @Override public int compare(    ByteBuffer o1,    ByteBuffer o2){
       for (      Integer dimension : includedDimensions) {
@@ -41,6 +41,7 @@
     private boolean shouldReset=true;
     private boolean hasReturnedCurrent=true;
     private boolean hasStarted=false;
+    private int numReturned=0;
     @Override public boolean hasNext(){
       if (itr.hasNext() && hasReturnedCurrent) {
         if (shouldReset) {
@@ -65,6 +66,11 @@
         }
         hasReturnedCurrent=false;
       }
+      if (!itr.hasNext() && hasReturnedCurrent && shouldReset) {
+        copyStarTreeTableRow(nextFromItr,nextToReturn,excludedDimensions);
+        shouldReset=false;
+        hasReturnedCurrent=false;
+      }
       return itr.hasNext() || !hasReturnedCurrent;
     }
     @Override public StarTreeTableRow next(){
@@ -72,6 +78,7 @@
         throw new NoSuchElementException();
       }
       hasReturnedCurrent=true;
+      numReturned++;
       return nextToReturn;
     }
     @Override public void remove(){

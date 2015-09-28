@@ -1,0 +1,12 @@
+{
+  for (  AggregationInfo aggregationInfo : brokerRequest.getAggregationsInfo()) {
+    if (!aggregationInfo.getAggregationType().equalsIgnoreCase("sum")) {
+      return false;
+    }
+  }
+  if (brokerRequest.isSetFilterQuery()) {
+    FilterQueryTree filterQueryTree=RequestUtils.generateFilterQueryTree(brokerRequest);
+    return isSimpleConjunction(filterQueryTree);
+  }
+  return true;
+}

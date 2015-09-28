@@ -1,0 +1,15 @@
+{
+  if (filter == null) {
+    StarTreeDocIdSet docIdSet=new StarTreeDocIdSet();
+    docIdSet.setStartDocId(minDocId);
+    docIdSet.setEndDocId(maxDocId);
+    return docIdSet;
+  }
+ else {
+    Block block=filter.nextBlock();
+    FilterBlockDocIdSet docIdSet=(FilterBlockDocIdSet)block.getBlockDocIdSet();
+    docIdSet.setStartDocId(minDocId);
+    docIdSet.setEndDocId(maxDocId);
+    return docIdSet;
+  }
+}

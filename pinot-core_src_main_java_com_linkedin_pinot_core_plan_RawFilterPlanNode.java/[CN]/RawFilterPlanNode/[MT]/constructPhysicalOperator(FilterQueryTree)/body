@@ -1,0 +1,74 @@
+{
+  Operator ret=null;
+  if (null == filterQueryTree) {
+    return null;
+  }
+  final List<FilterQueryTree> childFilters=filterQueryTree.getChildren();
+  final boolean isLeaf=(childFilters == null) || childFilters.isEmpty();
+  if (!isLeaf) {
+    List<Operator> operators=new ArrayList<Operator>();
+    for (    final FilterQueryTree query : childFilters) {
+      Operator childOperator=constructPhysicalOperator(query);
+      operators.add(childOperator);
+    }
+    final FilterOperator filterType=filterQueryTree.getOperator();
+switch (filterType) {
+case AND:
+      reorder(operators);
+    ret=new AndOperator(operators);
+  break;
+case OR:
+reorder(operators);
+ret=new OrOperator(operators);
+break;
+default :
+throw new UnsupportedOperationException("Not support filter type - " + filterType + " with children operators");
+}
+}
+ else {
+final FilterOperator filterType=filterQueryTree.getOperator();
+final String column=filterQueryTree.getColumn();
+Predicate predicate=null;
+final List<String> value=filterQueryTree.getValue();
+switch (filterType) {
+case EQUALITY:
+predicate=new EqPredicate(column,value);
+break;
+case RANGE:
+predicate=new RangePredicate(column,value);
+break;
+case REGEX:
+predicate=new RegexPredicate(column,value);
+break;
+case NOT:
+predicate=new NEqPredicate(column,value);
+break;
+case NOT_IN:
+predicate=new NotInPredicate(column,value);
+break;
+case IN:
+predicate=new InPredicate(column,value);
+break;
+default :
+throw new UnsupportedOperationException("Unsupported filterType:" + filterType);
+}
+DataSource ds;
+ds=indexSegment.getDataSource(column);
+DataSourceMetadata dataSourceMetadata=ds.getDataSourceMetadata();
+BaseFilterOperator baseFilterOperator;
+if (dataSourceMetadata.hasInvertedIndex()) {
+if (dataSourceMetadata.isSingleValue() && dataSourceMetadata.isSorted()) {
+baseFilterOperator=new SortedInvertedIndexBasedFilterOperator(ds);
+}
+ else {
+baseFilterOperator=new BitmapBasedFilterOperator(ds);
+}
+}
+ else {
+baseFilterOperator=new ScanBasedFilterOperator(ds,null,indexSegment.getSegmentMetadata().getTotalDocs() - indexSegment.getSegmentMetadata().getTotalAggregateDocs());
+}
+baseFilterOperator.setPredicate(predicate);
+ret=baseFilterOperator;
+}
+return ret;
+}

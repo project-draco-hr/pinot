@@ -1,11 +1,12 @@
 {
+  int totalRawDocs=_indexSegment.getTotalDocs() - _indexSegment.getSegmentMetadata().getTotalAggregateDocs();
   long start=System.currentTimeMillis();
   if (_projectOp == null) {
     if (_filterNode != null) {
-      _projectOp=new BReusableFilteredDocIdSetOperator(_filterNode.run(),_indexSegment.getTotalDocs(),_maxDocPerAggregation);
+      _projectOp=new BReusableFilteredDocIdSetOperator(_filterNode.run(),totalRawDocs,_maxDocPerAggregation);
     }
  else {
-      _projectOp=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getTotalDocs(),_maxDocPerAggregation);
+      _projectOp=new BReusableFilteredDocIdSetOperator(null,totalRawDocs,_maxDocPerAggregation);
     }
     long end=System.currentTimeMillis();
     LOGGER.debug("DocIdSetPlanNode.run took:" + (end - start));

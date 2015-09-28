@@ -1,0 +1,22 @@
+{
+  long m0Aggregate=0;
+  double m1Aggregate=0.0;
+  DatumReader<GenericRecord> reader=new GenericDatumReader<GenericRecord>();
+  DataFileReader<GenericRecord> fileReader=new DataFileReader<GenericRecord>(avroFile,reader);
+  GenericRecord record=null;
+  while (fileReader.hasNext()) {
+    record=fileReader.next(record);
+    boolean matches=true;
+    for (    Map.Entry<String,String> entry : fixedValues.entrySet()) {
+      String value=record.get(entry.getKey()).toString();
+      if (!value.equals(entry.getValue())) {
+        matches=false;
+      }
+    }
+    if (matches) {
+      m0Aggregate+=(Long)record.get("M0");
+      m1Aggregate+=(Double)record.get("M1");
+    }
+  }
+  return ImmutableMap.of("M0",m0Aggregate,"M1",m1Aggregate);
+}
