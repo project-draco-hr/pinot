@@ -1,7 +1,8 @@
 {
   DateTime startTime=parseDateTime(startTimeISO,timeZone);
   DateTime endTime=parseDateTime(endTimeISO,timeZone);
-  ThirdEyeRequest req=new ThirdEyeRequest().setCollection(collection).setMetricFunction(getMetricFunction(metric,bucketSize)).setStartTime(startTime).setEndTime(endTime).setDimensionValues(extractDimensionValues(uriInfo));
+  Multimap<String,String> fixedValues=extractDimensionValues(uriInfo);
+  ThirdEyeRequest req=new ThirdEyeRequest().setCollection(collection).setMetricFunction(getMetricFunction(metric,bucketSize)).setStartTime(startTime).setEndTime(endTime).setDimensionValues(fixedValues);
   if (groupBy != null) {
     req.setGroupBy(groupBy);
   }
@@ -82,6 +83,50 @@
   }
  else {
     anomalies=resultDAO.findAllByCollectionTimeFunctionIdAndMetric(collection,metric,functionId,startTime,endTime);
+  }
+  StarTreeConfig config=thirdEyeClient.getStarTreeConfig(collection);
+  if (groupBy == null) {
+    List<AnomalyResult> filtered=new ArrayList<>();
+    for (    AnomalyResult anomaly : anomalies) {
+      String[] dimensions=anomaly.getDimensions().split(",");
+      boolean matches=true;
+      for (int i=0; i < config.getDimensions().size(); i++) {
+        DimensionSpec spec=config.getDimensions().get(i);
+        if (!fixedValues.containsKey(spec.getName()) && !"*".equals(dimensions[i])) {
+          matches=false;
+          break;
+        }
+ else         if (fixedValues.containsKey(spec.getName()) && !fixedValues.get(spec.getName()).contains(dimensions[i])) {
+          matches=false;
+          break;
+        }
+      }
+      if (matches) {
+        filtered.add(anomaly);
+      }
+    }
+    anomalies=filtered;
+  }
+ else {
+    int idx=-1;
+    for (int i=0; i < config.getDimensions().size(); i++) {
+      if (config.getDimensions().get(i).getName().equals(groupBy)) {
+        idx=i;
+        break;
+      }
+    }
+    Set<String> representedValues=new HashSet<>();
+    for (    DimensionKey key : sortedAndFilteredKeys) {
+      representedValues.add(key.getDimensionValues()[idx]);
+    }
+    List<AnomalyResult> filtered=new ArrayList<>();
+    for (    AnomalyResult anomaly : anomalies) {
+      String[] dimensions=anomaly.getDimensions().split(",");
+      if (representedValues.contains(dimensions[idx])) {
+        filtered.add(anomaly);
+      }
+    }
+    anomalies=filtered;
   }
   List<Map<String,Object>> markers=new ArrayList<>();
   for (  AnomalyResult anomaly : anomalies) {
