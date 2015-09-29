@@ -5,7 +5,7 @@
   ScanIntervalIterator scanWindowIterator=new ScanIntervalIterator(0,monitoringData.length,_minWindowLength,_maxWindowLength,_minIncrement);
   MaxInterval realDataInterval=generateMaxLikelihood(scanWindowIterator,trainingData,monitoringData,trainDataDs);
   if (realDataInterval.getInterval() == null) {
-    throw new IllegalStateException("no interval generated");
+    return null;
   }
   LOGGER.info("Generated realDataInterval {}",realDataInterval);
   int numExceeded=0;
@@ -20,7 +20,7 @@
     }
     ScanIntervalIterator simulationScanWindowIterator=new ScanIntervalIterator(0,monitoringData.length,_minWindowLength,_maxWindowLength,_minIncrement);
     MaxInterval simulationResult=generateMaxLikelihood(simulationScanWindowIterator,trainingData,simulationBuffer,trainDataDs);
-    LOGGER.info("simulation ({}) {} (numExceeded={}) : {}",_bootstrap ? "bootstrap" : "gaussian",ii,numExceeded,simulationResult);
+    LOGGER.debug("simulation ({}) {} (numExceeded={}) : {}",_bootstrap ? "bootstrap" : "gaussian",ii,numExceeded,simulationResult);
     if (simulationResult.getInterval() != null && realDataInterval.getMaxLikelihood() < simulationResult.getMaxLikelihood()) {
       numExceeded++;
       if (numExceeded >= exceededCountThreshold) {
