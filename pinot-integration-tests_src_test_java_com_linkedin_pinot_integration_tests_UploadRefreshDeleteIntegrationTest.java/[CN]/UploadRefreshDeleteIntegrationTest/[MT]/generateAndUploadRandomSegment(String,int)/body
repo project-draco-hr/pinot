@@ -1,0 +1,28 @@
+{
+  ThreadLocalRandom random=ThreadLocalRandom.current();
+  Schema schema=new Schema.Parser().parse(new File(TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource("dummy.avsc"))));
+  GenericRecord record=new GenericData.Record(schema);
+  GenericDatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(schema);
+  DataFileWriter<GenericRecord> fileWriter=new DataFileWriter<GenericRecord>(datumWriter);
+  File avroFile=new File(_tmpDir,segmentName + ".avro");
+  fileWriter.create(schema,avroFile);
+  for (int i=0; i < rowCount; i++) {
+    record.put(0,random.nextInt());
+    fileWriter.append(record);
+  }
+  fileWriter.close();
+  int segmentIndex=Integer.parseInt(segmentName.split("_")[1]);
+  File segmentTarDir=new File(_tarsDir,segmentName);
+  FileUtils.deleteQuietly(segmentTarDir);
+  segmentTarDir.mkdirs();
+  ExecutorService executor=MoreExecutors.sameThreadExecutor();
+  buildSegmentsFromAvro(Collections.singletonList(avroFile),executor,segmentIndex,new File(_segmentsDir,segmentName),segmentTarDir,"mytable");
+  executor.shutdown();
+  executor.awaitTermination(1L,TimeUnit.MINUTES);
+  for (  String segmentFileName : segmentTarDir.list()) {
+    File file=new File(segmentTarDir,segmentFileName);
+    FileUploadUtils.sendFile("localhost","8998","segments",segmentFileName,new FileInputStream(file),file.length());
+  }
+  avroFile.delete();
+  FileUtils.deleteQuietly(segmentTarDir);
+}
