@@ -22,11 +22,31 @@
     }
   }
 );
-  AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics());
+  final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics());
+  environment.lifecycle().manage(new Managed(){
+    @Override public void start() throws Exception {
+      new HibernateSessionWrapper<Void>(hibernate.getSessionFactory()).execute(new Callable<Void>(){
+        @Override public Void call() throws Exception {
+          List<AnomalyFunctionSpec> functions;
+          functions=anomalyFunctionSpecDAO.findAll();
+          for (          AnomalyFunctionSpec function : functions) {
+            if (function.isActive()) {
+              jobManager.start(function.getId());
+              LOG.info("Starting {}",function);
+            }
+          }
+          return null;
+        }
+      }
+);
+    }
+    @Override public void stop() throws Exception {
+    }
+  }
+);
   environment.jersey().register(new AnomalyFunctionSpecResource(anomalyFunctionSpecDAO));
   environment.jersey().register(new AnomalyResultResource(anomalyResultDAO));
   environment.jersey().register(new ContextualEventResource(contextualEventDAO));
   environment.jersey().register(new MetricsGraphicsTimeSeriesResource(thirdEyeClient,anomalyResultDAO));
-  environment.admin().addTask(new ScheduleAnomalyDetectionJobTask(jobManager));
-  environment.admin().addTask(new AdHocAnomalyDetectionJobTask(jobManager));
+  environment.jersey().register(new AnomalyDetectionJobResource(jobManager,anomalyFunctionSpecDAO));
 }

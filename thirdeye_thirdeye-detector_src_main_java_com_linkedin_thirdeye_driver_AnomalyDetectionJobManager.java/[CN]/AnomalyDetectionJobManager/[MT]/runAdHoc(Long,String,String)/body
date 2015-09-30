@@ -1,6 +1,9 @@
 {
 synchronized (sync) {
-    AnomalyFunctionSpec spec=getAnomalyFunctionSpec(id);
+    AnomalyFunctionSpec spec=specDAO.findById(id);
+    if (spec == null) {
+      throw new IllegalArgumentException("No function with id " + id);
+    }
     AnomalyFunction anomalyFunction=AnomalyFunctionFactory.fromSpec(spec);
     String triggerKey=String.format("ad_hoc_anomaly_function_trigger_%d",spec.getId());
     Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();

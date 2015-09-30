@@ -1,6 +1,9 @@
 {
 synchronized (sync) {
-    AnomalyFunctionSpec spec=getAnomalyFunctionSpec(id);
+    AnomalyFunctionSpec spec=specDAO.findById(id);
+    if (spec == null) {
+      throw new IllegalArgumentException("No function with id " + id);
+    }
     AnomalyFunction anomalyFunction=AnomalyFunctionFactory.fromSpec(spec);
     String triggerKey=String.format("scheduled_anomaly_function_trigger_%d",spec.getId());
     CronTrigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(CronScheduleBuilder.cronSchedule(spec.getCron())).build();
