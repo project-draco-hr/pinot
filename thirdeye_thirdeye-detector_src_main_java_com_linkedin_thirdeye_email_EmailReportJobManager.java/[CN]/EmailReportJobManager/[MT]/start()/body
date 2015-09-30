@@ -1,0 +1,19 @@
+{
+synchronized (sync) {
+    List<EmailConfiguration> emailConfigs=configurationDAO.findAll();
+    int i=0;
+    for (    EmailConfiguration emailConfig : emailConfigs) {
+      String triggerKey=String.format("email_trigger_%d",i);
+      CronTrigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(CronScheduleBuilder.cronSchedule(emailConfig.getCron())).build();
+      String jobKey=String.format("email_job_%d",i);
+      JobDetail job=JobBuilder.newJob(EmailReportJob.class).withIdentity(jobKey).build();
+      job.getJobDataMap().put(EmailReportJob.RESULT_DAO,resultDAO);
+      job.getJobDataMap().put(EmailReportJob.CONFIG,emailConfig);
+      job.getJobDataMap().put(EmailReportJob.SESSION_FACTORY,sessionFactory);
+      jobKeys.put(jobKey,emailConfig);
+      quartzScheduler.scheduleJob(job,trigger);
+      LOG.info("Started {}: {}",jobKey,emailConfig);
+      i++;
+    }
+  }
+}
