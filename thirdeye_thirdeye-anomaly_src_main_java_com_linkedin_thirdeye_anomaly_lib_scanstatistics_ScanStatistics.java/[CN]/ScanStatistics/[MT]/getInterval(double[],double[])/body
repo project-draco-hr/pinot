@@ -1,10 +1,14 @@
 {
   OnlineNormalStatistics trainDataDs=new OnlineNormalStatistics(trainingData);
+  if (trainDataDs.getPopulationVariance() == 0) {
+    return null;
+  }
   NormalDistribution trainDataNormal=new NormalDistribution(trainDataDs.getMean(),Math.sqrt(trainDataDs.getPopulationVariance()));
   ScanIntervalIterator scanWindowIterator=new ScanIntervalIterator(0,monitoringData.length,_minWindowLength,_maxWindowLength,_minIncrement);
   MaxInterval realDataInterval=generateMaxLikelihood(scanWindowIterator,trainingData,monitoringData,trainDataDs);
   if (realDataInterval.getInterval() == null) {
-    throw new FunctionDidNotEvaluateException("no interval generated");
+    LOGGER.info("no interval generated");
+    return null;
   }
   int numExceeded=0;
   int exceededCountThreshold=(int)(_pValue * _numSimulation);

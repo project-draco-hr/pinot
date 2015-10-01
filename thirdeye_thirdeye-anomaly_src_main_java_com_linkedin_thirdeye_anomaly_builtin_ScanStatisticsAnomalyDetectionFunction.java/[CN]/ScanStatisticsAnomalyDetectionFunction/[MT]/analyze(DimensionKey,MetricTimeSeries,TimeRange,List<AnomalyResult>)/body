@@ -4,13 +4,13 @@
   long[] timestamps=arraysFromSeries.getFirst();
   double[] observations=arraysFromSeries.getSecond();
   removeMissingValuesByAveragingNeighbors(observations);
-  double[] observationsMinusSeasonality=removeSeasonality(timestamps,observations,seasonal);
   int effectiveMaxWindowLength=(int)(monitoringWindow.totalBuckets() / bucketMillis);
   effectiveMaxWindowLength=Math.min(effectiveMaxWindowLength,maxWindowLength);
   ScanStatistics scanStatistics=new ScanStatistics(numSimulation,minWindowLength,effectiveMaxWindowLength,pValueThreshold,pattern,minIncrement,bootstrap);
   int numBucketsToScan=(int)((monitoringWindow.getEnd() - monitoringWindow.getStart()) / bucketMillis);
-  int totalNumBuckets=observationsMinusSeasonality.length;
+  int totalNumBuckets=observations.length;
   int numTrain=totalNumBuckets - numBucketsToScan;
+  double[] observationsMinusSeasonality=removeSeasonality(timestamps,observations,seasonal,numTrain);
   Set<Long> anomalousTimestamps=new HashSet<Long>();
   for (  AnomalyResult ar : anomalyHistory) {
     anomalousTimestamps.add(ar.getTimeWindow());

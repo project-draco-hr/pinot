@@ -1,0 +1,31 @@
+{
+  Set<Long> omitTimestamps=new HashSet<Long>();
+  int seasonal=168;
+  int order=1;
+  double r=10000;
+  double pValueThreshold=0.05;
+  double[] series=GetData(filename);
+  int numData=series.length;
+  long[] timestamps=new long[numData];
+  for (int i=0; i < numData; i++) {
+    timestamps[i]=i;
+  }
+  StateSpaceAnomalyDetector stateSpaceDetector=new StateSpaceAnomalyDetector(timestamps[0],timestamps[numData - 1],-1,1,omitTimestamps,seasonal,order,order + seasonal - 1,1,r);
+  Map<Long,StateSpaceDataPoint> resultsByTimeWindow;
+  try {
+    resultsByTimeWindow=stateSpaceDetector.detectAnomalies(series,timestamps,-1);
+    System.out.println(resultsByTimeWindow.size());
+  }
+ catch (  Exception e) {
+    throw new FunctionDidNotEvaluateException("something went wrong",e);
+  }
+  for (  long timeWindow : new TreeSet<>(resultsByTimeWindow.keySet())) {
+    StateSpaceDataPoint stateSpaceDataPoint=resultsByTimeWindow.get(timeWindow);
+    if (stateSpaceDataPoint.pValue < pValueThreshold) {
+      System.out.println(timeWindow);
+      System.out.println("actualValue: " + stateSpaceDataPoint.actualValue);
+      System.out.println("predictedValue" + stateSpaceDataPoint.predictedValue);
+      System.out.println("pValue: " + stateSpaceDataPoint.pValue);
+    }
+  }
+}

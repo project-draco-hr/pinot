@@ -1,0 +1,20 @@
+{
+  long[] trainTimestamps=Arrays.copyOfRange(timestamps,0,numTrain);
+  double[] trainSeries=Arrays.copyOfRange(series,0,numTrain);
+  STLDecomposition.Config config=new STLDecomposition.Config();
+  config.setNumberOfObservations(seasonality);
+  config.setNumberOfInnerLoopPasses(1);
+  config.setNumberOfRobustnessIterations(15);
+  config.setLowPassFilterBandwidth(0.5);
+  config.setTrendComponentBandwidth(stlTrendBandwidth);
+  config.setPeriodic(true);
+  config.setNumberOfDataPoints(trainSeries.length);
+  STLDecomposition stl=new STLDecomposition(config);
+  STLResult res=stl.decompose(trainTimestamps,trainSeries);
+  double[] seasonal=res.getSeasonal();
+  double[] seasonalityRemoved=new double[series.length];
+  for (int i=0; i < series.length; i++) {
+    seasonalityRemoved[i]=series[i] - seasonal[i % seasonality];
+  }
+  return seasonalityRemoved;
+}
