@@ -1,0 +1,36 @@
+{
+  List<Long> sortedTimes=new ArrayList<>(timeSeries.getTimeWindowSet());
+  Collections.sort(sortedTimes);
+  Set<Long> timeSet=new HashSet<>();
+  if (sortedTimes.size() > 1) {
+    Long minDiff=null;
+    for (int i=0; i < sortedTimes.size() - 1; i++) {
+      long diff=sortedTimes.get(i + 1) - sortedTimes.get(i);
+      if (minDiff == null || diff < minDiff) {
+        minDiff=diff;
+      }
+    }
+    for (long time=sortedTimes.get(0); time <= sortedTimes.get(sortedTimes.size() - 1); time+=minDiff) {
+      timeSet.add(time);
+    }
+  }
+ else {
+    timeSet.addAll(sortedTimes);
+  }
+  List<Map<String,Object>> series=new ArrayList<>(timeSeries.getTimeWindowSet().size());
+  for (  Long time : timeSet) {
+    Number value=timeSeries.get(time,metric);
+    if (value == null) {
+      value=0;
+    }
+    series.add(ImmutableMap.of("time",time,"value",(Object)value));
+    if (totalVolume != null) {
+      Double volume=totalVolume.get(dimensionKey);
+      if (volume == null) {
+        volume=0.0;
+      }
+      totalVolume.put(dimensionKey,volume + value.doubleValue());
+    }
+  }
+  return series;
+}

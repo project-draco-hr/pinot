@@ -1,6 +1,7 @@
 {
   final EmailConfiguration config=(EmailConfiguration)context.getJobDetail().getJobDataMap().get(CONFIG);
   SessionFactory sessionFactory=(SessionFactory)context.getJobDetail().getJobDataMap().get(SESSION_FACTORY);
+  int applicationPort=context.getJobDetail().getJobDataMap().getInt(APPLICATION_PORT);
   long deltaMillis=TimeUnit.MILLISECONDS.convert(config.getWindowSize(),config.getWindowUnit());
   final DateTime now=DateTime.now().toDateTime(DateTimeZone.UTC);
   final DateTime then=now.minus(deltaMillis);
@@ -17,13 +18,21 @@
  catch (  Exception e) {
     throw new JobExecutionException(e);
   }
+  Collections.sort(results,Collections.reverseOrder());
+  String visualizerLink;
+  try {
+    visualizerLink=String.format("http://%s:%d/#/time-series/%s/%s/%s/%s?overlay=1w",InetAddress.getLocalHost().getCanonicalHostName(),applicationPort,config.getCollection(),config.getMetric(),then,now);
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   try (Writer out=new OutputStreamWriter(baos,CHARSET)){
     Configuration freemarkerConfig=new Configuration(Configuration.VERSION_2_3_21);
     freemarkerConfig.setClassForTemplateLoading(getClass(),"/email/");
     freemarkerConfig.setDefaultEncoding(CHARSET);
     freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-    Map<String,Object> templateData=ImmutableMap.of("anomalyResults",(Object)results,"startTime",then,"endTime",now);
+    Map<String,Object> templateData=ImmutableMap.of("anomalyResults",(Object)results,"startTime",then,"endTime",now,"visualizerLink",visualizerLink);
     Template template=freemarkerConfig.getTemplate("simple-anomaly-report.ftl");
     template.process(templateData,out);
   }
@@ -40,8 +49,10 @@
       email.setSSLOnConnect(true);
     }
     email.setFrom(config.getFromAddress());
-    email.addTo(config.getToAddress());
-    email.setSubject(String.format("[ThirdEye] (%s) %d anomalies (%s to %s)",config.getCollection(),results.size(),then,now));
+    for (    String toAddress : config.getToAddresses().split(",")) {
+      email.addTo(toAddress);
+    }
+    email.setSubject(String.format("[ThirdEye] (%s:%s) %d anomalies (%s to %s)",config.getCollection(),config.getMetric(),results.size(),DateTimeFormat.longDateTime().print(then),DateTimeFormat.longDateTime().print(now)));
     email.setHtmlMsg(new String(baos.toByteArray(),CHARSET));
     email.send();
   }
