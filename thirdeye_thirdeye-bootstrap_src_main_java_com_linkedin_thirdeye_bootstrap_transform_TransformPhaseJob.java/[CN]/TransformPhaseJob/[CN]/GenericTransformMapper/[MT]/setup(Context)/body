@@ -1,0 +1,18 @@
+{
+  LOGGER.info("GenericAvroTransformJob.GenericTransformMapper.setup()");
+  Configuration configuration=context.getConfiguration();
+  FileSystem fs=FileSystem.get(configuration);
+  try {
+    String transformUDFClass=configuration.get(TRANSFORM_UDF.toString());
+    LOGGER.info("Initializing TransformUDFClass:{} with params:{}",transformUDFClass);
+    Constructor<?> constructor=Class.forName(transformUDFClass).getConstructor();
+    transformUDF=(TransformUDF)constructor.newInstance();
+    String outputSchemaPath=configuration.get(TRANSFORM_OUTPUT_AVRO_SCHEMA.toString());
+    Schema.Parser parser=new Schema.Parser();
+    Schema outputSchema=parser.parse(fs.open(new Path(outputSchemaPath)));
+    transformUDF.init(outputSchema);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}
