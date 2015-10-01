@@ -12,10 +12,20 @@
       PlanNode aggregationGroupByPlanNode;
       if (indexSegment instanceof IndexSegmentImpl) {
         if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
+          if (indexSegment.getSegmentMetadata().hasStarTree() && isConjunctiveAggregateQuery(brokerRequest)) {
+            aggregationGroupByPlanNode=new StarTreeAggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,BaseAggregationGroupByOperatorPlanNode.AggregationGroupByImplementationType.Dictionary);
+          }
+ else {
+            aggregationGroupByPlanNode=new RawAggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,BaseAggregationGroupByOperatorPlanNode.AggregationGroupByImplementationType.Dictionary);
+          }
         }
  else {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+          if (indexSegment.getSegmentMetadata().hasStarTree() && isConjunctiveAggregateQuery(brokerRequest)) {
+            aggregationGroupByPlanNode=new StarTreeAggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,BaseAggregationGroupByOperatorPlanNode.AggregationGroupByImplementationType.DictionaryAndTrie);
+          }
+ else {
+            aggregationGroupByPlanNode=new RawAggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,BaseAggregationGroupByOperatorPlanNode.AggregationGroupByImplementationType.DictionaryAndTrie);
+          }
         }
       }
  else {

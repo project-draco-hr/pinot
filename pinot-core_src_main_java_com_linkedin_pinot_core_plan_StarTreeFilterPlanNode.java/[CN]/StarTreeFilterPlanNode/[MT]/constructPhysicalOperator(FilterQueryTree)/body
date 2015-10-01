@@ -1,5 +1,7 @@
 {
-  if (matchingNode == null) {
+  if (matchingNodes == null) {
+    matchingNodes=new ArrayList<>();
+    starTreeOperators=new ArrayList<>();
     List<String> dimensionNames=indexSegment.getSegmentMetadata().getSchema().getDimensionNames();
     List<FilterQueryTree> conjunctions=null;
     if (filterQueryTree != null) {
@@ -18,42 +20,61 @@
         pathValues.put(column,value);
       }
     }
-    StarTreeIndexNode current=indexSegment.getStarTreeRoot();
-    while (current != null && !current.isLeaf()) {
-      String nextDimension=dimensionNames.get(current.getChildDimensionName());
-      String nextValue=pathValues.get(nextDimension);
-      DataSource dataSource=indexSegment.getDataSource(nextDimension);
-      int nextValueId;
-      if (nextValue == null) {
-        nextValueId=StarTreeIndexNode.all();
-      }
+    Queue<StarTreeIndexNode> searchQueue=new LinkedList<>();
+    searchQueue.add(indexSegment.getStarTreeRoot());
+    while (!searchQueue.isEmpty()) {
+      StarTreeIndexNode current=searchQueue.remove();
+      while (current != null && !current.isLeaf()) {
+        String nextDimension=dimensionNames.get(current.getChildDimensionName());
+        String nextValue=pathValues.get(nextDimension);
+        DataSource nextDataSource=indexSegment.getDataSource(nextDimension);
+        int nextValueId;
+        if (nextValue == null) {
+          nextValueId=StarTreeIndexNode.all();
+        }
  else {
-        nextValueId=dataSource.getDictionary().indexOf(nextValue);
+          nextValueId=nextDataSource.getDictionary().indexOf(nextValue);
+        }
+        if (brokerRequest.isSetGroupBy() && brokerRequest.getGroupBy().getColumns().contains(nextDimension)) {
+          for (          Map.Entry<Integer,StarTreeIndexNode> entry : current.getChildren().entrySet()) {
+            if (entry.getKey() != StarTreeIndexNode.all()) {
+              searchQueue.add(entry.getValue());
+            }
+          }
+          current=null;
+        }
+ else {
+          current=current.getChildren().get(nextValueId);
+        }
       }
-      current=current.getChildren().get(nextValueId);
+      if (current == null) {
+        continue;
+      }
+      matchingNodes.add(current);
+      Map<String,String> pathValuesCopy=new HashMap<>(pathValues);
+      for (      Map.Entry<Integer,Integer> entry : current.getPathValues().entrySet()) {
+        String dimensionName=dimensionNames.get(entry.getKey());
+        pathValuesCopy.remove(dimensionName);
+      }
+      List<Operator> scanOperators=new ArrayList<>();
+      for (      Map.Entry<String,String> entry : pathValuesCopy.entrySet()) {
+        Predicate predicate=new EqPredicate(entry.getKey(),Collections.singletonList(entry.getValue()));
+        ScanBasedFilterOperator operator=new ScanBasedFilterOperator(indexSegment.getDataSource(entry.getKey()));
+        operator.setPredicate(predicate);
+        scanOperators.add(operator);
+      }
+      AndOperator andOperator=null;
+      if (!scanOperators.isEmpty()) {
+        andOperator=new AndOperator(scanOperators);
+      }
+      Integer startDocumentId=current.getStartDocumentId();
+      Integer endDocumentId=startDocumentId + current.getDocumentCount() - 1;
+      StarTreeOperator starTreeOperator=new StarTreeOperator(startDocumentId,endDocumentId,andOperator);
+      starTreeOperators.add(starTreeOperator);
     }
-    if (current == null) {
-      return new StarTreeOperator(Constants.EOF,Constants.EOF,null);
-    }
-    matchingNode=current;
-    for (    Map.Entry<Integer,Integer> entry : matchingNode.getPathValues().entrySet()) {
-      String dimensionName=dimensionNames.get(entry.getKey());
-      pathValues.remove(dimensionName);
-    }
-    List<Operator> scanOperators=new ArrayList<>();
-    for (    Map.Entry<String,String> entry : pathValues.entrySet()) {
-      Predicate predicate=new EqPredicate(entry.getKey(),Collections.singletonList(entry.getValue()));
-      ScanBasedFilterOperator operator=new ScanBasedFilterOperator(indexSegment.getDataSource(entry.getKey()));
-      operator.setPredicate(predicate);
-      scanOperators.add(operator);
-    }
-    AndOperator andOperator=null;
-    if (!scanOperators.isEmpty()) {
-      andOperator=new AndOperator(scanOperators);
-    }
-    Integer startDocumentId=matchingNode.getStartDocumentId();
-    Integer endDocumentId=startDocumentId + matchingNode.getDocumentCount() - 1;
-    starTreeOperator=new StarTreeOperator(startDocumentId,endDocumentId,andOperator);
   }
-  return starTreeOperator;
+  if (starTreeOperators.isEmpty()) {
+    return new StarTreeOperator(Constants.EOF,Constants.EOF,null);
+  }
+  return new CompositeStarTreeOperator(starTreeOperators);
 }

@@ -1,0 +1,51 @@
+{
+  final BrokerRequest brokerRequest=new BrokerRequest();
+  final List<AggregationInfo> aggregationsInfo=new ArrayList<AggregationInfo>();
+  aggregationsInfo.add(getSumAggregationInfo());
+  brokerRequest.setAggregationsInfo(aggregationsInfo);
+  if (!filterQuery.isEmpty()) {
+    String[] flattened=flattenFilterQuery(filterQuery);
+    setFilterQuery(brokerRequest,flattened[0],flattened[1]);
+  }
+  GroupBy groupBy=new GroupBy();
+  groupBy.setColumns(groupByDimensions);
+  groupBy.setTopN(1000);
+  brokerRequest.setGroupBy(groupBy);
+  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV3();
+  final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  Assert.assertEquals(rootPlanNode.getClass(),StarTreeAggregationGroupByOperatorPlanNode.class);
+  final MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
+  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  final AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(aggregationsInfo,brokerRequest.getGroupBy());
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getAggregationGroupByResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationGroupByResultDataTable());
+  final List<Map<String,Serializable>> reducedResults=aggregationGroupByOperatorService.reduceGroupByOperators(instanceResponseMap);
+  final List<JSONObject> jsonResult=aggregationGroupByOperatorService.renderGroupByOperators(reducedResults);
+  Map<List<String>,Long> groupBySums=new HashMap<>();
+  JSONArray groupByResult=jsonResult.get(0).getJSONArray("groupByResult");
+  for (int i=0; i < groupByResult.length(); i++) {
+    List<String> group=new ArrayList<>();
+    JSONArray groupArray=groupByResult.getJSONObject(i).getJSONArray("group");
+    for (int j=0; j < groupArray.length(); j++) {
+      group.add(groupArray.getString(j));
+    }
+    groupBySums.put(group,groupByResult.getJSONObject(i).getLong("value"));
+  }
+  Map<List<String>,Long> fromAvro=computeAggregateGroupByFromRawData(avroFile,filterQuery,groupByDimensions);
+  Assert.assertEquals(groupBySums.size(),fromAvro.size());
+  for (  List<String> group : fromAvro.keySet()) {
+    Long m0Avro=fromAvro.get(group);
+    Long m0Pinot=groupBySums.get(group);
+    Assert.assertEquals(m0Pinot.longValue(),m0Avro * 10);
+  }
+}

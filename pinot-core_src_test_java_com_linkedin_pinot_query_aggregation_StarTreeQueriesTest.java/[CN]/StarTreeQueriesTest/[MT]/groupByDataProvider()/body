@@ -1,0 +1,35 @@
+{
+  int numRandom=1000;
+  Random random=new Random();
+  List<Object[]> combinations=new ArrayList<>();
+  combinations.add(new Object[]{ImmutableMap.of("D0","0"),ImmutableList.of("D1")});
+  combinations.add(new Object[]{ImmutableMap.of("D0","1"),ImmutableList.of("D2")});
+  combinations.add(new Object[]{ImmutableMap.of("D2","17"),ImmutableList.of("D0")});
+  combinations.add(new Object[]{ImmutableMap.of("D0","0"),ImmutableList.of("D1","D2")});
+  for (int i=0; i < numRandom; i++) {
+    Map<String,String> combination=new HashMap<>();
+    List<String> groupByColumns=new ArrayList<>();
+    if (random.nextInt(2) == 0) {
+      combination.put("D0",String.valueOf(random.nextInt(d0Cardinality)));
+    }
+ else     if (random.nextInt(4) == 0) {
+      groupByColumns.add("D0");
+    }
+    if (random.nextInt(2) == 0) {
+      combination.put("D1",String.valueOf(random.nextInt(d1Cardinality)));
+    }
+ else     if (random.nextInt(4) == 0) {
+      groupByColumns.add("D1");
+    }
+    if (random.nextInt(2) == 0) {
+      combination.put("D2",String.valueOf(random.nextInt(d2Cardinality)));
+    }
+ else     if (random.nextInt(4) == 0) {
+      groupByColumns.add("D2");
+    }
+    if (!groupByColumns.isEmpty()) {
+      combinations.add(new Object[]{combination,groupByColumns});
+    }
+  }
+  return combinations.toArray(new Object[][]{});
+}

@@ -1,0 +1,12 @@
+{
+switch (implementationType) {
+case NoDictionary:
+    return new MDefaultAggregationFunctionGroupByOperator(aggregationInfo,groupBy,new UReplicatedProjectionOperator((MProjectionOperator)projectionPlanNode.run()),hasDictionary);
+case Dictionary:
+  return new MAggregationFunctionGroupByWithDictionaryOperator(aggregationInfo,groupBy,new UReplicatedProjectionOperator((MProjectionOperator)projectionPlanNode.run()),hasDictionary);
+case DictionaryAndTrie:
+return new MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator(aggregationInfo,groupBy,new UReplicatedProjectionOperator((MProjectionOperator)projectionPlanNode.run()),hasDictionary);
+default :
+throw new UnsupportedOperationException("Not Support AggregationGroupBy implmentation: " + implementationType);
+}
+}
