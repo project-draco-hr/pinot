@@ -1,14 +1,19 @@
 {
   Job job=Job.getInstance(getConf());
-  Configuration conf=job.getConfiguration();
+  Configuration configuration=job.getConfiguration();
   job.setJobName(name);
   job.setJarByClass(TransformPhaseJob.class);
-  FileSystem fs=FileSystem.get(conf);
-  String outputSchemaPath=getAndSetConfiguration(conf,TRANSFORM_OUTPUT_AVRO_SCHEMA);
+  String transformConfigUDFClass=getAndSetConfiguration(configuration,TRANSFORM_CONFIG_UDF);
+  LOGGER.info("Initializing TransformUDFClass:{} with params:{}",transformConfigUDFClass);
+  Constructor<?> constructor=Class.forName(transformConfigUDFClass).getConstructor();
+  TransformConfigUDF transformConfigUDF=(TransformConfigUDF)constructor.newInstance();
+  transformConfigUDF.setTransformConfig(job);
+  FileSystem fs=FileSystem.get(configuration);
+  String outputSchemaPath=getAndSetConfiguration(configuration,TRANSFORM_OUTPUT_AVRO_SCHEMA);
   Schema.Parser parser=new Schema.Parser();
   Schema outputSchema=parser.parse(fs.open(new Path(outputSchemaPath)));
   LOGGER.info("{}",outputSchema);
-  String inputSchemaPath=getAndSetConfiguration(conf,TRANSFORM_INPUT_AVRO_SCHEMA);
+  String inputSchemaPath=getAndSetConfiguration(configuration,TRANSFORM_INPUT_AVRO_SCHEMA);
   parser=new Schema.Parser();
   Schema inputSchema=parser.parse(fs.open(new Path(inputSchemaPath)));
   LOGGER.info("{}",inputSchema);
@@ -20,7 +25,6 @@
   job.setOutputFormatClass(AvroKeyOutputFormat.class);
   job.setMapOutputKeyClass(AvroKey.class);
   job.setMapOutputValueClass(NullWritable.class);
-  Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,TRANSFORM_INPUT_PATH);
   String outputPathDir=getAndSetConfiguration(configuration,TRANSFORM_OUTPUT_PATH);
   getAndSetConfiguration(configuration,TRANSFORM_UDF);
