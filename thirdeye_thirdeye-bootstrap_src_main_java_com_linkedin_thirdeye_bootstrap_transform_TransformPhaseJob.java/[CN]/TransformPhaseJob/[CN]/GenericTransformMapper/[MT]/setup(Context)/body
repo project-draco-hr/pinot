@@ -2,6 +2,9 @@
   LOGGER.info("GenericAvroTransformJob.GenericTransformMapper.setup()");
   Configuration configuration=context.getConfiguration();
   FileSystem fs=FileSystem.get(configuration);
+  String numTransformReducers=configuration.get(TRANSFORM_NUM_REDUCERS.toString());
+  numReducers=Integer.parseInt(numTransformReducers);
+  reducerKey=1;
   try {
     String transformUDFClass=configuration.get(TRANSFORM_UDF.toString());
     LOGGER.info("Initializing TransformUDFClass:{} with params:{}",transformUDFClass);

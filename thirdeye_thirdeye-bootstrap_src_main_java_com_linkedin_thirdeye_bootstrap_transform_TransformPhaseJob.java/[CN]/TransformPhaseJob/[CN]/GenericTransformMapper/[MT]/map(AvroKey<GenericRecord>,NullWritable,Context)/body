@@ -2,6 +2,8 @@
   GenericRecord record=recordWrapper.datum();
   GenericRecord outputRecord=transformUDF.transformRecord(record);
   if (outputRecord != null) {
-    context.write(new AvroKey<GenericRecord>(outputRecord),NullWritable.get());
+    IntWritable key=new IntWritable(reducerKey);
+    reducerKey=(reducerKey == numReducers) ? (1) : (reducerKey + 1);
+    context.write(key,new AvroValue<GenericRecord>(outputRecord));
   }
 }

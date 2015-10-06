@@ -17,14 +17,17 @@
   parser=new Schema.Parser();
   Schema inputSchema=parser.parse(fs.open(new Path(inputSchemaPath)));
   LOGGER.info("{}",inputSchema);
-  job.setNumReduceTasks(0);
   job.setMapperClass(GenericTransformMapper.class);
   AvroJob.setInputKeySchema(job,inputSchema);
   job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(IntWritable.class);
+  job.setMapOutputValueClass(AvroValue.class);
+  AvroJob.setMapOutputValueSchema(job,outputSchema);
+  job.setReducerClass(GenericTransformReducer.class);
+  job.setOutputKeyClass(AvroKey.class);
+  job.setOutputValueClass(NullWritable.class);
   AvroJob.setOutputKeySchema(job,outputSchema);
   job.setOutputFormatClass(AvroKeyOutputFormat.class);
-  job.setMapOutputKeyClass(AvroKey.class);
-  job.setMapOutputValueClass(NullWritable.class);
   String inputPathDir=getAndSetConfiguration(configuration,TRANSFORM_INPUT_PATH);
   String outputPathDir=getAndSetConfiguration(configuration,TRANSFORM_OUTPUT_PATH);
   getAndSetConfiguration(configuration,TRANSFORM_UDF);
@@ -47,6 +50,14 @@
     }
   }
   FileOutputFormat.setOutputPath(job,new Path(outputPathDir));
+  String numReducers=getAndSetConfiguration(configuration,TRANSFORM_NUM_REDUCERS);
+  if (numReducers != null) {
+    job.setNumReduceTasks(Integer.parseInt(numReducers));
+  }
+ else {
+    job.setNumReduceTasks(10);
+  }
+  LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
   job.waitForCompletion(true);
   return job;
 }
