@@ -2,6 +2,10 @@
   LOGGER.info("GenericAvroTransformJob.GenericTransformMapper.setup()");
   Configuration configuration=context.getConfiguration();
   FileSystem fs=FileSystem.get(configuration);
+  FileSplit fileSplit=(FileSplit)context.getInputSplit();
+  LOGGER.info("split name:" + fileSplit.toString());
+  sourceName=DelegatingAvroKeyInputFormat.getSourceNameFromPath(fileSplit,configuration);
+  LOGGER.info("Input: {} belongs to Source:{}",fileSplit,sourceName);
   String numTransformReducers=configuration.get(TRANSFORM_NUM_REDUCERS.toString());
   numReducers=Integer.parseInt(numTransformReducers);
   reducerKey=1;
