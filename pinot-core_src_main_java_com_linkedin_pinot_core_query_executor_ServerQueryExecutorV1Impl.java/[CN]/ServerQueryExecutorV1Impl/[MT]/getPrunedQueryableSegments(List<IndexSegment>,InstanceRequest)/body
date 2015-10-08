@@ -7,12 +7,14 @@
   }
   final List<SegmentDataManager> matchedSegmentDataManagerFromServer=tableDataManager.getSegments(instanceRequest.getSearchSegments());
   LOGGER.info("TableDataManager found {} segments before pruning",matchedSegmentDataManagerFromServer.size());
-  final List<IndexSegment> queryableSegmentDataManagerList=new ArrayList<IndexSegment>();
   for (  final SegmentDataManager segmentDataManager : matchedSegmentDataManagerFromServer) {
     final IndexSegment indexSegment=segmentDataManager.getSegment();
     if (!_segmentPrunerService.prune(indexSegment,instanceRequest.getQuery())) {
-      queryableSegmentDataManagerList.add(indexSegment);
+      listOfQueryableSegments.add(indexSegment);
+    }
+ else {
+      tableDataManager.returnSegmentReaders(Lists.newArrayList(indexSegment.getSegmentName()));
     }
   }
-  return queryableSegmentDataManagerList;
+  return listOfQueryableSegments;
 }

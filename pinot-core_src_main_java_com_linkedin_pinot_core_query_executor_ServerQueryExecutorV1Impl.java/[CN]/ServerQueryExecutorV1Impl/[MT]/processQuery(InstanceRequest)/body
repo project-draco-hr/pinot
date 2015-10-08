@@ -1,12 +1,13 @@
 {
   DataTable instanceResponse;
   long start=System.currentTimeMillis();
+  final List<IndexSegment> queryableSegmentDataManagerList=new ArrayList<>();
   try {
     TraceContext.register(instanceRequest);
     final BrokerRequest brokerRequest=instanceRequest.getQuery();
     LOGGER.info("Incoming query is : {}",brokerRequest);
     long startPruningTime=System.nanoTime();
-    final List<IndexSegment> queryableSegmentDataManagerList=getPrunedQueryableSegments(instanceRequest);
+    getPrunedQueryableSegments(queryableSegmentDataManagerList,instanceRequest);
     long pruningTime=System.nanoTime() - startPruningTime;
     _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.SEGMENT_PRUNING,pruningTime);
     LOGGER.info("Matched {} segments! ",queryableSegmentDataManagerList.size());
@@ -51,7 +52,11 @@
   }
  finally {
     if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
-      _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReaders(instanceRequest.getSearchSegments());
+      List<String> segmentsToDecrement=new ArrayList<>();
+      for (      IndexSegment segment : queryableSegmentDataManagerList) {
+        segmentsToDecrement.add(segment.getSegmentName());
+      }
+      _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReaders(segmentsToDecrement);
     }
     TraceContext.unregister(instanceRequest);
   }
