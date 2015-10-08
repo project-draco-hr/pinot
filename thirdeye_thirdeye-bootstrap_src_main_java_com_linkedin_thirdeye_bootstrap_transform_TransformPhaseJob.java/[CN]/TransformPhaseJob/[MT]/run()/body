@@ -4,7 +4,7 @@
   job.setJobName(name);
   job.setJarByClass(TransformPhaseJob.class);
   String transformConfigUDFClass=getAndSetConfiguration(configuration,TRANSFORM_CONFIG_UDF);
-  LOGGER.info("Initializing TransformUDFClass:{} with params:{}",transformConfigUDFClass);
+  LOGGER.info("Initializing TransformConfigUDFClass:{} with params:{}",transformConfigUDFClass);
   Constructor<?> constructor=Class.forName(transformConfigUDFClass).getConstructor();
   TransformConfigUDF transformConfigUDF=(TransformConfigUDF)constructor.newInstance();
   transformConfigUDF.setTransformConfig(job);
@@ -13,43 +13,47 @@
   Schema.Parser parser=new Schema.Parser();
   Schema outputSchema=parser.parse(fs.open(new Path(outputSchemaPath)));
   LOGGER.info("{}",outputSchema);
-  String inputSchemaPath=getAndSetConfiguration(configuration,TRANSFORM_INPUT_AVRO_SCHEMA);
-  parser=new Schema.Parser();
-  Schema inputSchema=parser.parse(fs.open(new Path(inputSchemaPath)));
-  LOGGER.info("{}",inputSchema);
-  job.setMapperClass(GenericTransformMapper.class);
-  AvroJob.setInputKeySchema(job,inputSchema);
-  job.setInputFormatClass(AvroKeyInputFormat.class);
-  job.setMapOutputKeyClass(IntWritable.class);
-  job.setMapOutputValueClass(AvroValue.class);
-  AvroJob.setMapOutputValueSchema(job,outputSchema);
-  job.setReducerClass(GenericTransformReducer.class);
-  job.setOutputKeyClass(AvroKey.class);
-  job.setOutputValueClass(NullWritable.class);
-  AvroJob.setOutputKeySchema(job,outputSchema);
-  job.setOutputFormatClass(AvroKeyOutputFormat.class);
-  String inputPathDir=getAndSetConfiguration(configuration,TRANSFORM_INPUT_PATH);
   String outputPathDir=getAndSetConfiguration(configuration,TRANSFORM_OUTPUT_PATH);
-  getAndSetConfiguration(configuration,TRANSFORM_UDF);
-  LOGGER.info("Input path dir: " + inputPathDir);
-  FileInputFormat.setInputDirRecursive(job,true);
-  for (  String inputPath : inputPathDir.split(",")) {
-    Path input=new Path(inputPath);
-    FileStatus[] listFiles=fs.listStatus(input);
-    boolean isNested=false;
-    for (    FileStatus fileStatus : listFiles) {
-      if (fileStatus.isDirectory()) {
-        isNested=true;
-        LOGGER.info("Adding input:" + fileStatus.getPath());
-        FileInputFormat.addInputPath(job,fileStatus.getPath());
+  FileOutputFormat.setOutputPath(job,new Path(outputPathDir));
+  String sources=getAndSetConfiguration(configuration,TRANSFORM_SOURCE_NAMES);
+  List<String> sourceNames=Arrays.asList(sources.split(","));
+  Map<String,String> schemaMap=new HashMap<String,String>();
+  Map<String,String> schemaPathMapping=new HashMap<String,String>();
+  for (  String sourceName : sourceNames) {
+    LOGGER.info("Loading Schema for {}",sourceName);
+    FSDataInputStream schemaStream=fs.open(new Path(getAndCheck(sourceName + "." + TRANSFORM_INPUT_AVRO_SCHEMA.toString())));
+    Schema schema=new Schema.Parser().parse(schemaStream);
+    schemaMap.put(sourceName,schema.toString());
+    LOGGER.info("Schema for {}:  \n{}",sourceName,schema);
+    String inputPathDir=getAndCheck(sourceName + "." + TRANSFORM_INPUT_PATH.toString());
+    LOGGER.info("Input path dir for " + sourceName + ": "+ inputPathDir);
+    for (    String inputPath : inputPathDir.split(",")) {
+      Path input=new Path(inputPath);
+      FileStatus[] listFiles=fs.listStatus(input);
+      boolean isNested=false;
+      for (      FileStatus fileStatus : listFiles) {
+        if (fileStatus.isDirectory()) {
+          isNested=true;
+          Path path=fileStatus.getPath();
+          LOGGER.info("Adding input:" + path);
+          FileInputFormat.addInputPath(job,path);
+          schemaPathMapping.put(path.toString(),sourceName);
+        }
+      }
+      if (!isNested) {
+        LOGGER.info("Adding input:" + inputPath);
+        FileInputFormat.addInputPath(job,input);
+        schemaPathMapping.put(input.toString(),sourceName);
       }
     }
-    if (!isNested) {
-      LOGGER.info("Adding input:" + inputPath);
-      FileInputFormat.addInputPath(job,input);
-    }
   }
-  FileOutputFormat.setOutputPath(job,new Path(outputPathDir));
+  StringWriter temp=new StringWriter();
+  OBJECT_MAPPER.writeValue(temp,schemaPathMapping);
+  job.getConfiguration().set("schema.path.mapping",temp.toString());
+  temp=new StringWriter();
+  OBJECT_MAPPER.writeValue(temp,schemaMap);
+  job.getConfiguration().set("schema.json.mapping",temp.toString());
+  getAndSetConfiguration(configuration,TRANSFORM_UDF);
   String numReducers=getAndSetConfiguration(configuration,TRANSFORM_NUM_REDUCERS);
   if (numReducers != null) {
     job.setNumReduceTasks(Integer.parseInt(numReducers));
@@ -58,6 +62,16 @@
     job.setNumReduceTasks(10);
   }
   LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
+  job.setMapperClass(GenericTransformMapper.class);
+  job.setInputFormatClass(DelegatingAvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(IntWritable.class);
+  job.setMapOutputValueClass(AvroValue.class);
+  AvroJob.setMapOutputValueSchema(job,outputSchema);
+  job.setReducerClass(GenericTransformReducer.class);
+  job.setOutputKeyClass(AvroKey.class);
+  job.setOutputValueClass(NullWritable.class);
+  AvroJob.setOutputKeySchema(job,outputSchema);
+  job.setOutputFormatClass(AvroKeyOutputFormat.class);
   job.waitForCompletion(true);
   return job;
 }
