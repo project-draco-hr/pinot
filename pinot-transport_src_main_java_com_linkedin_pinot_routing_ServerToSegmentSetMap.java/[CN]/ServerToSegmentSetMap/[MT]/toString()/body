@@ -1,0 +1,13 @@
+{
+  try {
+    JSONObject ret=new JSONObject();
+    for (    ServerInstance i : _routingTable.keySet()) {
+      ret.put(i.toString(),mapper.writeValueAsString(_routingTable.get(i).getSegments()));
+    }
+    return ret.toString();
+  }
+ catch (  Exception e) {
+    logger.error("error toString()",e);
+    return "routing table : [ " + _routingTable + " ] ";
+  }
+}

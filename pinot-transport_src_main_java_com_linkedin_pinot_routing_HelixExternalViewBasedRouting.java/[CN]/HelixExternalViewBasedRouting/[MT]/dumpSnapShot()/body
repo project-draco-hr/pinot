@@ -1,0 +1,15 @@
+{
+  JSONArray ret=new JSONArray();
+  for (  String tableName : _brokerRoutingTable.keySet()) {
+    JSONObject tableEntry=new JSONObject();
+    tableEntry.put("tableName",tableName);
+    JSONArray entries=new JSONArray();
+    List<ServerToSegmentSetMap> routableTable=_brokerRoutingTable.get(tableName);
+    for (    ServerToSegmentSetMap serverToInstaceMap : routableTable) {
+      entries.add(serverToInstaceMap.toString());
+    }
+    tableEntry.put("routingTableEntries",entries);
+    ret.add(tableEntry);
+  }
+  return ret.toString();
+}
