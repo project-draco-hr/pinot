@@ -52,11 +52,9 @@
   }
  finally {
     if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
-      List<String> segmentsToDecrement=new ArrayList<>();
       for (      IndexSegment segment : queryableSegmentDataManagerList) {
-        segmentsToDecrement.add(segment.getSegmentName());
+        _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReader(segment.getSegmentName());
       }
-      _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReaders(segmentsToDecrement);
     }
     TraceContext.unregister(instanceRequest);
   }
