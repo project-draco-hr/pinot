@@ -1,0 +1,13 @@
+{
+  PinotResourceManagerResponse deleteResponse=toggleSegmentState(tableName,segments,false,timeOutInSeconds);
+  if (!deleteResponse.isSuccessfull()) {
+    return deleteResponse;
+  }
+  boolean ret=true;
+  for (  String segment : segments) {
+    if (!deleteSegment(tableName,segment).isSuccessfull()) {
+      ret=false;
+    }
+  }
+  return (ret) ? new PinotResourceManagerResponse("Success: Deleted segment(s) list",true) : new PinotResourceManagerResponse("Error: Failed to delete at least one segment before time out ",false);
+}

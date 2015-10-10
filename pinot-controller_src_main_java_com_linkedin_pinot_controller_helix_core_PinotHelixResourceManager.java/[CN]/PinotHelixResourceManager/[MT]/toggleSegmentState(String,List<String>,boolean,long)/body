@@ -1,0 +1,36 @@
+{
+  String status=(enable) ? "ONLINE" : "OFFLINE";
+  HelixDataAccessor helixDataAccessor=_helixZkManager.getHelixDataAccessor();
+  PropertyKey idealStatePropertyKey=_keyBuilder.idealStates(tableName);
+  boolean updateSuccessful;
+  boolean externalViewUpdateSuccessful=true;
+  long deadline=System.currentTimeMillis() + 1000 * timeoutInSeconds;
+  do {
+    final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+    for (    String segmentName : segments) {
+      final Set<String> instanceSet=idealState.getInstanceSet(segmentName);
+      if (instanceSet == null || instanceSet.isEmpty()) {
+        return new PinotResourceManagerResponse("Segment " + segmentName + " not found.",false);
+      }
+      for (      final String instance : instanceSet) {
+        idealState.setPartitionState(segmentName,instance,status);
+      }
+    }
+    updateSuccessful=helixDataAccessor.updateProperty(idealStatePropertyKey,idealState);
+  }
+ while (!updateSuccessful && (System.currentTimeMillis() <= deadline));
+  LOGGER.info("Ideal state successfully updated, waiting to update external view");
+  IdealState updatedIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
+  for (  String segmentName : segments) {
+    Map<String,String> instanceStateMap=updatedIdealState.getInstanceStateMap(segmentName);
+    for (    String state : instanceStateMap.values()) {
+      if (!status.equals(state)) {
+        return new PinotResourceManagerResponse("Error: Failed to update Ideal state when setting status " + status + " for segment "+ segmentName,false);
+      }
+    }
+    if (!ifExternalViewChangeReflectedForState(tableName,segmentName,status,(timeoutInSeconds * 1000),true)) {
+      externalViewUpdateSuccessful=false;
+    }
+  }
+  return (externalViewUpdateSuccessful) ? new PinotResourceManagerResponse(("Success: Segment(s) " + " now " + status),true) : new PinotResourceManagerResponse("Error: Timed out. External view not completely updated",false);
+}

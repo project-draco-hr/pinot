@@ -1,7 +1,6 @@
 {
   long externalViewChangeCompletedDeadline=System.currentTimeMillis() + timeoutMillis;
   deadlineLoop:   while (System.currentTimeMillis() < externalViewChangeCompletedDeadline) {
-    Uninterruptibles.sleepUninterruptibly(2L,TimeUnit.SECONDS);
     ExternalView externalView=_helixAdmin.getResourceExternalView(_helixClusterName,tableName);
     Map<String,String> segmentStatsMap=externalView.getStateMap(segmentName);
     if (segmentStatsMap != null) {
@@ -11,6 +10,7 @@
           if ("ERROR".equalsIgnoreCase(segmentState) && !considerErrorStateAsDifferentFromTarget) {
           }
  else {
+            Uninterruptibles.sleepUninterruptibly(_externalViewUpdateRetryInterval,TimeUnit.MILLISECONDS);
             continue deadlineLoop;
           }
         }
