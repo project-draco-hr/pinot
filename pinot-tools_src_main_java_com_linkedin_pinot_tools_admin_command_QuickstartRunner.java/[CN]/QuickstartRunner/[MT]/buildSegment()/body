@@ -1,5 +1,9 @@
 {
-  CreateSegmentCommand segmentBuilder=new CreateSegmentCommand();
-  segmentBuilder.setDataDir(_dataDir.getAbsolutePath()).setFormat(FileFormat.CSV).setSchemaFile(_schemaFile.getAbsolutePath()).setTableName(_tableName).setSegmentName(_segmentName).setOutputDir(new File(_tempDir,"segments").getAbsolutePath()).setOverwrite(true);
-  segmentBuilder.execute();
+  for (  QuickstartTableRequest request : tableRequests) {
+    CreateSegmentCommand segmentBuilder=new CreateSegmentCommand();
+    File tempDir=new File(_tempDir,request.getTableName() + "_segment");
+    segmentBuilder.setDataDir(request.getDataDir().getAbsolutePath()).setFormat(FileFormat.CSV).setSchemaFile(request.getSchemaFile().getAbsolutePath()).setTableName(request.getTableName()).setSegmentName(request.getTableName() + "_" + String.valueOf(System.currentTimeMillis())).setOutputDir(tempDir.getAbsolutePath()).setOverwrite(true);
+    segmentBuilder.execute();
+    segments.add(tempDir.getAbsolutePath());
+  }
 }

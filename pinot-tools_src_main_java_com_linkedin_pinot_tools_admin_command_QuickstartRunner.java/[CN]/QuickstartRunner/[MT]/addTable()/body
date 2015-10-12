@@ -1,5 +1,7 @@
 {
-  AddTableCommand tableAdder=new AddTableCommand();
-  tableAdder.setFilePath(_tableCreateRequestJsonFile).setControllerPort(_controllerPort).setExecute(true);
-  tableAdder.execute();
+  for (  QuickstartTableRequest request : tableRequests) {
+    AddTableCommand tableAdder=new AddTableCommand();
+    tableAdder.setFilePath(request.getTableRequestFile().getAbsolutePath()).setControllerPort(String.valueOf(controllerPorts.get(0))).setExecute(true);
+    tableAdder.execute();
+  }
 }

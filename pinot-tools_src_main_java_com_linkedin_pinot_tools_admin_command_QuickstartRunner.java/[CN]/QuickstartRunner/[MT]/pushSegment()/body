@@ -1,5 +1,7 @@
 {
-  UploadSegmentCommand segmentUploader=new UploadSegmentCommand();
-  segmentUploader.setControllerHost(_localHost).setControllerPort(_controllerPort).setSegmentDir(new File(_tempDir,"segments").getAbsolutePath());
-  segmentUploader.execute();
+  for (  String segmentDir : segments) {
+    UploadSegmentCommand segmentUploader=new UploadSegmentCommand();
+    segmentUploader.setControllerHost(_localHost).setControllerPort(String.valueOf(--_controllerPort)).setSegmentDir(new File(segmentDir).getAbsolutePath());
+    segmentUploader.execute();
+  }
 }
