@@ -15,14 +15,14 @@
 switch (bufferContext.allocationType) {
 case DIRECT_BYTE_BUFFER:
           DIRECT_BYTE_BUFFER_USAGE.addAndGet(-bufferSize);
-        if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("Releasing byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Releasing byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
         }
       break;
 case MMAP:
     MMAP_BUFFER_USAGE.addAndGet(-bufferSize);
-  if (LOGGER.isInfoEnabled()) {
-    LOGGER.info("Unmapping byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
+  if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("Unmapping byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
   }
 break;
 }
