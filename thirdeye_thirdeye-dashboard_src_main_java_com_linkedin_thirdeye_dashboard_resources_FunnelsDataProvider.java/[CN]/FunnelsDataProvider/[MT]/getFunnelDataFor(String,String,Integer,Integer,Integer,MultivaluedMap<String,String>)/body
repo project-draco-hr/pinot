@@ -35,6 +35,11 @@
   }
   List<FunnelHeatMapRow> filteredTable=new ArrayList<>();
   int metricCount=spec.getActualMetricNames().size();
+  List<FunnelHeatMapRow> filteredCumulativeTable=new ArrayList<>();
+  Number[] cumulativeBaseline=new Number[metricCount];
+  Arrays.fill(cumulativeBaseline,0.0);
+  Number[] cumulativeCurrent=new Number[metricCount];
+  Arrays.fill(cumulativeCurrent,0.0);
   for (  FunnelHeatMapRow row : table) {
     Number[] filteredBaseline=new Number[metricCount];
     Number[] filteredCurrent=new Number[metricCount];
@@ -61,9 +66,17 @@
         }
       }
       filteredCurrent[i]=currentValue;
+      if (baselineValue != null && currentValue != null) {
+        cumulativeBaseline[i]=cumulativeBaseline[i].doubleValue() + baselineValue.doubleValue();
+        cumulativeCurrent[i]=cumulativeCurrent[i].doubleValue() + currentValue.doubleValue();
+      }
     }
     FunnelHeatMapRow filteredRow=new FunnelHeatMapRow(row.getHour(),filteredBaseline,filteredCurrent);
     filteredTable.add(filteredRow);
+    Number[] cumulativeBaselineCopy=Arrays.copyOf(cumulativeBaseline,cumulativeBaseline.length);
+    Number[] cumulativeCurrentCopy=Arrays.copyOf(cumulativeCurrent,cumulativeCurrent.length);
+    FunnelHeatMapRow cumulativeFilteredRow=new FunnelHeatMapRow(row.getHour(),cumulativeBaselineCopy,cumulativeCurrentCopy);
+    filteredCumulativeTable.add(cumulativeFilteredRow);
   }
-  return new FunnelHeatMapView(spec,filteredTable,currentEnd,baselineEnd);
+  return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentEnd,baselineEnd);
 }
