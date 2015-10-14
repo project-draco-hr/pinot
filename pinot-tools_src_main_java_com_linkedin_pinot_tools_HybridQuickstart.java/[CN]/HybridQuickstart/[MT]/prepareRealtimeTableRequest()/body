@@ -1,0 +1,12 @@
+{
+  _realtimeQuickStartDataDir=new File("quickStartData" + System.currentTimeMillis());
+  String quickStartDataDirName=_realtimeQuickStartDataDir.getName();
+  if (!_realtimeQuickStartDataDir.exists()) {
+    _realtimeQuickStartDataDir.mkdir();
+  }
+  File schema=new File(quickStartDataDirName + "/airlineStats.schema");
+  File tableCreate=new File(quickStartDataDirName + "/airlineStatsRealtime_hybrid.json");
+  FileUtils.copyURLToFile(RealtimeQuickStart.class.getClassLoader().getResource("sample_data/airlineStats.schema"),schema);
+  FileUtils.copyURLToFile(RealtimeQuickStart.class.getClassLoader().getResource("sample_data/airlineStatsRealtime_hybrid.json"),tableCreate);
+  return new QuickstartTableRequest("airlineStats",schema,tableCreate);
+}

@@ -1,0 +1,9 @@
+{
+  if (!keepIndexing) {
+    avroDataStream.close();
+    avroDataStream=null;
+    return;
+  }
+  KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>("airlineStatsEvents",message.toString().getBytes("UTF-8"));
+  producer.send(data);
+}

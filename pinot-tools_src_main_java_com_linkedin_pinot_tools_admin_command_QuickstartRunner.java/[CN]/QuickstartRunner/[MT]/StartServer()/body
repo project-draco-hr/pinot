@@ -3,6 +3,8 @@
     StartServerCommand serverStarter=new StartServerCommand();
     serverStarter.setClusterName(_clusterName).setZkAddress(_zkAddress).setPort(_serverPort).setDataDir(TMP_DIR + "PinotServerData" + String.valueOf(i)).setSegmentDir(TMP_DIR + "PinotServerSegment" + String.valueOf(i));
     serverStarter.execute();
+    dirs.add(TMP_DIR + "PinotServerData" + String.valueOf(i));
+    dirs.add(TMP_DIR + "PinotServerSegment" + String.valueOf(i));
     serverPorts.add(new Integer(_serverPort));
     _serverPort=_serverPort + 1;
   }
