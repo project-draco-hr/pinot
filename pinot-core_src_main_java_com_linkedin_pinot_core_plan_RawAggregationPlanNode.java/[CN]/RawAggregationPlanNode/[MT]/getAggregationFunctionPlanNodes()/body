@@ -1,0 +1,9 @@
+{
+  List<BaseAggregationFunctionPlanNode> aggregationFunctionPlanNodes=new ArrayList<>();
+  for (int i=0; i < brokerRequest.getAggregationsInfo().size(); ++i) {
+    AggregationInfo aggregationInfo=brokerRequest.getAggregationsInfo().get(i);
+    boolean hasDictionary=AggregationFunctionUtils.isAggregationFunctionWithDictionary(aggregationInfo,indexSegment);
+    aggregationFunctionPlanNodes.add(new BaseAggregationFunctionPlanNode(aggregationInfo,projectionPlanNode,hasDictionary));
+  }
+  return aggregationFunctionPlanNodes;
+}

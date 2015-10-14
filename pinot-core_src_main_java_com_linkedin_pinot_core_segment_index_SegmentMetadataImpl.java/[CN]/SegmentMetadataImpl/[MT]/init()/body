@@ -27,11 +27,68 @@
       _allColumns.add(columnName);
     }
   }
+  Boolean starTreeEnabled=_segmentMetadataPropertiesConfiguration.getBoolean(MetadataKeys.StarTree.STAR_TREE_ENABLED,false);
+  if (starTreeEnabled) {
+    StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
+    List<String> splitOrderList=new ArrayList<>();
+    Iterator<String> splitOrder=_segmentMetadataPropertiesConfiguration.getList(MetadataKeys.StarTree.SPLIT_ORDER).iterator();
+    while (splitOrder.hasNext()) {
+      String split=splitOrder.next();
+      if (split.trim().length() > 0) {
+        splitOrderList.add(split);
+      }
+    }
+    starTreeIndexSpec.setSplitOrder(splitOrderList);
+    List<String> splitExcludesList=new ArrayList<>();
+    Iterator<String> splitExcludes=_segmentMetadataPropertiesConfiguration.getList(MetadataKeys.StarTree.SPLIT_EXCLUDES).iterator();
+    while (splitExcludes.hasNext()) {
+      String splitExclude=splitExcludes.next();
+      if (splitExclude.trim().length() > 0) {
+        splitExcludesList.add(splitExclude);
+      }
+    }
+    starTreeIndexSpec.setSplitExcludes(splitExcludesList);
+    List<String> dimensionExcludesList=new ArrayList<>();
+    Iterator<String> dimensionExcludes=_segmentMetadataPropertiesConfiguration.getList(MetadataKeys.StarTree.EXCLUDED_DIMENSIONS).iterator();
+    while (dimensionExcludes.hasNext()) {
+      String dimensionExclude=dimensionExcludes.next();
+      if (dimensionExclude.trim().length() > 0) {
+        dimensionExcludesList.add(dimensionExclude);
+      }
+    }
+    starTreeIndexSpec.setExcludedDimensions(dimensionExcludesList);
+    int maxLeafRecords=Integer.valueOf((String)_segmentMetadataPropertiesConfiguration.getProperty(MetadataKeys.StarTree.MAX_LEAF_RECORDS));
+    starTreeIndexSpec.setMaxLeafRecords(maxLeafRecords);
+    _schema.setStarTreeIndexSpec(starTreeIndexSpec);
+  }
   _segmentName=_segmentMetadataPropertiesConfiguration.getString(V1Constants.MetadataKeys.Segment.SEGMENT_NAME);
   for (  final String column : _allColumns) {
     _columnMetadataMap.put(column,extractColumnMetadataFor(column));
   }
   for (  final String column : _columnMetadataMap.keySet()) {
     _schema.addSchema(column,_columnMetadataMap.get(column).toFieldSpec());
+  }
+  if (_schema.getStarTreeIndexSpec() != null) {
+    if (_schema.getStarTreeIndexSpec().getSplitOrder() != null) {
+      for (      String dimension : _schema.getStarTreeIndexSpec().getSplitOrder()) {
+        if (!_schema.getDimensionNames().contains(dimension)) {
+          throw new IllegalStateException("Split order dimension " + dimension + " not in schema "+ _schema);
+        }
+      }
+    }
+    if (_schema.getStarTreeIndexSpec().getSplitExcludes() != null) {
+      for (      String dimension : _schema.getStarTreeIndexSpec().getSplitExcludes()) {
+        if (!_schema.getDimensionNames().contains(dimension)) {
+          throw new IllegalStateException("Split exclude dimension " + dimension + " not in schema "+ _schema);
+        }
+      }
+    }
+    if (_schema.getStarTreeIndexSpec().getExcludedDimensions() != null) {
+      for (      String dimension : _schema.getStarTreeIndexSpec().getExcludedDimensions()) {
+        if (!_schema.getDimensionNames().contains(dimension)) {
+          throw new IllegalStateException("Excluded dimension " + dimension + " not in schema "+ _schema);
+        }
+      }
+    }
   }
 }

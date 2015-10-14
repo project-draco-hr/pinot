@@ -1,0 +1,11 @@
+{
+  final IndexSegmentImpl columnarSegment=(IndexSegmentImpl)indexSegment;
+  int totalBitSet=0;
+  for (  final String column : brokerRequest.getGroupBy().getColumns()) {
+    totalBitSet+=BitHacks.findLogBase2(columnarSegment.getDictionaryFor(column).length()) + 1;
+  }
+  if (totalBitSet > 64) {
+    return false;
+  }
+  return true;
+}

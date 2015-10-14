@@ -13,6 +13,11 @@
     job.run();
     return;
   }
+  if (PhaseSpec.TRANSFORM.equals(phaseSpec)) {
+    TransformPhaseJob job=new TransformPhaseJob("Transform Job",inputConfig);
+    job.run();
+    return;
+  }
   String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getName(),inputConfig);
   String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getName(),inputConfig);
   String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getName(),inputConfig);

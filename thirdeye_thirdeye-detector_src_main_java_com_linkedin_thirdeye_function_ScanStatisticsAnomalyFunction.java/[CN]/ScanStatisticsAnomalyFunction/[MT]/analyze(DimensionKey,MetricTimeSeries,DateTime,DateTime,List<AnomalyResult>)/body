@@ -14,7 +14,8 @@
   double[] observationsMinusSeasonality=removeSeasonality(timestamps,observations,seasonal);
   int effectiveMaxWindowLength=(int)((windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis);
   effectiveMaxWindowLength=Math.min(effectiveMaxWindowLength,maxWindowLength);
-  ScanStatistics scanStatistics=new ScanStatistics(numSimulations,minWindowLength,effectiveMaxWindowLength,pValueThreshold,pattern,minIncrement,bootstrap);
+  ScanStatistics scanStatistics=new ScanStatistics(numSimulations,minWindowLength,effectiveMaxWindowLength,pValueThreshold,pattern,minIncrement,bootstrap,notEqualEpsilon);
+  LOGGER.info("Created {}",scanStatistics);
   int totalNumBuckets=observationsMinusSeasonality.length;
   int numTrain=totalNumBuckets - monitoringWindow;
   Set<Long> anomalousTimestamps=new HashSet<Long>();

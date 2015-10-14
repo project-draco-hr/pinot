@@ -2,6 +2,7 @@
   final AnomalyFunctionSpecDAO anomalyFunctionSpecDAO=new AnomalyFunctionSpecDAO(hibernate.getSessionFactory());
   final AnomalyResultDAO anomalyResultDAO=new AnomalyResultDAO(hibernate.getSessionFactory());
   final ContextualEventDAO contextualEventDAO=new ContextualEventDAO(hibernate.getSessionFactory());
+  final EmailConfigurationDAO emailConfigurationDAO=new EmailConfigurationDAO(hibernate.getSessionFactory());
   final ThirdEyeClient thirdEyeClient=new DefaultThirdEyeClient(config.getThirdEyeHost(),config.getThirdEyePort());
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
@@ -15,18 +16,71 @@
   final Scheduler quartzScheduler=schedulerFactory.getScheduler();
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
+      LOG.info("Starting Quartz scheduler");
       quartzScheduler.start();
     }
     @Override public void stop() throws Exception {
+      LOG.info("Stopping Quartz scheduler");
       quartzScheduler.shutdown();
     }
   }
 );
-  AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory());
+  final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics());
+  environment.lifecycle().manage(new Managed(){
+    @Override public void start() throws Exception {
+      new HibernateSessionWrapper<Void>(hibernate.getSessionFactory()).execute(new Callable<Void>(){
+        @Override public Void call() throws Exception {
+          List<AnomalyFunctionSpec> functions;
+          functions=anomalyFunctionSpecDAO.findAll();
+          for (          AnomalyFunctionSpec function : functions) {
+            if (function.isActive()) {
+              jobManager.start(function.getId());
+              LOG.info("Starting {}",function);
+            }
+          }
+          return null;
+        }
+      }
+);
+    }
+    @Override public void stop() throws Exception {
+    }
+  }
+);
+  final AtomicInteger applicationPort=new AtomicInteger(-1);
+  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernate.getSessionFactory(),applicationPort);
+  environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener(){
+    @Override public void serverStarted(    Server server){
+      for (      Connector connector : server.getConnectors()) {
+        if (connector instanceof ServerConnector) {
+          ServerConnector serverConnector=(ServerConnector)connector;
+          applicationPort.set(serverConnector.getLocalPort());
+        }
+      }
+      if (applicationPort.get() == -1) {
+        throw new IllegalStateException("Could not determine application port");
+      }
+      try {
+        new HibernateSessionWrapper<Void>(hibernate.getSessionFactory()).execute(new Callable<Void>(){
+          @Override public Void call() throws Exception {
+            LOG.info("Starting email report job manager");
+            emailReportJobManager.start();
+            return null;
+          }
+        }
+);
+      }
+ catch (      Exception e) {
+        throw new IllegalStateException(e);
+      }
+    }
+  }
+);
   environment.jersey().register(new AnomalyFunctionSpecResource(anomalyFunctionSpecDAO));
   environment.jersey().register(new AnomalyResultResource(anomalyResultDAO));
   environment.jersey().register(new ContextualEventResource(contextualEventDAO));
   environment.jersey().register(new MetricsGraphicsTimeSeriesResource(thirdEyeClient,anomalyResultDAO));
-  environment.admin().addTask(new ScheduleAnomalyDetectionJobTask(jobManager));
-  environment.admin().addTask(new AdHocAnomalyDetectionJobTask(jobManager));
+  environment.jersey().register(new AnomalyDetectionJobResource(jobManager,anomalyFunctionSpecDAO));
+  environment.jersey().register(new EmailReportResource(emailConfigurationDAO,emailReportJobManager));
+  environment.admin().addTask(new EmailReportJobManagerTask(emailReportJobManager,hibernate.getSessionFactory()));
 }

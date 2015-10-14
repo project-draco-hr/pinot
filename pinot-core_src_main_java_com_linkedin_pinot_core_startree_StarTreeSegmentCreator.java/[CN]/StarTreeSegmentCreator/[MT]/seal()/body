@@ -1,7 +1,7 @@
 {
   LOG.info("Writing aggregate segment...");
   long startMillis=System.currentTimeMillis();
-  int currentAggregateDocumentId=0;
+  int currentAggregateDocumentId=starTreeBuilder.getTotalRawDocumentCount();
   Iterator<StarTreeTableRow> itr=starTreeBuilder.getTable().getAllCombinations();
   while (itr.hasNext()) {
     StarTreeTableRow next=itr.next();
@@ -44,13 +44,13 @@
           }
         }
         if (schema.getFieldSpecFor(column).isSingleValueField()) {
-          ((SingleValueForwardIndexCreator)aggregateForwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(Integer)dictionaryIndex);
+          ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(Integer)dictionaryIndex);
         }
  else {
-          ((MultiValueForwardIndexCreator)aggregateForwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(int[])dictionaryIndex);
+          ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(int[])dictionaryIndex);
         }
         if (config.isCreateInvertedIndexEnabled()) {
-          aggregateInvertedIndexCreatorMap.get(column).add(currentAggregateDocumentId,dictionaryIndex);
+          invertedIndexCreatorMap.get(column).add(currentAggregateDocumentId,dictionaryIndex);
         }
       }
       currentAggregateDocumentId++;
@@ -65,31 +65,15 @@
     }
     dictionaryCreatorMap.get(column).close();
   }
-  for (  final String column : aggregateForwardIndexCreatorMap.keySet()) {
-    aggregateForwardIndexCreatorMap.get(column).close();
-    if (config.isCreateInvertedIndexEnabled()) {
-      aggregateInvertedIndexCreatorMap.get(column).seal();
-    }
-  }
-  writeMetadata(outDir,starTreeBuilder.getTotalRawDocumentCount());
+  writeMetadata(outDir,starTreeBuilder.getTotalRawDocumentCount() + starTreeBuilder.getTotalAggregateDocumentCount(),starTreeBuilder.getTotalAggregateDocumentCount(),true);
   LOG.info("Writing " + V1Constants.STARTREE_FILE);
   startMillis=System.currentTimeMillis();
-  File starTreeFile=new File(starTreeDir,V1Constants.STARTREE_FILE);
+  File starTreeFile=new File(outDir,V1Constants.STARTREE_FILE);
   OutputStream starTreeOutputStream=new FileOutputStream(starTreeFile);
   starTreeBuilder.getTree().writeTree(starTreeOutputStream);
   starTreeOutputStream.close();
   endMillis=System.currentTimeMillis();
   LOG.info("Wrote StarTree file (took {} ms)",endMillis - startMillis);
-  File[] dictionaryFiles=outDir.listFiles(new FilenameFilter(){
-    @Override public boolean accept(    File dir,    String name){
-      return name.endsWith(V1Constants.Dict.FILE_EXTENTION);
-    }
-  }
-);
-  for (  File dictionaryFile : dictionaryFiles) {
-    FileUtils.copyFile(dictionaryFile,new File(starTreeDir,dictionaryFile.getName()));
-  }
-  writeMetadata(starTreeDir,starTreeBuilder.getTotalAggregateDocumentCount());
   LOG.info("Deleting StarTree table file {}",starTreeTableFile);
   FileUtils.forceDelete(starTreeTableFile);
 }

@@ -1,0 +1,26 @@
+{
+  final BrokerRequest brokerRequest=new BrokerRequest();
+  final List<AggregationInfo> aggregationsInfo=new ArrayList<AggregationInfo>();
+  aggregationsInfo.add(getCountAggregationInfo());
+  brokerRequest.setAggregationsInfo(aggregationsInfo);
+  final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(indexSegment,brokerRequest);
+  rootPlanNode.showTree("");
+  Assert.assertTrue(rootPlanNode.getClass().equals(RawAggregationPlanNode.class) || rootPlanNode.getClass().equals(AggregationPlanNode.class));
+  final MAggregationOperator operator=(MAggregationOperator)rootPlanNode.run();
+  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  final ReduceService reduceService=new DefaultReduceService();
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getAggregationResultDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationResultDataTable());
+  final BrokerResponse reducedResults=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  Long fromPinot=reducedResults.getAggregationResults().get(0).getLong("value");
+  Assert.assertEquals(fromPinot.intValue(),numRecords * 10);
+}

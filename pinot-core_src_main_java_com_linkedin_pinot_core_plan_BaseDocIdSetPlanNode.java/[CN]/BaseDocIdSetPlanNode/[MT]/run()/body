@@ -1,0 +1,17 @@
+{
+  long start=System.currentTimeMillis();
+  if (projectOp == null) {
+    if (filterNode != null) {
+      projectOp=new BReusableFilteredDocIdSetOperator(filterNode.run(),indexSegment.getTotalDocs(),maxDocPerAggregation);
+    }
+ else {
+      projectOp=new BReusableFilteredDocIdSetOperator(null,indexSegment.getTotalDocs(),maxDocPerAggregation);
+    }
+    long end=System.currentTimeMillis();
+    LOGGER.debug("DocIdSetPlanNode.run took:" + (end - start));
+    return projectOp;
+  }
+ else {
+    return projectOp;
+  }
+}

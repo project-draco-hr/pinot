@@ -1,0 +1,8 @@
+{
+  JSONObject returnValue=_perfBenchmarkDriver.postQuery(QUERY);
+  if (returnValue.getInt("numDocsScanned") != EXPECTED_NUM_DOCS_SCANNED || returnValue.getInt("totalDocs") != EXPECTED_TOTAL_DOCS_COUNT) {
+    System.out.println("returnValue = " + returnValue);
+    throw new RuntimeException("Unexpected number of docs scanned/total docs");
+  }
+  return returnValue.getInt("totalDocs");
+}

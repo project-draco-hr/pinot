@@ -5,6 +5,9 @@
     }
     @Override public SegmentMetadata getSegmentMetadata(){
       return new SegmentMetadata(){
+        @Override public int getTotalAggregateDocs(){
+          return 0;
+        }
         @Override public Map<String,String> toMap(){
           return null;
         }
@@ -56,8 +59,14 @@
         @Override public boolean close(){
           return false;
         }
+        @Override public boolean hasStarTree(){
+          return false;
+        }
       }
 ;
+    }
+    @Override public StarTreeIndexNode getStarTreeRoot(){
+      return null;
     }
     @Override public IndexType getIndexType(){
       return null;

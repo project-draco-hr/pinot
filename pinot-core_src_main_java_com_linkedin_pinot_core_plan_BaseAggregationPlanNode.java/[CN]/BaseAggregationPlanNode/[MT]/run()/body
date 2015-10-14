@@ -1,0 +1,7 @@
+{
+  List<BAggregationFunctionOperator> aggregationFunctionOperatorList=new ArrayList<BAggregationFunctionOperator>();
+  for (  BaseAggregationFunctionPlanNode aggregationFunctionPlanNode : aggregationFunctionPlanNodes) {
+    aggregationFunctionOperatorList.add((BAggregationFunctionOperator)aggregationFunctionPlanNode.run());
+  }
+  return new MAggregationOperator(indexSegment,brokerRequest.getAggregationsInfo(),(MProjectionOperator)projectionPlanNode.run(),aggregationFunctionOperatorList);
+}

@@ -1,0 +1,73 @@
+{
+  final int THREAD_COUNT=1;
+  final int SEGMENT_COUNT=5;
+  final int MIN_ROWS_PER_SEGMENT=500;
+  final int MAX_ROWS_PER_SEGMENT=1000;
+  final int OPERATIONS_PER_ITERATION=10;
+  final int ITERATION_COUNT=5;
+  final double UPLOAD_PROBABILITY=0.8d;
+  final String[] segmentNames=new String[SEGMENT_COUNT];
+  final int[] segmentRowCounts=new int[SEGMENT_COUNT];
+  for (int i=0; i < SEGMENT_COUNT; i++) {
+    segmentNames[i]="segment_" + i;
+    segmentRowCounts[i]=0;
+  }
+  for (int i=0; i < ITERATION_COUNT; i++) {
+    ExecutorService executorService=Executors.newFixedThreadPool(THREAD_COUNT);
+    for (int j=0; j < OPERATIONS_PER_ITERATION; j++) {
+      executorService.submit(new Runnable(){
+        @Override public void run(){
+          try {
+            ThreadLocalRandom random=ThreadLocalRandom.current();
+            int segmentIndex=random.nextInt(SEGMENT_COUNT);
+            String segmentName=segmentNames[segmentIndex];
+            if (random.nextDouble() < UPLOAD_PROBABILITY) {
+              LOGGER.info("Will upload segment {}",segmentName);
+synchronized (segmentName) {
+                int segmentRowCount=random.nextInt(MIN_ROWS_PER_SEGMENT,MAX_ROWS_PER_SEGMENT);
+                LOGGER.info("Generating and uploading segment {} with {} rows",segmentName,segmentRowCount);
+                generateAndUploadRandomSegment(segmentName,segmentRowCount);
+                LOGGER.info("Uploaded segment {} with {} rows",segmentName,segmentRowCount);
+                segmentRowCounts[segmentIndex]=segmentRowCount;
+              }
+            }
+ else {
+              LOGGER.info("Will delete segment {}",segmentName);
+synchronized (segmentName) {
+                LOGGER.info("Deleting segment {}",segmentName);
+                String reply=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forSegmentDelete("myresource",segmentName));
+                LOGGER.info("Deletion returned {}",reply);
+                LOGGER.info("Deleted segment {}",segmentName);
+                segmentRowCounts[segmentIndex]=0;
+              }
+            }
+          }
+ catch (          Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
+);
+    }
+    executorService.shutdown();
+    executorService.awaitTermination(5L,TimeUnit.MINUTES);
+    int expectedRowCount=0;
+    for (    int segmentRowCount : segmentRowCounts) {
+      expectedRowCount+=segmentRowCount;
+    }
+    LOGGER.info("Awaiting for the row count to match {}",expectedRowCount);
+    int pinotRowCount=(int)getCurrentServingNumDocs();
+    long timeInOneMinute=System.currentTimeMillis() + 60 * 1000L;
+    while (System.currentTimeMillis() < timeInOneMinute && pinotRowCount != expectedRowCount) {
+      LOGGER.info("Row count is {}, expected {}, awaiting for row count to match",pinotRowCount,expectedRowCount);
+      Thread.sleep(5000L);
+      try {
+        pinotRowCount=(int)getCurrentServingNumDocs();
+      }
+ catch (      Exception e) {
+        LOGGER.warn("Caught exception while sending query to Pinot, retrying",e);
+      }
+    }
+    Assert.assertEquals(pinotRowCount,expectedRowCount,"Expected and actual row counts don't match after waiting one minute");
+  }
+}

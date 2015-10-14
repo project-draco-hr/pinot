@@ -1,0 +1,32 @@
+{
+  if (brokerRequest.isSetAggregationsInfo()) {
+    if (!brokerRequest.isSetGroupBy()) {
+      if (indexSegment.getSegmentMetadata().hasStarTree() && isConjunctiveAggregateQuery(brokerRequest)) {
+        return new StarTreeAggregationPlanNode(indexSegment,brokerRequest);
+      }
+ else {
+        return new RawAggregationPlanNode(indexSegment,brokerRequest);
+      }
+    }
+ else {
+      PlanNode aggregationGroupByPlanNode;
+      if (indexSegment instanceof IndexSegmentImpl) {
+        if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
+          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
+        }
+ else {
+          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+        }
+      }
+ else {
+        aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.NoDictionary);
+      }
+      return aggregationGroupByPlanNode;
+    }
+  }
+  if (brokerRequest.isSetSelections()) {
+    final PlanNode selectionPlanNode=new SelectionPlanNode(indexSegment,brokerRequest);
+    return selectionPlanNode;
+  }
+  throw new UnsupportedOperationException("The query contains no aggregation or selection!");
+}

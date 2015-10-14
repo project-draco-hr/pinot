@@ -1,5 +1,7 @@
 {
   IOUtils.closeQuietly(raf);
   raf=null;
-  MmapUtils.unloadByteBuffer(byteBuffer);
+  if (ownsByteBuffer) {
+    MmapUtils.unloadByteBuffer(byteBuffer);
+  }
 }

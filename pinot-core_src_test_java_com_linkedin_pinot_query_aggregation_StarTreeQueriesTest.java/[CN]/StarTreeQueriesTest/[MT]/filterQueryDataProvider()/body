@@ -1,0 +1,27 @@
+{
+  int numRandom=1000;
+  Random random=new Random();
+  List<Object[]> combinations=new ArrayList<>();
+  combinations.add(new Object[]{ImmutableMap.of("D0","0","D1","0")});
+  combinations.add(new Object[]{ImmutableMap.of("D0","0")});
+  combinations.add(new Object[]{ImmutableMap.of("D1","1")});
+  combinations.add(new Object[]{ImmutableMap.of("D2","1")});
+  combinations.add(new Object[]{ImmutableMap.of()});
+  combinations.add(new Object[]{ImmutableMap.of("D0","1","D2","120")});
+  combinations.add(new Object[]{ImmutableMap.of("D0","1","D1","43","D2","43")});
+  combinations.add(new Object[]{ImmutableMap.of("D0","0","D1","40","D2","104")});
+  for (int i=0; i < numRandom; i++) {
+    Map<String,String> combination=new HashMap<>();
+    if (random.nextInt(2) == 0) {
+      combination.put("D0",String.valueOf(random.nextInt(d0Cardinality)));
+    }
+    if (random.nextInt(2) == 0) {
+      combination.put("D1",String.valueOf(random.nextInt(d1Cardinality)));
+    }
+    if (random.nextInt(2) == 0) {
+      combination.put("D2",String.valueOf(random.nextInt(d2Cardinality)));
+    }
+    combinations.add(new Object[]{combination});
+  }
+  return combinations.toArray(new Object[][]{});
+}

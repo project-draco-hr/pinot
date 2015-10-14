@@ -4,5 +4,11 @@
   for (  String column : metadata.getColumnMetadataMap().keySet()) {
     indexContainerMap.put(column,ColumnIndexContainer.init(column,indexDir,metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata,readMode));
   }
-  return new IndexSegmentImpl(indexDir,metadata,indexContainerMap);
+  StarTreeIndexNode starTreeRoot=null;
+  if (metadata.hasStarTree()) {
+    File starTreeFile=new File(indexDir,V1Constants.STARTREE_FILE);
+    LOGGER.debug("Loading star tree index file {}",starTreeFile);
+    starTreeRoot=StarTreeIndexNode.fromBytes(new FileInputStream(starTreeFile));
+  }
+  return new IndexSegmentImpl(indexDir,metadata,indexContainerMap,starTreeRoot);
 }

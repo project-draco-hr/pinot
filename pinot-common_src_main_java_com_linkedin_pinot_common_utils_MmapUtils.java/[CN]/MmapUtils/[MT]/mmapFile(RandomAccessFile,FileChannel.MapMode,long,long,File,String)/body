@@ -1,0 +1,16 @@
+{
+  String context;
+  if (allocationContext != null) {
+    context=allocationContext.getAbsolutePath() + " (" + details+ ")";
+  }
+ else {
+    context="no file (" + details + ")";
+  }
+  MMAP_BUFFER_USAGE.addAndGet(size);
+  if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("Memory mapping file, mmap size {} with context {}, allocation after operation {}",size,context,getTrackedAllocationStatus());
+  }
+  final MappedByteBuffer byteBuffer=randomAccessFile.getChannel().map(mode,position,size);
+  BUFFER_TO_CONTEXT_MAP.put(byteBuffer,new AllocationContext(context,AllocationType.MMAP));
+  return byteBuffer;
+}

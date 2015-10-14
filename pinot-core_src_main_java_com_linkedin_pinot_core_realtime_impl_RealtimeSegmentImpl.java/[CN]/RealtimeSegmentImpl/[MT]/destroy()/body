@@ -1,3 +1,21 @@
 {
-  throw new UnsupportedOperationException("not implemented");
+  for (  DataFileReader dfReader : columnIndexReaderWriterMap.values()) {
+    try {
+      dfReader.close();
+    }
+ catch (    IOException e) {
+      LOGGER.error("Failed to close index. Service will continue with potential memory leak, error: ",e);
+    }
+  }
+  columnIndexReaderWriterMap.clear();
+  for (  RealtimeInvertedIndex index : invertedIndexMap.values()) {
+    try {
+      index.close();
+    }
+ catch (    IOException e) {
+      LOGGER.error("Failed to close inverted index. Service will continue with memory leaks, error: ",e);
+    }
+  }
+  invertedIndexMap.clear();
+  _segmentMetadata.close();
 }

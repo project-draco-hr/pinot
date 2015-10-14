@@ -11,7 +11,7 @@
   }
   out.close();
   RandomAccessFile raf=new RandomAccessFile(FILE_NAME,"rw");
-  mmappedByteBuffer=raf.getChannel().map(MapMode.READ_WRITE,0L,raf.length());
+  mmappedByteBuffer=MmapUtils.mmapFile(raf,MapMode.READ_WRITE,0L,raf.length(),new File(FILE_NAME)," Speed test mmappedByteBuffer");
   mmappedByteBuffer.load();
   int toSelect=(int)(SIZE * readPercentage);
   readIndices=new int[toSelect];

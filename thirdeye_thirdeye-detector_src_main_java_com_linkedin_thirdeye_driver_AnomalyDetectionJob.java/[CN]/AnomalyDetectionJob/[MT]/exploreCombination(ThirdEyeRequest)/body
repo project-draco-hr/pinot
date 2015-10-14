@@ -9,8 +9,15 @@
     throw new JobExecutionException(e);
   }
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : res.entrySet()) {
+    if (entry.getValue().getTimeWindowSet().size() < 2) {
+      LOG.warn("Insufficient data for {} to run anomaly detection function",entry.getKey());
+      continue;
+    }
     try {
+      long startTime=System.currentTimeMillis();
       List<AnomalyResult> results=anomalyFunction.analyze(entry.getKey(),entry.getValue(),windowStart,windowEnd,knownAnomalies);
+      long endTime=System.currentTimeMillis();
+      histogram.update(endTime - startTime);
       handleResults(results);
       results.removeAll(knownAnomalies);
       if (!results.isEmpty()) {

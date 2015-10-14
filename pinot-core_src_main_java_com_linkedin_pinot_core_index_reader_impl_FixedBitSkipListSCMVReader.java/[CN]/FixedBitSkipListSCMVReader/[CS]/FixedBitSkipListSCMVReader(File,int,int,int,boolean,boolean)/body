@@ -11,9 +11,9 @@
   raf=new RandomAccessFile(file,"rw");
   this.isMmap=isMmap;
   if (isMmap) {
-    chunkOffsetsBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,chunkOffsetHeaderSize);
-    bitsetBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize,bitsetSize);
-    rawDataBuffer=raf.getChannel().map(FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize + bitsetSize,rawDataSize);
+    chunkOffsetsBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,0,chunkOffsetHeaderSize,file,this.getClass().getSimpleName() + " chunkOffsetsBuffer");
+    bitsetBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize,bitsetSize,file,this.getClass().getSimpleName() + " bitsetBuffer");
+    rawDataBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize + bitsetSize,rawDataSize,file,this.getClass().getSimpleName() + " rawDataBuffer");
     chunkOffsetsReader=new FixedByteWidthRowColDataFileReader(chunkOffsetsBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT});
     customBitSet=CustomBitSet.withByteBuffer(bitsetSize,bitsetBuffer);
     rawDataReader=FixedBitWidthRowColDataFileReader.forByteBuffer(rawDataBuffer,totalNumValues,1,new int[]{columnSizeInBits},new boolean[]{signed});

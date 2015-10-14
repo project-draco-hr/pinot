@@ -1,30 +1,33 @@
 {
   List<String> segmentsToToggle;
   JSONArray ret=new JSONArray();
+  long timeOutInSeconds=10L;
   if (segmentName != null) {
     segmentsToToggle=new ArrayList<String>();
     segmentsToToggle.add(segmentName);
   }
  else {
     segmentsToToggle=_pinotHelixResourceManager.getAllSegmentsForResource(tableName);
-  }
-  long timeOutInSeconds=10;
-  for (  String segmentToToggle : segmentsToToggle) {
-    JSONObject jsonObj=new JSONObject();
-    jsonObj.put(TABLE_NAME,tableName);
     if (StateType.ENABLE.name().equalsIgnoreCase(state)) {
-      jsonObj.put(STATE,_pinotHelixResourceManager.toggleSegmentState(tableName,segmentToToggle,true,timeOutInSeconds).toJSON().toString());
-    }
- else     if (StateType.DISABLE.name().equalsIgnoreCase(state)) {
-      jsonObj.put(STATE,_pinotHelixResourceManager.toggleSegmentState(tableName,segmentToToggle,false,timeOutInSeconds));
-    }
- else     if (StateType.DROP.name().equalsIgnoreCase(state)) {
-      jsonObj.put(STATE,_pinotHelixResourceManager.dropSegment(tableName,segmentToToggle).toJSON().toString());
-    }
+      int instanceCount=_pinotHelixResourceManager.getAllInstanceNames().size();
+      if (instanceCount != 0) {
+        timeOutInSeconds=(long)((_offlineToOnlineTimeoutInseconds * segmentsToToggle.size()) / instanceCount);
+      }
  else {
-      jsonObj.put(STATE,new PinotResourceManagerResponse(INVALID_STATE_ERROR,false).toJSON().toString());
+        return new PinotResourceManagerResponse("Error: could not find any instances in table " + tableName,false);
+      }
     }
-    ret.put(jsonObj);
   }
-  return ret;
+  if (StateType.ENABLE.name().equalsIgnoreCase(state)) {
+    return _pinotHelixResourceManager.toggleSegmentState(tableName,segmentsToToggle,true,timeOutInSeconds);
+  }
+ else   if (StateType.DISABLE.name().equalsIgnoreCase(state)) {
+    return _pinotHelixResourceManager.toggleSegmentState(tableName,segmentsToToggle,false,timeOutInSeconds);
+  }
+ else   if (StateType.DROP.name().equalsIgnoreCase(state)) {
+    return _pinotHelixResourceManager.dropSegments(tableName,segmentsToToggle,timeOutInSeconds);
+  }
+ else {
+    return new PinotResourceManagerResponse(INVALID_STATE_ERROR,false);
+  }
 }

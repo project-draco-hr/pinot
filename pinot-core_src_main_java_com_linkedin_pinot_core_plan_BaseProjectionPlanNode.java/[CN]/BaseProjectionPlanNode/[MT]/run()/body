@@ -1,0 +1,15 @@
+{
+  long start=System.currentTimeMillis();
+  if (projectionOperator == null) {
+    Map<String,DataSource> dataSourceMap=new HashMap<String,DataSource>();
+    BReusableFilteredDocIdSetOperator docIdSetOperator=(BReusableFilteredDocIdSetOperator)docIdSetPlanNode.run();
+    long endTime1=System.currentTimeMillis();
+    for (    String column : dataSourcePlanNodeMap.keySet()) {
+      dataSourceMap.put(column,(DataSource)dataSourcePlanNodeMap.get(column).run());
+    }
+    projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
+  }
+  long end=System.currentTimeMillis();
+  LOGGER.debug("Time take in ProjectionPlanNode: " + (end - start));
+  return projectionOperator;
+}

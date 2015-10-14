@@ -1,0 +1,12 @@
+{
+  if (tree.getChildren() == null) {
+    return FilterOperator.EQUALITY.equals(tree.getOperator()) && tree.getValue().size() == 1;
+  }
+ else {
+    boolean res=FilterOperator.AND.equals(tree.getOperator());
+    for (    FilterQueryTree subTree : tree.getChildren()) {
+      res&=isSimpleConjunction(subTree);
+    }
+    return res;
+  }
+}

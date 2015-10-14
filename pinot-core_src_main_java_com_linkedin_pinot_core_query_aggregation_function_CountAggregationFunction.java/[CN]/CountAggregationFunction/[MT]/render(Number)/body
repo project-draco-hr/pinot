@@ -1,0 +1,13 @@
+{
+  try {
+    if (reduceResult == null) {
+      reduceResult=new MutableLongValue(0L);
+    }
+    return new JSONObject().put("value",reduceResult.toString());
+  }
+ catch (  JSONException e) {
+    LOGGER.error("Caught exception while rendering to JSON",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
+  }
+}
