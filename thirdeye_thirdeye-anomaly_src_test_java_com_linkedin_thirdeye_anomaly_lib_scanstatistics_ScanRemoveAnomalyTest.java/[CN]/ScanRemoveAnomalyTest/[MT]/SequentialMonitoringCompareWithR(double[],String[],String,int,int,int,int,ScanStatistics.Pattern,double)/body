@@ -1,0 +1,59 @@
+{
+  int numData=series.length;
+  double up_level=1.0;
+  double down_level=1.0;
+  double notequal_level=1.0;
+  if (target_pattern == ScanStatistics.Pattern.UP) {
+    up_level=target_level;
+  }
+ else   if (target_pattern == ScanStatistics.Pattern.DOWN) {
+    down_level=target_level;
+  }
+ else   if (target_pattern == ScanStatistics.Pattern.NOTEQUAL) {
+    notequal_level=target_level;
+  }
+  long[] timestamps=new long[numData];
+  for (int i=0; i < numData; i++) {
+    timestamps[i]=i;
+  }
+  int monitor_start=training_size;
+  int monitor_end=series.length - scan_size;
+  Set<Long> targetAnomalousTimestamps=new HashSet<Long>();
+  System.out.println(monitor_start + "," + monitor_end+ ","+ series.length);
+  ArrayList<String> output_list=new ArrayList<String>();
+  int training_size_for_scan=training_size - monitor_size + scan_size;
+  for (int monitor_idx=monitor_start; monitor_idx <= monitor_end; monitor_idx+=scan_size) {
+    int current_monitor_start=0;
+    int current_monitor_end=0;
+    int current_train_start=0;
+    int current_train_end=0;
+    current_monitor_end=monitor_idx + scan_size;
+    current_monitor_start=current_monitor_end - monitor_size;
+    current_train_end=current_monitor_start;
+    current_train_start=current_train_end - training_size_for_scan;
+    System.out.println(monitor_idx + "," + inputTimestamps[current_monitor_start]+ ","+ inputTimestamps[current_monitor_end - 1]);
+    double[] train=Arrays.copyOfRange(series,current_train_start,current_train_end);
+    double[] monitor=Arrays.copyOfRange(series,current_monitor_start,current_monitor_end);
+    long[] trainingTimestamps=Arrays.copyOfRange(timestamps,current_train_start,current_train_end);
+    ScanStatistics scanStatistics=new ScanStatistics(numSims,1,100000,0.05,target_pattern,1,false,up_level,down_level,notequal_level);
+    double[] trainingDataWithOutTargetAnomalies=ScanStatisticsAnomalyDetectionFunction.removeAnomalies(trainingTimestamps,train,targetAnomalousTimestamps);
+    Range<Integer> target_anomaly=scanStatistics.getInterval(trainingDataWithOutTargetAnomalies,monitor);
+    if (target_anomaly != null) {
+      for (int i=target_anomaly.lowerEndpoint(); i < target_anomaly.upperEndpoint(); i++) {
+        targetAnomalousTimestamps.add((long)(i + current_monitor_start));
+      }
+      Range<Integer> anomalyOffset=Range.closedOpen(target_anomaly.lowerEndpoint() + current_monitor_start,target_anomaly.upperEndpoint() + current_monitor_start);
+      output_list.add(anomalyOffset.lowerEndpoint() + "," + inputTimestamps[anomalyOffset.lowerEndpoint()]+ ","+ (anomalyOffset.upperEndpoint() - 1)+ ","+ inputTimestamps[anomalyOffset.upperEndpoint() - 1]+ ","+ current_monitor_start+ ","+ inputTimestamps[current_monitor_start]+ ","+ (current_monitor_end - 1)+ ","+ inputTimestamps[current_monitor_end - 1]);
+      System.out.println(inputTimestamps[anomalyOffset.lowerEndpoint()] + "," + inputTimestamps[anomalyOffset.upperEndpoint() - 1]);
+    }
+  }
+  File file=new File(outputFilename);
+  OutputStream fop=new FileOutputStream(file);
+  BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(fop));
+  for (  String element : output_list) {
+    System.out.println(element);
+    writer.write(element);
+    writer.newLine();
+  }
+  writer.close();
+}

@@ -7,14 +7,12 @@
   ScanIntervalIterator scanWindowIterator=new ScanIntervalIterator(0,monitoringData.length,_minWindowLength,_maxWindowLength,_minIncrement);
   MaxInterval realDataInterval=generateMaxLikelihood(scanWindowIterator,trainingData,monitoringData,trainDataDs);
   if (realDataInterval.getInterval() == null) {
-    LOGGER.info("no interval generated");
     return null;
   }
   int numExceeded=0;
   int exceededCountThreshold=(int)(_pValue * _numSimulation);
   double[] simulationBuffer=new double[monitoringData.length];
   for (int ii=0; ii < _numSimulation; ii++) {
-    LOGGER.info("started simulation {}",ii);
     if (_bootstrap) {
       simulateBootstrapInPlace(simulationBuffer,trainingData);
     }
@@ -23,7 +21,6 @@
     }
     ScanIntervalIterator simulationScanWindowIterator=new ScanIntervalIterator(0,monitoringData.length,_minWindowLength,_maxWindowLength,_minIncrement);
     MaxInterval simulationResult=generateMaxLikelihood(simulationScanWindowIterator,trainingData,simulationBuffer,trainDataDs);
-    LOGGER.info("finished simulation {} : {}",ii,simulationResult.getMaxLikelihood());
     if (simulationResult.getInterval() != null && realDataInterval.getMaxLikelihood() < simulationResult.getMaxLikelihood()) {
       numExceeded++;
       if (numExceeded >= exceededCountThreshold) {
@@ -31,7 +28,6 @@
       }
     }
   }
-  LOGGER.info("real one: {} (percentile {})",realDataInterval.getMaxLikelihood(),1 - (numExceeded / (double)_numSimulation));
   if (numExceeded < exceededCountThreshold) {
     return realDataInterval.getInterval();
   }

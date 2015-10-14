@@ -1,0 +1,64 @@
+{
+  int numData=series.length;
+  double up_level=1.0;
+  double down_level=1.0;
+  double notequal_level=1.0;
+  if (target_pattern == ScanStatistics.Pattern.UP) {
+    up_level=target_level;
+  }
+ else   if (target_pattern == ScanStatistics.Pattern.DOWN) {
+    down_level=target_level;
+  }
+ else   if (target_pattern == ScanStatistics.Pattern.NOTEQUAL) {
+    notequal_level=target_level;
+  }
+  long[] timestamps=new long[numData];
+  for (int i=0; i < numData; i++) {
+    timestamps[i]=i;
+  }
+  int monitor_start=training_size;
+  int monitor_end=series.length - monitor_size;
+  Set<Long> targetAnomalousTimestamps=new HashSet<Long>();
+  ArrayList<String> output_list=new ArrayList<String>();
+  for (int monitor_idx=monitor_start; monitor_idx <= monitor_end; monitor_idx+=scan_size) {
+    System.out.println(monitor_idx);
+    double[] training_before_deseason_series=Arrays.copyOfRange(series,monitor_idx - training_size,monitor_idx);
+    double[] train=new double[training_size];
+    double[][] data=STLTest.removeSeasonality(Arrays.copyOfRange(timestamps,monitor_idx - training_size,monitor_idx),training_before_deseason_series,168,15,1,0.75,0.10,true);
+    double[] data_trend=data[0];
+    double[] data_remainder=data[1];
+    double[] data_seasonal=data[2];
+    double[] monitor=Arrays.copyOfRange(series,monitor_idx,monitor_idx + monitor_size);
+    for (int ii=0; ii < training_size; ii++) {
+      train[ii]=data_trend[ii] + data_remainder[ii];
+    }
+    for (int ii=0; ii < monitor_size; ii++) {
+      int tmp_idx=training_size + ii - 168;
+      while (tmp_idx >= training_size) {
+        tmp_idx=tmp_idx - 168;
+      }
+      monitor[ii]=monitor[ii] - data_seasonal[tmp_idx];
+    }
+    long[] trainingTimestamps=Arrays.copyOfRange(timestamps,monitor_idx - training_size,monitor_idx);
+    ScanStatistics scanStatistics=new ScanStatistics(numSims,1,100000,0.05,target_pattern,1,false,up_level,down_level,notequal_level);
+    double[] trainingDataWithOutTargetAnomalies=ScanStatisticsAnomalyDetectionFunction.removeAnomalies(trainingTimestamps,train,targetAnomalousTimestamps);
+    Range<Integer> target_anomaly=scanStatistics.getInterval(trainingDataWithOutTargetAnomalies,monitor);
+    if (target_anomaly != null) {
+      for (int i=target_anomaly.lowerEndpoint(); i < target_anomaly.upperEndpoint(); i++) {
+        targetAnomalousTimestamps.add((long)(i + monitor_idx));
+      }
+      Range<Integer> anomalyOffset=Range.closedOpen(target_anomaly.lowerEndpoint() + monitor_idx,target_anomaly.upperEndpoint() + monitor_idx);
+      output_list.add(anomalyOffset.lowerEndpoint() + "," + inputTimestamps[anomalyOffset.lowerEndpoint()]+ ","+ anomalyOffset.upperEndpoint()+ ","+ inputTimestamps[anomalyOffset.upperEndpoint()]+ ","+ monitor_idx+ ","+ inputTimestamps[monitor_idx]+ ","+ (monitor_idx + monitor_size - 1)+ ","+ inputTimestamps[monitor_idx + monitor_size - 1]);
+      System.out.println(inputTimestamps[anomalyOffset.lowerEndpoint()] + "," + inputTimestamps[anomalyOffset.upperEndpoint()]);
+    }
+  }
+  File file=new File(outputFilename);
+  OutputStream fop=new FileOutputStream(file);
+  BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(fop));
+  for (  String element : output_list) {
+    System.out.println(element);
+    writer.write(element);
+    writer.newLine();
+  }
+  writer.close();
+}

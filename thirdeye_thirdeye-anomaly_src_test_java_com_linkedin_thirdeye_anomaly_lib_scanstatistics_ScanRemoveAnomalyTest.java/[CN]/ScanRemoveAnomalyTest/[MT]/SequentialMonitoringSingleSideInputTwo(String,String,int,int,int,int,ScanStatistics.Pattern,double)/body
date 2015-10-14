@@ -1,0 +1,10 @@
+{
+  int[] columns={1};
+  double[] series=GetData(deSeasonalInputFilename,columns);
+  String[] inputTimestamps=GetTimestamp(deSeasonalInputFilename,0);
+  long[] timestamps=new long[series.length];
+  for (int ii=0; ii < series.length; ii++) {
+    timestamps[ii]=ii;
+  }
+  SequentialMonitoringCompareWithR(series,inputTimestamps,outputFilename,training_size,monitor_size,scan_size,numSims,target_pattern,target_level);
+}

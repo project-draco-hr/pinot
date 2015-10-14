@@ -1,0 +1,13 @@
+{
+  String[] lines=ResourceUtils.getResourceAsString(filename).split("\n");
+  int numData=lines.length;
+  double[] deseasonal_series=new double[numData];
+  for (int i=0; i < numData; i++) {
+    String[] values=lines[i].split(",");
+    deseasonal_series[i]=0;
+    for (int idx=0; idx < columnIdx.length; idx++) {
+      deseasonal_series[i]+=Double.valueOf(values[columnIdx[idx]]);
+    }
+  }
+  return deseasonal_series;
+}
