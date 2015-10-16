@@ -22,8 +22,7 @@
   while (currentCursor.compareTo(currentEnd) < 0 && baselineCursor.compareTo(baselineEnd) < 0) {
     Number[] baselineValues=baselineData.get(baselineCursor.getMillis());
     Number[] currentValues=currentData.get(currentCursor.getMillis());
-    long hourOfDay=currentCursor.getHourOfDay();
-    FunnelHeatMapRow row=new FunnelHeatMapRow(hourOfDay,baselineValues,currentValues);
+    FunnelHeatMapRow row=new FunnelHeatMapRow(new DateTime(baselineCursor).toDateTime(DateTimeZone.UTC),baselineValues,new DateTime(currentCursor).toDateTime(DateTimeZone.UTC),currentValues);
     table.add(row);
     currentCursor=currentCursor.plusHours(1);
     baselineCursor=baselineCursor.plusHours(1);
@@ -69,11 +68,11 @@
       cumulativeBaseline[i]=cumulativeBaseline[i].doubleValue() + (baselineValue == null ? 0.0 : baselineValue.doubleValue());
       cumulativeCurrent[i]=cumulativeCurrent[i].doubleValue() + (currentValue == null ? 0.0 : currentValue.doubleValue());
     }
-    FunnelHeatMapRow filteredRow=new FunnelHeatMapRow(row.getHour(),filteredBaseline,filteredCurrent);
+    FunnelHeatMapRow filteredRow=new FunnelHeatMapRow(row.getBaselineTime(),filteredBaseline,row.getCurrentTime(),filteredCurrent);
     filteredTable.add(filteredRow);
     Number[] cumulativeBaselineCopy=Arrays.copyOf(cumulativeBaseline,cumulativeBaseline.length);
     Number[] cumulativeCurrentCopy=Arrays.copyOf(cumulativeCurrent,cumulativeCurrent.length);
-    FunnelHeatMapRow cumulativeFilteredRow=new FunnelHeatMapRow(row.getHour(),cumulativeBaselineCopy,cumulativeCurrentCopy);
+    FunnelHeatMapRow cumulativeFilteredRow=new FunnelHeatMapRow(row.getBaselineTime(),cumulativeBaselineCopy,row.getCurrentTime(),cumulativeCurrentCopy);
     filteredCumulativeTable.add(cumulativeFilteredRow);
   }
   return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentEnd,baselineEnd);
