@@ -1,7 +1,6 @@
 {
   List<FlotTimeSeries> allSeries=new ArrayList<>();
-  List<String> dimensions=queryResult.getDimensions();
-  String dimensionNamesJson=objectMapper.writeValueAsString(dimensions);
+  String dimensionNamesJson=objectMapper.writeValueAsString(queryResult.getDimensions());
   Map<String,String> aliases=getAliases(schema);
   for (  Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
     Map<String,List<Number[]>> timeSeriesByMetric=new HashMap<>();
@@ -19,51 +18,33 @@
     for (    Map.Entry<String,List<Number[]>> metricSeriesEntry : timeSeriesByMetric.entrySet()) {
       List<Number[]> series=metricSeriesEntry.getValue();
       Collections.sort(series,COMPARATOR_BY_TIME);
-      StringBuilder oldLabel=new StringBuilder();
       StringBuilder label=new StringBuilder();
       if (labelPrefix != null) {
-        oldLabel.append(labelPrefix);
         label.append(labelPrefix);
       }
       String metricName=metricSeriesEntry.getKey();
       String metricAlias=aliases.get(metricName);
       if (metricAlias == null) {
-        oldLabel.append(metricName);
         label.append(metricName);
       }
  else {
-        oldLabel.append(metricAlias);
         label.append(metricAlias);
       }
       if (queryResult.getData().size() > 1) {
-        oldLabel.append(" (").append(entry.getKey()).append(")");
-        String[] dimensionValues=objectMapper.reader(String[].class).readValue(entry.getKey());
-        List<String> dimensionPairs=new LinkedList<String>();
-        label.append(" (");
-        for (int i=0; i < dimensions.size(); i++) {
-          String dim=dimensions.get(i);
-          String dimValue=dimensionValues[i];
-          if (!"*".equals(dimValue)) {
-            dimensionPairs.add(String.format("%s:\"%s\"",dim,dimValue));
-          }
-        }
-        label.append(StringUtils.join(dimensionPairs,","));
-        label.append(")");
+        label.append(" (").append(entry.getKey()).append(")");
       }
       if (series.size() > 1) {
         double baseline=series.get(0)[1].doubleValue();
         if (baseline > 0) {
           double current=series.get(series.size() - 1)[1].doubleValue();
           double percentChange=100 * (current - baseline) / baseline;
-          oldLabel.append(String.format(" (%.2f%%)",percentChange));
           label.append(String.format(" (%.2f%%)",percentChange));
         }
  else {
-          oldLabel.append(" (N/A)");
           label.append(" (N/A)");
         }
       }
-      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,oldLabel.toString(),label.toString(),series,null));
+      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),series,null));
     }
   }
   return allSeries;

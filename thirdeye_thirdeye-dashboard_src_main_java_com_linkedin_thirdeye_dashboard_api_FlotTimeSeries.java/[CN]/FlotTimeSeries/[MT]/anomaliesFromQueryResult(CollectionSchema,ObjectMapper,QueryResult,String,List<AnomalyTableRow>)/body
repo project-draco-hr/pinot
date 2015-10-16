@@ -28,7 +28,8 @@
     for (    Map.Entry<String,List<Number[]>> metricSeriesEntry : timeSeriesByMetric.entrySet()) {
       List<Number[]> series=metricSeriesEntry.getValue();
       Collections.sort(series,COMPARATOR_BY_TIME);
-      StringBuilder label=new StringBuilder(labelPrefix);
+      StringBuilder label=new StringBuilder();
+      label.append(labelPrefix);
       String metricName=metricSeriesEntry.getKey();
       String metricAlias=aliases.get(metricName);
       if (metricAlias == null) {
@@ -46,7 +47,7 @@
       if (queryResult.getData().size() > 1) {
         label.append(" (").append(entry.getKey()).append(")");
       }
-      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),label.toString(),series,annotationsByMetric.get(metricName)));
+      allSeries.add(new FlotTimeSeries(metricSeriesEntry.getKey(),entry.getKey(),dimensionNamesJson,label.toString(),series,annotationsByMetric.get(metricName)));
     }
   }
   return allSeries;
