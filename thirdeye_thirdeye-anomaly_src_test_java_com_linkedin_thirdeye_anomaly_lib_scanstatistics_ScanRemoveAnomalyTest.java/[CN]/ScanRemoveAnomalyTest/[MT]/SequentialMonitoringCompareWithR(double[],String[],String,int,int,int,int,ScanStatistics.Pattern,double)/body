@@ -36,8 +36,18 @@
     double[] monitor=Arrays.copyOfRange(series,current_monitor_start,current_monitor_end);
     long[] trainingTimestamps=Arrays.copyOfRange(timestamps,current_train_start,current_train_end);
     ScanStatistics scanStatistics=new ScanStatistics(numSims,1,100000,0.05,target_pattern,1,false,up_level,down_level,notequal_level);
-    double[] trainingDataWithOutTargetAnomalies=ScanStatisticsAnomalyDetectionFunction.removeAnomalies(trainingTimestamps,train,targetAnomalousTimestamps);
+    Set<Long> currentAnomalousTimestamps=new HashSet<Long>();
+    if (!targetAnomalousTimestamps.isEmpty()) {
+      for (      Long oneTimestamp : targetAnomalousTimestamps) {
+        if (oneTimestamp < current_monitor_start & oneTimestamp >= current_train_start) {
+          currentAnomalousTimestamps.add(oneTimestamp);
+          System.out.println("removed anomalies:" + oneTimestamp);
+        }
+      }
+    }
+    double[] trainingDataWithOutTargetAnomalies=ScanStatisticsAnomalyDetectionFunction.removeAnomalies(trainingTimestamps,train,currentAnomalousTimestamps);
     Range<Integer> target_anomaly=scanStatistics.getInterval(trainingDataWithOutTargetAnomalies,monitor);
+    System.out.println("anomaly interval" + target_anomaly);
     if (target_anomaly != null) {
       for (int i=target_anomaly.lowerEndpoint(); i < target_anomaly.upperEndpoint(); i++) {
         targetAnomalousTimestamps.add((long)(i + current_monitor_start));
