@@ -1,43 +1,31 @@
 {
   List<MetricTable> tables=new ArrayList<>();
   for (  Map.Entry<String,Map<String,Number[]>> entry : result.getData().entrySet()) {
-    List<MetricDataRow> rows=new LinkedList<>();
-    List<MetricDataRow> cumulativeRows=new LinkedList<>();
-    List<Long> times=getReverseSortedTimes(entry.getValue().keySet());
-    long windowFilled=0;
-    int idx=0;
-    while (windowFilled < intraDayPeriod && idx < times.size() - 1) {
-      long current=times.get(idx);
-      long next=times.get(idx + 1);
-      idx++;
-      int timeIndex=times.indexOf(current - baselineOffsetMillis);
-      if (timeIndex < 0) {
-        continue;
-      }
-      long baseline=times.get(timeIndex);
-      windowFilled+=(current - next);
-      Number[] currentData=entry.getValue().get(String.valueOf(current));
-      Number[] baselineData=entry.getValue().get(String.valueOf(baseline));
-      rows.add(0,new MetricDataRow(new DateTime(baseline).toDateTime(DateTimeZone.UTC),baselineData,new DateTime(current).toDateTime(DateTimeZone.UTC),currentData));
+    Map<Long,Number[]> baselineData=new HashMap<>();
+    for (    Map.Entry<String,Number[]> dataEntry : entry.getValue().entrySet()) {
+      baselineData.put(Long.valueOf(dataEntry.getKey()),dataEntry.getValue());
     }
+    Map<Long,Number[]> currentData=baselineData;
+    List<MetricDataRow> rows=ViewUtils.extractMetricDataRows(baselineData,currentData,currentMillis,baselineOffsetMillis,intraDayPeriod);
+    List<MetricDataRow> cumulativeRows=new LinkedList<>();
     if (!rows.isEmpty()) {
       int metricCount=result.getMetrics().size();
-      Number[] cumulativeBaselineData=new Number[metricCount];
-      Arrays.fill(cumulativeBaselineData,0.0);
-      Number[] cumulativeCurrentData=new Number[metricCount];
-      Arrays.fill(cumulativeCurrentData,0.0);
+      Number[] cumulativeBaselineValues=new Number[metricCount];
+      Arrays.fill(cumulativeBaselineValues,0.0);
+      Number[] cumulativeCurrentValues=new Number[metricCount];
+      Arrays.fill(cumulativeCurrentValues,0.0);
       for (      MetricDataRow row : rows) {
-        Number[] baselineData=row.getBaseline();
-        for (int i=0; i < baselineData.length; i++) {
-          cumulativeBaselineData[i]=cumulativeBaselineData[i].doubleValue() + (baselineData[i] == null ? 0.0 : baselineData[i].doubleValue());
+        Number[] baselineValues=row.getBaseline();
+        for (int i=0; i < baselineValues.length; i++) {
+          cumulativeBaselineValues[i]=cumulativeBaselineValues[i].doubleValue() + (baselineValues[i] == null ? 0.0 : baselineValues[i].doubleValue());
         }
-        Number[] currentData=row.getCurrent();
-        for (int i=0; i < currentData.length; i++) {
-          cumulativeCurrentData[i]=cumulativeCurrentData[i].doubleValue() + (currentData[i] == null ? 0.0 : currentData[i].doubleValue());
+        Number[] currentValues=row.getCurrent();
+        for (int i=0; i < currentValues.length; i++) {
+          cumulativeCurrentValues[i]=cumulativeCurrentValues[i].doubleValue() + (currentValues[i] == null ? 0.0 : currentValues[i].doubleValue());
         }
-        Number[] cumulativeBaselineDataCopy=Arrays.copyOf(cumulativeBaselineData,cumulativeBaselineData.length);
-        Number[] cumulativeCurrentDataCopy=Arrays.copyOf(cumulativeCurrentData,cumulativeCurrentData.length);
-        MetricDataRow cumulativeRow=new MetricDataRow(row.getBaselineTime(),cumulativeBaselineDataCopy,row.getCurrentTime(),cumulativeCurrentDataCopy);
+        Number[] cumulativeBaselineValuesCopy=Arrays.copyOf(cumulativeBaselineValues,cumulativeBaselineValues.length);
+        Number[] cumulativeCurrentValuesCopy=Arrays.copyOf(cumulativeCurrentValues,cumulativeCurrentValues.length);
+        MetricDataRow cumulativeRow=new MetricDataRow(row.getBaselineTime(),cumulativeBaselineValuesCopy,row.getCurrentTime(),cumulativeCurrentValuesCopy);
         cumulativeRows.add(cumulativeRow);
       }
     }

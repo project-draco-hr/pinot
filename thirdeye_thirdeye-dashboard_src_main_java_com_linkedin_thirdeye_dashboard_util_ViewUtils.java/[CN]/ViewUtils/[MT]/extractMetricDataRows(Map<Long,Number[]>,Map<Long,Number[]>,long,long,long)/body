@@ -1,0 +1,20 @@
+{
+  long currentStartMillis=currentEndMillis - intraPeriod;
+  List<Long> sortedTimes=new ArrayList<>(currentData.keySet());
+  Collections.sort(sortedTimes,Collections.reverseOrder());
+  List<MetricDataRow> table=new LinkedList<MetricDataRow>();
+  for (  long current : sortedTimes) {
+    if (current >= currentEndMillis) {
+      continue;
+    }
+ else     if (current < currentStartMillis) {
+      break;
+    }
+    long baseline=current - baselineOffsetMillis;
+    Number[] baselineValues=baselineData.get(baseline);
+    Number[] currentValues=currentData.get(current);
+    MetricDataRow row=new MetricDataRow(new DateTime(baseline).toDateTime(DateTimeZone.UTC),baselineValues,new DateTime(current).toDateTime(DateTimeZone.UTC),currentValues);
+    table.add(0,row);
+  }
+  return table;
+}
