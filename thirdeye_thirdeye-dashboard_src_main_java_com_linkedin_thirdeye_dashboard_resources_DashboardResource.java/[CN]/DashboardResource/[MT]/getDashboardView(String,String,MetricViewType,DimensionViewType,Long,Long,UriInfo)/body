@@ -32,8 +32,7 @@
   if (funnelResource != null && selectedFunnels != null && selectedFunnels.length() > 0) {
     MultivaluedMap<String,String> filterMap=uriInfo.getQueryParameters();
     filterMap.remove("funnels");
-    DateTime current=new DateTime(currentMillis);
-    funnels=funnelResource.computeFunnelViews(collection,selectedFunnels,current,filterMap);
+    funnels=funnelResource.computeFunnelViews(collection,selectedFunnels,baselineMillis,currentMillis,filterMap);
     funnelNames=funnelResource.getFunnelNamesFor(collection);
   }
   try {

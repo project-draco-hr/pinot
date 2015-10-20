@@ -1,8 +1,8 @@
 {
   FunnelSpec spec=funnelSpecsMap.get(collection).getFunnels().get(funnel);
-  DateTime currentEnd=new DateTime(year,month,day,0,0);
+  DateTime currentEnd=new DateTime(currentMillis);
   DateTime currentStart=currentEnd.minusDays(1);
-  DateTime baselineEnd=currentEnd.minusDays(7);
+  DateTime baselineEnd=new DateTime(baselineMillis);
   DateTime baselineStart=baselineEnd.minusDays(1);
   String metricFunction="AGGREGATE_1_HOURS(" + METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames()) + ")";
   DimensionGroupSpec dimSpec=DimensionGroupSpec.emptySpec(collection);
