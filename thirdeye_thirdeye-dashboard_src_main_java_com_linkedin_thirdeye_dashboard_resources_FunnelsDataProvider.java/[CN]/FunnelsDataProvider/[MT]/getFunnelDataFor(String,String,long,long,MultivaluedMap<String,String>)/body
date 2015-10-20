@@ -26,11 +26,6 @@
   }
   List<MetricDataRow> filteredTable=new ArrayList<>();
   int metricCount=spec.getActualMetricNames().size();
-  List<MetricDataRow> filteredCumulativeTable=new ArrayList<>();
-  Number[] cumulativeBaseline=new Number[metricCount];
-  Arrays.fill(cumulativeBaseline,0.0);
-  Number[] cumulativeCurrent=new Number[metricCount];
-  Arrays.fill(cumulativeCurrent,0.0);
   for (  MetricDataRow row : table) {
     Number[] filteredBaseline=new Number[metricCount];
     Number[] filteredCurrent=new Number[metricCount];
@@ -57,15 +52,10 @@
         }
       }
       filteredCurrent[i]=currentValue;
-      cumulativeBaseline[i]=cumulativeBaseline[i].doubleValue() + (baselineValue == null ? 0.0 : baselineValue.doubleValue());
-      cumulativeCurrent[i]=cumulativeCurrent[i].doubleValue() + (currentValue == null ? 0.0 : currentValue.doubleValue());
     }
     MetricDataRow filteredRow=new MetricDataRow(row.getBaselineTime(),filteredBaseline,row.getCurrentTime(),filteredCurrent);
     filteredTable.add(filteredRow);
-    Number[] cumulativeBaselineCopy=Arrays.copyOf(cumulativeBaseline,cumulativeBaseline.length);
-    Number[] cumulativeCurrentCopy=Arrays.copyOf(cumulativeCurrent,cumulativeCurrent.length);
-    MetricDataRow cumulativeFilteredRow=new MetricDataRow(row.getBaselineTime(),cumulativeBaselineCopy,row.getCurrentTime(),cumulativeCurrentCopy);
-    filteredCumulativeTable.add(cumulativeFilteredRow);
   }
+  List<MetricDataRow> filteredCumulativeTable=ViewUtils.computeCumulativeRows(filteredTable,metricCount);
   return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentEnd,baselineEnd);
 }
