@@ -1,5 +1,8 @@
 {
-  AddSchemaCommand schemaAdder=new AddSchemaCommand();
-  schemaAdder.setControllerHost(_localHost).setControllerPort(_controllerPort).setSchemaFilePath(_schemaFile.getAbsolutePath()).setExecute(true);
-  schemaAdder.execute();
+  for (  QuickstartTableRequest request : tableRequests) {
+    AddSchemaCommand schemaAdder=new AddSchemaCommand();
+    schemaAdder.setControllerHost(_localHost).setControllerPort(String.valueOf(controllerPorts.get(0)));
+    schemaAdder.setSchemaFilePath(request.getSchemaFile().getAbsolutePath()).setExecute(true);
+    schemaAdder.execute();
+  }
 }

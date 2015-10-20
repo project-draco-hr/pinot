@@ -1,0 +1,11 @@
+{
+  List<String> tableNames=getAllTableNames();
+  Set<String> pinotTableNames=new HashSet<>();
+  for (  String tableName : tableNames) {
+    if (CommonConstants.Helix.NON_PINOT_RESOURCE_RESOURCE_NAMES.contains(tableName)) {
+      continue;
+    }
+    pinotTableNames.add(TableNameBuilder.extractRawTableName(tableName));
+  }
+  return pinotTableNames;
+}

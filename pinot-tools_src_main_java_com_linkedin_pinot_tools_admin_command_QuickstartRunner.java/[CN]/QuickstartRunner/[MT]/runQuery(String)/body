@@ -1,6 +1,7 @@
 {
   PostQueryCommand queryCommand=new PostQueryCommand();
-  queryCommand.setBrokerPort(Integer.toString(_brokerPort)).setQuery(query);
+  int brokerPort=brokerPorts.get(new java.util.Random().nextInt(brokerPorts.size()));
+  queryCommand.setBrokerPort(String.valueOf(brokerPort)).setQuery(query);
   String result=queryCommand.run();
   return new JSONObject(result);
 }

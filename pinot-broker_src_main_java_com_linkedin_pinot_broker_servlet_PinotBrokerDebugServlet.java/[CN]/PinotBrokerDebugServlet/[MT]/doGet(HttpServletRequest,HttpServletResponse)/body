@@ -1,0 +1,15 @@
+{
+  try {
+    System.out.println("********************************* : debug");
+    resp.getOutputStream().print(broker.getDebugInfo());
+    resp.getOutputStream().flush();
+    resp.getOutputStream().close();
+  }
+ catch (  final Exception e) {
+    resp.getOutputStream().print(e.getMessage());
+    resp.getOutputStream().flush();
+    resp.getOutputStream().close();
+    LOGGER.error("Caught exception while processing GET request",e);
+    brokerMetrics.addMeteredValue(null,BrokerMeter.UNCAUGHT_GET_EXCEPTIONS,1);
+  }
+}

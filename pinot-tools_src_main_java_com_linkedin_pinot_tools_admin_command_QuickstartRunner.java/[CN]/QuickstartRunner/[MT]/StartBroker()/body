@@ -1,5 +1,9 @@
 {
-  StartBrokerCommand brokerStarter=new StartBrokerCommand();
-  brokerStarter.setClusterName(_clusterName).setPort(_brokerPort).setZkAddress(_zkAddress);
-  brokerStarter.execute();
+  for (int i=0; i < numBrokers; i++) {
+    StartBrokerCommand brokerStarter=new StartBrokerCommand();
+    brokerStarter.setClusterName(_clusterName).setPort(_brokerPort).setZkAddress(_zkAddress);
+    brokerStarter.execute();
+    brokerPorts.add(new Integer(_brokerPort));
+    _brokerPort=_brokerPort + 1;
+  }
 }

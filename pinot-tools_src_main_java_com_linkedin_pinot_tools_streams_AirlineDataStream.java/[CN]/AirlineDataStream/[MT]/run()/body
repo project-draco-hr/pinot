@@ -1,0 +1,62 @@
+{
+  service.submit(new Runnable(){
+    @Override public void run(){
+      while (true) {
+        while (avroDataStream.hasNext()) {
+          if (keepIndexing == false) {
+            return;
+          }
+          GenericRecord record=avroDataStream.next();
+          JSONObject message=new JSONObject();
+          for (          FieldSpec spec : pinotSchema.getDimensionFieldSpecs()) {
+            try {
+              message.put(spec.getName(),record.get(spec.getName()));
+            }
+ catch (            JSONException e) {
+              logger.error(e.getMessage());
+            }
+          }
+          for (          FieldSpec spec : pinotSchema.getDimensionFieldSpecs()) {
+            try {
+              message.put(spec.getName(),record.get(spec.getName()));
+            }
+ catch (            JSONException e) {
+              logger.error(e.getMessage());
+            }
+          }
+          TimeFieldSpec spec=pinotSchema.getTimeFieldSpec();
+          String timeColumn=spec.getIncomingTimeColumnName();
+          try {
+            message.put(timeColumn,currentTimeValue);
+          }
+ catch (          JSONException e) {
+            logger.error(e.getMessage());
+          }
+          try {
+            publish(message);
+            counter++;
+            if (counter % 3000 == 0) {
+              currentTimeValue=currentTimeValue + 1;
+            }
+          }
+ catch (          Exception e) {
+            logger.error(e.getMessage());
+          }
+        }
+        try {
+          avroDataStream.close();
+        }
+ catch (        IOException e) {
+          logger.error(e.getMessage());
+        }
+        try {
+          createStream();
+        }
+ catch (        IOException e) {
+          logger.error(e.getMessage());
+        }
+      }
+    }
+  }
+);
+}

@@ -16,6 +16,7 @@
   }
   LOGGER.info("Executing command: " + toString());
   final HelixServerStarter pinotHelixStarter=new HelixServerStarter(_clusterName,_zkAddress,configuration);
-  savePID(System.getProperty("java.io.tmpdir") + File.separator + ".pinotAdminServer.pid");
+  String pidFile=".pinotAdminServer-" + String.valueOf(System.currentTimeMillis()) + ".pid";
+  savePID(System.getProperty("java.io.tmpdir") + File.separator + pidFile);
   return true;
 }

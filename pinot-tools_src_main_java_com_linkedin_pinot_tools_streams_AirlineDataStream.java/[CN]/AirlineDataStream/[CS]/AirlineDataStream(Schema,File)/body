@@ -1,0 +1,13 @@
+{
+  this.pinotSchema=pinotSchema;
+  this.avroFile=avroFile;
+  createStream();
+  Properties properties=new Properties();
+  properties.put("metadata.broker.list",KafkaStarterUtils.DEFAULT_KAFKA_BROKER);
+  properties.put("serializer.class","kafka.serializer.DefaultEncoder");
+  properties.put("request.required.acks","1");
+  ProducerConfig producerConfig=new ProducerConfig(properties);
+  producer=new Producer<String,byte[]>(producerConfig);
+  service=Executors.newFixedThreadPool(1);
+  Quickstart.printStatus(Quickstart.color.YELLOW,"***** Offine data has max time as 16101, realtime will start consuming from time 16102 and increment time every 3000 events *****");
+}

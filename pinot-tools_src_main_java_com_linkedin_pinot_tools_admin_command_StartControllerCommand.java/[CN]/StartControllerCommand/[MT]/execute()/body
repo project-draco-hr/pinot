@@ -15,12 +15,14 @@
     conf.setZkStr(_zkAddress);
     conf.setHelixClusterName(_clusterName);
     conf.setControllerVipHost(_controllerHost);
+    conf.setTenantIsolationEnabled(_tenantIsolation);
     conf.setRetentionControllerFrequencyInSeconds(3600 * 6);
     conf.setValidationControllerFrequencyInSeconds(3600);
   }
   LOGGER.info("Executing command: " + toString());
   final ControllerStarter starter=new ControllerStarter(conf);
   starter.start();
-  savePID(TMP_DIR + ".pinotAdminController.pid");
+  String pidFile=".pinotAdminController-" + String.valueOf(System.currentTimeMillis()) + ".pid";
+  savePID(System.getProperty("java.io.tmpdir") + File.separator + pidFile);
   return true;
 }

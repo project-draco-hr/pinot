@@ -1,9 +1,9 @@
 {
   JSONObject object=new JSONObject();
   JSONArray tableArray=new JSONArray();
-  List<String> tableNames=_pinotHelixResourceManager.getAllPinotTableNames();
+  Set<String> tableNames=_pinotHelixResourceManager.getAllUniquePinotRawTableNames();
   for (  String pinotTableName : tableNames) {
-    tableArray.put(TableNameBuilder.extractRawTableName(pinotTableName));
+    tableArray.put(pinotTableName);
   }
   object.put("tables",tableArray);
   return new StringRepresentation(object.toString());

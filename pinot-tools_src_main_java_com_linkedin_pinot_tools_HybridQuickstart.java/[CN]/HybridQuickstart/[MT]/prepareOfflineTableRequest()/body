@@ -1,0 +1,18 @@
+{
+  _offlineQuickStartDataDir=new File("quickStartData" + System.currentTimeMillis());
+  if (!_offlineQuickStartDataDir.exists()) {
+    _offlineQuickStartDataDir.mkdir();
+  }
+  _offlineQuickStartDataDir=new File("quickStartData" + System.currentTimeMillis());
+  if (!_offlineQuickStartDataDir.exists()) {
+    _offlineQuickStartDataDir.mkdir();
+  }
+  File schemaFile=new File(_offlineQuickStartDataDir + "/airlineStats.schema");
+  File dataFile=new File(_offlineQuickStartDataDir + "/airline.avro");
+  File tableCreationJsonFileName=new File(_offlineQuickStartDataDir + "/airlineStatsOffline_hybrid.json");
+  FileUtils.copyURLToFile(Quickstart.class.getClassLoader().getResource("sample_data/airlineStats.schema"),schemaFile);
+  FileUtils.copyURLToFile(Quickstart.class.getClassLoader().getResource("sample_data/airline.avro"),dataFile);
+  FileUtils.copyURLToFile(Quickstart.class.getClassLoader().getResource("sample_data/airlineStatsOffline_hybrid.json"),tableCreationJsonFileName);
+  String tableName="airlineStats";
+  return new QuickstartTableRequest(tableName,schemaFile,tableCreationJsonFileName,_offlineQuickStartDataDir,FileFormat.AVRO);
+}

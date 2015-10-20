@@ -4,6 +4,7 @@
   _server=new Server(clientConfig.getQueryPort());
   WebAppContext context=new WebAppContext();
   context.addServlet(PinotClientRequestServlet.class,"/query");
+  context.addServlet(PinotBrokerDebugServlet.class,"/debug");
   if (clientConfig.enableConsole()) {
     context.setResourceBase(clientConfig.getConsoleWebappPath());
   }
