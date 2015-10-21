@@ -25,5 +25,7 @@
   }
   countersMap.get(counterName).incrementAndGet();
   GenericRecord output=joinUDF.performJoin(new String(joinKeyWritable.copyBytes()),joinInput);
-  context.write(new AvroKey<GenericRecord>(output),NullWritable.get());
+  if (output != null) {
+    context.write(new AvroKey<GenericRecord>(output),NullWritable.get());
+  }
 }

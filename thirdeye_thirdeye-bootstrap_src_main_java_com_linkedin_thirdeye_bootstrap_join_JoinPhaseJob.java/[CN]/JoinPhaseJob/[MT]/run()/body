@@ -20,6 +20,11 @@
  catch (  Exception e) {
     throw new IOException(e);
   }
+  String joinConfigUDFClass=joinPhaseConfig.getJoinSpec().getJoinConfigUDFClass();
+  LOGGER.info("Initializing JoinConfigUDFClass:{} with params:{}",joinConfigUDFClass);
+  Constructor<?> constructor=Class.forName(joinConfigUDFClass).getConstructor();
+  JoinConfigUDF joinConfigUDF=(JoinConfigUDF)constructor.newInstance();
+  joinConfigUDF.setJoinConfig(job);
   List<String> sourceNames=joinPhaseConfig.getJoinSpec().getSourceNames();
   job.setMapperClass(GenericJoinMapper.class);
   job.setInputFormatClass(DelegatingAvroKeyInputFormat.class);
