@@ -6,4 +6,10 @@
   this.decodeKlass=kafkaMetadata.getDecoderClass();
   this.decoderProps=kafkaMetadata.getDecoderProperties();
   this.zkString=kafkaMetadata.getZkBrokerUrl();
+  if (tableConfig.getIndexingConfig().getStreamConfigs().containsKey(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE)) {
+    realtimeRecordsThreshold=Integer.parseInt(tableConfig.getIndexingConfig().getStreamConfigs().get(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE));
+  }
+  if (tableConfig.getIndexingConfig().getStreamConfigs().containsKey(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_TIME)) {
+    segmentTimeInMillis=Long.parseLong(tableConfig.getIndexingConfig().getStreamConfigs().get(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_TIME));
+  }
 }

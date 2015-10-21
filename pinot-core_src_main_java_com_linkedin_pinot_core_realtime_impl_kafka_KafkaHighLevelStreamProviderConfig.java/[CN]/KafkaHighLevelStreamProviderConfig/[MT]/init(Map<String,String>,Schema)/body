@@ -16,6 +16,12 @@
   if (groupId == null || zkString == null || kafkaTopicName == null || this.decodeKlass == null) {
     throw new RuntimeException("Cannot initialize KafkaHighLevelStreamProviderConfig as: " + "groupId = " + groupId + ", zkString = "+ zkString+ ", kafkaTopicName = "+ kafkaTopicName+ ", decodeKlass = "+ decodeKlass);
   }
+  if (properties.containsKey(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE)) {
+    realtimeRecordsThreshold=Integer.parseInt(properties.get(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE));
+  }
+  if (properties.containsKey(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_TIME)) {
+    segmentTimeInMillis=Long.parseLong(properties.get(Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_TIME));
+  }
   for (  String key : properties.keySet()) {
     if (key.startsWith(Helix.DataSource.Realtime.Kafka.DECODER_PROPS_PREFIX)) {
       decoderProps.put(Helix.DataSource.Realtime.Kafka.getDecoderPropertyKey(key),properties.get(key));

@@ -1,7 +1,4 @@
 {
-  this.timeInMillisToStopIndexing=DEFAULT_TIME_IN_MILLIS_TO_STOP_INDEXING;
-  segmentEndTimeThreshold=start + this.timeInMillisToStopIndexing;
-  this.numIndexedEventsToStopIndexing=DEFAULT_NUM_INDEXED_EVENTS_TO_STOP_INDEXING;
   this.schema=schema;
   if (tableConfig.getIndexingConfig().getSortedColumn().isEmpty()) {
     LOGGER.info("RealtimeDataResourceZKMetadata contains no information about sorted column");
@@ -22,6 +19,7 @@
   this.segmentName=segmentMetadata.getSegmentName();
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
   this.kafkaStreamProviderConfig.init(tableConfig,instanceMetadata,schema);
+  segmentEndTimeThreshold=start + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
   this.resourceDir=new File(resourceDataDir);
   this.resourceTmpDir=new File(resourceDataDir,"_tmp");
   if (!resourceTmpDir.exists()) {
@@ -31,7 +29,7 @@
   this.kafkaStreamProvider=new KafkaHighLevelConsumerStreamProvider();
   this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
   this.kafkaStreamProvider.start();
-  realtimeSegment=new RealtimeSegmentImpl(schema,FIVE_MILLION);
+  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment());
   ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentName(segmentMetadata.getSegmentName());
   ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentMetadata(segmentMetadata,this.schema);
   notifier=realtimeResourceManager;
