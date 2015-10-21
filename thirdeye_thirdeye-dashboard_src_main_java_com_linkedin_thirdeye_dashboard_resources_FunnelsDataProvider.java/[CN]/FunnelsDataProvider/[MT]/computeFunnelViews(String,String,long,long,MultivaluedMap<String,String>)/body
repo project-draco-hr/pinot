@@ -1,12 +1,17 @@
 {
-  String[] funnels=selectedFunnels.split(",");
-  if (funnels.length == 0) {
-    return null;
-  }
   List<FunnelHeatMapView> funnelViews=new ArrayList<FunnelHeatMapView>();
-  for (  String funnel : funnels) {
-    LOG.info("adding funnel views for collection, {}, with funnel name {}",collection,funnel);
-    funnelViews.add(getFunnelDataFor(collection,funnel,baselineMillis,currentMillis,dimensionValues));
+  if (selectedFunnels != null && selectedFunnels.length() > 0) {
+    String[] funnels=selectedFunnels.split(",");
+    if (funnels.length == 0) {
+      return null;
+    }
+    for (    String funnel : funnels) {
+      LOG.info("adding funnel views for collection, {}, with funnel name {}",collection,funnel);
+      FunnelSpec spec=funnelSpecsMap.get(collection).getFunnels().get(funnel);
+      funnelViews.add(getFunnelDataFor(collection,spec,baselineMillis,currentMillis,dimensionValues));
+    }
   }
+  FunnelSpec defaultSpec=createDefaultFunnelSpec(collection);
+  funnelViews.add(getFunnelDataFor(collection,defaultSpec,baselineMillis,currentMillis,dimensionValues));
   return funnelViews;
 }
