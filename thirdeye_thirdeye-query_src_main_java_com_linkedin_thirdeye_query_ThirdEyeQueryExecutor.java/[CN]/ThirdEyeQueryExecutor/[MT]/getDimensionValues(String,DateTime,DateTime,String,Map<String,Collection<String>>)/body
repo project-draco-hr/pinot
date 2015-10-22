@@ -1,0 +1,30 @@
+{
+  final StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
+    throw new IllegalArgumentException("No collection " + collection);
+  }
+  final List<String> dimensionNames=new ArrayList<>(config.getDimensions().size());
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    dimensionNames.add(dimensionSpec.getName());
+  }
+  final TreeSelections treeSelections=calculateTreeSelections(config,queryStart,queryEnd);
+  final List<StarTree> starTrees=getStarTrees(config,treeSelections.getAllTreeIdsToQuery());
+  List<Future<Set<String>>> dimensionValuesFutures=new LinkedList<>();
+  for (  final StarTree starTree : starTrees) {
+    Future<Set<String>> future=executorService.submit(new Callable<Set<String>>(){
+      @Override public Set<String> call() throws Exception {
+        return starTree.getDimensionValues(dimension,fixedDimensions);
+      }
+    }
+);
+    dimensionValuesFutures.add(future);
+  }
+  Set<String> dimensionValues=new HashSet<>();
+  for (  Future<Set<String>> future : dimensionValuesFutures) {
+    Set<String> values=future.get();
+    dimensionValues.addAll(values);
+  }
+  List<String> sortedValues=new ArrayList<>(dimensionValues);
+  Collections.sort(sortedValues);
+  return sortedValues;
+}

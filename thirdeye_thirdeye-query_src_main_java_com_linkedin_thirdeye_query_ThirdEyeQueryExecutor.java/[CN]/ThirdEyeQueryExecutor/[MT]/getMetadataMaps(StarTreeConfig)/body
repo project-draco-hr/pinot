@@ -1,0 +1,15 @@
+{
+  Map<UUID,IndexMetadata> immutableMetadataMap=new HashMap<>();
+  Map<UUID,IndexMetadata> realTimeMetadataMap=new HashMap<>();
+  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    UUID treeId=starTree.getRoot().getId();
+    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(treeId);
+    if ("KAFKA".equals(indexMetadata.getTimeGranularity())) {
+      realTimeMetadataMap.put(treeId,indexMetadata);
+    }
+ else {
+      immutableMetadataMap.put(treeId,indexMetadata);
+    }
+  }
+  return new Pair<Map<UUID,IndexMetadata>,Map<UUID,IndexMetadata>>(immutableMetadataMap,realTimeMetadataMap);
+}

@@ -1,0 +1,15 @@
+{
+  final List<StarTree> starTrees=new ArrayList<>(starTreeManager.getStarTrees(config.getCollection()).values());
+  final StarTree mutableTree=starTreeManager.getMutableStarTree(config.getCollection());
+  if (mutableTree != null) {
+    starTrees.add(mutableTree);
+  }
+  List<StarTree> results=new LinkedList<>();
+  for (  final StarTree starTree : starTrees) {
+    UUID treeId=starTree.getRoot().getId();
+    if (ids.contains(treeId)) {
+      results.add(starTree);
+    }
+  }
+  return results;
+}

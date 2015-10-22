@@ -56,7 +56,9 @@
   environment.healthChecks().register(KafkaConsumerLagHealthCheck.NAME,new KafkaConsumerLagHealthCheck(kafkaConsumerManager));
   environment.jersey().register(new CollectionsResource(starTreeManager,environment.metrics(),dataUpdateManager,rootDir));
   environment.jersey().register(new AdminResource());
-  environment.jersey().register(new QueryResource(new ThirdEyeQueryExecutor(parallelQueryExecutor,starTreeManager)));
+  ThirdEyeQueryExecutor queryExecutor=new ThirdEyeQueryExecutor(parallelQueryExecutor,starTreeManager);
+  environment.jersey().register(new QueryResource(queryExecutor));
+  environment.jersey().register(new DimensionResource(queryExecutor));
   environment.admin().addTask(new RestoreTask(starTreeManager,rootDir));
   environment.admin().addTask(new KafkaTask(kafkaConsumerManager));
   environment.admin().addTask(new MergeTask(starTreeManager,dataUpdateManager));
