@@ -27,16 +27,82 @@
       collectionWindowMillis=TimeUnit.MILLISECONDS.convert(window.getSize(),window.getUnit());
     }
   }
-  TreeSelections treeSelections=calculateTreeSelections(config,query.getStart(),query.getEnd(),collectionWindowMillis,startOffset);
-  final Map<UUID,TimeRange> timeRangesToQuery=treeSelections.getTimeRangesToQuery();
-  final List<StarTree> starTrees=getStarTrees(config,treeSelections.getAllTreeIdsToQuery());
+  DateTime queryStartInMillis=new DateTime(query.getStart().getMillis() - startOffset);
+  long queryStartTime=dateTimeToCollectionTime(config,queryStartInMillis);
+  long queryEndTime=dateTimeToCollectionTime(config,query.getEnd());
+  final TimeRange inputQueryTimeRange=new TimeRange(queryStartInMillis.getMillis(),query.getEnd().getMillis());
+  Map<UUID,IndexMetadata> immutableMetadataMap=new HashMap<>();
+  Map<UUID,IndexMetadata> realTimeMetadataMap=new HashMap<>();
+  for (  StarTree starTree : starTreeManager.getStarTrees(config.getCollection()).values()) {
+    UUID treeId=starTree.getRoot().getId();
+    IndexMetadata indexMetadata=starTreeManager.getIndexMetadata(treeId);
+    if ("KAFKA".equals(indexMetadata.getTimeGranularity())) {
+      realTimeMetadataMap.put(treeId,indexMetadata);
+    }
+ else {
+      immutableMetadataMap.put(treeId,indexMetadata);
+    }
+  }
+  LOGGER.info("Selecting trees to query for queryTimeRange:{}",inputQueryTimeRange);
+  List<UUID> treeIdsToQuery=selectTreesToQuery(immutableMetadataMap,inputQueryTimeRange);
+  if (collectionWindowMillis > 0) {
+    long collectionWindow=dateTimeToCollectionTime(config,new DateTime(collectionWindowMillis));
+    queryStartTime=(queryStartTime / collectionWindow) * collectionWindow;
+    queryEndTime=(queryEndTime / collectionWindow + 1) * collectionWindow;
+  }
+  final TimeRange queryTimeRange=new TimeRange(queryStartTime,queryEndTime);
+  final Map<UUID,TimeRange> timeRangesToQuery=new HashMap<>();
+  for (  UUID treeId : treeIdsToQuery) {
+    timeRangesToQuery.put(treeId,queryTimeRange);
+  }
+  Long maxImmutableTimeMillis=null;
+  for (  UUID treeId : treeIdsToQuery) {
+    IndexMetadata indexMetadata=immutableMetadataMap.get(treeId);
+    if (maxImmutableTimeMillis == null || maxImmutableTimeMillis < indexMetadata.getMaxDataTimeMillis()) {
+      maxImmutableTimeMillis=indexMetadata.getMaxDataTimeMillis();
+    }
+  }
+  Long realTimeStartTime=null;
+  Long realTimeStartTimeMillis=null;
+  if (maxImmutableTimeMillis == null) {
+    realTimeStartTime=queryTimeRange.getStart();
+    realTimeStartTimeMillis=queryStartInMillis.getMillis();
+  }
+ else   if (maxImmutableTimeMillis < query.getEnd().getMillis()) {
+    realTimeStartTime=dateTimeToCollectionTime(config,new DateTime(maxImmutableTimeMillis));
+    realTimeStartTimeMillis=maxImmutableTimeMillis;
+    long collectionWindow=dateTimeToCollectionTime(config,new DateTime(collectionWindowMillis));
+    if (collectionWindow > 0) {
+      realTimeStartTime=(realTimeStartTime / collectionWindow) * collectionWindow;
+    }
+  }
+  List<UUID> realTimeTreeIdsToQuery=new ArrayList<>();
+  if (realTimeStartTime != null) {
+    TimeRange mutableTimeRange=new TimeRange(realTimeStartTime,queryTimeRange.getEnd());
+    TimeRange mutableTimeRangeMillis=new TimeRange(realTimeStartTimeMillis,query.getEnd().getMillis());
+    realTimeTreeIdsToQuery.addAll(selectTreesToQuery(realTimeMetadataMap,mutableTimeRangeMillis));
+    StarTree mutableTree=starTreeManager.getMutableStarTree(config.getCollection());
+    realTimeTreeIdsToQuery.add(mutableTree.getRoot().getId());
+    for (    UUID treeId : realTimeTreeIdsToQuery) {
+      timeRangesToQuery.put(treeId,mutableTimeRange);
+    }
+  }
   if (!query.getGroupByColumns().isEmpty()) {
     for (    final String groupByColumn : query.getGroupByColumns()) {
       if (query.getDimensionValues().containsKey(groupByColumn)) {
         throw new IllegalArgumentException("Cannot fix dimension value in group by: " + groupByColumn);
       }
       final Set<Future<Set<String>>> dimensionSetFutures=new HashSet<>();
+      final List<StarTree> starTrees=new ArrayList<>(starTreeManager.getStarTrees(config.getCollection()).values());
+      StarTree mutableTree=starTreeManager.getMutableStarTree(config.getCollection());
+      if (mutableTree != null) {
+        starTrees.add(mutableTree);
+      }
       for (      final StarTree starTree : starTrees) {
+        UUID treeId=starTree.getRoot().getId();
+        if (!treeIdsToQuery.contains(treeId) && !realTimeTreeIdsToQuery.contains(treeId)) {
+          continue;
+        }
         dimensionSetFutures.add(executorService.submit(new Callable<Set<String>>(){
           @Override public Set<String> call() throws Exception {
             return starTree.getDimensionValues(groupByColumn,query.getDimensionValues().asMap());
@@ -59,8 +125,16 @@
     dimensionKeys.add(new DimensionKey(combination));
   }
   Map<StarTree,Multimap<DimensionKey,Future<MetricTimeSeries>>> timeSeriesFutures=new HashMap<>();
+  final List<StarTree> starTrees=new ArrayList<>(starTreeManager.getStarTrees(config.getCollection()).values());
+  StarTree mutableTree=starTreeManager.getMutableStarTree(config.getCollection());
+  if (mutableTree != null) {
+    starTrees.add(mutableTree);
+  }
   for (  final StarTree starTree : starTrees) {
     final UUID treeId=starTree.getRoot().getId();
+    if (!treeIdsToQuery.contains(treeId) && !realTimeTreeIdsToQuery.contains(treeId)) {
+      continue;
+    }
     Multimap<DimensionKey,Future<MetricTimeSeries>> singleKeyResultMap=LinkedListMultimap.create();
     timeSeriesFutures.put(starTree,singleKeyResultMap);
     for (    final DimensionKey dimensionKey : dimensionKeys) {
