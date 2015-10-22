@@ -1,0 +1,31 @@
+{
+  Map<String,String> componentVersions=new HashMap<>();
+  ClassLoader classLoader=Utils.class.getClassLoader();
+  while (classLoader != null && !(classLoader instanceof URLClassLoader)) {
+    classLoader=classLoader.getParent();
+  }
+  if (classLoader != null) {
+    URLClassLoader urlClassLoader=(URLClassLoader)classLoader;
+    URL[] urls=urlClassLoader.getURLs();
+    for (    URL url : urls) {
+      try {
+        URL jarUrl=new URL("jar","",url + "!/");
+        URLConnection connection=jarUrl.openConnection();
+        if (connection instanceof JarURLConnection) {
+          JarURLConnection jarURLConnection=(JarURLConnection)connection;
+          Attributes attributes=jarURLConnection.getMainAttributes();
+          if (attributes != null) {
+            String implementationTitle=attributes.getValue(Attributes.Name.IMPLEMENTATION_TITLE);
+            String implementationVersion=attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+            if (implementationTitle != null && implementationTitle.contains("pinot")) {
+              componentVersions.put(implementationTitle,implementationVersion);
+            }
+          }
+        }
+      }
+ catch (      IOException e) {
+      }
+    }
+  }
+  return componentVersions;
+}
