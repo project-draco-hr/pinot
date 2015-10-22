@@ -1,14 +1,4 @@
 {
-  final StarTreeConfig config=starTreeManager.getConfig(collection);
-  if (config == null) {
-    throw new IllegalArgumentException("No collection " + collection);
-  }
-  final List<String> dimensionNames=new ArrayList<>(config.getDimensions().size());
-  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
-    dimensionNames.add(dimensionSpec.getName());
-  }
-  final TreeSelections treeSelections=calculateTreeSelections(config,queryStart,queryEnd);
-  final List<StarTree> starTrees=getStarTrees(config,treeSelections.getAllTreeIdsToQuery());
   List<Future<Set<String>>> dimensionValuesFutures=new LinkedList<>();
   for (  final StarTree starTree : starTrees) {
     Future<Set<String>> future=executorService.submit(new Callable<Set<String>>(){
@@ -24,7 +14,15 @@
     Set<String> values=future.get();
     dimensionValues.addAll(values);
   }
+  boolean hasOther=dimensionValues.remove(OTHER_DIMENSION_VALUE);
+  boolean hasUnknown=dimensionValues.remove(UNKNOWN_DIMENSION_VALUE);
   List<String> sortedValues=new ArrayList<>(dimensionValues);
   Collections.sort(sortedValues);
+  if (hasOther) {
+    sortedValues.add(OTHER_DIMENSION_VALUE);
+  }
+  if (hasUnknown) {
+    dimensionValues.add(UNKNOWN_DIMENSION_VALUE);
+  }
   return sortedValues;
 }

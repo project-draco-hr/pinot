@@ -1,6 +1,6 @@
 {
-  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
-  for (  Map.Entry<String,String> entry : dimensionValues.entrySet()) {
+  Map<String,String> fixedDimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
+  for (  Map.Entry<String,String> entry : fixedDimensionValues.entrySet()) {
     if ("!".equals(entry.getValue())) {
       throw new WebApplicationException(new IllegalArgumentException("No group by dimensions allowed"),Response.Status.BAD_REQUEST);
     }
@@ -38,7 +38,8 @@
   try {
     View metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
     View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,uriInfo);
-    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames,funnels);
+    Map<String,Collection<String>> dimensionValuesOptions=dataCache.getDimensionValues(serverUri,collection,earliestDataTime.getMillis(),latestDataTime.getMillis(),null);
+    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),dimensionValuesOptions,new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames,funnels);
   }
  catch (  Exception e) {
     if (e instanceof WebApplicationException) {

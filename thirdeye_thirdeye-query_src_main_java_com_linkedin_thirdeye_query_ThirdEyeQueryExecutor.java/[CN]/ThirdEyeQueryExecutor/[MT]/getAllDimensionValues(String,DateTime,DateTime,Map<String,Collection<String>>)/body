@@ -1,13 +1,17 @@
 {
   final StarTreeConfig config=starTreeManager.getConfig(collection);
+  if (config == null) {
+    throw new IllegalArgumentException("No collection " + collection);
+  }
+  final TreeSelections treeSelections=calculateTreeSelections(config,queryStart,queryEnd);
+  final List<StarTree> starTrees=getStarTrees(config,treeSelections.getAllTreeIdsToQuery());
   Map<String,Collection<String>> dimensionValues=new HashMap<>(config.getDimensions().size());
   for (  DimensionSpec dimensionSpec : config.getDimensions()) {
-    String dimensionName=dimensionSpec.getName();
+    final String dimensionName=dimensionSpec.getName();
     if (fixedDimensions.containsKey(dimensionName)) {
       continue;
     }
-    List<String> values=getDimensionValues(collection,queryStart,queryEnd,dimensionName,fixedDimensions);
-    dimensionValues.put(dimensionName,values);
+    dimensionValues.put(dimensionName,getDimensionValues(dimensionName,fixedDimensions,starTrees));
   }
   return dimensionValues;
 }

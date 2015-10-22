@@ -1,0 +1,20 @@
+{
+  StringBuilder cacheKey=new StringBuilder(serverUri + "/dimensions/" + URLEncoder.encode(collection,ENCODING)+ "/"+ start+ "/"+ end);
+  if (fixedValues != null) {
+    boolean firstQueryParam=true;
+    for (    Map.Entry<String,Collection<String>> entry : fixedValues.entrySet()) {
+      String name=entry.getKey();
+      for (      String value : entry.getValue()) {
+        if (firstQueryParam) {
+          cacheKey.append("?");
+          firstQueryParam=false;
+        }
+ else {
+          cacheKey.append("&");
+        }
+        cacheKey.append(URLEncoder.encode(name,ENCODING) + "=" + URLEncoder.encode(value,ENCODING));
+      }
+    }
+  }
+  return dimensionValues.get(cacheKey.toString());
+}
