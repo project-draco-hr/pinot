@@ -1,0 +1,35 @@
+{
+  List<String> dimensions=schema.getDimensions();
+  MultivaluedMap<String,String> dimensionValues=new MultivaluedMapImpl();
+  Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
+  for (  String dimension : schema.getDimensions()) {
+    dimensionValues.put(dimension,Arrays.asList("!"));
+    String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,dimensionValues,null);
+    LOGGER.info("Generated SQL for {}: {}",serverUri,sql);
+    dimensionValues.remove(dimension);
+    resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
+  }
+  Map<String,Collection<String>> collectedDimensionValues=new HashMap<>();
+  for (int i=0; i < dimensions.size(); i++) {
+    String dimension=dimensions.get(i);
+    QueryResult queryResult=resultFutures.get(dimension).get();
+    HashSet<String> values=new HashSet<>();
+    for (    Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
+      List<String> combination=objectMapper.readValue(entry.getKey(),LIST_TYPE_REF);
+      String dimensionValue=combination.get(i);
+      values.add(dimensionValue);
+    }
+    boolean hasOther=values.remove(OTHER_DIMENSION_VALUE);
+    boolean hasUnknown=values.remove(UNKNOWN_DIMENSION_VALUE);
+    List<String> sortedValues=new ArrayList<>(values);
+    Collections.sort(sortedValues);
+    if (hasOther) {
+      sortedValues.add(OTHER_DIMENSION_VALUE);
+    }
+    if (hasUnknown) {
+      sortedValues.add(UNKNOWN_DIMENSION_VALUE);
+    }
+    collectedDimensionValues.put(dimension,sortedValues);
+  }
+  return collectedDimensionValues;
+}
