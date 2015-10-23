@@ -2,7 +2,11 @@
   try {
     JSONObject ret=new JSONObject();
     for (    ServerInstance i : _routingTable.keySet()) {
-      ret.put(i.toString(),mapper.writeValueAsString(_routingTable.get(i).getSegments()));
+      JSONArray serverInstanceSegmentList=new JSONArray();
+      for (      SegmentId segmentId : _routingTable.get(i).getSegments()) {
+        serverInstanceSegmentList.put(segmentId.getSegmentId());
+      }
+      ret.put(i.toString(),serverInstanceSegmentList);
     }
     return ret.toString();
   }
