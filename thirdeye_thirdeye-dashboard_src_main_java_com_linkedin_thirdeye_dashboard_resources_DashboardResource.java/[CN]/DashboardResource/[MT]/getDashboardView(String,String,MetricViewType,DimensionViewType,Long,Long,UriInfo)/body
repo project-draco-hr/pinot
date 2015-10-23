@@ -38,7 +38,8 @@
   try {
     View metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
     View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,uriInfo);
-    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames,funnels);
+    Map<String,Collection<String>> dimensionValueOptions=retrieveDimensionValues(metricFunction,collection,baselineMillis,currentMillis);
+    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType,dimensionValueOptions),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames,funnels);
   }
  catch (  Exception e) {
     if (e instanceof WebApplicationException) {

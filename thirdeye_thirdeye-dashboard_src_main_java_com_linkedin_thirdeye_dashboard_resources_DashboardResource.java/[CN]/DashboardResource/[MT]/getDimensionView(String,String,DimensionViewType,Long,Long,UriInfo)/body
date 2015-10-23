@@ -48,8 +48,7 @@ if (DimensionViewType.HEAT_MAP.equals(dimensionViewType)) {
 return new DimensionViewHeatMap(schema,objectMapper,results,dimensionGroups,dimensionRegex);
 }
  else if (DimensionViewType.TABULAR.equals(dimensionViewType)) {
-Map<String,Collection<String>> dimensionValueOptions=retrieveDimensionValues(schema,metricFunction,collection,baseline,current);
-return new DimensionViewTabular(schema,objectMapper,results,dimensionGroups,dimensionRegex,dimensionValueOptions);
+return new DimensionViewTabular(schema,objectMapper,results,dimensionGroups,dimensionRegex);
 }
 default :
 throw new NotFoundException("No dimension view implementation for " + dimensionViewType);
