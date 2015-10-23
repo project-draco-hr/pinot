@@ -1,11 +1,15 @@
 {
-  List<AnomalyResult> results=null;
+  List<AnomalyResult> results=new ArrayList<>();
   Session session=sessionFactory.openSession();
   try {
     ManagedSessionContext.bind(session);
     Transaction transaction=session.beginTransaction();
     try {
-      results=resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,anomalyFunction.getSpec().getId());
+      results.addAll(resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,anomalyFunction.getSpec().getId()));
+      List<AnomalyFunctionRelation> relations=relationDAO.findByParent(anomalyFunction.getSpec().getId());
+      for (      AnomalyFunctionRelation relation : relations) {
+        results.addAll(resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,relation.getChildId()));
+      }
       transaction.commit();
     }
  catch (    Exception e) {

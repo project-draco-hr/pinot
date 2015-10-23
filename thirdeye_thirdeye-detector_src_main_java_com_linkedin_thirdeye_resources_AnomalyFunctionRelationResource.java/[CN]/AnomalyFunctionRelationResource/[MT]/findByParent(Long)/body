@@ -1,0 +1,11 @@
+{
+  List<AnomalyFunctionRelation> result=dao.findByParent(parentId);
+  if (result.isEmpty()) {
+    throw new NotFoundException();
+  }
+  List<Long> childIds=new ArrayList<>();
+  for (  AnomalyFunctionRelation relation : result) {
+    childIds.add(relation.getChildId());
+  }
+  return childIds;
+}
