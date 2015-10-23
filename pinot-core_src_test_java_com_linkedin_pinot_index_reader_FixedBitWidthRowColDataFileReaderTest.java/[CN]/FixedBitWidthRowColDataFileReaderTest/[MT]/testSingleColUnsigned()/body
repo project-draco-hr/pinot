@@ -3,10 +3,11 @@
   for (  int maxBits : maxBitArray) {
     String fileName="test" + maxBits + "FixedBitWidthSingleCol";
     File file=new File(fileName);
+    CustomBitSet bitset=null;
     try {
       System.out.println("START MAX BITS:" + maxBits);
       int numElements=100;
-      CustomBitSet bitset=CustomBitSet.withBitLength(numElements * maxBits);
+      bitset=CustomBitSet.withBitLength(numElements * maxBits);
       int max=(int)Math.pow(2,maxBits);
       Random r=new Random();
       int[] values=new int[numElements];
@@ -41,6 +42,7 @@
     }
   finally {
       file.delete();
+      bitset.close();
     }
   }
 }
