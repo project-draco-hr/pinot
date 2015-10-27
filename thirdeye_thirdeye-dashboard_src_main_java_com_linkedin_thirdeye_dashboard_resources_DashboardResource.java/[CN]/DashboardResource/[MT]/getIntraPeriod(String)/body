@@ -1,0 +1,12 @@
+{
+  String timeUnit=metricFunction.split("_")[2];
+  int aggregationWindow=Integer.parseInt(metricFunction.split("_")[1]);
+  long intraPeriod=INTRA_DAY_PERIOD;
+  if (timeUnit.startsWith(TimeUnit.DAYS.toString()) && aggregationWindow == 1) {
+    intraPeriod=INTRA_WEEK_PERIOD;
+  }
+ else   if (timeUnit.startsWith(TimeUnit.DAYS.toString())) {
+    intraPeriod=INTRA_MONTH_PERIOD;
+  }
+  return intraPeriod;
+}

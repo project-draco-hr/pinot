@@ -8,10 +8,10 @@
     for (    String funnel : funnels) {
       LOG.info("adding funnel views for collection, {}, with funnel name {}",collection,funnel);
       FunnelSpec spec=funnelSpecsMap.get(collection).getFunnels().get(funnel);
-      funnelViews.add(getFunnelDataFor(collection,spec,baselineMillis,currentMillis,dimensionValues));
+      funnelViews.add(getFunnelDataFor(collection,metricFunction,spec,baselineMillis,currentMillis,intraPeriod,dimensionValues));
     }
   }
   FunnelSpec defaultSpec=createDefaultFunnelSpec(collection);
-  funnelViews.add(getFunnelDataFor(collection,defaultSpec,baselineMillis,currentMillis,dimensionValues));
+  funnelViews.add(getFunnelDataFor(collection,metricFunction,defaultSpec,baselineMillis,currentMillis,intraPeriod,dimensionValues));
   return funnelViews;
 }

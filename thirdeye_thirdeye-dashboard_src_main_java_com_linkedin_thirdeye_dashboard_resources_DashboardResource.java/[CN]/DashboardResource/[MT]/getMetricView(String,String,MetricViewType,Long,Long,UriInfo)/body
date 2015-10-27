@@ -3,24 +3,16 @@
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
 switch (metricViewType) {
 case INTRA_DAY:
-    String timeUnit=metricFunction.split("_")[2];
-  int aggregationWindow=Integer.parseInt(metricFunction.split("_")[1]);
-long INTRA_PERIOD=INTRA_DAY_PERIOD;
-if (timeUnit.startsWith(TimeUnit.DAYS.toString()) && aggregationWindow == 1) {
-INTRA_PERIOD=INTRA_WEEK_PERIOD;
-}
- else if (timeUnit.startsWith(TimeUnit.DAYS.toString())) {
-INTRA_PERIOD=INTRA_MONTH_PERIOD;
-}
-Map<String,Map<String,List<String>>> dimensionGroups=null;
+    long intraPeriod=getIntraPeriod(metricFunction);
+  Map<String,Map<String,List<String>>> dimensionGroups=null;
 DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
 if (dimensionGroupSpec != null) {
 dimensionGroups=dimensionGroupSpec.getReverseMapping();
 }
-String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - INTRA_PERIOD),new DateTime(currentMillis),dimensionValues,dimensionGroups);
+String sql=SqlUtils.getSql(metricFunction,collection,new DateTime(baselineMillis - intraPeriod),new DateTime(currentMillis),dimensionValues,dimensionGroups);
 LOGGER.info("Generated SQL for {}: {}",uriInfo.getRequestUri(),sql);
 QueryResult result=queryCache.getQueryResult(serverUri,sql);
-return new MetricViewTabular(schema,objectMapper,result,currentMillis,currentMillis - baselineMillis,INTRA_PERIOD);
+return new MetricViewTabular(schema,objectMapper,result,currentMillis,currentMillis - baselineMillis,intraPeriod);
 case TIME_SERIES_FULL:
 case TIME_SERIES_OVERLAY:
 case FUNNEL:
