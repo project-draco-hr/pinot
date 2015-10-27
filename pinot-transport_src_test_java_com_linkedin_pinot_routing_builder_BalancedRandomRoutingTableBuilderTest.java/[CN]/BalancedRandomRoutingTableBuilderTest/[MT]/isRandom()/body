@@ -1,0 +1,26 @@
+{
+  BalancedRandomRoutingTableBuilder routingTableBuilder=new BalancedRandomRoutingTableBuilder();
+  List<InstanceConfig> instanceConfigList=new ArrayList<>();
+  ExternalView externalView=new ExternalView("dummy");
+  externalView.setState("segment_1","Server_1.2.3.4_1234","ONLINE");
+  externalView.setState("segment_1","Server_1.2.3.5_2345","ONLINE");
+  externalView.setState("segment_1","Server_1.2.3.6_3456","ONLINE");
+  externalView.setState("segment_2","Server_1.2.3.4_1234","ONLINE");
+  externalView.setState("segment_2","Server_1.2.3.5_2345","ONLINE");
+  externalView.setState("segment_2","Server_1.2.3.6_3456","ONLINE");
+  externalView.setState("segment_3","Server_1.2.3.4_1234","ONLINE");
+  externalView.setState("segment_3","Server_1.2.3.5_2345","ONLINE");
+  externalView.setState("segment_3","Server_1.2.3.6_3456","ONLINE");
+  List<ServerToSegmentSetMap> routingTable=routingTableBuilder.computeRoutingTableFromExternalView("dummy",externalView,instanceConfigList);
+  Iterator<ServerToSegmentSetMap> routingTableIterator=routingTable.iterator();
+  ServerToSegmentSetMap previous=routingTableIterator.next();
+  while (routingTableIterator.hasNext()) {
+    ServerToSegmentSetMap current=routingTableIterator.next();
+    System.out.println("current = " + current);
+    System.out.println("previous = " + previous);
+    if (!current.equals(previous)) {
+      return;
+    }
+  }
+  Assert.fail("All routing tables are equal!");
+}
