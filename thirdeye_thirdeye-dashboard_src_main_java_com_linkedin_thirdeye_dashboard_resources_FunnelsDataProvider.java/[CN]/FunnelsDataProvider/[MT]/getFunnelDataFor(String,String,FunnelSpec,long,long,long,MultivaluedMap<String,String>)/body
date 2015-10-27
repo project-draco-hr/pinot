@@ -1,8 +1,12 @@
 {
-  DateTime currentEnd=new DateTime(currentMillis);
-  DateTime currentStart=currentEnd.minus(intraPeriod);
-  DateTime baselineEnd=new DateTime(baselineMillis);
-  DateTime baselineStart=baselineEnd.minus(intraPeriod);
+  DateTime currentInput=new DateTime(currentMillis,DateTimeZone.UTC);
+  currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
+  DateTime currentStart=new DateTime(currentInput.getYear(),currentInput.getMonthOfYear(),currentInput.getDayOfMonth(),0,0);
+  DateTime currentEnd=currentStart.plus(intraPeriod);
+  DateTime baselineInput=new DateTime(baselineMillis,DateTimeZone.UTC);
+  currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
+  DateTime baselineStart=new DateTime(baselineInput.getYear(),baselineInput.getMonthOfYear(),baselineInput.getDayOfMonth(),0,0);
+  DateTime baselineEnd=baselineStart.plus(intraPeriod);
   String metricFunctionPrefix=urlMetricFunction.substring(0,urlMetricFunction.lastIndexOf('('));
   String metricFunctionSuffix=urlMetricFunction.substring(urlMetricFunction.indexOf(')') + 1);
   String metricFunction=String.format("%s(%s)%s",metricFunctionPrefix,METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames()),metricFunctionSuffix);
@@ -57,5 +61,5 @@
     filteredTable.add(filteredRow);
   }
   List<MetricDataRow> filteredCumulativeTable=ViewUtils.computeCumulativeRows(filteredTable,metricCount);
-  return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentEnd,baselineEnd);
+  return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentInput,baselineInput);
 }
