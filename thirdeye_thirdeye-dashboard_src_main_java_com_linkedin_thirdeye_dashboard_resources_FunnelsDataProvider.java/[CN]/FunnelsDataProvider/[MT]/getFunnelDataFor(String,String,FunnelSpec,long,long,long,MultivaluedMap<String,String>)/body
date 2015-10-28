@@ -7,9 +7,8 @@
   currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
   DateTime baselineStart=new DateTime(baselineInput.getYear(),baselineInput.getMonthOfYear(),baselineInput.getDayOfMonth(),0,0);
   DateTime baselineEnd=baselineStart.plus(intraPeriod);
-  String metricFunctionPrefix=urlMetricFunction.substring(0,urlMetricFunction.lastIndexOf('('));
-  String metricFunctionSuffix=urlMetricFunction.substring(urlMetricFunction.indexOf(')') + 1);
-  String metricFunction=String.format("%s(%s)%s",metricFunctionPrefix,METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames()),metricFunctionSuffix);
+  List<String> metricFunctionLevels=ViewUtils.getMetricFunctionLevels(urlMetricFunction);
+  String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
   DimensionGroupSpec dimSpec=DimensionGroupSpec.emptySpec(collection);
   Map<String,Map<String,List<String>>> dimensionGroups=DimensionGroupSpec.emptySpec(collection).getReverseMapping();
   String baselineSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineEnd,dimensionValuesMap,dimensionGroups);
