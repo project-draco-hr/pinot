@@ -1,10 +1,10 @@
 {
   for (  final String column : forwardIndexCreatorMap.keySet()) {
     forwardIndexCreatorMap.get(column).close();
-    if (config.isCreateInvertedIndexEnabled()) {
-      invertedIndexCreatorMap.get(column).seal();
-    }
     dictionaryCreatorMap.get(column).close();
+  }
+  for (  final String invertedColumn : invertedIndexCreatorMap.keySet()) {
+    invertedIndexCreatorMap.get(invertedColumn).seal();
   }
   writeMetadata();
 }
