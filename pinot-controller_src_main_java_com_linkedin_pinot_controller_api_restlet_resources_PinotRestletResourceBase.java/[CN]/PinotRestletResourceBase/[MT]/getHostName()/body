@@ -1,0 +1,12 @@
+{
+  if (controllerHostName != null) {
+    return controllerHostName;
+  }
+  try {
+    controllerHostName=InetAddress.getLocalHost().getCanonicalHostName();
+  }
+ catch (  UnknownHostException e) {
+    return "Unknown";
+  }
+  return controllerHostName;
+}
