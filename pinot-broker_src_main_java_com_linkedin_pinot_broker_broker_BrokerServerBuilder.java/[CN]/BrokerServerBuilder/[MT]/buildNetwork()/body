@@ -25,16 +25,16 @@
  else {
   }
   _scatterGather=new ScatterGatherImpl(_connPool,_requestSenderPool);
-  long brokerTimeOut=DEFAULT_BROKER_TIME_OUT;
+  long brokerTimeOutMs=DEFAULT_BROKER_TIME_OUT_MS;
   if (_config.containsKey(BROKER_TIME_OUT_CONFIG)) {
     try {
-      brokerTimeOut=_config.getLong(BROKER_TIME_OUT_CONFIG);
+      brokerTimeOutMs=_config.getLong(BROKER_TIME_OUT_CONFIG);
     }
  catch (    Exception e) {
       LOGGER.warn("Caught exception while reading broker timeout from config, using default value",e);
     }
   }
-  LOGGER.info("Broker timeout is - " + brokerTimeOut + " ms");
-  _requestHandler=new BrokerRequestHandler(_routingTable,_timeBoundaryService,_scatterGather,new DefaultReduceService(),_brokerMetrics,brokerTimeOut);
+  LOGGER.info("Broker timeout is - " + brokerTimeOutMs + " ms");
+  _requestHandler=new BrokerRequestHandler(_routingTable,_timeBoundaryService,_scatterGather,new DefaultReduceService(),_brokerMetrics,brokerTimeOutMs);
   LOGGER.info("Network initialized !!");
 }
