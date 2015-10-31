@@ -1,8 +1,12 @@
 {
-  Map<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo.getQueryParameters());
-  for (  Map.Entry<String,String> entry : dimensionValues.entrySet()) {
-    if ("!".equals(entry.getValue())) {
-      throw new WebApplicationException(new IllegalArgumentException("No group by dimensions allowed"),Response.Status.BAD_REQUEST);
+  MultivaluedMap<String,String> selectedDimensions=uriInfo.getQueryParameters();
+  List<String> selectedFunnelsList=selectedDimensions.remove("funnels");
+  String selectedFunnels=(selectedFunnelsList == null || selectedFunnelsList.isEmpty()) ? null : selectedFunnelsList.get(0);
+  for (  Entry<String,List<String>> entry : selectedDimensions.entrySet()) {
+    for (    String value : entry.getValue()) {
+      if ("!".equals(value)) {
+        throw new WebApplicationException(new IllegalArgumentException("No group by dimensions allowed"),Response.Status.BAD_REQUEST);
+      }
     }
   }
   List<SegmentDescriptor> segments=dataCache.getSegmentDescriptors(serverUri,collection);
@@ -26,20 +30,18 @@
   if (customDashboardResource != null) {
     customDashboardNames=customDashboardResource.getCustomDashboardNames(collection);
   }
-  List<FunnelHeatMapView> funnels=Collections.emptyList();
   List<String> funnelNames=Collections.emptyList();
-  String selectedFunnels=uriInfo.getQueryParameters().getFirst("funnels");
   if (funnelResource != null) {
-    MultivaluedMap<String,String> filterMap=uriInfo.getQueryParameters();
-    filterMap.remove("funnels");
-    funnels=funnelResource.computeFunnelViews(collection,metricFunction,selectedFunnels,baselineMillis,currentMillis,getIntraPeriod(metricFunction),filterMap);
     funnelNames=funnelResource.getFunnelNamesFor(collection);
   }
   try {
-    View metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
-    View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,uriInfo);
+    View metricView=null;
+    if (dimensionViewType == DimensionViewType.MULTI_TIME_SERIES) {
+      metricView=getMetricView(collection,metricFunction,metricViewType,baselineMillis,currentMillis,uriInfo);
+    }
+    View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,selectedDimensions,selectedFunnels,uriInfo);
     Map<String,Collection<String>> dimensionValueOptions=retrieveDimensionValues(collection,baselineMillis,currentMillis);
-    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType,dimensionValueOptions),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames,funnels);
+    return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),selectedDimensions,new DateTime(baselineMillis),new DateTime(currentMillis),new MetricView(metricView,metricViewType),new DimensionView(dimensionView,dimensionViewType,dimensionValueOptions),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames);
   }
  catch (  Exception e) {
     if (e instanceof WebApplicationException) {

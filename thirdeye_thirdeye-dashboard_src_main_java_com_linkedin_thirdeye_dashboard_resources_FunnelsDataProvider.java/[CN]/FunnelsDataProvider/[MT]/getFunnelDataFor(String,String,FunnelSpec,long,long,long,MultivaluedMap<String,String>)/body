@@ -14,8 +14,8 @@
   String baselineSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineEnd,dimensionValuesMap,dimensionGroups);
   String currentSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentEnd,dimensionValuesMap,dimensionGroups);
   LOG.info("funnel queries for collection : {}, with name : {} ",collection,spec.getName());
-  LOG.info("Generated SQL: {}",baselineSql);
-  LOG.info("Generated SQL: {}",currentSql);
+  LOG.info("Generated SQL for funnel baseline: {}",baselineSql);
+  LOG.info("Generated SQL for funnel current: {}",currentSql);
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSql);
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSql);
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
@@ -60,5 +60,5 @@
     filteredTable.add(filteredRow);
   }
   List<MetricDataRow> filteredCumulativeTable=ViewUtils.computeCumulativeRows(filteredTable,metricCount);
-  return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentInput,baselineInput);
+  return new FunnelTable(spec,filteredTable,filteredCumulativeTable,currentInput,baselineInput);
 }
