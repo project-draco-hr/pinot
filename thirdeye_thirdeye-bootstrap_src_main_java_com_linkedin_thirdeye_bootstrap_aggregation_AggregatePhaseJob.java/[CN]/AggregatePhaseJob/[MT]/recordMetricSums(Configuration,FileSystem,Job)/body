@@ -1,0 +1,13 @@
+{
+  Path configPath=new Path(configuration.get(AGG_CONFIG_PATH.toString()));
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fs.open(configPath));
+  AggregationJobConfig config=AggregationJobConfig.fromStarTreeConfig(starTreeConfig);
+  MetricSums metricSums=new MetricSums();
+  for (  String metricName : config.getMetricNames()) {
+    Counter metricCounter=job.getCounters().findCounter(starTreeConfig.getCollection(),metricName);
+    metricSums.addMetricSum(metricCounter.getDisplayName(),metricCounter.getValue());
+    LOGGER.info(metricCounter.getDisplayName() + " : " + metricCounter.getValue());
+  }
+  FSDataOutputStream outputStream=fs.create(new Path(configuration.get(AGG_METRIC_SUMS_PATH.toString())));
+  OBJECT_MAPPER.writeValue(outputStream,metricSums);
+}

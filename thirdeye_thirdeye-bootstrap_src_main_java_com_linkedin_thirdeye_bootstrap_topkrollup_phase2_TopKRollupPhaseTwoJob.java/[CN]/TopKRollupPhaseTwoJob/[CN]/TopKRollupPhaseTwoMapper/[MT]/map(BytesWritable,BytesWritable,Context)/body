@@ -1,0 +1,13 @@
+{
+  TopKRollupPhaseOneMapOutputKey phase1KeyWrapper;
+  phase1KeyWrapper=TopKRollupPhaseOneMapOutputKey.fromBytes(key.getBytes());
+  String dimensionName=phase1KeyWrapper.getDimensionName();
+  String dimensionValue=phase1KeyWrapper.getDimensionValue();
+  MetricTimeSeries series=MetricTimeSeries.fromBytes(value.getBytes(),metricSchema);
+  TopKRollupPhaseTwoMapOutputValue valueWrapper=new TopKRollupPhaseTwoMapOutputValue(dimensionValue,series);
+  byte[] keyBytes=dimensionName.getBytes();
+  keyWritable.set(keyBytes,0,keyBytes.length);
+  byte[] valueBytes=valueWrapper.toBytes();
+  valWritable.set(valueBytes,0,valueBytes.length);
+  context.write(keyWritable,valWritable);
+}

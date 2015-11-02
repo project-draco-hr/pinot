@@ -8,6 +8,6 @@
   baseConfig=StarTreeConfig.decode(ClassLoader.getSystemResourceAsStream("sample-config.yml"));
   collection=baseConfig.getCollection();
   SplitSpec split=new SplitSpec(5,baseConfig.getSplit().getOrder());
-  config=new StarTreeConfig(baseConfig.getCollection(),StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName(),new Properties(),baseConfig.getAnomalyDetectionFunctionClass(),baseConfig.getAnomalyDetectionFunctionConfig(),baseConfig.getAnomalyHandlerClass(),baseConfig.getAnomalyHandlerConfig(),baseConfig.getAnomalyDetectionMode(),baseConfig.getDimensions(),baseConfig.getMetrics(),baseConfig.getTime(),baseConfig.getJoinSpec(),baseConfig.getRollup(),split,false);
+  config=new StarTreeConfig(baseConfig.getCollection(),StarTreeRecordStoreFactoryLogBufferImpl.class.getCanonicalName(),new Properties(),baseConfig.getAnomalyDetectionFunctionClass(),baseConfig.getAnomalyDetectionFunctionConfig(),baseConfig.getAnomalyHandlerClass(),baseConfig.getAnomalyHandlerConfig(),baseConfig.getAnomalyDetectionMode(),baseConfig.getDimensions(),baseConfig.getMetrics(),baseConfig.getTime(),baseConfig.getJoinSpec(),baseConfig.getRollup(),baseConfig.getTopKRollup(),split,false);
   metricSchema=MetricSchema.fromMetricSpecs(config.getMetrics());
 }

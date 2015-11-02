@@ -19,7 +19,7 @@
   final ScheduledExecutorService taskScheduler=Executors.newSingleThreadScheduledExecutor();
   DataUpdateManager dataUpdateManager=new DataUpdateManager(rootDir,false);
   MetricRegistry metricRegistry=new MetricRegistry();
-  StarTreeConfig inMemoryConfig=new StarTreeConfig(config.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),config.getAnomalyDetectionFunctionClass(),config.getAnomalyDetectionFunctionConfig(),config.getAnomalyHandlerClass(),config.getAnomalyHandlerConfig(),config.getAnomalyDetectionMode(),config.getDimensions(),config.getMetrics(),config.getTime(),config.getJoinSpec(),config.getRollup(),config.getSplit(),false);
+  StarTreeConfig inMemoryConfig=new StarTreeConfig(config.getCollection(),StarTreeRecordStoreFactoryHashMapImpl.class.getCanonicalName(),new Properties(),config.getAnomalyDetectionFunctionClass(),config.getAnomalyDetectionFunctionConfig(),config.getAnomalyHandlerClass(),config.getAnomalyHandlerConfig(),config.getAnomalyDetectionMode(),config.getDimensions(),config.getMetrics(),config.getTime(),config.getJoinSpec(),config.getRollup(),config.getTopKRollup(),config.getSplit(),false);
   final StarTree mutableTree=new StarTreeImpl(inMemoryConfig);
   mutableTree.open();
   ConsoleReporter reporter=ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();

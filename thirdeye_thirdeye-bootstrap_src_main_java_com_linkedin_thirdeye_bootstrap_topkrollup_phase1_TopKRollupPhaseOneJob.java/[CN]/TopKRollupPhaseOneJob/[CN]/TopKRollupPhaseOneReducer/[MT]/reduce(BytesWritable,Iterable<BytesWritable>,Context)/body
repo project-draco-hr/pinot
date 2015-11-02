@@ -1,0 +1,38 @@
+{
+  TopKRollupPhaseOneMapOutputKey wrapper=TopKRollupPhaseOneMapOutputKey.fromBytes(topkRollupKey.getBytes());
+  LOGGER.info("DimensionName {} DimensionValue {}",wrapper.dimensionName,wrapper.dimensionValue);
+  MetricTimeSeries aggregateSeries=new MetricTimeSeries(metricSchema);
+  for (  BytesWritable writable : timeSeriesIterable) {
+    MetricTimeSeries series=MetricTimeSeries.fromBytes(writable.copyBytes(),metricSchema);
+    aggregateSeries.aggregate(series);
+  }
+  Map<String,Long> metricValues=new HashMap<String,Long>();
+  for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+    metricValues.put(metricSpec.getName(),0L);
+  }
+  for (  Long time : aggregateSeries.getTimeWindowSet()) {
+    for (    MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+      String metricName=metricSpec.getName();
+      long metricValue=aggregateSeries.get(time,metricName).longValue();
+      metricValues.put(metricName,metricValues.get(metricName) + metricValue);
+    }
+  }
+  boolean aboveThreshold=true;
+  for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+    String metricName=metricSpec.getName();
+    long metricValue=metricValues.get(metricName);
+    long metricSum=metricSums.get(metricName);
+    double metricThreshold=metricThresholds.get(metricName);
+    LOGGER.info("metricValue : {} metricSum : {}",metricValue,metricSum);
+    if (metricValue < (metricThreshold / 100) * metricSum) {
+      aboveThreshold=false;
+      break;
+    }
+  }
+  if (aboveThreshold) {
+    LOGGER.info("Passed threshold");
+    keyWritable.set(topkRollupKey);
+    valWritable.set(aggregateSeries.toBytes(),0,aggregateSeries.toBytes().length);
+    context.write(keyWritable,valWritable);
+  }
+}

@@ -1,0 +1,10 @@
+{
+  MetricTimeSeries aggregateSeries=new MetricTimeSeries(metricSchema);
+  for (  BytesWritable writable : timeSeriesIterable) {
+    MetricTimeSeries series=MetricTimeSeries.fromBytes(writable.copyBytes(),metricSchema);
+    aggregateSeries.aggregate(series);
+  }
+  byte[] seriesBytes=aggregateSeries.toBytes();
+  valWritable.set(seriesBytes,0,seriesBytes.length);
+  context.write(dimensionNameKey,valWritable);
+}

@@ -1,0 +1,51 @@
+{
+  String dimensionName=new String(dimensionNameKey.getBytes()).trim();
+  LOGGER.info("Dimension name {}: ",dimensionName);
+  List<TopKRollupPhaseTwoMapOutputValue> mapOutputValues=new ArrayList<TopKRollupPhaseTwoMapOutputValue>();
+  for (  BytesWritable writable : topKRollupValues) {
+    TopKRollupPhaseTwoMapOutputValue valueWrapper;
+    valueWrapper=TopKRollupPhaseTwoMapOutputValue.fromBytes(writable.getBytes(),metricSchema);
+    mapOutputValues.add(valueWrapper);
+  }
+  TopKDimensionSpec topkDimensionSpec=null;
+  for (  TopKDimensionSpec spec : rollupDimensionConfig) {
+    if (spec.getDimensionName().equals(dimensionName)) {
+      topkDimensionSpec=spec;
+    }
+  }
+  if (topkDimensionSpec == null || mapOutputValues.size() < topkDimensionSpec.getTop()) {
+    LOGGER.info("Taking all dimension values");
+    for (    TopKRollupPhaseTwoMapOutputValue mapOutput : mapOutputValues) {
+      String dimensionValue=mapOutput.getDimensionValue();
+      LOGGER.info("Emitting {} {}",dimensionName,dimensionValue);
+      topKDimensionValues.addValue(dimensionName,dimensionValue);
+    }
+  }
+ else {
+    final TopKDimensionSpec topKDimension=topkDimensionSpec;
+    Collections.sort(mapOutputValues,new Comparator<TopKRollupPhaseTwoMapOutputValue>(){
+      @Override public int compare(      TopKRollupPhaseTwoMapOutputValue o1,      TopKRollupPhaseTwoMapOutputValue o2){
+        MetricTimeSeries series1=o1.getSeries();
+        long series1Sum=0;
+        for (        Long time : series1.getTimeWindowSet()) {
+          Number metricValue=series1.get(time,topKDimension.getMetricName());
+          series1Sum+=metricValue.longValue();
+        }
+        MetricTimeSeries series2=o2.getSeries();
+        long series2Sum=0;
+        for (        Long time : series2.getTimeWindowSet()) {
+          Number metricValue=series2.get(time,topKDimension.getMetricName());
+          series2Sum+=metricValue.longValue();
+        }
+        return (int)(series2Sum - series1Sum);
+      }
+    }
+);
+    for (int k=0; k < topkDimensionSpec.getTop(); k++) {
+      TopKRollupPhaseTwoMapOutputValue valueWrapper=mapOutputValues.get(k);
+      String dimensionValue=valueWrapper.getDimensionValue();
+      LOGGER.info("K : {} dimensionvalue : {}",k,dimensionValue);
+      topKDimensionValues.addValue(dimensionName,dimensionValue);
+    }
+  }
+}

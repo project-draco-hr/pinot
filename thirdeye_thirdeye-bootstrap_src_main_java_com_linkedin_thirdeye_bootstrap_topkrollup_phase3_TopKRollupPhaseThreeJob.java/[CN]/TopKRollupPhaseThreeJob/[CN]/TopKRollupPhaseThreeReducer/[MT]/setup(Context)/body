@@ -1,0 +1,17 @@
+{
+  LOGGER.info("TopKRollupPhaseTwoJob.TopKRollupPhaseTwoReducer.setup()");
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(TOPK_ROLLUP_PHASE3_CONFIG_PATH.toString()));
+  try {
+    starTreeConfig=StarTreeConfig.decode(fileSystem.open(configPath));
+    config=TopKRollupPhaseThreeConfig.fromStarTreeConfig(starTreeConfig);
+    metricTypes=config.getMetricTypes();
+    metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
+    keyWritable=new BytesWritable();
+    valWritable=new BytesWritable();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

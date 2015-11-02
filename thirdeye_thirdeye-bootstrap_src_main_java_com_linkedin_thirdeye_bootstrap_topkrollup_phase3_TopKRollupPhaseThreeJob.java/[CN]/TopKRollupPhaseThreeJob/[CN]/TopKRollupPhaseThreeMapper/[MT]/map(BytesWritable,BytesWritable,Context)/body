@@ -1,0 +1,21 @@
+{
+  DimensionKey dimensionKey;
+  dimensionKey=DimensionKey.fromBytes(dimensionKeyBytes.getBytes());
+  if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("dimension key {}",dimensionKey);
+  }
+  String[] dimensionValues=dimensionKey.getDimensionValues();
+  for (  String dimension : dimensionNames) {
+    int index=dimensionNameToIndexMapping.get(dimension);
+    String value=dimensionValues[index];
+    if (!topKDimensionValuesSet.get(dimension).contains(value)) {
+      LOGGER.info("Missing value {} for dimension {}",value,dimension);
+      dimensionValues[index]="?";
+    }
+  }
+  DimensionKey newDimensionKey=new DimensionKey(dimensionValues);
+  LOGGER.info("New Dimension Key {}",newDimensionKey);
+  byte[] keyBytes=newDimensionKey.toBytes();
+  keyWritable.set(keyBytes,0,keyBytes.length);
+  context.write(keyWritable,seriesBytes);
+}

@@ -10,6 +10,12 @@
   }
   StarTreeRecord starTreeRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
   MetricTimeSeries originalSeries=starTreeRecord.getMetricTimeSeries();
+  for (  Long time : originalSeries.getTimeWindowSet()) {
+    for (    MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+      Number metricValue=originalSeries.get(time,metricSpec.getName());
+      context.getCounter(starTreeConfig.getCollection(),metricSpec.getName()).increment(metricValue.longValue());
+    }
+  }
   MetricTimeSeries series=originalSeries;
   LOGGER.info("Preserve time {} ",preserveTime);
   if (!preserveTime) {
