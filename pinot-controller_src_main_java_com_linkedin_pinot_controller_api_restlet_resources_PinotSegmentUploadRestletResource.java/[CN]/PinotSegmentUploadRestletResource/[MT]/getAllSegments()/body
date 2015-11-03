@@ -2,7 +2,11 @@
   Representation presentation;
   final JSONArray ret=new JSONArray();
   for (  final File file : baseDataDir.listFiles()) {
-    final String url="http://" + StringUtil.join(":",_controllerConf.getControllerVipHost(),_controllerConf.getControllerPort()) + "/segments/"+ file.getName();
+    final String fileName=file.getName();
+    if (fileName.equalsIgnoreCase("fileUploadTemp") || fileName.equalsIgnoreCase("schemasTemp")) {
+      continue;
+    }
+    final String url="http://" + StringUtil.join(":",_controllerConf.getControllerVipHost(),_controllerConf.getControllerPort()) + "/segments/"+ fileName;
     ret.put(url);
   }
   presentation=new StringRepresentation(ret.toString());

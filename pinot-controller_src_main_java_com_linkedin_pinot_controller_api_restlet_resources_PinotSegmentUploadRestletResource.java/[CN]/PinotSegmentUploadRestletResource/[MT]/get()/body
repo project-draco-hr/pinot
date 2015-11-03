@@ -3,11 +3,12 @@
   try {
     final String tableName=(String)getRequest().getAttributes().get("tableName");
     final String segmentName=(String)getRequest().getAttributes().get("segmentName");
+    final String active=getReference().getQueryAsForm().getValues("active");
     if ((tableName == null) && (segmentName == null)) {
       return getAllSegments();
     }
  else     if ((tableName != null) && (segmentName == null)) {
-      return getSegmentsForTable(tableName);
+      return getSegmentsForTable(tableName,!"false".equalsIgnoreCase(active));
     }
     presentation=getSegmentFile(tableName,segmentName);
   }
