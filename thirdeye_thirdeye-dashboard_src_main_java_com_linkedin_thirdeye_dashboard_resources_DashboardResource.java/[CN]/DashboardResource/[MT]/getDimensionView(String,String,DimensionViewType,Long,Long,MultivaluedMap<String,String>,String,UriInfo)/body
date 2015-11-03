@@ -8,8 +8,9 @@
     reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
   }
 switch (dimensionViewType) {
+case CONTRIBUTOR:
 case MULTI_TIME_SERIES:
-    return new DimensionViewMultiTimeSeries(schema.getDimensions());
+    return contributorResource.generateDimensionContributorView(collection,metricFunction,selectedDimensions,uriInfo,schema,baseline,current,reverseDimensionGroups);
 case HEAT_MAP:
   Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
 for (String dimension : schema.getDimensions()) {
@@ -34,7 +35,7 @@ results.put(entry.getKey(),entry.getValue().get());
 }
 return new DimensionViewHeatMap(schema,objectMapper,results,dimensionGroups,dimensionRegex);
 case TABULAR:
-List<FunnelTable> funnelTables=funnelResource.computeFunnelViews(collection,metricFunction,funnels,baselineMillis,currentMillis,getIntraPeriod(metricFunction),selectedDimensions);
+List<FunnelTable> funnelTables=funnelResource.computeFunnelViews(collection,metricFunction,funnels,baselineMillis,currentMillis,ViewUtils.getIntraPeriod(metricFunction),selectedDimensions);
 return new DimensionViewFunnel(funnelTables);
 default :
 throw new NotFoundException("No dimension view implementation for " + dimensionViewType);

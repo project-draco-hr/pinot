@@ -1,0 +1,19 @@
+{
+  Map<String,Map<String,MetricTable>> tables=new TreeMap<>();
+  for (  String dimension : dimensionCurrentResults.keySet()) {
+    Map<String,MetricTable> rows=new TreeMap<>();
+    QueryResult queryBaselineResult=dimensionBaselineResults.get(dimension);
+    QueryResult queryCurrentResult=dimensionCurrentResults.get(dimension);
+    int dimensionValueIndex=queryCurrentResult.getDimensions().indexOf(dimension);
+    for (    String dimensionKey : queryCurrentResult.getData().keySet()) {
+      List<String> dimensionValues=objectMapper.readValue(dimensionKey.getBytes(),LIST_TYPE_REF);
+      String dimensionValue=dimensionValues.get(dimensionValueIndex);
+      Map<String,Number[]> currentValues=queryCurrentResult.getData().get(dimensionKey);
+      Map<String,Number[]> baselineValues=queryBaselineResult.getData().get(dimensionKey);
+      MetricTable row=generateTableRowWithReference(queryBaselineResult,baselineStart,currentStart,intraPeriod,baselineValues,currentValues,totalRow.getRows());
+      rows.put(dimensionValue,row);
+    }
+    tables.put(dimension,rows);
+  }
+  return tables;
+}

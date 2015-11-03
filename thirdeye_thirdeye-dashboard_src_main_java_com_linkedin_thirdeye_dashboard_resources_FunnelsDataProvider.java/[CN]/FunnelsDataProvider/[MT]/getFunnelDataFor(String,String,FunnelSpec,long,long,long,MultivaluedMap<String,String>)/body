@@ -1,11 +1,7 @@
 {
-  DateTime currentInput=new DateTime(currentMillis,DateTimeZone.UTC);
-  currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
-  DateTime currentStart=new DateTime(currentInput.getYear(),currentInput.getMonthOfYear(),currentInput.getDayOfMonth(),0,0);
+  DateTime currentStart=ViewUtils.standardizeToStartOfDayPT(currentMillis);
   DateTime currentEnd=currentStart.plus(intraPeriod);
-  DateTime baselineInput=new DateTime(baselineMillis,DateTimeZone.UTC);
-  currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
-  DateTime baselineStart=new DateTime(baselineInput.getYear(),baselineInput.getMonthOfYear(),baselineInput.getDayOfMonth(),0,0);
+  DateTime baselineStart=ViewUtils.standardizeToStartOfDayPT(baselineMillis);
   DateTime baselineEnd=baselineStart.plus(intraPeriod);
   List<String> metricFunctionLevels=ViewUtils.getMetricFunctionLevels(urlMetricFunction);
   String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
@@ -21,7 +17,7 @@
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
   long baselineOffsetMillis=currentEnd.getMillis() - baselineEnd.getMillis();
-  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentEnd.getMillis(),baselineOffsetMillis,intraPeriod);
+  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),baselineOffsetMillis,intraPeriod);
   Map<String,Integer> metricNameToIndex=new HashMap<>();
   List<String> resultMetrics=baselineResult.get().getMetrics();
   for (int i=0; i < resultMetrics.size(); i++) {
@@ -60,5 +56,5 @@
     filteredTable.add(filteredRow);
   }
   List<MetricDataRow> filteredCumulativeTable=ViewUtils.computeCumulativeRows(filteredTable,metricCount);
-  return new FunnelTable(spec,filteredTable,filteredCumulativeTable,currentInput,baselineInput);
+  return new FunnelTable(spec,filteredTable,filteredCumulativeTable,currentStart,baselineStart);
 }

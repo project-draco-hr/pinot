@@ -1,0 +1,7 @@
+{
+  Map<Long,Number[]> convertedBaselineValues=convertTimestamps(baselineValues);
+  Map<Long,Number[]> convertedCurrentValues=convertTimestamps(currentValues);
+  List<MetricDataRow> entries=ViewUtils.extractMetricDataRows(convertedBaselineValues,convertedCurrentValues,currentStart,currentStart - baselineStart,intraPeriod);
+  List<MetricDataRow> cumulativeEntries=ViewUtils.computeCumulativeRows(entries,metricCount);
+  return new MetricTable(entries,cumulativeEntries);
+}

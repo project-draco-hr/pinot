@@ -1,0 +1,15 @@
+{
+  if (totalBaselineResult.getData().size() != 1 || totalCurrentResult.getData().size() != 1) {
+    LOGGER.error("Must have exactly one dimension key present for total result!");
+  }
+  Map<String,Number[]> baselineValues=null;
+  Map<String,Number[]> currentValues=null;
+  for (  Entry<String,Map<String,Number[]>> dimensionEntry : totalBaselineResult.getData().entrySet()) {
+    baselineValues=dimensionEntry.getValue();
+  }
+  for (  Entry<String,Map<String,Number[]>> dimensionEntry : totalCurrentResult.getData().entrySet()) {
+    currentValues=dimensionEntry.getValue();
+  }
+  MetricTable totalRow=generateTableRow(totalCurrentResult.getMetrics().size(),baselineStart,currentStart,intraPeriod,baselineValues,currentValues);
+  return totalRow;
+}

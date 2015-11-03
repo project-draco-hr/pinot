@@ -1,0 +1,38 @@
+{
+  long intraPeriod=ViewUtils.getIntraPeriod(metricFunction);
+  currentStart=ViewUtils.standardizeToStartOfDayPT(currentStart);
+  baselineStart=ViewUtils.standardizeToStartOfDayPT(baselineStart);
+  String baselineTotalSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
+  String currentTotalSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
+  LOGGER.info("Generated SQL for contributor baseline total {}: {}",uriInfo.getRequestUri(),baselineTotalSql);
+  LOGGER.info("Generated SQL for contributor current total {}: {}",uriInfo.getRequestUri(),currentTotalSql);
+  Future<QueryResult> baselineTotalResultFuture=queryCache.getQueryResultAsync(serverUri,baselineTotalSql);
+  Future<QueryResult> currentTotalResultFuture=queryCache.getQueryResultAsync(serverUri,currentTotalSql);
+  Map<String,Future<QueryResult>> baselineResultFutures=new HashMap<>();
+  Map<String,Future<QueryResult>> currentResultFutures=new HashMap<>();
+  for (  String dimension : schema.getDimensions()) {
+    if (!selectedDimensions.containsKey(dimension)) {
+      selectedDimensions.put(dimension,Arrays.asList("!"));
+      String baselineGroupBySql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
+      String currentGroupBySql=SqlUtils.getSql(metricFunction,collection,currentStart,currentStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
+      LOGGER.info("Generated SQL for contributor baseline {}: {}",uriInfo.getRequestUri(),baselineGroupBySql);
+      LOGGER.info("Generated SQL for contributor current {}: {}",uriInfo.getRequestUri(),currentGroupBySql);
+      selectedDimensions.remove(dimension);
+      baselineResultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,baselineGroupBySql));
+      currentResultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,currentGroupBySql));
+    }
+  }
+  QueryResult baselineTotalResult=baselineTotalResultFuture.get();
+  QueryResult currentTotalResult=currentTotalResultFuture.get();
+  Map<String,QueryResult> dimensionBaselineResults=new HashMap<>(baselineResultFutures.size());
+  Map<String,QueryResult> dimensionCurrentResults=new HashMap<>(currentResultFutures.size());
+  for (  Map.Entry<String,Future<QueryResult>> entry : baselineResultFutures.entrySet()) {
+    dimensionBaselineResults.put(entry.getKey(),entry.getValue().get());
+  }
+  for (  Map.Entry<String,Future<QueryResult>> entry : currentResultFutures.entrySet()) {
+    dimensionCurrentResults.put(entry.getKey(),entry.getValue().get());
+  }
+  MetricTable totalRow=generateMetricTotalTable(baselineTotalResult,currentTotalResult,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
+  Map<String,Map<String,MetricTable>> tables=generateDimensionTables(totalRow,dimensionBaselineResults,dimensionCurrentResults,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
+  return new DimensionViewContributors(currentTotalResult.getMetrics(),totalRow,tables);
+}
