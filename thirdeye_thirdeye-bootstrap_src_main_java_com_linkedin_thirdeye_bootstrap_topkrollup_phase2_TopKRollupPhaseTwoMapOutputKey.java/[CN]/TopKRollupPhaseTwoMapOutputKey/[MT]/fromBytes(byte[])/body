@@ -1,0 +1,12 @@
+{
+  DataInputStream dis=new DataInputStream(new ByteArrayInputStream(buffer));
+  int length;
+  byte[] bytes;
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
+  String dimensionName=new String(bytes);
+  TopKRollupPhaseTwoMapOutputKey wrapper;
+  wrapper=new TopKRollupPhaseTwoMapOutputKey(dimensionName);
+  return wrapper;
+}

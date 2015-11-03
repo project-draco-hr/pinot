@@ -1,15 +1,12 @@
 {
-  StarTreeRecord starTreeRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
-  DimensionKey dimensionKey=starTreeRecord.getDimensionKey();
+  DimensionKey dimensionKey=DimensionKey.fromBytes(dimensionKeyBytes.getBytes());
   String[] dimensionValues=dimensionKey.getDimensionValues();
-  MetricTimeSeries series=starTreeRecord.getMetricTimeSeries();
   for (  String dimensionName : config.getDimensionNames()) {
     String dimensionValue=dimensionValues[dimensionNameToIndexMapping.get(dimensionName)];
     TopKRollupPhaseOneMapOutputKey keyWrapper;
     keyWrapper=new TopKRollupPhaseOneMapOutputKey(dimensionName,dimensionValue);
     byte[] keyBytes=keyWrapper.toBytes();
     keyWritable.set(keyBytes,0,keyBytes.length);
-    valWritable.set(series.toBytes(),0,series.toBytes().length);
-    context.write(keyWritable,valWritable);
+    context.write(keyWritable,aggSeries);
   }
 }

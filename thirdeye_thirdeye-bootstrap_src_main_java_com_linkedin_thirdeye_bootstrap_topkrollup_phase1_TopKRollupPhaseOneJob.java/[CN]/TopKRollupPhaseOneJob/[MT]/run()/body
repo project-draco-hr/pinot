@@ -2,12 +2,8 @@
   Job job=Job.getInstance(getConf());
   job.setJobName(name);
   job.setJarByClass(TopKRollupPhaseOneJob.class);
-  FileSystem fs=FileSystem.get(getConf());
-  Schema schema=new Schema.Parser().parse(fs.open(new Path(getAndCheck(TOPK_ROLLUP_PHASE1_SCHEMA_PATH.toString()))));
-  LOGGER.info("{}",schema);
   job.setMapperClass(TopKRollupPhaseOneMapper.class);
-  AvroJob.setInputKeySchema(job,schema);
-  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setInputFormatClass(SequenceFileInputFormat.class);
   job.setMapOutputKeyClass(BytesWritable.class);
   job.setMapOutputValueClass(BytesWritable.class);
   job.setReducerClass(TopKRollupPhaseOneReducer.class);
