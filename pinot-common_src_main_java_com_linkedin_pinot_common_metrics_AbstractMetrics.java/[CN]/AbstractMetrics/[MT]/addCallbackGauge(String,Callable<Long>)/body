@@ -1,0 +1,15 @@
+{
+  MetricsHelper.newGauge(_metricsRegistry,new MetricName(_clazz,_metricPrefix + metricName),new Gauge<Long>(){
+    @Override public Long value(){
+      try {
+        return valueCallback.call();
+      }
+ catch (      Exception e) {
+        LOGGER.error("Caught exception",e);
+        Utils.rethrowException(e);
+        throw new AssertionError("Should not reach this");
+      }
+    }
+  }
+);
+}
