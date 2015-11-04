@@ -36,7 +36,7 @@
   }
   try {
     View dimensionView=getDimensionView(collection,metricFunction,dimensionViewType,baselineMillis,currentMillis,selectedDimensions,selectedFunnels,uriInfo);
-    Map<String,Collection<String>> dimensionValueOptions=retrieveDimensionValues(collection,baselineMillis,currentMillis);
+    Map<String,Collection<String>> dimensionValueOptions=dashboardConfigResource.getDimensionValues(collection,baselineMillis,currentMillis);
     return new DashboardView(collection,dataCache.getCollectionSchema(serverUri,collection),selectedDimensions,new DateTime(baselineMillis),new DateTime(currentMillis),new DimensionView(dimensionView,dimensionViewType,dimensionValueOptions),earliestDataTime,latestDataTime,customDashboardNames,feedbackEmailAddress,funnelNames);
   }
  catch (  Exception e) {

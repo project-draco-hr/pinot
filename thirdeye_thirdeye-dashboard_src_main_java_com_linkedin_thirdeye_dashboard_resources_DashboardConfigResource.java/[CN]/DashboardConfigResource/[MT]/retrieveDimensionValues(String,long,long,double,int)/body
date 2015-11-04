@@ -2,8 +2,8 @@
   List<String> dimensions=getDimensions(collection);
   DateTime baseline=new DateTime(baselineMillis);
   DateTime current=new DateTime(currentMillis);
-  String firstMetric=getMetrics(collection).get(0);
-  String dummyFunction=String.format(DIMENSION_VALUES_OPTIONS_METRIC_FUNCTION,firstMetric);
+  List<String> metrics=getMetrics(collection);
+  String dummyFunction=String.format(DIMENSION_VALUES_OPTIONS_METRIC_FUNCTION,METRIC_FUNCTION_JOINER.join(metrics));
   MultivaluedMap<String,String> dimensionValues=new MultivaluedMapImpl();
   Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
   for (  String dimension : dimensions) {

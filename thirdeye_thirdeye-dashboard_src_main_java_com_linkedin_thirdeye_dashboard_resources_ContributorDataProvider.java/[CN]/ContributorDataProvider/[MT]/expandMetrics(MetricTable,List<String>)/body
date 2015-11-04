@@ -1,0 +1,18 @@
+{
+  HashMap<String,MetricTable> result=new HashMap<>();
+  for (int i=0; i < metrics.size(); i++) {
+    String metric=metrics.get(i);
+    List<MetricDataRow> metricRows=new LinkedList<>();
+    for (    MetricDataRow row : table.getRows()) {
+      MetricDataRow metricRow=extractMetric(row,i);
+      metricRows.add(metricRow);
+    }
+    List<MetricDataRow> cumulativeMetricRows=new LinkedList<>();
+    for (    MetricDataRow cumulativeRow : table.getCumulativeRows()) {
+      MetricDataRow cumulativeMetricRow=extractMetric(cumulativeRow,i);
+      cumulativeMetricRows.add(cumulativeMetricRow);
+    }
+    result.put(metric,new MetricTable(metricRows,cumulativeMetricRows));
+  }
+  return result;
+}

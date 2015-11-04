@@ -32,7 +32,8 @@
   for (  Map.Entry<String,Future<QueryResult>> entry : currentResultFutures.entrySet()) {
     dimensionCurrentResults.put(entry.getKey(),entry.getValue().get());
   }
-  MetricTable totalRow=generateMetricTotalTable(baselineTotalResult,currentTotalResult,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
-  Map<String,Map<String,MetricTable>> tables=generateDimensionTables(totalRow,dimensionBaselineResults,dimensionCurrentResults,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
-  return new DimensionViewContributors(currentTotalResult.getMetrics(),totalRow,tables);
+  Map<String,MetricTable> totalRow=generateMetricTotalTable(baselineTotalResult,currentTotalResult,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
+  List<String> metrics=currentTotalResult.getMetrics();
+  Map<Pair<String,String>,Map<String,MetricTable>> tables=generateDimensionTables(metrics,totalRow,dimensionBaselineResults,dimensionCurrentResults,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
+  return new DimensionViewContributors(metrics,currentTotalResult.getDimensions(),totalRow,tables);
 }
