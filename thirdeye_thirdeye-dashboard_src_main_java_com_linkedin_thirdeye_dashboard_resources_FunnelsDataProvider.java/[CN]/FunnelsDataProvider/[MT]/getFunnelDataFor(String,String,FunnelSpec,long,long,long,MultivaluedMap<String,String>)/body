@@ -55,6 +55,5 @@
     MetricDataRow filteredRow=new MetricDataRow(row.getBaselineTime(),filteredBaseline,row.getCurrentTime(),filteredCurrent);
     filteredTable.add(filteredRow);
   }
-  List<MetricDataRow> filteredCumulativeTable=ViewUtils.computeCumulativeRows(filteredTable,metricCount);
-  return new FunnelTable(spec,filteredTable,filteredCumulativeTable,currentStart,baselineStart);
+  return new FunnelTable(spec,new MetricTable(filteredTable,metricCount),currentStart,baselineStart);
 }

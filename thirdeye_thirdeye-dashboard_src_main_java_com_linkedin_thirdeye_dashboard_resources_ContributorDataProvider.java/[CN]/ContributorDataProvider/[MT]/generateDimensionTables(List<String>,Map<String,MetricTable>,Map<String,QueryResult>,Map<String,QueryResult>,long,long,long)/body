@@ -9,15 +9,11 @@
     totalCounts.put(metric,getContributionCount(totalRow.get(metric)));
   }
   for (  String dimension : dimensionCurrentResults.keySet()) {
-    Map<String,Map<Pair<String,Double>,MetricTable>> weightsByMetric=new HashMap<>();
+    Map<String,Map<String,Double>> weightsByMetric=new HashMap<>();
+    Map<String,Map<String,MetricTable>> tablesByMetric=new HashMap<>();
     for (    String metric : metrics) {
-      Map<Pair<String,Double>,MetricTable> valuesByContribution=new TreeMap<>(new Comparator<Pair<String,Double>>(){
-        @Override public int compare(        Pair<String,Double> o1,        Pair<String,Double> o2){
-          return -o1.getValue().compareTo(o2.getValue());
-        }
-      }
-);
-      weightsByMetric.put(metric,valuesByContribution);
+      weightsByMetric.put(metric,new HashMap<String,Double>());
+      tablesByMetric.put(metric,new HashMap<String,MetricTable>());
     }
     QueryResult queryBaselineResult=dimensionBaselineResults.get(dimension);
     QueryResult queryCurrentResult=dimensionCurrentResults.get(dimension);
@@ -31,22 +27,36 @@
       Map<String,MetricTable> metricRows=expandMetrics(row,metrics);
       for (      String metric : metrics) {
         MetricTable metricRow=metricRows.get(metric);
+        Map<String,MetricTable> tables=tablesByMetric.get(metric);
+        Map<String,Double> weights=weightsByMetric.get(metric);
         double contributionCount=getContributionCount(metricRow);
         double totalCount=totalCounts.get(metric);
         double contribution=(contributionCount / totalCount);
         LOGGER.debug("Meets threshold? {} : {} / {} for {} {} {}",contribution >= MINIMUM_DIMENSION_VALUE_THRESHOLD,contributionCount,totalCount,metric,dimension,dimensionValue);
-        if (contribution >= MINIMUM_DIMENSION_VALUE_THRESHOLD) {
-          weightsByMetric.get(metric).put(new Pair<String,Double>(dimensionValue,contribution),metricRow);
+        if (OTHER_DIMENSION_VALUE.equals(dimensionValue) || OTHER_DIMENSION_VALUE_MATCH_STR.equalsIgnoreCase(dimensionValue) || contribution < MINIMUM_DIMENSION_VALUE_THRESHOLD) {
+          MetricTable otherRow=tables.get(OTHER_DIMENSION_VALUE);
+          if (otherRow != null) {
+            LOGGER.debug("Adding {} ({}) to OTHER ({})",dimensionValue,contributionCount,getContributionCount(otherRow));
+            metricRow=mergeTables(metricRow,otherRow,1);
+          }
+          dimensionValue=OTHER_DIMENSION_VALUE;
+          contributionCount=getContributionCount(metricRow);
+          contribution=(contributionCount / totalCount);
         }
+        weights.put(dimensionValue,contribution);
+        tables.put(dimensionValue,metricRow);
       }
     }
     for (    String metric : metrics) {
       LinkedHashMap<String,MetricTable> dimensionValueTable=new LinkedHashMap<String,MetricTable>();
       table.put(new Pair<String,String>(metric,dimension),dimensionValueTable);
-      Map<Pair<String,Double>,MetricTable> weights=weightsByMetric.get(metric);
-      for (      Entry<Pair<String,Double>,MetricTable> entry : weights.entrySet()) {
-        String dimensionValue=entry.getKey().getFirst();
-        MetricTable metricRow=entry.getValue();
+      Map<String,Double> weights=weightsByMetric.get(metric);
+      Map<String,MetricTable> tables=tablesByMetric.get(metric);
+      List<Entry<String,Double>> sortedEntries=sortedEntriesByValue(weights);
+      Collections.reverse(sortedEntries);
+      for (      Entry<String,Double> entry : sortedEntries) {
+        String dimensionValue=entry.getKey();
+        MetricTable metricRow=tables.get(dimensionValue);
         dimensionValueTable.put(dimensionValue,metricRow);
       }
     }

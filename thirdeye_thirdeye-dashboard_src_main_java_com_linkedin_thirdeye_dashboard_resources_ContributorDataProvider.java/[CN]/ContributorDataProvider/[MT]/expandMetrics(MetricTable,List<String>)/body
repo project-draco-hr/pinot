@@ -7,12 +7,7 @@
       MetricDataRow metricRow=extractMetric(row,i);
       metricRows.add(metricRow);
     }
-    List<MetricDataRow> cumulativeMetricRows=new LinkedList<>();
-    for (    MetricDataRow cumulativeRow : table.getCumulativeRows()) {
-      MetricDataRow cumulativeMetricRow=extractMetric(cumulativeRow,i);
-      cumulativeMetricRows.add(cumulativeMetricRow);
-    }
-    result.put(metric,new MetricTable(metricRows,cumulativeMetricRows));
+    result.put(metric,new MetricTable(metricRows,1));
   }
   return result;
 }
