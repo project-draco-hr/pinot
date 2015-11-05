@@ -6,6 +6,12 @@
     mergedBlock=blockToMerge;
     return;
   }
+  DataTableBuilder.DataSchema mergedBlockSchema=mergedBlock.getSelectionDataSchema();
+  DataTableBuilder.DataSchema blockToMergeSchema=blockToMerge.getSelectionDataSchema();
+  if (mergedBlockSchema != null && !mergedBlockSchema.equals(blockToMergeSchema)) {
+    LOGGER.warn("Schema inconsistency. merged block schema: {}, block to merge schema: {}. Dropping block to merge",mergedBlockSchema,blockToMergeSchema);
+    return;
+  }
   mergedBlock.setNumDocsScanned(mergedBlock.getNumDocsScanned() + blockToMerge.getNumDocsScanned());
   mergedBlock.setTotalDocs(mergedBlock.getTotalDocs() + blockToMerge.getTotalDocs());
   if (brokerRequest.isEnableTrace()) {

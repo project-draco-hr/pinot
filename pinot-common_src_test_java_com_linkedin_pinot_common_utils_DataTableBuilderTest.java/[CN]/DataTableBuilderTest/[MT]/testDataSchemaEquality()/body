@@ -1,0 +1,22 @@
+{
+  DataSchema ds=new DataSchema(null,null);
+  Assert.assertFalse(ds.equals(null));
+  Object rhs=new String("blah blah");
+  Assert.assertFalse(ds.equals(rhs));
+  rhs=new DataSchema(null,null);
+  Assert.assertTrue(ds.equals(rhs));
+  ds=new DataSchema(new String[]{"a","b"},new DataType[]{DataType.DOUBLE,DataType.STRING_ARRAY});
+  Assert.assertFalse(ds.equals(rhs));
+  rhs=new DataSchema(new String[]{"a","b"},new DataType[]{DataType.DOUBLE,DataType.STRING_ARRAY});
+  Assert.assertTrue(ds.equals(rhs));
+  rhs=new DataSchema(new String[]{"a","b","c"},new DataType[]{DataType.DOUBLE,DataType.STRING_ARRAY,DataType.LONG});
+  Assert.assertFalse(ds.equals(rhs));
+  rhs=new DataSchema(new String[]{"a","b"},new DataType[]{DataType.DOUBLE,DataType.STRING});
+  Assert.assertFalse(ds.equals(rhs));
+  rhs=new DataSchema(new String[]{"A","c"},new DataType[]{DataType.DOUBLE,DataType.STRING_ARRAY});
+  Assert.assertFalse(ds.equals(rhs));
+  ds=new DataSchema(new String[]{null},new DataType[]{null});
+  Assert.assertFalse(ds.equals(rhs));
+  rhs=new DataSchema(new String[]{null},new DataType[]{null});
+  Assert.assertTrue(ds.equals(rhs));
+}
