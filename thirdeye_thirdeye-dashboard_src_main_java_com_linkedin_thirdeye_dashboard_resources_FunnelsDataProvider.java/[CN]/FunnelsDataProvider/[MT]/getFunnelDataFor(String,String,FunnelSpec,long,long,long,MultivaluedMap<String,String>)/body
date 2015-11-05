@@ -1,28 +1,23 @@
 {
-  DateTime currentInput=new DateTime(currentMillis,DateTimeZone.UTC);
-  currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
-  DateTime currentStart=new DateTime(currentInput.getYear(),currentInput.getMonthOfYear(),currentInput.getDayOfMonth(),0,0);
+  DateTime currentStart=ViewUtils.standardizeToStartOfDayPT(currentMillis);
   DateTime currentEnd=currentStart.plus(intraPeriod);
-  DateTime baselineInput=new DateTime(baselineMillis,DateTimeZone.UTC);
-  currentInput=currentInput.toDateTime(DateTimeZone.forID("America/Los_Angeles"));
-  DateTime baselineStart=new DateTime(baselineInput.getYear(),baselineInput.getMonthOfYear(),baselineInput.getDayOfMonth(),0,0);
+  DateTime baselineStart=ViewUtils.standardizeToStartOfDayPT(baselineMillis);
   DateTime baselineEnd=baselineStart.plus(intraPeriod);
-  String metricFunctionPrefix=urlMetricFunction.substring(0,urlMetricFunction.lastIndexOf('('));
-  String metricFunctionSuffix=urlMetricFunction.substring(urlMetricFunction.indexOf(')') + 1);
-  String metricFunction=String.format("%s(%s)%s",metricFunctionPrefix,METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames()),metricFunctionSuffix);
+  List<String> metricFunctionLevels=ViewUtils.getMetricFunctionLevels(urlMetricFunction);
+  String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
   DimensionGroupSpec dimSpec=DimensionGroupSpec.emptySpec(collection);
   Map<String,Map<String,List<String>>> dimensionGroups=DimensionGroupSpec.emptySpec(collection).getReverseMapping();
   String baselineSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineEnd,dimensionValuesMap,dimensionGroups);
   String currentSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentEnd,dimensionValuesMap,dimensionGroups);
   LOG.info("funnel queries for collection : {}, with name : {} ",collection,spec.getName());
-  LOG.info("Generated SQL: {}",baselineSql);
-  LOG.info("Generated SQL: {}",currentSql);
+  LOG.info("Generated SQL for funnel baseline: {}",baselineSql);
+  LOG.info("Generated SQL for funnel current: {}",currentSql);
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSql);
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSql);
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
   long baselineOffsetMillis=currentEnd.getMillis() - baselineEnd.getMillis();
-  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentEnd.getMillis(),baselineOffsetMillis,intraPeriod);
+  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),baselineOffsetMillis,intraPeriod);
   Map<String,Integer> metricNameToIndex=new HashMap<>();
   List<String> resultMetrics=baselineResult.get().getMetrics();
   for (int i=0; i < resultMetrics.size(); i++) {
@@ -60,6 +55,5 @@
     MetricDataRow filteredRow=new MetricDataRow(row.getBaselineTime(),filteredBaseline,row.getCurrentTime(),filteredCurrent);
     filteredTable.add(filteredRow);
   }
-  List<MetricDataRow> filteredCumulativeTable=ViewUtils.computeCumulativeRows(filteredTable,metricCount);
-  return new FunnelHeatMapView(spec,filteredTable,filteredCumulativeTable,currentInput,baselineInput);
+  return new FunnelTable(spec,new MetricTable(filteredTable,metricCount),currentStart,baselineStart);
 }

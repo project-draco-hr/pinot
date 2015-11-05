@@ -1,0 +1,35 @@
+{
+  Stack<String> path=new Stack<>();
+  List<Boolean> validDepths=new ArrayList<>();
+  validDepths.add(true);
+  int currentDepth=0;
+  StringBuilder sb=new StringBuilder();
+  for (  char c : metricFunction.toCharArray()) {
+switch (c) {
+case '(':
+      if (currentDepth < validDepths.size() && validDepths.get(currentDepth)) {
+        path.push(sb.toString());
+        validDepths.add(true);
+      }
+    currentDepth++;
+  sb.setLength(0);
+break;
+case ')':
+currentDepth--;
+break;
+case ',':
+if (currentDepth < validDepths.size()) {
+validDepths.set(currentDepth,false);
+while (validDepths.size() > currentDepth + 1) {
+validDepths.remove(currentDepth + 1);
+path.pop();
+}
+}
+break;
+default :
+sb.append(c);
+break;
+}
+}
+return new ArrayList<>(path);
+}
