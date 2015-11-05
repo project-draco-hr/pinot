@@ -1,17 +1,12 @@
 {
-  List<Integer> dictIds=new ArrayList<Integer>();
+  this.dictionary=dictionary;
   final String[] notInValues=predicate.getNotInRange();
-  final List<Integer> notInIds=new ArrayList<Integer>();
-  for (  final String notInValue : notInValues) {
-    notInIds.add(new Integer(dictionary.indexOf(notInValue)));
-  }
-  for (int i=0; i < dictionary.length(); i++) {
-    if (!notInIds.contains(new Integer(i))) {
-      dictIds.add(i);
+  nonMatchingDictIdSet=new IntOpenHashSet(notInValues.length);
+  for (int i=0; i < notInValues.length; i++) {
+    final String notInValue=notInValues[i];
+    int dictId=dictionary.indexOf(notInValue);
+    if (dictId >= 0) {
+      nonMatchingDictIdSet.add(dictId);
     }
-  }
-  matchingIds=new int[dictIds.size()];
-  for (int i=0; i < matchingIds.length; i++) {
-    matchingIds[i]=dictIds.get(i);
   }
 }

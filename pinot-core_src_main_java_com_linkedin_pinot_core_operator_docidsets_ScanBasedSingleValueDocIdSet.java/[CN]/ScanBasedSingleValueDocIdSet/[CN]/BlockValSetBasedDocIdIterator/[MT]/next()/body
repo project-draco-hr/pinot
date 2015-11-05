@@ -5,7 +5,7 @@
   while (valueIterator.hasNext() && currentDocId <= endDocId) {
     currentDocId=currentDocId + 1;
     int dictIdForCurrentDoc=valueIterator.nextIntVal();
-    if (dictIdSet.contains(dictIdForCurrentDoc)) {
+    if (evaluator.apply(dictIdForCurrentDoc)) {
       return currentDocId;
     }
   }

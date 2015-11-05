@@ -1,15 +1,16 @@
 {
-  IntSet dictIds=new IntOpenHashSet();
+  dictIdSet=new IntOpenHashSet();
   final String[] inValues=predicate.getInRange();
   for (  final String value : inValues) {
     final int index=dictionary.indexOf(value);
     if (index >= 0) {
-      dictIds.add(index);
+      dictIdSet.add(index);
     }
   }
-  matchingIds=new int[dictIds.size()];
+  matchingIds=new int[dictIdSet.size()];
   int i=0;
-  for (  int dictId : dictIds) {
+  for (  int dictId : dictIdSet) {
     matchingIds[i++]=dictId;
   }
+  Arrays.sort(matchingIds);
 }
