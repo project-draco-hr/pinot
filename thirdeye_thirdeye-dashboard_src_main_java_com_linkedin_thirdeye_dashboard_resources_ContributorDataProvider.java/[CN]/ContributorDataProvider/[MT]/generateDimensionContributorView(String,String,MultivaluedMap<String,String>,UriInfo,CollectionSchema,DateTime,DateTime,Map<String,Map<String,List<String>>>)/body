@@ -12,6 +12,7 @@
  else {
     currentStart=ViewUtils.standardizeToStartOfDayUTC(currentStart.getMillis());
   }
+  long baselineOffset=currentStart.getMillis() - baselineStart.getMillis();
   String baselineTotalSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
   String currentTotalSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
   LOGGER.info("Generated SQL for contributor baseline total {}: {}",uriInfo.getRequestUri(),baselineTotalSql);
@@ -42,8 +43,8 @@
   for (  Map.Entry<String,Future<QueryResult>> entry : currentResultFutures.entrySet()) {
     dimensionCurrentResults.put(entry.getKey(),entry.getValue().get());
   }
-  Map<String,MetricTable> totalRow=generateMetricTotalTable(baselineTotalResult,currentTotalResult,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
+  Map<String,MetricTable> totalRow=generateMetricTotalTable(baselineTotalResult,currentTotalResult,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod,baselineOffset);
   List<String> metrics=currentTotalResult.getMetrics();
-  Map<Pair<String,String>,Map<String,MetricTable>> tables=generateDimensionTables(metrics,totalRow,dimensionBaselineResults,dimensionCurrentResults,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod);
+  Map<Pair<String,String>,Map<String,MetricTable>> tables=generateDimensionTables(metrics,totalRow,dimensionBaselineResults,dimensionCurrentResults,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod,baselineOffset);
   return new DimensionViewContributors(metrics,currentTotalResult.getDimensions(),totalRow,tables);
 }

@@ -28,8 +28,8 @@
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSql);
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
-  long baselineOffsetMillis=currentEnd.getMillis() - baselineEnd.getMillis();
-  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),baselineOffsetMillis,intraPeriod);
+  long baselineOffsetMillis=ViewUtils.getOffset(currentStart.getMillis(),baselineStart.getMillis(),currentMillis,baselineMillis,metricFunction);
+  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),intraPeriod,baselineOffsetMillis);
   Map<String,Integer> metricNameToIndex=new HashMap<>();
   List<String> resultMetrics=baselineResult.get().getMetrics();
   for (int i=0; i < resultMetrics.size(); i++) {

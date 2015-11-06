@@ -1,0 +1,12 @@
+{
+  String timeUnit=metricFunction.split("_")[2];
+  if (timeUnit.startsWith(TimeUnit.HOURS.toString())) {
+    return Granularity.HOURS;
+  }
+ else   if (timeUnit.startsWith(TimeUnit.DAYS.toString())) {
+    return Granularity.DAYS;
+  }
+ else {
+    throw new IllegalArgumentException("Unknown granularity: " + timeUnit);
+  }
+}

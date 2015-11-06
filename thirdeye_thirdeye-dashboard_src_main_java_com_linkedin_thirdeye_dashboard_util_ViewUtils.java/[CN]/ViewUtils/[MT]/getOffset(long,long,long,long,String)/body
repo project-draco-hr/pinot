@@ -1,0 +1,14 @@
+{
+  ViewUtils.Granularity granularity=ViewUtils.getGranularity(metricFunction);
+  long baselineOffsetMillis;
+  if (granularity == ViewUtils.Granularity.HOURS) {
+    baselineOffsetMillis=currentWithTimezone - baselineWithTimezone;
+  }
+ else   if (granularity == ViewUtils.Granularity.DAYS) {
+    baselineOffsetMillis=current - baseline;
+  }
+ else {
+    throw new RuntimeException("Unhandled time granularity: " + granularity);
+  }
+  return baselineOffsetMillis;
+}
