@@ -1,15 +1,9 @@
 {
   NettyClientMetrics metric=new NettyClientMetrics(null,"abc");
-  int port=9089;
-  MyRequestHandler handler=new MyRequestHandler(null,null);
-  MyRequestHandlerFactory handlerFactory=new MyRequestHandlerFactory(handler);
-  NettyTCPServer serverConn=new NettyTCPServer(port,handlerFactory,null);
-  Thread serverThread=new Thread(serverConn,"ServerMain");
-  serverThread.start();
+  MyServer server=new MyServer(null);
   Thread.sleep(1000);
-  ServerInstance server=new ServerInstance("localhost",port);
   EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
-  NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server,eventLoopGroup,new HashedWheelTimer(),metric);
+  NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server.getServerInstance(),eventLoopGroup,new HashedWheelTimer(),metric);
   try {
     LOGGER.info("About to connect the client !!");
     boolean connected=clientConn.connect();
@@ -19,7 +13,7 @@
     for (int i=0; i < 10000; i++) {
       String request="dummy request :" + i;
       String response="dummy response :" + i;
-      handler.setResponse(response);
+      server.getHandler().setResponse(response);
       LOGGER.info("Sending the request (" + request + ")");
       ResponseFuture serverRespFuture=clientConn.sendRequest(Unpooled.wrappedBuffer(request.getBytes()),1L,5000L);
       LOGGER.info("Request  sent !!");
@@ -31,15 +25,15 @@
       serverResp.readBytes(b2);
       String gotResponse=new String(b2);
       Assert.assertEquals(gotResponse,response,"Response Check at client");
-      Assert.assertEquals(handler.getRequest(),request,"Request Check at server");
+      Assert.assertEquals(server.getHandler().getRequest(),request,"Request Check at server");
     }
   }
   finally {
     if (null != clientConn) {
       clientConn.close();
     }
-    if (null != serverConn) {
-      serverConn.shutdownGracefully();
+    if (null != server.getServerConn()) {
+      server.getServerConn().shutdownGracefully();
     }
   }
 }

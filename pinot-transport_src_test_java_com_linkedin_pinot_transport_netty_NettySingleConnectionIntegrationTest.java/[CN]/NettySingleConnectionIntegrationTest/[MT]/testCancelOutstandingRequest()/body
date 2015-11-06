@@ -1,17 +1,10 @@
 {
   NettyClientMetrics metric=new NettyClientMetrics(null,"abc");
-  String response="dummy response";
-  int port=9089;
   CountDownLatch latch=new CountDownLatch(1);
-  MyRequestHandler handler=new MyRequestHandler(response,latch);
-  MyRequestHandlerFactory handlerFactory=new MyRequestHandlerFactory(handler);
-  NettyTCPServer serverConn=new NettyTCPServer(port,handlerFactory,null);
-  Thread serverThread=new Thread(serverConn,"ServerMain");
-  serverThread.start();
+  MyServer server=new MyServer();
   Thread.sleep(1000);
-  ServerInstance server=new ServerInstance("localhost",port);
   EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
-  NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server,eventLoopGroup,new HashedWheelTimer(),metric);
+  NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server.getServerInstance(),eventLoopGroup,new HashedWheelTimer(),metric);
   LOGGER.info("About to connect the client !!");
   boolean connected=clientConn.connect();
   LOGGER.info("Client connected !!");
@@ -26,5 +19,5 @@
   Assert.assertNull(serverResp);
   Assert.assertTrue(serverRespFuture.isCancelled(),"Is Cancelled");
   clientConn.close();
-  serverConn.shutdownGracefully();
+  server.getServerConn().shutdownGracefully();
 }

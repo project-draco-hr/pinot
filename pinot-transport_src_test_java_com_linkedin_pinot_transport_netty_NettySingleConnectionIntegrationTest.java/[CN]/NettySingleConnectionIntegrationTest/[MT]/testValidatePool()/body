@@ -1,0 +1,64 @@
+{
+  NettyClientMetrics metric=new NettyClientMetrics(null,"abc");
+  Timer timer=new HashedWheelTimer();
+  MyServer server=new MyServer();
+  Thread.sleep(1000);
+  final String serverName="SomeServer";
+  ServerInstance serverInstance=server.getServerInstance();
+  MetricsRegistry metricsRegistry=new MetricsRegistry();
+  EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
+  PooledNettyClientResourceManager resourceManager=new PooledNettyClientResourceManager(eventLoopGroup,new HashedWheelTimer(),metric);
+  ExecutorService executorService=Executors.newCachedThreadPool();
+  ScheduledExecutorService timeoutExecutor=new ScheduledThreadPoolExecutor(5);
+  AsyncPoolResourceManagerAdapter<ServerInstance,NettyClientConnection> rmAdapter=new AsyncPoolResourceManagerAdapter<ServerInstance,NettyClientConnection>(serverInstance,resourceManager,executorService,metricsRegistry);
+  AsyncPool pool=new AsyncPoolImpl<NettyClientConnection>(serverName,rmAdapter,5,100000,timeoutExecutor,executorService,10,AsyncPoolImpl.Strategy.LRU,2,metricsRegistry);
+  pool.start();
+  Callback<NoneType> callback;
+  callback=new Callback<NoneType>(){
+    @Override public void onSuccess(    NoneType arg0){
+    }
+    @Override public void onError(    Throwable arg0){
+      Assert.fail("Shutdown error");
+    }
+  }
+;
+  boolean serverShutdown=false;
+  try {
+    PoolStats stats;
+    Thread.sleep(3000);
+    System.out.println("Validating with no used objects in the pool");
+    pool.validate(false);
+    stats=pool.getStats();
+    Assert.assertEquals(2,stats.getPoolSize());
+    Assert.assertEquals(0,stats.getTotalBadDestroyed());
+    AsyncResponseFuture<ServerInstance,NettyClientConnection> future=new AsyncResponseFuture<ServerInstance,NettyClientConnection>(serverInstance,"Future for " + serverName);
+    Cancellable cancellable=pool.get(future);
+    future.setCancellable(cancellable);
+    NettyClientConnection conn=future.getOne();
+    stats=pool.getStats();
+    System.out.println("Validating with one used object in the pool");
+    pool.validate(false);
+    Assert.assertEquals(2,stats.getPoolSize());
+    Assert.assertEquals(0,stats.getTotalBadDestroyed());
+    Assert.assertEquals(1,stats.getCheckedOut());
+    server.getServerConn().shutdownGracefully();
+    serverShutdown=true;
+    ;
+    Thread.sleep(2000);
+    pool.validate(false);
+    Thread.sleep(5000);
+    System.out.println("Validating with one used object in the pool, after server shutdown");
+    stats=pool.getStats();
+    Assert.assertEquals(2,stats.getPoolSize());
+    Assert.assertEquals(1,stats.getTotalBadDestroyed());
+    Assert.assertEquals(1,stats.getCheckedOut());
+  }
+  finally {
+    if (!serverShutdown) {
+      server.getServerConn().shutdownGracefully();
+    }
+    pool.shutdown(callback);
+    executorService.shutdown();
+    timeoutExecutor.shutdown();
+  }
+}

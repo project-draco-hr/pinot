@@ -1,0 +1,21 @@
+{
+  if (recreate) {
+    throw new UnsupportedOperationException("Recreate=true is not yet supported");
+  }
+synchronized (_lock) {
+    Iterator<TimedObject<T>> it=_idle.iterator();
+    while (it.hasNext()) {
+      TimedObject<T> obj=it.next();
+      T rawObj=obj.get();
+      if (!_lifecycle.validate(rawObj)) {
+        it.remove();
+        destroy(rawObj,true);
+        LOGGER.info("Destroyed invalid object " + rawObj);
+      }
+ else {
+        LOGGER.info("Keeping valid object " + rawObj);
+      }
+    }
+  }
+  return true;
+}
