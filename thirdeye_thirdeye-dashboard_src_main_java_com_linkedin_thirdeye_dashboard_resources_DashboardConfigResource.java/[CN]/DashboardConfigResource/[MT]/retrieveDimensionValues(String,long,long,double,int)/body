@@ -17,39 +17,61 @@
   for (int i=0; i < dimensions.size(); i++) {
     String dimension=dimensions.get(i);
     QueryResult queryResult=resultFutures.get(dimension).get();
-    double total=0.0;
-    Map<String,Number> summedValues=new HashMap<>();
+    int metricCount=metrics.size();
+    double[] total=new double[metricCount];
+    Map<String,double[]> summedValues=new HashMap<>();
     for (    Map.Entry<String,Map<String,Number[]>> entry : queryResult.getData().entrySet()) {
-      double sum=0.0;
+      double[] sum=new double[metricCount];
       for (      Map.Entry<String,Number[]> hourlyEntry : entry.getValue().entrySet()) {
-        double value=hourlyEntry.getValue()[0].doubleValue();
-        sum+=value;
+        for (int j=0; j < metricCount; j++) {
+          double value=hourlyEntry.getValue()[j].doubleValue();
+          sum[j]+=value;
+        }
       }
       summedValues.put(entry.getKey(),sum);
-      total+=sum;
+      for (int j=0; j < metricCount; j++) {
+        total[j]+=sum[j];
+      }
     }
-    PriorityQueue<Pair<String,Double>> topNValues=new PriorityQueue<>(dimensionValuesLimit,new Comparator<Pair<String,Double>>(){
+    List<PriorityQueue<Pair<String,Double>>> topNValuesByMetric=new ArrayList<PriorityQueue<Pair<String,Double>>>(metricCount);
+    double[] threshold=new double[metricCount];
+    Comparator<Pair<String,Double>> valueComparator=new Comparator<Pair<String,Double>>(){
       @Override public int compare(      Pair<String,Double> a,      Pair<String,Double> b){
         return Double.compare(a.getValue().doubleValue(),b.getValue().doubleValue());
       }
     }
-);
-    double threshold=total * contributionThreshold;
-    for (    Map.Entry<String,Number> entry : summedValues.entrySet()) {
+;
+    for (int j=0; j < metricCount; j++) {
+      threshold[j]=total[j] * contributionThreshold;
+      topNValuesByMetric.add(new PriorityQueue<>(dimensionValuesLimit,valueComparator));
+    }
+    for (    Map.Entry<String,double[]> entry : summedValues.entrySet()) {
       List<String> combination=objectMapper.readValue(entry.getKey(),LIST_TYPE_REF);
       String dimensionValue=combination.get(i);
-      double dimensionValueContribution=entry.getValue().doubleValue();
-      if (dimensionValueContribution >= threshold) {
-        topNValues.add(new Pair<>(dimensionValue,dimensionValueContribution));
-        if (topNValues.size() > dimensionValuesLimit) {
-          topNValues.poll();
+      for (int j=0; j < metricCount; j++) {
+        double dimensionValueContribution=entry.getValue()[j];
+        if (dimensionValueContribution >= threshold[j]) {
+          PriorityQueue<Pair<String,Double>> topNValues=topNValuesByMetric.get(j);
+          topNValues.add(new Pair<>(dimensionValue,dimensionValueContribution));
+          if (topNValues.size() > dimensionValuesLimit) {
+            topNValues.poll();
+          }
         }
       }
     }
-    List<String> sortedValues=new LinkedList<>();
-    while (!topNValues.isEmpty()) {
-      Pair<String,Double> pair=topNValues.poll();
-      sortedValues.add(0,pair.getKey());
+    List<String> sortedValues=new ArrayList<>();
+    HashSet<String> sortedValuesSet=new HashSet<>();
+    for (int j=0; j < metricCount; j++) {
+      PriorityQueue<Pair<String,Double>> topNValues=topNValuesByMetric.get(j);
+      int startIndex=sortedValues.size();
+      while (!topNValues.isEmpty()) {
+        Pair<String,Double> pair=topNValues.poll();
+        String dimensionValue=pair.getKey();
+        if (!sortedValuesSet.contains(dimensionValue)) {
+          sortedValues.add(startIndex,dimensionValue);
+          sortedValuesSet.add(dimensionValue);
+        }
+      }
     }
     collectedDimensionValues.put(dimension,sortedValues);
   }
