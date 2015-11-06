@@ -4,6 +4,9 @@
   for (int i=0; i < fieldNames.length - 1; i++) {
     String name=fieldNames[i];
     current=(GenericRecord)current.get(name);
+    if (current == null) {
+      return NULL_VALUE;
+    }
   }
   String terminalField=fieldNames[fieldNames.length - 1];
   Object dimensionObj=current.get(terminalField);
