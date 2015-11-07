@@ -1,0 +1,12 @@
+{
+  PQLCompiler compiler=new PQLCompiler(new HashMap<String,String[]>());
+  JSONObject jsonObject=compiler.compile(query);
+  BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
+  ResultTable results=null;
+  File file=new File(_segmentsDir);
+  for (  File segmentDir : file.listFiles()) {
+    SegmentQueryProcessor processor=new SegmentQueryProcessor(brokerRequest,segmentDir);
+    ResultTable segmentResults=processor.process(query);
+  }
+  return results;
+}

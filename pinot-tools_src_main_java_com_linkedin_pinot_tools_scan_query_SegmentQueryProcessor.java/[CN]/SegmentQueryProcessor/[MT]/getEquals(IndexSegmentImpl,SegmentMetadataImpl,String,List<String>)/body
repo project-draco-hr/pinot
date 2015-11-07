@@ -1,0 +1,31 @@
+{
+  FieldSpec.DataType dataType=metadata.getColumnMetadataFor(column).getDataType();
+  int docId=0;
+  List<Integer> result=new ArrayList<>();
+  Dictionary dictionaryReader=indexSegment.getDictionaryFor(column);
+  if (metadata.getColumnMetadataFor(column).isSingleValue()) {
+    BlockSingleValIterator bvIter=(BlockSingleValIterator)indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+    while (bvIter.hasNext()) {
+      Object value=getNextSingleValue(bvIter,dataType,dictionaryReader);
+      if (value.equals(eqValue.get(0))) {
+        result.add(docId);
+      }
+      ++docId;
+    }
+  }
+ else {
+    BlockMultiValIterator bvIter=(BlockMultiValIterator)indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+    while (bvIter.hasNext()) {
+      int maxNumMultiValue=metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
+      Object[] value=getNextMultiValue(bvIter,dataType,dictionaryReader,maxNumMultiValue);
+      for (int i=0; i < value.length; ++i) {
+        if (value.equals(eqValue.get(0))) {
+          result.add(docId);
+          break;
+        }
+      }
+      ++docId;
+    }
+  }
+  return result;
+}

@@ -1,0 +1,31 @@
+{
+  List<ColumnMetadata> columnMetadatas=new ArrayList<>();
+  for (  String column : _columns) {
+    columnMetadatas.add(_metadata.getColumnMetadataFor(column));
+  }
+  ResultTable resultTable=new ResultTable(columnMetadatas,_filteredDocIds.size());
+  for (  String column : _columns) {
+    FieldSpec.DataType dataType=_metadata.getColumnMetadataFor(column).getDataType();
+    Dictionary dictionaryReader=_indexSegment.getDictionaryFor(column);
+    if (_metadata.getColumnMetadataFor(column).isSingleValue()) {
+      BlockSingleValIterator bvIter=(BlockSingleValIterator)_indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+      int rowId=0;
+      for (      Integer docId : _filteredDocIds) {
+        bvIter.skipTo(docId);
+        Object value=getNextSingleValue(bvIter,dataType,dictionaryReader);
+        resultTable.add(rowId++,value);
+      }
+    }
+ else {
+      BlockMultiValIterator bvIter=(BlockMultiValIterator)_indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+      int rowId=0;
+      for (      Integer docId : _filteredDocIds) {
+        bvIter.skipTo(docId);
+        int maxNumMultiValue=_metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
+        Object[] value=getNextMultiValue(bvIter,dataType,dictionaryReader,maxNumMultiValue);
+        resultTable.add(rowId++,value);
+      }
+    }
+  }
+  return resultTable;
+}

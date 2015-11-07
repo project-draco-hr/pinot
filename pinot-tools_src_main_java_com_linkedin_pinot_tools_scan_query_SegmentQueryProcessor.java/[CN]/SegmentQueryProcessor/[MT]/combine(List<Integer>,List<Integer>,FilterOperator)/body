@@ -1,0 +1,22 @@
+{
+  List<Integer> result=new ArrayList<>();
+  Set<Integer> set=new HashSet<>();
+switch (operator) {
+case AND:
+    set.addAll(operand1);
+  for (  Integer docId : operand2) {
+    if (set.contains(docId)) {
+      result.add(docId);
+    }
+  }
+break;
+case OR:
+set.addAll(operand1);
+set.addAll(operand2);
+result.addAll(set);
+break;
+default :
+throw new RuntimeException("Unsupported combine operator");
+}
+return result;
+}

@@ -1,0 +1,31 @@
+{
+  SegmentMetadataImpl metadata=new SegmentMetadataImpl(_segmentDir);
+  IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(_segmentDir,ReadMode.heap);
+  FilterQueryTree filterQueryTree=RequestUtils.generateFilterQueryTree(_brokerRequest);
+  List<Integer> filteredDocIds=filterDocIds(indexSegment,metadata,filterQueryTree);
+  ResultTable result=null;
+  if (_brokerRequest.isSetAggregationsInfo()) {
+    if (!_brokerRequest.isSetGroupBy()) {
+      List<String> projColumns=null;
+      Projection projection=new Projection(indexSegment,metadata,filteredDocIds,projColumns);
+      ResultTable projectionResult=projection.run();
+      String[] aggColumns=null;
+      String[] aggFunctions=null;
+      result.aggregate(projectionResult,_brokerRequest.getAggregationsInfo());
+    }
+ else {
+      List<String> projColumns=null;
+      Projection projection=new Projection(indexSegment,metadata,filteredDocIds,projColumns);
+      ResultTable projectionResult=projection.run();
+      String[] groupByColumns=null;
+      String[] aggColumns=null;
+      String[] aggFunctions=null;
+      result.groupByAggregation(projectionResult,groupByColumns,aggColumns,aggFunctions);
+    }
+  }
+  if (_brokerRequest.isSetSelections()) {
+    Projection projection=new Projection(indexSegment,metadata,filteredDocIds,_brokerRequest.getSelections().getSelectionColumns());
+    result=projection.run();
+  }
+  return result;
+}
