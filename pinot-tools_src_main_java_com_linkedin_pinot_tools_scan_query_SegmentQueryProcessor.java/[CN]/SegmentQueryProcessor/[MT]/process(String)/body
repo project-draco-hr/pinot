@@ -6,26 +6,17 @@
   ResultTable result=null;
   if (_brokerRequest.isSetAggregationsInfo()) {
     if (!_brokerRequest.isSetGroupBy()) {
-      List<String> projColumns=null;
-      Projection projection=new Projection(indexSegment,metadata,filteredDocIds,projColumns);
-      ResultTable projectionResult=projection.run();
-      String[] aggColumns=null;
-      String[] aggFunctions=null;
-      result.aggregate(projectionResult,_brokerRequest.getAggregationsInfo());
+      Aggregation aggregation=new Aggregation(indexSegment,metadata,filteredDocIds,_brokerRequest.getAggregationsInfo());
+      return aggregation.run();
     }
  else {
-      List<String> projColumns=null;
-      Projection projection=new Projection(indexSegment,metadata,filteredDocIds,projColumns);
-      ResultTable projectionResult=projection.run();
-      String[] groupByColumns=null;
-      String[] aggColumns=null;
-      String[] aggFunctions=null;
-      result.groupByAggregation(projectionResult,groupByColumns,aggColumns,aggFunctions);
+      AggregationGroupBy aggregationGroupBy=new AggregationGroupBy(indexSegment,metadata,filteredDocIds,_brokerRequest.getAggregationsInfo());
+      return aggregationGroupBy.run();
     }
   }
   if (_brokerRequest.isSetSelections()) {
-    Projection projection=new Projection(indexSegment,metadata,filteredDocIds,_brokerRequest.getSelections().getSelectionColumns());
-    result=projection.run();
+    Selection selection=new Selection(indexSegment,metadata,filteredDocIds,_brokerRequest.getSelections().getSelectionColumns());
+    result=selection.run();
   }
   return result;
 }

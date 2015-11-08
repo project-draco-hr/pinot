@@ -7,6 +7,7 @@
   for (  File segmentDir : file.listFiles()) {
     SegmentQueryProcessor processor=new SegmentQueryProcessor(brokerRequest,segmentDir);
     ResultTable segmentResults=processor.process(query);
+    results=(results == null) ? segmentResults : results.append(segmentResults);
   }
   return results;
 }

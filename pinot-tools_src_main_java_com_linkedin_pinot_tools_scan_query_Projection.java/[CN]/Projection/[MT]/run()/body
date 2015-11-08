@@ -5,6 +5,10 @@
   }
   ResultTable resultTable=new ResultTable(columnMetadatas,_filteredDocIds.size());
   for (  String column : _columns) {
+    if (column.equals(("*"))) {
+      continue;
+    }
+    ColumnMetadata columnMetadata=_metadata.getColumnMetadataFor(column);
     FieldSpec.DataType dataType=_metadata.getColumnMetadataFor(column).getDataType();
     Dictionary dictionaryReader=_indexSegment.getDictionaryFor(column);
     if (_metadata.getColumnMetadataFor(column).isSingleValue()) {
@@ -12,8 +16,7 @@
       int rowId=0;
       for (      Integer docId : _filteredDocIds) {
         bvIter.skipTo(docId);
-        Object value=getNextSingleValue(bvIter,dataType,dictionaryReader);
-        resultTable.add(rowId++,value);
+        resultTable.add(rowId++,bvIter.nextIntVal());
       }
     }
  else {
@@ -21,9 +24,10 @@
       int rowId=0;
       for (      Integer docId : _filteredDocIds) {
         bvIter.skipTo(docId);
-        int maxNumMultiValue=_metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
-        Object[] value=getNextMultiValue(bvIter,dataType,dictionaryReader,maxNumMultiValue);
-        resultTable.add(rowId++,value);
+        int maxNumMultiValues=_metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
+        int[] dictIds=new int[maxNumMultiValues];
+        int numMVValues=bvIter.nextIntVal(dictIds);
+        resultTable.add(rowId++,dictIds);
       }
     }
   }

@@ -1,4 +1,17 @@
 {
-  ScanBasedQueryProcessor scanBasedQueryProcessor=new ScanBasedQueryProcessor("/Users/mshrivas/quick/data/pinotSegments");
-  scanBasedQueryProcessor.processQuery("select ArrDelay, min(ArrTime), max(DepTime) from myTable where Origin = 'JFK'");
+  if (args.length != 2) {
+    LOGGER.error("Incorrect arguments");
+    LOGGER.info("Usage: <exec> <UntarredSegmentDir> <QueryFile");
+    System.exit(1);
+  }
+  String segDir=args[0];
+  String queryFile=args[1];
+  String query;
+  ScanBasedQueryProcessor scanBasedQueryProcessor=new ScanBasedQueryProcessor(segDir);
+  BufferedReader bufferedReader=new BufferedReader(new FileReader(queryFile));
+  while ((query=bufferedReader.readLine()) != null) {
+    ResultTable resultTable=scanBasedQueryProcessor.processQuery(query);
+    resultTable.print();
+  }
+  bufferedReader.close();
 }

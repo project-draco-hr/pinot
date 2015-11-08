@@ -1,0 +1,26 @@
+{
+  ResultTable results=new ResultTable(_columnMetadatas,0);
+  for (  Row row : _rows) {
+    Row valuesRow=new Row();
+    for (int colId=0; colId < row.size(); ++colId) {
+      String column=_columnMetadatas.get(colId).getColumnName();
+      Dictionary dictionary=dictionaryMap.get(column);
+      Object object=row.get(colId);
+      if (object instanceof Object[]) {
+        Object[] objArray=(Object[])object;
+        Object[] valArray=new Object[objArray.length];
+        for (int i=0; i < objArray.length; ++i) {
+          int dictId=(int)objArray[i];
+          valArray[i]=dictionary.get(dictId);
+        }
+        valuesRow.add(valArray);
+      }
+ else {
+        int dictId=(int)object;
+        valuesRow.add(dictionary.get(dictId));
+      }
+    }
+    results._rows.add(valuesRow);
+  }
+  return results;
+}

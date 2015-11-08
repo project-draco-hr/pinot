@@ -5,7 +5,7 @@
     FilterOperator filterType=filterQueryTree.getOperator();
     String column=filterQueryTree.getColumn();
     final List<String> value=filterQueryTree.getValue();
-    return evaluatePredicate(indexSegment,metadata,filterType,column,value);
+    return getMatchingDocIds(indexSegment,metadata,filterType,column,value);
   }
   List<Integer> result=new ArrayList<>();
   for (  FilterQueryTree childFilter : childFilters) {

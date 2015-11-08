@@ -1,0 +1,9 @@
+{
+  Projection projection=new Projection(_indexSegment,_metadata,_filteredDocIds,_selectionColumns);
+  ResultTable projectionResults=projection.run();
+  Map<String,Dictionary> dictionaryMap=new HashMap<>();
+  for (  String column : _selectionColumns) {
+    dictionaryMap.put(column,_indexSegment.getDictionaryFor(column));
+  }
+  return projectionResults.values(dictionaryMap);
+}

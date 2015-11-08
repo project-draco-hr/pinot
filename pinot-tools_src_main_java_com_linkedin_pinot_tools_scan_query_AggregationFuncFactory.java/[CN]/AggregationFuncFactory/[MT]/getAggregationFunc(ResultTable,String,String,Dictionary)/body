@@ -1,0 +1,16 @@
+{
+switch (functionName.toUpperCase()) {
+case COUNT:
+    return new CountFunction(rows,column);
+case MIN:
+  return new MinFunction(rows,column,dictionaryReader);
+case MAX:
+return new MaxFunction(rows,column,dictionaryReader);
+case SUM:
+return new SumFunction(rows,column,dictionaryReader);
+case AVG:
+return new AvgFunction(rows,column,dictionaryReader);
+default :
+throw new RuntimeException("Unsupported aggregation function " + functionName);
+}
+}

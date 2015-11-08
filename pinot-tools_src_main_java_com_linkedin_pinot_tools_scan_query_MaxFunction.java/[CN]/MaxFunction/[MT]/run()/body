@@ -1,0 +1,12 @@
+{
+  Double max=0.0;
+  for (  ResultTable.Row row : _rows) {
+    int dictId=(int)row.get(_column);
+    max=Math.max(max,_dictionaryReader.getDoubleValue(dictId));
+  }
+  List<ColumnMetadata> columnMetadatas=new ArrayList<ColumnMetadata>();
+  columnMetadatas.add(_columnMetadata);
+  ResultTable resultTable=new ResultTable(columnMetadatas,1);
+  resultTable.add(0,max);
+  return resultTable;
+}

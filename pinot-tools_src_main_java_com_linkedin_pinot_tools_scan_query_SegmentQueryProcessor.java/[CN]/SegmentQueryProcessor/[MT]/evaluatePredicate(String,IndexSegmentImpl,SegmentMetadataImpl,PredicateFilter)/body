@@ -1,0 +1,27 @@
+{
+  List<Integer> result=new ArrayList<>();
+  if (metadata.getColumnMetadataFor(column).isSingleValue()) {
+    BlockSingleValIterator bvIter=(BlockSingleValIterator)indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+    int docId=0;
+    while (bvIter.hasNext()) {
+      if (predicateFilter.apply(bvIter.nextIntVal())) {
+        result.add(docId);
+      }
+      ++docId;
+    }
+  }
+ else {
+    int maxNumMultiValues=metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
+    BlockMultiValIterator bvIter=(BlockMultiValIterator)indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+    int docId=0;
+    while (bvIter.hasNext()) {
+      int[] dictIds=new int[maxNumMultiValues];
+      int numMVValues=bvIter.nextIntVal(dictIds);
+      if (predicateFilter.apply(dictIds)) {
+        result.add(docId);
+      }
+      ++docId;
+    }
+  }
+  return result;
+}

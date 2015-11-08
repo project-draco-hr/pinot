@@ -1,0 +1,23 @@
+{
+  Dictionary dictionaryReader=indexSegment.getDictionaryFor(column);
+  PredicateFilter predicateFilter=null;
+switch (filterType) {
+case EQUALITY:
+    predicateFilter=new EqualsPredicateFilter(dictionaryReader,value.get(0));
+  break;
+case NOT:
+predicateFilter=new NotPredicateFilter(dictionaryReader,value.get(0));
+break;
+case IN:
+predicateFilter=new InPredicateFilter(dictionaryReader,value);
+break;
+case NOT_IN:
+predicateFilter=new NotInPredicateFilter(dictionaryReader,value);
+break;
+case RANGE:
+case REGEX:
+default :
+throw new UnsupportedOperationException("Unsupported filterType:" + filterType);
+}
+return evaluatePredicate(column,indexSegment,metadata,predicateFilter);
+}
