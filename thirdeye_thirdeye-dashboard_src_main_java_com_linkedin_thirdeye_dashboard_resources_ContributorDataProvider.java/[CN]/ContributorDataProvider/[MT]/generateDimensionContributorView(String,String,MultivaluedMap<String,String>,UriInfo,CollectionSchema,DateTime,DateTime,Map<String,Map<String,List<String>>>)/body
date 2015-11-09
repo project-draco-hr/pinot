@@ -1,7 +1,17 @@
 {
   long intraPeriod=ViewUtils.getIntraPeriod(metricFunction);
-  currentStart=ViewUtils.standardizeToStartOfDayPT(currentStart);
-  baselineStart=ViewUtils.standardizeToStartOfDayPT(baselineStart);
+  if (ViewUtils.INTRA_DAY_PERIOD == intraPeriod) {
+    baselineStart=ViewUtils.standardizeToStartOfDayPT(baselineStart.getMillis());
+  }
+ else {
+    baselineStart=ViewUtils.standardizeToStartOfDayUTC(baselineStart.getMillis());
+  }
+  if (ViewUtils.INTRA_DAY_PERIOD == intraPeriod) {
+    currentStart=ViewUtils.standardizeToStartOfDayPT(currentStart.getMillis());
+  }
+ else {
+    currentStart=ViewUtils.standardizeToStartOfDayUTC(currentStart.getMillis());
+  }
   String baselineTotalSql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
   String currentTotalSql=SqlUtils.getSql(metricFunction,collection,currentStart,currentStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
   LOGGER.info("Generated SQL for contributor baseline total {}: {}",uriInfo.getRequestUri(),baselineTotalSql);
