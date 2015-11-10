@@ -24,8 +24,10 @@
     countersMap.put(counterName,new AtomicInteger(0));
   }
   countersMap.get(counterName).incrementAndGet();
-  GenericRecord output=joinUDF.performJoin(new String(joinKeyWritable.copyBytes()),joinInput);
-  if (output != null) {
-    context.write(new AvroKey<GenericRecord>(output),NullWritable.get());
+  List<GenericRecord> outputRecords=joinUDF.performJoin(new String(joinKeyWritable.copyBytes()),joinInput);
+  if (outputRecords != null) {
+    for (    GenericRecord outputRecord : outputRecords) {
+      context.write(new AvroKey<GenericRecord>(outputRecord),NullWritable.get());
+    }
   }
 }

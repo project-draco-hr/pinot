@@ -1,4 +1,5 @@
 {
+  List<GenericRecord> outputRecords=new ArrayList<GenericRecord>();
   GenericRecord outputRecord=new GenericData.Record(outputSchema);
   for (  Field field : fields) {
     Object value=null;
@@ -20,5 +21,6 @@
       outputRecord.put(field.name,value);
     }
   }
-  return outputRecord;
+  outputRecords.add(outputRecord);
+  return outputRecords;
 }
