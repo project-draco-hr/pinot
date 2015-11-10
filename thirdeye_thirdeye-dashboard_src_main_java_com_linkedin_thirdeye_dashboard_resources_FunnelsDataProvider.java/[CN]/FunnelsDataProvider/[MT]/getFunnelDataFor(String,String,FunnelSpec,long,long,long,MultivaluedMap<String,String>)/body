@@ -1,19 +1,7 @@
 {
-  DateTime currentStart;
-  if (ViewUtils.INTRA_DAY_PERIOD == intraPeriod) {
-    currentStart=ViewUtils.standardizeToStartOfDayPT(currentMillis);
-  }
- else {
-    currentStart=ViewUtils.standardizeToStartOfDayUTC(currentMillis);
-  }
+  DateTime baselineStart=ViewUtils.standardizeDate(baselineMillis,intraPeriod);
+  DateTime currentStart=ViewUtils.standardizeDate(currentMillis,intraPeriod);
   DateTime currentEnd=currentStart.plus(intraPeriod);
-  DateTime baselineStart;
-  if (ViewUtils.INTRA_DAY_PERIOD == intraPeriod) {
-    baselineStart=ViewUtils.standardizeToStartOfDayPT(baselineMillis);
-  }
- else {
-    baselineStart=ViewUtils.standardizeToStartOfDayUTC(baselineMillis);
-  }
   DateTime baselineEnd=baselineStart.plus(intraPeriod);
   List<String> metricFunctionLevels=ViewUtils.getMetricFunctionLevels(urlMetricFunction);
   String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
@@ -28,7 +16,7 @@
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSql);
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
-  long baselineOffsetMillis=ViewUtils.getOffset(currentStart.getMillis(),baselineStart.getMillis(),currentMillis,baselineMillis,metricFunction);
+  long baselineOffsetMillis=currentStart.getMillis() - baselineStart.getMillis();
   List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),intraPeriod,baselineOffsetMillis);
   Map<String,Integer> metricNameToIndex=new HashMap<>();
   List<String> resultMetrics=baselineResult.get().getMetrics();

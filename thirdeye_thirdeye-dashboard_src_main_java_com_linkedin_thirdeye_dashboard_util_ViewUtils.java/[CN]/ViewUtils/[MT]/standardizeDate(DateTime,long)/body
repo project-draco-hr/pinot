@@ -1,0 +1,11 @@
+{
+  DateTimeZone dateTZ;
+  if (ViewUtils.INTRA_DAY_PERIOD == intraPeriod) {
+    dateTZ=DateTimeZone.forID("America/Los_Angeles");
+  }
+ else {
+    dateTZ=DateTimeZone.UTC;
+  }
+  input=input.toDateTime(dateTZ);
+  return new DateTime(input.getYear(),input.getMonthOfYear(),input.getDayOfMonth(),0,0,dateTZ);
+}
