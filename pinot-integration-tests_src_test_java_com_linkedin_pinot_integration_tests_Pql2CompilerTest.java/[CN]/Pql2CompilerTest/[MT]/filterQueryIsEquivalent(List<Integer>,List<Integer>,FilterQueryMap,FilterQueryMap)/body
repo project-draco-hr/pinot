@@ -16,7 +16,7 @@
       boolean columnsAreEqual=EqualityUtils.isEqual(leftQuery.getColumn(),rightQuery.getColumn());
       boolean valuesAreEqual=EqualityUtils.isEqual(leftQuery.getValue(),rightQuery.getValue());
       boolean fieldsAreEqual=columnsAreEqual && operatorsAreEqual && valuesAreEqual;
-      if (operatorsAreEqual && columnsAreEqual && leftQuery.getOperator() == FilterOperator.IN) {
+      if (operatorsAreEqual && columnsAreEqual && (leftQuery.getOperator() == FilterOperator.IN || leftQuery.getOperator() == FilterOperator.NOT_IN)) {
         Set<String> leftValues=new HashSet<>(Arrays.asList(leftQuery.getValue().get(0).split("\t\t")));
         Set<String> rightValues=new HashSet<>(Arrays.asList(rightQuery.getValue().get(0).split("\t\t")));
         fieldsAreEqual=leftValues.equals(rightValues);
