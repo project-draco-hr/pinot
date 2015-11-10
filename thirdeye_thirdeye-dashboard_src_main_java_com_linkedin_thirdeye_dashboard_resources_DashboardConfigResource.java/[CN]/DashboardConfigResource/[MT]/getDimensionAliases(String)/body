@@ -1,18 +1,12 @@
 {
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
-  Set<String> selectedDimensions=retrieveSelectedDimensions(uriInfo);
-  if (CollectionUtils.isEmpty(selectedDimensions)) {
-    return schema.getDimensionAliases();
-  }
   Iterator<String> dimensionsIter=schema.getDimensions().iterator();
   Iterator<String> dimensionAliasesIter=schema.getDimensionAliases().iterator();
-  List<String> filteredAliases=new LinkedList<>();
+  Map<String,String> filteredAliases=new TreeMap<>();
   while (dimensionsIter.hasNext()) {
     String dimension=dimensionsIter.next();
     String dimensionAlias=dimensionAliasesIter.next();
-    if (!selectedDimensions.contains(dimension)) {
-      filteredAliases.add(dimensionAlias);
-    }
+    filteredAliases.put(dimension,dimensionAlias);
   }
   return filteredAliases;
 }

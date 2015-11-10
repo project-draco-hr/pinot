@@ -3,7 +3,6 @@
   this.collection=collection;
   this.selectedDimensions=selectedDimensions;
   this.feedbackEmailAddress=feedbackEmailAddress;
-  this.collectionSchema=collectionSchema;
   this.baselineTime=baselineTime;
   this.currentTime=currentTime;
   this.dimensionView=dimensionView;
@@ -11,12 +10,9 @@
   this.latestDataTime=latestDataTime;
   this.customDashboardNames=customDashboardNames;
   this.funnelNames=allFunnelNames;
-  this.dimensions=new ArrayList<>(collectionSchema.getDimensions());
-  Collections.sort(dimensions);
-  this.aliases=new TreeMap<>();
-  List<String> dimensions=collectionSchema.getDimensions();
-  List<String> dimensionAliases=collectionSchema.getDimensionAliases();
-  for (int i=0; i < dimensions.size(); i++) {
-    aliases.put(dimensions.get(i),dimensionAliases.get(i));
-  }
+  this.dimensions=dashboardConfig.getAllDimensions(collection);
+  this.unselectedDimensions=dashboardConfig.getDimensions(collection,selectedDimensions);
+  this.aliases=dashboardConfig.getDimensionAliases(collection);
+  this.metrics=dashboardConfig.getMetrics(collection);
+  this.metricAliases=dashboardConfig.getMetricAliases(collection);
 }

@@ -1,9 +1,3 @@
 {
-  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
-  Set<String> selectedDimensions=retrieveSelectedDimensions(uriInfo);
-  if (CollectionUtils.isEmpty(selectedDimensions)) {
-    return schema.getDimensions();
-  }
-  List<String> filteredDimensions=new ArrayList<>(CollectionUtils.subtract(schema.getDimensions(),selectedDimensions));
-  return filteredDimensions;
+  return getDimensions(collection,uriInfo.getQueryParameters());
 }
