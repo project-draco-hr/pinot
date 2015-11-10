@@ -10,17 +10,18 @@
 switch (dimensionViewType) {
 case CONTRIBUTOR:
 case MULTI_TIME_SERIES:
-    return contributorResource.generateDimensionContributorView(collection,metricFunction,selectedDimensions,uriInfo,schema,baseline,current,reverseDimensionGroups);
+    List<String> viewDimensions=dashboardConfigResource.getDimensions(collection,uriInfo);
+  return contributorResource.generateDimensionContributorView(collection,metricFunction,selectedDimensions,uriInfo,viewDimensions,baseline,current,reverseDimensionGroups);
 case HEAT_MAP:
-  Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
+Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
 for (String dimension : schema.getDimensions()) {
-  if (!selectedDimensions.containsKey(dimension)) {
-    selectedDimensions.put(dimension,Arrays.asList("!"));
-    String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,selectedDimensions,reverseDimensionGroups);
-    LOGGER.info("Generated SQL for heat map {}: {}",uriInfo.getRequestUri(),sql);
-    selectedDimensions.remove(dimension);
-    resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
-  }
+if (!selectedDimensions.containsKey(dimension)) {
+  selectedDimensions.put(dimension,Arrays.asList("!"));
+  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,selectedDimensions,reverseDimensionGroups);
+  LOGGER.info("Generated SQL for heat map {}: {}",uriInfo.getRequestUri(),sql);
+  selectedDimensions.remove(dimension);
+  resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
+}
 }
 Map<String,Map<String,String>> dimensionGroups=null;
 Map<String,Map<Pattern,String>> dimensionRegex=null;

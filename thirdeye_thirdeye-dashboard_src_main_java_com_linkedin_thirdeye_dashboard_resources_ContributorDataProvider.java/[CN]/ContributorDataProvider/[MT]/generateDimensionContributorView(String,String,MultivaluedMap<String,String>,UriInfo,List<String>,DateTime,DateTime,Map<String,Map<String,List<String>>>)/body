@@ -11,7 +11,7 @@
   Future<QueryResult> currentTotalResultFuture=queryCache.getQueryResultAsync(serverUri,currentTotalSql);
   Map<String,Future<QueryResult>> baselineResultFutures=new HashMap<>();
   Map<String,Future<QueryResult>> currentResultFutures=new HashMap<>();
-  for (  String dimension : schema.getDimensions()) {
+  for (  String dimension : dimensions) {
     if (!selectedDimensions.containsKey(dimension)) {
       selectedDimensions.put(dimension,Arrays.asList("!"));
       String baselineGroupBySql=SqlUtils.getSql(metricFunction,collection,baselineStart,baselineStart.plus(intraPeriod),selectedDimensions,reverseDimensionGroups);
@@ -21,6 +21,9 @@
       selectedDimensions.remove(dimension);
       baselineResultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,baselineGroupBySql));
       currentResultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,currentGroupBySql));
+    }
+{
+      LOGGER.warn("Found overlap between dimensions to query and pre-selected dimensions: ({}:{})",dimension,selectedDimensions.get(dimension));
     }
   }
   QueryResult baselineTotalResult=baselineTotalResultFuture.get();
@@ -36,5 +39,5 @@
   Map<String,MetricTable> totalRow=generateMetricTotalTable(baselineTotalResult,currentTotalResult,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod,baselineOffset);
   List<String> metrics=currentTotalResult.getMetrics();
   Map<Pair<String,String>,Map<String,MetricTable>> tables=generateDimensionTables(metrics,totalRow,dimensionBaselineResults,dimensionCurrentResults,baselineStart.getMillis(),currentStart.getMillis(),intraPeriod,baselineOffset);
-  return new DimensionViewContributors(metrics,currentTotalResult.getDimensions(),totalRow,tables);
+  return new DimensionViewContributors(metrics,dimensions,totalRow,tables);
 }
