@@ -1,13 +1,10 @@
 {
-  if (this == rhs) {
+  if (EqualityUtils.isSameReference(this,right)) {
     return true;
   }
-  if (rhs == null || getClass() != rhs.getClass()) {
+  if (EqualityUtils.isNullOrNotSameClass(this,right)) {
     return false;
   }
-  DataSchema that=(DataSchema)rhs;
-  if (!Arrays.equals(this.columnNames,that.columnNames)) {
-    return false;
-  }
-  return Arrays.equals(this.columnTypes,that.columnTypes);
+  DataSchema that=(DataSchema)right;
+  return EqualityUtils.isEqual(this.columnNames,that.columnNames) && EqualityUtils.isEqual(this.columnTypes,that.columnTypes);
 }
