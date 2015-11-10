@@ -7,7 +7,7 @@
   final AtomicDouble bucketWeightedSum=new AtomicDouble();
   final double normalizationFactor=weight(TimeUnit.NANOSECONDS.toSeconds(ticker.read()));
   postOrderTraversal(root,new Callback(){
-    public boolean process(    Node node){
+    @Override public boolean process(    Node node){
       while (iterator.hasNext() && iterator.peek() <= node.getUpperBound()) {
         double bucketCount=sum.get() - lastSum.get();
         Bucket bucket=new Bucket(bucketCount / normalizationFactor,bucketWeightedSum.get() / bucketCount);

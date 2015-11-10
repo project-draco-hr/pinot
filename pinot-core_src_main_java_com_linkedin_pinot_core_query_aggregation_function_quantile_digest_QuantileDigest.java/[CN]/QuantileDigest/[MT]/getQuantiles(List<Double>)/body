@@ -7,7 +7,7 @@
   final PeekingIterator<Double> iterator=Iterators.peekingIterator(quantiles.iterator());
   postOrderTraversal(root,new Callback(){
     private double sum=0;
-    public boolean process(    Node node){
+    @Override public boolean process(    Node node){
       sum+=node.weightedCount;
       while (iterator.hasNext() && sum > iterator.peek() * weightedCount) {
         iterator.next();
