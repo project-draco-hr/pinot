@@ -1,15 +1,13 @@
 {
   _indexSegment=indexSegment;
   _metadata=metadata;
+  _dictionaryMap=new HashMap<>();
   _filteredDocIds=filteredDocIds;
   _aggregationsInfo=aggregationsInfo;
-  _aggregationColumns=new ArrayList<>();
-  _columnAggregationFuncMap=new HashMap<>();
-  for (  AggregationInfo aggregationInfo : _aggregationsInfo) {
-    Map<String,String> aggregationParams=aggregationInfo.getAggregationParams();
-    for (    Map.Entry<String,String> entry : aggregationParams.entrySet()) {
-      _columnAggregationFuncMap.put(entry.getValue(),aggregationInfo.getAggregationType());
+  init();
+  for (  String column : _columnAggregationFuncMap.keySet()) {
+    if (!column.equals("*")) {
+      _dictionaryMap.put(column,_indexSegment.getDictionaryFor(column));
     }
-    _aggregationColumns.addAll(aggregationParams.values());
   }
 }

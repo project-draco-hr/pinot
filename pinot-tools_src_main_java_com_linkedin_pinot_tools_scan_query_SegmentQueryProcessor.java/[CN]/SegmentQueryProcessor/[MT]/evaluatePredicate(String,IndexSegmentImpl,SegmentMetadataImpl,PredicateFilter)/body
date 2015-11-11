@@ -17,6 +17,7 @@
     while (bvIter.hasNext()) {
       int[] dictIds=new int[maxNumMultiValues];
       int numMVValues=bvIter.nextIntVal(dictIds);
+      dictIds=Arrays.copyOf(dictIds,numMVValues);
       if (predicateFilter.apply(dictIds)) {
         result.add(docId);
       }

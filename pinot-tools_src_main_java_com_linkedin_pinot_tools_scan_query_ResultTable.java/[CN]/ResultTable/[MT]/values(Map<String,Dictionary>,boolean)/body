@@ -1,9 +1,9 @@
 {
-  ResultTable results=new ResultTable(_columnMetadatas,0);
+  ResultTable results=new ResultTable(_columnList,0);
   for (  Row row : _rows) {
     Row valuesRow=new Row();
     for (int colId=0; colId < row.size(); ++colId) {
-      String column=_columnMetadatas.get(colId).getColumnName();
+      String column=_columnList.get(colId);
       Dictionary dictionary=dictionaryMap.get(column);
       Object object=row.get(colId);
       if (object instanceof Object[]) {
@@ -20,7 +20,13 @@
         valuesRow.add(dictionary.get(dictId));
       }
     }
+    if (addCountStar) {
+      valuesRow.add(1);
+    }
     results._rows.add(valuesRow);
+  }
+  if (addCountStar) {
+    results.addCountStarColumn();
   }
   return results;
 }

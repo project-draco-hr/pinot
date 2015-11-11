@@ -1,10 +1,16 @@
 {
-  Projection projection=new Projection(_indexSegment,_metadata,_filteredDocIds,_aggregationColumns);
-  ResultTable projectionResult=projection.run();
-  Map<String,Dictionary> dictionaryMap=new HashMap<>();
-  for (  String column : _aggregationColumns) {
-    dictionaryMap.put(column,_indexSegment.getDictionaryFor(column));
+  boolean addCountStar=false;
+  List<String> aggregationColumns=new ArrayList<String>();
+  for (  String column : _columnAggregationFuncMap.keySet()) {
+    if (!column.equals("*")) {
+      aggregationColumns.add(column);
+    }
+ else {
+      addCountStar=true;
+    }
   }
-  ResultTable results=aggregate(projectionResult.values(dictionaryMap));
+  Projection projection=new Projection(_indexSegment,_metadata,_filteredDocIds,aggregationColumns);
+  ResultTable projectionResult=projection.run();
+  ResultTable results=aggregate(projectionResult.values(_dictionaryMap,addCountStar));
   return results;
 }
