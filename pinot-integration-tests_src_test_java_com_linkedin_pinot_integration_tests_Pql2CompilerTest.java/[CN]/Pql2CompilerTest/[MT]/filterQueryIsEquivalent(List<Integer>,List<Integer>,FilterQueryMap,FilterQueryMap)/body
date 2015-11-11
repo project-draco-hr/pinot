@@ -16,19 +16,19 @@
       boolean columnsAreEqual=EqualityUtils.isEqual(leftQuery.getColumn(),rightQuery.getColumn());
       boolean valuesAreEqual=EqualityUtils.isEqual(leftQuery.getValue(),rightQuery.getValue());
       boolean fieldsAreEqual=columnsAreEqual && operatorsAreEqual && valuesAreEqual;
-      if (operatorsAreEqual && columnsAreEqual && (leftQuery.getOperator() == FilterOperator.IN || leftQuery.getOperator() == FilterOperator.NOT_IN)) {
+      if (!operatorsAreEqual && columnsAreEqual) {
+        if ((leftQuery.getOperator() == FilterOperator.NOT || leftQuery.getOperator() == FilterOperator.NOT_IN) && (rightQuery.getOperator() == FilterOperator.NOT || rightQuery.getOperator() == FilterOperator.NOT_IN)) {
+          operatorsAreEqual=true;
+        }
+      }
+      if (operatorsAreEqual && columnsAreEqual && (leftQuery.getOperator() == FilterOperator.IN || leftQuery.getOperator() == FilterOperator.NOT_IN || leftQuery.getOperator() == FilterOperator.NOT)) {
         Set<String> leftValues=new HashSet<>(Arrays.asList(leftQuery.getValue().get(0).split("\t\t")));
         Set<String> rightValues=new HashSet<>(Arrays.asList(rightQuery.getValue().get(0).split("\t\t")));
         fieldsAreEqual=leftValues.equals(rightValues);
         if (!fieldsAreEqual) {
-          System.out.println("in clause not the same?");
+          System.out.println("in/not in clause not the same?");
           System.out.println("leftValues = " + leftValues);
           System.out.println("rightValues = " + rightValues);
-        }
-      }
-      if (!operatorsAreEqual && columnsAreEqual && valuesAreEqual) {
-        if ((leftQuery.getOperator() == FilterOperator.NOT || leftQuery.getOperator() == FilterOperator.NOT_IN) && (rightQuery.getOperator() == FilterOperator.NOT || rightQuery.getOperator() == FilterOperator.NOT_IN)) {
-          fieldsAreEqual=true;
         }
       }
       if (fieldsAreEqual) {
