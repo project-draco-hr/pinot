@@ -6,12 +6,6 @@
     mergedBlock=blockToMerge;
     return;
   }
-  DataTableBuilder.DataSchema mergedBlockSchema=mergedBlock.getSelectionDataSchema();
-  DataTableBuilder.DataSchema blockToMergeSchema=blockToMerge.getSelectionDataSchema();
-  if (mergedBlockSchema != null && !mergedBlockSchema.equals(blockToMergeSchema)) {
-    LOGGER.warn("Schema inconsistency. merged block schema: {}, block to merge schema: {}. Dropping block to merge",mergedBlockSchema,blockToMergeSchema);
-    return;
-  }
   mergedBlock.setNumDocsScanned(mergedBlock.getNumDocsScanned() + blockToMerge.getNumDocsScanned());
   mergedBlock.setTotalDocs(mergedBlock.getTotalDocs() + blockToMerge.getTotalDocs());
   if (brokerRequest.isEnableTrace()) {
@@ -28,12 +22,25 @@
     }
   }
  else {
+    DataTableBuilder.DataSchema mergedBlockSchema=mergedBlock.getSelectionDataSchema();
+    DataTableBuilder.DataSchema blockToMergeSchema=blockToMerge.getSelectionDataSchema();
+    Collection<Serializable[]> mergedResultSet=mergedBlock.getSelectionResult();
+    Collection<Serializable[]> toMergeResultSet=blockToMerge.getSelectionResult();
+    if (mergedBlockSchema != null && !mergedBlockSchema.equals(blockToMergeSchema)) {
+      if (mergedResultSet.size() == 0 && toMergeResultSet.size() > 0) {
+        mergedBlock.setSelectionDataSchema(blockToMergeSchema);
+      }
+ else {
+        LOGGER.warn("Schema inconsistency. merged block schema: {}, block to merge schema: {}. Dropping block to merge",mergedBlockSchema,blockToMergeSchema);
+        return;
+      }
+    }
     if (brokerRequest.getSelections().isSetSelectionSortSequence()) {
-      SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),mergedBlock.getSelectionDataSchema());
-      mergedBlock.setSelectionResult(selectionService.merge(mergedBlock.getSelectionResult(),blockToMerge.getSelectionResult()));
+      SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),mergedBlockSchema);
+      mergedBlock.setSelectionResult(selectionService.merge(mergedResultSet,toMergeResultSet));
     }
  else {
-      mergedBlock.setSelectionResult(SelectionOperatorUtils.merge(mergedBlock.getSelectionResult(),blockToMerge.getSelectionResult(),brokerRequest.getSelections().getSize()));
+      mergedBlock.setSelectionResult(SelectionOperatorUtils.merge(mergedResultSet,toMergeResultSet,brokerRequest.getSelections().getSize()));
     }
   }
 }
