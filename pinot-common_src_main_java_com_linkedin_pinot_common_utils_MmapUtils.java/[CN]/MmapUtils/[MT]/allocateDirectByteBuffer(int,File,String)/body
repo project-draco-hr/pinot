@@ -10,7 +10,15 @@
   if (LOGGER.isDebugEnabled()) {
     LOGGER.debug("Allocating byte buffer of size {} with context {}, allocation after operation {}",capacity,context,getTrackedAllocationStatus());
   }
-  final ByteBuffer byteBuffer=ByteBuffer.allocateDirect(capacity);
+  ByteBuffer byteBuffer=null;
+  try {
+    byteBuffer=ByteBuffer.allocateDirect(capacity);
+  }
+ catch (  OutOfMemoryError e) {
+    LOGGER.error("Ran out of direct memory while trying to allocate {} bytes (context {})",capacity,context,e);
+    LOGGER.error("Allocation status {}",getTrackedAllocationStatus());
+    Utils.rethrowException(e);
+  }
   BUFFER_TO_CONTEXT_MAP.put(byteBuffer,new AllocationContext(context,AllocationType.DIRECT_BYTE_BUFFER));
   return byteBuffer;
 }

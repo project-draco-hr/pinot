@@ -10,7 +10,15 @@
   if (LOGGER.isDebugEnabled()) {
     LOGGER.debug("Memory mapping file, mmap size {} with context {}, allocation after operation {}",size,context,getTrackedAllocationStatus());
   }
-  final MappedByteBuffer byteBuffer=randomAccessFile.getChannel().map(mode,position,size);
+  MappedByteBuffer byteBuffer=null;
+  try {
+    byteBuffer=randomAccessFile.getChannel().map(mode,position,size);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to mmap file (size {}, context {})",size,context,e);
+    LOGGER.error("Allocation status {}",getTrackedAllocationStatus());
+    Utils.rethrowException(e);
+  }
   BUFFER_TO_CONTEXT_MAP.put(byteBuffer,new AllocationContext(context,AllocationType.MMAP));
   return byteBuffer;
 }
