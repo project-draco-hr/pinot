@@ -4,11 +4,18 @@
   BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
   ResultTable results=null;
   File file=new File(_segmentsDir);
-  Aggregation aggregation=new Aggregation(brokerRequest.getAggregationsInfo());
+  Aggregation aggregation=null;
+  List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
+  if (aggregationsInfo != null) {
+    aggregation=new Aggregation(brokerRequest.getAggregationsInfo());
+  }
   for (  File segmentDir : file.listFiles()) {
     SegmentQueryProcessor processor=new SegmentQueryProcessor(brokerRequest,segmentDir);
     ResultTable segmentResults=processor.process(query);
     results=(results == null) ? segmentResults : results.append(segmentResults);
   }
-  return aggregation.aggregate(results);
+  if (aggregation != null) {
+    results=aggregation.aggregate(results);
+  }
+  return results;
 }

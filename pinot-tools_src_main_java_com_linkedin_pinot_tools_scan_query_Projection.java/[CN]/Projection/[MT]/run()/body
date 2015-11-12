@@ -16,7 +16,9 @@
         bvIter.skipTo(docId);
         int maxNumMultiValues=_metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
         int[] dictIds=new int[maxNumMultiValues];
-        resultTable.add(rowId++,dictIds);
+        int numMVValues=bvIter.nextIntVal(dictIds);
+        dictIds=Arrays.copyOf(dictIds,numMVValues);
+        resultTable.add(rowId++,ArrayUtils.toObject(dictIds));
       }
     }
   }

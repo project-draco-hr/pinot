@@ -12,7 +12,9 @@
   while ((query=bufferedReader.readLine()) != null) {
     LOGGER.info("Processing Query: {}",query);
     ResultTable resultTable=scanBasedQueryProcessor.processQuery(query);
-    resultTable.print();
+    if (resultTable != null) {
+      resultTable.print();
+    }
   }
   bufferedReader.close();
 }
