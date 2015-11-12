@@ -1,4 +1,5 @@
 {
+  long startTimeInMillis=System.currentTimeMillis();
   PQLCompiler compiler=new PQLCompiler(new HashMap<String,String[]>());
   JSONObject jsonObject=compiler.compile(query);
   BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
@@ -10,15 +11,20 @@
     aggregation=new Aggregation(brokerRequest.getAggregationsInfo());
   }
   int numDocsScanned=0;
+  int totalDocs=0;
   for (  File segmentDir : file.listFiles()) {
     SegmentQueryProcessor processor=new SegmentQueryProcessor(brokerRequest,segmentDir);
     ResultTable segmentResults=processor.process(query);
     numDocsScanned+=segmentResults.getNumDocsScanned();
+    totalDocs+=segmentResults.getTotalDocs();
     results=(results == null) ? segmentResults : results.append(segmentResults);
   }
   if (aggregation != null) {
     results=aggregation.aggregate(results);
   }
   results.setNumDocsScanned(numDocsScanned);
+  results.setTotalDocs(totalDocs);
+  long totalUsedMs=System.currentTimeMillis() - startTimeInMillis;
+  results.setProcessingTime(totalUsedMs);
   return results;
 }
