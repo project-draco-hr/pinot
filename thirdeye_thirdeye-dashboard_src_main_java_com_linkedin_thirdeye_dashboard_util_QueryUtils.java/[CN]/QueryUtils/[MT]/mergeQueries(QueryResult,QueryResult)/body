@@ -1,0 +1,25 @@
+{
+  if (first == null || second == null) {
+    throw new IllegalArgumentException("Query result cannot be null");
+  }
+  QueryResult merged=new QueryResult();
+  merged.setDimensions(first.getDimensions());
+  merged.setMetrics(first.getMetrics());
+  Map<String,Map<String,Number[]>> firstDimensionData=first.getData();
+  Map<String,Map<String,Number[]>> secondDimensionData=second.getData();
+  Map<String,Map<String,Number[]>> mergedDimensionData=new HashMap<>(firstDimensionData.size());
+  for (  String dimensionKey : CollectionUtils.union(firstDimensionData.keySet(),secondDimensionData.keySet())) {
+    Map<String,Number[]> firstData=firstDimensionData.get(dimensionKey);
+    Map<String,Number[]> secondData=secondDimensionData.get(dimensionKey);
+    Map<String,Number[]> mergedData=new HashMap<>((firstData == null ? 0 : firstData.size()) + (secondData == null ? 0 : secondData.size()));
+    if (firstData != null) {
+      mergedData.putAll(firstData);
+    }
+    if (secondData != null) {
+      mergedData.putAll(secondData);
+    }
+    mergedDimensionData.put(dimensionKey,mergedData);
+  }
+  merged.setData(mergedDimensionData);
+  return merged;
+}

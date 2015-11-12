@@ -1,8 +1,9 @@
 {
   DateTime baselineStart=ViewUtils.standardizeDate(baselineMillis,intraPeriod);
   DateTime currentStart=ViewUtils.standardizeDate(currentMillis,intraPeriod);
-  DateTime currentEnd=currentStart.plus(intraPeriod);
-  DateTime baselineEnd=baselineStart.plus(intraPeriod);
+  long intraPeriodMillis=intraPeriod.getMillis();
+  DateTime currentEnd=currentStart.plus(intraPeriodMillis);
+  DateTime baselineEnd=baselineStart.plus(intraPeriodMillis);
   List<String> metricFunctionLevels=ViewUtils.getMetricFunctionLevels(urlMetricFunction);
   String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
   DimensionGroupSpec dimSpec=DimensionGroupSpec.emptySpec(collection);
@@ -17,7 +18,7 @@
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
   long baselineOffsetMillis=currentStart.getMillis() - baselineStart.getMillis();
-  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),intraPeriod,baselineOffsetMillis);
+  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),intraPeriodMillis,baselineOffsetMillis);
   Map<String,Integer> metricNameToIndex=new HashMap<>();
   List<String> resultMetrics=baselineResult.get().getMetrics();
   for (int i=0; i < resultMetrics.size(); i++) {

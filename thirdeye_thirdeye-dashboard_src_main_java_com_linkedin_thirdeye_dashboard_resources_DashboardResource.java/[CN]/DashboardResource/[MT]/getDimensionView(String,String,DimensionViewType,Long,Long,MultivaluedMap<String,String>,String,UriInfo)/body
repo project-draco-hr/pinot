@@ -13,14 +13,18 @@ case MULTI_TIME_SERIES:
     List<String> viewDimensions=dashboardConfigResource.getDimensions(collection,uriInfo);
   return contributorResource.generateDimensionContributorView(collection,metricFunction,selectedDimensions,uriInfo,viewDimensions,baseline,current,reverseDimensionGroups);
 case HEAT_MAP:
-Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
+Map<String,Future<QueryResult>> resultCurrentFutures=new HashMap<>();
+Map<String,Future<QueryResult>> resultBaselineFutures=new HashMap<>();
 for (String dimension : schema.getDimensions()) {
 if (!selectedDimensions.containsKey(dimension)) {
-  selectedDimensions.put(dimension,Arrays.asList("!"));
-  String sql=SqlUtils.getSql(metricFunction,collection,baseline,current,selectedDimensions,reverseDimensionGroups);
-  LOGGER.info("Generated SQL for heat map {}: {}",uriInfo.getRequestUri(),sql);
-  selectedDimensions.remove(dimension);
-  resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
+selectedDimensions.put(dimension,Arrays.asList("!"));
+String currentSql=SqlUtils.getSql(metricFunction,collection,current,current,selectedDimensions,reverseDimensionGroups);
+String baselineSql=SqlUtils.getSql(metricFunction,collection,baseline,baseline,selectedDimensions,reverseDimensionGroups);
+LOGGER.info("Generated current SQL for heat map {}: {}",uriInfo.getRequestUri(),currentSql);
+LOGGER.info("Generated baseline SQL for heat map {}: {}",uriInfo.getRequestUri(),baselineSql);
+selectedDimensions.remove(dimension);
+resultCurrentFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,currentSql));
+resultBaselineFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,baselineSql));
 }
 }
 Map<String,Map<String,String>> dimensionGroups=null;
@@ -30,13 +34,12 @@ if (groupSpec != null) {
 dimensionGroups=groupSpec.getMapping();
 dimensionRegex=groupSpec.getRegexMapping();
 }
-Map<String,QueryResult> results=new HashMap<>(resultFutures.size());
-for (Map.Entry<String,Future<QueryResult>> entry : resultFutures.entrySet()) {
-results.put(entry.getKey(),entry.getValue().get());
-}
-return new DimensionViewHeatMap(schema,objectMapper,results,dimensionGroups,dimensionRegex);
+Map<String,QueryResult> currentResults=QueryUtils.waitForQueries(resultCurrentFutures);
+Map<String,QueryResult> baselineResults=QueryUtils.waitForQueries(resultBaselineFutures);
+Map<String,QueryResult> mergedResults=QueryUtils.mergeQueryMaps(currentResults,baselineResults);
+return new DimensionViewHeatMap(schema,objectMapper,mergedResults,dimensionGroups,dimensionRegex);
 case TABULAR:
-List<FunnelTable> funnelTables=funnelResource.computeFunnelViews(collection,metricFunction,funnels,baselineMillis,currentMillis,ViewUtils.getIntraPeriod(metricFunction),selectedDimensions);
+List<FunnelTable> funnelTables=funnelResource.computeFunnelViews(collection,metricFunction,funnels,baselineMillis,currentMillis,selectedDimensions);
 return new DimensionViewFunnel(funnelTables);
 default :
 throw new NotFoundException("No dimension view implementation for " + dimensionViewType);

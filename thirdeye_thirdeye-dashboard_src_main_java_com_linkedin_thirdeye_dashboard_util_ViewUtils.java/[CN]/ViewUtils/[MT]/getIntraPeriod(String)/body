@@ -1,15 +1,15 @@
 {
   Granularity granularity=getGranularity(metricFunction);
   int aggregationWindow=Integer.parseInt(metricFunction.split("_")[1]);
-  long intraPeriod;
-  if (granularity.equals(Granularity.HOURS)) {
-    intraPeriod=INTRA_DAY_PERIOD;
+  IntraPeriod intraPeriod;
+  if (granularity == Granularity.HOURS) {
+    intraPeriod=IntraPeriod.DAY;
   }
- else   if (granularity.equals(Granularity.DAYS) && aggregationWindow == 1) {
-    intraPeriod=INTRA_WEEK_PERIOD;
+ else   if (granularity == Granularity.DAYS && aggregationWindow == 1) {
+    intraPeriod=IntraPeriod.WEEK;
   }
- else   if (granularity.equals(Granularity.DAYS)) {
-    intraPeriod=INTRA_MONTH_PERIOD;
+ else   if (granularity == Granularity.DAYS) {
+    intraPeriod=IntraPeriod.MONTH;
   }
  else {
     throw new IllegalArgumentException("Unknown granularity: " + granularity);

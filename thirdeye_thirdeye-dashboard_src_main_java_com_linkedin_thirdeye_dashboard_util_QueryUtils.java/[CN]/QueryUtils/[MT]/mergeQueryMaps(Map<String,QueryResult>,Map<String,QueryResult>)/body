@@ -1,0 +1,12 @@
+{
+  if (first == null || second == null) {
+    throw new IllegalArgumentException("Query result cannot be null");
+  }
+  Map<String,QueryResult> mergedResults=new HashMap<>(first.size());
+  for (  String dimensionKey : first.keySet()) {
+    QueryResult firstResult=first.get(dimensionKey);
+    QueryResult secondResult=second.get(dimensionKey);
+    mergedResults.put(dimensionKey,mergeQueries(firstResult,secondResult));
+  }
+  return mergedResults;
+}
