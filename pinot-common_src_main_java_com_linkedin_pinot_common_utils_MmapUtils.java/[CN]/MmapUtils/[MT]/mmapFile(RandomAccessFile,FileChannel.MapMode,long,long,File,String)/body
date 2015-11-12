@@ -13,6 +13,7 @@
   MappedByteBuffer byteBuffer=null;
   try {
     byteBuffer=randomAccessFile.getChannel().map(mode,position,size);
+    MMAP_BUFFER_COUNT.incrementAndGet();
   }
  catch (  Exception e) {
     LOGGER.error("Failed to mmap file (size {}, context {})",size,context,e);

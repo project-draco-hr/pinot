@@ -21,9 +21,10 @@ case DIRECT_BYTE_BUFFER:
       break;
 case MMAP:
     MMAP_BUFFER_USAGE.addAndGet(-bufferSize);
-  if (LOGGER.isDebugEnabled()) {
-    LOGGER.debug("Unmapping byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
-  }
+  MMAP_BUFFER_COUNT.decrementAndGet();
+if (LOGGER.isDebugEnabled()) {
+  LOGGER.debug("Unmapping byte buffer of size {} with context {}, allocation after operation {}",bufferSize,bufferContext,getTrackedAllocationStatus());
+}
 break;
 }
 BUFFER_TO_CONTEXT_MAP.remove(buffer);
