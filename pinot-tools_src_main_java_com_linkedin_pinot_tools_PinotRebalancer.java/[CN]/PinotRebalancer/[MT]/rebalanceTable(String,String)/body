@@ -1,0 +1,23 @@
+{
+  IdealState currentIdealState=helixAdmin.getResourceIdealState(clusterName,tableName);
+  List<String> partitions=Lists.newArrayList(currentIdealState.getPartitionSet());
+  LinkedHashMap<String,Integer> states=new LinkedHashMap<>();
+  states.put("OFFLINE",0);
+  states.put("ONLINE",1);
+  Map<String,Map<String,String>> mapFields=currentIdealState.getRecord().getMapFields();
+  Set<String> currentHosts=new HashSet<>();
+  for (  String segment : mapFields.keySet()) {
+    currentHosts.addAll(mapFields.get(segment).keySet());
+  }
+  AutoRebalanceStrategy rebalanceStrategy=new AutoRebalanceStrategy(tableName,partitions,states);
+  List<String> instancesInClusterWithTag=helixAdmin.getInstancesInClusterWithTag(clusterName,tenantName);
+  System.out.println("Old Nodes:" + currentHosts);
+  System.out.println("New Nodes:" + instancesInClusterWithTag);
+  Map<String,Map<String,String>> currentMapping=currentIdealState.getRecord().getMapFields();
+  ZNRecord newMapping=rebalanceStrategy.computePartitionAssignment(instancesInClusterWithTag,currentMapping,instancesInClusterWithTag);
+  System.out.println("previous mapping:" + currentIdealState);
+  System.out.println("new mapping:" + newMapping);
+  IdealState updatedIdealState=new IdealState(currentIdealState.getRecord());
+  updatedIdealState.getRecord().setMapFields(newMapping.getMapFields());
+  helixAdmin.setResourceIdealState(clusterName,tableName,updatedIdealState);
+}
