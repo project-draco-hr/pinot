@@ -2,11 +2,11 @@
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
   Iterator<String> dimensionsIter=schema.getDimensions().iterator();
   Iterator<String> dimensionAliasesIter=schema.getDimensionAliases().iterator();
-  Map<String,String> filteredAliases=new TreeMap<>();
+  Map<String,String> aliasMap=new TreeMap<>();
   while (dimensionsIter.hasNext()) {
     String dimension=dimensionsIter.next();
     String dimensionAlias=dimensionAliasesIter.next();
-    filteredAliases.put(dimension,dimensionAlias);
+    aliasMap.put(dimension,dimensionAlias);
   }
-  return filteredAliases;
+  return aliasMap;
 }
