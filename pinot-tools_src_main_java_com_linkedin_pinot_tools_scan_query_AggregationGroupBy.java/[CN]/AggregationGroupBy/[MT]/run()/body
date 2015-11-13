@@ -1,3 +1,16 @@
 {
-  return null;
+  Projection projection=new Projection(_indexSegment,_metadata,_filteredDocIds,_projectionColumns);
+  ResultTable projectionResult=projection.run();
+  Map<GroupByOperator,ResultTable> projectionGroupByResult=groupBy(projectionResult.values(_dictionaryMap,_addCountStar));
+  ResultTable results=new ResultTable(_projectionColumns,0);
+  for (  Map.Entry<GroupByOperator,ResultTable> entry : projectionGroupByResult.entrySet()) {
+    GroupByOperator groupByOperator=entry.getKey();
+    ResultTable groupByTable=entry.getValue();
+    ResultTable aggregationResult=aggregate(groupByTable);
+    for (    Object groupByColumn : groupByOperator._getGroupBys()) {
+      aggregationResult.add(0,groupByColumn);
+    }
+    results.append(aggregationResult);
+  }
+  return results;
 }
