@@ -201,6 +201,7 @@ jobProperties.put("num.reducers",numReducers);
 }
 Constructor<Configured> constructor=(Constructor<Configured>)phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
 Configured instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
+setMapreduceConfig(instance.getConf());
 Method runMethod=instance.getClass().getMethod("run");
 Job job=(Job)runMethod.invoke(instance);
 JobStatus status=job.getStatus();
