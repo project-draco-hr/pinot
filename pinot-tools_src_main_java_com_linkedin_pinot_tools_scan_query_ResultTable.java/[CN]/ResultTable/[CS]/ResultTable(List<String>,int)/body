@@ -1,14 +1,14 @@
 {
-  _columnList=columns;
+  _columnList=new ArrayList<>(columns);
   _rows=new ArrayList<>(numRows);
   _numDocsScanned=0;
-  for (int i=0; i < numRows; ++i) {
-    _rows.add(i,new Row());
-  }
   int index=0;
   _columnMap=new HashMap<>();
   for (  String column : columns) {
     _columnMap.put(column,index);
     ++index;
+  }
+  for (int i=0; i < numRows; ++i) {
+    _rows.add(i,new Row(_columnMap));
   }
 }

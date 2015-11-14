@@ -10,11 +10,7 @@
   ScanBasedQueryProcessor scanBasedQueryProcessor=new ScanBasedQueryProcessor(segDir);
   BufferedReader bufferedReader=new BufferedReader(new FileReader(queryFile));
   while ((query=bufferedReader.readLine()) != null) {
-    LOGGER.info("Processing Query: {}",query);
-    ResultTable resultTable=scanBasedQueryProcessor.processQuery(query);
-    if (resultTable != null) {
-      resultTable.print();
-    }
+    scanBasedQueryProcessor.processQuery(query);
   }
   bufferedReader.close();
 }

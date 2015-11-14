@@ -6,13 +6,17 @@
   ResultTable results=null;
   File file=new File(_segmentsDir);
   Aggregation aggregation=null;
+  List<String> groupByColumns=null;
   List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
   if (aggregationsInfo != null) {
-    aggregation=new Aggregation(brokerRequest.getAggregationsInfo());
+    groupByColumns=(brokerRequest.isSetGroupBy()) ? brokerRequest.getGroupBy().getColumns() : null;
+    aggregation=new Aggregation(brokerRequest.getAggregationsInfo(),groupByColumns);
   }
   int numDocsScanned=0;
   int totalDocs=0;
+  LOGGER.info("Processing Query: {}",query);
   for (  File segmentDir : file.listFiles()) {
+    LOGGER.info("Processing segment: " + segmentDir.getName());
     SegmentQueryProcessor processor=new SegmentQueryProcessor(brokerRequest,segmentDir);
     ResultTable segmentResults=processor.process(query);
     numDocsScanned+=segmentResults.getNumDocsScanned();
@@ -26,5 +30,6 @@
   results.setTotalDocs(totalDocs);
   long totalUsedMs=System.currentTimeMillis() - startTimeInMillis;
   results.setProcessingTime(totalUsedMs);
+  printResult(results);
   return results;
 }
