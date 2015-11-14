@@ -1,0 +1,40 @@
+{
+  IdealState currentIdealState=helixAdmin.getResourceIdealState(clusterName,tableName);
+  List<String> partitions=Lists.newArrayList(currentIdealState.getPartitionSet());
+  LinkedHashMap<String,Integer> states=new LinkedHashMap<>();
+  states.put("OFFLINE",0);
+  states.put("ONLINE",Integer.parseInt(currentIdealState.getReplicas()));
+  Map<String,Map<String,String>> mapFields=currentIdealState.getRecord().getMapFields();
+  Set<String> currentHosts=new HashSet<>();
+  for (  String segment : mapFields.keySet()) {
+    currentHosts.addAll(mapFields.get(segment).keySet());
+  }
+  AutoRebalanceStrategy rebalanceStrategy=new AutoRebalanceStrategy(tableName,partitions,states);
+  List<String> instancesInClusterWithTag=helixAdmin.getInstancesInClusterWithTag(clusterName,tenantName);
+  System.out.println("Current: Nodes:" + currentHosts);
+  System.out.println("New Nodes:" + instancesInClusterWithTag);
+  Map<String,Map<String,String>> currentMapping=currentIdealState.getRecord().getMapFields();
+  ZNRecord newZnRecord=rebalanceStrategy.computePartitionAssignment(instancesInClusterWithTag,currentMapping,instancesInClusterWithTag);
+  Map<String,Map<String,String>> newMapping=newZnRecord.getMapFields();
+  System.out.println("Current segment Assignment:");
+  printSegmentAssignment(currentMapping);
+  System.out.println("Current segment Assignment:");
+  printSegmentAssignment(newMapping);
+  if (EqualityUtils.isEqual(newMapping,currentMapping)) {
+    System.out.println("Skipping rebalancing for table:" + tableName + " since its already balanced");
+  }
+ else {
+    IdealState updatedIdealState=new IdealState(currentIdealState.getRecord());
+    updatedIdealState.getRecord().setMapFields(newMapping);
+    System.out.println("Updating the idealstate for table:" + tableName);
+    helixAdmin.setResourceIdealState(clusterName,tableName,updatedIdealState);
+    int diff=Integer.MAX_VALUE;
+    do {
+      Thread.sleep(30000);
+      diff=isStable(tableName);
+      System.out.println("Waiting for externalView to match idealstate for table:" + tableName + " Num segments difference");
+    }
+ while (diff > 0);
+    System.out.println("Successfully rebalanced table:" + tableName);
+  }
+}

@@ -1,0 +1,18 @@
+{
+  String zkAddress;
+  String clusterName;
+  String tableName;
+  String tenantName;
+  if (args.length == 4) {
+    zkAddress=args[0];
+    clusterName=args[1];
+    tableName=args[2];
+    tenantName=args[3];
+    PinotSegmentRebalancer rebalancer=new PinotSegmentRebalancer(zkAddress,clusterName);
+    rebalancer.rebalanceTenantTables(tenantName);
+  }
+ else {
+    System.out.println("USAGE PinotRebalancer [rebalanceTable|rebalanceTenant] <zkAddress> <clusterName> <tableName|tenantName>");
+    System.exit(1);
+  }
+}

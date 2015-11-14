@@ -1,0 +1,8 @@
+{
+  this.clusterName=clusterName;
+  helixAdmin=new ZKHelixAdmin(zkAddress);
+  ZNRecordSerializer serializer=new ZNRecordSerializer();
+  String path=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,clusterName);
+  propertyStore=new ZkHelixPropertyStore<>(zkAddress,serializer,path);
+  objectMapper=new ObjectMapper();
+}

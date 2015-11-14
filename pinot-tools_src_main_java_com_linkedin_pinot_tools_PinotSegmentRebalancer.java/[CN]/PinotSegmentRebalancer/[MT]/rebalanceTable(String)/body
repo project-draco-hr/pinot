@@ -1,0 +1,8 @@
+{
+  String tableConfigPath="/CONFIGS/TABLE/" + tableName;
+  Stat stat=new Stat();
+  ZNRecord znRecord=propertyStore.get(tableConfigPath,stat,0);
+  AbstractTableConfig tableConfig=AbstractTableConfig.fromZnRecord(znRecord);
+  String tenantName=tableConfig.getTenantConfig().getServer().replaceAll(TableType.OFFLINE.toString(),"").replace(TableType.OFFLINE.toString(),"");
+  rebalanceTable(tableName,tenantName);
+}

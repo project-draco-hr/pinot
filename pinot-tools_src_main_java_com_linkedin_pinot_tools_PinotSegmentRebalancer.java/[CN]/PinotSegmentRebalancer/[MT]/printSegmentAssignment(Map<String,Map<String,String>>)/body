@@ -1,0 +1,23 @@
+{
+  StringWriter sw=new StringWriter();
+  objectMapper.writerWithDefaultPrettyPrinter().writeValue(sw,mapping);
+  System.out.println(sw.toString());
+  Map<String,List<String>> serverToSegmentMapping=new TreeMap<>();
+  for (  String segment : mapping.keySet()) {
+    Map<String,String> serverToStateMap=mapping.get(segment);
+    for (    String server : serverToStateMap.keySet()) {
+      if (!serverToSegmentMapping.containsKey(server)) {
+        serverToSegmentMapping.put(server,new ArrayList<>());
+      }
+      serverToSegmentMapping.get(server).add(segment);
+    }
+  }
+  DescriptiveStatistics stats=new DescriptiveStatistics();
+  for (  String server : serverToSegmentMapping.keySet()) {
+    List<String> list=serverToSegmentMapping.get(server);
+    System.out.println("server " + server + " has "+ list.size()+ " segments");
+    stats.addValue(list.size());
+  }
+  System.out.println("Segment Distrbution stat");
+  System.out.println(stats);
+}
