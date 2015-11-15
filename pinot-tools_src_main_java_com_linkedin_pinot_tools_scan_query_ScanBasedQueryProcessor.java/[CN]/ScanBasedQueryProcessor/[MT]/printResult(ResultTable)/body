@@ -1,12 +1,5 @@
 {
-  List<String> values=new ArrayList<>();
-  for (  ResultTable.Row row : resultTable) {
-    int columnId=0;
-    for (    Object value : row) {
-      values.add(row.get(columnId).toString());
-    }
-  }
-  Result result=new Result(resultTable.getNumDocsScanned(),resultTable.getTotalDocs(),resultTable.getProcessingTime(),values);
+  Response response=new Response(resultTable);
   ObjectMapper objectMapper=new ObjectMapper();
-  LOGGER.info(objectMapper.defaultPrettyPrintingWriter().writeValueAsString(result));
+  LOGGER.info(objectMapper.defaultPrettyPrintingWriter().writeValueAsString(response));
 }

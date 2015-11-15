@@ -1,28 +1,32 @@
 {
-  _columnAggregationFuncMap=new TreeMap<>();
+  _groupByColumns=groupByColumns;
+  _columnFunctionList=new ArrayList<>();
   for (  AggregationInfo aggregationInfo : _aggregationsInfo) {
     Map<String,String> aggregationParams=aggregationInfo.getAggregationParams();
     for (    Map.Entry<String,String> entry : aggregationParams.entrySet()) {
-      _columnAggregationFuncMap.put(entry.getValue(),aggregationInfo.getAggregationType());
+      _columnFunctionList.add(new Pair(entry.getValue(),aggregationInfo.getAggregationType()));
     }
   }
   _addCountStar=false;
   _projectionColumns=new ArrayList<>();
   _allColumns=new ArrayList<>();
   if (_groupByColumns != null) {
-    _projectionColumns.addAll(_groupByColumns);
-    _allColumns.addAll(_groupByColumns);
+    for (    String column : _groupByColumns) {
+      _projectionColumns.add(column);
+      _allColumns.add(new Pair(column,null));
+    }
   }
-  for (  String column : _columnAggregationFuncMap.keySet()) {
+  for (  Pair pair : _columnFunctionList) {
+    String column=(String)pair.getFirst();
     if (column.equals("*")) {
       _addCountStar=true;
     }
  else {
       _projectionColumns.add(column);
-      _allColumns.add(column);
+      _allColumns.add(new Pair(column,pair.getSecond()));
     }
   }
   if (_addCountStar) {
-    _allColumns.add("*");
+    _allColumns.add(new Pair("count","star"));
   }
 }
