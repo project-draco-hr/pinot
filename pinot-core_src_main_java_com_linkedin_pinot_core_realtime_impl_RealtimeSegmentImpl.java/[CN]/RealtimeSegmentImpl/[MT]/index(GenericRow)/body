@@ -1,7 +1,4 @@
 {
-  if (numDocsIndexed >= capacity) {
-    return false;
-  }
   for (  String dimension : dataSchema.getDimensionNames()) {
     dictionaryMap.get(dimension).index(row.getValue(dimension));
     if (!dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
@@ -70,5 +67,5 @@
   docIdSearchableOffset=docId;
   numDocsIndexed+=1;
   numSuccessIndexed+=1;
-  return true;
+  return numDocsIndexed < capacity;
 }
