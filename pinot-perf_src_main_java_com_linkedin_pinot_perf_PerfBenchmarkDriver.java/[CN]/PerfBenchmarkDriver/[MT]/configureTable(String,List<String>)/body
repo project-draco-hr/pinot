@@ -1,0 +1,21 @@
+{
+  int numInstances=1;
+  int numReplicas=1;
+  String segmentAssignmentStrategy="BalanceNumSegmentAssignmentStrategy";
+  String brokerTenantName="DefaultTenant";
+  String serverTenantName="DefaultTenant";
+  Tenant brokerTenant=new TenantBuilder(brokerTenantName).setRole(TenantRole.BROKER).setTotalInstances(numInstances).build();
+  helixResourceManager=new PinotHelixResourceManager(getControllerConf());
+  helixResourceManager.start();
+  helixResourceManager.createBrokerTenant(brokerTenant);
+  Tenant serverTenant=new TenantBuilder(serverTenantName).setRole(TenantRole.SERVER).setTotalInstances(numInstances).setOfflineInstances(numInstances).build();
+  helixResourceManager.createServerTenant(serverTenant);
+  String jsonString=ControllerRequestBuilderUtil.buildCreateOfflineTableJSON(tableName,serverTenantName,brokerTenantName,numReplicas,segmentAssignmentStrategy).toString();
+  AbstractTableConfig offlineTableConfig=AbstractTableConfig.init(jsonString);
+  offlineTableConfig.getValidationConfig().setRetentionTimeUnit("DAYS");
+  offlineTableConfig.getValidationConfig().setRetentionTimeValue("");
+  if (invertedIndexColumns != null && !invertedIndexColumns.isEmpty()) {
+    offlineTableConfig.getIndexingConfig().setInvertedIndexColumns(invertedIndexColumns);
+  }
+  helixResourceManager.addTable(offlineTableConfig);
+}

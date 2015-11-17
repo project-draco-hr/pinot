@@ -1,0 +1,31 @@
+{
+  JSONObject creationRequest=new JSONObject();
+  creationRequest.put("tableName",tableName);
+  JSONObject segmentsConfig=new JSONObject();
+  segmentsConfig.put("retentionTimeUnit",retentionTimeUnit);
+  segmentsConfig.put("retentionTimeValue",retentionTimeValue);
+  segmentsConfig.put("segmentPushFrequency","daily");
+  segmentsConfig.put("segmentPushType","APPEND");
+  segmentsConfig.put("replication",numReplicas);
+  segmentsConfig.put("schemaName","baseball");
+  segmentsConfig.put("timeColumnName",timeColumnName);
+  segmentsConfig.put("timeType",timeType);
+  segmentsConfig.put("segmentAssignmentStrategy",segmentAssignmentStrategy);
+  creationRequest.put("segmentsConfig",segmentsConfig);
+  JSONObject tableIndexConfig=new JSONObject();
+  tableIndexConfig.put("invertedIndexColumns",invertedIndexColumns);
+  tableIndexConfig.put("loadMode","HEAP");
+  tableIndexConfig.put("lazyLoad","false");
+  creationRequest.put("tableIndexConfig",tableIndexConfig);
+  JSONObject tenants=new JSONObject();
+  tenants.put("broker",brokerTenant);
+  tenants.put("server",serverTenant);
+  creationRequest.put("tenants",tenants);
+  creationRequest.put("tableType","OFFLINE");
+  JSONObject metadata=new JSONObject();
+  JSONObject customConfigs=new JSONObject();
+  customConfigs.put("d2Name","xlntBetaPinot");
+  metadata.put("customConfigs",customConfigs);
+  creationRequest.put("metadata",metadata);
+  return creationRequest;
+}

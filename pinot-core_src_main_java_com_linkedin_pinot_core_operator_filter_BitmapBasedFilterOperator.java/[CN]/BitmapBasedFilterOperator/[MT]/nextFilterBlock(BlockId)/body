@@ -4,11 +4,27 @@
   Block dataSourceBlock=dataSource.nextBlock();
   Dictionary dictionary=dataSource.getDictionary();
   PredicateEvaluator evaluator=PredicateEvaluatorProvider.getPredicateFunctionFor(predicate,dictionary);
-  int[] dictionaryIds=evaluator.getMatchingDictionaryIds();
-  ImmutableRoaringBitmap[] bitmaps=new ImmutableRoaringBitmap[dictionaryIds.length];
-  for (int i=0; i < dictionaryIds.length; i++) {
-    bitmaps[i]=invertedIndex.getImmutable(dictionaryIds[i]);
-  }
-  bitmapBlock=new BitmapBlock(dataSourceBlock.getMetadata(),bitmaps);
-  return bitmapBlock;
+  int[] dictionaryIds;
+  boolean exclusion=false;
+switch (predicate.getType()) {
+case EQ:
+case IN:
+case RANGE:
+    dictionaryIds=evaluator.getMatchingDictionaryIds();
+  break;
+case NEQ:
+case NOT_IN:
+exclusion=true;
+dictionaryIds=evaluator.getNonMatchingDictionaryIds();
+break;
+case REGEX:
+default :
+throw new UnsupportedOperationException("Regex is not supported");
+}
+ImmutableRoaringBitmap[] bitmaps=new ImmutableRoaringBitmap[dictionaryIds.length];
+for (int i=0; i < dictionaryIds.length; i++) {
+bitmaps[i]=invertedIndex.getImmutable(dictionaryIds[i]);
+}
+bitmapBlock=new BitmapBlock(dataSourceBlock.getMetadata(),bitmaps,exclusion);
+return bitmapBlock;
 }

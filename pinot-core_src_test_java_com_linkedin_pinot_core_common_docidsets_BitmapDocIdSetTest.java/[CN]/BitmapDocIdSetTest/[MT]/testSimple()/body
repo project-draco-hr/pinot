@@ -12,9 +12,15 @@
       originalSet.add(docId);
       mutableRoaringBitmap.add(docId);
     }
-    list.add(mutableRoaringBitmap);
+    ByteArrayOutputStream bos=new ByteArrayOutputStream();
+    DataOutputStream dos=new DataOutputStream(bos);
+    mutableRoaringBitmap.serialize(dos);
+    dos.close();
+    ByteBuffer bb=ByteBuffer.wrap(bos.toByteArray());
+    ImmutableRoaringBitmap immutableRoaringBitmap=new ImmutableRoaringBitmap(bb);
+    list.add(immutableRoaringBitmap);
   }
-  MutableRoaringBitmap[] bitmaps=new MutableRoaringBitmap[list.size()];
+  ImmutableRoaringBitmap[] bitmaps=new ImmutableRoaringBitmap[list.size()];
   list.toArray(bitmaps);
   BlockMetadata blockMetadata=new BlockMetadata(){
     @Override public boolean isSparse(){

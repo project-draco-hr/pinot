@@ -1,0 +1,14 @@
+{
+  if (currentDocId == Constants.EOF) {
+    return currentDocId;
+  }
+  while (valueIterator.hasNext() && currentDocId <= endDocId) {
+    currentDocId=currentDocId + 1;
+    int length=valueIterator.nextIntVal(intArray);
+    if (evaluator.apply(intArray,length)) {
+      return currentDocId;
+    }
+  }
+  currentDocId=Constants.EOF;
+  return Constants.EOF;
+}

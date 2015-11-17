@@ -5,5 +5,12 @@
   buffer.position(currentOffset);
   final ByteBuffer bb=buffer.slice();
   bb.limit(bufferLength);
-  return new ImmutableRoaringBitmap(bb);
+  ImmutableRoaringBitmap immutableRoaringBitmap=null;
+  try {
+    immutableRoaringBitmap=new ImmutableRoaringBitmap(bb);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Error creating immutableRoaringBitmap for dictionary id:{} currentOffset:{} bufferLength:{} slice position{} limit:{} file:{}",index,currentOffset,bufferLength,bb.position(),bb.limit(),file.getAbsolutePath());
+  }
+  return immutableRoaringBitmap;
 }

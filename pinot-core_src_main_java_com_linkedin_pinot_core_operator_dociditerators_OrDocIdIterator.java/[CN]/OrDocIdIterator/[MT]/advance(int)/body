@@ -1,0 +1,39 @@
+{
+  if (currentDocId == Constants.EOF) {
+    return Constants.EOF;
+  }
+  if (targetDocId < minDocId) {
+    targetDocId=minDocId;
+  }
+ else   if (targetDocId > maxDocId) {
+    currentDocId=Constants.EOF;
+    return currentDocId;
+  }
+  long start=System.nanoTime();
+  Iterator<IntPair> iterator=queue.iterator();
+  while (iterator.hasNext()) {
+    IntPair pair=iterator.next();
+    if (pair.getA() < targetDocId) {
+      iterator.remove();
+      iteratorIsInQueue[pair.getB()]=false;
+    }
+  }
+  for (int i=0; i < docIdIterators.length; i++) {
+    if (!iteratorIsInQueue[i]) {
+      int nextDocId=docIdIterators[i].advance(targetDocId);
+      if (nextDocId != Constants.EOF) {
+        queue.add(new IntPair(nextDocId,i));
+      }
+      iteratorIsInQueue[i]=true;
+    }
+  }
+  if (queue.size() > 0) {
+    currentDocId=queue.peek().getA();
+  }
+ else {
+    currentDocId=Constants.EOF;
+  }
+  long end=System.nanoTime();
+  timeMeasure.addAndGet(end - start);
+  return currentDocId;
+}

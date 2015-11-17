@@ -1,0 +1,34 @@
+{
+  if (targetDocId < startDocId) {
+    targetDocId=startDocId;
+  }
+ else   if (targetDocId > endDocId) {
+    currentDocId=Constants.EOF;
+  }
+  if (currentDocId == Constants.EOF) {
+    return currentDocId;
+  }
+  if (currentDocId == targetDocId) {
+    return currentDocId;
+  }
+  boolean found=false;
+  int next=Constants.EOF;
+  while (iterator.hasNext()) {
+    next=iterator.next();
+    if (next > endDocId) {
+      break;
+    }
+    if (next >= targetDocId) {
+      found=true;
+      break;
+    }
+  }
+  if (found) {
+    currentDocId=next;
+  }
+ else {
+    currentDocId=Constants.EOF;
+  }
+  long end=System.nanoTime();
+  return currentDocId;
+}

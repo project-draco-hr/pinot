@@ -1,0 +1,32 @@
+{
+  long start=System.currentTimeMillis();
+  if (currentDocId == Constants.EOF) {
+    return currentDocId;
+  }
+  while (queue.size() > 0 && queue.peek().getA() <= currentDocId) {
+    IntPair pair=queue.remove();
+    iteratorIsInQueue[pair.getB()]=false;
+  }
+  currentDocId++;
+  for (int i=0; i < docIdIterators.length; i++) {
+    if (!iteratorIsInQueue[i]) {
+      int nextDocId=docIdIterators[i].advance(currentDocId);
+      if (nextDocId != Constants.EOF) {
+        if (!(nextDocId <= maxDocId && nextDocId >= minDocId) && nextDocId >= currentDocId) {
+          throw new RuntimeException("next Doc : " + nextDocId + " should never crossing the range : [ "+ minDocId+ ", "+ maxDocId+ " ]");
+        }
+        queue.add(new IntPair(nextDocId,i));
+      }
+      iteratorIsInQueue[i]=true;
+    }
+  }
+  if (queue.size() > 0) {
+    currentDocId=queue.peek().getA();
+  }
+ else {
+    currentDocId=Constants.EOF;
+  }
+  long end=System.currentTimeMillis();
+  timeMeasure.addAndGet(end - start);
+  return currentDocId;
+}

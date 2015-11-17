@@ -1,0 +1,21 @@
+{
+  int next=Constants.EOF;
+  boolean found=false;
+  while (iterator.hasNext()) {
+    next=iterator.next();
+    if (next > endDocId) {
+      break;
+    }
+    if (next >= startDocId) {
+      found=true;
+      break;
+    }
+  }
+  if (found) {
+    currentDocId=next;
+  }
+ else {
+    currentDocId=Constants.EOF;
+  }
+  return currentDocId;
+}

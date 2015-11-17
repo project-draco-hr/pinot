@@ -20,7 +20,15 @@
     bitmapArrayReference=new SoftReference[numberOfBitmaps];
     bitmaps=new SoftReference<SoftReference<ImmutableRoaringBitmap>[]>(bitmapArrayReference);
   }
-  ImmutableRoaringBitmap value=buildRoaringBitmapForIndex(idx);
-  bitmapArrayReference[idx]=new SoftReference<ImmutableRoaringBitmap>(value);
-  return value;
+synchronized (this) {
+    ImmutableRoaringBitmap value;
+    if (bitmapArrayReference[idx] == null || bitmapArrayReference[idx].get() == null) {
+      value=buildRoaringBitmapForIndex(idx);
+      bitmapArrayReference[idx]=new SoftReference<ImmutableRoaringBitmap>(value);
+    }
+ else {
+      value=bitmapArrayReference[idx].get();
+    }
+    return value;
+  }
 }

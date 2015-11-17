@@ -1,0 +1,23 @@
+{
+  if (pairPointer == this.sortedDocIdSet.pairs.size() || currentDocId > this.sortedDocIdSet.pairs.get(this.sortedDocIdSet.pairs.size() - 1).getRight()) {
+    pairPointer=this.sortedDocIdSet.pairs.size();
+    return (currentDocId=Constants.EOF);
+  }
+  long start=System.nanoTime();
+  currentDocId=currentDocId + 1;
+  if (pairPointer < this.sortedDocIdSet.pairs.size() && currentDocId > this.sortedDocIdSet.pairs.get(pairPointer).getRight()) {
+    pairPointer++;
+    if (pairPointer == this.sortedDocIdSet.pairs.size()) {
+      currentDocId=Constants.EOF;
+    }
+ else {
+      currentDocId=this.sortedDocIdSet.pairs.get(pairPointer).getLeft();
+    }
+  }
+ else   if (currentDocId < this.sortedDocIdSet.pairs.get(pairPointer).getLeft()) {
+    currentDocId=this.sortedDocIdSet.pairs.get(pairPointer).getLeft();
+  }
+  long end=System.nanoTime();
+  this.sortedDocIdSet.timeMeasure.addAndGet(end - start);
+  return currentDocId;
+}

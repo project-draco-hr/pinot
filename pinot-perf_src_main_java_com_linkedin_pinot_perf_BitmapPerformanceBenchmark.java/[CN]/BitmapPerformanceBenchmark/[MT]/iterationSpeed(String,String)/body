@@ -1,0 +1,27 @@
+{
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(new File(indexSegmentDir));
+  Map<String,BitmapInvertedIndexReader> bitMapIndexMap=new HashMap<String,BitmapInvertedIndexReader>();
+  Map<String,Integer> cardinalityMap=new HashMap<String,Integer>();
+  Map<String,ImmutableDictionaryReader> dictionaryMap=new HashMap<String,ImmutableDictionaryReader>();
+  File bitMapIndexFile=new File(indexSegmentDir,column + ".bitmap.inv");
+  ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(column);
+  int cardinality=columnMetadata.getCardinality();
+  cardinalityMap.put(column,cardinality);
+  BitmapInvertedIndexReader bitmapInvertedIndex=new BitmapInvertedIndexReader(bitMapIndexFile,cardinality,true);
+  File dictionaryFile=new File(indexSegmentDir + "/" + column+ ".dict");
+  ColumnIndexContainer container=ColumnIndexContainer.init(column,dictionaryFile.getParentFile(),columnMetadata,null,ReadMode.heap);
+  ImmutableDictionaryReader dictionary=container.getDictionary();
+  dictionaryMap.put(column,dictionary);
+  bitMapIndexMap.put(column,bitmapInvertedIndex);
+  int dictId=dictionary.indexOf("na.us");
+  ImmutableRoaringBitmap immutable=bitmapInvertedIndex.getImmutable(dictId);
+  Iterator<Integer> iterator=immutable.iterator();
+  int count=0;
+  long start=System.currentTimeMillis();
+  while (iterator.hasNext()) {
+    iterator.next();
+    count=count + 1;
+  }
+  long end=System.currentTimeMillis();
+  System.out.println(" matched: " + count + " Time to iterate:"+ (end - start));
+}
