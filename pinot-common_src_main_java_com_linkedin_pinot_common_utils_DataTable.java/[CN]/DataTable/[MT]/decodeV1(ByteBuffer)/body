@@ -1,0 +1,54 @@
+{
+  numRows=input.getInt();
+  numCols=input.getInt();
+  final int dictionaryStart=input.getInt();
+  final int dictionaryLength=input.getInt();
+  final int metadataStart=input.getInt();
+  final int metadataLength=input.getInt();
+  final int schemaStart=input.getInt();
+  final int schemaLength=input.getInt();
+  final int fixedDataStart=input.getInt();
+  final int fixedDataLength=input.getInt();
+  final int variableDataStart=input.getInt();
+  final int variableDataLength=input.getInt();
+  byte[] dictionaryBytes=null;
+  if (dictionaryLength != 0) {
+    dictionaryBytes=new byte[dictionaryLength];
+    input.position(dictionaryStart);
+    input.get(dictionaryBytes);
+    dictionary=(Map<String,Map<Integer,String>>)deserializeDictionary(dictionaryBytes);
+  }
+ else {
+    dictionary=new HashMap<String,Map<Integer,String>>(1);
+  }
+  byte[] metadataBytes;
+  if (metadataLength != 0) {
+    metadataBytes=new byte[metadataLength];
+    input.position(metadataStart);
+    input.get(metadataBytes);
+    metadata=(Map<String,String>)deserializeMetadata(metadataBytes);
+  }
+ else {
+    metadata=new HashMap<String,String>();
+  }
+  byte[] schemaBytes;
+  if (schemaLength != 0) {
+    schemaBytes=new byte[schemaLength];
+    input.position(schemaStart);
+    input.get(schemaBytes);
+    schema=DataSchema.fromBytes(schemaBytes);
+    columnOffsets=computeColumnOffsets(schema);
+  }
+  if (fixedDataLength != 0) {
+    fixedSizeDataBytes=new byte[fixedDataLength];
+    input.position(fixedDataStart);
+    input.get(fixedSizeDataBytes);
+    fixedSizeData=ByteBuffer.wrap(fixedSizeDataBytes);
+  }
+  if (variableDataLength != 0) {
+    variableSizeDataBytes=new byte[variableDataLength];
+    input.position(variableDataStart);
+    input.get(variableSizeDataBytes);
+    variableSizeData=ByteBuffer.wrap(variableSizeDataBytes);
+  }
+}

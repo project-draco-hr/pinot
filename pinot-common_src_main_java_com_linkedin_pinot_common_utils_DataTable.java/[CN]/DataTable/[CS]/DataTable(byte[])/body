@@ -1,37 +1,9 @@
 {
   final ByteBuffer input=ByteBuffer.wrap(buffer);
   final int version=input.getInt();
-  numRows=input.getInt();
-  numCols=input.getInt();
-  final int dictionaryStart=input.getInt();
-  final int dictionaryLength=input.getInt();
-  final int metadataStart=input.getInt();
-  final int metadataLength=input.getInt();
-  final int schemaStart=input.getInt();
-  final int schemaLength=input.getInt();
-  final int fixedDataStart=input.getInt();
-  final int fixedDataLength=input.getInt();
-  final int variableDataStart=input.getInt();
-  final int variableDataLength=input.getInt();
-  final byte[] dictionaryBytes=new byte[dictionaryLength];
-  input.position(dictionaryStart);
-  input.get(dictionaryBytes);
-  dictionary=(Map<String,Map<Integer,String>>)deserializeDictionary(dictionaryBytes);
-  final byte[] metadataBytes=new byte[metadataLength];
-  input.position(metadataStart);
-  input.get(metadataBytes);
-  metadata=(Map<String,String>)deserializeMetadata(metadataBytes);
-  final byte[] schemaBytes=new byte[schemaLength];
-  input.position(schemaStart);
-  input.get(schemaBytes);
-  schema=DataSchema.fromBytes(schemaBytes);
-  columnOffsets=computeColumnOffsets(schema);
-  fixedSizeDataBytes=new byte[fixedDataLength];
-  input.position(fixedDataStart);
-  input.get(fixedSizeDataBytes);
-  fixedSizeData=ByteBuffer.wrap(fixedSizeDataBytes);
-  variableSizeDataBytes=new byte[variableDataLength];
-  input.position(variableDataStart);
-  input.get(variableSizeDataBytes);
-  variableSizeData=ByteBuffer.wrap(variableSizeDataBytes);
+  if (version == VERSION_1) {
+    decodeV1(input);
+    return;
+  }
+  throw new RuntimeException("Unknown version of DataTable encoding:" + version);
 }
