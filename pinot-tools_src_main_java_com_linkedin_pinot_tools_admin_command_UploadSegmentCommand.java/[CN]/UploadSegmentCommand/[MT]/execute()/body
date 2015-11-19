@@ -2,22 +2,23 @@
   if (_controllerHost == null) {
     _controllerHost=NetUtil.getHostAddress();
   }
+  File tmpDir=File.createTempFile(SEGMENT_UPLOADER,null,FileUtils.getTempDirectory());
+  FileUtils.deleteQuietly(tmpDir);
+  tmpDir.mkdir();
+  FileUtils.forceDeleteOnExit(tmpDir);
   LOGGER.info("Executing command: " + toString());
   File dir=new File(_segmentDir);
   File[] files=dir.listFiles();
   for (  File file : files) {
     File tgzFile=file;
-    boolean cleanTmpFile=false;
     if (file.isDirectory()) {
+      LOGGER.info("Compressing segment {}",file.getName());
       String srcDir=file.getAbsolutePath();
-      String tgzFileName=TarGzCompressionUtils.createTarGzOfDirectory(srcDir);
+      String tgzFileName=TarGzCompressionUtils.createTarGzOfDirectory(srcDir,tmpDir + File.separator + file.getName()+ TAR_GZIP);
       tgzFile=new File(tgzFileName);
-      cleanTmpFile=true;
     }
+    LOGGER.info("Uploading segment {}",tgzFile.getName());
     FileUploadUtils.sendSegmentFile(_controllerHost,_controllerPort,tgzFile.getName(),new FileInputStream(tgzFile),tgzFile.length());
-    if (cleanTmpFile) {
-      FileUtils.deleteQuietly(tgzFile);
-    }
   }
   return true;
 }
