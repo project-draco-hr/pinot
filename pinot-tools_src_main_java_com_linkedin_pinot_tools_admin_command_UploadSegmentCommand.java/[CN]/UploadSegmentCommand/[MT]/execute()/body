@@ -5,20 +5,27 @@
   File tmpDir=File.createTempFile(SEGMENT_UPLOADER,null,FileUtils.getTempDirectory());
   FileUtils.deleteQuietly(tmpDir);
   tmpDir.mkdir();
-  FileUtils.forceDeleteOnExit(tmpDir);
-  LOGGER.info("Executing command: " + toString());
-  File dir=new File(_segmentDir);
-  File[] files=dir.listFiles();
-  for (  File file : files) {
-    File tgzFile=file;
-    if (file.isDirectory()) {
-      LOGGER.info("Compressing segment {}",file.getName());
-      String srcDir=file.getAbsolutePath();
-      String tgzFileName=TarGzCompressionUtils.createTarGzOfDirectory(srcDir,tmpDir + File.separator + file.getName()+ TAR_GZIP);
-      tgzFile=new File(tgzFileName);
+  try {
+    LOGGER.info("Executing command: " + toString());
+    File dir=new File(_segmentDir);
+    File[] files=dir.listFiles();
+    for (    File file : files) {
+      File tgzFile=file;
+      if (file.isDirectory()) {
+        LOGGER.info("Compressing segment {}",file.getName());
+        String srcDir=file.getAbsolutePath();
+        String tgzFileName=TarGzCompressionUtils.createTarGzOfDirectory(srcDir,tmpDir.getAbsolutePath() + File.separator + file.getName()+ TAR_GZIP);
+        tgzFile=new File(tgzFileName);
+      }
+      LOGGER.info("Uploading segment {}",tgzFile.getName());
+      FileUploadUtils.sendSegmentFile(_controllerHost,_controllerPort,tgzFile.getName(),new FileInputStream(tgzFile),tgzFile.length());
     }
-    LOGGER.info("Uploading segment {}",tgzFile.getName());
-    FileUploadUtils.sendSegmentFile(_controllerHost,_controllerPort,tgzFile.getName(),new FileInputStream(tgzFile),tgzFile.length());
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception caught while uploading segment {}",_segmentDir,e);
+  }
+ finally {
+    FileUtils.deleteQuietly(tmpDir);
   }
   return true;
 }
