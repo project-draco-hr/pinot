@@ -9,10 +9,10 @@
   }
   File logDir=new File("/tmp/kafka-" + Double.toHexString(Math.random()));
   logDir.mkdirs();
-  configuration.put("port",Integer.toString(port));
-  configuration.put("zookeeper.connect",zkStr);
-  configuration.put("broker.id",Integer.toString(brokerId));
-  configuration.put("log.dirs",logDir.getAbsolutePath());
+  configureKafkaPort(configuration,port);
+  configureZkConnectionString(configuration,zkStr);
+  configureBrokerId(configuration,brokerId);
+  configureKafkaLogDirectory(configuration,logDir);
   KafkaConfig config=new KafkaConfig(configuration);
   KafkaServerStartable serverStartable=new KafkaServerStartable(config);
   serverStartable.startup();
