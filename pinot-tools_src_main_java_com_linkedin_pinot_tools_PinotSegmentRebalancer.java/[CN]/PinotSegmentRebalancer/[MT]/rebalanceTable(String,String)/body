@@ -18,7 +18,7 @@
   Map<String,Map<String,String>> newMapping=newZnRecord.getMapFields();
   System.out.println("Current segment Assignment:");
   printSegmentAssignment(currentMapping);
-  System.out.println("Current segment Assignment:");
+  System.out.println("New segment Assignment:");
   printSegmentAssignment(newMapping);
   if (EqualityUtils.isEqual(newMapping,currentMapping)) {
     System.out.println("Skipping rebalancing for table:" + tableName + " since its already balanced");
@@ -29,10 +29,16 @@
     System.out.println("Updating the idealstate for table:" + tableName);
     helixAdmin.setResourceIdealState(clusterName,tableName,updatedIdealState);
     int diff=Integer.MAX_VALUE;
+    Thread.sleep(3000);
     do {
-      Thread.sleep(30000);
       diff=isStable(tableName);
-      System.out.println("Waiting for externalView to match idealstate for table:" + tableName + " Num segments difference");
+      if (diff == 0) {
+        break;
+      }
+ else {
+        System.out.println("Waiting for externalView to match idealstate for table:" + tableName + " Num segments difference");
+        Thread.sleep(30000);
+      }
     }
  while (diff > 0);
     System.out.println("Successfully rebalanced table:" + tableName);
