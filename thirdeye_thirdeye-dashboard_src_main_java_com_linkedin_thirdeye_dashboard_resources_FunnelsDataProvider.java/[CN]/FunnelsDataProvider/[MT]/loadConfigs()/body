@@ -8,10 +8,23 @@
     }
     try {
       CustomFunnelSpec spec=ymlReader.readValue(funnelsFile,CustomFunnelSpec.class);
-      this.funnelSpecsMap.put(spec.getCollection(),spec);
+      String collection=spec.getCollection();
+      FunnelSpec defaultFunnelSpec=createDefaultFunnelSpec(collection);
+      spec.getFunnels().put(defaultFunnelSpec.getName(),defaultFunnelSpec);
+      this.funnelSpecsMap.put(collection,spec);
     }
  catch (    Exception e) {
       LOG.error("error loading the configFile",e);
     }
+  }
+  for (  String collection : dataCache.getCollections(serverUri)) {
+    if (this.funnelSpecsMap.containsKey(collection)) {
+      continue;
+    }
+    LOG.info("Creating default funnel config for collection: {}",collection);
+    CustomFunnelSpec spec=new CustomFunnelSpec();
+    spec.setCollection(collection);
+    spec.setFunnels(Arrays.asList(createDefaultFunnelSpec(collection)));
+    this.funnelSpecsMap.put(collection,spec);
   }
 }
