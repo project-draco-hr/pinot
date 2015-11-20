@@ -18,6 +18,7 @@
     compaction=Boolean.parseBoolean(configuration.get(STAR_TREE_BOOTSTRAP_COMPACTION.toString()));
     converterClassName=configuration.get(STAR_TREE_BOOTSTRAP_CONVERTER_CLASS.toString());
     converterClass=Class.forName(converterClassName);
+    LOGGER.info("Using converter class {}",converterClassName);
     maxTimeSeriesToCache=(int)(0.05 * 1000 * 1000* 1000) / (8 + metricSchema.getRowSizeInBytes());
     LOGGER.info("MAX_TIMESERIES_IN_CACHE=" + maxTimeSeriesToCache);
     if (starTreeConfig.getTime().getFormat() != null) {
