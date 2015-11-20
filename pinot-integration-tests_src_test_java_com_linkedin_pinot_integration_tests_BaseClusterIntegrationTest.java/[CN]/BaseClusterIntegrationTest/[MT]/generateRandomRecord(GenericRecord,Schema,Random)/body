@@ -1,0 +1,60 @@
+{
+  for (  Schema.Field field : avroSchema.getFields()) {
+    Schema.Type fieldType=field.schema().getType();
+    if (fieldType != Schema.Type.ARRAY && fieldType != Schema.Type.UNION) {
+switch (fieldType) {
+case INT:
+        genericRecord.put(field.name(),random.nextInt(100000));
+      break;
+case LONG:
+    genericRecord.put(field.name(),random.nextLong() % 1000000L);
+  break;
+case STRING:
+genericRecord.put(field.name(),"potato" + random.nextInt(1000));
+break;
+default :
+throw new RuntimeException("Unimplemented random record generation for field " + field);
+}
+}
+ else if (fieldType == Schema.Type.UNION) {
+switch (field.schema().getTypes().get(0).getType()) {
+case INT:
+genericRecord.put(field.name(),random.nextInt(100000));
+break;
+case LONG:
+genericRecord.put(field.name(),random.nextLong() % 1000000L);
+break;
+case STRING:
+genericRecord.put(field.name(),"potato" + random.nextInt(1000));
+break;
+default :
+throw new RuntimeException("Unimplemented random record generation for field " + field);
+}
+}
+ else {
+final int MAX_MULTIVALUES=5;
+int multivalueCount=random.nextInt(MAX_MULTIVALUES);
+List<Object> values=new ArrayList<>(multivalueCount);
+switch (field.schema().getElementType().getType()) {
+case INT:
+for (int i=0; i < multivalueCount; i++) {
+values.add(random.nextInt(100000));
+}
+break;
+case LONG:
+for (int i=0; i < multivalueCount; i++) {
+values.add(random.nextLong() % 1000000L);
+}
+break;
+case STRING:
+for (int i=0; i < multivalueCount; i++) {
+values.add("potato" + random.nextInt(1000));
+}
+break;
+default :
+throw new RuntimeException("Unimplemented random record generation for field " + field);
+}
+genericRecord.put(field.name(),values);
+}
+}
+}

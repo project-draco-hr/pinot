@@ -1,0 +1,46 @@
+{
+  startZk();
+  KafkaServerStartable kafkaStarter=KafkaStarterUtils.startServer(KafkaStarterUtils.DEFAULT_KAFKA_PORT,KafkaStarterUtils.DEFAULT_BROKER_ID,KafkaStarterUtils.DEFAULT_ZK_STR,KafkaStarterUtils.getDefaultKafkaConfiguration());
+  KafkaStarterUtils.createTopic(KAFKA_TOPIC,KafkaStarterUtils.DEFAULT_ZK_STR);
+  TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(RealtimeClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
+  _tmpDir.mkdirs();
+  final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
+  for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
+    avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
+  }
+  File schemaFile=new File(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.schema").getFile());
+  startController();
+  startBroker();
+  startServer();
+  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
+  Uninterruptibles.sleepUninterruptibly(5,TimeUnit.SECONDS);
+  new Thread(){
+    @Override public void run(){
+      pushRandomAvroIntoKafka(avroFiles.get(0),KafkaStarterUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC,ROW_COUNT,RANDOM);
+    }
+  }
+.start();
+  long startTime=System.currentTimeMillis();
+  int pinotRecordCount=-1;
+  long timeAfterTimeout=System.currentTimeMillis() + TIMEOUT_MILLIS;
+  do {
+    Thread.sleep(500L);
+    try {
+      JSONObject response=postQuery("select count(*) from mytable");
+      JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
+      JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
+      String pinotValue=firstAggregationResult.getString("value");
+      pinotRecordCount=Integer.parseInt(pinotValue);
+    }
+ catch (    Exception e) {
+      continue;
+    }
+    System.out.println("Pinot record count: " + pinotRecordCount);
+    if (timeAfterTimeout < System.currentTimeMillis()) {
+      throw new RuntimeException("Timeout exceeded!");
+    }
+  }
+ while (ROW_COUNT != pinotRecordCount);
+  long endTime=System.currentTimeMillis();
+  System.out.println("Consumed " + ROW_COUNT + " rows in "+ (endTime - startTime) / 1000.0 + " seconds");
+}
