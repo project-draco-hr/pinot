@@ -17,6 +17,8 @@
     Constructor<?> constructor=Class.forName(className).getConstructor(Map.class);
     rollupThresholdFunction=(RollupThresholdFunction)constructor.newInstance(params);
     preserveTime=Boolean.parseBoolean(configuration.get(AGG_PRESERVE_TIME_COMPACTION.toString()));
+    converterClassName=configuration.get(AGG_CONVERTER_CLASS.toString());
+    converterClass=Class.forName(converterClassName);
   }
  catch (  Exception e) {
     throw new IOException(e);

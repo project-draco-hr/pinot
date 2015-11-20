@@ -3,11 +3,19 @@
   job.setJobName(name);
   job.setJarByClass(AggregatePhaseJob.class);
   FileSystem fs=FileSystem.get(getConf());
-  Schema schema=new Schema.Parser().parse(fs.open(new Path(getAndCheck(AggregationJobConstants.AGG_INPUT_AVRO_SCHEMA.toString()))));
-  LOGGER.info("{}",schema);
+  Configuration configuration=job.getConfiguration();
+  String aggConverterClass=getAndSetConfiguration(configuration,AGG_CONVERTER_CLASS);
   job.setMapperClass(AggregationMapper.class);
-  AvroJob.setInputKeySchema(job,schema);
-  job.setInputFormatClass(AvroKeyInputFormat.class);
+  if (aggConverterClass.equals(DEFAULT_CONVERTER_CLASS)) {
+    Schema schema=new Schema.Parser().parse(fs.open(new Path(getAndCheck(AggregationJobConstants.AGG_INPUT_AVRO_SCHEMA.toString()))));
+    LOGGER.info("{}",schema);
+    AvroJob.setInputKeySchema(job,schema);
+    job.setInputFormatClass(AvroKeyInputFormat.class);
+  }
+ else {
+    LOGGER.info("Setting text input format for {}",aggConverterClass);
+    job.setInputFormatClass(TextInputFormat.class);
+  }
   job.setMapOutputKeyClass(BytesWritable.class);
   job.setMapOutputValueClass(BytesWritable.class);
   job.setCombinerClass(AggregationReducer.class);
@@ -23,7 +31,6 @@
     job.setNumReduceTasks(10);
   }
   LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
-  Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,AGG_INPUT_PATH);
   getAndSetConfiguration(configuration,AGG_CONFIG_PATH);
   getAndSetConfiguration(configuration,AGG_OUTPUT_PATH);

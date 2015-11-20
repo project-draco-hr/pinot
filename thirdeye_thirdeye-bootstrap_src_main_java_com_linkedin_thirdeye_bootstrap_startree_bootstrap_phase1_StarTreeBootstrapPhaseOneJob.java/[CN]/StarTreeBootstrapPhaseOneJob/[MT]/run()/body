@@ -3,16 +3,22 @@
   job.setJobName(name);
   job.setJarByClass(StarTreeBootstrapPhaseOneJob.class);
   FileSystem fs=FileSystem.get(getConf());
-  Schema schema=new Schema.Parser().parse(fs.open(new Path(getAndCheck(STAR_TREE_BOOTSTRAP_INPUT_AVRO_SCHEMA.toString()))));
-  LOGGER.info("{}",schema);
+  Configuration configuration=job.getConfiguration();
+  String bootstrapPhase1ConverterClass=getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_CONVERTER_CLASS);
   boolean thirdeyeCompaction=Boolean.parseBoolean(getAndCheck(STAR_TREE_BOOTSTRAP_COMPACTION.toString()));
   job.setMapperClass(BootstrapMapper.class);
   if (thirdeyeCompaction) {
     job.setInputFormatClass(SequenceFileInputFormat.class);
   }
- else {
+ else   if (bootstrapPhase1ConverterClass.equals(DEFAULT_CONVERTER_CLASS)) {
+    Schema schema=new Schema.Parser().parse(fs.open(new Path(getAndCheck(STAR_TREE_BOOTSTRAP_INPUT_AVRO_SCHEMA.toString()))));
+    LOGGER.info("{}",schema);
     AvroJob.setInputKeySchema(job,schema);
     job.setInputFormatClass(AvroKeyInputFormat.class);
+  }
+ else {
+    LOGGER.info("Setting text input format for {}",bootstrapPhase1ConverterClass);
+    job.setInputFormatClass(TextInputFormat.class);
   }
   job.setMapOutputKeyClass(BytesWritable.class);
   job.setMapOutputValueClass(BytesWritable.class);
@@ -29,7 +35,6 @@
     job.setNumReduceTasks(10);
   }
   LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
-  Configuration configuration=job.getConfiguration();
   String inputPathDir=getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_INPUT_PATH);
   getAndSetConfiguration(configuration,STAR_TREE_GENERATION_OUTPUT_PATH);
   getAndSetConfiguration(configuration,STAR_TREE_BOOTSTRAP_CONFIG_PATH);

@@ -1,14 +1,23 @@
 {
-  for (int i=0; i < dimensionNames.size(); i++) {
-    String dimensionName=dimensionNames.get(i);
-    String dimensionValue="";
-    Object val=record.datum().get(dimensionName);
-    if (val != null) {
-      dimensionValue=val.toString();
+  StarTreeRecord starTreeRecord=null;
+  try {
+    LOGGER.info("Using converter class {}",converterClassName);
+    if (converterClassName.equals(DEFAULT_CONVERTER_CLASS)) {
+      AvroKey<GenericRecord> avroKey=(AvroKey<GenericRecord>)key;
+      converterMethod=converterClass.getDeclaredMethod(StarTreeConstants.CONVERT_METHOD_NAME,StarTreeConfig.class,GenericRecord.class);
+      LOGGER.info("Using converter method {}",converterMethod);
+      starTreeRecord=(StarTreeRecord)converterMethod.invoke(null,starTreeConfig,avroKey.datum());
     }
-    dimensionValues[i]=dimensionValue;
+ else {
+      Text textValue=(Text)value;
+      converterMethod=converterClass.getDeclaredMethod(StarTreeConstants.CONVERT_METHOD_NAME,StarTreeConfig.class,Text.class);
+      LOGGER.info("Using converter method {}",converterMethod);
+      starTreeRecord=(StarTreeRecord)converterMethod.invoke(null,starTreeConfig,textValue);
+    }
   }
-  StarTreeRecord starTreeRecord=ThirdEyeAvroUtils.convert(starTreeConfig,record.datum());
+ catch (  IllegalAccessException|IllegalArgumentException|InvocationTargetException|NoSuchMethodException|SecurityException e) {
+    LOGGER.error("Exception in reading converter classes",e);
+  }
   MetricTimeSeries originalSeries=starTreeRecord.getMetricTimeSeries();
   for (  Long time : originalSeries.getTimeWindowSet()) {
     for (    MetricSpec metricSpec : starTreeConfig.getMetrics()) {
