@@ -1,10 +1,11 @@
 {
   final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(INDEX_DIR.listFiles()[0],ReadMode.mmap);
+  System.out.println("INdex dir:" + INDEX_DIR);
   final DataSource ds=segment.getDataSource("column1");
   final Block bl=ds.nextBlock();
   final BlockValSet valSet=bl.getBlockValueSet();
   final BlockSingleValIterator it=(BlockSingleValIterator)valSet.iterator();
   while (it.hasNext()) {
-    System.out.println(it.nextIntVal());
+    LOGGER.trace(Integer.toString(it.nextIntVal()));
   }
 }

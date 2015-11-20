@@ -3,28 +3,26 @@
     String brokerTag="colocated_" + i;
     JSONObject payload=ControllerRequestBuilderUtil.buildBrokerTenantCreateRequestJSON(brokerTag,5);
     String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
-    System.out.println(res);
-    System.out.println(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size());
+    LOGGER.trace(res);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size(),5);
-    System.out.println(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size());
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),15 - i * 5);
   }
   String res=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantGet());
-  System.out.println("**************");
-  System.out.println(res);
+  LOGGER.trace("**************");
+  LOGGER.trace(res);
   JSONObject resJsonObject=new JSONObject(res);
   Assert.assertEquals(resJsonObject.getJSONArray("BROKER_TENANTS").length(),4);
   for (int i=0; i < 4; i++) {
     String brokerTag="colocated_" + i;
     res=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forBrokerTenantGet(brokerTag));
-    System.out.println("**************");
-    System.out.println(res);
+    LOGGER.trace("**************");
+    LOGGER.trace(res);
     resJsonObject=new JSONObject(res);
     Assert.assertEquals(resJsonObject.getJSONArray("BrokerInstances").length(),5);
     Assert.assertEquals(resJsonObject.getString("tenantName"),brokerTag);
     res=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantGet(brokerTag));
-    System.out.println("**************");
-    System.out.println(res);
+    LOGGER.trace("**************");
+    LOGGER.trace(res);
     resJsonObject=new JSONObject(res);
     Assert.assertEquals(resJsonObject.getJSONArray("BrokerInstances").length(),5);
     Assert.assertEquals(resJsonObject.getJSONArray("ServerInstances").length(),0);
@@ -33,8 +31,7 @@
   for (int i=0; i < 4; i++) {
     String brokerTag="colocated_" + i;
     res=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forBrokerTenantDelete(brokerTag));
-    System.out.println(res);
-    System.out.println(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size());
+    LOGGER.trace(res);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,brokerTag + "_BROKER").size(),0);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE).size(),i * 5 + 5);
   }

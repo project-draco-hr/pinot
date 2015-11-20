@@ -21,7 +21,7 @@
     resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,tableName + "_OFFLINE");
     instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i);
-    LOGGER.info("Current running server instance: " + instanceSet.size());
+    LOGGER.trace("Current running server instance: " + instanceSet.size());
   }
   i=0;
   for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_OFFLINE")) {
@@ -33,7 +33,7 @@
     resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,tableName + "_OFFLINE");
     instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i);
-    LOGGER.info("Current running server instance: " + instanceSet.size());
+    LOGGER.trace("Current running server instance: " + instanceSet.size());
   }
   i=20;
   for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER")) {
@@ -45,7 +45,7 @@
     resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
     instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i);
-    LOGGER.info("Current running broker instance: " + instanceSet.size());
+    LOGGER.trace("Current running broker instance: " + instanceSet.size());
   }
   i=0;
   for (  String instanceName : _helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,"DefaultTenant_BROKER")) {
@@ -57,7 +57,7 @@
     resourceExternalView=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);
     instanceSet=HelixHelper.getOnlineInstanceFromExternalView(resourceExternalView);
     Assert.assertEquals(instanceSet.size(),i);
-    LOGGER.info("Current running broker instance: " + instanceSet.size());
+    LOGGER.trace("Current running broker instance: " + instanceSet.size());
   }
   sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableDelete(tableName));
   Thread.sleep(2000);

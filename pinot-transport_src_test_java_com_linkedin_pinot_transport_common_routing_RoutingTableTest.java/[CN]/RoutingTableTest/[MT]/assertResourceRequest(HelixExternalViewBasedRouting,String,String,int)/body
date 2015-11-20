@@ -3,14 +3,14 @@
   Map<ServerInstance,SegmentIdSet> serversMap=routingTable.findServers(request);
   List<String> selectedSegments=new ArrayList<String>();
   for (  ServerInstance serverInstance : serversMap.keySet()) {
-    System.out.println(serverInstance);
+    LOGGER.trace(serverInstance.toString());
     SegmentIdSet segmentIdSet=serversMap.get(serverInstance);
-    System.out.println(segmentIdSet.toString());
+    LOGGER.trace(segmentIdSet.toString());
     selectedSegments.addAll(segmentIdSet.getSegmentsNameList());
   }
   String[] selectedSegmentArray=selectedSegments.toArray(new String[0]);
   Arrays.sort(selectedSegmentArray);
   Assert.assertEquals(selectedSegments.size(),expectedNumSegment);
   Assert.assertEquals(Arrays.toString(selectedSegmentArray),expectedSegmentList);
-  System.out.println("********************************");
+  LOGGER.trace("********************************");
 }

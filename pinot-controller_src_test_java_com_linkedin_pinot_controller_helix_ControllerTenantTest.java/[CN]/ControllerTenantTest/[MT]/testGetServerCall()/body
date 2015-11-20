@@ -3,27 +3,27 @@
     String serverTag="serverTag_" + i;
     final JSONObject payload=ControllerRequestBuilderUtil.buildServerTenantCreateRequestJSON(serverTag,5,2,3);
     final String res=sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantCreate(),payload.toString());
-    System.out.println(res);
+    LOGGER.trace(res);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_OFFLINE").size(),2);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_REALTIME").size(),3);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),20 - 5 * (i + 1));
   }
   String res=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantGet());
-  System.out.println("**************");
-  System.out.println(res);
+  LOGGER.trace("**************");
+  LOGGER.trace(res);
   JSONObject resJsonObject=new JSONObject(res);
   Assert.assertEquals(resJsonObject.getJSONArray("SERVER_TENANTS").length(),4);
   for (int i=0; i < 4; i++) {
     String serverTag="serverTag_" + i;
     res=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forServerTenantGet(serverTag));
-    System.out.println("**************");
-    System.out.println(res);
+    LOGGER.trace("**************");
+    LOGGER.trace(res);
     resJsonObject=new JSONObject(res);
     Assert.assertEquals(resJsonObject.getJSONArray("ServerInstances").length(),5);
     Assert.assertEquals(resJsonObject.getString("tenantName"),serverTag);
     res=sendGetRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTenantGet(serverTag));
-    System.out.println("**************");
-    System.out.println(res);
+    LOGGER.trace("**************");
+    LOGGER.trace(res);
     resJsonObject=new JSONObject(res);
     Assert.assertEquals(resJsonObject.getJSONArray("BrokerInstances").length(),0);
     Assert.assertEquals(resJsonObject.getJSONArray("ServerInstances").length(),5);
@@ -32,7 +32,7 @@
   for (int i=0; i < 4; i++) {
     String serverTag="serverTag_" + i;
     res=sendDeleteRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forServerTenantDelete(serverTag));
-    System.out.println(res);
+    LOGGER.trace(res);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_OFFLINE").size(),0);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,serverTag + "_REALTIME").size(),0);
     Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(HELIX_CLUSTER_NAME,CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE).size(),i * 5 + 5);

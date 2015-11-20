@@ -1,7 +1,7 @@
 {
   int maxBits=1;
   while (maxBits < 32) {
-    System.out.println("START test maxBits:" + maxBits);
+    LOGGER.debug("START test maxBits:" + maxBits);
     final String fileName=getClass().getName() + "_single_col_fixed_bit_" + maxBits+ ".dat";
     final File file=new File(fileName);
     file.delete();
@@ -24,7 +24,7 @@
         }
       }
     }
-    System.out.println("bits expected:" + rows * cols * maxBits + " bytes expected:" + (rows * cols * maxBits + 7) / 8);
+    LOGGER.debug("bits expected:" + rows * cols * maxBits + " bytes expected:" + (rows * cols * maxBits + 7) / 8);
     writer.close();
     final RandomAccessFile raf=new RandomAccessFile(file,"r");
     System.out.println("file size:" + raf.length());
@@ -35,11 +35,11 @@
       final byte[] temp=set.toByteArray();
       System.err.println("byteArray length:" + temp.length + "   from file:"+ b.length);
     }
-    System.out.println("byteArray length:" + byteArray.length + "   from file:"+ b.length);
+    LOGGER.trace("byteArray length:" + byteArray.length + "   from file:"+ b.length);
     Assert.assertEquals(byteArray.length,b.length);
     Assert.assertEquals(byteArray,b);
     raf.close();
-    System.out.println("END test maxBits:" + maxBits);
+    LOGGER.trace("END test maxBits:" + maxBits);
     maxBits=maxBits + 1;
     file.delete();
     set.close();
