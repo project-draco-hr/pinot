@@ -4,6 +4,7 @@
   Configuration configuration=mapDriver.getConfiguration();
   configuration.set("io.serializations","org.apache.hadoop.io.serializer.JavaSerialization," + "org.apache.hadoop.io.serializer.WritableSerialization");
   configuration.set(AggregationJobConstants.AGG_CONFIG_PATH.toString(),ClassLoader.getSystemResource(CONF_FILE).toString());
+  configuration.set(AggregationJobConstants.AGG_CONVERTER_CLASS.toString(),DEFAULT_CONVERTER_CLASS);
   Schema schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(SCHEMA_FILE));
   setUpAvroSerialization(mapDriver.getConfiguration(),schema);
   metricSchema=new MetricSchema(metricNames,metricTypes);
