@@ -1,0 +1,36 @@
+{
+  List<Pair> columnList=resultTable.getColumnList();
+  List<String> groupByColumns=new ArrayList<>();
+  for (  Pair pair : columnList) {
+    if (pair.getSecond() == null) {
+      groupByColumns.add(pair.getFirst().toString());
+    }
+  }
+  int numGroupByColumns=groupByColumns.size();
+  int numAggregationColumns=columnList.size() - numGroupByColumns;
+  _aggregationGroupByResults=new ArrayList<>(numAggregationColumns);
+  List<List<String>> groupValues=new ArrayList<>();
+  for (  ResultTable.Row row : resultTable) {
+    int colId=0;
+    List<String> group=new ArrayList<>();
+    for (    Object value : row) {
+      if (columnList.get(colId).getSecond() != null) {
+        break;
+      }
+      group.add(value.toString());
+      ++colId;
+    }
+    groupValues.add(group);
+  }
+  for (int colId=numGroupByColumns; colId < columnList.size(); ++colId) {
+    AggregationGroupByResult groupByResult=new AggregationGroupByResult(resultTable.getFunction(colId),groupByColumns);
+    int rowId=0;
+    for (    ResultTable.Row row : resultTable) {
+      String value=row.get(colId).toString();
+      GroupValue groupValue=new GroupValue(value,groupValues.get(rowId));
+      groupByResult.addGroupValue(groupValue);
+      ++rowId;
+    }
+    _aggregationGroupByResults.add(groupByResult);
+  }
+}

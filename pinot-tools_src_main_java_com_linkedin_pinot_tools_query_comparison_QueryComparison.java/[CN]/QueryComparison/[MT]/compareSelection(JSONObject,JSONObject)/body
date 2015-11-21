@@ -1,0 +1,14 @@
+{
+  if (!clusterJson.has(SELECTION_RESULTS) && !scanJson.has(SELECTION_RESULTS)) {
+    return true;
+  }
+  JSONObject clusterSelection=clusterJson.getJSONObject(SELECTION_RESULTS);
+  JSONObject scanSelection=scanJson.getJSONObject(SELECTION_RESULTS);
+  if (!compareLists(clusterSelection.getJSONArray(COLUMNS),scanSelection.getJSONArray(COLUMNS))) {
+    return false;
+  }
+  if (!compareSelectionRows(clusterSelection.getJSONArray(RESULTS),scanSelection.getJSONArray(RESULTS))) {
+    return false;
+  }
+  return true;
+}

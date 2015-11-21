@@ -1,0 +1,16 @@
+{
+  if (args.length != 1) {
+    LOGGER.error("Incorrect number of arguments.");
+    LOGGER.info("Usage: <exec> <config-file>");
+    System.exit(1);
+  }
+  try {
+    QueryComparisonConfig config=new QueryComparisonConfig(new File(args[0]));
+    QueryComparison queryComparison=new QueryComparison(config);
+    queryComparison.run();
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception caught, aborting query comparison: ",e);
+  }
+  System.exit(0);
+}

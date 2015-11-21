@@ -1,0 +1,10 @@
+{
+  String tableName=_config.getTableName();
+  if (tableName == null) {
+    LOGGER.error("Table name not specified in configuration");
+    return;
+  }
+  String controllerAddress="http://" + _localhost + ":"+ _controllerPort;
+  JSONObject request=ControllerRequestBuilder.buildCreateOfflineTableJSON(tableName,"server","broker",_config.getTimeColumnName(),_config.getTimeUnit(),"","",3,"BalanceNumSegmentAssignmentStrategy");
+  sendPostRequest(ControllerRequestURLBuilder.baseUrl(controllerAddress).forTableCreate(),request.toString());
+}

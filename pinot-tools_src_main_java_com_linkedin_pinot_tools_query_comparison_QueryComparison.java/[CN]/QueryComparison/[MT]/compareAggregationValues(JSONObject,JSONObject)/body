@@ -1,0 +1,25 @@
+{
+  JSONArray clusterResult=clusterAggr.getJSONArray(GROUP_BY_RESULT);
+  JSONArray scanResult=scanAggr.getJSONArray(GROUP_BY_RESULT);
+  Map<GroupByOperator,Double> scanMap=new HashMap<>();
+  for (int i=0; i < scanResult.length(); ++i) {
+    List<Object> group=jsonArrayToList(scanResult.getJSONObject(i).getJSONArray(GROUP));
+    GroupByOperator groupByOperator=new GroupByOperator(group);
+    scanMap.put(groupByOperator,scanResult.getJSONObject(i).getDouble(VALUE));
+  }
+  for (int i=0; i < clusterResult.length(); ++i) {
+    List<Object> group=jsonArrayToList(clusterResult.getJSONObject(i).getJSONArray(GROUP));
+    GroupByOperator groupByOperator=new GroupByOperator(group);
+    double clusterValue=clusterResult.getJSONObject(i).getDouble(VALUE);
+    if (!scanMap.containsKey(groupByOperator)) {
+      LOGGER.error("Missing group by value for group: {}",group);
+      return false;
+    }
+    double scanValue=scanMap.get(groupByOperator);
+    if (!fuzzyEqual(clusterValue,scanValue)) {
+      LOGGER.error("Aggregation group by value mis-match: Cluster: {}, Scan: {}",clusterValue,scanValue);
+      return false;
+    }
+  }
+  return true;
+}

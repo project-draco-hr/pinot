@@ -1,0 +1,28 @@
+{
+  JSONArray clusterGroupByResults=clusterJson.getJSONArray(AGGREGATION_RESULTS);
+  JSONArray scanGroupByResults=scanJson.getJSONArray(AGGREGATION_GROUP_BY_RESULTS);
+  int numClusterGroupBy=clusterGroupByResults.length();
+  int numScanGroupBy=scanGroupByResults.length();
+  Map<String,Integer> functionMap=new HashMap<>();
+  for (int i=0; i < numScanGroupBy; ++i) {
+    JSONObject scanAggr=scanGroupByResults.getJSONObject(i);
+    String scanFunction=scanAggr.getString(FUNCTION);
+    functionMap.put(scanFunction,i);
+  }
+  for (int i=0; i < numClusterGroupBy; ++i) {
+    JSONObject clusterAggr=clusterGroupByResults.getJSONObject(i);
+    String clusterFunction=clusterAggr.getString(FUNCTION);
+    if (!functionMap.containsKey(clusterFunction)) {
+      LOGGER.error("Missing group by function in scan: {}",clusterFunction);
+      return false;
+    }
+    JSONObject scanAggr=scanGroupByResults.getJSONObject(functionMap.get(clusterFunction));
+    if (!compareGroupByColumns(clusterAggr,scanAggr)) {
+      return false;
+    }
+    if (!compareAggregationValues(clusterAggr,scanAggr)) {
+      return false;
+    }
+  }
+  return true;
+}

@@ -1,7 +1,7 @@
 {
-  Double min=0.0;
+  Double min=Double.MAX_VALUE;
   for (  ResultTable.Row row : _rows) {
-    min=Math.min(min,new Double(row.get(_column).toString()));
+    min=Math.min(min,new Double(row.get(_column,_name).toString()));
   }
   ResultTable resultTable=new ResultTable(Collections.emptyList(),1);
   resultTable.add(0,min);

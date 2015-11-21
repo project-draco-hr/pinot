@@ -1,0 +1,18 @@
+{
+  _numDocsScanned=resultTable.getNumDocsScanned();
+  _totalDocs=resultTable.getTotalDocs();
+  _timeUsedMs=resultTable.getProcessingTime();
+switch (resultTable.getResultType()) {
+case Selection:
+    buildSelectionResult(resultTable);
+  break;
+case Aggregation:
+buildAggregationResult(resultTable);
+break;
+case AggregationGroupBy:
+buildAggregationGroupByResult(resultTable);
+break;
+default :
+throw new RuntimeException("Invalid result type");
+}
+}

@@ -1,0 +1,9 @@
+{
+  int clusterDocs=clusterJson.getInt(NUM_DOCS_SCANNED);
+  int scanDocs=scanJson.getInt(NUM_DOCS_SCANNED);
+  if (clusterDocs != scanDocs) {
+    LOGGER.error("Mis-match in number of docs scanned: Cluster: {} Scan: {}",clusterDocs,scanDocs);
+    return false;
+  }
+  return true;
+}

@@ -1,22 +1,39 @@
 {
   SegmentMetadataImpl metadata=new SegmentMetadataImpl(_segmentDir);
+  if (!metadata.getTableName().equals(_brokerRequest.getQuerySource().getTableName())) {
+    LOGGER.info("Skipping segment {} from different table {}",_segmentDir.getName(),metadata.getTableName());
+    return null;
+  }
   IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(_segmentDir,ReadMode.heap);
   FilterQueryTree filterQueryTree=RequestUtils.generateFilterQueryTree(_brokerRequest);
   List<Integer> filteredDocIds=filterDocIds(indexSegment,metadata,filterQueryTree);
   ResultTable result=null;
   if (_brokerRequest.isSetAggregationsInfo()) {
     if (!_brokerRequest.isSetGroupBy()) {
-      Aggregation aggregation=new Aggregation(indexSegment,metadata,filteredDocIds,_brokerRequest.getAggregationsInfo(),null);
+      Aggregation aggregation=new Aggregation(indexSegment,metadata,filteredDocIds,_brokerRequest.getAggregationsInfo(),null,10);
       result=aggregation.run();
     }
  else {
-      Aggregation aggregation=new Aggregation(indexSegment,metadata,filteredDocIds,_brokerRequest.getAggregationsInfo(),_brokerRequest.getGroupBy().getColumns());
+      GroupBy groupBy=_brokerRequest.getGroupBy();
+      Aggregation aggregation=new Aggregation(indexSegment,metadata,filteredDocIds,_brokerRequest.getAggregationsInfo(),groupBy.getColumns(),groupBy.getTopN());
       result=aggregation.run();
     }
   }
  else {
     if (_brokerRequest.isSetSelections()) {
-      Selection selection=new Selection(indexSegment,metadata,filteredDocIds,_brokerRequest.getSelections().getSelectionColumns());
+      List<String> columns=_brokerRequest.getSelections().getSelectionColumns();
+      if (columns.contains("*")) {
+        columns=Arrays.asList(indexSegment.getColumnNames());
+      }
+      List<Pair> selectionColumns=new ArrayList<>();
+      Set<String> columSet=new HashSet<>();
+      for (      String column : columns) {
+        if (!columSet.contains(column)) {
+          selectionColumns.add(new Pair(column,null));
+          columSet.add(column);
+        }
+      }
+      Selection selection=new Selection(indexSegment,metadata,filteredDocIds,selectionColumns);
       result=selection.run();
     }
   }

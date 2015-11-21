@@ -1,0 +1,23 @@
+{
+  int numClusterRows=clusterRows.length();
+  int numScanRows=scanRows.length();
+  for (int i=0; i < numClusterRows; ++i) {
+    JSONArray clusterRow=clusterRows.getJSONArray(i);
+    JSONArray scanRow=scanRows.getJSONArray(i);
+    int numClusterCols=clusterRow.length();
+    int numScanCols=scanRow.length();
+    if (numClusterCols != numClusterCols) {
+      LOGGER.error("Number of columns mis-match: Cluster: {} Scan: {}",numClusterCols,numScanCols);
+      return false;
+    }
+    for (int j=0; j < numClusterCols; ++j) {
+      String clusterVal=clusterRow.getString(j);
+      String scanVal=scanRow.getString(j);
+      if (!compareAsNumber(clusterVal,scanVal) && !compareAsString(clusterVal,scanVal)) {
+        LOGGER.error("Value mis-match: Cluster {} Scan: {}",clusterVal,scanVal);
+        return false;
+      }
+    }
+  }
+  return true;
+}

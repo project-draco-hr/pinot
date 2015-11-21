@@ -1,0 +1,15 @@
+{
+  List<List<String>> results=new ArrayList<>();
+  List<String> columns=new ArrayList<>();
+  for (  Pair<String,String> pair : resultTable.getColumnList()) {
+    columns.add(pair.getFirst());
+  }
+  for (  ResultTable.Row row : resultTable) {
+    List<String> columnValues=new ArrayList<>();
+    for (    Object value : row) {
+      columnValues.add(value.toString());
+    }
+    results.add(columnValues);
+  }
+  _selectionResults=new SelectionResults(columns,results);
+}

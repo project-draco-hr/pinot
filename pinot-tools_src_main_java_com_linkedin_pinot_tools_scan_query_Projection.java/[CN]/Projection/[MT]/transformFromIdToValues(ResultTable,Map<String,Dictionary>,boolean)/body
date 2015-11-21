@@ -18,13 +18,13 @@
         int dictId=(int)object;
         row.set(colId,dictionary.get(dictId));
       }
-      if (addCountStar) {
-        row.add(1);
-      }
       ++colId;
     }
   }
   if (addCountStar) {
+    for (    ResultTable.Row row : resultTable) {
+      row.add(1);
+    }
     resultTable.addCountStarColumn();
   }
   return resultTable;

@@ -1,0 +1,17 @@
+{
+  if ((clusterJson.getJSONArray(AGGREGATION_RESULTS).length() == 0) && !scanJson.has(AGGREGATION_RESULTS)) {
+    return true;
+  }
+  if (!compareNumDocsScanned(clusterJson,scanJson)) {
+    return false;
+  }
+  if (scanJson.has(AGGREGATION_GROUP_BY_RESULTS)) {
+    return compareAggregationGroupBy(clusterJson,scanJson);
+  }
+  JSONArray clusterAggregation=clusterJson.getJSONArray(AGGREGATION_RESULTS);
+  if (clusterAggregation.length() == 0) {
+    return true;
+  }
+  JSONArray scanAggregation=scanJson.getJSONArray(AGGREGATION_RESULTS);
+  return compareAggregationArrays(clusterAggregation,scanAggregation);
+}

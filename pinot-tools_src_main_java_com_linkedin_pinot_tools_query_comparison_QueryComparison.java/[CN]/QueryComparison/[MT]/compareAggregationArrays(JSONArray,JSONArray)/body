@@ -1,0 +1,27 @@
+{
+  Map<String,Double> map=new HashMap<>();
+  for (int i=0; i < scanAggregation.length(); ++i) {
+    JSONObject object=scanAggregation.getJSONObject(i);
+    map.put(object.getString(FUNCTION),Double.valueOf(object.getString(VALUE)));
+  }
+  for (int i=0; i < clusterAggregation.length(); ++i) {
+    JSONObject object=clusterAggregation.getJSONObject(i);
+    String function=object.getString(FUNCTION);
+    String valueString=object.getString(VALUE);
+    if (!isNumeric(valueString)) {
+      LOGGER.warn("Found non-numeric value for aggregation ignoring Function: {} Value: {}",function,valueString);
+      continue;
+    }
+    Double value=Double.valueOf(valueString);
+    if (!map.containsKey(function)) {
+      LOGGER.error("Scan result does not contain function {}",function);
+      return false;
+    }
+    Double scanValue=map.get(function);
+    if (!fuzzyEqual(value,scanValue)) {
+      LOGGER.error("Aggregation value mismatch for function {}, {}, {}",function,value,scanValue);
+      return false;
+    }
+  }
+  return true;
+}

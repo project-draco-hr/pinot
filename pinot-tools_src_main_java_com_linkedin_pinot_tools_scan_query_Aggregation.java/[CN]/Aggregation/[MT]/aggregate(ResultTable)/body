@@ -6,7 +6,7 @@
   for (  ResultTable.Row row : input) {
     List<Object> groupByValues=new ArrayList<>();
     for (    String groupByColumn : _groupByColumns) {
-      groupByValues.add(row.get(groupByColumn));
+      groupByValues.add(row.get(groupByColumn,null));
     }
     GroupByOperator groupByOperator=new GroupByOperator(groupByValues);
     ResultTable resultTable;
@@ -27,8 +27,12 @@
     for (    Object groupByColumn : groupByOperator._getGroupBys()) {
       aggregationResult.add(0,groupByColumn);
     }
-    aggregationResult.add(0,aggregateOne(groupByTable).get(0,0));
+    ResultTable.Row row=aggregateOne(groupByTable).getRow(0);
+    for (    Object value : row) {
+      aggregationResult.add(0,value);
+    }
     results.append(aggregationResult);
   }
+  results.setResultType(ResultTable.ResultType.AggregationGroupBy);
   return results;
 }

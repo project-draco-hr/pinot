@@ -1,0 +1,12 @@
+{
+  if (clusterJson.getInt(NUM_DOCS_SCANNED) == 0) {
+    return true;
+  }
+  if (!compareSelection(clusterJson,scanJson)) {
+    return false;
+  }
+  if (!compareAggregation(clusterJson,scanJson)) {
+    return false;
+  }
+  return true;
+}

@@ -1,35 +1,37 @@
 {
   long startTimeInMillis=System.currentTimeMillis();
-  PQLCompiler compiler=new PQLCompiler(new HashMap<String,String[]>());
-  JSONObject jsonObject=compiler.compile(query);
-  BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
+  Pql2Compiler pql2Compiler=new Pql2Compiler();
+  BrokerRequest brokerRequest=pql2Compiler.compileToBrokerRequest(query);
   ResultTable results=null;
   File file=new File(_segmentsDir);
   Aggregation aggregation=null;
-  List<String> groupByColumns=null;
+  List<String> groupByColumns;
   List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
   if (aggregationsInfo != null) {
-    groupByColumns=(brokerRequest.isSetGroupBy()) ? brokerRequest.getGroupBy().getColumns() : null;
-    aggregation=new Aggregation(brokerRequest.getAggregationsInfo(),groupByColumns);
+    GroupBy groupBy=brokerRequest.getGroupBy();
+    groupByColumns=(brokerRequest.isSetGroupBy()) ? groupBy.getColumns() : null;
+    long topN=(groupByColumns != null) ? groupBy.getTopN() : 10;
+    aggregation=new Aggregation(brokerRequest.getAggregationsInfo(),groupByColumns,topN);
   }
   int numDocsScanned=0;
   int totalDocs=0;
+  int numSegments=0;
   LOGGER.info("Processing Query: {}",query);
-  for (  File segmentDir : file.listFiles()) {
-    LOGGER.info("Processing segment: " + segmentDir.getName());
-    SegmentQueryProcessor processor=new SegmentQueryProcessor(brokerRequest,segmentDir);
-    ResultTable segmentResults=processor.process(query);
+  List<ResultTable> resultTables=processSegments(query,brokerRequest,file);
+  for (  ResultTable segmentResults : resultTables) {
     numDocsScanned+=segmentResults.getNumDocsScanned();
     totalDocs+=segmentResults.getTotalDocs();
+    ++numSegments;
     results=(results == null) ? segmentResults : results.append(segmentResults);
   }
-  if (aggregation != null) {
+  if (aggregation != null && numSegments > 1 && numDocsScanned > 0) {
     results=aggregation.aggregate(results);
   }
   results.setNumDocsScanned(numDocsScanned);
   results.setTotalDocs(totalDocs);
   long totalUsedMs=System.currentTimeMillis() - startTimeInMillis;
   results.setProcessingTime(totalUsedMs);
-  printResult(results);
-  return results;
+  results.convertSumToAvgIfNeeded();
+  QueryResponse queryResponse=new QueryResponse(results);
+  return queryResponse;
 }

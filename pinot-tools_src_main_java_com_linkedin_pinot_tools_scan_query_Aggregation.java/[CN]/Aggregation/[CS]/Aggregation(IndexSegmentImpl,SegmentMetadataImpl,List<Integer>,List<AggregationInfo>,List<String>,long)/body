@@ -1,0 +1,13 @@
+{
+  _indexSegment=indexSegment;
+  _metadata=metadata;
+  _dictionaryMap=new HashMap<>();
+  _filteredDocIds=filteredDocIds;
+  _aggregationsInfo=aggregationsInfo;
+  _topN=topN;
+  init(groupByColumns);
+  for (  Pair pair : _projectionColumns) {
+    String column=(String)pair.getFirst();
+    _dictionaryMap.put(column,_indexSegment.getDictionaryFor(column));
+  }
+}

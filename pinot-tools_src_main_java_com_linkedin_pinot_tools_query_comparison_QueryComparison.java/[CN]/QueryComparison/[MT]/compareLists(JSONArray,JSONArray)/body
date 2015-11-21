@@ -1,0 +1,17 @@
+{
+  int clusterSize=clusterList.length();
+  int scanSize=scanList.length();
+  if (clusterSize != scanSize) {
+    LOGGER.error("Number of columns mismatch: Cluster: {} Scan: {}",clusterSize,scanSize);
+    return false;
+  }
+  for (int i=0; i < scanList.length(); ++i) {
+    String clusterColumn=clusterList.getString(i);
+    String scanColumn=scanList.getString(i);
+    if (!clusterColumn.equals(scanColumn)) {
+      LOGGER.error("Column name mis-match: Cluster: {} Scan: {}",clusterColumn,scanColumn);
+      return false;
+    }
+  }
+  return true;
+}

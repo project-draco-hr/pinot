@@ -1,0 +1,13 @@
+{
+  _config=config;
+  _segmentsDir=new File(config.getSegmentsDir());
+  _queryFile=new File(config.getQueryFile());
+  if (!_segmentsDir.exists() || !_segmentsDir.isDirectory()) {
+    LOGGER.error("Invalid segments directory: {}",_segmentsDir.getName());
+    return;
+  }
+  if (!_queryFile.exists() || !_queryFile.isFile()) {
+    LOGGER.error("Invalid query file: {}",_queryFile.getName());
+    return;
+  }
+}
