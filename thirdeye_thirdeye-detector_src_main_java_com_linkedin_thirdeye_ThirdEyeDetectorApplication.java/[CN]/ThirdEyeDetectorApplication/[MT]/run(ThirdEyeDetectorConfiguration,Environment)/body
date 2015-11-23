@@ -26,7 +26,8 @@
     }
   }
 );
-  final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics());
+  final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
+  final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,thirdEyeClient,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics(),anomalyFunctionFactory);
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
       new HibernateSessionWrapper<Void>(hibernate.getSessionFactory()).execute(new Callable<Void>(){

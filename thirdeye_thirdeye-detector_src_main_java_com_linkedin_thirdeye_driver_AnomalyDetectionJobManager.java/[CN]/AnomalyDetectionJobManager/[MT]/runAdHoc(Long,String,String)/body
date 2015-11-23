@@ -4,7 +4,7 @@ synchronized (sync) {
     if (spec == null) {
       throw new IllegalArgumentException("No function with id " + id);
     }
-    AnomalyFunction anomalyFunction=AnomalyFunctionFactory.fromSpec(spec);
+    AnomalyFunction anomalyFunction=anomalyFunctionFactory.fromSpec(spec);
     String triggerKey=String.format("ad_hoc_anomaly_function_trigger_%d",spec.getId());
     Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
     String jobKey=String.format("ad_hoc_anomaly_function_job_%d",spec.getId());

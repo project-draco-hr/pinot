@@ -1,0 +1,21 @@
+{
+  props=new Properties();
+  InputStream input=null;
+  try {
+    input=new FileInputStream(functionConfigPath);
+    props.load(input);
+  }
+ catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+ finally {
+    IOUtils.closeQuietly(input);
+  }
+  LOGGER.info("Found {} entries in anomaly function configuration file {}",props.size(),functionConfigPath);
+  for (  Entry<Object,Object> entry : props.entrySet()) {
+    LOGGER.info("{}: {}",entry.getKey(),entry.getValue());
+  }
+}
