@@ -1,7 +1,13 @@
 {
+  String tableConfigFile=_config.getTableConfigFile();
+  if (tableConfigFile != null) {
+    AddTableCommand addTableCommand=new AddTableCommand().setControllerPort(_controllerPort).setFilePath(tableConfigFile).setExecute(true);
+    addTableCommand.execute();
+    return;
+  }
   String tableName=_config.getTableName();
   if (tableName == null) {
-    LOGGER.error("Table name not specified in configuration");
+    LOGGER.error("Table info not specified in configuration, please specify either config file or table name");
     return;
   }
   String controllerAddress="http://" + _localhost + ":"+ _controllerPort;
