@@ -1,0 +1,21 @@
+{
+  LOGGER.info("Usage: pinot-tools.sh <subCommand>");
+  LOGGER.info("Valid subCommands are:");
+  Class<PinotToolLauncher> obj=PinotToolLauncher.class;
+  for (  Field f : obj.getDeclaredFields()) {
+    if (f.isAnnotationPresent(SubCommands.class)) {
+      SubCommands subCommands=f.getAnnotation(SubCommands.class);
+      for (      SubCommand subCommand : subCommands.value()) {
+        Class<?> subCommandClass=subCommand.impl();
+        Command command=null;
+        try {
+          command=(Command)subCommandClass.newInstance();
+          LOGGER.info("\t" + subCommand.name() + "\t<"+ command.description()+ ">");
+        }
+ catch (        Exception e) {
+          LOGGER.info("Internal Error: Error instantiating class.");
+        }
+      }
+    }
+  }
+}

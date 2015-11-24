@@ -10,7 +10,7 @@
   }
   LOGGER.info("Executing command: " + toString());
   Tenant t=new Tenant.TenantBuilder(_name).setRole(_role).setTotalInstances(_instanceCount).setOfflineInstances(_offlineInstanceCount).setRealtimeInstances(_realtimeInstanceCount).build();
-  String res=AbstractBaseCommand.sendPostRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forTenantCreate(),t.toString());
+  String res=AbstractBaseAdminCommand.sendPostRequest(ControllerRequestURLBuilder.baseUrl(_controllerAddress).forTenantCreate(),t.toString());
   LOGGER.info(res);
   System.out.print(res);
   return true;

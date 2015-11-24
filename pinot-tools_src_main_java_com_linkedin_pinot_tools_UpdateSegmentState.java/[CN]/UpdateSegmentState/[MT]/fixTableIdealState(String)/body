@@ -1,0 +1,36 @@
+{
+  IdealState idealState=_helixAdmin.getResourceIdealState(_clusterName,tableName);
+  if (idealState == null) {
+    LOGGER.info("No IDEALSTATE found for table " + tableName);
+    return;
+  }
+  Map<String,Map<String,String>> mapFieldsIS=idealState.getRecord().getMapFields();
+  int nChanges=0;
+  for (  String segment : mapFieldsIS.keySet()) {
+    Map<String,String> mapIS=mapFieldsIS.get(segment);
+    for (    String server : mapIS.keySet()) {
+      String state=mapIS.get(server);
+      if (state.equals(fromState)) {
+        if (_fix) {
+          mapIS.put(server,toState);
+        }
+ else {
+          LOGGER.info("Table:" + tableName + ",Segment:"+ segment+ ",Server:"+ server+ ":"+ fromState);
+        }
+        nChanges++;
+      }
+    }
+  }
+  if (nChanges == 0) {
+    LOGGER.info("No segments detected in " + fromState + " state for table "+ tableName);
+  }
+ else {
+    if (_fix) {
+      LOGGER.info("Replacing IDEALSTATE for table " + tableName + " with "+ nChanges+ " changes");
+      _helixAdmin.setResourceIdealState(_clusterName,tableName,idealState);
+    }
+ else {
+      LOGGER.info("Detected " + nChanges + " instances in "+ fromState+ " in table "+ tableName);
+    }
+  }
+}

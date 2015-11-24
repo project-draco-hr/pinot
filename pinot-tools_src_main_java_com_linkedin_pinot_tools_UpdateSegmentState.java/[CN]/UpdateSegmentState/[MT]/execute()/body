@@ -1,0 +1,26 @@
+{
+  if (_tableName == null && _tenantName == null) {
+    LOGGER.error("One of -tableName or -tenantName must be specified.");
+    return false;
+  }
+  if (_tableName != null && _tenantName != null) {
+    LOGGER.error("Exactly one of -tenantName and -tableName be specified");
+    return false;
+  }
+  init();
+  if (_tenantName != null) {
+    LOGGER.info("Working on all tables for tenant " + _tenantName);
+    List<String> tableNames=getAllTenantTables();
+    LOGGER.info("Found " + tableNames.size() + " tables for tenant "+ _tenantName);
+    if (tableNames.size() > 0) {
+      for (      String tableName : tableNames) {
+        fixTableIdealState(tableName);
+      }
+    }
+  }
+ else {
+    LOGGER.info("Working on table " + _tableName);
+    fixTableIdealState(_tableName);
+  }
+  return true;
+}

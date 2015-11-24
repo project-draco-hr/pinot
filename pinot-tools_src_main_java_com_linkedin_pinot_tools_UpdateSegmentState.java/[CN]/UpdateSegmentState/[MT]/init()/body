@@ -1,0 +1,7 @@
+{
+  LOGGER.info("Trying to connect to " + _zkAddress + " cluster "+ _clusterName);
+  _helixAdmin=new ZKHelixAdmin(_zkAddress);
+  ZNRecordSerializer serializer=new ZNRecordSerializer();
+  String path=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,_clusterName);
+  _propertyStore=new ZkHelixPropertyStore<>(_zkAddress,serializer,path);
+}
