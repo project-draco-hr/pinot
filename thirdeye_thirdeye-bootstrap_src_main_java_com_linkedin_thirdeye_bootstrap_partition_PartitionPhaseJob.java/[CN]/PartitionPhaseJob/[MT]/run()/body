@@ -1,0 +1,30 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(PartitionPhaseJob.class);
+  job.setMapperClass(PartitionMapper.class);
+  job.setInputFormatClass(SequenceFileInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setNumReduceTasks(0);
+  job.setOutputKeyClass(BytesWritable.class);
+  job.setOutputValueClass(BytesWritable.class);
+  job.setOutputFormatClass(SequenceFileOutputFormat.class);
+  Configuration configuration=job.getConfiguration();
+  String inputPathDir=getAndSetConfiguration(configuration,PARTITION_PHASE_INPUT_PATH);
+  getAndSetConfiguration(configuration,PARTITION_PHASE_CONFIG_PATH);
+  getAndSetConfiguration(configuration,PARTITION_PHASE_OUTPUT_PATH);
+  int numPartitions=Integer.valueOf(getAndSetConfiguration(configuration,PARTITION_PHASE_NUM_PARTITIONS));
+  LOGGER.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOGGER.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  for (int i=0; i < numPartitions; i++) {
+    MultipleOutputs.addNamedOutput(job,StarTreeConstants.PARTITION_FOLDER_PREFIX + i,SequenceFileOutputFormat.class,BytesWritable.class,BytesWritable.class);
+  }
+  FileOutputFormat.setOutputPath(job,new Path(getAndCheck(PARTITION_PHASE_OUTPUT_PATH.toString())));
+  job.waitForCompletion(true);
+  return job;
+}
