@@ -1,0 +1,7 @@
+{
+  Field refcntField=OfflineSegmentDataManager.class.getDeclaredField(refCntFieldName);
+  refcntField.setAccessible(true);
+  AtomicInteger refCnt=(AtomicInteger)refcntField.get(segmentDataManager);
+  int actualCount=refCnt.get();
+  Assert.assertEquals(actualCount,value,segmentDataManager.getSegmentName() + " had " + actualCount+ " instead of "+ value);
+}

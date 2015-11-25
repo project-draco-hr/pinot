@@ -1,0 +1,15 @@
+{
+  _lo=0;
+  _hi=30;
+  final int numQueryThreads=10;
+  final int runTimeSec=30;
+  Random random=new Random();
+  TableDataManager tableDataManager=makeTestableManager();
+  for (int i=_lo; i <= _hi; i++) {
+    final String segName=segmentPrefix + i;
+    tableDataManager.addSegment(makeIndexSegment(segName,random.nextInt()));
+    _allSegManagers.add(_internalSegMap.get(segName));
+  }
+  runStorageServer(numQueryThreads,runTimeSec,tableDataManager,replaceSegments);
+  tableDataManager.shutDown();
+}

@@ -1,0 +1,41 @@
+{
+  List<Thread> queryThreads=new ArrayList<>(numQueryThreads);
+  for (int i=0; i < numQueryThreads; i++) {
+    TestSegmentUser segUser=new TestSegmentUser(tableDataManager);
+    Thread segUserThread=new Thread(segUser);
+    queryThreads.add(segUserThread);
+    segUserThread.start();
+  }
+  TestHelixWorker helixWorker=new TestHelixWorker(tableDataManager,replaceSegments);
+  Thread helixWorkerThread=new Thread(helixWorker);
+  helixWorkerThread.start();
+  _masterThread=Thread.currentThread();
+  try {
+    Thread.sleep(runTimeSec * 1000);
+  }
+ catch (  InterruptedException e) {
+  }
+  _closing=true;
+  helixWorkerThread.join();
+  for (  Thread t : queryThreads) {
+    t.join();
+  }
+  if (_exception != null) {
+    Assert.fail("One of the threads failed",_exception);
+  }
+  Assert.assertEquals(_allSegManagers.size(),_allSegments.size());
+  final int nSegsAcccessed=_accessedSegManagers.size();
+  for (  SegmentDataManager segmentDataManager : _internalSegMap.values()) {
+    verifyCount(segmentDataManager,1);
+    verify(segmentDataManager.getSegment(),never()).destroy();
+    _allSegManagers.remove(segmentDataManager);
+    _accessedSegManagers.remove(segmentDataManager);
+  }
+  for (  SegmentDataManager segmentDataManager : _allSegManagers) {
+    verify(segmentDataManager.getSegment(),times(1)).destroy();
+    verifyCount(segmentDataManager,0);
+  }
+  Assert.assertTrue(nSegsAcccessed <= _allSegments.size(),"Accessed=" + nSegsAcccessed + ",created="+ _allSegments.size());
+  Assert.assertTrue(_accessedSegManagers.size() <= _nDestroys,"SeenButUnavailableNow=" + _accessedSegManagers.size() + ",Destroys="+ _nDestroys);
+  Assert.assertEquals(_internalSegMap.size(),_hi - _lo + 1);
+}

@@ -1,0 +1,14 @@
+{
+  int segToReplace=_random.nextInt(_hi - _lo + 1) + _lo;
+  final String segName=segmentPrefix + segToReplace;
+  if (!_replaceSegments) {
+    _tableDataManager.removeSegment(segName);
+    try {
+      Thread.sleep(4);
+    }
+ catch (    InterruptedException e) {
+    }
+  }
+  _tableDataManager.addSegment(makeIndexSegment(segName,_random.nextInt()));
+  _allSegManagers.add(_internalSegMap.get(segName));
+}

@@ -1,0 +1,9 @@
+{
+  final InstanceResponsePlanNode rootNode=new InstanceResponsePlanNode();
+  final CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,timeOutMs);
+  rootNode.setPlanNode(combinePlanNode);
+  for (  final SegmentDataManager segmentDataManager : segmentDataManagers) {
+    combinePlanNode.addPlanNode(makeInnerSegmentPlan(segmentDataManager.getSegment(),brokerRequest));
+  }
+  return new GlobalPlanImplV0(rootNode);
+}

@@ -1,0 +1,18 @@
+{
+  OfflineTableDataManager tableDataManager=new OfflineTableDataManager();
+  TableDataManagerConfig config;
+{
+    config=mock(TableDataManagerConfig.class);
+    when(config.getTableName()).thenReturn(tableName);
+    when(config.getDataDir()).thenReturn(_tmpDir.getAbsolutePath());
+    when(config.getNumberOfTableQueryExecutorThreads()).thenReturn(1);
+    when(config.getReadMode()).thenReturn(readMode.toString());
+    when(config.getIndexLoadingConfigMetadata()).thenReturn(null);
+  }
+  tableDataManager.init(config);
+  tableDataManager.start();
+  Field segsMapField=OfflineTableDataManager.class.getDeclaredField("_segmentsMap");
+  segsMapField.setAccessible(true);
+  _internalSegMap=(Map<String,OfflineSegmentDataManager>)segsMapField.get(tableDataManager);
+  return tableDataManager;
+}

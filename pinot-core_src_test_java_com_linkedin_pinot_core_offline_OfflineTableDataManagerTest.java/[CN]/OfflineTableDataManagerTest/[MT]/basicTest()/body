@@ -1,0 +1,36 @@
+{
+  OfflineTableDataManager tableDataManager=makeTestableManager();
+  final String segmentName="TestSegment";
+  final int totalDocs=23456;
+  IndexSegment indexSegment=makeIndexSegment(segmentName,totalDocs);
+  tableDataManager.addSegment(indexSegment);
+  SegmentDataManager segmentDataManager=tableDataManager.getSegment(segmentName);
+  verifyCount(segmentDataManager,2);
+  tableDataManager.removeSegment(segmentName);
+  verifyCount(segmentDataManager,1);
+  Assert.assertEquals(_nDestroys,0);
+  tableDataManager.returnSegmentReader(segmentDataManager);
+  verifyCount(segmentDataManager,0);
+  Assert.assertEquals(_nDestroys,1);
+  segmentDataManager=tableDataManager.getSegment(segmentName);
+  Assert.assertNull(segmentDataManager);
+  tableDataManager.returnSegmentReader(segmentDataManager);
+  tableDataManager.removeSegment(segmentName);
+  final String anotherSeg="AnotherSegment";
+  IndexSegment ix1=makeIndexSegment(anotherSeg,totalDocs);
+  tableDataManager.addSegment(ix1);
+  SegmentDataManager sdm1=tableDataManager.getSegment(anotherSeg);
+  verifyCount(sdm1,2);
+  tableDataManager.returnSegmentReader(sdm1);
+  verifyCount(sdm1,1);
+  IndexSegment ix2=makeIndexSegment(anotherSeg,totalDocs + 1);
+  tableDataManager.addSegment(ix2);
+  verifyCount(sdm1,0);
+  verify(ix1,times(1)).destroy();
+  SegmentDataManager sdm2=_internalSegMap.get(anotherSeg);
+  verifyCount(sdm2,1);
+  tableDataManager.removeSegment(anotherSeg);
+  verifyCount(sdm2,0);
+  verify(ix2,times(1)).destroy();
+  tableDataManager.shutDown();
+}

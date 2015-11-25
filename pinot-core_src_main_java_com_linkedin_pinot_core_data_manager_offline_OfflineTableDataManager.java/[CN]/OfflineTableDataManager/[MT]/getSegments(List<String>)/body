@@ -1,10 +1,18 @@
 {
   List<SegmentDataManager> ret=new ArrayList<SegmentDataManager>();
-  for (  String segmentName : segmentList) {
-    if (_segmentsMap.containsKey(segmentName)) {
-      incrementCount(segmentName);
-      ret.add(_segmentsMap.get(segmentName));
+  try {
+    _rwLock.readLock().lock();
+    for (    String segName : segmentList) {
+      OfflineSegmentDataManager segmentDataManager;
+      segmentDataManager=_segmentsMap.get(segName);
+      if (segmentDataManager != null) {
+        segmentDataManager.incrementRefCnt();
+        ret.add(segmentDataManager);
+      }
     }
+  }
+  finally {
+    _rwLock.readLock().unlock();
   }
   return ret;
 }

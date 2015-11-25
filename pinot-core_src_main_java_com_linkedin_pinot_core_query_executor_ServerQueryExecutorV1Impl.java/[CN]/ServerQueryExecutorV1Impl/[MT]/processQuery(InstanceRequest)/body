@@ -1,13 +1,13 @@
 {
   DataTable instanceResponse;
   long start=System.currentTimeMillis();
-  final List<IndexSegment> queryableSegmentDataManagerList=new ArrayList<>();
+  List<SegmentDataManager> queryableSegmentDataManagerList=null;
   try {
     TraceContext.register(instanceRequest);
     final BrokerRequest brokerRequest=instanceRequest.getQuery();
     LOGGER.debug("Incoming query is : {}",brokerRequest);
     long startPruningTime=System.nanoTime();
-    getPrunedQueryableSegments(queryableSegmentDataManagerList,instanceRequest);
+    queryableSegmentDataManagerList=getPrunedQueryableSegments(instanceRequest);
     long pruningTime=System.nanoTime() - startPruningTime;
     _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.SEGMENT_PRUNING,pruningTime);
     LOGGER.info("Matched {} segments! ",queryableSegmentDataManagerList.size());
@@ -15,7 +15,7 @@
       return null;
     }
     long startPlanTime=System.nanoTime();
-    final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getTableDataManager(brokerRequest.getQuerySource().getTableName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
+    final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(brokerRequest,queryableSegmentDataManagerList,_instanceDataManager.getTableDataManager(brokerRequest.getQuerySource().getTableName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
     long planTime=System.nanoTime() - startPlanTime;
     _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.BUILD_QUERY_PLAN,planTime);
     if (_printQueryPlan) {
@@ -52,8 +52,10 @@
   }
  finally {
     if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
-      for (      IndexSegment segment : queryableSegmentDataManagerList) {
-        _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReader(segment.getSegmentName());
+      if (queryableSegmentDataManagerList != null) {
+        for (        SegmentDataManager segmentDataManager : queryableSegmentDataManagerList) {
+          _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReader(segmentDataManager);
+        }
       }
     }
     TraceContext.unregister(instanceRequest);

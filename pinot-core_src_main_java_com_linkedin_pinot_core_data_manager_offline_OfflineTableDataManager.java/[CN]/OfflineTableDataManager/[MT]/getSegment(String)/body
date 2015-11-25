@@ -1,9 +1,13 @@
 {
-  if (_segmentsMap.containsKey(segmentName)) {
-    incrementCount(segmentName);
-    return _segmentsMap.get(segmentName);
+  try {
+    _rwLock.readLock().lock();
+    OfflineSegmentDataManager segmentDataManager=_segmentsMap.get(segmentName);
+    if (segmentDataManager != null) {
+      segmentDataManager.incrementRefCnt();
+    }
+    return segmentDataManager;
   }
- else {
-    return null;
+  finally {
+    _rwLock.readLock().unlock();
   }
 }

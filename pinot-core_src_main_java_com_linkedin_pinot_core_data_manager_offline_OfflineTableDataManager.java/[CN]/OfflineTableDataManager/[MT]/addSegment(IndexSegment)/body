@@ -1,21 +1,29 @@
 {
-  LOGGER.info("Trying to add a new segment to table : " + _tableName);
-synchronized (getGlobalLock()) {
-    if (!_segmentsMap.containsKey(indexSegmentToAdd.getSegmentName())) {
-      LOGGER.info("Trying to add segment - " + indexSegmentToAdd.getSegmentName());
-      _segmentsMap.put(indexSegmentToAdd.getSegmentName(),new OfflineSegmentDataManager(indexSegmentToAdd));
-      markSegmentAsLoaded(indexSegmentToAdd.getSegmentName());
-      _referenceCounts.put(indexSegmentToAdd.getSegmentName(),new AtomicInteger(1));
-    }
- else {
-      LOGGER.info("Trying to refresh segment - " + indexSegmentToAdd.getSegmentName());
-      OfflineSegmentDataManager segment=_segmentsMap.get(indexSegmentToAdd.getSegmentName());
-      _segmentsMap.put(indexSegmentToAdd.getSegmentName(),new OfflineSegmentDataManager(indexSegmentToAdd));
-      if (segment != null) {
-        _currentNumberOfDocuments.dec(segment.getSegment().getTotalDocs());
-        _currentNumberOfDocuments.inc(indexSegmentToAdd.getTotalDocs());
-        segment.getSegment().destroy();
-      }
+  final String segmentName=indexSegmentToAdd.getSegmentName();
+  LOGGER.info("Trying to add a new segment " + segmentName + " to table : "+ _tableName);
+  OfflineSegmentDataManager newSegmentManager=new OfflineSegmentDataManager(indexSegmentToAdd);
+  final int newNumDocs=indexSegmentToAdd.getTotalDocs();
+  OfflineSegmentDataManager oldSegmentManager;
+  int refCnt=-1;
+  try {
+    _rwLock.writeLock().lock();
+    oldSegmentManager=_segmentsMap.put(segmentName,newSegmentManager);
+    if (oldSegmentManager != null) {
+      refCnt=oldSegmentManager.decrementRefCnt();
     }
   }
+  finally {
+    _rwLock.writeLock().unlock();
+  }
+  if (oldSegmentManager == null) {
+    LOGGER.info("Added new segment {} for table {}",segmentName,_tableName);
+  }
+ else {
+    LOGGER.info("Replaced segment {}(refCnt {}) with new segment for table {}",segmentName,refCnt,_tableName);
+  }
+  if (refCnt == 0) {
+    closeSegment(oldSegmentManager);
+  }
+  _currentNumberOfDocuments.inc(newNumDocs);
+  _currentNumberOfSegments.inc();
 }

@@ -1,0 +1,27 @@
+{
+  while (!_closing) {
+    try {
+      int nextInt=_random.nextInt(100);
+      if (nextInt < _removePercent) {
+        removeSegment();
+      }
+ else       if (nextInt < _removePercent + _replacePercent) {
+        replaceSegment();
+      }
+ else {
+        addSegment();
+      }
+      try {
+        int sleepTime=_random.nextInt(_maxSleepMs - _minSleepMs + 1) + _minSleepMs;
+        Thread.sleep(sleepTime);
+      }
+ catch (      InterruptedException e) {
+        _closing=true;
+      }
+    }
+ catch (    Throwable t) {
+      _masterThread.interrupt();
+      _exception=t;
+    }
+  }
+}

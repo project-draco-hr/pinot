@@ -1,0 +1,11 @@
+{
+  int hi=_hi;
+  int lo=_lo;
+  int totalSegs=hi - lo + 1;
+  Set<Integer> segmentIds=new HashSet<>(totalSegs);
+  final int nSegments=totalSegs * _nSegsPercent / 100;
+  while (segmentIds.size() != nSegments) {
+    segmentIds.add(_random.nextInt(totalSegs) + lo);
+  }
+  return segmentIds;
+}
