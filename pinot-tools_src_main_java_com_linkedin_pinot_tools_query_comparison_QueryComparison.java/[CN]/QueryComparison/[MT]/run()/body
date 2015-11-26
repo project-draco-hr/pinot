@@ -2,21 +2,29 @@
   startCluster();
   String query;
   ScanBasedQueryProcessor scanBasedQueryProcessor=new ScanBasedQueryProcessor(_segmentsDir.getAbsolutePath());
-  BufferedReader bufferedReader=new BufferedReader(new FileReader(_queryFile));
+  BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile));
+  BufferedReader resultReader=(_resultFile != null) ? new BufferedReader(new FileReader(_resultFile)) : null;
   int passed=0;
   int total=0;
-  while ((query=bufferedReader.readLine()) != null) {
+  while ((query=queryReader.readLine()) != null) {
     if (query.isEmpty() || query.startsWith("#")) {
       continue;
     }
     try {
-      QueryResponse scanResponse=scanBasedQueryProcessor.processQuery(query);
-      JSONObject scanJson=new JSONObject(new ObjectMapper().writeValueAsString(scanResponse));
+      JSONObject scanJson;
+      if (resultReader != null) {
+        scanJson=new JSONObject(resultReader.readLine());
+      }
+ else {
+        QueryResponse scanResponse=scanBasedQueryProcessor.processQuery(query);
+        scanJson=new JSONObject(new ObjectMapper().writeValueAsString(scanResponse));
+      }
       String clusterResponse=_clusterStarter.query(query);
       JSONObject clusterJson=new JSONObject(clusterResponse);
       if (compare(clusterJson,scanJson)) {
         ++passed;
         LOGGER.info("Comparison PASSED: {}",query);
+        LOGGER.info("Scan Result: {}",scanJson.toString());
       }
  else {
         LOGGER.error("Comparison FAILED: {}",query);

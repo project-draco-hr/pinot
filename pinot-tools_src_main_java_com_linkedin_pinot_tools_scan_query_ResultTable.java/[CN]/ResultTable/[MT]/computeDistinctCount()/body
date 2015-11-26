@@ -1,0 +1,23 @@
+{
+  if (isEmpty()) {
+    return;
+  }
+  List<Integer> distinctCountColumns=new ArrayList<>();
+  int i=0;
+  for (  Pair pair : _columnList) {
+    String function=(String)pair.getSecond();
+    if (function != null && function.equalsIgnoreCase(DISTINCT_COUNT)) {
+      distinctCountColumns.add(i);
+    }
+    ++i;
+  }
+  if (distinctCountColumns.isEmpty()) {
+    return;
+  }
+  for (  Row row : _rows) {
+    for (    int colId : distinctCountColumns) {
+      Set<String> distinctCountSet=(Set<String>)row.get(colId);
+      row.set(colId,distinctCountSet.size());
+    }
+  }
+}

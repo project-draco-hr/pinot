@@ -2,6 +2,8 @@
   _config=config;
   _segmentsDir=new File(config.getSegmentsDir());
   _queryFile=new File(config.getQueryFile());
+  String results=config.getResultFile();
+  _resultFile=(results != null) ? new File(results) : null;
   if (!_segmentsDir.exists() || !_segmentsDir.isDirectory()) {
     LOGGER.error("Invalid segments directory: {}",_segmentsDir.getName());
     return;

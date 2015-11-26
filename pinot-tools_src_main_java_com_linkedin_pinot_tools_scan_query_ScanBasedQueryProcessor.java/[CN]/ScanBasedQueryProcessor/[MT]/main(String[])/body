@@ -1,17 +1,22 @@
 {
-  if (args.length != 2) {
+  if (args.length != 3) {
     LOGGER.error("Incorrect arguments");
-    LOGGER.info("Usage: <exec> <UntarredSegmentDir> <QueryFile");
+    LOGGER.info("Usage: <exec> <UntarredSegmentDir> <QueryFile> <outputFile>");
     System.exit(1);
   }
   String segDir=args[0];
   String queryFile=args[1];
+  String outputFile=args[2];
   String query;
   ScanBasedQueryProcessor scanBasedQueryProcessor=new ScanBasedQueryProcessor(segDir);
   BufferedReader bufferedReader=new BufferedReader(new FileReader(queryFile));
+  PrintWriter printWriter=new PrintWriter(outputFile);
   while ((query=bufferedReader.readLine()) != null) {
     QueryResponse queryResponse=scanBasedQueryProcessor.processQuery(query);
     printResult(queryResponse);
+    printWriter.println("Query: " + query);
+    printWriter.println("Result: " + new ObjectMapper().writeValueAsString(queryResponse));
   }
   bufferedReader.close();
+  printWriter.close();
 }
