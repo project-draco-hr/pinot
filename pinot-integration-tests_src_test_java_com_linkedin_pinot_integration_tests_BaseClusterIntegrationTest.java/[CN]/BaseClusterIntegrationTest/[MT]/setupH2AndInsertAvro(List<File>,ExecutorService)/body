@@ -1,0 +1,10 @@
+{
+  Class.forName("org.h2.Driver");
+  _connection=DriverManager.getConnection("jdbc:h2:mem:");
+  executor.execute(new Runnable(){
+    @Override public void run(){
+      createH2SchemaAndInsertAvroFiles(avroFiles,_connection);
+    }
+  }
+);
+}

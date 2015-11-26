@@ -13,8 +13,7 @@
   fileWriter.close();
   int segmentIndex=Integer.parseInt(segmentName.split("_")[1]);
   File segmentTarDir=new File(_tarsDir,segmentName);
-  FileUtils.deleteQuietly(segmentTarDir);
-  segmentTarDir.mkdirs();
+  ensureDirectoryExistsAndIsEmpty(segmentTarDir);
   ExecutorService executor=MoreExecutors.sameThreadExecutor();
   buildSegmentsFromAvro(Collections.singletonList(avroFile),executor,segmentIndex,new File(_segmentsDir,segmentName),segmentTarDir,"mytable");
   executor.shutdown();

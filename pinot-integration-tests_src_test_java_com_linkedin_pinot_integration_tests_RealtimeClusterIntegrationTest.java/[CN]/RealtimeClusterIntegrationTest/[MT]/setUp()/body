@@ -5,35 +5,13 @@
   startController();
   startBroker();
   startServer();
-  TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(RealtimeClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
-  _tmpDir.mkdirs();
-  final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
-  for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
-    avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
-  }
-  File schemaFile=new File(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.schema").getFile());
+  final List<File> avroFiles=unpackAvroData(_tmpDir,SEGMENT_COUNT);
+  File schemaFile=getSchemaFile();
   setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
   ExecutorService executor=Executors.newCachedThreadPool();
-  Class.forName("org.h2.Driver");
-  _connection=DriverManager.getConnection("jdbc:h2:mem:");
-  executor.execute(new Runnable(){
-    @Override public void run(){
-      createH2SchemaAndInsertAvroFiles(avroFiles,_connection);
-    }
-  }
-);
-  executor.execute(new Runnable(){
-    @Override public void run(){
-      _queryGenerator=new QueryGenerator(avroFiles,"'mytable'","mytable");
-    }
-  }
-);
-  executor.execute(new Runnable(){
-    @Override public void run(){
-      pushAvroIntoKafka(avroFiles,KafkaStarterUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
-    }
-  }
-);
+  setupH2AndInsertAvro(avroFiles,executor);
+  setupQueryGenerator(avroFiles,executor);
+  pushAvroIntoKafka(avroFiles,executor,KAFKA_TOPIC);
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
   int pinotRecordCount, h2RecordCount;
