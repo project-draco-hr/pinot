@@ -32,6 +32,7 @@
   realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment());
   realtimeSegment.setSegmentName(segmentMetadata.getSegmentName());
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
+  indexSegment=realtimeSegment;
   notifier=realtimeResourceManager;
   segmentStatusTask=new TimerTask(){
     @Override public void run(){
