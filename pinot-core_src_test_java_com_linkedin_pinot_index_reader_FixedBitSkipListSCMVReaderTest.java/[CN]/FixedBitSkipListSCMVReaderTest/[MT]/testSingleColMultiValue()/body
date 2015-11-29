@@ -24,7 +24,7 @@
     }
     System.out.println(Arrays.toString(startOffsets));
     System.out.println(Arrays.toString(lengths));
-    FixedBitSkipListSCMVWriter writer=new FixedBitSkipListSCMVWriter(f,numDocs,totalNumValues,maxBits);
+    FixedBitMultiValueWriter writer=new FixedBitMultiValueWriter(f,numDocs,totalNumValues,maxBits);
     for (int i=0; i < data.length; i++) {
       writer.setIntArray(i,data[i]);
     }
@@ -32,7 +32,7 @@
     final RandomAccessFile raf=new RandomAccessFile(f,"rw");
     System.out.println("file size: " + raf.getChannel().size());
     raf.close();
-    FixedBitSkipListSCMVReader heapReader=new FixedBitSkipListSCMVReader(f,numDocs,totalNumValues,maxBits,false,false);
+    FixedBitMultiValueReader heapReader=new FixedBitMultiValueReader(f,numDocs,totalNumValues,maxBits,false,false);
     final int[] readValues=new int[maxNumValues];
     for (int i=0; i < data.length; i++) {
       final int numValues=heapReader.getIntArray(i,readValues);
@@ -42,7 +42,7 @@
       }
     }
     heapReader.close();
-    FixedBitSkipListSCMVReader mmapReader=new FixedBitSkipListSCMVReader(f,numDocs,totalNumValues,maxBits,false,true);
+    FixedBitMultiValueReader mmapReader=new FixedBitMultiValueReader(f,numDocs,totalNumValues,maxBits,false,true);
     for (int i=0; i < data.length; i++) {
       final int numValues=mmapReader.getIntArray(i,readValues);
       Assert.assertEquals(numValues,data[i].length);

@@ -9,6 +9,6 @@
   final int totalSize=rowSize * rows;
   _buffer=MmapUtils.allocateDirectByteBuffer(totalSize,null,this.getClass().getSimpleName() + " buffer");
   _buffer.order(ByteOrder.nativeOrder());
-  reader=new FixedByteWidthRowColDataFileReader(_buffer,rows,cols,columnSizesInBytes);
-  writer=new FixedByteWidthRowColDataFileWriter(_buffer,rows,cols,columnSizesInBytes);
+  reader=new FixedByteSingleValueMultiColReader(_buffer,rows,cols,columnSizesInBytes);
+  writer=new FixedByteSingleValueMultiColWriter(_buffer,rows,cols,columnSizesInBytes);
 }

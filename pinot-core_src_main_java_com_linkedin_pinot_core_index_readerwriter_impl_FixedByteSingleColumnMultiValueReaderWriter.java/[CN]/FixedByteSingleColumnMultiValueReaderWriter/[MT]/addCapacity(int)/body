@@ -4,9 +4,9 @@
     dataBuffer=MmapUtils.allocateDirectByteBuffer(rowCapacity * columnSizeInBytes,null,this.getClass().getSimpleName() + " dataBuffer");
     dataBuffer.order(ByteOrder.nativeOrder());
     dataBuffers.add(dataBuffer);
-    currentDataWriter=new FixedByteWidthRowColDataFileWriter(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
+    currentDataWriter=new FixedByteSingleValueMultiColWriter(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
     dataWriters.add(currentDataWriter);
-    FixedByteWidthRowColDataFileReader dataFileReader=new FixedByteWidthRowColDataFileReader(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
+    FixedByteSingleValueMultiColReader dataFileReader=new FixedByteSingleValueMultiColReader(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
     dataReaders.add(dataFileReader);
     currentCapacity=rowCapacity;
     currentDataWriterIndex=currentDataWriterIndex + 1;

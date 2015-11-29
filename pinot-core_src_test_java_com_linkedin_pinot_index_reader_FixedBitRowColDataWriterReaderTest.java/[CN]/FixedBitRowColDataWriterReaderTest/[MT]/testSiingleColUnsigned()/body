@@ -8,7 +8,7 @@
     final int rows=100;
     final int cols=1;
     final int[] columnSizesInBits=new int[]{maxBits};
-    final FixedBitWidthRowColDataFileWriter writer=new FixedBitWidthRowColDataFileWriter(file,rows,cols,columnSizesInBits);
+    final FixedBitSingleValueMultiColWriter writer=new FixedBitSingleValueMultiColWriter(file,rows,cols,columnSizesInBits);
     final int[] data=new int[rows];
     final Random r=new Random();
     writer.open();
@@ -18,12 +18,12 @@
       writer.setInt(i,0,data[i]);
     }
     writer.close();
-    FixedBitWidthRowColDataFileReader heapReader=FixedBitWidthRowColDataFileReader.forHeap(file,rows,cols,columnSizesInBits);
+    FixedBitSingleValueMultiColReader heapReader=FixedBitSingleValueMultiColReader.forHeap(file,rows,cols,columnSizesInBits);
     for (int i=0; i < rows; i++) {
       Assert.assertEquals(heapReader.getInt(i,0),data[i]);
     }
     heapReader.close();
-    FixedBitWidthRowColDataFileReader mmapReader=FixedBitWidthRowColDataFileReader.forMmap(file,rows,cols,columnSizesInBits);
+    FixedBitSingleValueMultiColReader mmapReader=FixedBitSingleValueMultiColReader.forMmap(file,rows,cols,columnSizesInBits);
     for (int i=0; i < rows; i++) {
       Assert.assertEquals(mmapReader.getInt(i,0),data[i]);
     }

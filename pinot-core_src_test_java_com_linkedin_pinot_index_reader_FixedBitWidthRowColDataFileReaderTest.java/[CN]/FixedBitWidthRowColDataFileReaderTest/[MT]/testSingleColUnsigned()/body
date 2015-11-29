@@ -24,14 +24,14 @@
       FileOutputStream fos=new FileOutputStream(file);
       fos.write(byteArray);
       fos.close();
-      FixedBitWidthRowColDataFileReader heapReader=FixedBitWidthRowColDataFileReader.forHeap(file,numElements,1,new int[]{maxBits});
+      FixedBitSingleValueMultiColReader heapReader=FixedBitSingleValueMultiColReader.forHeap(file,numElements,1,new int[]{maxBits});
       for (int i=0; i < numElements; i++) {
         int readInt=heapReader.getInt(i,0);
         System.out.println(i + "  Expected:" + values[i]+ " Actual:"+ readInt);
         Assert.assertEquals(readInt,values[i]);
       }
       heapReader.close();
-      FixedBitWidthRowColDataFileReader mmapReader=FixedBitWidthRowColDataFileReader.forMmap(file,numElements,1,new int[]{maxBits});
+      FixedBitSingleValueMultiColReader mmapReader=FixedBitSingleValueMultiColReader.forMmap(file,numElements,1,new int[]{maxBits});
       for (int i=0; i < numElements; i++) {
         int readInt=mmapReader.getInt(i,0);
         System.out.println(i + "  Expected:" + values[i]+ " Actual:"+ readInt);

@@ -1,7 +1,7 @@
 {
 switch (spec.getDataType()) {
 case INT:
-    final FixedByteWidthRowColDataFileWriter intDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,rowCount,1,V1Constants.Dict.INT_DICTIONARY_COL_SIZE);
+    final FixedByteSingleValueMultiColWriter intDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,V1Constants.Dict.INT_DICTIONARY_COL_SIZE);
   intValueToIndexMap=new Int2IntOpenHashMap(rowCount);
 int[] sortedInts=(int[])sortedList;
 for (int i=0; i < rowCount; i++) {
@@ -12,7 +12,7 @@ intValueToIndexMap.put(entry,i);
 intDictionaryWrite.close();
 break;
 case FLOAT:
-final FixedByteWidthRowColDataFileWriter floatDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,rowCount,1,V1Constants.Dict.FLOAT_DICTIONARY_COL_SIZE);
+final FixedByteSingleValueMultiColWriter floatDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,V1Constants.Dict.FLOAT_DICTIONARY_COL_SIZE);
 floatValueToIndexMap=new Float2IntOpenHashMap(rowCount);
 float[] sortedFloats=(float[])sortedList;
 for (int i=0; i < rowCount; i++) {
@@ -23,7 +23,7 @@ floatValueToIndexMap.put(entry,i);
 floatDictionaryWrite.close();
 break;
 case LONG:
-final FixedByteWidthRowColDataFileWriter longDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,rowCount,1,V1Constants.Dict.LONG_DICTIONARY_COL_SIZE);
+final FixedByteSingleValueMultiColWriter longDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,V1Constants.Dict.LONG_DICTIONARY_COL_SIZE);
 longValueToIndexMap=new Long2IntOpenHashMap(rowCount);
 long[] sortedLongs=(long[])sortedList;
 for (int i=0; i < rowCount; i++) {
@@ -34,7 +34,7 @@ longValueToIndexMap.put(entry,i);
 longDictionaryWrite.close();
 break;
 case DOUBLE:
-final FixedByteWidthRowColDataFileWriter doubleDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,rowCount,1,V1Constants.Dict.DOUBLE_DICTIONARY_COL_SIZE);
+final FixedByteSingleValueMultiColWriter doubleDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,V1Constants.Dict.DOUBLE_DICTIONARY_COL_SIZE);
 doubleValueToIndexMap=new Double2IntOpenHashMap(rowCount);
 double[] sortedDoubles=(double[])sortedList;
 for (int i=0; i < rowCount; i++) {
@@ -54,7 +54,7 @@ if (stringColumnMaxLength < length) {
 stringColumnMaxLength=length;
 }
 }
-final FixedByteWidthRowColDataFileWriter stringDictionaryWrite=new FixedByteWidthRowColDataFileWriter(dictionaryFile,rowCount,1,new int[]{stringColumnMaxLength});
+final FixedByteSingleValueMultiColWriter stringDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,new int[]{stringColumnMaxLength});
 final String[] revised=new String[rowCount];
 for (int i=0; i < rowCount; i++) {
 final String toWrite=sortedObjects[i].toString();
