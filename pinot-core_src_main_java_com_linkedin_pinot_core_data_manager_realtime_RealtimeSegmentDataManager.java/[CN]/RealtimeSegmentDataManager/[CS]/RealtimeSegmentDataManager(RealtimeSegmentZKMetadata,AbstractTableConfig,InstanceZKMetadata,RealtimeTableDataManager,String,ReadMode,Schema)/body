@@ -26,12 +26,12 @@
     resourceTmpDir.mkdirs();
   }
   this.mode=mode;
-  this.kafkaStreamProvider=new KafkaHighLevelConsumerStreamProvider();
+  this.kafkaStreamProvider=StreamProviderFactory.buildStreamProvider();
   this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
   this.kafkaStreamProvider.start();
   realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment());
-  ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentName(segmentMetadata.getSegmentName());
-  ((RealtimeSegmentImpl)(realtimeSegment)).setSegmentMetadata(segmentMetadata,this.schema);
+  realtimeSegment.setSegmentName(segmentMetadata.getSegmentName());
+  realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
   notifier=realtimeResourceManager;
   segmentStatusTask=new TimerTask(){
     @Override public void run(){
@@ -41,23 +41,42 @@
 ;
   indexingThread=new Thread(new Runnable(){
     @Override public void run(){
-      while (((RealtimeSegmentImpl)realtimeSegment).index(kafkaStreamProvider.next()) && keepIndexing) {
+      boolean notFull=true;
+      long exceptionSleepMillis=50L;
+      do {
+        try {
+          GenericRow row=kafkaStreamProvider.next();
+          if (row != null) {
+            notFull=realtimeSegment.index(row);
+            exceptionSleepMillis=50L;
+          }
+        }
+ catch (        Exception e) {
+          LOGGER.warn("Caught exception while indexing row, sleeping for {} ms",exceptionSleepMillis,e);
+          Uninterruptibles.sleepUninterruptibly(exceptionSleepMillis,TimeUnit.MILLISECONDS);
+          exceptionSleepMillis=Math.min(60000L,exceptionSleepMillis * 2);
+        }
+catch (        Error e) {
+          LOGGER.error("Caught error in indexing thread",e);
+          throw e;
+        }
       }
-      LOGGER.info("Indexing threshold reached, proceeding with index conversion");
-      segmentStatusTask.cancel();
-      LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
-      LOGGER.info("Indexed " + ((RealtimeSegmentImpl)realtimeSegment).getRawDocumentCount() + " raw events, current number of docs = "+ ((RealtimeSegmentImpl)realtimeSegment).getTotalDocs());
-      File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
-      RealtimeSegmentConverter conveter=new RealtimeSegmentConverter((RealtimeSegmentImpl)realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn);
+ while (notFull && keepIndexing);
       try {
+        LOGGER.info("Indexing threshold reached, proceeding with index conversion");
+        segmentStatusTask.cancel();
+        LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
+        LOGGER.info("Indexed " + realtimeSegment.getRawDocumentCount() + " raw events, current number of docs = "+ realtimeSegment.getTotalDocs());
+        File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
+        RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn);
         LOGGER.info("Trying to build segment!");
-        conveter.build();
+        converter.build();
         File destDir=new File(resourceDataDir,segmentMetadata.getSegmentName());
         FileUtils.deleteQuietly(destDir);
         FileUtils.moveDirectory(tempSegmentFolder.listFiles()[0],destDir);
         FileUtils.deleteQuietly(tempSegmentFolder);
-        long startTime=((RealtimeSegmentImpl)realtimeSegment).getMinTime();
-        long endTime=((RealtimeSegmentImpl)realtimeSegment).getMaxTime();
+        long startTime=realtimeSegment.getMinTime();
+        long endTime=realtimeSegment.getMaxTime();
         TimeUnit timeUnit=schema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType();
         swap();
         RealtimeSegmentZKMetadata metadaToOverrite=new RealtimeSegmentZKMetadata();
