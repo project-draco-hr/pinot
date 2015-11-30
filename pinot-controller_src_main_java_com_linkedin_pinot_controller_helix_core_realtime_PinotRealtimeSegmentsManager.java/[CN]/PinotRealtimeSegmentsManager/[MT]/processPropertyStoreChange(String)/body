@@ -1,0 +1,19 @@
+{
+  try {
+    if (path.matches(REALTIME_SEGMENT_PROPERTY_STORE_PATH_PATTERN)) {
+      if (isLeader()) {
+        assignRealtimeSegmentsToServerInstancesIfNecessary();
+      }
+ else {
+        LOGGER.info("Not the leader of this cluster, ignoring realtime segment property store change.");
+      }
+    }
+ else {
+      LOGGER.info("Path {} does not match a realtime segment, ignoring.",path);
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while processing data change for path {}",path,e);
+    Utils.rethrowException(e);
+  }
+}

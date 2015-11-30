@@ -12,7 +12,7 @@
         instancesInResource.addAll(pinotClusterManager.getServerInstancesForTable(resource,TableType.REALTIME));
       }
  catch (      Exception e) {
-        LOGGER.error("error fetching instances",e);
+        LOGGER.error("Caught exception while fetching instances for resource {}",resource,e);
       }
       for (      String instanceId : instancesInResource) {
         InstanceZKMetadata instanceZKMetadata=pinotClusterManager.getInstanceZKMetadata(instanceId);
@@ -39,7 +39,7 @@
       }
     }
   }
-  LOGGER.info("computed list of new segments to add : " + Arrays.toString(listOfSegmentsToAdd.toArray()));
+  LOGGER.info("Computed list of new segments to add : " + Arrays.toString(listOfSegmentsToAdd.toArray()));
   for (  String segmentId : listOfSegmentsToAdd) {
     String resourceName=SegmentNameBuilder.Realtime.extractTableName(segmentId);
     String instanceName=SegmentNameBuilder.Realtime.extractInstanceName(segmentId);
