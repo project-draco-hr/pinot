@@ -1,6 +1,5 @@
 {
-  if (!_tableName.equals(brokerRequest.getQuerySource().getTableName())) {
-    LOGGER.info("Skipping segment {} from different table {}",_segmentName,_tableName);
+  if (pruneSegment(brokerRequest)) {
     return null;
   }
   LOGGER.info("Processing segment: {}",_segmentName);

@@ -26,11 +26,13 @@
   if (aggregation != null && numSegments > 1 && numDocsScanned > 0) {
     results=aggregation.aggregate(results);
   }
-  results.setNumDocsScanned(numDocsScanned);
-  results.setTotalDocs(totalDocs);
-  long totalUsedMs=System.currentTimeMillis() - startTimeInMillis;
-  results.setProcessingTime(totalUsedMs);
-  results.seal();
+  if (results != null) {
+    results.setNumDocsScanned(numDocsScanned);
+    results.setTotalDocs(totalDocs);
+    long totalUsedMs=System.currentTimeMillis() - startTimeInMillis;
+    results.setProcessingTime(totalUsedMs);
+    results.seal();
+  }
   QueryResponse queryResponse=new QueryResponse(results);
   return queryResponse;
 }
