@@ -6,12 +6,12 @@
   Map<String,Integer> functionMap=new HashMap<>();
   for (int i=0; i < numScanGroupBy; ++i) {
     JSONObject scanAggr=scanGroupByResults.getJSONObject(i);
-    String scanFunction=scanAggr.getString(FUNCTION);
+    String scanFunction=scanAggr.getString(FUNCTION).toLowerCase();
     functionMap.put(scanFunction,i);
   }
   for (int i=0; i < numClusterGroupBy; ++i) {
     JSONObject clusterAggr=clusterGroupByResults.getJSONObject(i);
-    String clusterFunction=clusterAggr.getString(FUNCTION);
+    String clusterFunction=clusterAggr.getString(FUNCTION).toLowerCase();
     if (!functionMap.containsKey(clusterFunction)) {
       LOGGER.error("Missing group by function in scan: {}",clusterFunction);
       return false;

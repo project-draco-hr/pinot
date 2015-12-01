@@ -1,0 +1,42 @@
+{
+  if (!_tableName.equals(brokerRequest.getQuerySource().getTableName())) {
+    LOGGER.info("Skipping segment {} from different table {}",_segmentName,_tableName);
+    return null;
+  }
+  LOGGER.info("Processing segment: {}",_segmentName);
+  FilterQueryTree filterQueryTree=RequestUtils.generateFilterQueryTree(brokerRequest);
+  List<Integer> filteredDocIds=filterDocIds(filterQueryTree,null);
+  ResultTable result=null;
+  if (brokerRequest.isSetAggregationsInfo()) {
+    if (!brokerRequest.isSetGroupBy()) {
+      Aggregation aggregation=new Aggregation(_indexSegment,_metadata,filteredDocIds,brokerRequest.getAggregationsInfo(),null,10);
+      result=aggregation.run();
+    }
+ else {
+      GroupBy groupBy=brokerRequest.getGroupBy();
+      Aggregation aggregation=new Aggregation(_indexSegment,_metadata,filteredDocIds,brokerRequest.getAggregationsInfo(),groupBy.getColumns(),groupBy.getTopN());
+      result=aggregation.run();
+    }
+  }
+ else {
+    if (brokerRequest.isSetSelections()) {
+      List<String> columns=brokerRequest.getSelections().getSelectionColumns();
+      if (columns.contains("*")) {
+        columns=Arrays.asList(_indexSegment.getColumnNames());
+      }
+      List<Pair> selectionColumns=new ArrayList<>();
+      Set<String> columSet=new HashSet<>();
+      for (      String column : columns) {
+        if (!columSet.contains(column)) {
+          selectionColumns.add(new Pair(column,null));
+          columSet.add(column);
+        }
+      }
+      Selection selection=new Selection(_indexSegment,_metadata,filteredDocIds,selectionColumns);
+      result=selection.run();
+    }
+  }
+  result.setNumDocsScanned(filteredDocIds.size());
+  result.setTotalDocs(_totalDocs);
+  return result;
+}

@@ -3,7 +3,7 @@
   resultTable.setResultType(ResultTable.ResultType.Selection);
   for (  Pair pair : _columnList) {
     String column=(String)pair.getFirst();
-    if (_metadata.getColumnMetadataFor(column).isSingleValue()) {
+    if (!_mvColumns.contains(column)) {
       BlockSingleValIterator bvIter=(BlockSingleValIterator)_indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
       int rowId=0;
       for (      Integer docId : _filteredDocIds) {
@@ -16,8 +16,7 @@
       int rowId=0;
       for (      Integer docId : _filteredDocIds) {
         bvIter.skipTo(docId);
-        int maxNumMultiValues=_metadata.getColumnMetadataFor(column).getMaxNumberOfMultiValues();
-        int[] dictIds=new int[maxNumMultiValues];
+        int[] dictIds=_mvColumnArrayMap.get(column);
         int numMVValues=bvIter.nextIntVal(dictIds);
         dictIds=Arrays.copyOf(dictIds,numMVValues);
         resultTable.add(rowId++,ArrayUtils.toObject(dictIds));

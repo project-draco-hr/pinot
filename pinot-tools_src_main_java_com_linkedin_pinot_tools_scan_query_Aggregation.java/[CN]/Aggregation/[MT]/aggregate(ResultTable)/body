@@ -4,20 +4,18 @@
   }
   Map<GroupByOperator,ResultTable> resultsMap=new HashMap<>();
   for (  ResultTable.Row row : input) {
-    List<Object> groupByValues=new ArrayList<>();
-    for (    String groupByColumn : _groupByColumns) {
-      groupByValues.add(row.get(groupByColumn,null));
-    }
-    GroupByOperator groupByOperator=new GroupByOperator(groupByValues);
-    ResultTable resultTable;
-    if (resultsMap.containsKey(groupByOperator)) {
-      resultTable=resultsMap.get(groupByOperator);
-    }
+    for (    List<Object> groupByValues : enumerateGroups(row)) {
+      GroupByOperator groupByOperator=new GroupByOperator(groupByValues);
+      ResultTable resultTable;
+      if (resultsMap.containsKey(groupByOperator)) {
+        resultTable=resultsMap.get(groupByOperator);
+      }
  else {
-      resultTable=new ResultTable(_allColumns,0);
-      resultsMap.put(groupByOperator,resultTable);
+        resultTable=new ResultTable(_allColumns,0);
+        resultsMap.put(groupByOperator,resultTable);
+      }
+      resultTable.append(row);
     }
-    resultTable.append(row);
   }
   ResultTable results=new ResultTable(_allColumns,0);
   for (  Map.Entry<GroupByOperator,ResultTable> entry : resultsMap.entrySet()) {

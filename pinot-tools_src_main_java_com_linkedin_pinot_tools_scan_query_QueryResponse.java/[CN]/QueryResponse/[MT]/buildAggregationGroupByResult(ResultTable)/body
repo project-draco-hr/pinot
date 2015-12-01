@@ -17,7 +17,15 @@
       if (columnList.get(colId).getSecond() != null) {
         break;
       }
-      group.add(value.toString());
+      if (value instanceof Object[]) {
+        Object[] array=(Object[])value;
+        for (        Object obj : array) {
+          group.add(obj.toString());
+        }
+      }
+ else {
+        group.add(value.toString());
+      }
       ++colId;
     }
     groupValues.add(group);

@@ -1,0 +1,24 @@
+{
+  if (filterQueryTree == null) {
+    List<Integer> allDocs=new ArrayList<>(_totalDocs);
+    for (int i=0; i < _totalDocs; ++i) {
+      allDocs.add(i);
+    }
+    return allDocs;
+  }
+  final List<FilterQueryTree> childFilters=filterQueryTree.getChildren();
+  final boolean isLeaf=(childFilters == null) || childFilters.isEmpty();
+  if (isLeaf) {
+    FilterOperator filterType=filterQueryTree.getOperator();
+    String column=filterQueryTree.getColumn();
+    final List<String> value=filterQueryTree.getValue();
+    return getMatchingDocIds(inputDocIds,filterType,column,value);
+  }
+  List<Integer> result=filterDocIds(childFilters.get(0),inputDocIds);
+  for (int i=1; i < childFilters.size(); ++i) {
+    FilterOperator operator=filterQueryTree.getOperator();
+    List<Integer> childResult=operator.equals(FilterOperator.AND) ? filterDocIds(childFilters.get(i),result) : filterDocIds(childFilters.get(i),inputDocIds);
+    result=combine(result,childResult,operator);
+  }
+  return result;
+}

@@ -1,0 +1,18 @@
+{
+  int numElements=1;
+  for (int i=0; i < lists.size(); i++) {
+    numElements*=lists.get(i).size();
+  }
+  List<List<Object>> result=new ArrayList<>();
+  for (int i=0; i < numElements; i++) {
+    int j=1;
+    List<Object> oneSet=new ArrayList<>();
+    for (    List<Object> list : lists) {
+      int index=(i / j) % list.size();
+      oneSet.add(list.get(index));
+      j*=list.size();
+    }
+    result.add(oneSet);
+  }
+  return result;
+}

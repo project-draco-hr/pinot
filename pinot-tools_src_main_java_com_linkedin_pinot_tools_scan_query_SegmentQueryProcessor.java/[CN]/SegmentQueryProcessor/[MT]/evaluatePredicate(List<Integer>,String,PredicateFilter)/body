@@ -1,0 +1,28 @@
+{
+  List<Integer> result=new ArrayList<>();
+  if (!_mvColumns.contains(column)) {
+    BlockSingleValIterator bvIter=(BlockSingleValIterator)_indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+    int i=0;
+    while (bvIter.hasNext() && (inputDocIds == null || i < inputDocIds.size())) {
+      int docId=(inputDocIds != null) ? inputDocIds.get(i++) : i++;
+      bvIter.skipTo(docId);
+      if (predicateFilter.apply(bvIter.nextIntVal())) {
+        result.add(docId);
+      }
+    }
+  }
+ else {
+    BlockMultiValIterator bvIter=(BlockMultiValIterator)_indexSegment.getDataSource(column).getNextBlock().getBlockValueSet().iterator();
+    int i=0;
+    while (bvIter.hasNext() && (inputDocIds == null || i < inputDocIds.size())) {
+      int docId=(inputDocIds != null) ? inputDocIds.get(i++) : i++;
+      bvIter.skipTo(docId);
+      int[] dictIds=_mvColumnArrayMap.get(column);
+      int numMVValues=bvIter.nextIntVal(dictIds);
+      if (predicateFilter.apply(dictIds,numMVValues)) {
+        result.add(docId);
+      }
+    }
+  }
+  return result;
+}

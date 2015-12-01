@@ -1,0 +1,13 @@
+{
+  List<List<Object>> groups=new ArrayList<>();
+  for (  String groupByColumn : _groupByColumns) {
+    Object value=row.get(groupByColumn,null);
+    if (value instanceof Object[]) {
+      groups.add(Arrays.asList((Object[])value));
+    }
+ else {
+      groups.add(Arrays.asList(value));
+    }
+  }
+  return Utils.cartesianProduct(groups);
+}

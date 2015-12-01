@@ -3,7 +3,6 @@
   Pql2Compiler pql2Compiler=new Pql2Compiler();
   BrokerRequest brokerRequest=pql2Compiler.compileToBrokerRequest(query);
   ResultTable results=null;
-  File file=new File(_segmentsDir);
   Aggregation aggregation=null;
   List<String> groupByColumns;
   List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
@@ -17,7 +16,7 @@
   int totalDocs=0;
   int numSegments=0;
   LOGGER.info("Processing Query: {}",query);
-  List<ResultTable> resultTables=processSegments(query,brokerRequest,file);
+  List<ResultTable> resultTables=processSegments(query,brokerRequest);
   for (  ResultTable segmentResults : resultTables) {
     numDocsScanned+=segmentResults.getNumDocsScanned();
     totalDocs+=segmentResults.getTotalDocs();

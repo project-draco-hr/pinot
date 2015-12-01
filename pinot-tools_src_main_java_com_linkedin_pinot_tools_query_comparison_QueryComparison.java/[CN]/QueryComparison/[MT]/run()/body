@@ -23,8 +23,8 @@
       JSONObject clusterJson=new JSONObject(clusterResponse);
       if (compare(clusterJson,scanJson)) {
         ++passed;
-        LOGGER.info("Comparison PASSED: {}",query);
-        LOGGER.info("Scan Result: {}",scanJson.toString());
+        LOGGER.info("Comparison PASSED: Scan Time: {} ms Query: {}",scanJson.get(TIME_USED_MS),query);
+        LOGGER.info("Cluster Result: {}",clusterJson);
       }
  else {
         LOGGER.error("Comparison FAILED: {}",query);
