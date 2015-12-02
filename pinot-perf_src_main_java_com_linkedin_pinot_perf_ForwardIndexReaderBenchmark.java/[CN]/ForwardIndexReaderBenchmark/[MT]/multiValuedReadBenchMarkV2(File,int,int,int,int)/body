@@ -1,0 +1,34 @@
+{
+  boolean signed=false;
+  boolean isMmap=false;
+  boolean fullscan=true;
+  boolean readOneEachTime=true;
+  com.linkedin.pinot.core.index.reader.impl.v2.FixedBitMultiValueReader reader=new com.linkedin.pinot.core.index.reader.impl.v2.FixedBitMultiValueReader(file,numDocs,totalNumValues,columnSizeInBits,signed,isMmap);
+  int[] intArray=new int[maxEntriesPerDoc];
+  long start, end;
+  if (fullscan) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    for (int run=0; run < MAX_RUNS; run++) {
+      start=System.currentTimeMillis();
+      reader.doFullScan();
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println("v2 multi value full scan stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
+  if (readOneEachTime) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    for (int run=0; run < MAX_RUNS; run++) {
+      start=System.currentTimeMillis();
+      for (int i=0; i < numDocs; i++) {
+        int length=reader.getIntArray(i,intArray);
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println("v2 multi value sequential read one stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
+  reader.close();
+}

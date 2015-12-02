@@ -4,17 +4,17 @@
       return new BlockSingleValIterator(){
         private int counter=0;
         @Override public boolean skipTo(        int docId){
-          if (docId >= sVReader.getLength()) {
+          if (docId >= columnMetadata.getTotalDocs()) {
             return false;
           }
           counter=docId;
           return true;
         }
         @Override public int size(){
-          return sVReader.getLength();
+          return columnMetadata.getTotalDocs();
         }
         @Override public int nextIntVal(){
-          if (counter >= sVReader.getLength()) {
+          if (counter >= columnMetadata.getTotalDocs()) {
             return Constants.EOF;
           }
           return sVReader.getInt(counter++);
@@ -27,7 +27,7 @@
           return false;
         }
         @Override public boolean hasNext(){
-          return (counter < sVReader.getLength());
+          return (counter < columnMetadata.getTotalDocs());
         }
         @Override public DataType getValueType(){
           return null;

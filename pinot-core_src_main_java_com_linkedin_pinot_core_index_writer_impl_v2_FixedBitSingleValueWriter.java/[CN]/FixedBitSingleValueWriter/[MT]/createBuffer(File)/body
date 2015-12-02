@@ -1,0 +1,9 @@
+{
+  raf=new RandomAccessFile(file,"rw");
+  int bytesRequired=SizeUtil.computeBytesRequired(numRows,numBits,uncompressedSize);
+  LOGGER.info("Creating byteBuffer of size:{} to store {} values of bits:{}",bytesRequired,numRows,numBits);
+  byteBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,0,bytesRequired,file,this.getClass().getSimpleName() + " byteBuffer");
+  isMmap=true;
+  ownsByteBuffer=true;
+  byteBuffer.position(0);
+}

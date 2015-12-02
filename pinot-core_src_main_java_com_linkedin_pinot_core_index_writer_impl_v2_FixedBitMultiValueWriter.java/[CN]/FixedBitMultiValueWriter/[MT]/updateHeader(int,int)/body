@@ -1,0 +1,13 @@
+{
+  assert(rowId == prevRowId + 1);
+  int newStartIndex=prevRowStartIndex + prevRowLength;
+  if (rowId % docsPerChunk == 0) {
+    int chunkId=rowId / docsPerChunk;
+    chunkOffsetsWriter.setInt(chunkId,0,newStartIndex);
+  }
+  customBitSet.setBit(newStartIndex);
+  prevRowStartIndex=newStartIndex;
+  prevRowLength=length;
+  prevRowId=rowId;
+  return newStartIndex;
+}

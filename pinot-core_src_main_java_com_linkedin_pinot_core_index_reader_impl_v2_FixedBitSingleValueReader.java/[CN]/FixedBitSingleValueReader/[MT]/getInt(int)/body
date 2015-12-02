@@ -1,0 +1,22 @@
+{
+  BitUnpackResult result=bitUnpackWrapper.get();
+  int batchPosition=row / uncompressedSize;
+  if (result.position != batchPosition) {
+    int index=-1;
+    int startIndex=batchPosition * numBits * 4;
+    for (int i=0; i < numBits; i++) {
+      try {
+        index=startIndex + i * 4;
+        result.compressed[i]=byteBuffer.getInt(index);
+      }
+ catch (      Exception e) {
+        LOGGER.error("Exception while retreiving value for row:{} at index:{} numBits:{}",row,index,numBits,e);
+        throw e;
+      }
+    }
+    BitPacking.fastunpack(result.compressed,0,result.uncompressed,0,numBits);
+    result.position=batchPosition;
+  }
+  int ret=result.uncompressed[row % uncompressedSize];
+  return ret;
+}

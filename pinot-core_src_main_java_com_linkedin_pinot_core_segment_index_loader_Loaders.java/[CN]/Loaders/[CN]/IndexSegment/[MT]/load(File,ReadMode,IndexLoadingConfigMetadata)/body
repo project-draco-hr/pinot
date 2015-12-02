@@ -1,5 +1,14 @@
 {
   SegmentMetadataImpl metadata=new SegmentMetadataImpl(indexDir);
+  if (!metadata.getVersion().equalsIgnoreCase(IndexSegmentImpl.EXPECTED_SEGMENT_VERSION.toString())) {
+    SegmentVersion from=SegmentVersion.valueOf(metadata.getVersion());
+    SegmentVersion to=SegmentVersion.valueOf(IndexSegmentImpl.EXPECTED_SEGMENT_VERSION.toString());
+    LOGGER.info("segment:{} needs to be converted from :{} to {} version.",indexDir.getName(),from,to);
+    SegmentFormatConverter converter=SegmentFormatConverterFactory.getConverter(from,to);
+    LOGGER.info("Using converter:{} to up-convert the format",converter.getClass().getName());
+    converter.convert(indexDir);
+    LOGGER.info("Successfully up-converted segment:{} from :{} to {} version.",indexDir.getName(),from,to);
+  }
   Map<String,ColumnIndexContainer> indexContainerMap=new HashMap<String,ColumnIndexContainer>();
   for (  String column : metadata.getColumnMetadataMap().keySet()) {
     indexContainerMap.put(column,ColumnIndexContainer.init(column,indexDir,metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata,readMode));

@@ -1,0 +1,68 @@
+{
+  boolean signed=false;
+  boolean isMmap=false;
+  long start, end;
+  boolean fullScan=true;
+  boolean batchRead=true;
+  boolean singleRead=true;
+  com.linkedin.pinot.core.index.reader.impl.v2.FixedBitSingleValueReader reader=new com.linkedin.pinot.core.index.reader.impl.v2.FixedBitSingleValueReader(file,numDocs,numBits,signed,isMmap);
+  if (fullScan) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    ByteBuffer buffer=ByteBuffer.allocateDirect((int)file.length());
+    RandomAccessFile raf=new RandomAccessFile(file,"r");
+    raf.getChannel().read(buffer);
+    raf.close();
+    int[] input=new int[numBits];
+    int[] output=new int[32];
+    int numBatches=(numDocs + 31) / 32;
+    for (int run=0; run < MAX_RUNS; run++) {
+      start=System.currentTimeMillis();
+      for (int i=0; i < numBatches; i++) {
+        for (int j=0; j < numBits; j++) {
+          input[j]=buffer.getInt(i * numBits * 4 + j * 4);
+        }
+        BitPacking.fastunpack(input,0,output,0,numBits);
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println(" v2 full scan stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
+  if (singleRead) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    for (int run=0; run < MAX_RUNS; run++) {
+      start=System.currentTimeMillis();
+      for (int i=0; i < numDocs; i++) {
+        int value=reader.getInt(i);
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println(" v2 sequential single read for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
+  if (batchRead) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    int batchSize=Math.min(5000,numDocs);
+    int[] output=new int[batchSize];
+    int[] rowIds=new int[batchSize];
+    for (int run=0; run < MAX_RUNS; run++) {
+      start=System.currentTimeMillis();
+      int rowId=0;
+      while (rowId < numDocs) {
+        int length=Math.min(batchSize,numDocs - rowId);
+        for (int i=0; i < length; i++) {
+          rowIds[i]=rowId + i;
+        }
+        reader.getIntBatch(rowIds,output,length);
+        rowId=rowId + length;
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println("v2 sequential batch read stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
+  reader.close();
+}

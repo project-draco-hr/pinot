@@ -47,9 +47,9 @@
       for (int i=0; i < columns.length; i++) {
         String column=columns[i];
         UnSortedSingleValueBlock unSortedSingleValueBlock=unsortedSingleValueBlockMap.get(column);
-        FixedBitSingleValueReader svReader=unSortedSingleValueBlock.getSVReader();
+        SingleColumnSingleValueReader svReader=unSortedSingleValueBlock.getSVReader();
         for (int j=0; j < idx; j++) {
-          dictIds[j]=svReader.getDataFileReader().getInt(docIds[j],0);
+          dictIds[j]=svReader.getInt(docIds[j]);
         }
         Dictionary dictionary=dictionaryMap.get(column);
         for (int j=0; j < idx; j++) {

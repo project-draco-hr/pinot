@@ -1,0 +1,17 @@
+{
+  float averageValuesPerDoc=totalNumValues / numDocs;
+  this.docsPerChunk=(int)(Math.ceil(PREFERRED_NUM_VALUES_PER_CHUNK / averageValuesPerDoc));
+  this.numChunks=(numDocs + docsPerChunk - 1) / docsPerChunk;
+  chunkOffsetHeaderSize=numChunks * SIZE_OF_INT * NUM_COLS_IN_HEADER;
+  bitsetSize=(totalNumValues + 7) / 8;
+  rawDataSize=SizeUtil.computeBytesRequired(totalNumValues,columnSizeInBits,SizeUtil.BIT_UNPACK_BATCH_SIZE);
+  LOGGER.info("Allocating:{} for rawDataSize to store {} values of bits:{}",rawDataSize,totalNumValues,columnSizeInBits);
+  totalSize=chunkOffsetHeaderSize + bitsetSize + rawDataSize;
+  raf=new RandomAccessFile(file,"rw");
+  chunkOffsetsBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,0,chunkOffsetHeaderSize,file,this.getClass().getSimpleName() + " chunkOffsetsBuffer");
+  bitsetBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize,bitsetSize,file,this.getClass().getSimpleName() + " bitsetBuffer");
+  rawDataBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,chunkOffsetHeaderSize + bitsetSize,rawDataSize,file,this.getClass().getSimpleName() + " rawDataBuffer");
+  chunkOffsetsWriter=new FixedByteSingleValueMultiColWriter(chunkOffsetsBuffer,numDocs,NUM_COLS_IN_HEADER,new int[]{SIZE_OF_INT});
+  customBitSet=CustomBitSet.withByteBuffer(bitsetSize,bitsetBuffer);
+  rawDataWriter=new FixedBitSingleValueWriter(rawDataBuffer,totalNumValues,columnSizeInBits);
+}

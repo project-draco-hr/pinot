@@ -1,0 +1,19 @@
+{
+  int counter=0;
+  BitUnpackResult tempResult=bitUnpackWrapper.get();
+  while (counter < length) {
+    int batchPosition=rowIds[counter] / uncompressedSize;
+    if (tempResult.position != batchPosition) {
+      int startIndex=batchPosition * numBits * 4;
+      for (int i=0; i < numBits; i++) {
+        tempResult.compressed[i]=byteBuffer.getInt(startIndex + i * 4);
+      }
+      BitPacking.fastunpack(tempResult.compressed,0,tempResult.uncompressed,0,numBits);
+    }
+    int endRowId=(batchPosition + 1) * uncompressedSize;
+    while (counter < length && rowIds[counter] < endRowId) {
+      values[counter]=tempResult.uncompressed[rowIds[counter] % uncompressedSize];
+      counter=counter + 1;
+    }
+  }
+}

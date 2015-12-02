@@ -1,0 +1,25 @@
+{
+  int ROWS=1000;
+  for (int numBits=1; numBits < 32; numBits++) {
+    File file=new File(this.getClass().getName() + "_" + numBits+ ".test");
+    FixedBitSingleValueWriter writer=new FixedBitSingleValueWriter(file,ROWS,numBits);
+    int data[]=new int[ROWS];
+    Random random=new Random();
+    int max=(int)Math.pow(2,numBits);
+    for (int i=0; i < ROWS; i++) {
+      data[i]=random.nextInt(max);
+      writer.setInt(i,data[i]);
+    }
+    writer.close();
+    FixedBitSingleValueReader reader=FixedBitSingleValueReader.forHeap(file,ROWS,numBits);
+    int[] read=new int[ROWS];
+    for (int i=0; i < ROWS; i++) {
+      read[i]=reader.getInt(i);
+      Assert.assertEquals(reader.getInt(i),data[i],"Failed for bit:" + numBits + " Expected "+ data[i]+ " but found "+ reader.getInt(i)+ "  at "+ i);
+    }
+    System.out.println(Arrays.toString(data));
+    System.out.println(Arrays.toString(read));
+    reader.close();
+    file.delete();
+  }
+}

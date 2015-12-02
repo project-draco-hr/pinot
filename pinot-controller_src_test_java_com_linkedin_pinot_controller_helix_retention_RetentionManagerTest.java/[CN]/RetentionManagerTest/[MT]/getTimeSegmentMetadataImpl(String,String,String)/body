@@ -16,7 +16,7 @@
       final Map<String,String> ret=new HashMap<String,String>();
       ret.put(V1Constants.MetadataKeys.Segment.TABLE_NAME,getTableName());
       ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_TOTAL_DOCS,String.valueOf(getTotalDocs()));
-      ret.put(V1Constants.VERSION,getVersion());
+      ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_VERSION,getVersion());
       ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_NAME,getName());
       ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_CRC,getCrc());
       ret.put(V1Constants.MetadataKeys.Segment.SEGMENT_CREATION_TIME,getIndexCreationTime() + "");
@@ -75,6 +75,15 @@
     }
     @Override public boolean close(){
       return false;
+    }
+    @Override public String getForwardIndexFileName(    String column,    String segmentVersion){
+      throw new UnsupportedOperationException("getForwardIndexFileName not supported in " + this.getClass());
+    }
+    @Override public String getDictionaryFileName(    String column,    String segmentVersion){
+      throw new UnsupportedOperationException("getDictionaryFileName not supported in " + this.getClass());
+    }
+    @Override public String getBitmapInvertedIndexFileName(    String column,    String segmentVersion){
+      throw new UnsupportedOperationException("getBitmapInvertedIndexFileName not supported in " + this.getClass());
     }
   }
 ;

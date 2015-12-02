@@ -5,11 +5,11 @@
       b=new SortedSingleValueBlock(blockId,(SortedForwardIndexReader)indexContainer.getForwardIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
     }
  else {
-      b=new UnSortedSingleValueBlock(blockId,(FixedBitSingleValueReader)indexContainer.getForwardIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
+      b=new UnSortedSingleValueBlock(blockId,(SingleColumnSingleValueReader)indexContainer.getForwardIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
     }
   }
  else {
-    b=new MultiValueBlock(blockId,(FixedBitMultiValueReader)indexContainer.getForwardIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
+    b=new MultiValueBlock(blockId,(SingleColumnMultiValueReader)indexContainer.getForwardIndex(),indexContainer.getDictionary(),indexContainer.getColumnMetadata());
   }
   return b;
 }

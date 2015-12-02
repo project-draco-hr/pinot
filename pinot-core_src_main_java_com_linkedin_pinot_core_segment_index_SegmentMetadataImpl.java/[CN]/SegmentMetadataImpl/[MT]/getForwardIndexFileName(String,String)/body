@@ -1,0 +1,16 @@
+{
+  ColumnMetadata columnMetadata=getColumnMetadataFor(column);
+  StringBuilder fileNameBuilder=new StringBuilder(column);
+  if (columnMetadata.isSingleValue()) {
+    if (columnMetadata.isSorted()) {
+      fileNameBuilder.append(V1Constants.Indexes.SORTED_FWD_IDX_FILE_EXTENTION);
+    }
+ else {
+      fileNameBuilder.append(V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION);
+    }
+  }
+ else {
+    fileNameBuilder.append(V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION);
+  }
+  return fileNameBuilder.toString();
+}

@@ -1,0 +1,23 @@
+{
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(new File(indexDir));
+  String segmentVersion=segmentMetadata.getVersion();
+  Set<String> columns=segmentMetadata.getAllColumns();
+  for (  String column : columns) {
+    if (includeColumns != null && !includeColumns.isEmpty()) {
+      if (!includeColumns.contains(column)) {
+        continue;
+      }
+    }
+    ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(column);
+    if (!columnMetadata.isSingleValue()) {
+      String fwdIndexFileName=segmentMetadata.getForwardIndexFileName(column,segmentVersion);
+      File fwdIndexFile=new File(indexDir,fwdIndexFileName);
+      multiValuedReadBenchMark(segmentVersion,fwdIndexFile,segmentMetadata.getTotalDocs(),columnMetadata.getTotalNumberOfEntries(),columnMetadata.getMaxNumberOfMultiValues(),columnMetadata.getBitsPerElement());
+    }
+ else     if (columnMetadata.isSingleValue() && !columnMetadata.isSorted()) {
+      String fwdIndexFileName=segmentMetadata.getForwardIndexFileName(column,segmentVersion);
+      File fwdIndexFile=new File(indexDir,fwdIndexFileName);
+      singleValuedReadBenchMark(segmentVersion,fwdIndexFile,segmentMetadata.getTotalDocs(),columnMetadata.getBitsPerElement());
+    }
+  }
+}
