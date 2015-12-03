@@ -1,9 +1,15 @@
 {
   startCluster();
   String query;
-  ScanBasedQueryProcessor scanBasedQueryProcessor=new ScanBasedQueryProcessor(_segmentsDir.getAbsolutePath());
+  ScanBasedQueryProcessor scanBasedQueryProcessor=null;
+  BufferedReader resultReader=null;
   BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile));
-  BufferedReader resultReader=(_resultFile != null) ? new BufferedReader(new FileReader(_resultFile)) : null;
+  if (_resultFile == null) {
+    scanBasedQueryProcessor=new ScanBasedQueryProcessor(_segmentsDir.getAbsolutePath());
+  }
+ else {
+    resultReader=new BufferedReader(new FileReader(_resultFile));
+  }
   int passed=0;
   int total=0;
   while ((query=queryReader.readLine()) != null) {
@@ -25,6 +31,7 @@
         ++passed;
         LOGGER.info("Comparison PASSED: Scan Time: {} ms Query: {}",scanJson.get(TIME_USED_MS),query);
         LOGGER.info("Cluster Result: {}",clusterJson);
+        LOGGER.info("Scan Result: {}",scanJson);
       }
  else {
         LOGGER.error("Comparison FAILED: {}",query);

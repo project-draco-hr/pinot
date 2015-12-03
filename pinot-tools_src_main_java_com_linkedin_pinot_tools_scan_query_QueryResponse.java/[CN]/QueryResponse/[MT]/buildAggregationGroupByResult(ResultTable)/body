@@ -1,15 +1,14 @@
 {
   List<Pair> columnList=resultTable.getColumnList();
   List<String> groupByColumns=new ArrayList<>();
+  _aggregationResults=new ArrayList<>();
   for (  Pair pair : columnList) {
     if (pair.getSecond() == null) {
       groupByColumns.add(pair.getFirst().toString());
     }
   }
   int numGroupByColumns=groupByColumns.size();
-  int numAggregationColumns=columnList.size() - numGroupByColumns;
-  _aggregationGroupByResults=new ArrayList<>(numAggregationColumns);
-  List<List<String>> groupValues=new ArrayList<>();
+  List<List<String>> groupValueStrings=new ArrayList<>();
   for (  ResultTable.Row row : resultTable) {
     int colId=0;
     List<String> group=new ArrayList<>();
@@ -28,17 +27,22 @@
       }
       ++colId;
     }
-    groupValues.add(group);
+    groupValueStrings.add(group);
   }
   for (int colId=numGroupByColumns; colId < columnList.size(); ++colId) {
-    AggregationGroupByResult groupByResult=new AggregationGroupByResult(resultTable.getFunction(colId),groupByColumns);
+    String function=resultTable.getFunction(colId);
+    if (function.equalsIgnoreCase("count_*")) {
+      function="count_star";
+    }
     int rowId=0;
+    List<GroupValue> groupValues=new ArrayList<>();
     for (    ResultTable.Row row : resultTable) {
       String value=row.get(colId).toString();
-      GroupValue groupValue=new GroupValue(value,groupValues.get(rowId));
-      groupByResult.addGroupValue(groupValue);
+      GroupValue groupValue=new GroupValue(value,groupValueStrings.get(rowId));
+      groupValues.add(groupValue);
       ++rowId;
     }
-    _aggregationGroupByResults.add(groupByResult);
+    AggregationResult aggregationResult=new AggregationResult(groupValues,groupByColumns,function);
+    _aggregationResults.add(aggregationResult);
   }
 }
