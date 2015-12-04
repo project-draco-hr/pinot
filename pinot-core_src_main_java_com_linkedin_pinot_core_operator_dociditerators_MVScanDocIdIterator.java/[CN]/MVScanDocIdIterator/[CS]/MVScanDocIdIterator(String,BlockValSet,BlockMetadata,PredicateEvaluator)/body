@@ -1,0 +1,17 @@
+{
+  this.datasourceName=datasourceName;
+  this.evaluator=evaluator;
+  if (evaluator.alwaysFalse()) {
+    this.intArray=new int[0];
+    setStartDocId(Constants.EOF);
+    setEndDocId(Constants.EOF);
+    currentDocId=Constants.EOF;
+  }
+ else {
+    this.intArray=new int[blockMetadata.getMaxNumberOfMultiValues()];
+    Arrays.fill(intArray,0);
+    setStartDocId(blockMetadata.getStartDocId());
+    setEndDocId(blockMetadata.getEndDocId());
+  }
+  valueIterator=(BlockMultiValIterator)blockValSet.iterator();
+}
