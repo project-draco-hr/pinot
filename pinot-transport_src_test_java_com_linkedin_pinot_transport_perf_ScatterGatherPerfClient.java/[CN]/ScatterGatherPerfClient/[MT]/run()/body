@@ -19,12 +19,13 @@
       if (i >= _numRequestsToSkipForMeasurement) {
         _numRequestsMeasured++;
       }
+      final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
       if (!_asyncRequestSubmit) {
-        sendRequestAndGetResponse(req);
+        sendRequestAndGetResponse(req,scatterGatherStats);
         _endLastResponseTime=System.currentTimeMillis();
       }
  else {
-        CompositeFuture<ServerInstance,ByteBuf> future=asyncSendRequestAndGetResponse(req);
+        CompositeFuture<ServerInstance,ByteBuf> future=asyncSendRequestAndGetResponse(req,scatterGatherStats);
         _queue.offer(new QueueEntry(false,i >= _numRequestsToSkipForMeasurement,System.currentTimeMillis(),future));
       }
       req=null;

@@ -20,7 +20,7 @@ catch (  ExecutionException e) {
     LOGGER.info("Got execution exception waiting for response",e);
   }
   Map<K,Throwable> error=_future.getError();
-  boolean done=processFutureResult(_future.getName(),response,error);
+  boolean done=processFutureResult(_future.getName(),response,error,_future.getDurationMillis());
   if (done) {
     setDone(State.DONE);
     cancelUnderlyingFutures();

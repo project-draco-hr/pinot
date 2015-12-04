@@ -24,7 +24,8 @@
   Map<SegmentIdSet,String> pgMapStr=new HashMap<SegmentIdSet,String>();
   pgMapStr.put(pg,request);
   ScatterGatherRequest req=new TestScatterGatherRequest(pgMap,pgMapStr);
-  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req);
+  final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
+  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req,scatterGatherStats);
   Map<ServerInstance,ByteBuf> v=fut.get();
   ByteBuf b=v.get(serverInstance1);
   byte[] b2=new byte[b.readableBytes()];

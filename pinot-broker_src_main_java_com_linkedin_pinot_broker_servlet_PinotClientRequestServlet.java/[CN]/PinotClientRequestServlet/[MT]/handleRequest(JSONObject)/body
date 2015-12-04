@@ -1,6 +1,7 @@
 {
   final String pql=request.getString("pql");
-  LOGGER.info("Broker received Query String is: {}",pql);
+  final long requestId=requestIdGenerator.incrementAndGet();
+  LOGGER.info("Query string for requestId {}: {}",requestId,pql);
   boolean isTraceEnabled=false;
   if (request.has("trace")) {
     try {
@@ -34,13 +35,15 @@
   brokerMetrics.addMeteredValue(brokerRequest,BrokerMeter.QUERIES,1);
   final long requestCompilationTime=System.nanoTime() - startTime;
   brokerMetrics.addPhaseTiming(brokerRequest,BrokerQueryPhase.REQUEST_COMPILATION,requestCompilationTime);
+  final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
   final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
     @Override public BrokerResponse call() throws Exception {
       final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
-      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection);
+      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection,scatterGatherStats,requestId);
     }
   }
 );
   LOGGER.info("Broker Response : {}",resp);
+  LOGGER.info("ResponseTimes for {} {}",requestId,scatterGatherStats);
   return resp;
 }

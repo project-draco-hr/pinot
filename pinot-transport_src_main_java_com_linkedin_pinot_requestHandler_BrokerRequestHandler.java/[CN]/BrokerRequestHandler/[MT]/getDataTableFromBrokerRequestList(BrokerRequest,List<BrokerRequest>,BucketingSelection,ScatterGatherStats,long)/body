@@ -1,0 +1,92 @@
+{
+  long scatterGatherStartTime=System.nanoTime();
+  long queryRoutingTime=0;
+  Map<BrokerRequest,Pair<CompositeFuture<ServerInstance,ByteBuf>,ScatterGatherStats>> responseFuturesList=new HashMap<BrokerRequest,Pair<CompositeFuture<ServerInstance,ByteBuf>,ScatterGatherStats>>();
+  for (  BrokerRequest request : requests) {
+    final long routingStartTime=System.nanoTime();
+    RoutingTableLookupRequest rtRequest=new RoutingTableLookupRequest(request.getQuerySource().getTableName());
+    Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
+    if (segmentServices == null || segmentServices.isEmpty()) {
+      LOGGER.info("Not found ServerInstances to Segments Mapping for Table - {}",rtRequest.getTableName());
+      continue;
+    }
+    LOGGER.debug("Find ServerInstances to Segments Mapping for table - {}",rtRequest.getTableName());
+    for (    ServerInstance serverInstance : segmentServices.keySet()) {
+      LOGGER.debug("{} : {}",serverInstance,segmentServices.get(serverInstance));
+    }
+    queryRoutingTime+=System.nanoTime() - routingStartTime;
+    ScatterGatherStats respStats=new ScatterGatherStats();
+    scatterGatherStartTime=System.nanoTime();
+    ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,requestId,_brokerTimeOutMs);
+    responseFuturesList.put(request,new Pair(_scatterGatherer.scatterGather(scatterRequest,scatterGatherStats),respStats));
+  }
+  _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.QUERY_ROUTING,queryRoutingTime);
+  long scatterGatherTime=0;
+  long deserializationTime=0;
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  final AtomicInteger responseSeq=new AtomicInteger(-1);
+{
+    for (    BrokerRequest request : responseFuturesList.keySet()) {
+      CompositeFuture<ServerInstance,ByteBuf> compositeFuture=responseFuturesList.get(request).getKey();
+      ScatterGatherStats respStats=responseFuturesList.get(request).getValue();
+      Map<ServerInstance,ByteBuf> responseMap=null;
+      try {
+        responseMap=compositeFuture.get();
+        Map<String,Long> responseTimeMap=compositeFuture.getResponseTimes();
+        respStats.setResponseTimeMillis(responseTimeMap);
+        scatterGatherStats.merge(respStats);
+      }
+ catch (      ExecutionException e) {
+        LOGGER.warn("Caught exception while fetching response",e);
+        _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+      }
+      scatterGatherTime+=System.nanoTime() - scatterGatherStartTime;
+      final long deserializationStartTime=System.nanoTime();
+      Map<ServerInstance,Throwable> errors=compositeFuture.getError();
+      if (null != responseMap) {
+        for (        Entry<ServerInstance,ByteBuf> responseEntry : responseMap.entrySet()) {
+          try {
+            ByteBuf b=responseEntry.getValue();
+            byte[] b2=new byte[b.readableBytes()];
+            if (b2 == null || b2.length == 0) {
+              continue;
+            }
+            b.readBytes(b2);
+            DataTable r2=new DataTable(b2);
+            ServerInstance decoratedServerInstance=new ServerInstance(responseEntry.getKey().getHostname(),responseEntry.getKey().getPort(),responseSeq.incrementAndGet());
+            if (errors != null && errors.containsKey(responseEntry.getKey())) {
+              Throwable throwable=errors.get(responseEntry.getKey());
+              if (throwable != null) {
+                r2.getMetadata().put("exception",new RequestProcessingException(throwable).toString());
+                _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+              }
+            }
+            instanceResponseMap.put(decoratedServerInstance,r2);
+          }
+ catch (          Exception ex) {
+            LOGGER.error("Got exceptions in collect query result for instance " + responseEntry.getKey() + ", error: "+ ex.getMessage(),ex);
+            _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_DESERIALIZATION_EXCEPTIONS,1);
+          }
+        }
+      }
+      deserializationTime+=System.nanoTime() - deserializationStartTime;
+    }
+  }
+  _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.SCATTER_GATHER,scatterGatherTime);
+  _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.DESERIALIZATION,deserializationTime);
+  try {
+    return _brokerMetrics.timePhase(federatedBrokerRequest,BrokerQueryPhase.REDUCE,new Callable<BrokerResponse>(){
+      @Override public BrokerResponse call(){
+        BrokerResponse returnValue=_reduceService.reduceOnDataTable(federatedBrokerRequest,instanceResponseMap);
+        _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.DOCUMENTS_SCANNED,returnValue.getNumDocsScanned());
+        return returnValue;
+      }
+    }
+);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while processing query",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
+  }
+}

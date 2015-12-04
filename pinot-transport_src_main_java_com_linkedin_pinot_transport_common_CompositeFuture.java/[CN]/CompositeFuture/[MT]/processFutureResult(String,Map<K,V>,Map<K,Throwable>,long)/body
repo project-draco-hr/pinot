@@ -1,0 +1,16 @@
+{
+  boolean ret=false;
+  if (null != response) {
+    LOGGER.debug("Response from {} is {}",name,response);
+    _delayedResponseMap.putAll(response);
+  }
+ else   if (null != error) {
+    LOGGER.debug("Error from {} is : {}",name,error);
+    _errorMap.putAll(error);
+    if (_gatherMode == GatherModeOnError.SHORTCIRCUIT_AND) {
+      ret=true;
+    }
+  }
+  _responseTimeMap.put(name,durationMillis);
+  return ret;
+}

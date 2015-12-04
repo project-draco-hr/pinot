@@ -51,7 +51,8 @@
   pgMapStr.put(pg4,request4);
   ScatterGatherRequest req=new TestScatterGatherRequest(pgMap,pgMapStr,new RoundRobinReplicaSelection(),ReplicaSelectionGranularity.SEGMENT_ID_SET,0,1000);
   ScatterGatherImpl scImpl=new ScatterGatherImpl(pool,service);
-  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req);
+  final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
+  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req,scatterGatherStats);
   Map<ServerInstance,ByteBuf> v=fut.get();
   Assert.assertEquals(v.size(),3);
   ByteBuf b=v.get(serverInstance1);
