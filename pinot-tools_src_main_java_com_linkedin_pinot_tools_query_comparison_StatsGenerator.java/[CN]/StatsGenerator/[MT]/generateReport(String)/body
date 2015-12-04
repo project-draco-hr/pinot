@@ -1,0 +1,23 @@
+{
+  List<DescriptiveStatistics> statisticsList=new ArrayList<>();
+  String dataString;
+  BufferedReader dataReader=new BufferedReader(new FileReader(dataFileName));
+  String[] headers=dataReader.readLine().split("\\s+");
+  int numColumns=headers.length;
+  for (int i=0; i < numColumns; ++i) {
+    statisticsList.add(new DescriptiveStatistics());
+  }
+  while ((dataString=dataReader.readLine()) != null) {
+    String[] dataArray=dataString.trim().split(" ");
+    if (dataArray.length != numColumns) {
+      throw new RuntimeException("Row has missing columns: " + Arrays.toString(dataArray) + " Expected: "+ numColumns+ " columns.");
+    }
+    for (int i=0; i < dataArray.length; ++i) {
+      double data=Double.valueOf(dataArray[i]);
+      statisticsList.get(i).addValue(data);
+    }
+  }
+  for (int i=0; i < numColumns; i++) {
+    LOGGER.info("Stats: {}",statisticsList.get(i).toString().replace("\n","\t"));
+  }
+}

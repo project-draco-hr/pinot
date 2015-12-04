@@ -1,0 +1,14 @@
+{
+  if (args.length != 1) {
+    LOGGER.error("Invalid arguments.");
+    LOGGER.info("Usage: <exec> <data_file>");
+  }
+  try {
+    String dataFile=args[0];
+    StatsGenerator perfReportGenerator=new StatsGenerator();
+    perfReportGenerator.generateReport(dataFile);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception caught: ",e);
+  }
+}
