@@ -2,16 +2,27 @@
   try {
     HttpClient httpClient=new HttpClient();
     GetMethod httpget=new GetMethod(url);
-    httpClient.executeMethod(httpget);
-    long ret=httpget.getResponseContentLength();
-    BufferedOutputStream output=new BufferedOutputStream(new FileOutputStream(file));
-    IOUtils.copyLarge(httpget.getResponseBodyAsStream(),output);
-    IOUtils.closeQuietly(output);
-    return ret;
+    int responseCode=httpClient.executeMethod(httpget);
+    if (responseCode >= 400) {
+      long contentLength=httpget.getResponseContentLength();
+      if (contentLength > 0) {
+        InputStream responseBodyAsStream=httpget.getResponseBodyAsStream();
+        byte[] buffer=new byte[(int)Math.min(contentLength,1000)];
+        responseBodyAsStream.read(buffer);
+        LOGGER.error("Error response from url:{} \n {}",url,new String(buffer));
+      }
+      throw new RuntimeException("Received error response from server while downloading file. url:" + url + " response code:"+ responseCode);
+    }
+ else {
+      long ret=httpget.getResponseContentLength();
+      BufferedOutputStream output=new BufferedOutputStream(new FileOutputStream(file));
+      IOUtils.copyLarge(httpget.getResponseBodyAsStream(),output);
+      IOUtils.closeQuietly(output);
+      return ret;
+    }
   }
  catch (  Exception ex) {
     LOGGER.error("Caught exception",ex);
-    Utils.rethrowException(ex);
-    throw new AssertionError("Should not reach this");
+    throw ex;
   }
 }
