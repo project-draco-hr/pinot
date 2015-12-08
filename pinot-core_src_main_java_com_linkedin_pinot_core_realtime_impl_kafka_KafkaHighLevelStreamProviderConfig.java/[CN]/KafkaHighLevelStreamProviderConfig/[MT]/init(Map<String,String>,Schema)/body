@@ -1,5 +1,6 @@
 {
   decoderProps=new HashMap<String,String>();
+  kafkaConsumerProps=new HashMap<>();
   this.indexingSchema=schema;
   if (properties.containsKey(Helix.DataSource.Realtime.Kafka.HighLevelConsumer.GROUP_ID)) {
     this.groupId=properties.get(Helix.DataSource.Realtime.Kafka.HighLevelConsumer.GROUP_ID);
@@ -25,6 +26,9 @@
   for (  String key : properties.keySet()) {
     if (key.startsWith(Helix.DataSource.Realtime.Kafka.DECODER_PROPS_PREFIX)) {
       decoderProps.put(Helix.DataSource.Realtime.Kafka.getDecoderPropertyKey(key),properties.get(key));
+    }
+    if (key.startsWith(Helix.DataSource.Realtime.Kafka.KAFKA_CONSUMER_PROPS_PREFIX)) {
+      kafkaConsumerProps.put(Helix.DataSource.Realtime.Kafka.getConsumerPropertyKey(key),properties.get(key));
     }
   }
 }

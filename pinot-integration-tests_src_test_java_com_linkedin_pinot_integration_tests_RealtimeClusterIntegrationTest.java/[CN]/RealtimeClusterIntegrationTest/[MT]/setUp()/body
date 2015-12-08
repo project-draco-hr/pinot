@@ -7,13 +7,13 @@
   startServer();
   final List<File> avroFiles=unpackAvroData(_tmpDir,SEGMENT_COUNT);
   File schemaFile=getSchemaFile();
-  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
   ExecutorService executor=Executors.newCachedThreadPool();
   setupH2AndInsertAvro(avroFiles,executor);
   setupQueryGenerator(avroFiles,executor);
   pushAvroIntoKafka(avroFiles,executor,KAFKA_TOPIC);
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
+  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
   int pinotRecordCount, h2RecordCount;
   long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;
   Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
