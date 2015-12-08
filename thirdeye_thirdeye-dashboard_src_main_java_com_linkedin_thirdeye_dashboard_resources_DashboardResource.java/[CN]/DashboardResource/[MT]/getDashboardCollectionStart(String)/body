@@ -17,13 +17,16 @@
   if (earliestDataTime == null || latestDataTime == null) {
     throw new NotFoundException("No data loaded in server for " + collection);
   }
-  List<String> customDashboardNames=null;
-  if (customDashboardResource != null) {
-    customDashboardNames=customDashboardResource.getCustomDashboardNames(collection);
-  }
   List<String> funnelNames=Collections.emptyList();
   if (funnelResource != null) {
     funnelNames=funnelResource.getFunnelNamesFor(collection);
   }
-  return new DashboardStartView(collection,schema,earliestDataTime,latestDataTime,customDashboardNames,funnelNames);
+  long currentTimeMillis=latestDataTime.getMillis() - TimeUnit.MILLISECONDS.convert(1,TimeUnit.HOURS);
+  long baselineTimeMillis=currentTimeMillis - TimeUnit.MILLISECONDS.convert(7,TimeUnit.DAYS);
+  String firstMetric=schema.getMetrics().get(0);
+  String metricFunction=String.format("AGGREGATE_1_HOURS('%s')",firstMetric);
+  String baseUrl=PATH_JOINER.join("/dashboard",collection,metricFunction,MetricViewType.INTRA_DAY,DimensionViewType.TABULAR,baselineTimeMillis,currentTimeMillis);
+  String funnelsParam=Joiner.on(",").join(funnelNames);
+  URI uri=new URIBuilder(baseUrl).addParameter("funnels",funnelsParam).build();
+  return Response.seeOther(uri).build();
 }
