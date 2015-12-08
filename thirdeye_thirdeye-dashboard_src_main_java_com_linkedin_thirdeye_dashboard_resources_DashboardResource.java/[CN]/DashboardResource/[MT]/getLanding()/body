@@ -3,5 +3,5 @@
   if (collections.isEmpty()) {
     throw new NotFoundException("No collections loaded into " + serverUri);
   }
-  return new LandingView(collections);
+  return Response.seeOther(URI.create("/dashboard/" + collections.get(0))).build();
 }
