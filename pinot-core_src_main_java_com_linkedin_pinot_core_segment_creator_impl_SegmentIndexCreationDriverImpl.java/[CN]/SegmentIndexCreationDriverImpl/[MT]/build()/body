@@ -67,6 +67,13 @@
   FileUtils.deleteQuietly(tempIndexDir);
   final long crc=CrcUtils.forAllFilesInFolder(segmentOutputDir).computeCrc();
   persistCreationMeta(segmentOutputDir,crc);
+  Map<String,MutableLong> nullCountMap=recordReader.getNullCountMap();
+  if (nullCountMap != null) {
+    for (    Map.Entry<String,MutableLong> entry : nullCountMap.entrySet()) {
+      AbstractColumnStatisticsCollector columnStatisticsCollector=statsCollector.getColumnProfileFor(entry.getKey());
+      columnStatisticsCollector.setNumInputNullValues(entry.getValue().intValue());
+    }
+  }
   LOGGER.info("Driver, record read time : {}",totalRecordReadTime);
   LOGGER.info("Driver, stats collector time : {}",totalStatsCollectorTime);
   LOGGER.info("Driver, indexing time : {}",totalIndexTime);

@@ -5,6 +5,9 @@
     String column=fieldSpec.getName();
     String token=getValueForColumn(record,column);
     Object value=null;
+    if (token == null || token.isEmpty()) {
+      incrementNullCountFor(fieldSpec.getName());
+    }
     if (fieldSpec.isSingleValueField()) {
       value=RecordReaderUtils.convertToDataType(token,fieldSpec.getDataType());
     }

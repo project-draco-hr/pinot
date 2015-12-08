@@ -7,6 +7,9 @@
     Object value=null;
     if (fieldSpec.isSingleValueField()) {
       String token=(data != null) ? data.toString() : null;
+      if (token == null || token.isEmpty()) {
+        incrementNullCountFor(fieldSpec.getName());
+      }
       value=RecordReaderUtils.convertToDataType(token,fieldSpec.getDataType());
     }
  else {
