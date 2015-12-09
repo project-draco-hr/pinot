@@ -1,0 +1,34 @@
+{
+  LOGGER.info("Received change notification for path: {}",path);
+  List<Stat> stats=new ArrayList<>();
+  List<ZNRecord> tableConfigs=_pinotHelixResourceManager.getPropertyStore().getChildren(TABLE_CONFIG,stats,0);
+  if (tableConfigs == null) {
+    return;
+  }
+  for (  ZNRecord tableConfig : tableConfigs) {
+    try {
+      AbstractTableConfig abstractTableConfig=AbstractTableConfig.fromZnRecord(tableConfig);
+      if (abstractTableConfig.isRealTime()) {
+        String realtimeTable=abstractTableConfig.getTableName();
+        String realtimeSegmentsPathForTable=_propertyStorePath + SEGMENTS_PATH + "/"+ realtimeTable;
+        LOGGER.info("Setting data/child changes watch for real-time table '{}'",realtimeTable);
+        _zkClient.subscribeDataChanges(realtimeSegmentsPathForTable,this);
+        _zkClient.subscribeChildChanges(realtimeSegmentsPathForTable,this);
+        List<String> childNames=_pinotHelixResourceManager.getPropertyStore().getChildNames(SEGMENTS_PATH + "/" + realtimeTable,0);
+        if (childNames != null && !childNames.isEmpty()) {
+          for (          String segmentName : childNames) {
+            String segmentPath=realtimeSegmentsPathForTable + "/" + segmentName;
+            LOGGER.info("Setting data change watch for real-time segment: {}",segmentPath);
+            _zkClient.subscribeDataChanges(segmentPath,this);
+          }
+        }
+      }
+    }
+ catch (    JSONException e) {
+      LOGGER.error("Caught exception while reading table config",e);
+    }
+catch (    IOException e) {
+      LOGGER.error("Caught exception while setting change listeners for realtime tables/segments",e);
+    }
+  }
+}

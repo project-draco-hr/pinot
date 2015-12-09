@@ -1,4 +1,10 @@
 {
-  LOGGER.info("Starting realtime segments manager, adding a listener on the property store root.");
-  this.pinotClusterManager.getPropertyStore().subscribe("/",this);
+  LOGGER.info("Starting realtime segments manager, adding a listener on the property store table configs path.");
+  String zkUrl=_pinotHelixResourceManager.getHelixZkURL();
+  _zkClient=new ZkClient(zkUrl,ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT);
+  _zkClient.setZkSerializer(new ZNRecordSerializer());
+  _zkClient.waitUntilConnected();
+  _zkClient.subscribeChildChanges(_tableConfigPath,this);
+  _zkClient.subscribeDataChanges(_tableConfigPath,this);
+  processPropertyStoreChange(_tableConfigPath);
 }
