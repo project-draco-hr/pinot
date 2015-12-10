@@ -60,7 +60,7 @@ if (dataSourceMetadata.hasInvertedIndex()) {
 if (dataSourceMetadata.isSingleValue() && dataSourceMetadata.isSorted()) {
 baseFilterOperator=new SortedInvertedIndexBasedFilterOperator(ds);
 }
- else if (!filterType.equals(FilterOperator.RANGE)) {
+ else if (!filterType.equals(FilterOperator.RANGE) || _segment instanceof RealtimeSegment) {
 baseFilterOperator=new BitmapBasedFilterOperator(ds);
 }
  else {
