@@ -26,13 +26,14 @@
  catch (  Exception e) {
     throw new JobExecutionException(e);
   }
+  String idLink=visualizerLink + "&anomalyIds=";
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   try (Writer out=new OutputStreamWriter(baos,CHARSET)){
     Configuration freemarkerConfig=new Configuration(Configuration.VERSION_2_3_21);
     freemarkerConfig.setClassForTemplateLoading(getClass(),"/email/");
     freemarkerConfig.setDefaultEncoding(CHARSET);
     freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-    Map<String,Object> templateData=ImmutableMap.of("anomalyResults",(Object)results,"startTime",then,"endTime",now,"visualizerLink",visualizerLink);
+    Map<String,Object> templateData=ImmutableMap.of("anomalyResults",(Object)results,"startTime",then,"endTime",now,"visualizerLink",visualizerLink,"idLink",idLink);
     Template template=freemarkerConfig.getTemplate("simple-anomaly-report.ftl");
     template.process(templateData,out);
   }

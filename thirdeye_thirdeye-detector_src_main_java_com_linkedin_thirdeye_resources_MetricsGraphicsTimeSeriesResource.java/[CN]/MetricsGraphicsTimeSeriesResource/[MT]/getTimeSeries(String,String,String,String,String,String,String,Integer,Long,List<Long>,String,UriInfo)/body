@@ -83,11 +83,24 @@
   timeSeries.setxAccessor("time");
   timeSeries.setyAccessor("value");
   List<AnomalyResult> anomalies;
-  if (functionId == null) {
-    anomalies=resultDAO.findAllByCollectionTimeAndMetric(collection,metric,startTime,endTime);
+  boolean isAnomalyIdsSpecified=(anomalyIds != null && !anomalyIds.isEmpty());
+  if (functionId != null && isAnomalyIdsSpecified) {
+    throw new BadRequestException("Cannot specify both functionId and anomalyIds");
+  }
+ else   if (functionId != null) {
+    anomalies=resultDAO.findAllByCollectionTimeFunctionIdAndMetric(collection,metric,functionId,startTime,endTime);
+  }
+ else   if (isAnomalyIdsSpecified) {
+    anomalies=new ArrayList<>(anomalyIds.size());
+    for (    Long anomalyId : anomalyIds) {
+      AnomalyResult anomaly=resultDAO.findById(anomalyId);
+      if (anomaly != null) {
+        anomalies.add(anomaly);
+      }
+    }
   }
  else {
-    anomalies=resultDAO.findAllByCollectionTimeFunctionIdAndMetric(collection,metric,functionId,startTime,endTime);
+    anomalies=resultDAO.findAllByCollectionTimeAndMetric(collection,metric,startTime,endTime);
   }
   StarTreeConfig config=thirdEyeClient.getStarTreeConfig(collection);
   if (groupBy == null) {
