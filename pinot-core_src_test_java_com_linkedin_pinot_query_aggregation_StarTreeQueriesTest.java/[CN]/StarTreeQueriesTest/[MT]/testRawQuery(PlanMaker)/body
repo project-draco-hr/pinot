@@ -5,7 +5,6 @@
   brokerRequest.setAggregationsInfo(aggregationsInfo);
   final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  Assert.assertTrue(rootPlanNode.getClass().equals(RawAggregationPlanNode.class) || rootPlanNode.getClass().equals(AggregationPlanNode.class));
   final MAggregationOperator operator=(MAggregationOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   final ReduceService reduceService=new DefaultReduceService();

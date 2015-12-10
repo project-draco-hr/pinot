@@ -14,7 +14,6 @@
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV3();
   final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  Assert.assertEquals(rootPlanNode.getClass(),StarTreeAggregationGroupByOperatorPlanNode.class);
   final MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   final AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(aggregationsInfo,brokerRequest.getGroupBy());
