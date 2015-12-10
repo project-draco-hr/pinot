@@ -53,11 +53,29 @@
   final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernate.getSessionFactory(),applicationPort);
   environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener(){
     @Override public void serverStarted(    Server server){
+      LOG.info("{} server connectors found",server.getConnectors().length);
       for (      Connector connector : server.getConnectors()) {
+        LOG.info("Connector: {}",connector.getName());
         if (connector instanceof ServerConnector) {
           ServerConnector serverConnector=(ServerConnector)connector;
-          applicationPort.set(serverConnector.getLocalPort());
+          int localPort=serverConnector.getLocalPort();
+          applicationPort.set(localPort);
+          LOG.info("application port set to {} from server connector",localPort);
+          break;
         }
+ else         if (connector instanceof AbstractNetworkConnector) {
+          AbstractNetworkConnector networkConnector=(AbstractNetworkConnector)connector;
+          int localPort=networkConnector.getLocalPort();
+          applicationPort.set(localPort);
+          LOG.info("application port set to {} from network connector",localPort);
+          break;
+        }
+      }
+      LOG.info("Port from jetty server: {}",applicationPort.get());
+      int dropwizardConfigPort=getApplicationPortNumber(config);
+      LOG.info("Dropwizard config port: {}",dropwizardConfigPort);
+      if (dropwizardConfigPort > 0) {
+        applicationPort.set(dropwizardConfigPort);
       }
       if (applicationPort.get() == -1) {
         throw new IllegalStateException("Could not determine application port");
