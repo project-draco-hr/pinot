@@ -1,4 +1,9 @@
 {
-  LOGGER.error("Got error for the netty client connection. Destroying the connection",arg0);
+  if (isSelfClose()) {
+    LOGGER.info("Got notified on self-close to {}",_server);
+  }
+ else {
+    LOGGER.error("Destroying connection {} due to error",_server,arg0);
+  }
   _pool.destroyObject(getServer(),this);
 }

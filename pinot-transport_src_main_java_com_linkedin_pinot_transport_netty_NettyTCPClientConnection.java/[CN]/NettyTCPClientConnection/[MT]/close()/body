@@ -1,6 +1,7 @@
 {
-  LOGGER.info("Client channel close() called. Closing client channel !!");
+  LOGGER.info("Closing client channel to {}",_server);
   if (null != _channel) {
     _channel.close().sync();
+    setSelfClose(true);
   }
 }

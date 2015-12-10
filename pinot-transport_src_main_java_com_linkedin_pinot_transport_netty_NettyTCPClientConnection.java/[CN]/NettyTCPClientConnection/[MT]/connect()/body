@@ -12,10 +12,10 @@
   }
  catch (  Exception ie) {
     if (ie instanceof ConnectException && ie.getMessage() != null && ie.getMessage().startsWith("Connection refused")) {
-      LOGGER.error("Could not connect to server " + _server + ":"+ ie.getMessage());
+      LOGGER.error("Could not connect to server {}:{}",_server,ie.getMessage());
     }
  else {
-      LOGGER.error("Got exception when connecting to server :" + _server,ie);
+      LOGGER.error("Got exception when connecting to server {}",_server,ie);
     }
   }
   return false;
