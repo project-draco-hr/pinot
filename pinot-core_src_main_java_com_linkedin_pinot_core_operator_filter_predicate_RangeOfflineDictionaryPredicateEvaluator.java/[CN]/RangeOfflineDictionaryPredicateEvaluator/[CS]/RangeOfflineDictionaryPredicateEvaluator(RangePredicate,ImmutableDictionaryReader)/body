@@ -1,7 +1,5 @@
 {
   this.predicate=predicate;
-  int rangeStartIndex=0;
-  int rangeEndIndex=0;
   final boolean incLower=predicate.includeLowerBoundary();
   final boolean incUpper=predicate.includeUpperBoundary();
   final String lower=predicate.getLowerBoundary();
@@ -30,15 +28,8 @@
  else   if (!incUpper && !upper.equals("*")) {
     rangeEndIndex-=1;
   }
-  int size=(rangeEndIndex - rangeStartIndex) + 1;
-  if (size < 0) {
-    size=0;
-  }
-  matchingIds=new int[size];
-  dictIdSet=new IntOpenHashSet(size);
-  int counter=0;
-  for (int i=rangeStartIndex; i <= rangeEndIndex; i++) {
-    matchingIds[counter++]=i;
-    dictIdSet.add(i);
+  matchingSize=(rangeEndIndex - rangeStartIndex) + 1;
+  if (matchingSize < 0) {
+    matchingSize=0;
   }
 }

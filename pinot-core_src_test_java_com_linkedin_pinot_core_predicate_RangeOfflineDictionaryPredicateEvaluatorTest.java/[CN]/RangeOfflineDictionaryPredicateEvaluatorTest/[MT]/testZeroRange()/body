@@ -1,0 +1,20 @@
+{
+  int rangeStart, rangeEnd;
+{
+    rangeStart=4;
+    rangeEnd=5;
+    ImmutableDictionaryReader reader=createReader(rangeStart,rangeEnd);
+    RangePredicate predicate=createPredicate(rangeStart,false,rangeEnd,false);
+    PredicateEvaluator evaluator=new RangeOfflineDictionaryPredicateEvaluator(predicate,reader);
+    Assert.assertTrue(evaluator.alwaysFalse());
+    Assert.assertFalse(evaluator.apply(rangeStart));
+    Assert.assertFalse(evaluator.apply(rangeEnd));
+    Assert.assertFalse(evaluator.apply(rangeStart + 1));
+    Assert.assertFalse(evaluator.apply(rangeStart - 1));
+    int[] dictIds=new int[]{5,7,9};
+    Assert.assertFalse(evaluator.apply(dictIds));
+    Assert.assertFalse(evaluator.apply(dictIds,1));
+    dictIds=evaluator.getMatchingDictionaryIds();
+    verifyDictId(dictIds,rangeStart + 1,rangeEnd - 1);
+  }
+}

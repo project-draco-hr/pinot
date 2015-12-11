@@ -1,0 +1,16 @@
+{
+  RangePredicate predicate=mock(RangePredicate.class);
+  when(predicate.includeLowerBoundary()).thenReturn(inclLower);
+  when(predicate.includeUpperBoundary()).thenReturn(inclUpper);
+  String lowerStr="lower";
+  if (lower == 0) {
+    lowerStr="*";
+  }
+  String upperStr="upper";
+  if (upper == DICT_LEN - 1) {
+    upperStr="*";
+  }
+  when(predicate.getLowerBoundary()).thenReturn(lowerStr);
+  when(predicate.getUpperBoundary()).thenReturn(upperStr);
+  return predicate;
+}
