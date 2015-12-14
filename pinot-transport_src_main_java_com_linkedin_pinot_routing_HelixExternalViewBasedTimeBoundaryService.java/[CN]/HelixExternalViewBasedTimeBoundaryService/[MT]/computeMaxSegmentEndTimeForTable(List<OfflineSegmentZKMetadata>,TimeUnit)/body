@@ -1,0 +1,15 @@
+{
+  long maxTimeValue=-1;
+  for (  OfflineSegmentZKMetadata metadata : segmentZKMetadataList) {
+    long endTime=metadata.getEndTime();
+    if (endTime <= 0) {
+      continue;
+    }
+    TimeUnit segmentTimeUnit=metadata.getTimeUnit();
+    if (segmentTimeUnit != null) {
+      endTime=tableTimeUnit.convert(endTime,segmentTimeUnit);
+    }
+    maxTimeValue=Math.max(maxTimeValue,endTime);
+  }
+  return maxTimeValue;
+}
