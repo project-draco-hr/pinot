@@ -5,7 +5,11 @@
   schemaRegistryBaseUrl=props.get(SCHEMA_REGISTRY_REST_URL);
   StringUtils.chomp(schemaRegistryBaseUrl,"/");
   kafkaTopicName=topicName;
-  defaultAvroSchema=fetchSchema(new URL(schemaRegistryBaseUrl + "/latest_with_type=" + kafkaTopicName));
+  String avroSchemaName=kafkaTopicName;
+  if (props.containsKey(SCHEMA_REGISTRY_SCHEMA_NAME) && props.get(SCHEMA_REGISTRY_SCHEMA_NAME) != null && !props.get(SCHEMA_REGISTRY_SCHEMA_NAME).isEmpty()) {
+    avroSchemaName=props.get(SCHEMA_REGISTRY_SCHEMA_NAME);
+  }
+  defaultAvroSchema=fetchSchema(new URL(schemaRegistryBaseUrl + "/latest_with_type=" + avroSchemaName));
   this.avroRecordConvetrer=new AvroRecordToPinotRowGenerator(indexingSchema);
   this.decoderFactory=new DecoderFactory();
   md5ToAvroSchemaMap=new HashMap<String,org.apache.avro.Schema>();
