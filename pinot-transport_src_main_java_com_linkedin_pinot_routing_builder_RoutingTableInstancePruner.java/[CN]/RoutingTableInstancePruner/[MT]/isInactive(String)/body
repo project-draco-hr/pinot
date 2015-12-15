@@ -1,0 +1,27 @@
+{
+  if (!instanceConfigMap.containsKey(instanceName)) {
+    return false;
+  }
+  InstanceConfig instanceConfig=instanceConfigMap.get(instanceName);
+  if (!instanceConfig.getInstanceEnabled()) {
+    return true;
+  }
+  boolean status=false;
+  if (instanceConfig.getRecord().getSimpleField(CommonConstants.Helix.IS_SHUTDOWN_IN_PROGRESS) != null) {
+    try {
+      if (instanceConfig.getRecord() == null) {
+        return false;
+      }
+      if (instanceConfig.getRecord().getSimpleField(CommonConstants.Helix.IS_SHUTDOWN_IN_PROGRESS) != null) {
+        status=Boolean.valueOf(instanceConfig.getRecord().getSimpleField(CommonConstants.Helix.IS_SHUTDOWN_IN_PROGRESS));
+        if (status == true) {
+          LOGGER.info("found an instance : {} in shutting down state",instanceName);
+        }
+      }
+    }
+ catch (    Exception e) {
+      LOGGER.error("unknown value found while parsing boolean isShuttingDownField ",e);
+    }
+  }
+  return status;
+}

@@ -6,7 +6,7 @@
   for (  String segment : segments) {
     Map<String,String> instanceMap=externalView.getStateMap(segment);
     for (    String instance : instanceMap.keySet()) {
-      if (instanceMap.get(instance).equals(CommonConstants.Helix.StateModel.SegmentOnlineOfflineStateModel.OFFLINE) || pruner.isShuttingDown(instance)) {
+      if (instanceMap.get(instance).equals(CommonConstants.Helix.StateModel.SegmentOnlineOfflineStateModel.OFFLINE) || pruner.isInactive(instance)) {
         continue;
       }
       String groupId=SegmentNameBuilder.Realtime.extractGroupIdName(segment);
