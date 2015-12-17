@@ -1,0 +1,34 @@
+{
+  this.sortSequence=sortSequence;
+  this.blocks=blocks;
+  docIdValComparators=new IDocIdValComparator[blocks.length];
+  eligibleToCompare=new boolean[blocks.length];
+  Arrays.fill(eligibleToCompare,true);
+  for (int i=0; i < sortSequence.size(); ++i) {
+    if (!blocks[i].getMetadata().isSingleValue()) {
+      eligibleToCompare[i]=false;
+      continue;
+    }
+    if (blocks[i].getMetadata().hasDictionary()) {
+      docIdValComparators[i]=new DocIdIntValComparator(blocks[i],sortSequence.get(i).isIsAsc());
+    }
+ else {
+switch (blocks[i].getMetadata().getDataType()) {
+case INT:
+        docIdValComparators[i]=new DocIdIntValComparator(blocks[i],sortSequence.get(i).isIsAsc());
+      break;
+case LONG:
+    docIdValComparators[i]=new DocIdLongValComparator(blocks[i],sortSequence.get(i).isIsAsc());
+  break;
+case FLOAT:
+docIdValComparators[i]=new DocIdFloatValComparator(blocks[i],sortSequence.get(i).isIsAsc());
+break;
+case DOUBLE:
+docIdValComparators[i]=new DocIdDoubleValComparator(blocks[i],sortSequence.get(i).isIsAsc());
+break;
+default :
+eligibleToCompare[i]=false;
+}
+}
+}
+}

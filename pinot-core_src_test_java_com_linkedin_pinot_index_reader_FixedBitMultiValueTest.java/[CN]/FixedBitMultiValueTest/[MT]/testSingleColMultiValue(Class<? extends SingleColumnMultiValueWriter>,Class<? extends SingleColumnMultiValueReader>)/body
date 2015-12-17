@@ -32,7 +32,7 @@
     writer.close();
     final RandomAccessFile raf=new RandomAccessFile(f,"rw");
     raf.close();
-    SingleColumnMultiValueReader heapReader=readerClazzConstructor.newInstance(new Object[]{f,numDocs,totalNumValues,maxBits,false,false});
+    SingleColumnMultiValueReader<? extends ReaderContext> heapReader=readerClazzConstructor.newInstance(new Object[]{f,numDocs,totalNumValues,maxBits,false,false});
     final int[] readValues=new int[maxNumValues];
     for (int i=0; i < data.length; i++) {
       final int numValues=heapReader.getIntArray(i,readValues);
@@ -42,7 +42,7 @@
       }
     }
     heapReader.close();
-    SingleColumnMultiValueReader mmapReader=readerClazzConstructor.newInstance(new Object[]{f,numDocs,totalNumValues,maxBits,false,true});
+    SingleColumnMultiValueReader<? extends ReaderContext> mmapReader=readerClazzConstructor.newInstance(new Object[]{f,numDocs,totalNumValues,maxBits,false,true});
     for (int i=0; i < data.length; i++) {
       final int numValues=mmapReader.getIntArray(i,readValues);
       Assert.assertEquals(numValues,data[i].length);

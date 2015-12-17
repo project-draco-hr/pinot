@@ -1,19 +1,74 @@
 {
+  System.out.println("******************************************************************");
+  System.out.println("Analyzing " + file.getName() + " numDocs:"+ numDocs+ ", totalNumValues:"+ totalNumValues+ ", maxEntriesPerDoc:"+ maxEntriesPerDoc+ ", numBits:"+ columnSizeInBits);
+  long start, end;
+  boolean readFile=true;
+  boolean randomRead=true;
+  boolean contextualRead=true;
   boolean signed=false;
   boolean isMmap=false;
-  SingleColumnMultiValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitMultiValueReader(file,numDocs,totalNumValues,columnSizeInBits,signed,isMmap);
+  BaseSingleColumnMultiValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitMultiValueReader(file,numDocs,totalNumValues,columnSizeInBits,signed,isMmap);
   int[] intArray=new int[maxEntriesPerDoc];
-  long start, end;
-  DescriptiveStatistics stats=new DescriptiveStatistics();
-  for (int run=0; run < MAX_RUNS; run++) {
-    start=System.currentTimeMillis();
-    for (int i=0; i < numDocs; i++) {
-      int length=reader.getIntArray(i,intArray);
+  File outfile=new File("/tmp/" + file.getName() + ".raw");
+  FileWriter fw=new FileWriter(outfile);
+  for (int i=0; i < numDocs; i++) {
+    int length=reader.getIntArray(i,intArray);
+    StringBuilder sb=new StringBuilder();
+    String delim="";
+    for (int j=0; j < length; j++) {
+      sb.append(delim);
+      sb.append(intArray[j]);
+      delim=",";
     }
-    end=System.currentTimeMillis();
-    stats.addValue((end - start));
+    fw.write(sb.toString());
+    fw.write("\n");
   }
-  System.out.println("v1 multi value sequential read one stats for " + file.getName());
-  System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  fw.close();
+  if (readFile) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    RandomAccessFile raf=new RandomAccessFile(file,"rw");
+    ByteBuffer buffer=ByteBuffer.allocateDirect((int)file.length());
+    raf.getChannel().read(buffer);
+    for (int run=0; run < MAX_RUNS; run++) {
+      long length=file.length();
+      start=System.currentTimeMillis();
+      for (int i=0; i < length; i++) {
+        byte b=buffer.get(i);
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println("v1 multi value read bytes stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+    raf.close();
+  }
+  if (randomRead) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    for (int run=0; run < MAX_RUNS; run++) {
+      start=System.currentTimeMillis();
+      for (int i=0; i < numDocs; i++) {
+        int length=reader.getIntArray(i,intArray);
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println("v1 multi value sequential read one stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
+  if (contextualRead) {
+    DescriptiveStatistics stats=new DescriptiveStatistics();
+    for (int run=0; run < MAX_RUNS; run++) {
+      MultiValueReaderContext context=(MultiValueReaderContext)reader.createContext();
+      start=System.currentTimeMillis();
+      for (int i=0; i < numDocs; i++) {
+        int length=reader.getIntArray(i,intArray,context);
+      }
+      end=System.currentTimeMillis();
+      stats.addValue((end - start));
+    }
+    System.out.println("v1 multi value sequential read one with context stats for " + file.getName());
+    System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
+  }
   reader.close();
+  System.out.println("******************************************************************");
 }

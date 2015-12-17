@@ -9,6 +9,9 @@
       }
     }
     ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(column);
+    if (columnMetadata.isSingleValue()) {
+      continue;
+    }
     if (!columnMetadata.isSingleValue()) {
       String fwdIndexFileName=segmentMetadata.getForwardIndexFileName(column,segmentVersion);
       File fwdIndexFile=new File(indexDir,fwdIndexFileName);

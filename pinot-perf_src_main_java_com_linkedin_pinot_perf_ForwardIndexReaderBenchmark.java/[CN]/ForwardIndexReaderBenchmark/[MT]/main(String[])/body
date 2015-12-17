@@ -1,6 +1,9 @@
 {
-  String v1IndexDir="/home/kgopalak/backup_folder_13_12_2012/scinPricing_OFFLINE/scinPricing_pricing_0";
-  benchmarkForwardIndex(v1IndexDir,Lists.newArrayList("dimension_skills","metric_nus_company_impressions"));
-  String v2IndexDir="/home/kgopalak/pinot_perf/index_dir/scinPricing_OFFLINE/scinPricing_pricing_0";
-  benchmarkForwardIndex(v2IndexDir,Lists.newArrayList("dimension_skills","metric_nus_company_impressions"));
+  String indexDir=args[0];
+  if (args.length == 1) {
+    benchmarkForwardIndex(indexDir);
+  }
+  if (args.length == 2) {
+    benchmarkForwardIndex(indexDir,Lists.newArrayList(args[1].trim().split(",")));
+  }
 }

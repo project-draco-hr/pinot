@@ -1,0 +1,14 @@
+{
+  if (docId >= context.docIdStart && docId <= context.docIdEnd) {
+    return context.value;
+  }
+ else {
+    int value=getInt(docId);
+    if (value != Constants.EOF) {
+      context.value=value;
+      context.docIdStart=indexReader.getInt(context.value,0);
+      context.docIdEnd=indexReader.getInt(context.value,1);
+    }
+    return value;
+  }
+}

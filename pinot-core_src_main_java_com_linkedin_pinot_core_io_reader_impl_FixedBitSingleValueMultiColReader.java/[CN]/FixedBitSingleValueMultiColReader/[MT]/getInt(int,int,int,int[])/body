@@ -1,0 +1,9 @@
+{
+  long startBitOffset=computeBitOffset(startRow,col);
+  long endBitOffset;
+  for (int i=0; i < length; i++) {
+    endBitOffset=startBitOffset + colSizesInBits[col];
+    output[i]=customBitSet.readInt(startBitOffset,endBitOffset) - offsets[col];
+    startBitOffset=endBitOffset;
+  }
+}

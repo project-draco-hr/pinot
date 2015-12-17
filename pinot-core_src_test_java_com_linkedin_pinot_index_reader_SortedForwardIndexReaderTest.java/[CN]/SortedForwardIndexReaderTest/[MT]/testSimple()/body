@@ -1,0 +1,47 @@
+{
+  int maxLength=1000;
+  int cardinality=100000;
+  File file=new File("test_sortef_fwd_index.dat");
+  file.delete();
+  int[] columnSizes=new int[]{4,4};
+  FixedByteSingleValueMultiColWriter writer=new FixedByteSingleValueMultiColWriter(file,cardinality,columnSizes.length,columnSizes);
+  Random random=new Random();
+  int[] startDocIdArray=new int[cardinality];
+  int[] endDocIdArray=new int[cardinality];
+  int prevEnd=-1;
+  int totalDocs=0;
+  for (int i=0; i < cardinality; i++) {
+    int length=random.nextInt(maxLength);
+    int start=prevEnd + 1;
+    int end=start + length;
+    startDocIdArray[i]=start;
+    endDocIdArray[i]=end;
+    writer.setInt(i,0,start);
+    writer.setInt(i,1,end);
+    prevEnd=end;
+    totalDocs+=length;
+  }
+  writer.close();
+  FixedByteSingleValueMultiColReader rawFileReader=FixedByteSingleValueMultiColReader.forHeap(file,cardinality,columnSizes.length,columnSizes);
+  SortedForwardIndexReader reader=new SortedForwardIndexReader(rawFileReader,totalDocs);
+  long start, end;
+  start=System.currentTimeMillis();
+  for (int i=0; i < cardinality; i++) {
+    for (int docId=startDocIdArray[i]; docId <= endDocIdArray[i]; docId++) {
+      Assert.assertEquals(reader.getInt(docId),i);
+    }
+  }
+  end=System.currentTimeMillis();
+  System.out.println("Took " + (end - start) + " to scan "+ totalDocs+ " docs without using context");
+  SortedValueReaderContext context=reader.createContext();
+  start=System.currentTimeMillis();
+  for (int i=0; i < cardinality; i++) {
+    for (int docId=startDocIdArray[i]; docId <= endDocIdArray[i]; docId++) {
+      Assert.assertEquals(reader.getInt(docId,context),i);
+    }
+  }
+  end=System.currentTimeMillis();
+  System.out.println("Took " + (end - start) + " to scan "+ totalDocs+ " with context");
+  reader.close();
+  file.delete();
+}

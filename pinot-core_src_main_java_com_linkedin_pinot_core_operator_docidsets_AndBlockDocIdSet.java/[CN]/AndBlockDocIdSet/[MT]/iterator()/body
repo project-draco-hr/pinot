@@ -30,11 +30,16 @@
         rawIterators.add(iterator);
       }
     }
-    MutableRoaringBitmap answer=(MutableRoaringBitmap)allBitmaps.get(0).clone();
-    for (int i=1; i < allBitmaps.size(); i++) {
-      answer.and(allBitmaps.get(i));
+    if (allBitmaps.size() > 1) {
+      MutableRoaringBitmap answer=(MutableRoaringBitmap)allBitmaps.get(0).clone();
+      for (int i=1; i < allBitmaps.size(); i++) {
+        answer.and(allBitmaps.get(i));
+      }
+      intIterator=answer.getIntIterator();
     }
-    intIterator=answer.getIntIterator();
+ else {
+      intIterator=allBitmaps.get(0).getIntIterator();
+    }
     BitmapDocIdIterator singleBitmapBlockIdIterator=new BitmapDocIdIterator(intIterator);
     singleBitmapBlockIdIterator.setStartDocId(minDocId);
     singleBitmapBlockIdIterator.setEndDocId(maxDocId);

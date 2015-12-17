@@ -1,0 +1,36 @@
+{
+  int startOffset=0;
+  int endOffset=0;
+  int chunkId=row / docsPerChunk;
+  int length;
+  if (readerContext.rowId != -1) {
+    if (row == readerContext.rowId + 1) {
+      startOffset=readerContext.endPosition;
+    }
+ else     if (readerContext.chunkId == chunkId && row >= readerContext.rowId) {
+      startOffset=(int)customBitSet.findNthBitSetAfter(readerContext.endPosition,(row - readerContext.rowId - 1));
+    }
+ else {
+      int chunkIdOffset=chunkOffsetsReader.getInt(chunkId,0);
+      if (row % docsPerChunk == 0) {
+        startOffset=chunkIdOffset;
+      }
+ else {
+        startOffset=(int)customBitSet.findNthBitSetAfter(chunkIdOffset,row - chunkId * docsPerChunk);
+      }
+    }
+  }
+  endOffset=customBitSet.findNthBitSetAfter(startOffset,1);
+  if (endOffset < 0) {
+    length=(int)(totalNumValues - startOffset);
+  }
+ else {
+    length=(int)(endOffset - startOffset);
+  }
+  rawDataReader.getInt(startOffset,length,0,intArray);
+  readerContext.rowId=row;
+  readerContext.chunkId=chunkId;
+  readerContext.startPosition=startOffset;
+  readerContext.endPosition=endOffset;
+  return length;
+}

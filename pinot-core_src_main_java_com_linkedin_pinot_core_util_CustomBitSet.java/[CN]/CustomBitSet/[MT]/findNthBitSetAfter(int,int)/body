@@ -1,0 +1,30 @@
+{
+  int searchStartBitIndex=startBitIndex + 1;
+  int bytePosition=(searchStartBitIndex / 8);
+  int bitPosition=(searchStartBitIndex % 8);
+  if (bytePosition >= nrBytes) {
+    return -1;
+  }
+  int currentByte=(buf.get(bytePosition) << bitPosition) & 0xFF;
+  int numberOfBitsOnInCurrentByte=bitCountArray[currentByte];
+  int numberOfBitsToSkip=n - 1;
+  if (n <= numberOfBitsOnInCurrentByte) {
+    currentByte=BitUtils.turnOffNthLeftmostSetBits(currentByte,numberOfBitsToSkip);
+    return Integer.numberOfLeadingZeros(currentByte) - IGNORED_ZEROS_COUNT + startBitIndex + 1;
+  }
+  while (numberOfBitsOnInCurrentByte <= numberOfBitsToSkip) {
+    numberOfBitsToSkip-=numberOfBitsOnInCurrentByte;
+    bytePosition++;
+    if (bytePosition >= nrBytes) {
+      return -1;
+    }
+    currentByte=buf.get(bytePosition) & 0xFF;
+    numberOfBitsOnInCurrentByte=bitCountArray[currentByte];
+  }
+  int currentBitPosition=nextSetBit(bytePosition * 8);
+  while (0 < numberOfBitsToSkip && currentBitPosition != -1) {
+    currentBitPosition=nextSetBit(currentBitPosition + 1);
+    numberOfBitsToSkip--;
+  }
+  return currentBitPosition;
+}
