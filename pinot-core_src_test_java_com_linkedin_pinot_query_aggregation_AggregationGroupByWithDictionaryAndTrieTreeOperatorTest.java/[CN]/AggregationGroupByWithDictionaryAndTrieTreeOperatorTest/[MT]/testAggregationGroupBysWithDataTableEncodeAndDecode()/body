@@ -1,26 +1,10 @@
 {
-  final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getTotalDocs(),5000);
-  final Map<String,DataSource> dataSourceMap=getDataSourceMap();
-  final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
-  for (int i=0; i < _numAggregations; ++i) {
-    final MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator aggregationFunctionGroupByOperator=new MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator),true);
-    aggregationFunctionGroupByOperatorList.add(aggregationFunctionGroupByOperator);
-  }
-  final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
+  final MAggregationGroupByOperator aggregationGroupByOperator=getmAggregationGroupByOperator();
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
     LOGGER.info("Result 1: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
-  final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList1=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getTotalDocs(),5000);
-  final Map<String,DataSource> dataSourceMap1=getDataSourceMap();
-  final MProjectionOperator projectionOperator1=new MProjectionOperator(dataSourceMap1,docIdSetOperator1);
-  for (int i=0; i < _numAggregations; ++i) {
-    final MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator aggregationFunctionGroupByOperator1=new MAggregationFunctionGroupByWithDictionaryAndTrieTreeOperator(_aggregationInfos.get(i),_groupBy,new UReplicatedProjectionOperator(projectionOperator1),true);
-    aggregationFunctionGroupByOperatorList1.add(aggregationFunctionGroupByOperator1);
-  }
-  final MAggregationGroupByOperator aggregationGroupByOperator1=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator1,aggregationFunctionGroupByOperatorList1);
+  final MAggregationGroupByOperator aggregationGroupByOperator1=getmAggregationGroupByOperator();
   final IntermediateResultsBlock block1=(IntermediateResultsBlock)aggregationGroupByOperator1.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
     LOGGER.info("Result 2: {}",block1.getAggregationGroupByOperatorResult().get(i));

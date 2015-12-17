@@ -11,21 +11,6 @@
   System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
   Assert.assertEquals(resultBlock.getNumDocsScanned(),10);
   Assert.assertEquals(resultBlock.getTotalDocs(),10001);
-  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
-  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getDataTable());
-  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getDataTable());
-  final Collection<Serializable[]> reducedResults=SelectionOperatorUtils.reduce(instanceResponseMap,brokerRequest.getSelections().getSize());
-  List<String> selectionColumns=SelectionOperatorUtils.getSelectionColumns(brokerRequest.getSelections().getSelectionColumns(),_indexSegment);
-  DataSchema dataSchema=resultBlock.getSelectionDataSchema();
-  final JSONObject jsonResult=SelectionOperatorUtils.render(reducedResults,selectionColumns,dataSchema);
-  System.out.println(jsonResult);
+  final JSONObject jsonResult=getJsonObject(brokerRequest,resultBlock);
   JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"columns\":[\"column11\",\"column12\",\"met_impressionCount\"],\"results\":[[\"U\",\"GF\",\"8310347835142446717\"],[\"U\",\"WI\",\"6240989492723764727\"],[\"U\",\"xk\",\"6240989492723764727\"],[\"U\",\"Ld\",\"6240989492723764727\"],[\"U\",\"Zi\",\"8637957270245933828\"],[\"U\",\"RI\",\"8637957270245933828\"],[\"U\",\"ai\",\"6240989492723764727\"],[\"U\",\"Ot\",\"6240989492723764727\"],[\"U\",\"ZW\",\"8637957270245933828\"],[\"U\",\"iL\",\"8310347835142446717\"]]}");
 }

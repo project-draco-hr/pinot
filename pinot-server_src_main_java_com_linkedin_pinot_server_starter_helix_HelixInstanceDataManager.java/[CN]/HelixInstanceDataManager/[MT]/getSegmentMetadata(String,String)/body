@@ -3,7 +3,7 @@
   TableDataManager tableDataManager=_tableDataManagerMap.get(table);
   try {
     if (tableDataManager != null) {
-      segmentDataManager=tableDataManager.getSegment(segmentName);
+      segmentDataManager=tableDataManager.acquireSegment(segmentName);
       if (segmentDataManager != null) {
         return segmentDataManager.getSegment().getSegmentMetadata();
       }
@@ -12,7 +12,7 @@
   }
   finally {
     if (segmentDataManager != null) {
-      tableDataManager.returnSegmentReader(segmentDataManager);
+      tableDataManager.releaseSegment(segmentDataManager);
     }
   }
 }

@@ -11,6 +11,6 @@
     driver.init(config);
     driver.build();
     LOGGER.info("built at : {}",segmentDir.getAbsolutePath());
-    _indexSegmentList.add(ColumnarSegmentLoader.load(new File(segmentDir,driver.getSegmentName()),ReadMode.heap));
+    _indexSegmentList.add(new OfflineSegmentDataManager(ColumnarSegmentLoader.load(new File(segmentDir,driver.getSegmentName()),ReadMode.heap)));
   }
 }

@@ -15,7 +15,7 @@
       return null;
     }
     long startPlanTime=System.nanoTime();
-    final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(brokerRequest,queryableSegmentDataManagerList,_instanceDataManager.getTableDataManager(brokerRequest.getQuerySource().getTableName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
+    final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getTableDataManager(brokerRequest.getQuerySource().getTableName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
     long planTime=System.nanoTime() - startPlanTime;
     _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.BUILD_QUERY_PLAN,planTime);
     if (_printQueryPlan) {
@@ -54,7 +54,7 @@
     if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
       if (queryableSegmentDataManagerList != null) {
         for (        SegmentDataManager segmentDataManager : queryableSegmentDataManagerList) {
-          _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).returnSegmentReader(segmentDataManager);
+          _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).releaseSegment(segmentDataManager);
         }
       }
     }

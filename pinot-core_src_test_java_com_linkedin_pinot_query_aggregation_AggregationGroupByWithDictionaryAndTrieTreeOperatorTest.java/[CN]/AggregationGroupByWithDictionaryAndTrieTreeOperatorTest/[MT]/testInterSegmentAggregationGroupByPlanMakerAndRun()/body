@@ -3,17 +3,6 @@
   setupSegmentList(numSegments);
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV1();
   final BrokerRequest brokerRequest=getAggregationGroupByNoFilterBrokerRequest();
-  final ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
-  final Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService,150000);
-  globalPlan.print();
-  globalPlan.execute();
-  final DataTable instanceResponse=globalPlan.getInstanceResponse();
-  LOGGER.info("Instance Response: {}",instanceResponse);
-  final DefaultReduceService defaultReduceService=new DefaultReduceService();
-  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
-  instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  final BrokerResponse brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  LOGGER.info("Broker Response: {}",new JSONArray(brokerResponse.getAggregationResults()));
-  LOGGER.info("Time used : {}",brokerResponse.getTimeUsedMs());
+  final BrokerResponse brokerResponse=getBrokerResponse(instancePlanMaker,brokerRequest);
   assertBrokerResponse(numSegments,brokerResponse);
 }

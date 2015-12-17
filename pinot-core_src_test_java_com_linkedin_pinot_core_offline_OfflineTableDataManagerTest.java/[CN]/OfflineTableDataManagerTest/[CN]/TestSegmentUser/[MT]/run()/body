@@ -6,7 +6,7 @@
       for (      Integer segmentId : segmentIds) {
         segmentList.add(segmentPrefix + segmentId);
       }
-      List<SegmentDataManager> segmentDataManagers=_tableDataManager.getSegments(segmentList);
+      List<SegmentDataManager> segmentDataManagers=_tableDataManager.acquireSegments(segmentList);
       for (      SegmentDataManager segmentDataManager : segmentDataManagers) {
         _accessedSegManagers.add(segmentDataManager);
       }
@@ -18,7 +18,7 @@
         _closing=true;
       }
       for (      SegmentDataManager segmentDataManager : segmentDataManagers) {
-        _tableDataManager.returnSegmentReader(segmentDataManager);
+        _tableDataManager.releaseSegment(segmentDataManager);
       }
     }
  catch (    Throwable t) {

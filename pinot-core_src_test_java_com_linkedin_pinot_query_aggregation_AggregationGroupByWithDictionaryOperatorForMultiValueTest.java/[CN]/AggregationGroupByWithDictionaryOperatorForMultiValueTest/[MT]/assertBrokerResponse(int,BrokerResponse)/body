@@ -1,16 +1,7 @@
 {
   Assert.assertEquals(100000 * numSegments,brokerResponse.getNumDocsScanned());
-  Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
-  for (int i=0; i < _numAggregations; ++i) {
-    Assert.assertEquals("[\"column7\",\"column6\"]",brokerResponse.getAggregationResults().get(i).getJSONArray("groupByColumns").toString());
-    Assert.assertEquals(15,brokerResponse.getAggregationResults().get(i).getJSONArray("groupByResult").length());
-  }
-  Assert.assertEquals("count_star",brokerResponse.getAggregationResults().get(0).getString("function").toString());
-  Assert.assertEquals("sum_count",brokerResponse.getAggregationResults().get(1).getString("function").toString());
-  Assert.assertEquals("max_count",brokerResponse.getAggregationResults().get(2).getString("function").toString());
-  Assert.assertEquals("min_count",brokerResponse.getAggregationResults().get(3).getString("function").toString());
-  Assert.assertEquals("avg_count",brokerResponse.getAggregationResults().get(4).getString("function").toString());
-  Assert.assertEquals("distinctCount_column2",brokerResponse.getAggregationResults().get(5).getString("function").toString());
+  final int groupSize=15;
+  verifyResponse(brokerResponse,groupSize);
   final List<double[]> aggregationResult=getAggregationResult(numSegments);
   final List<String[]> groupByResult=getGroupResult();
   for (int j=0; j < _numAggregations; ++j) {
