@@ -35,14 +35,17 @@
   do {
     final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
     final Set<String> instanceSet=idealState.getInstanceSet(segmentName);
+    LOGGER.info("Found {} instances for segment '{}', in ideal state",instanceSet.size(),segmentName);
     for (    final String instance : instanceSet) {
       idealState.setPartitionState(segmentName,instance,"ONLINE");
+      LOGGER.info("Setting Ideal State for segment '{}' to ONLINE for instance '{}'",segmentName,instance);
     }
     updateSuccessful=helixDataAccessor.updateProperty(idealStatePropertyKey,idealState);
   }
  while (!updateSuccessful);
   updatedIdealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
   instanceStateMap=updatedIdealState.getInstanceStateMap(segmentName);
+  LOGGER.info("Found {} instances for segment '{}', after updating ideal state",instanceStateMap.size(),segmentName);
   for (  String state : instanceStateMap.values()) {
     if (!"ONLINE".equals(state)) {
       LOGGER.error("Failed to write ONLINE ideal state!");

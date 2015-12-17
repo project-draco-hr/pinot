@@ -4,6 +4,7 @@
     ExternalView externalView=_helixAdmin.getResourceExternalView(_helixClusterName,tableName);
     Map<String,String> segmentStatsMap=externalView.getStateMap(segmentName);
     if (segmentStatsMap != null) {
+      LOGGER.info("Found {} instances for segment '{}' in external view",segmentStatsMap.size(),segmentName);
       for (      String instance : segmentStatsMap.keySet()) {
         final String segmentState=segmentStatsMap.get(instance);
         if (!segmentState.equalsIgnoreCase(targetState)) {
@@ -18,5 +19,6 @@
       return true;
     }
   }
+  LOGGER.info("Timed out while waiting for segment '{}' to become '{}' in external view.",segmentName,targetState);
   return false;
 }
