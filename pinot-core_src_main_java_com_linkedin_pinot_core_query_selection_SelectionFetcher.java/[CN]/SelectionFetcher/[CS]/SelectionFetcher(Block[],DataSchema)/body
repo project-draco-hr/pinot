@@ -1,0 +1,90 @@
+{
+  this.length=blocks.length;
+  selectionColumnIterators=new SelectionColumnIterator[blocks.length];
+  for (int i=0; i < dataSchema.size(); ++i) {
+    if (blocks[i] instanceof RealtimeSingleValueBlock && blocks[i].getMetadata().hasDictionary()) {
+switch (dataSchema.getColumnType(i)) {
+case INT:
+        selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Integer,IntMutableDictionary>(blocks[i]);
+      break;
+case FLOAT:
+    selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Float,FloatMutableDictionary>(blocks[i]);
+  break;
+case LONG:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Long,LongMutableDictionary>(blocks[i]);
+break;
+case DOUBLE:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Double,DoubleMutableDictionary>(blocks[i]);
+break;
+case STRING:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<String,StringMutableDictionary>(blocks[i]);
+break;
+default :
+break;
+}
+}
+ else if ((blocks[i] instanceof UnSortedSingleValueBlock || blocks[i] instanceof SortedSingleValueBlock) && blocks[i].getMetadata().hasDictionary()) {
+switch (dataSchema.getColumnType(i)) {
+case INT:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Integer,IntDictionary>(blocks[i]);
+break;
+case FLOAT:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Float,FloatDictionary>(blocks[i]);
+break;
+case LONG:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Long,LongDictionary>(blocks[i]);
+break;
+case DOUBLE:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<Double,DoubleDictionary>(blocks[i]);
+break;
+case STRING:
+selectionColumnIterators[i]=new SelectionSingleValueColumnWithDictIterator<String,StringDictionary>(blocks[i]);
+break;
+default :
+break;
+}
+}
+ else if (blocks[i] instanceof RealtimeMultiValueBlock || blocks[i] instanceof MultiValueBlock) {
+switch (dataSchema.getColumnType(i)) {
+case INT_ARRAY:
+selectionColumnIterators[i]=new IntArraySelectionColumnIterator(blocks[i]);
+break;
+case FLOAT_ARRAY:
+selectionColumnIterators[i]=new FloatArraySelectionColumnIterator(blocks[i]);
+break;
+case LONG_ARRAY:
+selectionColumnIterators[i]=new LongArraySelectionColumnIterator(blocks[i]);
+break;
+case DOUBLE_ARRAY:
+selectionColumnIterators[i]=new DoubleArraySelectionColumnIterator(blocks[i]);
+break;
+case STRING_ARRAY:
+selectionColumnIterators[i]=new StringArraySelectionColumnIterator(blocks[i]);
+break;
+default :
+break;
+}
+}
+ else if (!blocks[i].getMetadata().hasDictionary()) {
+switch (dataSchema.getColumnType(i)) {
+case INT:
+selectionColumnIterators[i]=new IntSelectionColumnIterator(blocks[i]);
+break;
+case FLOAT:
+selectionColumnIterators[i]=new FloatSelectionColumnIterator(blocks[i]);
+break;
+case LONG:
+selectionColumnIterators[i]=new LongSelectionColumnIterator(blocks[i]);
+break;
+case DOUBLE:
+selectionColumnIterators[i]=new DoubleSelectionColumnIterator(blocks[i]);
+break;
+default :
+break;
+}
+}
+ else {
+throw new UnsupportedOperationException("Failed to get SelectionColumnIterator on Block - " + blocks[i] + " with index - "+ i);
+}
+}
+}
