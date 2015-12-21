@@ -1,9 +1,10 @@
 {
+  SelectionFetcher selectionFetcher=new SelectionFetcher(blocks,_dataSchema);
   if (_doOrdering) {
     final PriorityQueue<Serializable[]> rowEventsPriorityQueue=new PriorityQueue<Serializable[]>(_maxRowSize,_rowComparator);
     PriorityQueue<Integer> queue=(PriorityQueue<Integer>)_rowDocIdSet;
     while (!queue.isEmpty()) {
-      Serializable[] rowFromBlockValSets=getRowFromBlockValSets(queue.poll(),blocks);
+      Serializable[] rowFromBlockValSets=selectionFetcher.getRow(queue.poll());
       rowEventsPriorityQueue.add(rowFromBlockValSets);
     }
     merge(_rowEventsSet,rowEventsPriorityQueue);
@@ -12,7 +13,7 @@
     final List<Serializable[]> rowEventsList=new ArrayList<Serializable[]>(_maxRowSize);
     List<Integer> list=(List<Integer>)_rowDocIdSet;
     for (int i=0; i < Math.min(_maxRowSize,list.size()); i++) {
-      Serializable[] rowFromBlockValSets=getRowFromBlockValSets(list.get(i),blocks);
+      Serializable[] rowFromBlockValSets=selectionFetcher.getRow(list.get(i));
       rowEventsList.add(rowFromBlockValSets);
     }
     merge(_rowEventsSet,rowEventsList);
