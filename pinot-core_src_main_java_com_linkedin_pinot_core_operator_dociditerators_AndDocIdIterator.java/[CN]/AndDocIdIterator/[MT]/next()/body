@@ -25,6 +25,15 @@
       LOGGER.warn("Should never happen, {} returns docIdPointer : {} should always >= currentMax : {}",docIdIterators[i],docIdPointers[i],currentMax);
       throw new IllegalStateException("Should never happen, docIdPointer should always >= currentMax");
     }
+    if (i == docIdIterators.length - 1 && hasScanBasedIterators) {
+      for (      ScanBasedDocIdIterator iterator : scanBasedDocIdIterators) {
+        if (!iterator.isMatch(currentMax)) {
+          i=-1;
+          currentMax=currentMax + 1;
+          break;
+        }
+      }
+    }
   }
   currentDocId=currentMax;
   long end=System.currentTimeMillis();

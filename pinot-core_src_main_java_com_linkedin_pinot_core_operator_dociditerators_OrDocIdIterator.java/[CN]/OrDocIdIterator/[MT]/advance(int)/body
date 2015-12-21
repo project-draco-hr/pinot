@@ -22,7 +22,8 @@
     if (!iteratorIsInQueue[i]) {
       int nextDocId=docIdIterators[i].advance(targetDocId);
       if (nextDocId != Constants.EOF) {
-        queue.add(new IntPair(nextDocId,i));
+        pointers[i].setA(nextDocId);
+        queue.add(pointers[i]);
       }
       iteratorIsInQueue[i]=true;
     }
