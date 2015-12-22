@@ -27,7 +27,11 @@
         tmpSegmentDir.mkdirs();
       }
       TarGzCompressionUtils.unTar(dataFile,tmpSegmentDir);
-      return uploadSegment(tmpSegmentDir.listFiles()[0],dataFile);
+      File segmentFile=tmpSegmentDir.listFiles()[0];
+      String clientIpAddress=getClientInfo().getAddress();
+      String clientAddress=InetAddress.getByName(clientIpAddress).getHostName();
+      LOGGER.info("Processing upload request for segment '{}' from client '{}'",segmentFile.getName(),clientAddress);
+      return uploadSegment(segmentFile,dataFile);
     }
  else {
       rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);
