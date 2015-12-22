@@ -10,13 +10,8 @@ case LONG:
 return longValueToIndexMap.get(e);
 case STRING:
 case BOOLEAN:
-final StringBuilder bld=new StringBuilder();
 String value=e.toString();
-bld.append(value);
-for (int i=0; i < (stringColumnMaxLength - value.getBytes(Charset.forName("UTF-8")).length); i++) {
-bld.append(V1Constants.Str.STRING_PAD_CHAR);
-}
-return stringValueToIndexMap.get(bld.toString());
+return stringValueToIndexMap.get(value);
 default :
 throw new UnsupportedOperationException("Unsupported data type : " + spec.getDataType() + " for column : "+ spec.getName());
 }
