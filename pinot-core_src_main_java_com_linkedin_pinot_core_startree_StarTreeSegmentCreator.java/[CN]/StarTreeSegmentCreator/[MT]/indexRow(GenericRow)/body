@@ -19,14 +19,14 @@
           int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
           ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
           if (config.isCreateInvertedIndexEnabled()) {
-            invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,(Object)dictionaryIndex);
+            invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,dictionaryIndex);
           }
         }
  else {
-          int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
-          ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndex);
+          int[] dictionaryIndices=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+          ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(nextMatchingDocumentId,dictionaryIndices);
           if (config.isCreateInvertedIndexEnabled()) {
-            invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,dictionaryIndex);
+            invertedIndexCreatorMap.get(column).add(nextMatchingDocumentId,dictionaryIndices);
           }
         }
       }

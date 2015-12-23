@@ -7,7 +7,8 @@
     StarTreeTableRow next=itr.next();
     if (next.getDimensions().contains(StarTreeIndexNode.all())) {
       for (      final String column : dictionaryCreatorMap.keySet()) {
-        Object dictionaryIndex=null;
+        int dictionaryIndex=-1;
+        int[] dictionaryIndices=null;
         if (starTreeDimensionDictionary.containsKey(column)) {
           Integer dimensionId=starTreeDimensionDictionary.get(column);
           Integer dimensionValue=next.getDimensions().get(dimensionId);
@@ -17,7 +18,7 @@
               dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(allValue);
             }
  else {
-              dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(allValue);
+              dictionaryIndices=dictionaryCreatorMap.get(column).indexOfMV(allValue);
             }
           }
  else {
@@ -31,7 +32,7 @@
             dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
           }
  else {
-            dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+            dictionaryIndices=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
           }
         }
  else {
@@ -40,17 +41,22 @@
             dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
           }
  else {
-            dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+            dictionaryIndices=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
           }
         }
         if (schema.getFieldSpecFor(column).isSingleValueField()) {
-          ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(Integer)dictionaryIndex);
+          ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,dictionaryIndex);
         }
  else {
-          ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,(int[])dictionaryIndex);
+          ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(currentAggregateDocumentId,dictionaryIndices);
         }
         if (config.isCreateInvertedIndexEnabled()) {
-          invertedIndexCreatorMap.get(column).add(currentAggregateDocumentId,dictionaryIndex);
+          if (schema.getFieldSpecFor(column).isSingleValueField()) {
+            invertedIndexCreatorMap.get(column).add(currentAggregateDocumentId,dictionaryIndex);
+          }
+ else {
+            invertedIndexCreatorMap.get(column).add(currentAggregateDocumentId,dictionaryIndices);
+          }
         }
       }
       currentAggregateDocumentId++;

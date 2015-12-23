@@ -1,0 +1,29 @@
+{
+  int offset=0;
+  for (int i=0; i < cardinality; i++) {
+    postingListStartOffsets.put(i,offset);
+    postingListCurrentOffsets.put(i,offset);
+    offset=offset + postingListLengths.get(i);
+  }
+  if (spec.isSingleValueField()) {
+    for (int i=0; i < totalNumberOfEntries; i++) {
+      int dictId=valueBuffer.get(i);
+      int dictIdOffset=postingListCurrentOffsets.get(dictId);
+      postingListBuffer.put(dictIdOffset,i);
+      postingListCurrentOffsets.put(dictId,dictIdOffset + 1);
+    }
+  }
+ else {
+    int startOffset=0;
+    for (int i=0; i < numDocs; i++) {
+      int length=lengths.get(i);
+      for (int j=0; j < length; j++) {
+        int dictId=valueBuffer.get((startOffset + j));
+        int dictIdOffset=postingListCurrentOffsets.get(dictId);
+        postingListBuffer.put(dictIdOffset,i);
+        postingListCurrentOffsets.put(dictId,dictIdOffset + 1);
+      }
+      startOffset=startOffset + length;
+    }
+  }
+}

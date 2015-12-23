@@ -1,0 +1,13 @@
+{
+  System.out.println("Starting generation");
+  Configuration tableDataManagerConfig=new PropertiesConfiguration();
+  List<String> indexColumns=Lists.newArrayList("contract_id","seat_id");
+  tableDataManagerConfig.setProperty(IndexLoadingConfigMetadata.KEY_OF_LOADING_INVERTED_INDEX,indexColumns);
+  IndexLoadingConfigMetadata indexLoadingConfigMetadata=new IndexLoadingConfigMetadata(tableDataManagerConfig);
+  ReadMode mode=ReadMode.heap;
+  File indexDir=new File("/home/kgopalak/pinot_perf/index_dir/capReportingEvents_OFFLINE/capReportingEvents_capReportingEvents_daily_2");
+  long start=System.currentTimeMillis();
+  Loaders.IndexSegment.load(indexDir,mode,indexLoadingConfigMetadata);
+  long end=System.currentTimeMillis();
+  System.out.println("Took " + (end - start) + " to generate bitmap index");
+}

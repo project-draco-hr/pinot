@@ -42,6 +42,7 @@
   for (  String column : config.getInvertedIndexCreationColumns()) {
     ColumnIndexCreationInfo indexCreationInfo=indexCreationInfoMap.get(column);
     int uniqueValueCount=indexCreationInfo.getDistinctValueCount();
-    invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(file,uniqueValueCount,schema.getFieldSpecFor(column)));
+    OffHeapBitmapInvertedIndexCreator invertedIndexCreator=new OffHeapBitmapInvertedIndexCreator(file,uniqueValueCount,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),schema.getFieldSpecFor(column));
+    invertedIndexCreatorMap.put(column,invertedIndexCreator);
   }
 }

@@ -78,7 +78,8 @@
       forwardIndexCreatorMap.put(column,new MultiValueUnsortedForwardIndexCreator(schema.getFieldSpecFor(column),outDir,uniqueValueCount,totalCombinedDocs,indexCreationInfo.getTotalNumberOfEntries(),indexCreationInfo.hasNulls()));
     }
     if (config.isCreateInvertedIndexEnabled()) {
-      invertedIndexCreatorMap.put(column,new BitmapInvertedIndexCreator(outDir,uniqueValueCount,schema.getFieldSpecFor(column)));
+      OffHeapBitmapInvertedIndexCreator invertedIndexCreator=new OffHeapBitmapInvertedIndexCreator(outDir,uniqueValueCount,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),schema.getFieldSpecFor(column));
+      invertedIndexCreatorMap.put(column,invertedIndexCreator);
     }
   }
 }

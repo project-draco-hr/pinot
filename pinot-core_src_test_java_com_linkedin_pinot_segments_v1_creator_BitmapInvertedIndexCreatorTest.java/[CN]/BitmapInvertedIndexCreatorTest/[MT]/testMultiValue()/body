@@ -1,0 +1,52 @@
+{
+  boolean singleValue=false;
+  String colName="multi_value_col";
+  FieldSpec spec=new DimensionFieldSpec(colName,DataType.INT,singleValue);
+  int numDocs=20;
+  int[][] data=new int[numDocs][];
+  int maxLength=10;
+  int cardinality=10;
+  File indexDirHeap=new File("/tmp/indexDirHeap");
+  FileUtils.forceMkdir(indexDirHeap);
+  indexDirHeap.mkdirs();
+  File indexDirOffHeap=new File("/tmp/indexDirOffHeap");
+  FileUtils.forceMkdir(indexDirOffHeap);
+  indexDirOffHeap.mkdirs();
+  File bitmapIndexFileOffHeap=new File(indexDirOffHeap,colName + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
+  File bitmapIndexFileHeap=new File(indexDirHeap,colName + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
+  Random r=new Random();
+  Map<Integer,List<Integer>> postingListMap=new HashMap<>();
+  for (int i=0; i < cardinality; i++) {
+    postingListMap.put(i,new ArrayList<>());
+  }
+  int totalNumberOfEntries=0;
+  for (int docId=0; docId < numDocs; docId++) {
+    int length=r.nextInt(maxLength);
+    data[docId]=new int[length];
+    totalNumberOfEntries+=length;
+    for (int j=0; j < length; j++) {
+      data[docId][j]=r.nextInt(cardinality);
+      postingListMap.get(data[docId][j]).add(docId);
+    }
+    LOGGER.debug("docId:" + docId + "  dictId:"+ data[docId]);
+  }
+  for (int i=0; i < cardinality; i++) {
+    LOGGER.debug("Posting list for " + i + " : "+ postingListMap.get(i));
+  }
+  OffHeapBitmapInvertedIndexCreator offHeapCreator=new OffHeapBitmapInvertedIndexCreator(indexDirOffHeap,cardinality,numDocs,totalNumberOfEntries,spec);
+  for (int i=0; i < numDocs; i++) {
+    offHeapCreator.add(i,data[i]);
+  }
+  offHeapCreator.seal();
+  validate(colName,bitmapIndexFileOffHeap,cardinality,postingListMap);
+  HeapBitmapInvertedIndexCreator heapCreator=new HeapBitmapInvertedIndexCreator(indexDirHeap,cardinality,numDocs,totalNumberOfEntries,spec);
+  for (int i=0; i < numDocs; i++) {
+    heapCreator.add(i,data[i]);
+  }
+  heapCreator.seal();
+  validate(colName,bitmapIndexFileHeap,cardinality,postingListMap);
+  Assert.assertEquals(bitmapIndexFileHeap.length(),bitmapIndexFileHeap.length());
+  Assert.assertTrue(FileUtils.contentEquals(bitmapIndexFileHeap,bitmapIndexFileHeap));
+  FileUtils.deleteQuietly(indexDirHeap);
+  FileUtils.deleteQuietly(indexDirOffHeap);
+}
