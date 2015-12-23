@@ -3,11 +3,11 @@
   int endOffset=0;
   int chunkId=row / docsPerChunk;
   int length;
-  if (readerContext.chunkId == chunkId) {
+  if (readerContext.chunkId == chunkId && row > readerContext.rowId) {
     if (row == readerContext.rowId + 1) {
       startOffset=readerContext.endPosition;
     }
- else     if (row >= readerContext.rowId) {
+ else {
       startOffset=(int)customBitSet.findNthBitSetAfter(readerContext.endPosition,(row - readerContext.rowId - 1));
     }
   }
