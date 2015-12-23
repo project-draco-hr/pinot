@@ -1,0 +1,13 @@
+{
+  List<InstanceConfig> instanceConfigList=new ArrayList<>();
+  Set<String> instanceSet=new HashSet<>();
+  for (  String partitionName : externalView.getPartitionSet()) {
+    for (    String instance : externalView.getStateMap(partitionName).keySet()) {
+      if (!instanceSet.contains(instance)) {
+        instanceConfigList.add(new InstanceConfig(instance));
+        instanceSet.add(instance);
+      }
+    }
+  }
+  return instanceConfigList;
+}

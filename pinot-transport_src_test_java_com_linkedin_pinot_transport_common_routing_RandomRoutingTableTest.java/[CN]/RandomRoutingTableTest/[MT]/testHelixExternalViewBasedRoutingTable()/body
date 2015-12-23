@@ -9,7 +9,7 @@
   RoutingTableBuilder routingStrategy=new BalancedRandomRoutingTableBuilder(10);
   HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(routingStrategy,null,null,null);
   ExternalView externalView=new ExternalView(externalViewRecord);
-  routingTable.markDataResourceOnline(tableName,externalView,new ArrayList<InstanceConfig>());
+  routingTable.markDataResourceOnline(tableName,externalView,getInstanceConfigs(externalView));
   double[] globalArrays=new double[9];
   for (int numRun=0; numRun < totalRuns; ++numRun) {
     RoutingTableLookupRequest request=new RoutingTableLookupRequest(tableName);
