@@ -1,0 +1,16 @@
+{
+  TimeRetentionStrategy retentionStrategy=new TimeRetentionStrategy("DAYS","30");
+  SegmentZKMetadata metadata=new OfflineSegmentZKMetadata();
+  metadata.setTimeUnit(TimeUnit.DAYS);
+  metadata.setEndTime(1L);
+  assertFalse(retentionStrategy.isPurgeable(metadata));
+  final long today=TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis());
+  metadata.setEndTime(today);
+  assertFalse(retentionStrategy.isPurgeable(metadata));
+  metadata.setEndTime(today - 14);
+  assertFalse(retentionStrategy.isPurgeable(metadata));
+  metadata.setEndTime(today - 60);
+  assertTrue(retentionStrategy.isPurgeable(metadata));
+  metadata.setEndTime(today + (365 * 200));
+  assertFalse(retentionStrategy.isPurgeable(metadata));
+}

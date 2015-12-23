@@ -8,6 +8,10 @@
       return false;
     }
     long endsMills=segmentTimeUnit.toMillis(segmentZKMetadata.getEndTime());
+    if (endsMills < SANITY_CHECK_MINIMUM_MILLIS || SANITY_CHECK_MAXIMUM_MILLIS < endsMills) {
+      LOGGER.warn("Skipping purge check for segment {}, timestamp {} {} fails sanity check.",segmentZKMetadata.getSegmentName(),segmentZKMetadata.getEndTime(),segmentZKMetadata.getTimeUnit());
+      return false;
+    }
     Duration segmentTimeUntilNow=new Duration(endsMills,System.currentTimeMillis());
     if (_retentionDuration.isShorterThan(segmentTimeUntilNow)) {
       return true;
