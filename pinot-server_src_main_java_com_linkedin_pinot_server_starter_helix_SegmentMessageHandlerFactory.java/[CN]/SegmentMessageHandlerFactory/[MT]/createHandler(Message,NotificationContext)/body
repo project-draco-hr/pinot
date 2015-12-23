@@ -1,0 +1,10 @@
+{
+  try {
+    SegmentRefreshMessage refreshMessage=new SegmentRefreshMessage(message);
+    return new SegmentRefreshMessageHandler(refreshMessage,context,_refreshLock);
+  }
+ catch (  IllegalArgumentException e) {
+    LOGGER.warn("Unrecognized message subtype {}",message.getMsgSubType());
+    return null;
+  }
+}

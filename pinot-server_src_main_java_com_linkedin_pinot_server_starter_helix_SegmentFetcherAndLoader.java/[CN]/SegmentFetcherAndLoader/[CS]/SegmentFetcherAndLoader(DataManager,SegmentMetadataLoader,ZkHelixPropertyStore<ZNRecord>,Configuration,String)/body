@@ -1,21 +1,20 @@
 {
-  this.propertyStore=propertyStore;
-  HELIX_CLUSTER_NAME=helixClusterName;
-  INSTANCE_ID=instanceId;
-  INSTANCE_DATA_MANAGER=instanceDataManager;
-  SEGMENT_METADATA_LOADER=instanceDataManager.getSegmentMetadataLoader();
+  _propertyStore=propertyStore;
+  _dataManager=dataManager;
+  _metadataLoader=metadataLoader;
+  _instanceId=instanceId;
   int maxRetries=Integer.parseInt(CommonConstants.Server.DEFAULT_SEGMENT_LOAD_MAX_RETRY_COUNT);
   try {
     maxRetries=pinotHelixProperties.getInt(CommonConstants.Server.CONFIG_OF_SEGMENT_LOAD_MAX_RETRY_COUNT,maxRetries);
   }
  catch (  Exception e) {
   }
-  SEGMENT_LOAD_MAX_RETRY_COUNT=maxRetries;
+  _segmentLoadMaxRetryCount=maxRetries;
   long minRetryDelayMillis=Long.parseLong(CommonConstants.Server.DEFAULT_SEGMENT_LOAD_MIN_RETRY_DELAY_MILLIS);
   try {
     minRetryDelayMillis=pinotHelixProperties.getLong(CommonConstants.Server.CONFIG_OF_SEGMENT_LOAD_MIN_RETRY_DELAY_MILLIS,minRetryDelayMillis);
   }
  catch (  Exception e) {
   }
-  SEGMENT_LOAD_MIN_RETRY_DELAY_MILLIS=minRetryDelayMillis;
+  _segmentLoadMinRetryDelayMs=minRetryDelayMillis;
 }

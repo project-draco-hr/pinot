@@ -1,0 +1,8 @@
+{
+  super(MessageType.USER_DEFINE_MSG,UUID.randomUUID().toString());
+  setResourceName(tableName);
+  setPartitionName(segmentName);
+  setMsgSubType(REFRESH_SEGMENT_MSG);
+  setExecutionTimeout(-1);
+  getRecord().setSimpleField(SIMPLE_FIELD_CRC,Long.toString(crc));
+}

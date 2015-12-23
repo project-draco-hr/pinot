@@ -1,0 +1,11 @@
+{
+  if (segmentMetadataFromServer == null || segmentMetadataForCheck == null) {
+    LOGGER.info("segmentMetadataForCheck = null? {}, segmentMetadataFromServer = null? {}",segmentMetadataForCheck == null,segmentMetadataFromServer == null);
+    return true;
+  }
+  LOGGER.info("segmentMetadataForCheck.crc={},segmentMetadataFromServer.crc={}",segmentMetadataForCheck.getCrc(),segmentMetadataFromServer.getCrc());
+  if ((!segmentMetadataFromServer.getCrc().equalsIgnoreCase("null")) && (segmentMetadataFromServer.getCrc().equals(segmentMetadataForCheck.getCrc()))) {
+    return false;
+  }
+  return true;
+}

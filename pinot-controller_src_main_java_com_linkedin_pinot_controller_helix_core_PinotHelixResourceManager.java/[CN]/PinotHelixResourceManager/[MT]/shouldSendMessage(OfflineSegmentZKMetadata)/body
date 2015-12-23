@@ -1,0 +1,14 @@
+{
+  final String rawTableName=segmentZKMetadata.getTableName();
+  AbstractTableConfig tableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,rawTableName);
+  TableCustomConfig customConfig=tableConfig.getCustomConfigs();
+  if (customConfig != null) {
+    Map<String,String> customConfigMap=customConfig.getCustomConfigs();
+    if (customConfigMap != null) {
+      if (customConfigMap.containsKey(TableCustomConfig.MESSAGE_BASED_REFRESH_KEY) && Boolean.valueOf(customConfigMap.get(TableCustomConfig.MESSAGE_BASED_REFRESH_KEY))) {
+        return true;
+      }
+    }
+  }
+  return false;
+}

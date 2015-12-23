@@ -1,0 +1,16 @@
+{
+  HelixTaskResult result=new HelixTaskResult();
+  LOGGER.info("Handling message {}",_message);
+  try {
+    final long startTime=System.currentTimeMillis();
+    LOGGER.info("Waiting for lock to refresh segment {}",_segmentName);
+    _refreshLock.lock();
+    LOGGER.info("Acquired lock to refresh segment {} (lock-time={}ms)",_segmentName,(System.currentTimeMillis() - startTime));
+    _fetcherAndLoader.addOrReplaceOfflineSegment(_tableName,_segmentName,false);
+    result.setSuccess(true);
+  }
+  finally {
+    _refreshLock.unlock();
+  }
+  return result;
+}

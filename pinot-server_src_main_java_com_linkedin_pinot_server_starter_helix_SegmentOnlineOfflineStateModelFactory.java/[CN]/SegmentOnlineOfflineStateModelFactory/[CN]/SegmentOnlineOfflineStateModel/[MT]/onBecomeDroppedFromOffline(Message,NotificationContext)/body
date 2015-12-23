@@ -3,7 +3,7 @@
   final String segmentId=message.getPartitionName();
   final String tableName=message.getResourceName();
   try {
-    final File segmentDir=new File(getSegmentLocalDirectory(tableName,segmentId));
+    final File segmentDir=new File(_fetcherAndLoader.getSegmentLocalDirectory(tableName,segmentId));
     if (segmentDir.exists()) {
       FileUtils.deleteQuietly(segmentDir);
       LOGGER.info("Deleted segment directory {}",segmentDir);

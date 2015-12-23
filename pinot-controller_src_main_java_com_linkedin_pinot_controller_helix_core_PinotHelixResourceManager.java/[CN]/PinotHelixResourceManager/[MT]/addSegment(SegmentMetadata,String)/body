@@ -12,7 +12,14 @@
         offlineSegmentZKMetadata.setRefreshTime(System.currentTimeMillis());
         ZKMetadataProvider.setOfflineSegmentZKMetadata(_propertyStore,offlineSegmentZKMetadata);
         LOGGER.info("Refresh segment : " + offlineSegmentZKMetadata.getSegmentName() + " to Property store");
-        if (updateExistedSegment(offlineSegmentZKMetadata)) {
+        boolean success=false;
+        if (shouldSendMessage(offlineSegmentZKMetadata)) {
+          success=sendSegmentRefreshMessage(offlineSegmentZKMetadata);
+        }
+ else {
+          success=updateExistedSegment(offlineSegmentZKMetadata);
+        }
+        if (success) {
           res.status=ResponseStatus.success;
         }
  else {

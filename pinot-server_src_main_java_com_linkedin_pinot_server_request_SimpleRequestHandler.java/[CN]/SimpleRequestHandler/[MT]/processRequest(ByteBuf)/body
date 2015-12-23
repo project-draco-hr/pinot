@@ -12,6 +12,7 @@
     serDe.deserialize(queryRequest,byteArray);
     long deserRequestTime=System.nanoTime();
     _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.TOTAL_QUERY_TIME,deserRequestTime - queryStartTime);
+    LOGGER.info("Processing requestId:{},numSegmentsToSearch={}",queryRequest.getRequestId(),queryRequest.getSearchSegmentsSize());
     LOGGER.debug("instance request : {}",queryRequest);
     brokerRequest=queryRequest.getQuery();
     long startTime=System.nanoTime();
