@@ -1,9 +1,6 @@
 {
-  int[] ret=new int[2];
   if (dictId >= cardinality) {
-    return ret;
+    return EMPTY_PAIR;
   }
-  ret[0]=indexReader.getInt(dictId,0);
-  ret[1]=indexReader.getInt(dictId,1);
-  return ret;
+  return new IntPair(indexReader.getInt(dictId,0),indexReader.getInt(dictId,1));
 }

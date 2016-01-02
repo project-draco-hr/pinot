@@ -1,15 +1,10 @@
 {
-  long start=System.currentTimeMillis();
   if (currentDocId == Constants.EOF) {
     return currentDocId;
   }
   currentMax=currentMax + 1;
-  long childStart, childEnd;
   for (int i=0; i < docIdIterators.length; i++) {
-    childStart=System.currentTimeMillis();
     docIdPointers[i]=docIdIterators[i].advance(currentMax);
-    childEnd=System.currentTimeMillis();
-    timeMeasures[i].addAndGet((childEnd - childStart));
     if (docIdPointers[i] == Constants.EOF) {
       reachedEnd=true;
       currentMax=Constants.EOF;
@@ -20,10 +15,6 @@
       if (i > 0) {
         i=-1;
       }
-    }
- else     if (docIdPointers[i] < currentMax) {
-      LOGGER.warn("Should never happen, {} returns docIdPointer : {} should always >= currentMax : {}",docIdIterators[i],docIdPointers[i],currentMax);
-      throw new IllegalStateException("Should never happen, docIdPointer should always >= currentMax");
     }
     if (i == docIdIterators.length - 1 && hasScanBasedIterators) {
       for (      ScanBasedDocIdIterator iterator : scanBasedDocIdIterators) {
@@ -36,12 +27,5 @@
     }
   }
   currentDocId=currentMax;
-  long end=System.currentTimeMillis();
-  timeMeasure.addAndGet(end - start);
-  if (currentDocId == Constants.EOF) {
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("AND operator took:{}. Break down by child iterators:{} times:{}",timeMeasure.get(),Arrays.toString(docIdIterators),Arrays.toString(timeMeasures));
-    }
-  }
   return currentDocId;
 }

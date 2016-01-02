@@ -2,12 +2,12 @@
   Predicate predicate=getPredicate();
   final SortedInvertedIndexReader invertedIndex=(SortedInvertedIndexReader)dataSource.getInvertedIndex();
   Dictionary dictionary=dataSource.getDictionary();
-  List<Pair<Integer,Integer>> pairs=new ArrayList<Pair<Integer,Integer>>();
+  List<IntPair> pairs=new ArrayList<IntPair>();
   PredicateEvaluator evaluator=PredicateEvaluatorProvider.getPredicateFunctionFor(predicate,dictionary);
   int[] dictionaryIds=evaluator.getMatchingDictionaryIds();
   for (int i=0; i < dictionaryIds.length; i++) {
-    int[] minMax=invertedIndex.getMinMaxRangeFor(dictionaryIds[i]);
-    pairs.add(ImmutablePair.of(minMax[0],minMax[1]));
+    IntPair pair=invertedIndex.getMinMaxRangeFor(dictionaryIds[i]);
+    pairs.add(pair);
   }
   LOGGER.debug("Creating a Sorted Block with pairs: {}",pairs);
   sortedBlock=new SortedBlock(dataSource.getOperatorName(),pairs);
