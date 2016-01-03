@@ -1,0 +1,20 @@
+{
+  int attempt=0;
+  long sleepTime=100;
+  long nRows=-1;
+  while (attempt < 10) {
+    Thread.sleep(sleepTime);
+    nRows=getCurrentServingNumDocs();
+    if (nRows == currentNrows) {
+      sleepTime*=2;
+      attempt++;
+    }
+ else     if (nRows == finalNrows) {
+      return;
+    }
+ else {
+      Assert.fail("Found unexpected number of rows " + nRows);
+    }
+  }
+  Assert.fail("Failed to get from " + currentNrows + " to "+ finalNrows);
+}

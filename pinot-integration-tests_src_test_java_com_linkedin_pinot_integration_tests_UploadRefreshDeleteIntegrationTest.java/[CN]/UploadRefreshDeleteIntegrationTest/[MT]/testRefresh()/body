@@ -1,0 +1,15 @@
+{
+  final int nAtttempts=5;
+  final String segment6="segmentToBeRefreshed_6";
+  final int nRows1=69;
+  generateAndUploadRandomSegment(segment6,nRows1);
+  verifyNRows(0,nRows1);
+  final int nRows2=198;
+  LOGGER.info("Segment {} loaded with {} rows, refreshing with {}",segment6,nRows1,nRows2);
+  generateAndUploadRandomSegment(segment6,nRows2);
+  verifyNRows(nRows1,nRows2);
+  final String segment9="newSegment_9";
+  final int nRows3=102;
+  generateAndUploadRandomSegment(segment9,nRows3);
+  verifyNRows(nRows2,nRows2 + nRows3);
+}

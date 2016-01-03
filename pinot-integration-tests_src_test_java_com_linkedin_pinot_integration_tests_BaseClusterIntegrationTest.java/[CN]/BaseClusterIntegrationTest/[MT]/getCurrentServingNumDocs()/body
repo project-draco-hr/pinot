@@ -1,5 +1,8 @@
 {
   ensurePinotConnectionIsCreated();
-  com.linkedin.pinot.client.ResultSet resultSet=_pinotConnection.execute("SELECT COUNT(*) from mytable LIMIT 0").getResultSet(0);
-  return resultSet.getInt(0);
+  com.linkedin.pinot.client.ResultSetGroup resultSetGroup=_pinotConnection.execute("SELECT COUNT(*) from mytable LIMIT 0");
+  if (resultSetGroup.getResultSetCount() > 0) {
+    return resultSetGroup.getResultSet(0).getInt(0);
+  }
+  return 0;
 }

@@ -1,6 +1,6 @@
 {
   OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_propertyStore,tableName,segmentId);
-  LOGGER.info("Adding or replacing segment {} for table {}",segmentId,tableName);
+  LOGGER.info("Adding or replacing segment {} for table {}",segmentId,tableName,offlineSegmentZKMetadata);
   try {
     SegmentMetadata segmentMetadataForCheck=new SegmentMetadataImpl(offlineSegmentZKMetadata);
     SegmentMetadata localSegmentMetadata=_dataManager.getSegmentMetadata(tableName,segmentId);
@@ -11,6 +11,7 @@
         LOGGER.info("Segment {} found on disk, attempting to load it",segmentId);
         try {
           localSegmentMetadata=_metadataLoader.loadIndexSegmentMetadataFromDir(localSegmentDir);
+          LOGGER.info("Found segment {} crc {} on disk",segmentId,localSegmentMetadata.getCrc());
         }
  catch (        Exception e) {
           LOGGER.error("Failed to load segment metadata from {}. Deleting it.",localSegmentDir,e);
@@ -19,7 +20,7 @@
         }
         try {
           if (!isNewSegmentMetadata(localSegmentMetadata,segmentMetadataForCheck)) {
-            LOGGER.info("Segment metadata same as before, loading {} from disk",segmentId);
+            LOGGER.info("Segment metadata same as before, loading {} (crc {}) from disk",segmentId,localSegmentMetadata.getCrc());
             AbstractTableConfig tableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,tableName);
             _dataManager.addSegment(localSegmentMetadata,tableConfig);
             return;
@@ -34,7 +35,7 @@
     }
     if (isNewSegmentMetadata(localSegmentMetadata,segmentMetadataForCheck)) {
       if (localSegmentMetadata == null) {
-        LOGGER.info("Loading new segment from controller - " + segmentId);
+        LOGGER.info("Loading new segment {} from controller",segmentId);
       }
  else {
         LOGGER.info("Trying to refresh segment {} with new data.",segmentId);
@@ -52,6 +53,7 @@
           final String localSegmentDir=downloadSegmentToLocal(uri,tableName,segmentId);
           final SegmentMetadata segmentMetadata=_metadataLoader.loadIndexSegmentMetadataFromDir(localSegmentDir);
           _dataManager.addSegment(segmentMetadata,tableConfig);
+          LOGGER.info("Downloaded segment {} crc {} from controller",segmentId,segmentMetadata.getCrc());
           break;
         }
  catch (        Exception e) {
@@ -80,7 +82,7 @@
       }
     }
  else {
-      LOGGER.info("Get already loaded segment again, will do nothing.");
+      LOGGER.info("Got already loaded segment {} crc {} again, will do nothing.",segmentId,localSegmentMetadata.getCrc());
     }
   }
  catch (  final Exception e) {
