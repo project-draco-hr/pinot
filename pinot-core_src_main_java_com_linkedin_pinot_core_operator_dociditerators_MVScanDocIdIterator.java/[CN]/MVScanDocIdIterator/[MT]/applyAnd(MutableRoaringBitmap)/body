@@ -1,0 +1,17 @@
+{
+  MutableRoaringBitmap result=new MutableRoaringBitmap();
+  if (evaluator.alwaysFalse()) {
+    return result;
+  }
+  IntIterator intIterator=answer.getIntIterator();
+  int docId, length;
+  while (intIterator.hasNext()) {
+    docId=intIterator.next();
+    valueIterator.skipTo(docId);
+    length=valueIterator.nextIntVal(intArray);
+    if (evaluator.apply(intArray,length)) {
+      result.add(docId);
+    }
+  }
+  return result;
+}

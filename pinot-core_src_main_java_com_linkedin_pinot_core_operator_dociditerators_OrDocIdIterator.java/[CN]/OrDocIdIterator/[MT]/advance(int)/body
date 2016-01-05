@@ -13,23 +13,23 @@
   Iterator<IntPair> iterator=queue.iterator();
   while (iterator.hasNext()) {
     IntPair pair=iterator.next();
-    if (pair.getA() < targetDocId) {
+    if (pair.getLeft() < targetDocId) {
       iterator.remove();
-      iteratorIsInQueue[pair.getB()]=false;
+      iteratorIsInQueue[pair.getRight()]=false;
     }
   }
   for (int i=0; i < docIdIterators.length; i++) {
     if (!iteratorIsInQueue[i]) {
       int nextDocId=docIdIterators[i].advance(targetDocId);
       if (nextDocId != Constants.EOF) {
-        pointers[i].setA(nextDocId);
+        pointers[i].setLeft(nextDocId);
         queue.add(pointers[i]);
       }
       iteratorIsInQueue[i]=true;
     }
   }
   if (queue.size() > 0) {
-    currentDocId=queue.peek().getA();
+    currentDocId=queue.peek().getLeft();
   }
  else {
     currentDocId=Constants.EOF;

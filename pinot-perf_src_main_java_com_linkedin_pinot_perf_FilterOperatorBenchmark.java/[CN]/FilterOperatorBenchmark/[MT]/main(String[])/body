@@ -2,28 +2,14 @@
   String rootDir=args[0];
   File[] segmentDirs=new File(rootDir).listFiles();
   String query=args[1];
-  AtomicLong[] globalSums;
   AtomicInteger totalDocsMatched=new AtomicInteger(0);
   PQLCompiler compiler=new PQLCompiler(new HashMap<String,String[]>());
   JSONObject jsonObject=compiler.compile(query);
   BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
-  List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
-  String[] columns=new String[aggregationsInfo.size()];
-  globalSums=new AtomicLong[columns.length];
-  for (int i=0; i < aggregationsInfo.size(); i++) {
-    AggregationInfo aggregationInfo=aggregationsInfo.get(i);
-    String columnName=aggregationInfo.getAggregationParams().get("column");
-    System.out.println(aggregationInfo.getAggregationType());
-    columns[i]=columnName;
-    globalSums[i]=new AtomicLong(0);
-  }
   List<Callable<Void>> segmentProcessors=new ArrayList<>();
   long[] timesSpent=new long[segmentDirs.length];
   for (int i=0; i < segmentDirs.length; i++) {
     File indexSegmentDir=segmentDirs[i];
-    if (indexSegmentDir.getName().indexOf("_pricing") < 0) {
-      continue;
-    }
     System.out.println("Loading " + indexSegmentDir.getName());
     Configuration tableDataManagerConfig=new PropertiesConfiguration();
     List<String> invertedColumns=new ArrayList<>();
@@ -40,13 +26,11 @@
     tableDataManagerConfig.setProperty(IndexLoadingConfigMetadata.KEY_OF_LOADING_INVERTED_INDEX,invertedColumns);
     IndexLoadingConfigMetadata indexLoadingConfigMetadata=new IndexLoadingConfigMetadata(tableDataManagerConfig);
     IndexSegmentImpl indexSegmentImpl=(IndexSegmentImpl)Loaders.IndexSegment.load(indexSegmentDir,ReadMode.heap,indexLoadingConfigMetadata);
-    segmentProcessors.add(new SegmentProcessor(i,indexSegmentImpl,brokerRequest,columns,globalSums,totalDocsMatched,timesSpent));
+    segmentProcessors.add(new SegmentProcessor(i,indexSegmentImpl,brokerRequest,totalDocsMatched,timesSpent));
   }
   ExecutorService executorService=Executors.newWorkStealingPool();
   for (int run=0; run < 5; run++) {
-    for (    AtomicLong globalSum : globalSums) {
-      globalSum.set(0);
-    }
+    System.out.println("START RUN:" + run);
     totalDocsMatched.set(0);
     long start=System.currentTimeMillis();
     List<Future<Void>> futures=executorService.invokeAll(segmentProcessors);
@@ -54,8 +38,9 @@
       futures.get(i).get();
     }
     long end=System.currentTimeMillis();
-    System.out.println("Total docs matched:" + totalDocsMatched + " sum:"+ Arrays.toString(globalSums)+ " took:"+ (end - start));
+    System.out.println("Total docs matched:" + totalDocsMatched + " took:"+ (end - start));
     System.out.println("Times spent:" + Arrays.toString(timesSpent));
+    System.out.println("END RUN:" + run);
   }
   System.exit(0);
 }

@@ -3,9 +3,9 @@
   if (currentDocId == Constants.EOF) {
     return currentDocId;
   }
-  while (queue.size() > 0 && queue.peek().getA() <= currentDocId) {
+  while (queue.size() > 0 && queue.peek().getLeft() <= currentDocId) {
     IntPair pair=queue.remove();
-    iteratorIsInQueue[pair.getB()]=false;
+    iteratorIsInQueue[pair.getRight()]=false;
   }
   currentDocId++;
   for (int i=0; i < docIdIterators.length; i++) {
@@ -21,7 +21,7 @@
     }
   }
   if (queue.size() > 0) {
-    currentDocId=queue.peek().getA();
+    currentDocId=queue.peek().getLeft();
   }
  else {
     currentDocId=Constants.EOF;

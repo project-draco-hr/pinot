@@ -1,5 +1,5 @@
 {
-  long start, filterPhaseEnd, end;
+  long start, end;
   start=System.currentTimeMillis();
   FilterPlanNode planNode=new FilterPlanNode(indexSegmentImpl,brokerRequest);
   Operator filterOperator=planNode.run();
@@ -7,66 +7,13 @@
   Block block=filterOperator.nextBlock();
   BlockDocIdSet filteredDocIdSet=block.getBlockDocIdSet();
   BlockDocIdIterator iterator=filteredDocIdSet.iterator();
-  filterPhaseEnd=System.currentTimeMillis();
   int docId;
   int matchedCount=0;
-  Map<String,BlockSingleValIterator> dataSourceMap=new HashMap<>();
-  Map<String,UnSortedSingleValueBlock> unsortedSingleValueBlockMap=new HashMap<>();
-  Map<String,Dictionary> dictionaryMap=new HashMap<>();
-  for (int i=0; i < columns.length; i++) {
-    String column=columns[i];
-    DataSource dataSource=indexSegmentImpl.getDataSource(column);
-    Block unsortedSVBlock=dataSource.getNextBlock();
-    dataSourceMap.put(column,(BlockSingleValIterator)unsortedSVBlock.getBlockValueSet().iterator());
-    unsortedSingleValueBlockMap.put(column,(UnSortedSingleValueBlock)unsortedSVBlock);
-    dictionaryMap.put(column,dataSource.getDictionary());
-  }
-  long[] sums=new long[dataSourceMap.size()];
-  Arrays.fill(sums,0);
-  IntIterator docIdIterator=filteredDocIdSet.getRaw();
-  boolean iteratorBased=true;
-  if (iteratorBased) {
-    while ((docId=iterator.next()) != Constants.EOF) {
-      matchedCount=matchedCount + 1;
-    }
-  }
- else {
-    boolean done=true;
-    do {
-      int idx=0;
-      done=true;
-      while (docIdIterator.hasNext()) {
-        docIds[idx]=docIdIterator.next();
-        idx=idx + 1;
-        matchedCount=matchedCount + 1;
-        if (idx == docIds.length - 1) {
-          done=false;
-          break;
-        }
-      }
-      for (int i=0; i < columns.length; i++) {
-        String column=columns[i];
-        UnSortedSingleValueBlock unSortedSingleValueBlock=unsortedSingleValueBlockMap.get(column);
-        SingleColumnSingleValueReader svReader=unSortedSingleValueBlock.getSVReader();
-        for (int j=0; j < idx; j++) {
-          dictIds[j]=svReader.getInt(docIds[j]);
-        }
-        Dictionary dictionary=dictionaryMap.get(column);
-        for (int j=0; j < idx; j++) {
-          values[j]=dictionary.getLongValue(dictIds[j]);
-        }
-        for (int j=0; j < idx; j++) {
-          sums[i]+=values[j];
-        }
-      }
-    }
- while (!done);
+  while ((docId=iterator.next()) != Constants.EOF) {
+    matchedCount=matchedCount + 1;
   }
   end=System.currentTimeMillis();
   timesSpent[id]=(end - start);
-  for (int i=0; i < columns.length; i++) {
-    globalSums[i].addAndGet(sums[i]);
-  }
   filterOperator.close();
   totalDocsMatched.addAndGet(matchedCount);
   return null;
