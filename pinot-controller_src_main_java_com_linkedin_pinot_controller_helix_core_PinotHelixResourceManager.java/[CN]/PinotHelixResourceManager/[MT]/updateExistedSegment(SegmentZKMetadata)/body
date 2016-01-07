@@ -13,6 +13,10 @@
   do {
     final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,tableName);
     final Set<String> instanceSet=idealState.getInstanceSet(segmentName);
+    if (instanceSet == null || instanceSet.size() == 0) {
+      LOGGER.warn("No instances as yet for segment {}, table {}",segmentName,tableName);
+      return true;
+    }
     for (    final String instance : instanceSet) {
       idealState.setPartitionState(segmentName,instance,"OFFLINE");
     }
