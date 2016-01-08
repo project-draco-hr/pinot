@@ -2,9 +2,10 @@
   for (int i=0; i < length; i++) {
     final int entry=entries[i];
     Preconditions.checkArgument(entry >= 0,"dictionary Id %s must >=0",entry);
-    valueBuffer.put(docId + i,entry);
+    valueBuffer.put(currentVacantPos + i,entry);
     int postingListLength=postingListLengths.get(entry);
     postingListLengths.put(entry,postingListLength + 1);
   }
+  currentVacantPos+=length;
   lengths.put(docId,length);
 }
