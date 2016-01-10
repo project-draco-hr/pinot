@@ -1,0 +1,10 @@
+{
+  File collectionDir=new File(funnelsRoot,collection);
+  if (collectionDir.exists()) {
+    FileUtils.deleteDirectory(collectionDir);
+  }
+ else {
+    throw new NotFoundException("Funnel for collection " + collection + " at "+ collectionDir.getPath()+ " does not exist");
+  }
+  return Response.noContent().build();
+}
