@@ -1,10 +1,16 @@
 {
   File collectionDir=new File(funnelsRoot,collection);
-  if (collectionDir.exists()) {
-    FileUtils.deleteDirectory(collectionDir);
+  File funnelsConfigFile=new File(collectionDir,FUNNELS_CONFIG_FILE_NAME);
+  if (funnelsConfigFile.exists()) {
+    File funnelsConfigArchive=new File(collectionDir,FUNNELS_CONFIG_FILE_ARCHIVE);
+    if (funnelsConfigArchive.exists()) {
+      FileUtils.deleteQuietly(funnelsConfigArchive);
+    }
+    FileUtils.moveFile(funnelsConfigFile,funnelsConfigArchive);
   }
  else {
     throw new NotFoundException("Funnel for collection " + collection + " at "+ collectionDir.getPath()+ " does not exist");
   }
+  loadConfigs();
   return Response.noContent().build();
 }
