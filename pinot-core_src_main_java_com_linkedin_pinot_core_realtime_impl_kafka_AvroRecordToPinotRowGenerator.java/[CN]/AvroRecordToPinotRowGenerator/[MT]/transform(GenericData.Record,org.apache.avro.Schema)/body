@@ -2,28 +2,41 @@
   Map<String,Object> rowEntries=new HashMap<String,Object>();
   for (  String column : indexingSchema.getColumnNames()) {
     Object entry=record.get(column);
-    if (entry instanceof Array) {
-      entry=AvroRecordReader.transformAvroArrayToObjectArray((Array)entry,indexingSchema.getFieldSpecFor(column));
-      if (indexingSchema.getFieldSpecFor(column).getDataType() == DataType.STRING || indexingSchema.getFieldSpecFor(column).getDataType() == DataType.STRING_ARRAY) {
-        for (int i=0; i < ((Object[])entry).length; ++i) {
-          if (((Object[])entry)[i] != null) {
-            ((Object[])entry)[i]=((Object[])entry)[i].toString();
+    FieldSpec fieldSpec=indexingSchema.getFieldSpecFor(column);
+    if (entry != null) {
+      if (entry instanceof Array) {
+        entry=AvroRecordReader.transformAvroArrayToObjectArray((Array)entry,fieldSpec);
+        if (fieldSpec.getDataType() == DataType.STRING || fieldSpec.getDataType() == DataType.STRING_ARRAY) {
+          for (int i=0; i < ((Object[])entry).length; ++i) {
+            if (((Object[])entry)[i] != null) {
+              ((Object[])entry)[i]=((Object[])entry)[i].toString();
+            }
           }
         }
       }
-    }
  else {
-      if (entry instanceof Utf8) {
-        entry=((Utf8)entry).toString();
-      }
-      if (indexingSchema.getFieldSpecFor(column).getDataType() == DataType.STRING) {
-        if (entry != null) {
+        if (entry instanceof Utf8) {
+          entry=((Utf8)entry).toString();
+        }
+        if (fieldSpec.getDataType() == DataType.STRING) {
           entry=entry.toString();
         }
       }
     }
-    if (entry == null && indexingSchema.getFieldSpecFor(column).isSingleValueField()) {
-      entry=AvroRecordReader.getDefaultNullValue(indexingSchema.getFieldSpecFor(column));
+ else {
+      if (fieldSpec.isSingleValueField()) {
+        entry=AvroRecordReader.getDefaultNullValue(fieldSpec);
+      }
+ else {
+        entry=AvroRecordReader.transformAvroArrayToObjectArray((Array)entry,fieldSpec);
+        if (fieldSpec.getDataType() == DataType.STRING || fieldSpec.getDataType() == DataType.STRING_ARRAY) {
+          for (int i=0; i < ((Object[])entry).length; ++i) {
+            if (((Object[])entry)[i] != null) {
+              ((Object[])entry)[i]=((Object[])entry)[i].toString();
+            }
+          }
+        }
+      }
     }
     rowEntries.put(column,entry);
   }
