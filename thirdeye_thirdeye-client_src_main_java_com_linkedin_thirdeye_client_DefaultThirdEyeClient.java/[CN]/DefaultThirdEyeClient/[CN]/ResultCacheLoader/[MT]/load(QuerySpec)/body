@@ -1,27 +1,15 @@
 {
-  HttpGet req=new HttpGet("/query/" + URLEncoder.encode(querySpec.getSql(),"UTF-8"));
-  CloseableHttpResponse res=httpClient.execute(httpHost,req);
-  try {
-    if (res.getStatusLine().getStatusCode() != 200) {
-      throw new IllegalStateException(res.getStatusLine().toString());
+  LOG.info("Loading results for {}",querySpec);
+  String sql=querySpec.getSql();
+  ThirdEyeRawResponse rawResponse=getRawResponse(sql);
+  Map<String,MetricType> metricTypes=schemaCache.get(querySpec.getCollection());
+  List<MetricType> projectionTypes=new ArrayList<>();
+  for (  String metricName : rawResponse.getMetrics()) {
+    MetricType metricType=metricTypes.get(metricName);
+    if (metricType == null) {
+      metricType=MetricType.DOUBLE;
     }
-    InputStream content=res.getEntity().getContent();
-    ThirdEyeRawResponse rawResponse=OBJECT_MAPPER.readValue(content,ThirdEyeRawResponse.class);
-    Map<String,MetricType> metricTypes=schemaCache.get(querySpec.getCollection());
-    List<MetricType> projectionTypes=new ArrayList<>();
-    for (    String metricName : rawResponse.getMetrics()) {
-      MetricType metricType=metricTypes.get(metricName);
-      if (metricType == null) {
-        metricType=MetricType.DOUBLE;
-      }
-      projectionTypes.add(metricType);
-    }
-    return rawResponse.convert(projectionTypes);
+    projectionTypes.add(metricType);
   }
-  finally {
-    if (res.getEntity() != null) {
-      EntityUtils.consume(res.getEntity());
-    }
-    res.close();
-  }
+  return rawResponse.convert(projectionTypes);
 }

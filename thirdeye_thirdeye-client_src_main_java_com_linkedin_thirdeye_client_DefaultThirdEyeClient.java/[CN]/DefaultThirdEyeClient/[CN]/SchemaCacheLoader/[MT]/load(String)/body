@@ -1,5 +1,6 @@
 {
-  HttpGet req=new HttpGet("/collections/" + URLEncoder.encode(collection,"UTF-8"));
+  HttpGet req=new HttpGet(COLLECTIONS_ENDPOINT + URLEncoder.encode(collection,UTF_8));
+  LOG.info("Loading metric schema: {}",req);
   CloseableHttpResponse res=httpClient.execute(httpHost,req);
   try {
     if (res.getStatusLine().getStatusCode() != 200) {

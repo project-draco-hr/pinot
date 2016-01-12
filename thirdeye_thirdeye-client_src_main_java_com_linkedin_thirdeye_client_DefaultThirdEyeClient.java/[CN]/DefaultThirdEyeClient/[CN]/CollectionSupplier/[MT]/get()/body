@@ -1,0 +1,24 @@
+{
+  try {
+    HttpGet req=new HttpGet(COLLECTIONS_ENDPOINT);
+    LOG.info("Loading collections: {}",req);
+    CloseableHttpResponse res=httpClient.execute(httpHost,req);
+    try {
+      if (res.getStatusLine().getStatusCode() != 200) {
+        throw new IllegalStateException(res.getStatusLine().toString());
+      }
+      InputStream content=res.getEntity().getContent();
+      List<String> collections=OBJECT_MAPPER.readValue(content,OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class,String.class));
+      return collections;
+    }
+  finally {
+      if (res.getEntity() != null) {
+        EntityUtils.consume(res.getEntity());
+      }
+      res.close();
+    }
+  }
+ catch (  IllegalStateException|IOException e) {
+    throw new RuntimeException(e);
+  }
+}

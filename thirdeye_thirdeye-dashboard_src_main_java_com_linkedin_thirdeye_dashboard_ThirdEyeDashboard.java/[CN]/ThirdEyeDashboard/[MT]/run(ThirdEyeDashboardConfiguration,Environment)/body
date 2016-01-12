@@ -1,10 +1,10 @@
 {
   LOG.info("running the Dashboard application with configs, {}",config.toString());
-  final HttpClient httpClient=new HttpClientBuilder(environment).using(config.getHttpClient()).build(getName());
   ExecutorService queryExecutor=environment.lifecycle().executorService("query_executor").build();
   ConfigCache configCache=new ConfigCache();
-  DataCache dataCache=new DataCache(httpClient,environment.getObjectMapper());
-  QueryCache queryCache=new QueryCache(httpClient,environment.getObjectMapper(),queryExecutor);
+  ThirdEyeClientMap thirdEyeClientMap=new ThirdEyeClientMap(new DefaultThirdEyeClientFactory());
+  DataCache dataCache=new DataCache(thirdEyeClientMap);
+  QueryCache queryCache=new QueryCache(thirdEyeClientMap,queryExecutor);
   CustomDashboardResource customDashboardResource=null;
   if (config.getCustomDashboardRoot() != null) {
     File customDashboardDir=new File(config.getCustomDashboardRoot());
