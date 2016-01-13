@@ -1,5 +1,18 @@
 {
-  QuerySpec querySpec=new QuerySpec(request.getCollection(),request.toSql());
-  LOG.debug("Generated SQL {}",request.toSql());
-  return resultCache.get(querySpec);
+  String sql=request.toSql();
+  LOG.debug("Generated SQL {}",sql);
+  ThirdEyeRawResponse rawResponse=getRawResponse(sql);
+  StarTreeConfig starTreeConfig=getStarTreeConfig(request.getCollection());
+  Map<String,MetricType> metricTypes=new HashMap<>();
+  for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+    String metricName=metricSpec.getName();
+    MetricType metricType=metricSpec.getType();
+    metricTypes.put(metricName,metricType);
+  }
+  List<MetricType> projectionTypes=new ArrayList<>();
+  for (  String metricName : rawResponse.getMetrics()) {
+    MetricType metricType=metricTypes.get(metricName);
+    projectionTypes.add(metricType);
+  }
+  return rawResponse.convert(projectionTypes);
 }

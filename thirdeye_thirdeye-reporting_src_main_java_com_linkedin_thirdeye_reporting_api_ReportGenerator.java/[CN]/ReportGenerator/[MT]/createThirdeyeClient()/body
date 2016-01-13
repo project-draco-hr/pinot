@@ -1,7 +1,8 @@
 {
-  DefaultThirdEyeClientConfig thirdEyeClientConfig=new DefaultThirdEyeClientConfig();
+  CachedThirdEyeClientConfig thirdEyeClientConfig=new CachedThirdEyeClientConfig();
   thirdEyeClientConfig.setExpirationTime(DEFAULT_CACHE_EXPIRATION_MINUTES);
   thirdEyeClientConfig.setExpirationUnit(TimeUnit.MINUTES);
   thirdEyeClientConfig.setExpireAfterAccess(false);
-  thirdeyeClient=new DefaultThirdEyeClient(getThirdeyeHost(),getThirdeyePort(),thirdEyeClientConfig);
+  thirdEyeClientConfig.setUseCacheForExecuteMethod(true);
+  thirdeyeClient=new DefaultThirdEyeClientFactory(thirdEyeClientConfig).getClient(getThirdeyeHost(),getThirdeyePort());
 }

@@ -1,0 +1,20 @@
+{
+  LOG.info("Initializing cache client for {} with config {}, using client",client,config);
+  this.client=client;
+  if (config != null) {
+    config=new CachedThirdEyeClientConfig();
+  }
+  this.config=config;
+  CacheBuilder builder=CacheBuilder.newBuilder();
+  if (config.isExpireAfterAccess()) {
+    builder.expireAfterAccess(config.getExpirationTime(),config.getExpirationUnit());
+  }
+ else {
+    builder.expireAfterWrite(config.getExpirationTime(),config.getExpirationUnit());
+  }
+  this.resultCache=builder.build(new ResultCacheLoader());
+  this.rawResultCache=builder.build(new RawResultCacheLoader());
+  this.starTreeConfigCache=CacheBuilder.newBuilder().expireAfterWrite(DEFAULT_CACHE_DURATION,TimeUnit.SECONDS).build(new StarTreeConfigCacheLoader());
+  this.segmentDescriptorCache=CacheBuilder.newBuilder().expireAfterAccess(DEFAULT_CACHE_DURATION,TimeUnit.MINUTES).build(new SegmentDescriptorCacheLoader());
+  this.collectionsSupplier=buildCollectionsSupplier();
+}

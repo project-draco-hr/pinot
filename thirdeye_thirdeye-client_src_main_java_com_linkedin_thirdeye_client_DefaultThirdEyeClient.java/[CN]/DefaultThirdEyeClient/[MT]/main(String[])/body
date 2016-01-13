@@ -12,7 +12,7 @@
   if (args.length == 7) {
     request.setGroupBy(args[6]);
   }
-  ThirdEyeClient client=new DefaultThirdEyeClient(host,port);
+  ThirdEyeClient client=new DefaultThirdEyeClientFactory().getClient(host,port);
   try {
     Map<DimensionKey,MetricTimeSeries> result=client.execute(request);
     for (    Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {

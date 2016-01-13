@@ -1,0 +1,9 @@
+{
+  requestPermits.acquireUninterruptibly();
+  try {
+    return client.getStarTreeConfig(collection);
+  }
+  finally {
+    requestPermits.release();
+  }
+}

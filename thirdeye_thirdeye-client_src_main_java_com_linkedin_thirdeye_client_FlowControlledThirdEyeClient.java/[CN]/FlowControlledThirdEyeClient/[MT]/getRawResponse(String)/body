@@ -1,0 +1,9 @@
+{
+  requestPermits.acquireUninterruptibly();
+  try {
+    return client.getRawResponse(sql);
+  }
+  finally {
+    requestPermits.release();
+  }
+}

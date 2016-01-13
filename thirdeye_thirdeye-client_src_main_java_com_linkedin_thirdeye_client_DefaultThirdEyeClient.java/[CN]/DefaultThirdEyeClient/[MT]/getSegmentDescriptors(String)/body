@@ -1,3 +1,19 @@
 {
-  return segmentDescriptorCache.get(collection);
+  HttpGet req=new HttpGet(COLLECTIONS_ENDPOINT + URLEncoder.encode(collection,UTF_8) + SEGMENTS_ENDPOINT);
+  LOG.info("Loading segment descriptors: {}",req);
+  CloseableHttpResponse res=httpClient.execute(httpHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    List<SegmentDescriptor> segments=OBJECT_MAPPER.readValue(content,OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class,SegmentDescriptor.class));
+    return segments;
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+    res.close();
+  }
 }

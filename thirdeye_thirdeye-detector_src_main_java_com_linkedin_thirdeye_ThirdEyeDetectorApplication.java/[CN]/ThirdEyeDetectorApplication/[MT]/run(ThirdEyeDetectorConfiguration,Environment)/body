@@ -4,7 +4,7 @@
   final ContextualEventDAO contextualEventDAO=new ContextualEventDAO(hibernate.getSessionFactory());
   final EmailConfigurationDAO emailConfigurationDAO=new EmailConfigurationDAO(hibernate.getSessionFactory());
   final AnomalyFunctionRelationDAO anomalyFunctionRelationDAO=new AnomalyFunctionRelationDAO(hibernate.getSessionFactory());
-  final ThirdEyeClient thirdEyeClient=new DefaultThirdEyeClient(config.getThirdEyeHost(),config.getThirdEyePort());
+  final ThirdEyeClient thirdEyeClient=new DefaultThirdEyeClientFactory().getClient(config.getThirdEyeHost(),config.getThirdEyePort());
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
     }

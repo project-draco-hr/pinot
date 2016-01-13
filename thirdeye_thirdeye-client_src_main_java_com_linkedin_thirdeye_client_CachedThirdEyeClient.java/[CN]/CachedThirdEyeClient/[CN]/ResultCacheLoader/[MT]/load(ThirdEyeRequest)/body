@@ -1,0 +1,19 @@
+{
+  if (!config.useCacheForExecuteMethod()) {
+    return client.execute(request);
+  }
+  ThirdEyeRawResponse thirdEyeRawResponse=rawResultCache.get(request.toSql());
+  StarTreeConfig starTreeConfig=starTreeConfigCache.get(request.getCollection());
+  Map<String,MetricType> metricTypes=new HashMap<>();
+  for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+    String metricName=metricSpec.getName();
+    MetricType metricType=metricSpec.getType();
+    metricTypes.put(metricName,metricType);
+  }
+  List<MetricType> projectionTypes=new ArrayList<>();
+  for (  String metricName : thirdEyeRawResponse.getMetrics()) {
+    MetricType metricType=metricTypes.get(metricName);
+    projectionTypes.add(metricType);
+  }
+  return thirdEyeRawResponse.convert(projectionTypes);
+}

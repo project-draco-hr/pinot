@@ -1,0 +1,9 @@
+{
+  requestPermits.acquireUninterruptibly();
+  try {
+    return client.getCollections();
+  }
+  finally {
+    requestPermits.release();
+  }
+}
