@@ -1,0 +1,12 @@
+{
+  Block block;
+  int count=0;
+  operator.open();
+  while ((block=operator.nextBlock()) != null) {
+    BlockDocIdSet docIdSet=block.getBlockDocIdSet();
+    count+=size(docIdSet);
+  }
+  operator.close();
+  System.out.println("count = " + count);
+  return count;
+}

@@ -1,0 +1,14 @@
+{
+  if (_docIdRangeList.isEmpty()) {
+    _docIdRangeList.add(new DocIdRange(docId));
+  }
+ else {
+    DocIdRange lastRange=_docIdRangeList.get(_docIdRangeList.size() - 1);
+    if (lastRange.isContainedOrAdjacent(docId)) {
+      lastRange.updateWithDocId(docId);
+    }
+ else {
+      _docIdRangeList.add(new DocIdRange(docId));
+    }
+  }
+}
