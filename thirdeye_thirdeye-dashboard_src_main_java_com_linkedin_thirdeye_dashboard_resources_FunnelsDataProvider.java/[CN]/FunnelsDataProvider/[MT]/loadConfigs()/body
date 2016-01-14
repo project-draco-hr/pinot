@@ -1,21 +1,23 @@
 {
   funnelSpecsMap.clear();
   ObjectMapper ymlReader=new ObjectMapper(new YAMLFactory());
-  for (  File f : funnelsRoot.listFiles()) {
-    File funnelsFile=new File(f,FUNNELS_CONFIG_FILE_NAME);
-    if (!funnelsFile.exists()) {
-      LOG.warn("did not find funnels config file {} , in folder {}",FUNNELS_CONFIG_FILE_NAME,f.getName());
-      continue;
-    }
-    try {
-      CustomFunnelSpec spec=ymlReader.readValue(funnelsFile,CustomFunnelSpec.class);
-      String collection=spec.getCollection();
-      FunnelSpec defaultFunnelSpec=createDefaultFunnelSpec(collection);
-      spec.getFunnels().put(defaultFunnelSpec.getName(),defaultFunnelSpec);
-      this.funnelSpecsMap.put(collection,spec);
-    }
- catch (    Exception e) {
-      LOG.error("error loading the configFile",e);
+  if (funnelsRoot.exists()) {
+    for (    File f : funnelsRoot.listFiles()) {
+      File funnelsFile=new File(f,FUNNELS_CONFIG_FILE_NAME);
+      if (!funnelsFile.exists()) {
+        LOG.warn("did not find funnels config file {} , in folder {}",FUNNELS_CONFIG_FILE_NAME,f.getName());
+        continue;
+      }
+      try {
+        CustomFunnelSpec spec=ymlReader.readValue(funnelsFile,CustomFunnelSpec.class);
+        String collection=spec.getCollection();
+        FunnelSpec defaultFunnelSpec=createDefaultFunnelSpec(collection);
+        spec.getFunnels().put(defaultFunnelSpec.getName(),defaultFunnelSpec);
+        this.funnelSpecsMap.put(collection,spec);
+      }
+ catch (      Exception e) {
+        LOG.error("error loading the configFile",e);
+      }
     }
   }
   for (  String collection : getCollections()) {
