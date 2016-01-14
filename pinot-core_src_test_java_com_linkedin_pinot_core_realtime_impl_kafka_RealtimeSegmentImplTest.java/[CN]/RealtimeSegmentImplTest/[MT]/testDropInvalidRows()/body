@@ -1,0 +1,22 @@
+{
+  Schema schema=new Schema.SchemaBuilder().setSchemaName("potato").addSingleValueDimension("dimension",FieldSpec.DataType.STRING).addMetric("metric",FieldSpec.DataType.LONG).addTime("time",TimeUnit.SECONDS,FieldSpec.DataType.LONG).build();
+  RealtimeSegmentImpl realtimeSegment=new RealtimeSegmentImpl(schema,100);
+  Assert.assertEquals(realtimeSegment.getRawDocumentCount(),0);
+  Map<String,Object> genericRowContents=new HashMap<>();
+  genericRowContents.put("dimension","potato");
+  genericRowContents.put("metric",1234L);
+  genericRowContents.put("time",4567L);
+  GenericRow row=new GenericRow();
+  row.init(genericRowContents);
+  boolean notFull=realtimeSegment.index(row);
+  Assert.assertEquals(notFull,true);
+  Assert.assertEquals(realtimeSegment.getRawDocumentCount(),1);
+  genericRowContents.put("metric",null);
+  notFull=realtimeSegment.index(row);
+  Assert.assertEquals(notFull,true);
+  Assert.assertEquals(realtimeSegment.getRawDocumentCount(),1);
+  genericRowContents.put("metric",2222L);
+  notFull=realtimeSegment.index(row);
+  Assert.assertEquals(notFull,true);
+  Assert.assertEquals(realtimeSegment.getRawDocumentCount(),2);
+}

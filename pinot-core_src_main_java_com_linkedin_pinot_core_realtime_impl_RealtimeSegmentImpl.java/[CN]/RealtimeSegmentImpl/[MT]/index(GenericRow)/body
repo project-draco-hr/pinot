@@ -1,4 +1,43 @@
 {
+  StringBuilder invalidColumns=null;
+  for (  String dimension : dataSchema.getDimensionNames()) {
+    Object value=row.getValue(dimension);
+    if (value == null) {
+      if (invalidColumns == null) {
+        invalidColumns=new StringBuilder(dimension);
+      }
+ else {
+        invalidColumns.append(", ").append(dimension);
+      }
+    }
+  }
+  for (  String metric : dataSchema.getMetricNames()) {
+    Object value=row.getValue(metric);
+    if (value == null) {
+      if (invalidColumns == null) {
+        invalidColumns=new StringBuilder(metric);
+      }
+ else {
+        invalidColumns.append(", ").append(metric);
+      }
+    }
+  }
+{
+    Object value=row.getValue(incomingTimeColumnName);
+    if (value == null) {
+      if (invalidColumns == null) {
+        invalidColumns=new StringBuilder(incomingTimeColumnName);
+      }
+ else {
+        invalidColumns.append(", ").append(incomingTimeColumnName);
+      }
+    }
+  }
+  if (invalidColumns != null) {
+    LOGGER.warn("Dropping invalid row {} with null values for column(s) {}",row,invalidColumns);
+    invalidRowsDropped.inc();
+    return true;
+  }
   for (  String dimension : dataSchema.getDimensionNames()) {
     dictionaryMap.get(dimension).index(row.getValue(dimension));
     if (!dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
