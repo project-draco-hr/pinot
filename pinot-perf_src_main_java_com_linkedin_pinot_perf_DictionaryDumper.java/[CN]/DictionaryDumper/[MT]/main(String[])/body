@@ -1,0 +1,19 @@
+{
+  if (args.length != 3) {
+    LOGGER.error("Usage: DictionaryDumper <segmentDirectory> <dimensionName> <comma-separated dictionaryIds>");
+    System.exit(1);
+  }
+  File[] segmentDirs=new File(args[0]).listFiles();
+  for (int i=0; i < segmentDirs.length; i++) {
+    File indexSegmentDir=segmentDirs[i];
+    System.out.println("Loading " + indexSegmentDir.getName());
+    IndexSegmentImpl indexSegmentImpl=(IndexSegmentImpl)Loaders.IndexSegment.load(indexSegmentDir,ReadMode.heap);
+    ImmutableDictionaryReader colDictionary=indexSegmentImpl.getDictionaryFor(args[1]);
+    List<String> strIdList=Arrays.asList(args[2].split(","));
+    for (    String strId : strIdList) {
+      int id=Integer.valueOf(strId);
+      String s=colDictionary.getStringValue(id);
+      System.out.println(String.format("%d -> %s",id,s));
+    }
+  }
+}
