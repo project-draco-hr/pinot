@@ -8,6 +8,11 @@
   }
   SegmentGeneratorConfig genConfig=new SegmentGeneratorConfig(dataSchema);
   genConfig.setInputFilePath(null);
+  if (invertedIndexColumns != null && !invertedIndexColumns.isEmpty()) {
+    for (    String column : invertedIndexColumns) {
+      genConfig.createInvertedIndexForColumn(column);
+    }
+  }
   genConfig.setTimeColumnName(dataSchema.getTimeFieldSpec().getOutGoingTimeColumnName());
   genConfig.setTimeUnitForSegment(dataSchema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType());
   genConfig.setSegmentVersion(SegmentVersion.v1);

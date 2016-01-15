@@ -40,6 +40,10 @@
     }
   }
   for (  String column : config.getInvertedIndexCreationColumns()) {
+    if (!schema.isExisted(column)) {
+      LOGGER.warn("Skipping enabling index on column:{} since its missing in schema",column);
+      continue;
+    }
     ColumnIndexCreationInfo indexCreationInfo=indexCreationInfoMap.get(column);
     int uniqueValueCount=indexCreationInfo.getDistinctValueCount();
     OffHeapBitmapInvertedIndexCreator invertedIndexCreator=new OffHeapBitmapInvertedIndexCreator(file,uniqueValueCount,totalDocs,indexCreationInfo.getTotalNumberOfEntries(),schema.getFieldSpecFor(column));

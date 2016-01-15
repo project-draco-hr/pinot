@@ -1,11 +1,12 @@
 {
   this.schema=schema;
-  if (tableConfig.getIndexingConfig().getSortedColumn().isEmpty()) {
+  IndexingConfig indexingConfig=tableConfig.getIndexingConfig();
+  if (indexingConfig.getSortedColumn().isEmpty()) {
     LOGGER.info("RealtimeDataResourceZKMetadata contains no information about sorted column");
     this.sortedColumn=null;
   }
  else {
-    String firstSortedColumn=tableConfig.getIndexingConfig().getSortedColumn().get(0);
+    String firstSortedColumn=indexingConfig.getSortedColumn().get(0);
     if (this.schema.isExisted(firstSortedColumn)) {
       LOGGER.info("Setting sorted column name: {} from RealtimeDataResourceZKMetadata.",firstSortedColumn);
       this.sortedColumn=firstSortedColumn;
@@ -15,6 +16,8 @@
       this.sortedColumn=null;
     }
   }
+  invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
+  LOGGER.info("Enabling inverted  index for columns name: {}",invertedIndexColumns);
   this.segmentMetatdaZk=segmentMetadata;
   this.segmentName=segmentMetadata.getSegmentName();
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
@@ -69,7 +72,7 @@ catch (        Error e) {
         LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
         LOGGER.info("Indexed " + realtimeSegment.getRawDocumentCount() + " raw events, current number of docs = "+ realtimeSegment.getTotalDocs());
         File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
-        RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn);
+        RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn,invertedIndexColumns);
         LOGGER.info("Trying to build segment!");
         converter.build();
         File destDir=new File(resourceDataDir,segmentMetadata.getSegmentName());

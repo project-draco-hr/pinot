@@ -1,0 +1,23 @@
+{
+  if (new File(outputPath).exists()) {
+    throw new IllegalAccessError("path already exists:" + outputPath);
+  }
+  TimeFieldSpec original=schema.getTimeFieldSpec();
+  TimeGranularitySpec incoming=original.getIncomingGranularitySpec();
+  TimeFieldSpec newTimeSpec=new TimeFieldSpec(incoming);
+  Schema newSchema=new Schema();
+  for (  String dimension : schema.getDimensionNames()) {
+    newSchema.addSchema(dimension,schema.getFieldSpecFor(dimension));
+  }
+  for (  String metic : schema.getMetricNames()) {
+    newSchema.addSchema(metic,schema.getFieldSpecFor(metic));
+  }
+  newSchema.addSchema(newTimeSpec.getName(),newTimeSpec);
+  this.realtimeSegmentImpl=realtimeSegment;
+  this.outputPath=outputPath;
+  this.invertedIndexColumns=invertedIndexColumns;
+  this.dataSchema=newSchema;
+  this.sortedColumn=sortedColumn;
+  this.tableName=tableName;
+  this.segmentName=segmentName;
+}
