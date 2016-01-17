@@ -1,7 +1,9 @@
 {
   Object zkAddressObj=getProperty(ZK_STR);
   if (zkAddressObj instanceof ArrayList) {
-    return String.join(",",(ArrayList)zkAddressObj);
+    List<String> zkAddressList=(ArrayList<String>)zkAddressObj;
+    String[] zkAddress=zkAddressList.toArray(new String[0]);
+    return StringUtil.join(",",zkAddress);
   }
  else   if (zkAddressObj instanceof String) {
     return (String)zkAddressObj;

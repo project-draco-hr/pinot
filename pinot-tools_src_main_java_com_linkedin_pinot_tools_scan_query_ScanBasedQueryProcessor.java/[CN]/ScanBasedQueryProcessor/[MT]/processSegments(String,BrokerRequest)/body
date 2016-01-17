@@ -1,6 +1,6 @@
 {
   ExecutorService executorService=Executors.newFixedThreadPool(10);
-  List<ResultTable> resultTables=Collections.synchronizedList(new ArrayList<ResultTable>());
+  final List<ResultTable> resultTables=Collections.synchronizedList(new ArrayList<ResultTable>());
   for (  final SegmentQueryProcessor segmentQueryProcessor : _segmentQueryProcessorMap.values()) {
     executorService.execute(new Runnable(){
       @Override public void run(){

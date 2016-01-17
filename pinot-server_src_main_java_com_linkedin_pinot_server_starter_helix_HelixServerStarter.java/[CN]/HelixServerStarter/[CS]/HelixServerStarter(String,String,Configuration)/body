@@ -1,2 +1,50 @@
 {
+  _helixClusterName=helixClusterName;
+  _pinotHelixProperties=pinotHelixProperties;
+  _instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress()) + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
+  pinotHelixProperties.addProperty("pinot.server.instance.id",_instanceId);
+  startServerInstance(pinotHelixProperties);
+  String zkServers=zkServer.replaceAll("\\s+","");
+  _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,_instanceId,InstanceType.PARTICIPANT,zkServers);
+  final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
+  _helixManager.connect();
+  ZkHelixPropertyStore<ZNRecord> zkPropertyStore=ZkUtils.getZkPropertyStore(_helixManager,helixClusterName);
+  SegmentFetcherAndLoader fetcherAndLoader=new SegmentFetcherAndLoader(_serverInstance.getInstanceDataManager(),new ColumnarSegmentMetadataLoader(),zkPropertyStore,pinotHelixProperties,_instanceId);
+  final StateModelFactory<?> stateModelFactory=new SegmentOnlineOfflineStateModelFactory(helixClusterName,_instanceId,_serverInstance.getInstanceDataManager(),zkPropertyStore,fetcherAndLoader);
+  stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
+  _helixAdmin=_helixManager.getClusterManagmentTool();
+  addInstanceTagIfNeeded(helixClusterName,_instanceId);
+  setShuttingDownStatus(false);
+  SegmentMessageHandlerFactory messageHandlerFactory=new SegmentMessageHandlerFactory(fetcherAndLoader);
+  _helixManager.getMessagingService().registerMessageHandlerFactory(Message.MessageType.USER_DEFINE_MSG.toString(),messageHandlerFactory);
+  _serverInstance.getServerMetrics().addCallbackGauge("helix.connected",new Callable<Long>(){
+    @Override public Long call() throws Exception {
+      return _helixManager.isConnected() ? 1L : 0L;
+    }
+  }
+);
+  _helixManager.addPreConnectCallback(new PreConnectCallback(){
+    @Override public void onPreConnect(){
+      _serverInstance.getServerMetrics().addMeteredValue(null,ServerMeter.HELIX_ZOOKEEPER_RECONNECTS,1L);
+    }
+  }
+);
+  _serverInstance.getServerMetrics().addCallbackGauge("memory.directByteBufferUsage",new Callable<Long>(){
+    @Override public Long call() throws Exception {
+      return MmapUtils.getDirectByteBufferUsage();
+    }
+  }
+);
+  _serverInstance.getServerMetrics().addCallbackGauge("memory.mmapBufferUsage",new Callable<Long>(){
+    @Override public Long call() throws Exception {
+      return MmapUtils.getMmapBufferUsage();
+    }
+  }
+);
+  _serverInstance.getServerMetrics().addCallbackGauge("memory.mmapBufferCount",new Callable<Long>(){
+    @Override public Long call() throws Exception {
+      return MmapUtils.getMmapBufferCount();
+    }
+  }
+);
 }

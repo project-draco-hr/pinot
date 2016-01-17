@@ -1,2 +1,38 @@
 {
+  _liveInstancesListener=new LiveInstancesChangeListenerImpl(helixClusterName);
+  _pinotHelixProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf(pinotHelixProperties);
+  final String brokerId=_pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE + NetUtil.getHostAddress() + "_"+ _pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT));
+  _pinotHelixProperties.addProperty("pinot.broker.id",brokerId);
+  setupHelixSystemProperties();
+  RoutingTableBuilder defaultOfflineRoutingTableBuilder=getRoutingTableBuilder(_pinotHelixProperties.subset(DEFAULT_OFFLINE_ROUTING_TABLE_BUILDER_KEY));
+  RoutingTableBuilder defaultRealtimeRoutingTableBuilder=getRoutingTableBuilder(_pinotHelixProperties.subset(DEFAULT_REALTIME_ROUTING_TABLE_BUILDER_KEY));
+  Map<String,RoutingTableBuilder> tableToRoutingTableBuilderMap=getTableToRoutingTableBuilderMap(_pinotHelixProperties.subset(ROUTING_TABLE_BUILDER_KEY));
+  String zkServers=zkServer.replaceAll("\\s+","");
+  _zkClient=new ZkClient(getZkAddressForBroker(zkServers,helixClusterName),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
+  _propertyStore=new ZkHelixPropertyStore<ZNRecord>(new ZkBaseDataAccessor<ZNRecord>(_zkClient),"/",null);
+  _helixExternalViewBasedRouting=new HelixExternalViewBasedRouting(defaultOfflineRoutingTableBuilder,defaultRealtimeRoutingTableBuilder,tableToRoutingTableBuilderMap,_propertyStore);
+  _brokerServerBuilder=startBroker(_pinotHelixProperties);
+  _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,brokerId,InstanceType.PARTICIPANT,zkServers);
+  final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
+  final StateModelFactory<?> stateModelFactory=new BrokerResourceOnlineOfflineStateModelFactory(_helixManager,_helixExternalViewBasedRouting);
+  stateMachineEngine.registerStateModelFactory(BrokerResourceOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
+  _helixManager.connect();
+  _helixAdmin=_helixManager.getClusterManagmentTool();
+  _helixBrokerRoutingTable=new HelixBrokerRoutingTable(_helixExternalViewBasedRouting,brokerId,_helixManager);
+  addInstanceTagIfNeeded(helixClusterName,brokerId);
+  _helixManager.addExternalViewChangeListener(_helixBrokerRoutingTable);
+  _helixManager.addInstanceConfigChangeListener(_helixBrokerRoutingTable);
+  _helixManager.addLiveInstanceChangeListener(_liveInstancesListener);
+  _brokerServerBuilder.getBrokerMetrics().addCallbackGauge("helix.connected",new Callable<Long>(){
+    @Override public Long call() throws Exception {
+      return _helixManager.isConnected() ? 1L : 0L;
+    }
+  }
+);
+  _helixManager.addPreConnectCallback(new PreConnectCallback(){
+    @Override public void onPreConnect(){
+      _brokerServerBuilder.getBrokerMetrics().addMeteredValue(null,BrokerMeter.HELIX_ZOOKEEPER_RECONNECTS,1L);
+    }
+  }
+);
 }
