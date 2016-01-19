@@ -2,7 +2,7 @@
   if (!config.useCacheForExecuteMethod()) {
     return client.execute(request);
   }
-  ThirdEyeRawResponse thirdEyeRawResponse=rawResultCache.get(request.toSql());
+  ThirdEyeRawResponse thirdEyeRawResponse=rawResultCache.get(request);
   StarTreeConfig starTreeConfig=starTreeConfigCache.get(request.getCollection());
   Map<String,MetricType> metricTypes=new HashMap<>();
   for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {

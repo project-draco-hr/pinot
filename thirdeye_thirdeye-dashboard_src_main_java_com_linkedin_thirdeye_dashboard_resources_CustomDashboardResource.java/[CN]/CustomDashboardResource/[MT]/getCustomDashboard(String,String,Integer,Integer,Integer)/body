@@ -2,10 +2,10 @@
   CustomDashboardSpec spec=configCache.getCustomDashboardSpec(collection,name);
   List<Pair<CustomDashboardComponentSpec,View>> views=new ArrayList<>();
   for (  CustomDashboardComponentSpec componentSpec : spec.getComponents()) {
-    MultivaluedMap<String,String> dimensionValues=new MultivaluedMapImpl();
+    Multimap<String,String> dimensionValues=LinkedListMultimap.create();
     if (componentSpec.getDimensions() != null) {
       for (      Map.Entry<String,List<String>> entry : componentSpec.getDimensions().entrySet()) {
-        dimensionValues.put(entry.getKey(),entry.getValue());
+        dimensionValues.putAll(entry.getKey(),entry.getValue());
       }
     }
     List<String> metrics=componentSpec.getMetrics();

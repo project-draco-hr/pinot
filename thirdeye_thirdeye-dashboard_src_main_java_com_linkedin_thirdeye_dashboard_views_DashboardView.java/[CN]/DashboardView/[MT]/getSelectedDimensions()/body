@@ -1,8 +1,9 @@
 {
   Map<String,String> dimensions=new HashMap<>(selectedDimensions.size());
-  for (  Map.Entry<String,List<String>> entry : selectedDimensions.entrySet()) {
-    String value=StringUtils.join(entry.getValue()," OR ");
-    dimensions.put(entry.getKey(),value);
+  for (  String key : selectedDimensions.keySet()) {
+    Collection<String> values=selectedDimensions.get(key);
+    String value=StringUtils.join(values," OR ");
+    dimensions.put(key,value);
   }
   return dimensions;
 }

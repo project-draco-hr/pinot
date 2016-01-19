@@ -33,14 +33,13 @@
   collection=anomalyFunction.getSpec().getCollection();
   knownAnomalies=getExistingAnomalies();
   Queue<ThirdEyeRequest> queue=new LinkedList<>();
-  ThirdEyeRequest req=new ThirdEyeRequest().setCollection(anomalyFunction.getSpec().getCollection()).setMetricFunction(metricFunction).setStartTime(windowStart).setEndTime(windowEnd);
+  ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(anomalyFunction.getSpec().getCollection()).setMetricFunction(metricFunction).setStartTime(windowStart).setEndTime(windowEnd).build();
   queue.add(req);
   String exploreDimensionsString=anomalyFunction.getSpec().getExploreDimensions();
   if (exploreDimensionsString != null) {
     String[] exploreDimensions=exploreDimensionsString.split(",");
     for (    String exploreDimension : exploreDimensions) {
-      ThirdEyeRequest groupByReq=new ThirdEyeRequest(req);
-      groupByReq.setGroupBy(exploreDimension);
+      ThirdEyeRequest groupByReq=new ThirdEyeRequestBuilder(req).setGroupBy(exploreDimension).build();
       queue.add(groupByReq);
     }
   }

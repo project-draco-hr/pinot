@@ -1,0 +1,60 @@
+{
+  DateTime baselineStart=ViewUtils.standardizeDate(baselineMillis,intraPeriod);
+  DateTime currentStart=ViewUtils.standardizeDate(currentMillis,intraPeriod);
+  long intraPeriodMillis=intraPeriod.getMillis();
+  DateTime currentEnd=currentStart.plus(intraPeriodMillis);
+  DateTime baselineEnd=baselineStart.plus(intraPeriodMillis);
+  List<String> metricFunctionLevels=ViewUtils.getMetricFunctionLevels(urlMetricFunction);
+  String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
+  Map<String,Multimap<String,String>> dimensionGroups=DimensionGroupSpec.emptySpec(collection).getReverseMapping();
+  Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValuesMap,dimensionGroups);
+  ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineStart).setEndTime(baselineEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStart).setEndTime(currentEnd).setDimensionValues(expandedDimensionValues).build();
+  LOG.info("funnel queries for collection : {}, with name : {} ",collection,spec.getName());
+  LOG.info("Generated request for funnel baseline: {}",baselineReq);
+  LOG.info("Generated request for funnel current: {}",currentReq);
+  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineReq);
+  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentReq);
+  Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
+  Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
+  long baselineOffsetMillis=currentStart.getMillis() - baselineStart.getMillis();
+  List<MetricDataRow> table=ViewUtils.extractMetricDataRows(baselineData,currentData,currentStart.getMillis(),intraPeriodMillis,baselineOffsetMillis);
+  Map<String,Integer> metricNameToIndex=new HashMap<>();
+  List<String> resultMetrics=baselineResult.get().getMetrics();
+  for (int i=0; i < resultMetrics.size(); i++) {
+    metricNameToIndex.put(resultMetrics.get(i),i);
+  }
+  List<MetricDataRow> filteredTable=new ArrayList<>();
+  int metricCount=spec.getActualMetricNames().size();
+  for (  MetricDataRow row : table) {
+    Number[] filteredBaseline=new Number[metricCount];
+    Number[] filteredCurrent=new Number[metricCount];
+    for (int i=0; i < metricCount; i++) {
+      String metricName=spec.getActualMetricNames().get(i);
+      Integer metricIdx=metricNameToIndex.get(metricName);
+      Number baselineValue=null;
+      if (row.getBaseline() != null) {
+        try {
+          baselineValue=row.getBaseline()[metricIdx];
+        }
+ catch (        Exception e) {
+          LOG.error("",e);
+        }
+      }
+      filteredBaseline[i]=baselineValue;
+      Number currentValue=null;
+      if (row.getCurrent() != null) {
+        try {
+          currentValue=row.getCurrent()[metricIdx];
+        }
+ catch (        Exception e) {
+          LOG.error("",e);
+        }
+      }
+      filteredCurrent[i]=currentValue;
+    }
+    MetricDataRow filteredRow=new MetricDataRow(row.getBaselineTime(),filteredBaseline,row.getCurrentTime(),filteredCurrent);
+    filteredTable.add(filteredRow);
+  }
+  return new FunnelTable(spec,new MetricTable(filteredTable,metricCount),currentStart,baselineStart);
+}

@@ -1,0 +1,9 @@
+{
+  String testDimKey="test1";
+  String testGroup="test2";
+  ThirdEyeRequest req=new ThirdEyeRequestBuilder().addDimensionValue(testDimKey,ThirdEyeRequest.GROUP_BY_VALUE).addGroupBy(testGroup).build();
+  HashSet<String> groups=new HashSet<>();
+  groups.add(testDimKey);
+  groups.add(testGroup);
+  Assert.assertEquals(groups,req.getGroupBy());
+}

@@ -1,0 +1,19 @@
+{
+  List<String> removedKeys=new ArrayList<String>();
+  for (  String key : dimensionValues.keySet()) {
+    Collection<String> values=dimensionValues.get(key);
+    if (values != null && values.size() == 1 && GROUP_BY_VALUE.equals(values.iterator().next())) {
+      this.groupBy.add(key);
+      removedKeys.add(key);
+    }
+  }
+  for (  String keyToRemove : removedKeys) {
+    this.dimensionValues.removeAll(keyToRemove);
+  }
+  for (  String groupName : groupBy) {
+    if (dimensionValues.containsKey(groupName)) {
+      throw new IllegalArgumentException("Cannot group by fixed dimension " + groupName);
+    }
+  }
+  return new ThirdEyeRequest(this);
+}

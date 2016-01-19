@@ -3,17 +3,18 @@
   DateTime baselineRangeEnd=new DateTime(baselineMillis);
   DateTime currentRangeStart=new DateTime(currentMillis - windowMillis);
   DateTime currentRangeEnd=new DateTime(currentMillis);
-  MultivaluedMap<String,String> dimensionValues=uriInfo.getQueryParameters();
+  Multimap<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo);
   CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
-  Map<String,Map<String,List<String>>> reverseDimensionGroups=null;
+  Map<String,Multimap<String,String>> reverseDimensionGroups=null;
   DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
   if (dimensionGroupSpec != null) {
     reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
   }
-  String baselineSeriesSql=SqlUtils.getSql(metricFunction,collection,baselineRangeStart,baselineRangeEnd,dimensionValues,reverseDimensionGroups);
-  String currentSeriesSql=SqlUtils.getSql(metricFunction,collection,currentRangeStart,currentRangeEnd,dimensionValues,reverseDimensionGroups);
-  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSeriesSql);
-  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSeriesSql);
+  Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValues,reverseDimensionGroups);
+  ThirdEyeRequest baselineSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineRangeStart).setEndTime(baselineRangeEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest currentSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentRangeStart).setEndTime(currentRangeEnd).setDimensionValues(expandedDimensionValues).build();
+  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSeriesReq);
+  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSeriesReq);
   List<AnomalyTableRow> anomalies=null;
   if (displayAnomalies) {
     anomalies=AnomalyTable.selectRows(anomalyDatabase,collection,null,null,null,null,null,false,null,new TimeRange(currentMillis - windowMillis,currentMillis));

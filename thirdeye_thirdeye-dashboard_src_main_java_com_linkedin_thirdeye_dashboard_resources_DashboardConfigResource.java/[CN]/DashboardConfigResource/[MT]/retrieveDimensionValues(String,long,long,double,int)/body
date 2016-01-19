@@ -4,14 +4,12 @@
   DateTime current=new DateTime(currentMillis);
   List<String> metrics=getMetrics(collection);
   String dummyFunction=String.format(DIMENSION_VALUES_OPTIONS_METRIC_FUNCTION,METRIC_FUNCTION_JOINER.join(metrics));
-  MultivaluedMap<String,String> dimensionValues=new MultivaluedMapImpl();
+  Multimap<String,String> dimensionValues=LinkedListMultimap.create();
   Map<String,Future<QueryResult>> resultFutures=new HashMap<>();
   for (  String dimension : dimensions) {
-    dimensionValues.put(dimension,Arrays.asList("!"));
-    String sql=SqlUtils.getSql(dummyFunction,collection,baseline,current,dimensionValues,null);
-    LOGGER.info("Generated SQL for dimension retrieval {}: {}",serverUri,sql);
-    dimensionValues.remove(dimension);
-    resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,sql));
+    ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(dummyFunction).setStartTime(baseline).setEndTime(current).setDimensionValues(dimensionValues).setGroupBy(dimension).build();
+    LOGGER.info("Generated request for dimension retrieval {}: {}",serverUri,req);
+    resultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,req));
   }
   Map<String,Collection<String>> collectedDimensionValues=new HashMap<>();
   for (int i=0; i < dimensions.size(); i++) {

@@ -8,13 +8,13 @@
   String metricFunction=args[3];
   DateTime startTime=ISODateTimeFormat.dateTimeParser().parseDateTime(args[4]);
   DateTime endTime=ISODateTimeFormat.dateTimeParser().parseDateTime(args[5]);
-  ThirdEyeRequest request=new ThirdEyeRequest().setCollection(collection).setStartTime(startTime).setEndTime(endTime).setMetricFunction(metricFunction);
+  ThirdEyeRequestBuilder requestBuilder=new ThirdEyeRequestBuilder().setCollection(collection).setStartTime(startTime).setEndTime(endTime).setMetricFunction(metricFunction);
   if (args.length == 7) {
-    request.setGroupBy(args[6]);
+    requestBuilder.setGroupBy(args[6]);
   }
   ThirdEyeClient client=new DefaultThirdEyeClientFactory().getClient(host,port);
   try {
-    Map<DimensionKey,MetricTimeSeries> result=client.execute(request);
+    Map<DimensionKey,MetricTimeSeries> result=client.execute(requestBuilder.build());
     for (    Map.Entry<DimensionKey,MetricTimeSeries> entry : result.entrySet()) {
       System.out.println(entry.getKey() + " #=> " + entry.getValue());
     }

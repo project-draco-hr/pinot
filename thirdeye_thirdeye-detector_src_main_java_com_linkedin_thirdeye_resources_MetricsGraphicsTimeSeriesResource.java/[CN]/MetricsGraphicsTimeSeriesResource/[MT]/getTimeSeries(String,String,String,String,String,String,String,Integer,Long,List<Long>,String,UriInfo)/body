@@ -2,11 +2,11 @@
   DateTime startTime=parseDateTime(startTimeISO,timeZone);
   DateTime endTime=parseDateTime(endTimeISO,timeZone);
   Multimap<String,String> fixedValues=extractDimensionValues(uriInfo);
-  ThirdEyeRequest req=new ThirdEyeRequest().setCollection(collection).setMetricFunction(getMetricFunction(metric,bucketSize)).setStartTime(startTime).setEndTime(endTime).setDimensionValues(fixedValues);
+  ThirdEyeRequestBuilder req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(getMetricFunction(metric,bucketSize)).setStartTime(startTime).setEndTime(endTime).setDimensionValues(fixedValues);
   if (groupBy != null) {
     req.setGroupBy(groupBy);
   }
-  Map<DimensionKey,MetricTimeSeries> res=thirdEyeClient.execute(req);
+  Map<DimensionKey,MetricTimeSeries> res=thirdEyeClient.execute(req.build());
   Map<DimensionKey,List<Map<String,Object>>> dataByDimensionKey=new HashMap<>(res.size());
   final Map<DimensionKey,Double> totalVolume=new HashMap<>(res.size());
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : res.entrySet()) {
@@ -68,7 +68,7 @@
       throw new BadRequestException("Invalid overlay unit " + overlayUnit);
     }
     long shiftMillis=endTime.getMillis() - overlayEnd.getMillis();
-    ThirdEyeRequest overlayReq=new ThirdEyeRequest().setCollection(collection).setMetricFunction(getMetricFunction(metric,bucketSize)).setStartTime(overlayStart).setEndTime(overlayEnd).setDimensionValues(fixedValues);
+    ThirdEyeRequest overlayReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(getMetricFunction(metric,bucketSize)).setStartTime(overlayStart).setEndTime(overlayEnd).setDimensionValues(fixedValues).build();
     Map<DimensionKey,MetricTimeSeries> overlayRes=thirdEyeClient.execute(overlayReq);
     for (    Map.Entry<DimensionKey,MetricTimeSeries> entry : overlayRes.entrySet()) {
       List<Map<String,Object>> overlaySeries=convertSeries(entry.getKey(),entry.getValue(),metric,null);
@@ -78,7 +78,7 @@
   }
   MetricsGraphicsTimeSeries timeSeries=new MetricsGraphicsTimeSeries();
   timeSeries.setTitle(metric + (groupBy == null || "".equals(groupBy) ? "" : " by " + groupBy));
-  timeSeries.setDescription(req.toSql());
+  timeSeries.setDescription(req.toString());
   timeSeries.setData(data);
   timeSeries.setxAccessor("time");
   timeSeries.setyAccessor("value");

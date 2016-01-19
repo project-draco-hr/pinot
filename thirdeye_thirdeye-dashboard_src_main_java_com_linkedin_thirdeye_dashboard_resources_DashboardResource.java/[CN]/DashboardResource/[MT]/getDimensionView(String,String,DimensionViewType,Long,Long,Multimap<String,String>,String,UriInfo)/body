@@ -1,0 +1,41 @@
+{
+  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+  DateTime baseline=new DateTime(baselineMillis);
+  DateTime current=new DateTime(currentMillis);
+  LOGGER.info("Request uri: {}",uriInfo.getRequestUri());
+  Map<String,Multimap<String,String>> reverseDimensionGroups=null;
+  DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
+  if (dimensionGroupSpec != null) {
+    reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
+  }
+switch (dimensionViewType) {
+case CONTRIBUTOR:
+case MULTI_TIME_SERIES:
+    List<String> viewDimensions=dashboardConfigResource.getDimensions(collection,uriInfo);
+  return contributorResource.generateDimensionContributorView(collection,metricFunction,selectedDimensions,viewDimensions,baseline,current,reverseDimensionGroups);
+case HEAT_MAP:
+Map<String,Future<QueryResult>> resultActualFutures=new HashMap<>();
+Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(selectedDimensions,reverseDimensionGroups);
+for (String dimension : schema.getDimensions()) {
+if (!selectedDimensions.containsKey(dimension)) {
+ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baseline).setEndTime(current).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).build();
+LOGGER.info("Generated request for heat map: {}",req);
+resultActualFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,req));
+}
+}
+Map<String,Map<String,String>> dimensionGroups=null;
+Map<String,Map<Pattern,String>> dimensionRegex=null;
+DimensionGroupSpec groupSpec=configCache.getDimensionGroupSpec(collection);
+if (groupSpec != null) {
+dimensionGroups=groupSpec.getMapping();
+dimensionRegex=groupSpec.getRegexMapping();
+}
+Map<String,QueryResult> actualResults=QueryUtils.waitForQueries(resultActualFutures);
+return new DimensionViewHeatMap(schema,objectMapper,actualResults,dimensionGroups,dimensionRegex);
+case TABULAR:
+List<FunnelTable> funnelTables=funnelResource.computeFunnelViews(collection,metricFunction,funnels,baselineMillis,currentMillis,selectedDimensions);
+return new DimensionViewFunnel(funnelTables);
+default :
+throw new NotFoundException("No dimension view implementation for " + dimensionViewType);
+}
+}

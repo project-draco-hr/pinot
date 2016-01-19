@@ -1,0 +1,13 @@
+{
+  if (groupBy == null) {
+    return null;
+  }
+  List<String> components=new ArrayList<>();
+  for (  String group : groupBy) {
+    components.add(String.format("'%s'",group));
+  }
+  if (components.isEmpty()) {
+    return null;
+  }
+  return String.format("GROUP BY %s",COMMA.join(components));
+}

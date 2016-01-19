@@ -1,12 +1,10 @@
 {
-  MultivaluedMap<String,String> selectedDimensions=uriInfo.getQueryParameters();
-  List<String> selectedFunnelsList=selectedDimensions.remove("funnels");
-  String selectedFunnels=(selectedFunnelsList == null || selectedFunnelsList.isEmpty()) ? null : selectedFunnelsList.get(0);
-  for (  Entry<String,List<String>> entry : selectedDimensions.entrySet()) {
-    for (    String value : entry.getValue()) {
-      if ("!".equals(value)) {
-        throw new WebApplicationException(new IllegalArgumentException("No group by dimensions allowed"),Response.Status.BAD_REQUEST);
-      }
+  Multimap<String,String> selectedDimensions=UriUtils.extractDimensionValues(uriInfo);
+  Collection<String> selectedFunnelsList=UriUtils.extractFunnels(uriInfo);
+  String selectedFunnels=(selectedFunnelsList == null || selectedFunnelsList.isEmpty()) ? null : selectedFunnelsList.iterator().next();
+  for (  String value : selectedDimensions.values()) {
+    if (ThirdEyeRequest.GROUP_BY_VALUE.equals(value)) {
+      throw new WebApplicationException(new IllegalArgumentException("No group by dimensions allowed"),Response.Status.BAD_REQUEST);
     }
   }
   List<SegmentDescriptor> segments=dataCache.getSegmentDescriptors(serverUri,collection);
