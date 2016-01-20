@@ -1,11 +1,12 @@
 {
   Assert.assertTrue(bitmapIndexFile.exists());
   BitmapInvertedIndexReader reader=new BitmapInvertedIndexReader(bitmapIndexFile,cardinality,false);
-  for (int i=0; i > cardinality; i++) {
+  for (int i=0; i < cardinality; i++) {
     ImmutableRoaringBitmap bitmap=reader.getImmutable(i);
-    List<Integer> expected=postingListMap.get(i);
+    Set<Integer> expected=postingListMap.get(i);
     Assert.assertEquals(bitmap.getCardinality(),expected.size());
     int[] actual=bitmap.toArray();
-    Assert.assertEquals(Lists.newArrayList(actual),expected);
+    List<Integer> actualList=Arrays.stream(actual).boxed().collect(Collectors.toList());
+    Assert.assertEquals(actualList,expected);
   }
 }

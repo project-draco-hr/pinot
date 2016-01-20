@@ -15,9 +15,9 @@
   File bitmapIndexFileOffHeap=new File(indexDirOffHeap,colName + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
   File bitmapIndexFileHeap=new File(indexDirHeap,colName + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
   Random r=new Random();
-  Map<Integer,List<Integer>> postingListMap=new HashMap<>();
+  Map<Integer,Set<Integer>> postingListMap=new HashMap<>();
   for (int i=0; i < cardinality; i++) {
-    postingListMap.put(i,new ArrayList<>());
+    postingListMap.put(i,new LinkedHashSet<>());
   }
   int totalNumberOfEntries=0;
   for (int docId=0; docId < numDocs; docId++) {
