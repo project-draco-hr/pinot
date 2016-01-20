@@ -1,5 +1,6 @@
 {
-  CompositeFuture<ServerInstance,ByteBuf> future=_scatterGather.scatterGather(request,scatterGatherStats);
+  BrokerMetrics brokerMetrics=new BrokerMetrics(new MetricsRegistry());
+  CompositeFuture<ServerInstance,ByteBuf> future=_scatterGather.scatterGather(request,scatterGatherStats,brokerMetrics);
   ByteBuf b=future.getOne();
   String r=null;
   if (null != b) {

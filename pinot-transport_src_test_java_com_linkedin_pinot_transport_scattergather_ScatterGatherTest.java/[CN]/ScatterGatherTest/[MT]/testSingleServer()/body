@@ -25,7 +25,8 @@
   pgMapStr.put(pg,request);
   ScatterGatherRequest req=new TestScatterGatherRequest(pgMap,pgMapStr);
   final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
-  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req,scatterGatherStats);
+  BrokerMetrics brokerMetrics=new BrokerMetrics(new MetricsRegistry());
+  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req,scatterGatherStats,brokerMetrics);
   Map<ServerInstance,ByteBuf> v=fut.get();
   ByteBuf b=v.get(serverInstance1);
   byte[] b2=new byte[b.readableBytes()];

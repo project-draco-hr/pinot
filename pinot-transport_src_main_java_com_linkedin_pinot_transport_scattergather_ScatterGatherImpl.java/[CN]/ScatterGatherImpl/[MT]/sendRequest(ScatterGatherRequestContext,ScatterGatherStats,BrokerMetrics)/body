@@ -7,7 +7,7 @@
   int i=0;
   for (  Entry<ServerInstance,SegmentIdSet> e : mp.entrySet()) {
     scatterGatherStats.initServer(e.getKey().toString());
-    SingleRequestHandler handler=new SingleRequestHandler(_connPool,e.getKey(),ctxt.getRequest(),e.getValue(),ctxt.getTimeRemaining(),requestDispatchLatch);
+    SingleRequestHandler handler=new SingleRequestHandler(_connPool,e.getKey(),ctxt.getRequest(),e.getValue(),ctxt.getTimeRemaining(),requestDispatchLatch,brokerMetrics);
     _executorService.submit(handler);
     handlers.add(handler);
   }

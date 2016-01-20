@@ -53,7 +53,8 @@
   ScatterGatherRequest req=new TestScatterGatherRequest(pgMap,pgMapStr);
   ScatterGatherImpl scImpl=new ScatterGatherImpl(pool,service);
   final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
-  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req,scatterGatherStats);
+  BrokerMetrics brokerMetrics=new BrokerMetrics(new MetricsRegistry());
+  CompositeFuture<ServerInstance,ByteBuf> fut=scImpl.scatterGather(req,scatterGatherStats,brokerMetrics);
   Map<ServerInstance,ByteBuf> v=fut.get();
   Assert.assertEquals(v.size(),4);
   ByteBuf b=v.get(serverInstance1);

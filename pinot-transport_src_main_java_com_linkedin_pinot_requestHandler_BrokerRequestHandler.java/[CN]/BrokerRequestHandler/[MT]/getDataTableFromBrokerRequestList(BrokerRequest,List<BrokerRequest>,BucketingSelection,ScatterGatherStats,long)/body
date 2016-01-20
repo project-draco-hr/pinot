@@ -18,7 +18,7 @@
     ScatterGatherStats respStats=new ScatterGatherStats();
     scatterGatherStartTime=System.nanoTime();
     ScatterGatherRequestImpl scatterRequest=new ScatterGatherRequestImpl(request,segmentServices,_replicaSelection,ReplicaSelectionGranularity.SEGMENT_ID_SET,request.getBucketHashKey(),0,overriddenSelection,requestId,_brokerTimeOutMs);
-    responseFuturesList.put(request,Pair.of(_scatterGatherer.scatterGather(scatterRequest,scatterGatherStats),respStats));
+    responseFuturesList.put(request,Pair.of(_scatterGatherer.scatterGather(scatterRequest,scatterGatherStats,_brokerMetrics),respStats));
   }
   _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.QUERY_ROUTING,queryRoutingTime);
   long scatterGatherTime=0;
