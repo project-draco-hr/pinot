@@ -1,0 +1,23 @@
+{
+  double ret=0;
+  double tmp=0;
+  Dictionary dictionaryReader=blocks[0].getMetadata().getDictionary();
+  BlockValSet blockValueSet=blocks[0].getBlockValueSet();
+  final int vectorSize=1000;
+  int[] dictIds=dictionaryIds.get();
+  double[] values=documentValues.get();
+  int[] docIds=(int[])docIdSet.getRaw();
+  int docIdLength=docIdSet.size();
+  int current=0;
+  while (current < docIdLength) {
+    int pending=(docIdLength - current);
+    int batchLimit=(pending > vectorSize) ? vectorSize : pending;
+    blockValueSet.readIntValues(docIds,current,batchLimit,dictIds,0);
+    dictionaryReader.readDoubleValues(dictIds,0,batchLimit,values,0);
+    for (int vi=0; vi < batchLimit; vi++) {
+      ret+=values[vi];
+    }
+    current+=batchLimit;
+  }
+  return ret;
+}
