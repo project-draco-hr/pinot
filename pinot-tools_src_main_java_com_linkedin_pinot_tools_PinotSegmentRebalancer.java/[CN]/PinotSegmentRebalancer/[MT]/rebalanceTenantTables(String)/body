@@ -3,11 +3,16 @@
   List<Stat> stats=new ArrayList<>();
   List<ZNRecord> tableConfigs=propertyStore.getChildren(tableConfigPath,stats,0);
   String rawTenantName=tenantName.replaceAll("_OFFLINE","").replace("_REALTIME","");
+  int nRebalances=0;
   for (  ZNRecord znRecord : tableConfigs) {
     AbstractTableConfig tableConfig=AbstractTableConfig.fromZnRecord(znRecord);
     if (tableConfig.getTenantConfig().getServer().equals(rawTenantName)) {
-      System.out.println(tableConfig.getTableName() + ":" + tableConfig.getTenantConfig().getServer());
+      LOGGER.info(tableConfig.getTableName() + ":" + tableConfig.getTenantConfig().getServer());
+      nRebalances++;
       rebalanceTable(tableConfig.getTableName(),tenantName);
     }
+  }
+  if (nRebalances == 0) {
+    LOGGER.info("No tables found for tenant " + tenantName);
   }
 }

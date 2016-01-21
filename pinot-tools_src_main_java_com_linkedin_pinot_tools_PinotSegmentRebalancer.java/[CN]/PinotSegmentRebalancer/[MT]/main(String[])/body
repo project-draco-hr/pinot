@@ -1,18 +1,23 @@
 {
-  String zkAddress;
-  String clusterName;
-  String tableName;
-  String tenantName;
-  if (args.length == 4) {
-    zkAddress=args[0];
-    clusterName=args[1];
-    tableName=args[2];
-    tenantName=args[3];
-    PinotSegmentRebalancer rebalancer=new PinotSegmentRebalancer(zkAddress,clusterName);
-    rebalancer.rebalanceTenantTables(tenantName);
+  final boolean dryRun=true;
+  if (args.length != 4) {
+    usage();
+  }
+  final String subCmd=args[0];
+  final String zkAddress=args[1];
+  final String clusterName=args[2];
+  final String tableOrTenant=args[3];
+  PinotSegmentRebalancer rebalancer=new PinotSegmentRebalancer(zkAddress,clusterName,dryRun);
+  if (subCmd.equals(rebalanceTenantCmd)) {
+    rebalancer.rebalanceTenantTables(tableOrTenant);
+  }
+ else   if (subCmd.equals(rebalanceTableCmd)) {
+    rebalancer.rebalanceTable(tableOrTenant);
   }
  else {
-    System.out.println("USAGE PinotRebalancer [rebalanceTable|rebalanceTenant] <zkAddress> <clusterName> <tableName|tenantName>");
-    System.exit(1);
+    usage();
+  }
+  if (dryRun) {
+    System.out.println("That was a dryrun");
   }
 }

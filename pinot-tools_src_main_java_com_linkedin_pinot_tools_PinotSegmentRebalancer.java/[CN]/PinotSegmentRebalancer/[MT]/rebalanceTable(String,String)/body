@@ -1,4 +1,9 @@
 {
+  final TableType tableType=TableNameBuilder.getTableTypeFromTableName(tableName);
+  if (!tableType.equals(TableType.OFFLINE)) {
+    LOGGER.warn("Don't know how to rebalance table " + tableName);
+    return;
+  }
   IdealState currentIdealState=helixAdmin.getResourceIdealState(clusterName,tableName);
   List<String> partitions=Lists.newArrayList(currentIdealState.getPartitionSet());
   LinkedHashMap<String,Integer> states=new LinkedHashMap<>();
@@ -10,37 +15,40 @@
     currentHosts.addAll(mapFields.get(segment).keySet());
   }
   AutoRebalanceStrategy rebalanceStrategy=new AutoRebalanceStrategy(tableName,partitions,states);
-  List<String> instancesInClusterWithTag=helixAdmin.getInstancesInClusterWithTag(clusterName,tenantName);
-  System.out.println("Current: Nodes:" + currentHosts);
-  System.out.println("New Nodes:" + instancesInClusterWithTag);
+  TableNameBuilder builder=new TableNameBuilder(tableType);
+  List<String> instancesInClusterWithTag=helixAdmin.getInstancesInClusterWithTag(clusterName,builder.forTable(tenantName));
+  LOGGER.info("Current: Nodes:" + currentHosts);
+  LOGGER.info("New Nodes:" + instancesInClusterWithTag);
   Map<String,Map<String,String>> currentMapping=currentIdealState.getRecord().getMapFields();
   ZNRecord newZnRecord=rebalanceStrategy.computePartitionAssignment(instancesInClusterWithTag,currentMapping,instancesInClusterWithTag);
   Map<String,Map<String,String>> newMapping=newZnRecord.getMapFields();
-  System.out.println("Current segment Assignment:");
+  LOGGER.info("Current segment Assignment:");
   printSegmentAssignment(currentMapping);
-  System.out.println("New segment Assignment:");
+  LOGGER.info("Final segment Assignment:");
   printSegmentAssignment(newMapping);
-  if (EqualityUtils.isEqual(newMapping,currentMapping)) {
-    System.out.println("Skipping rebalancing for table:" + tableName + " since its already balanced");
-  }
- else {
-    IdealState updatedIdealState=new IdealState(currentIdealState.getRecord());
-    updatedIdealState.getRecord().setMapFields(newMapping);
-    System.out.println("Updating the idealstate for table:" + tableName);
-    helixAdmin.setResourceIdealState(clusterName,tableName,updatedIdealState);
-    int diff=Integer.MAX_VALUE;
-    Thread.sleep(3000);
-    do {
-      diff=isStable(tableName);
-      if (diff == 0) {
-        break;
-      }
- else {
-        System.out.println("Waiting for externalView to match idealstate for table:" + tableName + " Num segments difference");
-        Thread.sleep(30000);
-      }
+  if (!dryRun) {
+    if (EqualityUtils.isEqual(newMapping,currentMapping)) {
+      LOGGER.info("Skipping rebalancing for table:" + tableName + " since its already balanced");
     }
+ else {
+      IdealState updatedIdealState=new IdealState(currentIdealState.getRecord());
+      updatedIdealState.getRecord().setMapFields(newMapping);
+      LOGGER.info("Updating the idealstate for table:" + tableName);
+      helixAdmin.setResourceIdealState(clusterName,tableName,updatedIdealState);
+      int diff=Integer.MAX_VALUE;
+      Thread.sleep(3000);
+      do {
+        diff=isStable(tableName);
+        if (diff == 0) {
+          break;
+        }
+ else {
+          LOGGER.info("Waiting for externalView to match idealstate for table:" + tableName + " Num segments difference:"+ diff);
+          Thread.sleep(30000);
+        }
+      }
  while (diff > 0);
-    System.out.println("Successfully rebalanced table:" + tableName);
+      LOGGER.info("Successfully rebalanced table:" + tableName);
+    }
   }
 }

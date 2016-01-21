@@ -1,5 +1,17 @@
 {
-  PinotSegmentRebalancer rebalancer=new PinotSegmentRebalancer(_zkAddress,_clusterName);
-  rebalancer.rebalanceTable(_tableName,_tenantName);
+  PinotSegmentRebalancer rebalancer=new PinotSegmentRebalancer(_zkAddress,_clusterName,_dryRun);
+  if (_tenantName == null && _tableName == null) {
+    System.err.println("One of tenantName or tableName must be specified");
+    return false;
+  }
+  if (_tenantName != null) {
+    rebalancer.rebalanceTenantTables(_tenantName);
+  }
+ else {
+    rebalancer.rebalanceTable(_tableName);
+  }
+  if (_dryRun) {
+    System.out.println("\n\nThat was a dryrun. Use -dryRun false to make it happen");
+  }
   return true;
 }
