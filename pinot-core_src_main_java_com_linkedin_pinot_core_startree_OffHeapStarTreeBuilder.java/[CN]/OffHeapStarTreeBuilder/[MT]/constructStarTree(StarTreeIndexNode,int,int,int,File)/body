@@ -1,0 +1,63 @@
+{
+  node.setStartDocumentId(startDocId);
+  int docsAdded=0;
+  if (level == splitOrder.size() - 1) {
+    return 0;
+  }
+  String splitDimensionName=splitOrder.get(level);
+  Integer splitDimensionId=dimensionNameToIndexMap.get(splitDimensionName);
+  LOG.info("Building tree at level:{} using file:{} from startDoc:{} endDocId:{} splitting on dimension:{}",level,file.getName(),startDocId,endDocId,splitDimensionName);
+  Map<Integer,IntPair> sortGroupBy=groupBy(startDocId,endDocId,splitDimensionId,file);
+  LOG.info("Group stats:{}",sortGroupBy);
+  node.setChildDimensionName(splitDimensionId);
+  node.setChildren(new HashMap<Integer,StarTreeIndexNode>());
+  for (  int childDimensionValue : sortGroupBy.keySet()) {
+    StarTreeIndexNode child=new StarTreeIndexNode();
+    child.setDimensionName(splitDimensionId);
+    child.setDimensionValue(childDimensionValue);
+    child.setParent(node);
+    child.setLevel(node.getLevel() + 1);
+    node.getChildren().put(childDimensionValue,child);
+    IntPair range=sortGroupBy.get(childDimensionValue);
+    if (range.getRight() - range.getLeft() > maxLeafRecords) {
+      docsAdded+=constructStarTree(child,range.getLeft(),range.getRight(),level + 1,file);
+    }
+ else {
+      child.setStartDocumentId(range.getLeft());
+      child.setEndDocumentId(range.getRight());
+    }
+  }
+  StarTreeIndexNode starChild=new StarTreeIndexNode();
+  starChild.setDimensionName(splitDimensionId);
+  starChild.setDimensionValue(StarTreeIndexNode.all());
+  starChild.setParent(node);
+  starChild.setLevel(node.getLevel() + 1);
+  node.getChildren().put(StarTreeIndexNode.all(),starChild);
+  Iterator<Pair<DimensionBuffer,MetricBuffer>> iterator=uniqueCombinations(startDocId,endDocId,file,splitDimensionId);
+  int rowsAdded=0;
+  int startOffset=rawRecordCount + aggRecordCount;
+  while (iterator.hasNext()) {
+    Pair<DimensionBuffer,MetricBuffer> next=iterator.next();
+    DimensionBuffer dimension=next.getLeft();
+    MetricBuffer metricsHolder=next.getRight();
+    LOG.debug("Adding row:{}",dimension);
+    appendToAggBuffer(dimension,metricsHolder);
+    rowsAdded++;
+  }
+  docsAdded+=rowsAdded;
+  LOG.info("Added {} additional records at level {}",rowsAdded,level);
+  dataBuffer.flush();
+  if (rowsAdded >= maxLeafRecords) {
+    sort(dataFile,startOffset,startOffset + rowsAdded);
+    docsAdded+=constructStarTree(starChild,startOffset,startOffset + rowsAdded,level + 1,dataFile);
+  }
+ else {
+    starChild.setStartDocumentId(startOffset);
+    starChild.setEndDocumentId(startOffset + rowsAdded);
+  }
+  node.setEndDocumentId(endDocId + docsAdded);
+  if (node.getEndDocumentId() < node.getStartDocumentId()) {
+    System.out.println("ERROR");
+  }
+  return docsAdded;
+}

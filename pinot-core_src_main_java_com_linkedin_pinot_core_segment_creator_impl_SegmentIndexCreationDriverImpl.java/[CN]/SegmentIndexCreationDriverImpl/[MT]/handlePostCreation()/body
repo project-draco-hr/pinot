@@ -1,0 +1,38 @@
+{
+  final String timeColumn=config.getTimeColumnName();
+  if (config.getSegmentName() != null) {
+    segmentName=config.getSegmentName();
+  }
+ else {
+    if (timeColumn != null && timeColumn.length() > 0) {
+      final Object minTimeValue=statsCollector.getColumnProfileFor(timeColumn).getMinValue();
+      final Object maxTimeValue=statsCollector.getColumnProfileFor(timeColumn).getMaxValue();
+      segmentName=SegmentNameBuilder.buildBasic(config.getTableName(),minTimeValue,maxTimeValue,config.getSegmentNamePostfix());
+    }
+ else {
+      segmentName=SegmentNameBuilder.buildBasic(config.getTableName(),config.getSegmentNamePostfix());
+    }
+  }
+  indexCreator.setSegmentName(segmentName);
+  indexCreator.seal();
+  LOGGER.info("Finished segment seal!");
+  final File outputDir=new File(config.getIndexOutputDir());
+  final File segmentOutputDir=new File(outputDir,segmentName);
+  if (segmentOutputDir.exists()) {
+    FileUtils.deleteDirectory(segmentOutputDir);
+  }
+  FileUtils.moveDirectory(tempIndexDir,segmentOutputDir);
+  FileUtils.deleteQuietly(tempIndexDir);
+  final long crc=CrcUtils.forAllFilesInFolder(segmentOutputDir).computeCrc();
+  persistCreationMeta(segmentOutputDir,crc);
+  Map<String,MutableLong> nullCountMap=recordReader.getNullCountMap();
+  if (nullCountMap != null) {
+    for (    Map.Entry<String,MutableLong> entry : nullCountMap.entrySet()) {
+      AbstractColumnStatisticsCollector columnStatisticsCollector=statsCollector.getColumnProfileFor(entry.getKey());
+      columnStatisticsCollector.setNumInputNullValues(entry.getValue().intValue());
+    }
+  }
+  LOGGER.info("Driver, record read time : {}",totalRecordReadTime);
+  LOGGER.info("Driver, stats collector time : {}",totalStatsCollectorTime);
+  LOGGER.info("Driver, indexing time : {}",totalIndexTime);
+}

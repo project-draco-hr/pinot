@@ -1,0 +1,58 @@
+{
+  long start=System.currentTimeMillis();
+  StarTreeIndexSpec starTreeIndexSpec=config.getStarTreeIndexSpec();
+  if (starTreeIndexSpec == null) {
+    starTreeIndexSpec=new StarTreeIndexSpec();
+    starTreeIndexSpec.setExcludedDimensions(Lists.newArrayList(dataSchema.getTimeColumnName()));
+    starTreeIndexSpec.setMaxLeafRecords(10000);
+  }
+  List<String> splitOrder=starTreeIndexSpec.getSplitOrder();
+  if (splitOrder != null && !splitOrder.isEmpty()) {
+    if (starTreeIndexSpec.getSplitExcludes() != null) {
+      splitOrder.removeAll(starTreeIndexSpec.getSplitExcludes());
+    }
+  }
+  StarTreeBuilderConfig starTreeBuilderConfig=new StarTreeBuilderConfig();
+  starTreeBuilderConfig.setSchema(dataSchema);
+  starTreeBuilderConfig.setSplitOrder(splitOrder);
+  starTreeBuilderConfig.setMaxLeafRecords(starTreeIndexSpec.getMaxLeafRecords());
+  starTreeBuilderConfig.setOutDir(starTreeTempDir);
+  StarTreeBuilder starTreeBuilder=new OffHeapStarTreeBuilder();
+  starTreeBuilder.init(starTreeBuilderConfig);
+  recordReader.rewind();
+  LOGGER.info("Start building star tree!");
+  totalDocs=0;
+  while (recordReader.hasNext()) {
+    GenericRow row=recordReader.next();
+    starTreeBuilder.append(row);
+    statsCollector.collectRow(row);
+    totalDocs++;
+  }
+  recordReader.close();
+  LOGGER.info("Start building star tree!");
+  starTreeBuilder.build();
+  LOGGER.info("Finished building star tree!");
+  long starTreeBuildFinishTime=System.currentTimeMillis();
+  LOGGER.info("Start building StatsCollector!");
+  Iterator<GenericRow> aggregatedRowsIterator=starTreeBuilder.iterator(starTreeBuilder.getTotalRawDocumentCount(),starTreeBuilder.getTotalRawDocumentCount() + starTreeBuilder.getTotalAggregateDocumentCount());
+  while (aggregatedRowsIterator.hasNext()) {
+    GenericRow genericRow=aggregatedRowsIterator.next();
+    statsCollector.collectRow(genericRow);
+    totalDocs++;
+  }
+  buildIndexCreationInfo();
+  LOGGER.info("Collected stats for {} documents",totalDocs);
+  long statCollectionFinishTime=System.currentTimeMillis();
+  indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
+  Iterator<GenericRow> allRowsIterator=starTreeBuilder.iterator(0,starTreeBuilder.getTotalRawDocumentCount() + starTreeBuilder.getTotalAggregateDocumentCount());
+  while (allRowsIterator.hasNext()) {
+    GenericRow genericRow=allRowsIterator.next();
+    indexCreator.indexRow(genericRow);
+  }
+  BufferedInputStream src=new BufferedInputStream(new FileInputStream(new File(starTreeTempDir,V1Constants.STAR_TREE_INDEX_FILE)));
+  BufferedOutputStream dest=new BufferedOutputStream(new FileOutputStream(new File(tempIndexDir,V1Constants.STAR_TREE_INDEX_FILE)));
+  IOUtils.copyLarge(src,dest);
+  handlePostCreation();
+  long end=System.currentTimeMillis();
+  LOGGER.info("Total time:{} \n star tree build time:{} \n stat collection time:{} \n column index build time:{}",(end - start),(starTreeBuildFinishTime - start),statCollectionFinishTime - starTreeBuildFinishTime,end - statCollectionFinishTime);
+}

@@ -1,0 +1,22 @@
+{
+  if (fieldSpec.getName() == null) {
+    fieldSpec.setName(columnName);
+  }
+  if (columnName != null) {
+    if (fieldSpec.getFieldType() == FieldType.DIMENSION) {
+      if (!dimensions.contains(columnName)) {
+        dimensions.add(columnName);
+        dimensionFieldSpecs.add((DimensionFieldSpec)fieldSpec);
+      }
+    }
+ else     if (fieldSpec.getFieldType() == FieldType.METRIC) {
+      if (!metrics.contains(columnName)) {
+        metrics.add(columnName);
+        metricFieldSpecs.add((MetricFieldSpec)fieldSpec);
+      }
+    }
+ else     if (fieldSpec.getFieldType() == FieldType.TIME) {
+      timeFieldSpec=(TimeFieldSpec)fieldSpec;
+    }
+  }
+}

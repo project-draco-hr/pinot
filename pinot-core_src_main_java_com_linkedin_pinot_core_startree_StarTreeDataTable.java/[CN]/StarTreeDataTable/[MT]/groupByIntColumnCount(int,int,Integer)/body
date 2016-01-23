@@ -1,0 +1,31 @@
+{
+  RandomAccessFile randomAccessFile=null;
+  try {
+    int length=endDocId - startDocId;
+    Map<Integer,IntPair> rangeMap=new LinkedHashMap<>();
+    randomAccessFile=new RandomAccessFile(file,"rw");
+    final int startOffset=startDocId * totalSizeInBytes;
+    final MappedByteBuffer mappedByteBuffer=randomAccessFile.getChannel().map(MapMode.READ_WRITE,startOffset,length * totalSizeInBytes);
+    int prevValue=-1;
+    int prevStart=0;
+    for (int i=0; i < length; i++) {
+      int value=mappedByteBuffer.getInt(i * totalSizeInBytes + colIndex * 4);
+      if (prevValue != -1 && prevValue != value) {
+        rangeMap.put(prevValue,new IntPair(prevStart,i));
+        prevStart=i;
+      }
+      prevValue=value;
+      if (i == length - 1) {
+        rangeMap.put(prevValue,new IntPair(prevStart,length));
+      }
+    }
+    return rangeMap;
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+ finally {
+    IOUtils.closeQuietly(randomAccessFile);
+  }
+  return Collections.emptyMap();
+}

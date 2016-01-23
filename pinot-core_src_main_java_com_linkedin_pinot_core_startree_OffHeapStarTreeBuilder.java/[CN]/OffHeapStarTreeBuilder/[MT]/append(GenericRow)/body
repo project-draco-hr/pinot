@@ -1,0 +1,31 @@
+{
+  DimensionBuffer dimension=new DimensionBuffer(numDimensions);
+  for (int i=0; i < schema.getDimensionFieldSpecs().size(); i++) {
+    DimensionFieldSpec dimensionFieldSpec=schema.getDimensionFieldSpecs().get(i);
+    String dimName=schema.getDimensionNames().get(i);
+    Map<Object,Integer> dictionary=dictionaryMap.get(dimName);
+    Object dimValue=row.getValue(dimName);
+    if (dimValue == null) {
+      dimValue=dimensionFieldSpec.getDefaultNullValue();
+    }
+    if (!dictionary.containsKey(dimValue)) {
+      dictionary.put(dimValue,dictionary.size());
+    }
+    dimension.setDimension(i,dictionary.get(dimValue));
+  }
+  if (schema.getTimeColumnName() != null) {
+    Map<Object,Integer> dictionary=dictionaryMap.get(schema.getTimeColumnName());
+    Object timeColValue=row.getValue(schema.getTimeColumnName());
+    if (!dictionary.containsKey(timeColValue)) {
+      dictionary.put(timeColValue,dictionary.size());
+    }
+    dimension.setDimension(schema.getDimensionFieldSpecs().size(),dictionary.get(timeColValue));
+  }
+  Number[] numbers=new Number[numMetrics];
+  for (int i=0; i < numMetrics; i++) {
+    String metName=schema.getMetricNames().get(i);
+    numbers[i]=(Number)row.getValue(metName);
+  }
+  MetricBuffer metrics=new MetricBuffer(numbers);
+  append(dimension,metrics);
+}

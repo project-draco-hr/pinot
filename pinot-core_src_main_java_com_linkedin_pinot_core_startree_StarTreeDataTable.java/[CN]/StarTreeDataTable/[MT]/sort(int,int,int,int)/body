@@ -1,0 +1,67 @@
+{
+  RandomAccessFile randomAccessFile=null;
+  try {
+    int length=endRecordId - startRecordId;
+    randomAccessFile=new RandomAccessFile(file,"rw");
+    final int startOffset=startRecordId * totalSizeInBytes;
+    final MappedByteBuffer mappedByteBuffer=randomAccessFile.getChannel().map(MapMode.READ_WRITE,startOffset,length * totalSizeInBytes);
+    List<Integer> idList=new ArrayList<Integer>();
+    for (int i=startRecordId; i < endRecordId; i++) {
+      idList.add(i - startRecordId);
+    }
+    Comparator<Integer> comparator=new Comparator<Integer>(){
+      byte[] buf1=new byte[dimensionSizeInBytes];
+      byte[] buf2=new byte[dimensionSizeInBytes];
+      @Override public int compare(      Integer o1,      Integer o2){
+        int pos1=(o1) * totalSizeInBytes;
+        int pos2=(o2) * totalSizeInBytes;
+        mappedByteBuffer.position(pos1);
+        mappedByteBuffer.get(buf1);
+        mappedByteBuffer.position(pos2);
+        mappedByteBuffer.get(buf2);
+        for (int i=startOffsetInRecord; i < endOffsetInRecord; i++) {
+          int b1=buf1[i] & 0xff;
+          int b2=buf2[i] & 0xff;
+          if (b1 != b2) {
+            return b1 - b2;
+          }
+        }
+        return 0;
+      }
+    }
+;
+    Collections.sort(idList,comparator);
+    int[] currentPositions=new int[length];
+    int[] indexToRecordIdMapping=new int[length];
+    byte[] buf1=new byte[totalSizeInBytes];
+    byte[] buf2=new byte[totalSizeInBytes];
+    for (int i=0; i < length; i++) {
+      currentPositions[i]=i;
+      indexToRecordIdMapping[i]=i;
+    }
+    for (int i=0; i < length; i++) {
+      int thisRecordId=indexToRecordIdMapping[i];
+      int thisRecordIdPos=currentPositions[thisRecordId];
+      int thatRecordId=idList.get(i);
+      int thatRecordIdPos=currentPositions[thatRecordId];
+      mappedByteBuffer.position(thisRecordIdPos * totalSizeInBytes);
+      mappedByteBuffer.get(buf1);
+      mappedByteBuffer.position(thatRecordIdPos * totalSizeInBytes);
+      mappedByteBuffer.get(buf2);
+      mappedByteBuffer.position(thisRecordIdPos * totalSizeInBytes);
+      mappedByteBuffer.put(buf2);
+      mappedByteBuffer.position(thatRecordIdPos * totalSizeInBytes);
+      mappedByteBuffer.put(buf1);
+      indexToRecordIdMapping[i]=thatRecordId;
+      indexToRecordIdMapping[thatRecordIdPos]=thisRecordId;
+      currentPositions[thatRecordId]=i;
+      currentPositions[thisRecordId]=thatRecordIdPos;
+    }
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+ finally {
+    IOUtils.closeQuietly(randomAccessFile);
+  }
+}

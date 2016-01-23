@@ -1,0 +1,50 @@
+{
+  schema=builderConfig.schema;
+  this.splitOrder=builderConfig.splitOrder;
+  this.maxLeafRecords=builderConfig.maxLeafRecords;
+  this.outDir=builderConfig.getOutDir();
+  if (outDir == null) {
+    outDir=new File(System.getProperty("java.io.tmpdir"),V1Constants.STAR_TREE_INDEX_DIR + "_" + DateTime.now());
+  }
+  LOG.info("Index output directory:{}",outDir);
+  List<String> dimensionNames=schema.getDimensionNames();
+  List<String> metricNames=schema.getMetricNames();
+  dimensionSizeBytes=dimensionNames.size() * Integer.SIZE / 8;
+  dimensionTypes=new ArrayList<>();
+  this.numDimensions=dimensionNames.size();
+  dimensionNameToIndexMap=new HashMap<>();
+  dictionaryMap=new HashMap<>();
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimensionName=dimensionNames.get(i);
+    dimensionNameToIndexMap.put(dimensionName,i);
+    dimensionTypes.add(schema.getFieldSpecFor(dimensionName).getDataType());
+    HashBiMap<Object,Integer> dictionary=HashBiMap.create();
+    dictionaryMap.put(schema.getDimensionNames().get(i),dictionary);
+  }
+  if (schema.getTimeColumnName() != null) {
+    dimensionTypes.add(schema.getTimeFieldSpec().getDataType());
+    dimensionNameToIndexMap.put(schema.getTimeColumnName(),numDimensions);
+    numDimensions=numDimensions + 1;
+    HashBiMap<Object,Integer> dictionary=HashBiMap.create();
+    dictionaryMap.put(schema.getTimeColumnName(),dictionary);
+    dimensionSizeBytes=dimensionSizeBytes + Integer.SIZE / 8;
+  }
+  metricTypes=new ArrayList<>();
+  this.numMetrics=metricNames.size();
+  metricNameToIndexMap=new HashMap<>();
+  metricSizeBytes=0;
+  for (int i=0; i < metricNames.size(); i++) {
+    String metricName=metricNames.get(i);
+    metricNameToIndexMap.put(metricName,i);
+    DataType dataType=schema.getFieldSpecFor(metricName).getDataType();
+    metricTypes.add(dataType);
+    metricSizeBytes+=dataType.size();
+  }
+  builderConfig.getOutDir().mkdirs();
+  dataFile=new File(outDir,"star-tree.buf");
+  dataBuffer=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)));
+  this.starTree=new StarTreeIndexNode();
+  this.starTree.setDimensionName(StarTreeIndexNode.all());
+  this.starTree.setDimensionValue(StarTreeIndexNode.all());
+  this.starTree.setLevel(0);
+}

@@ -1,0 +1,16 @@
+{
+  StarTreeDataTable dataSorter=new StarTreeDataTable(dataFile,dimensionSizeBytes,metricSizeBytes);
+  final Iterator<Pair<byte[],byte[]>> iterator=dataSorter.iterator(startDocId,endDocId);
+  return new Iterator<GenericRow>(){
+    @Override public boolean hasNext(){
+      return iterator.hasNext();
+    }
+    @Override public GenericRow next(){
+      Pair<byte[],byte[]> pair=iterator.next();
+      DimensionBuffer dimensionKey=DimensionBuffer.fromBytes(pair.getLeft());
+      MetricBuffer metricsHolder=MetricBuffer.fromBytes(pair.getRight(),metricTypes);
+      return toGenericRow(dimensionKey,metricsHolder);
+    }
+  }
+;
+}

@@ -5,11 +5,11 @@
   final List<double[]> aggregationResult=getAggregationResult(numSegments);
   final List<String[]> groupByResult=getGroupResult();
   for (int j=0; j < _numAggregations; ++j) {
-    LOGGER.info("For aggregation function: {}",_aggregationInfos.get(j));
+    LOGGER.debug("For aggregation function: {}",_aggregationInfos.get(j));
     final double[] aggResult=aggregationResult.get(j);
     final String[] groupResult=groupByResult.get(j);
     for (int i=0; i < 15; ++i) {
-      LOGGER.info("Comparing group: {}",i);
+      LOGGER.debug("Comparing group: {}",i);
       Assert.assertEquals(0,DoubleComparisonUtil.defaultDoubleCompare(aggResult[i],brokerResponse.getAggregationResults().get(j).getJSONArray("groupByResult").getJSONObject(i).getDouble("value")));
       if (groupResult.length < 2) {
         continue;

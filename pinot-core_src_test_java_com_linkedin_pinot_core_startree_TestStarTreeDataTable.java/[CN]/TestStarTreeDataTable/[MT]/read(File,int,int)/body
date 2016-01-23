@@ -1,0 +1,12 @@
+{
+  int[][] data=new int[numRows][];
+  DataInputStream dis=new DataInputStream(new BufferedInputStream(new FileInputStream(tempFile)));
+  for (int row=0; row < numRows; row++) {
+    data[row]=new int[numCols];
+    for (int col=0; col < numCols; col++) {
+      data[row][col]=dis.readInt();
+    }
+  }
+  dis.close();
+  return data;
+}

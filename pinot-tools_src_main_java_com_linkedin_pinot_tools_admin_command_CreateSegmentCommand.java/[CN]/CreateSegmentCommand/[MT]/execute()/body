@@ -41,7 +41,14 @@
  else {
     recordReaderConfig=null;
   }
-  ExecutorService executor=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  final StarTreeIndexSpec starTreeIndexSpec;
+  if (_starTreeIndexSpecFile != null) {
+    starTreeIndexSpec=new ObjectMapper().readValue(new File(_starTreeIndexSpecFile),StarTreeIndexSpec.class);
+  }
+ else {
+    starTreeIndexSpec=null;
+  }
+  ExecutorService executor=Executors.newFixedThreadPool(_numThreads);
   int cnt=0;
   for (  final File file : files) {
     final int segCnt=cnt;
@@ -65,6 +72,8 @@
  else {
             config.setTimeUnitForSegment(TimeUnit.DAYS);
           }
+          config.setCreateStarTreeIndex(_enableStarTreeIndex);
+          config.setStarTreeIndexSpec(starTreeIndexSpec);
           final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
           driver.init(config);
           driver.build();

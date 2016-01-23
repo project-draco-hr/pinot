@@ -10,9 +10,9 @@
   final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
   LOGGER.info("running query: ");
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
-  LOGGER.info("Result 1: ");
+  LOGGER.debug("Result 1: ");
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Aggregation GroupBy Result {} : {}",i,block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Aggregation GroupBy Result {} : {}",i,block.getAggregationGroupByOperatorResult().get(i));
   }
   return block;
 }

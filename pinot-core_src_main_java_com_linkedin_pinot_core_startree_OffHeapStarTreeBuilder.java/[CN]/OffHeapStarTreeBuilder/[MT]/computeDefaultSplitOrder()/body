@@ -1,0 +1,13 @@
+{
+  splitOrder=new ArrayList<>();
+  for (  DimensionFieldSpec spec : schema.getDimensionFieldSpecs()) {
+    splitOrder.add(spec.getName());
+  }
+  Collections.sort(splitOrder,new Comparator<String>(){
+    @Override public int compare(    String o1,    String o2){
+      return dictionaryMap.get(o2).size() - dictionaryMap.get(o1).size();
+    }
+  }
+);
+  return splitOrder;
+}

@@ -1,0 +1,32 @@
+{
+  LOGGER.info("Start building StatsCollector!");
+  totalDocs=0;
+  while (recordReader.hasNext()) {
+    totalDocs++;
+    long start=System.currentTimeMillis();
+    GenericRow row=recordReader.next();
+    long stop=System.currentTimeMillis();
+    statsCollector.collectRow(row);
+    long stop1=System.currentTimeMillis();
+    totalRecordReadTime+=(stop - start);
+    totalStatsCollectorTime+=(stop1 - stop);
+  }
+  buildIndexCreationInfo();
+  LOGGER.info("Finished building StatsCollector!");
+  LOGGER.info("Collected stats for {} documents",totalDocs);
+  indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
+  recordReader.rewind();
+  LOGGER.info("Start building IndexCreator!");
+  while (recordReader.hasNext()) {
+    long start=System.currentTimeMillis();
+    GenericRow row=recordReader.next();
+    long stop=System.currentTimeMillis();
+    indexCreator.indexRow(row);
+    long stop1=System.currentTimeMillis();
+    totalRecordReadTime+=(stop - start);
+    totalIndexTime+=(stop1 - stop);
+  }
+  recordReader.close();
+  LOGGER.info("Finished records indexing in IndexCreator!");
+  handlePostCreation();
+}

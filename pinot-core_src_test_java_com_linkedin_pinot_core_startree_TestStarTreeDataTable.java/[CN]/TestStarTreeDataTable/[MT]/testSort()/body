@@ -1,0 +1,45 @@
+{
+  Random r=new Random();
+  int ROWS=10;
+  final int COLS=10;
+  int data[][]=new int[ROWS][];
+  File tempFile=new File("/tmp/test." + System.currentTimeMillis());
+  FileOutputStream out=new FileOutputStream(tempFile);
+  DataOutputStream dos=new DataOutputStream(out);
+  for (int row=0; row < ROWS; row++) {
+    data[row]=new int[COLS];
+    for (int col=0; col < COLS; col++) {
+      data[row][col]=r.nextInt(5);
+      dos.writeInt(data[row][col]);
+    }
+  }
+  out.close();
+  dos.flush();
+  dos.close();
+  print(data);
+  System.out.println("BEFORE SORTING: " + tempFile.length());
+  int[][] input=read(tempFile,ROWS,COLS);
+  StarTreeDataTable sorter=new StarTreeDataTable(tempFile,COLS * (Integer.SIZE / 8),0);
+  sorter.sort(0,ROWS);
+  System.out.println("AFTER SORTING");
+  int[][] output=read(tempFile,ROWS,COLS);
+  print(output);
+  Arrays.sort(input,new Comparator<int[]>(){
+    @Override public int compare(    int[] o1,    int[] o2){
+      for (int i=0; i < COLS; i++) {
+        if (o1[i] != o2[i]) {
+          return o1[i] - o2[i];
+        }
+      }
+      return 0;
+    }
+  }
+);
+  if (compare(input,output,ROWS)) {
+    System.out.println("PASSED");
+  }
+ else {
+    System.out.println("FAILED");
+  }
+  System.out.println(sorter.groupByIntColumnCount(0,ROWS,0));
+}

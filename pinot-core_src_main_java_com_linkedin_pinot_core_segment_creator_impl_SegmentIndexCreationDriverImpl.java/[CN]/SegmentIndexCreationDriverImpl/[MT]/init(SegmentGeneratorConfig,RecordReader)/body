@@ -1,21 +1,19 @@
 {
   this.config=config;
+  this.isStarTree=config.isCreateStarTreeIndex();
   recordReader=reader;
   recordReader.init();
   dataSchema=recordReader.getSchema();
   statsCollector=new SegmentPreIndexStatsCollectorImpl(recordReader.getSchema());
   statsCollector.init();
   indexCreationInfoMap=new HashMap<String,ColumnIndexCreationInfo>();
-  if (dataSchema.getStarTreeIndexSpec() != null) {
-    indexCreator=new StarTreeSegmentCreator(dataSchema.getStarTreeIndexSpec(),recordReader);
-    isStarTree=true;
-  }
- else {
-    indexCreator=new SegmentColumnarIndexCreator();
-  }
+  indexCreator=new SegmentColumnarIndexCreator();
   final File indexDir=new File(config.getIndexOutputDir());
   if (!indexDir.exists()) {
     indexDir.mkdirs();
   }
   tempIndexDir=new File(indexDir,com.linkedin.pinot.common.utils.FileUtils.getRandomFileName());
+  starTreeTempDir=new File(indexDir,com.linkedin.pinot.common.utils.FileUtils.getRandomFileName());
+  LOGGER.info("tempIndexDir:{}",tempIndexDir);
+  LOGGER.info("starTreeTempDir:{}",starTreeTempDir);
 }

@@ -14,7 +14,7 @@
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   final BrokerResponse brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  LOGGER.info("Aggregation Results : {}",new JSONArray(brokerResponse.getAggregationResults()));
-  LOGGER.info("Time used : {}",brokerResponse.getTimeUsedMs());
+  LOGGER.debug("Aggregation Results : {}",new JSONArray(brokerResponse.getAggregationResults()));
+  LOGGER.debug("Time used : {}",brokerResponse.getTimeUsedMs());
   assertBrokerResponse(numSegments,brokerResponse);
 }

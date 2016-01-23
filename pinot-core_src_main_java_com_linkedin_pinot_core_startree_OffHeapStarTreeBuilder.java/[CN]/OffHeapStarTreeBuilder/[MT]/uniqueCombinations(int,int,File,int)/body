@@ -1,0 +1,61 @@
+{
+  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes);
+  Iterator<Pair<byte[],byte[]>> iterator1=dataSorter.iterator(startDocId,endDocId);
+  File tempFile=new File(outDir,file.getName() + "_" + startDocId+ "_"+ endDocId+ ".unique.tmp");
+  DataOutputStream dos=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)));
+  while (iterator1.hasNext()) {
+    Pair<byte[],byte[]> next=iterator1.next();
+    byte[] dimensionBuffer=next.getLeft();
+    byte[] metricBuffer=next.getRight();
+    DimensionBuffer dimensions=DimensionBuffer.fromBytes(dimensionBuffer);
+    for (int i=0; i < numDimensions; i++) {
+      if (i == splitDimensionId) {
+        dos.writeInt(StarTreeIndexNode.all());
+      }
+ else {
+        dos.writeInt(dimensions.getDimension(i));
+      }
+    }
+    dos.write(metricBuffer);
+  }
+  dos.close();
+  dataSorter=new StarTreeDataTable(tempFile,dimensionSizeBytes,metricSizeBytes);
+  dataSorter.sort(0,endDocId - startDocId);
+  if (debugMode) {
+    printFile(tempFile,0,endDocId - startDocId);
+  }
+  final Iterator<Pair<byte[],byte[]>> iterator=dataSorter.iterator(0,endDocId - startDocId);
+  return new Iterator<Pair<DimensionBuffer,MetricBuffer>>(){
+    Pair<DimensionBuffer,MetricBuffer> prev=null;
+    boolean done=false;
+    @Override public boolean hasNext(){
+      return !done;
+    }
+    @Override public Pair<DimensionBuffer,MetricBuffer> next(){
+      while (iterator.hasNext()) {
+        Pair<byte[],byte[]> next=iterator.next();
+        byte[] dimBuffer=next.getLeft();
+        byte[] metricBuffer=next.getRight();
+        if (prev == null) {
+          prev=Pair.of(DimensionBuffer.fromBytes(dimBuffer),MetricBuffer.fromBytes(metricBuffer,metricTypes));
+        }
+ else {
+          Pair<DimensionBuffer,MetricBuffer> current=Pair.of(DimensionBuffer.fromBytes(dimBuffer),MetricBuffer.fromBytes(metricBuffer,metricTypes));
+          if (!current.getLeft().equals(prev.getLeft())) {
+            Pair<DimensionBuffer,MetricBuffer> ret=prev;
+            prev=current;
+            LOG.debug("Returning unique {}",prev.getLeft());
+            return ret;
+          }
+ else {
+            prev.getRight().aggregate(current.getRight(),metricTypes);
+          }
+        }
+      }
+      done=true;
+      LOG.debug("Returning unique {}",prev.getLeft());
+      return prev;
+    }
+  }
+;
+}

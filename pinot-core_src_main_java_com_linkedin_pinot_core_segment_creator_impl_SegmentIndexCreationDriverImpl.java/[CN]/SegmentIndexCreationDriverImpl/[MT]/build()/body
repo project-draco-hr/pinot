@@ -1,80 +1,8 @@
 {
-  LOGGER.info("Start building StatsCollector!");
-  totalDocs=0;
-  while (recordReader.hasNext()) {
-    totalDocs++;
-    long start=System.currentTimeMillis();
-    GenericRow row=recordReader.next();
-    long stop=System.currentTimeMillis();
-    statsCollector.collectRow(row);
-    long stop1=System.currentTimeMillis();
-    totalRecordReadTime+=(stop - start);
-    totalStatsCollectorTime+=(stop1 - stop);
-  }
   if (isStarTree) {
-    Map<String,Object> allValues=new HashMap<String,Object>();
-    for (    MetricFieldSpec spec : dataSchema.getMetricFieldSpecs()) {
-      allValues.put(spec.getName(),0);
-    }
-    for (    DimensionFieldSpec spec : dataSchema.getDimensionFieldSpecs()) {
-      Object allValue=StarTreeIndexNode.getAllValue(spec);
-      allValues.put(spec.getName(),allValue);
-    }
-    GenericRow allRow=new GenericRow();
-    allRow.init(allValues);
-    statsCollector.collectRow(allRow);
-  }
-  buildIndexCreationInfo();
-  LOGGER.info("Finished building StatsCollector!");
-  LOGGER.info("Collected stats for {} documents",totalDocs);
-  indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
-  recordReader.rewind();
-  LOGGER.info("Start building IndexCreator!");
-  while (recordReader.hasNext()) {
-    long start=System.currentTimeMillis();
-    GenericRow row=recordReader.next();
-    long stop=System.currentTimeMillis();
-    indexCreator.indexRow(row);
-    long stop1=System.currentTimeMillis();
-    totalRecordReadTime+=(stop - start);
-    totalIndexTime+=(stop1 - stop);
-  }
-  recordReader.close();
-  LOGGER.info("Finished records indexing in IndexCreator!");
-  final String timeColumn=config.getTimeColumnName();
-  if (config.getSegmentName() != null) {
-    segmentName=config.getSegmentName();
+    buildStarTree();
   }
  else {
-    if (timeColumn != null && timeColumn.length() > 0) {
-      final Object minTimeValue=statsCollector.getColumnProfileFor(timeColumn).getMinValue();
-      final Object maxTimeValue=statsCollector.getColumnProfileFor(timeColumn).getMaxValue();
-      segmentName=SegmentNameBuilder.buildBasic(config.getTableName(),minTimeValue,maxTimeValue,config.getSegmentNamePostfix());
-    }
- else {
-      segmentName=SegmentNameBuilder.buildBasic(config.getTableName(),config.getSegmentNamePostfix());
-    }
+    buildRaw();
   }
-  indexCreator.setSegmentName(segmentName);
-  indexCreator.seal();
-  LOGGER.info("Finished segment seal!");
-  final File outputDir=new File(config.getIndexOutputDir());
-  final File segmentOutputDir=new File(outputDir,segmentName);
-  if (segmentOutputDir.exists()) {
-    FileUtils.deleteDirectory(segmentOutputDir);
-  }
-  FileUtils.moveDirectory(tempIndexDir,segmentOutputDir);
-  FileUtils.deleteQuietly(tempIndexDir);
-  final long crc=CrcUtils.forAllFilesInFolder(segmentOutputDir).computeCrc();
-  persistCreationMeta(segmentOutputDir,crc);
-  Map<String,MutableLong> nullCountMap=recordReader.getNullCountMap();
-  if (nullCountMap != null) {
-    for (    Map.Entry<String,MutableLong> entry : nullCountMap.entrySet()) {
-      AbstractColumnStatisticsCollector columnStatisticsCollector=statsCollector.getColumnProfileFor(entry.getKey());
-      columnStatisticsCollector.setNumInputNullValues(entry.getValue().intValue());
-    }
-  }
-  LOGGER.info("Driver, record read time : {}",totalRecordReadTime);
-  LOGGER.info("Driver, stats collector time : {}",totalStatsCollectorTime);
-  LOGGER.info("Driver, indexing time : {}",totalIndexTime);
 }
