@@ -43,6 +43,8 @@
     }
     _validationMetrics.updateOfflineSegmentDelayGauge(tableName,maxSegmentEndTime);
     _validationMetrics.updateLastPushTimeGauge(tableName,maxSegmentPushTime);
+    _validationMetrics.updateTotalDocumentsGauge(tableName,computeTotalDocumentInSegments(segmentMetadataList));
+    _validationMetrics.updateSegmentCountGauge(tableName,segmentMetadataList.size());
   }
   LOGGER.info("Validation completed");
 }
