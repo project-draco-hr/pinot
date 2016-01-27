@@ -1,9 +1,9 @@
 {
   try {
-    LOGGER.info("Processing change notification for path:{}",path);
+    LOGGER.info("Processing change notification for path: {}",path);
     refreshWatchers(path);
     if (isLeader()) {
-      if (path.matches(REALTIME_SEGMENT_PROPERTY_STORE_PATH_PATTERN) || path.matches(REALTIME_TABLE_CONFIG_PROPERTY_STORE_PATH_PATTERN)) {
+      if (path.matches(REALTIME_SEGMENT_PROPERTY_STORE_PATH_PATTERN) || path.matches(REALTIME_TABLE_CONFIG_PROPERTY_STORE_PATH_PATTERN) || path.equals(CONTROLLER_LEADER_CHANGE)) {
         assignRealtimeSegmentsToServerInstancesIfNecessary();
       }
     }

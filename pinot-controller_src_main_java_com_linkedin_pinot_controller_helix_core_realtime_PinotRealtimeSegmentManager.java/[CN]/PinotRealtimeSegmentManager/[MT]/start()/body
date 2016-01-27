@@ -6,5 +6,11 @@
   _zkClient.waitUntilConnected();
   _zkClient.subscribeChildChanges(_tableConfigPath,this);
   _zkClient.subscribeDataChanges(_tableConfigPath,this);
+  _pinotHelixResourceManager.getHelixZkManager().addControllerListener(new ControllerChangeListener(){
+    @Override public void onControllerChange(    NotificationContext changeContext){
+      processPropertyStoreChange(CONTROLLER_LEADER_CHANGE);
+    }
+  }
+);
   processPropertyStoreChange(_tableConfigPath);
 }
