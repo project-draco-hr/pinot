@@ -1,0 +1,21 @@
+{
+  File dataFile=getUploadContents();
+  if (dataFile != null) {
+    Schema schema=Schema.fromFile(dataFile);
+    try {
+      _pinotHelixResourceManager.addOrUpdateSchema(schema);
+      return new StringRepresentation(dataFile + " sucessfully added",MediaType.TEXT_PLAIN);
+    }
+ catch (    Exception e) {
+      LOGGER.error("error adding schema ",e);
+      LOGGER.error("Caught exception in file upload",e);
+      setStatus(Status.SERVER_ERROR_INTERNAL);
+      return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
+    }
+  }
+ else {
+    LOGGER.warn("No file was uploaded");
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    return new StringRepresentation("schema not added",MediaType.TEXT_PLAIN);
+  }
+}

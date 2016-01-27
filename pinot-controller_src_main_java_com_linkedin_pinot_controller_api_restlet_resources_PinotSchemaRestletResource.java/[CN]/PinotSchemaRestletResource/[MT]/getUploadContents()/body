@@ -1,0 +1,17 @@
+{
+  File dataFile=null;
+  Representation rep;
+  final DiskFileItemFactory factory=new DiskFileItemFactory();
+  final RestletFileUpload upload=new RestletFileUpload(factory);
+  final List<FileItem> items;
+  items=upload.parseRequest(getRequest());
+  final Iterator<FileItem> it=items.iterator();
+  while (it.hasNext() && dataFile == null) {
+    final FileItem fi=it.next();
+    if (fi.getFieldName() != null) {
+      dataFile=new File(tempDir,fi.getFieldName() + "-" + System.currentTimeMillis());
+      fi.write(dataFile);
+    }
+  }
+  return dataFile;
+}

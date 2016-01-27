@@ -1,0 +1,15 @@
+{
+  JSONObject response=postQuery("select count(*) from 'mytable'");
+  JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
+  JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
+  String pinotValue=firstAggregationResult.getString("value");
+  int totalRecordCount=Integer.parseInt(pinotValue);
+  response=postQuery("select count(*) from 'mytable' where ArrDel15 >= -10000");
+  aggregationResultsArray=response.getJSONArray("aggregationResults");
+  firstAggregationResult=aggregationResultsArray.getJSONObject(0);
+  pinotValue=firstAggregationResult.getString("value");
+  int rowsWithNewColumn=Integer.parseInt(pinotValue);
+  LOGGER.info("totalRecordCount = " + totalRecordCount);
+  LOGGER.info("rowsWithNewColumn = " + rowsWithNewColumn);
+  Assert.assertTrue(totalRecordCount != rowsWithNewColumn,"The number of rows consumed with the new schema is equal to the total number of rows");
+}

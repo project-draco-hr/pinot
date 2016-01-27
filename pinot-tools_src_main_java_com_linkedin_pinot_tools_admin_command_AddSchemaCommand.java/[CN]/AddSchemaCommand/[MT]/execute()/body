@@ -13,6 +13,6 @@
     throw new FileNotFoundException("file does not exist, + " + _schemaFile);
   }
   Schema s=Schema.fromFile(schemaFile);
-  FileUploadUtils.sendFile(_controllerHost,_controllerPort,"schemas",s.getSchemaName(),new FileInputStream(schemaFile),schemaFile.length());
+  FileUploadUtils.sendFile(_controllerHost,_controllerPort,"schemas",s.getSchemaName(),new FileInputStream(schemaFile),schemaFile.length(),FileUploadUtils.SendFileMethod.POST);
   return true;
 }

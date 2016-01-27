@@ -1,0 +1,7 @@
+{
+  Schema schema=Schema.fromFile(schemaFile);
+  addSchema(getPartialSchemaFile(),schema.getSchemaName());
+  addRealtimeTable(tableName,timeColumnName,timeColumnType,900,"Days",kafkaZkUrl,kafkaTopic,schema.getSchemaName(),null,null,avroFile,ROW_COUNT_FOR_REALTIME_SEGMENT_FLUSH);
+  Uninterruptibles.sleepUninterruptibly(15L,TimeUnit.SECONDS);
+  updateSchema(schemaFile,schema.getSchemaName());
+}

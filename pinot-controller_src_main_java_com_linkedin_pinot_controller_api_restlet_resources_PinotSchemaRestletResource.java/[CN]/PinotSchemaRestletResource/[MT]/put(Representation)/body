@@ -1,0 +1,15 @@
+{
+  final String schemaName=(String)getRequest().getAttributes().get(SCHEMA_NAME);
+  if (schemaName == null) {
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    return new StringRepresentation("No schema name specified in path",MediaType.TEXT_PLAIN);
+  }
+  try {
+    return uploadSchema(schemaName);
+  }
+ catch (  final Exception e) {
+    LOGGER.error("Caught exception in file upload",e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
+  }
+}
