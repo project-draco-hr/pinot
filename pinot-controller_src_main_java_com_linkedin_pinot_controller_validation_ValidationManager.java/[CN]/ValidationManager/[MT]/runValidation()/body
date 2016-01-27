@@ -25,6 +25,9 @@
       }
       List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,segmentMetadataList.get(0).getTimeGranularity());
       missingSegmentCount=missingIntervals.size();
+      for (      Interval missingInterval : missingIntervals) {
+        LOGGER.warn("Missing data in table {} for time interval {}",tableName,missingInterval);
+      }
     }
     _validationMetrics.updateMissingSegmentsGauge(tableName,missingSegmentCount);
     long maxSegmentEndTime=Long.MIN_VALUE;
