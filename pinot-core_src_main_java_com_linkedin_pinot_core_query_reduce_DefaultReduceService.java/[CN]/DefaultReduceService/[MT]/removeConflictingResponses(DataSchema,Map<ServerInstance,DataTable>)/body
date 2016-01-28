@@ -1,0 +1,20 @@
+{
+  Iterator<Map.Entry<ServerInstance,DataTable>> responseIter=instanceResponseMap.entrySet().iterator();
+  StringBuilder droppedServersSb=new StringBuilder();
+  int droppedCount=0;
+  while (responseIter.hasNext()) {
+    Map.Entry<ServerInstance,DataTable> entry=responseIter.next();
+    DataTable entryTable=entry.getValue();
+    DataSchema entrySchema=entryTable.getDataSchema();
+    if (!masterSchema.equals(entrySchema)) {
+      if (entryTable.getNumberOfRows() > 0) {
+        ++droppedCount;
+        droppedServersSb.append(" " + entry.getKey());
+      }
+      responseIter.remove();
+    }
+  }
+  if (droppedCount > 0) {
+    LOGGER.error("SCHEMA-MISMATCH: Dropping responses from servers: {}",droppedServersSb.toString());
+  }
+}
