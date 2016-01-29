@@ -15,7 +15,7 @@
     resultBlock.setSelectionResult(_selectionOperatorService.getRowEventsSet());
     resultBlock.setSelectionDataSchema(_selectionOperatorService.getDataSchema());
     resultBlock.setNumDocsScanned(numDocsScanned);
-    resultBlock.setTotalDocs(_indexSegment.getTotalDocs());
+    resultBlock.setTotalDocs(_indexSegment.getSegmentMetadata().getTotalDocs());
     final long endTime=System.currentTimeMillis();
     resultBlock.setTimeUsedMs(endTime - startTime);
     return resultBlock;
@@ -29,7 +29,7 @@
     processingExceptions.add(exception);
     resultBlock.setExceptionsList(processingExceptions);
     resultBlock.setNumDocsScanned(0);
-    resultBlock.setTotalDocs(_indexSegment.getTotalDocs());
+    resultBlock.setTotalDocs(_indexSegment.getSegmentMetadata().getTotalDocs());
     resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTime);
     return resultBlock;
   }

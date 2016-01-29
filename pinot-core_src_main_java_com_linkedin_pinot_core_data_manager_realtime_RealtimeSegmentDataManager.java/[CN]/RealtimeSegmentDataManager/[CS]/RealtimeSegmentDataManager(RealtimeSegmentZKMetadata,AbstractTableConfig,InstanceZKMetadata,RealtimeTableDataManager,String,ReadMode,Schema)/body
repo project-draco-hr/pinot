@@ -70,7 +70,7 @@ catch (        Error e) {
         LOGGER.info("Indexing threshold reached, proceeding with index conversion");
         segmentStatusTask.cancel();
         LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
-        LOGGER.info("Indexed " + realtimeSegment.getRawDocumentCount() + " raw events, current number of docs = "+ realtimeSegment.getTotalDocs());
+        LOGGER.info("Indexed " + realtimeSegment.getRawDocumentCount() + " raw events, current number of docs = "+ realtimeSegment.getSegmentMetadata().getTotalDocs());
         File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
         RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn,invertedIndexColumns);
         LOGGER.info("Trying to build segment!");
@@ -90,7 +90,7 @@ catch (        Error e) {
         metadaToOverrite.setStatus(Status.DONE);
         metadaToOverrite.setStartTime(startTime);
         metadaToOverrite.setEndTime(endTime);
-        metadaToOverrite.setTotalDocs(realtimeSegment.getTotalDocs());
+        metadaToOverrite.setTotalDocs(realtimeSegment.getSegmentMetadata().getTotalDocs());
         metadaToOverrite.setTimeUnit(timeUnit);
         notifier.notify(metadaToOverrite);
         kafkaStreamProvider.commit();
