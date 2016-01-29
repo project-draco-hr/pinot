@@ -39,8 +39,23 @@ columnNamesAndTypes.add(field.name() + i + " "+ elementTypeName);
 }
 ++columnCount;
 break;
+case INT:
+case LONG:
+case FLOAT:
+case DOUBLE:
+String fieldTypeName=fieldType.getName();
+if (fieldTypeName.equalsIgnoreCase("int")) {
+fieldTypeName="bigint";
+}
+columnNameAndType=field.name() + " " + fieldTypeName+ " not null";
+columnNamesAndTypes.add(columnNameAndType.replace("string","varchar(128)"));
+++columnCount;
+break;
+case RECORD:
+continue;
 default :
-throw new AssertionError("Don't know how to handle field " + fieldName + " of type "+ fieldType);
+LOGGER.warn("Ignoring field {} of type {}",field.name(),field.schema());
+continue;
 }
 }
 connection.prepareCall("create table mytable(" + StringUtil.join(",",columnNamesAndTypes.toArray(new String[columnNamesAndTypes.size()])) + ")").execute();

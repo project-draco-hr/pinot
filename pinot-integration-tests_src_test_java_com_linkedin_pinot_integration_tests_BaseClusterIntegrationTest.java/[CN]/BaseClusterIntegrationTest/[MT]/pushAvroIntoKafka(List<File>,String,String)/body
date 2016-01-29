@@ -13,6 +13,7 @@
       GenericDatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(reader.getSchema());
       int recordCount=0;
       List<KeyedMessage<String,byte[]>> messagesToWrite=new ArrayList<KeyedMessage<String,byte[]>>(10000);
+      int messagesInThisBatch=0;
       for (      GenericRecord genericRecord : reader) {
         outputStream.reset();
         datumWriter.write(genericRecord,binaryEncoder);
@@ -21,6 +22,12 @@
         KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>(kafkaTopic,bytes);
         if (BATCH_KAFKA_MESSAGES) {
           messagesToWrite.add(data);
+          messagesInThisBatch++;
+          if (MAX_MESSAGES_PER_BATCH <= messagesInThisBatch) {
+            messagesInThisBatch=0;
+            producer.send(messagesToWrite);
+            messagesToWrite.clear();
+          }
         }
  else {
           producer.send(data);

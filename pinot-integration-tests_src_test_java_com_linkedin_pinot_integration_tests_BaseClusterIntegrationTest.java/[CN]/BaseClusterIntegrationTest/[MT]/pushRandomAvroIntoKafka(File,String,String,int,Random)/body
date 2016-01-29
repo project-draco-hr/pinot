@@ -13,9 +13,9 @@
     GenericDatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(avroSchema);
     int recordCount=0;
     int rowsRemaining=rowCount;
-    int rowsPerBatch=10000;
+    int messagesInThisBatch=0;
     while (rowsRemaining > 0) {
-      int rowsInThisBatch=Math.min(rowsRemaining,rowsPerBatch);
+      int rowsInThisBatch=Math.min(rowsRemaining,MAX_MESSAGES_PER_BATCH);
       List<KeyedMessage<String,byte[]>> messagesToWrite=new ArrayList<KeyedMessage<String,byte[]>>(rowsInThisBatch);
       GenericRecord genericRecord=new GenericData.Record(avroSchema);
       for (int i=0; i < rowsInThisBatch; ++i) {
@@ -27,6 +27,12 @@
         KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>(kafkaTopic,bytes);
         if (BATCH_KAFKA_MESSAGES) {
           messagesToWrite.add(data);
+          messagesInThisBatch++;
+          if (MAX_MESSAGES_PER_BATCH <= messagesInThisBatch) {
+            messagesInThisBatch=0;
+            producer.send(messagesToWrite);
+            messagesToWrite.clear();
+          }
         }
  else {
           producer.send(data);
