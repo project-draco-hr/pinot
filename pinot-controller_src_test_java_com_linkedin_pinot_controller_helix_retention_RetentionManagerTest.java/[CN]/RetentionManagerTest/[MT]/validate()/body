@@ -1,0 +1,26 @@
+{
+  int INCREMENTAL_WAIT_TIME=5000;
+  int INITIAL_WAIT_TIME=8000;
+  String segmentMetadaPathForTable=ZKMetadataProvider.constructPropertyStorePathForResource(_offlineTableName);
+  int numSegmentsInMetadata=_helixZkManager.getHelixPropertyStore().getChildNames(segmentMetadaPathForTable,AccessOption.PERSISTENT).size();
+  Assert.assertEquals(numSegmentsInMetadata,20);
+  Thread.sleep(INITIAL_WAIT_TIME);
+  LOGGER.info("Sleeping thread wakes up!");
+  int evSize=0;
+  int isSize=0;
+  numSegmentsInMetadata=0;
+  long start=System.currentTimeMillis();
+  int MAX_WAIT_TIME=2 * 60 * 1000;
+  while (System.currentTimeMillis() - start < MAX_WAIT_TIME) {
+    evSize=_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,_offlineTableName).getPartitionSet().size();
+    isSize=_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,_offlineTableName).getPartitionSet().size();
+    numSegmentsInMetadata=_helixZkManager.getHelixPropertyStore().getChildNames(segmentMetadaPathForTable,AccessOption.PERSISTENT).size();
+    if (evSize == 10 && isSize == 10 && numSegmentsInMetadata == 10) {
+      break;
+    }
+    Thread.sleep(INCREMENTAL_WAIT_TIME);
+  }
+  Assert.assertEquals(evSize,10);
+  Assert.assertEquals(isSize,10);
+  Assert.assertEquals(numSegmentsInMetadata,10);
+}

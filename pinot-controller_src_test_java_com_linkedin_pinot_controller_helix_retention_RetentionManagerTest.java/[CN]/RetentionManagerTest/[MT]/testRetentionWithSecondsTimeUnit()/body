@@ -13,11 +13,6 @@
     registerSegmentMetadata(segmentMetadata);
     Thread.sleep(100);
   }
-  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(_offlineTableName),AccessOption.PERSISTENT).size(),20);
-  Thread.sleep(8000);
-  LOGGER.info("Sleeping thread wakes up!");
-  Assert.assertEquals(_helixAdmin.getResourceExternalView(HELIX_CLUSTER_NAME,_offlineTableName).getPartitionSet().size(),10);
-  Assert.assertEquals(_helixAdmin.getResourceIdealState(HELIX_CLUSTER_NAME,_offlineTableName).getPartitionSet().size(),10);
-  Assert.assertEquals(_helixZkManager.getHelixPropertyStore().getChildNames(ZKMetadataProvider.constructPropertyStorePathForResource(_offlineTableName),AccessOption.PERSISTENT).size(),10);
+  validate();
   cleanupSegments();
 }
