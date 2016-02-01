@@ -7,10 +7,10 @@
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   LOGGER.info("RunningTime : {}",resultBlock.getTimeUsedMs());
   LOGGER.info("NumDocsScanned : {}",resultBlock.getNumDocsScanned());
-  LOGGER.info("TotalDocs : {}",resultBlock.getTotalDocs());
+  LOGGER.info("TotalDocs : {}",resultBlock.getTotalRawDocs());
   LOGGER.info("Result: {}",resultBlock.getAggregationGroupByResultDataTable());
   Assert.assertEquals(resultBlock.getNumDocsScanned(),582);
-  Assert.assertEquals(resultBlock.getTotalDocs(),10001);
+  Assert.assertEquals(resultBlock.getTotalRawDocs(),10001);
   final AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(_aggregationInfos,brokerRequest.getGroupBy());
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getAggregationGroupByResultDataTable());

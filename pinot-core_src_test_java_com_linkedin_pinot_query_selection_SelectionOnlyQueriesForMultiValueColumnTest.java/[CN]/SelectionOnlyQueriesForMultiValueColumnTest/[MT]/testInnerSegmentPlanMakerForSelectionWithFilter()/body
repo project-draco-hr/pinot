@@ -8,9 +8,9 @@
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
   System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
-  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  System.out.println("TotalDocs : " + resultBlock.getTotalRawDocs());
   Assert.assertEquals(resultBlock.getNumDocsScanned(),10);
-  Assert.assertEquals(resultBlock.getTotalDocs(),100000);
+  Assert.assertEquals(resultBlock.getTotalRawDocs(),100000);
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getDataTable());

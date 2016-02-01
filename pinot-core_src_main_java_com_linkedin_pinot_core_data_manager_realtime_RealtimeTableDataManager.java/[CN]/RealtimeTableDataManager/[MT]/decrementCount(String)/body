@@ -15,7 +15,7 @@ synchronized (getGlobalLock()) {
     }
     if (segment != null) {
       _currentNumberOfSegments.dec();
-      _currentNumberOfDocuments.dec(segment.getSegment().getSegmentMetadata().getTotalDocs());
+      _currentNumberOfDocuments.dec(segment.getSegment().getSegmentMetadata().getTotalRawDocs());
       _numDeletedSegments.inc();
       segment.getSegment().destroy();
     }

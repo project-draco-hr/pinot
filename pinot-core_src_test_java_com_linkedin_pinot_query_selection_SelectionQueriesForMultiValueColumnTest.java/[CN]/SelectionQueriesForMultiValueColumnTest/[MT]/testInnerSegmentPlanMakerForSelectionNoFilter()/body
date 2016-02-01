@@ -8,7 +8,7 @@
   final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
   System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
   System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
-  System.out.println("TotalDocs : " + resultBlock.getTotalDocs());
+  System.out.println("TotalDocs : " + resultBlock.getTotalRawDocs());
   final SelectionOperatorService selectionOperatorService=new SelectionOperatorService(brokerRequest.getSelections(),resultBlock.getSelectionDataSchema());
   final JSONObject jsonResult=getJsonResult(resultBlock,selectionOperatorService);
   assertColumnsInResult(jsonResult);
