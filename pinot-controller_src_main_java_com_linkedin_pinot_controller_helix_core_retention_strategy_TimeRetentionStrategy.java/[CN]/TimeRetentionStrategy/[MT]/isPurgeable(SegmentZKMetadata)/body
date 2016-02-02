@@ -7,12 +7,12 @@
     if (segmentTimeUnit == null) {
       return false;
     }
-    long endsMills=segmentTimeUnit.toMillis(segmentZKMetadata.getEndTime());
-    if (!TimeUtils.timeValueInValidRange(segmentZKMetadata.getEndTime())) {
+    long endsMillis=segmentTimeUnit.toMillis(segmentZKMetadata.getEndTime());
+    if (!TimeUtils.timeValueInValidRange(endsMillis)) {
       LOGGER.warn("Skipping purge check for segment {}, timestamp {} {} fails sanity check.",segmentZKMetadata.getSegmentName(),segmentZKMetadata.getEndTime(),segmentZKMetadata.getTimeUnit());
       return false;
     }
-    Duration segmentTimeUntilNow=new Duration(endsMills,System.currentTimeMillis());
+    Duration segmentTimeUntilNow=new Duration(endsMillis,System.currentTimeMillis());
     if (_retentionDuration.isShorterThan(segmentTimeUntilNow)) {
       return true;
     }
