@@ -1,0 +1,37 @@
+{
+  final FileSystem fs=FileSystem.get(new Configuration());
+  final Path hdfsDataPath=new Path(dataFilePath);
+  final File dataPath=new File(currentDiskWorkDir,"data");
+  if (dataPath.exists()) {
+    dataPath.delete();
+  }
+  dataPath.mkdir();
+  final Path localAvroPath=new Path(dataPath + "/" + hdfsDataPath.getName());
+  fs.copyToLocalFile(hdfsDataPath,localAvroPath);
+  LOGGER.info("Data schema is : {}",schema);
+  SegmentGeneratorConfig segmentGeneratorConfig=new SegmentGeneratorConfig(schema);
+  segmentGeneratorConfig.setTableName(tableName);
+  segmentGeneratorConfig.setInputFilePath(new File(dataPath,hdfsDataPath.getName()).getAbsolutePath());
+  if (null != postfix) {
+    segmentGeneratorConfig.setSegmentNamePostfix(String.format("%s-%s",postfix,seqId));
+  }
+ else {
+    segmentGeneratorConfig.setSegmentNamePostfix(seqId);
+  }
+  segmentGeneratorConfig.setIndexOutputDir(localDiskSegmentDirectory);
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  ThirdeyeRecordReader thirdeyeRecordReader=new ThirdeyeRecordReader(segmentGeneratorConfig.getInputFilePath(),schema,properties.get(SEGMENT_CREATION_CONFIG_PATH.toString()));
+  driver.init(segmentGeneratorConfig,thirdeyeRecordReader);
+  driver.build();
+  String segmentName=(new File(localDiskSegmentDirectory).listFiles()[0]).getName();
+  String localSegmentPath=new File(localDiskSegmentDirectory,segmentName).getAbsolutePath();
+  String localTarPath=localDiskSegmentTarPath + "/" + segmentName+ ".tar.gz";
+  LOGGER.info("Trying to tar the segment to: {}",localTarPath);
+  TarGzCompressionUtils.createTarGzOfDirectory(localSegmentPath,localTarPath);
+  String hdfsTarPath=localHdfsSegmentTarPath + "/" + segmentName+ ".tar.gz";
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("Copy from : {} to {}",localTarPath,hdfsTarPath);
+  LOGGER.info("*********************************************************************");
+  fs.copyFromLocalFile(true,true,new Path(localTarPath),new Path(hdfsTarPath));
+  return segmentName;
+}

@@ -1,0 +1,21 @@
+{
+  currentHdfsWorkDir=FileOutputFormat.getWorkOutputPath(context);
+  currentDiskWorkDir="pinot_hadoop_tmp";
+  localHdfsSegmentTarPath=currentHdfsWorkDir + "/segmentTar";
+  localDiskSegmentDirectory=currentDiskWorkDir + "/segments/";
+  localDiskSegmentTarPath=currentDiskWorkDir + "/segmentsTar/";
+  new File(localDiskSegmentTarPath).mkdirs();
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("Configurations : {}",context.getConfiguration().toString());
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("Current HDFS working dir : {}",currentHdfsWorkDir);
+  LOGGER.info("Current DISK working dir : {}",new File(currentDiskWorkDir).getAbsolutePath());
+  LOGGER.info("*********************************************************************");
+  properties=context.getConfiguration();
+  outputPath=properties.get(SEGMENT_CREATION_OUTPUT_PATH.toString());
+  tableName=properties.get(SEGMENT_CREATION_SEGMENT_TABLE_NAME.toString());
+  postfix=properties.get("segment.name.postfix",null);
+  if (outputPath == null || tableName == null) {
+    throw new RuntimeException("Missing configs: " + "\n\toutputPath: " + properties.get("path.to.output") + "\n\ttableName: "+ properties.get("segment.table.name"));
+  }
+}

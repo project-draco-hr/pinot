@@ -1,0 +1,25 @@
+{
+  FileSystem fs=FileSystem.get(new Configuration());
+  StarTreeConfig starTreeConfig=StarTreeConfig.decode(fs.open(new Path(configPath)));
+  LOGGER.info("{}",starTreeConfig);
+  Schema schema=new Schema();
+  for (  DimensionSpec dimensionSpec : starTreeConfig.getDimensions()) {
+    FieldSpec spec=new DimensionFieldSpec();
+    spec.setName(dimensionSpec.getName());
+    spec.setDataType(DataType.STRING);
+    spec.setSingleValueField(true);
+    schema.addSchema(dimensionSpec.getName(),spec);
+  }
+  for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+    FieldSpec spec=new MetricFieldSpec();
+    spec.setName(metricSpec.getName());
+    spec.setDataType(DataType.valueOf(metricSpec.getType().toString()));
+    spec.setSingleValueField(true);
+    schema.addSchema(metricSpec.getName(),spec);
+  }
+  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.LONG,starTreeConfig.getTime().getBucket().getUnit(),starTreeConfig.getTime().getColumnName());
+  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,starTreeConfig.getTime().getBucket().getUnit(),starTreeConfig.getTime().getColumnName());
+  schema.addSchema(starTreeConfig.getTime().getColumnName(),new TimeFieldSpec(incoming,outgoing));
+  schema.setSchemaName(starTreeConfig.getCollection());
+  return schema;
+}

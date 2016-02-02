@@ -1,0 +1,17 @@
+{
+  super();
+  super.initNullCounters(schema);
+  _sequenceFile=new File(sequenceFileName);
+  _schema=schema;
+  FileSystem fs=FileSystem.get(new Configuration());
+  _starTreeConfig=StarTreeConfig.decode(fs.open(new Path(starTreeConfigFileName)));
+  _dimensionToIndexMapping=new HashMap<>();
+  for (int i=0; i < _starTreeConfig.getDimensions().size(); i++) {
+    _dimensionToIndexMapping.put(_starTreeConfig.getDimensions().get(i).getName(),i);
+  }
+  _metricToIndexMapping=new HashMap<>();
+  for (int i=0; i < _starTreeConfig.getMetrics().size(); i++) {
+    _metricToIndexMapping.put(_starTreeConfig.getMetrics().get(i).getName(),i);
+  }
+  _metricSchema=MetricSchema.fromMetricSpecs(_starTreeConfig.getMetrics());
+}

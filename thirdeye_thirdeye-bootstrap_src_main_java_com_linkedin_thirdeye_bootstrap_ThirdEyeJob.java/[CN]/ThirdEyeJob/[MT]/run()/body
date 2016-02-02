@@ -26,6 +26,8 @@ switch (phaseSpec) {
 case WAIT:
 case ANALYSIS:
 case AGGREGATION:
+case SEGMENT_CREATION:
+case SEGMENT_PUSH:
 case TOPK_ROLLUP_PHASE1:
 case TOPK_ROLLUP_PHASE2:
 case TOPK_ROLLUP_PHASE3:
@@ -216,9 +218,11 @@ Configured instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
 setMapreduceConfig(instance.getConf());
 Method runMethod=instance.getClass().getMethod("run");
 Job job=(Job)runMethod.invoke(instance);
+if (job != null) {
 JobStatus status=job.getStatus();
 if (status.getState() != JobStatus.State.SUCCEEDED) {
 throw new RuntimeException("Job " + job.getJobName() + " failed to execute: Ran with config:"+ jobProperties);
+}
 }
 }
 }
