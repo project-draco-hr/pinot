@@ -5,6 +5,9 @@
     @Override public boolean hasNext(){
       return iterator.hasNext();
     }
+    @Override public void remove(){
+      throw new UnsupportedOperationException();
+    }
     @Override public GenericRow next(){
       Pair<byte[],byte[]> pair=iterator.next();
       DimensionBuffer dimensionKey=DimensionBuffer.fromBytes(pair.getLeft());
