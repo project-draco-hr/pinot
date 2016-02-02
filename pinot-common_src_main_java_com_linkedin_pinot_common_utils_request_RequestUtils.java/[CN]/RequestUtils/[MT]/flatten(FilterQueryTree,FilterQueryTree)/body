@@ -1,0 +1,26 @@
+{
+  if (node == null || node.getChildren() == null) {
+    return;
+  }
+  List<FilterQueryTree> toFlatten=new ArrayList<>(node.getChildren().size());
+  for (  FilterQueryTree child : node.getChildren()) {
+    if (child.getChildren() != null && !child.getChildren().isEmpty()) {
+      toFlatten.add(child);
+    }
+  }
+  for (  FilterQueryTree child : toFlatten) {
+    flatten(child,node);
+  }
+  if (parent == null) {
+    return;
+  }
+  if (node.getOperator() == parent.getOperator() && (node.getOperator() == FilterOperator.OR || node.getOperator() == FilterOperator.AND)) {
+    List<FilterQueryTree> children=node.getChildren();
+    Iterator<FilterQueryTree> it=children.iterator();
+    while (it.hasNext()) {
+      parent.getChildren().add(it.next());
+      it.remove();
+    }
+    parent.getChildren().remove(node);
+  }
+}
