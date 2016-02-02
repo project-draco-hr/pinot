@@ -6,18 +6,13 @@
     dataPath.delete();
   }
   dataPath.mkdir();
-  final Path localAvroPath=new Path(dataPath + "/" + hdfsDataPath.getName());
-  fs.copyToLocalFile(hdfsDataPath,localAvroPath);
+  final Path localFilePath=new Path(dataPath + "/" + hdfsDataPath.getName());
+  fs.copyToLocalFile(hdfsDataPath,localFilePath);
   LOGGER.info("Data schema is : {}",schema);
   SegmentGeneratorConfig segmentGeneratorConfig=new SegmentGeneratorConfig(schema);
   segmentGeneratorConfig.setTableName(tableName);
   segmentGeneratorConfig.setInputFilePath(new File(dataPath,hdfsDataPath.getName()).getAbsolutePath());
-  if (null != postfix) {
-    segmentGeneratorConfig.setSegmentNamePostfix(String.format("%s-%s",postfix,seqId));
-  }
- else {
-    segmentGeneratorConfig.setSegmentNamePostfix(seqId);
-  }
+  segmentGeneratorConfig.setSegmentNamePostfix(seqId);
   segmentGeneratorConfig.setIndexOutputDir(localDiskSegmentDirectory);
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   ThirdeyeRecordReader thirdeyeRecordReader=new ThirdeyeRecordReader(segmentGeneratorConfig.getInputFilePath(),schema,properties.get(SEGMENT_CREATION_CONFIG_PATH.toString()));
