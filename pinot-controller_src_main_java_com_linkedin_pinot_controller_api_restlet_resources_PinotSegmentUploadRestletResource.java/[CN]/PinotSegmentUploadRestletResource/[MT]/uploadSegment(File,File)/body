@@ -6,7 +6,17 @@
     FileUtils.deleteQuietly(segmentFile);
   }
   FileUtils.moveFile(dataFile,segmentFile);
-  PinotResourceManagerResponse response=_pinotHelixResourceManager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
+  PinotResourceManagerResponse response;
+  if (!validateSegmentTimeRange(metadata)) {
+    Interval interval=metadata.getTimeInterval();
+    Date startDate=new Date(interval.getStartMillis());
+    Date endDate=new Date(interval.getEndMillis());
+    LOGGER.error("Rejecting segment with invalid start or end time, start: {}, end: {}, (must be between Jan 01 1971, and Jan 01, 2071)",startDate,endDate);
+    response=new PinotResourceManagerResponse("Invalid segment start/end time",false);
+  }
+ else {
+    response=_pinotHelixResourceManager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
+  }
   setStatus((response.isSuccessfull() ? Status.SUCCESS_OK : Status.SERVER_ERROR_INTERNAL));
   return new StringRepresentation(response.toJSON().toString());
 }

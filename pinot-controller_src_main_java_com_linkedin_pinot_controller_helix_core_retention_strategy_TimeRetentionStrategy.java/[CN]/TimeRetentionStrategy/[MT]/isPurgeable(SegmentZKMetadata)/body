@@ -8,7 +8,7 @@
       return false;
     }
     long endsMills=segmentTimeUnit.toMillis(segmentZKMetadata.getEndTime());
-    if (endsMills < SANITY_CHECK_MINIMUM_MILLIS || SANITY_CHECK_MAXIMUM_MILLIS < endsMills) {
+    if (!TimeUtils.timeValueInValidRange(segmentZKMetadata.getEndTime())) {
       LOGGER.warn("Skipping purge check for segment {}, timestamp {} {} fails sanity check.",segmentZKMetadata.getSegmentName(),segmentZKMetadata.getEndTime(),segmentZKMetadata.getTimeUnit());
       return false;
     }

@@ -21,7 +21,9 @@
       List<Interval> segmentIntervals=new ArrayList<Interval>();
       for (      SegmentMetadata segmentMetadata : segmentMetadataList) {
         Interval timeInterval=segmentMetadata.getTimeInterval();
-        if (timeInterval != null)         segmentIntervals.add(timeInterval);
+        if (timeInterval != null && TimeUtils.timeValueInValidRange(timeInterval.getStartMillis()) && TimeUtils.timeValueInValidRange(timeInterval.getEndMillis())) {
+          segmentIntervals.add(timeInterval);
+        }
       }
       List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,segmentMetadataList.get(0).getTimeGranularity());
       missingSegmentCount=missingIntervals.size();
