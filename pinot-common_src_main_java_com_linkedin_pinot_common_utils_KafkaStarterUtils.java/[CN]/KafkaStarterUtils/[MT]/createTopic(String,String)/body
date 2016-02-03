@@ -1,3 +1,19 @@
 {
-  TopicCommand.main(new String[]{"--create","--zookeeper",zkStr,"--replication-factor","1","--partitions","10","--topic",kafkaTopic});
+  System.setSecurityManager(new SecurityManager(){
+    @Override public void checkPermission(    Permission perm){
+      if (perm.getName().startsWith("exitVM")) {
+        throw new SecurityException("System.exit is disabled");
+      }
+    }
+    @Override public void checkPermission(    Permission perm,    Object context){
+      checkPermission(perm);
+    }
+  }
+);
+  try {
+    TopicCommand.main(new String[]{"--create","--zookeeper",zkStr,"--replication-factor","1","--partitions","10","--topic",kafkaTopic});
+  }
+ catch (  SecurityException ex) {
+  }
+  System.setSecurityManager(null);
 }
