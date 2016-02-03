@@ -1,7 +1,7 @@
 {
   Operator ret=null;
   if (null == filterQueryTree) {
-    return null;
+    return new MatchEntireSegmentOperator(_segment.getSegmentMetadata().getTotalRawDocs());
   }
   final List<FilterQueryTree> childFilters=filterQueryTree.getChildren();
   final boolean isLeaf=(childFilters == null) || childFilters.isEmpty();
