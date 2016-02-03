@@ -11,7 +11,7 @@
     final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
     driver.init(config);
     driver.build();
-    LOGGER.info("built at : {}",segmentDir.getAbsolutePath());
+    LOGGER.debug("built at : {}",segmentDir.getAbsolutePath());
     _indexSegmentList.add(new OfflineSegmentDataManager(ColumnarSegmentLoader.load(new File(segmentDir,driver.getSegmentName()),ReadMode.heap)));
   }
 }

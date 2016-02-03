@@ -1,7 +1,8 @@
 {
   IntermediateResultsBlock block=getIntermediateResultsBlock();
   final List<BAggregationFunctionOperator> aggregationFunctionOperatorList1=new ArrayList<BAggregationFunctionOperator>();
-  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
+  Operator filterOperator1=new MatchEntireSegmentOperator(_indexSegment.getSegmentMetadata().getTotalRawDocs());
+  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(filterOperator1,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
   final Map<String,DataSource> dataSourceMap1=getDataSourceMap();
   final MProjectionOperator projectionOperator1=new MProjectionOperator(dataSourceMap1,docIdSetOperator1);
   for (int i=0; i < _numAggregations; ++i) {
@@ -11,10 +12,10 @@
   final MAggregationOperator aggregationOperator1=new MAggregationOperator(_indexSegment,_aggregationInfos,projectionOperator1,aggregationFunctionOperatorList1);
   final IntermediateResultsBlock block1=(IntermediateResultsBlock)aggregationOperator1.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Result 2: {}",block1.getAggregationResult().get(i));
+    LOGGER.debug("Result 2: {}",block1.getAggregationResult().get(i));
   }
   CombineService.mergeTwoBlocks(getAggregationNoFilterBrokerRequest(),block,block1);
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Combined Result : {}",block.getAggregationResult().get(i));
+    LOGGER.debug("Combined Result : {}",block.getAggregationResult().get(i));
   }
 }

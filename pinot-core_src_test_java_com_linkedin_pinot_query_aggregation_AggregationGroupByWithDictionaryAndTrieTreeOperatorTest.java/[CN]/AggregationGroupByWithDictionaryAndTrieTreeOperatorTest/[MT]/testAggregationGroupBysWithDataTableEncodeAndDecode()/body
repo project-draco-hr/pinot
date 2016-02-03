@@ -2,20 +2,20 @@
   final MAggregationGroupByOperator aggregationGroupByOperator=getmAggregationGroupByOperator();
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Result 1: {}",block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Result 1: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
   final MAggregationGroupByOperator aggregationGroupByOperator1=getmAggregationGroupByOperator();
   final IntermediateResultsBlock block1=(IntermediateResultsBlock)aggregationGroupByOperator1.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Result 2: {}",block1.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Result 2: {}",block1.getAggregationGroupByOperatorResult().get(i));
   }
   CombineService.mergeTwoBlocks(getAggregationGroupByNoFilterBrokerRequest(),block,block1);
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Combined Result: {}",block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Combined Result: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
   final DataTable dataTable=block.getAggregationGroupByResultDataTable();
   final List<Map<String,Serializable>> results=AggregationGroupByOperatorService.transformDataTableToGroupByResult(dataTable);
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Decoded Result: {}",results.get(i));
+    LOGGER.debug("Decoded Result: {}",results.get(i));
   }
 }

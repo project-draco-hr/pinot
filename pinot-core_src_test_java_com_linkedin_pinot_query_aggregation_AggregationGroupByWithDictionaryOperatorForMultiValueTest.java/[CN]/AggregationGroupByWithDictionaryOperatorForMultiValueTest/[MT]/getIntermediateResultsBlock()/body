@@ -1,6 +1,7 @@
 {
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
+  Operator filterOperator=new MatchEntireSegmentOperator(_indexSegment.getSegmentMetadata().getTotalRawDocs());
+  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(filterOperator,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
   final Map<String,DataSource> dataSourceMap=getDataSourceMap();
   final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
   for (int i=0; i < _numAggregations; ++i) {
@@ -8,7 +9,7 @@
     aggregationFunctionGroupByOperatorList.add(aggregationFunctionGroupByOperator);
   }
   final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
-  LOGGER.info("running query: ");
+  LOGGER.debug("running query: ");
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
   LOGGER.debug("Result 1: ");
   for (int i=0; i < _numAggregations; ++i) {

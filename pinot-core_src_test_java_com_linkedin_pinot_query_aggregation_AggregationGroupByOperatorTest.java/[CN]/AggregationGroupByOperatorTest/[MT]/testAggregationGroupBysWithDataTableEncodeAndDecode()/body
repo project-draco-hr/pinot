@@ -1,6 +1,7 @@
 {
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
+  Operator filterOperator=new MatchEntireSegmentOperator(_indexSegment.getSegmentMetadata().getTotalRawDocs());
+  final BReusableFilteredDocIdSetOperator docIdSetOperator=new BReusableFilteredDocIdSetOperator(filterOperator,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
   final Map<String,DataSource> dataSourceMap=getDataSourceMap();
   final MProjectionOperator projectionOperator=new MProjectionOperator(dataSourceMap,docIdSetOperator);
   for (int i=0; i < _numAggregations; ++i) {
@@ -10,10 +11,11 @@
   final MAggregationGroupByOperator aggregationGroupByOperator=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator,aggregationFunctionGroupByOperatorList);
   final IntermediateResultsBlock block=(IntermediateResultsBlock)aggregationGroupByOperator.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Result 1: {}",block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Result 1: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList1=new ArrayList<AggregationFunctionGroupByOperator>();
-  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(null,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
+  Operator filterOperator1=new MatchEntireSegmentOperator(_indexSegment.getSegmentMetadata().getTotalRawDocs());
+  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(filterOperator1,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
   final Map<String,DataSource> dataSourceMap1=getDataSourceMap();
   final MProjectionOperator projectionOperator1=new MProjectionOperator(dataSourceMap1,docIdSetOperator1);
   for (int i=0; i < _numAggregations; ++i) {
@@ -23,15 +25,15 @@
   final MAggregationGroupByOperator aggregationGroupByOperator1=new MAggregationGroupByOperator(_indexSegment,_aggregationInfos,_groupBy,projectionOperator1,aggregationFunctionGroupByOperatorList1);
   final IntermediateResultsBlock block1=(IntermediateResultsBlock)aggregationGroupByOperator1.nextBlock();
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Result 2: {}",block1.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Result 2: {}",block1.getAggregationGroupByOperatorResult().get(i));
   }
   CombineService.mergeTwoBlocks(getAggregationGroupByNoFilterBrokerRequest(),block,block1);
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Combined Result: {}",block.getAggregationGroupByOperatorResult().get(i));
+    LOGGER.debug("Combined Result: {}",block.getAggregationGroupByOperatorResult().get(i));
   }
   final DataTable dataTable=block.getAggregationGroupByResultDataTable();
   final List<Map<String,Serializable>> results=AggregationGroupByOperatorService.transformDataTableToGroupByResult(dataTable);
   for (int i=0; i < _numAggregations; ++i) {
-    LOGGER.info("Decode AggregationResult from DataTable: {}",results.get(i));
+    LOGGER.debug("Decode AggregationResult from DataTable: {}",results.get(i));
   }
 }
