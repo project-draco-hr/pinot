@@ -1,0 +1,26 @@
+{
+  if (node.getDimensionName() != StarTreeIndexNode.all()) {
+    String dimName=dimensionNameToIndexMap.inverse().get(node.getDimensionName());
+    int dimensionValue=node.getDimensionValue();
+    if (dimensionValue != StarTreeIndexNode.all()) {
+      int mappedDimValue=Arrays.binarySearch((Object[])indexCreationInfoMap.get(dimName).getSortedUniqueElementsArray(),dictionaryMap.get(dimName).inverse().get(dimensionValue));
+      node.setDimensionValue(mappedDimValue);
+    }
+  }
+  Map<Integer,StarTreeIndexNode> children=node.getChildren();
+  Map<Integer,StarTreeIndexNode> newChildren=new HashMap<>();
+  if (children != null && !children.isEmpty()) {
+    String childDimName=dimensionNameToIndexMap.inverse().get(node.getChildDimensionName());
+    Object[] sortedUniqueElementsArray=(Object[])indexCreationInfoMap.get(childDimName).getSortedUniqueElementsArray();
+    for (    Entry<Integer,StarTreeIndexNode> entry : children.entrySet()) {
+      int childDimValue=entry.getKey();
+      int childMappedDimValue=StarTreeIndexNode.all();
+      if (childDimValue != StarTreeIndexNode.all()) {
+        childMappedDimValue=Arrays.binarySearch(sortedUniqueElementsArray,dictionaryMap.get(childDimName).inverse().get(childDimValue));
+      }
+      newChildren.put(childMappedDimValue,entry.getValue());
+      updateTree(entry.getValue(),dictionaryMap,dimensionNameToIndexMap);
+    }
+    node.setChildren(newChildren);
+  }
+}

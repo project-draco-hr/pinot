@@ -1,5 +1,5 @@
 {
-  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes);
+  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes,getSortOrder());
   Iterator<Pair<byte[],byte[]>> iterator1=dataSorter.iterator(startDocId,endDocId);
   File tempFile=new File(outDir,file.getName() + "_" + startDocId+ "_"+ endDocId+ ".unique.tmp");
   DataOutputStream dos=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)));
@@ -19,7 +19,7 @@
     dos.write(metricBuffer);
   }
   dos.close();
-  dataSorter=new StarTreeDataTable(tempFile,dimensionSizeBytes,metricSizeBytes);
+  dataSorter=new StarTreeDataTable(tempFile,dimensionSizeBytes,metricSizeBytes,getSortOrder());
   dataSorter.sort(0,endDocId - startDocId);
   if (debugMode) {
     printFile(tempFile,0,endDocId - startDocId);

@@ -6,7 +6,10 @@
   properties.setProperty(METRICS,config.getMetrics());
   properties.setProperty(TIME_COLUMN_NAME,config.getTimeColumnName());
   properties.setProperty(TIME_INTERVAL,"not_there");
+  properties.setProperty(SEGMENT_TOTAL_RAW_DOCS,String.valueOf(totalRawDocs));
+  properties.setProperty(SEGMENT_TOTAL_AGGREGATE_DOCS,String.valueOf(totalAggDocs));
   properties.setProperty(SEGMENT_TOTAL_DOCS,String.valueOf(totalDocs));
+  properties.setProperty(STAR_TREE_ENABLED,String.valueOf(config.isCreateStarTreeIndex()));
   String timeColumn=config.getTimeColumnName();
   if (indexCreationInfoMap.get(timeColumn) != null) {
     properties.setProperty(SEGMENT_START_TIME,indexCreationInfoMap.get(timeColumn).getMin());
@@ -30,6 +33,8 @@
     final int uniqueValueCount=columnIndexCreationInfo.getDistinctValueCount();
     properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,CARDINALITY),String.valueOf(uniqueValueCount));
     properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,TOTAL_DOCS),String.valueOf(totalDocs));
+    properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,TOTAL_RAW_DOCS),String.valueOf(totalRawDocs));
+    properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,TOTAL_AGG_DOCS),String.valueOf(totalAggDocs));
     properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,DATA_TYPE),schema.getFieldSpecFor(column).getDataType().toString());
     properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,BITS_PER_ELEMENT),String.valueOf(SingleValueUnsortedForwardIndexCreator.getNumOfBits(uniqueValueCount)));
     properties.setProperty(V1Constants.MetadataKeys.Column.getKeyFor(column,DICTIONARY_ELEMENT_SIZE),String.valueOf(dictionaryCreatorMap.get(column).getStringColumnMaxLength()));

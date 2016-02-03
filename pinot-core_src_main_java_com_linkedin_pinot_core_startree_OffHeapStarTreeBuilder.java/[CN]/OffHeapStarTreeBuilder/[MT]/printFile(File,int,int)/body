@@ -1,9 +1,14 @@
 {
   LOG.info("Contents of file:{} from:{} to:{}",file.getName(),startDocId,endDocId);
-  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes);
+  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes,getSortOrder());
   Iterator<Pair<byte[],byte[]>> iterator=dataSorter.iterator(startDocId,endDocId);
+  int numRecordsToPrint=100;
+  int counter=0;
   while (iterator.hasNext()) {
     Pair<byte[],byte[]> next=iterator.next();
     LOG.info("{}, {}",DimensionBuffer.fromBytes(next.getLeft()),MetricBuffer.fromBytes(next.getRight(),metricTypes));
+    if (counter++ == numRecordsToPrint) {
+      break;
+    }
   }
 }

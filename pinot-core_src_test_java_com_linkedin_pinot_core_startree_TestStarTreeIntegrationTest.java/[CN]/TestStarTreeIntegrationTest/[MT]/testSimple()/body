@@ -1,0 +1,78 @@
+{
+  int numDimensions=4;
+  int numMetrics=2;
+  int ROWS=(int)MathUtils.factorial(numDimensions);
+  final Schema schema=new Schema();
+  for (int i=0; i < numDimensions; i++) {
+    String dimName="d" + (i + 1);
+    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(dimName,DataType.STRING,true);
+    schema.addField(dimName,dimensionFieldSpec);
+  }
+  schema.setTimeFieldSpec(new TimeFieldSpec("daysSinceEpoch",DataType.INT,TimeUnit.DAYS));
+  for (int i=0; i < numMetrics; i++) {
+    String metricName="m" + (i + 1);
+    MetricFieldSpec metricFieldSpec=new MetricFieldSpec(metricName,DataType.INT);
+    schema.addField(metricName,metricFieldSpec);
+  }
+  SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
+  config.setCreateStarTreeIndex(true);
+  String tempOutputDir="/tmp/star-tree-index";
+  config.setIndexOutputDir(tempOutputDir);
+  config.setInputFileFormat(FileFormat.AVRO);
+  config.setSegmentName("testSimple");
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  final List<GenericRow> data=new ArrayList<>();
+  for (int row=0; row < ROWS; row++) {
+    HashMap<String,Object> map=new HashMap<>();
+    for (int i=0; i < numDimensions; i++) {
+      String dimName=schema.getDimensionFieldSpecs().get(i).getName();
+      map.put(dimName,dimName + "-v" + row % (numDimensions - i));
+    }
+    map.put("daysSinceEpoch",1);
+    for (int i=0; i < numMetrics; i++) {
+      String metName=schema.getMetricFieldSpecs().get(i).getName();
+      map.put(metName,1);
+    }
+    GenericRow genericRow=new GenericRow();
+    genericRow.init(map);
+    data.add(genericRow);
+  }
+  RecordReader reader=createReader(schema,data);
+  driver.init(config,reader);
+  driver.build();
+  ReadMode mode=ReadMode.heap;
+  String[] metricNames=new String[]{"m1"};
+  String query="select sum(m1) from T where d2='d2-v0'";
+  Pql2Compiler compiler=new Pql2Compiler();
+  BrokerRequest brokerRequest=compiler.compileToBrokerRequest(query);
+  IndexSegment segment=Loaders.IndexSegment.load(new File(tempOutputDir,driver.getSegmentName()),mode);
+  FilterPlanNode planNode=new FilterPlanNode(segment,brokerRequest);
+  Operator rawOperator=planNode.run();
+  BlockDocIdIterator rawDocIdIterator=rawOperator.nextBlock().getBlockDocIdSet().iterator();
+  double[] expectedSums=computeSum(segment,rawDocIdIterator,metricNames);
+  System.out.println("expectedSums=" + Arrays.toString(expectedSums));
+  boolean starTreeReady=false;
+  if (starTreeReady) {
+    Iterator<GenericRow> rowIterator=((IndexSegmentImpl)segment).iterator(0,segment.getSegmentMetadata().getTotalAggregateDocs());
+    int counter=0;
+    while (rowIterator.hasNext()) {
+      GenericRow genericRow=rowIterator.next();
+      StringBuilder sb=new StringBuilder().append(counter++).append(": \t");
+      for (      String dimName : schema.getDimensionNames()) {
+        sb.append(dimName).append(":").append(genericRow.getValue(dimName)).append(", ");
+      }
+      if (schema.getTimeColumnName() != null) {
+        sb.append(schema.getTimeColumnName()).append(":").append(genericRow.getValue(schema.getTimeColumnName())).append(", ");
+      }
+      for (      String metName : schema.getMetricNames()) {
+        sb.append(metName).append(":").append(genericRow.getValue(metName)).append(", ");
+      }
+      System.out.println(sb);
+    }
+    StarTreeIndexOperator starTreeOperator=new StarTreeIndexOperator(segment,brokerRequest);
+    starTreeOperator.open();
+    BlockDocIdIterator starTreeDocIdIterator=starTreeOperator.nextBlock().getBlockDocIdSet().iterator();
+    double[] actualSums=computeSum(segment,starTreeDocIdIterator,metricNames);
+    System.out.println("actualSums=" + Arrays.toString(actualSums));
+  }
+}

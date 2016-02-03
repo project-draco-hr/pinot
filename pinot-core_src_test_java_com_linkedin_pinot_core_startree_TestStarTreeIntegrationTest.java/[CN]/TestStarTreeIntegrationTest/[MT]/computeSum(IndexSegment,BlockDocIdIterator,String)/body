@@ -1,0 +1,22 @@
+{
+  int docId;
+  int numMetrics=metricNames.length;
+  Dictionary[] dictionaries=new Dictionary[numMetrics];
+  BlockSingleValIterator[] valIterators=new BlockSingleValIterator[numMetrics];
+  for (int i=0; i < numMetrics; i++) {
+    String metricName=metricNames[i];
+    DataSource dataSource=segment.getDataSource(metricName);
+    dictionaries[i]=dataSource.getDictionary();
+    valIterators[i]=(BlockSingleValIterator)dataSource.getNextBlock().getBlockValueSet().iterator();
+  }
+  double[] sums=new double[metricNames.length];
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    System.out.println("docId:" + docId);
+    for (int i=0; i < numMetrics; i++) {
+      valIterators[i].skipTo(docId);
+      int dictId=valIterators[i].nextIntVal();
+      sums[i]+=dictionaries[i].getDoubleValue(dictId);
+    }
+  }
+  return sums;
+}

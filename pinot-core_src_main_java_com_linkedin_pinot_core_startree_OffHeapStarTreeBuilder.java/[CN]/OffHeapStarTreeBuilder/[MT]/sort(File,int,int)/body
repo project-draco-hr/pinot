@@ -1,10 +1,12 @@
 {
   if (debugMode) {
+    LOG.info("BEFORE SORTING");
     printFile(file,startDocId,endDocId);
   }
-  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes);
+  StarTreeDataTable dataSorter=new StarTreeDataTable(file,dimensionSizeBytes,metricSizeBytes,getSortOrder());
   dataSorter.sort(startDocId,endDocId,0,dimensionSizeBytes);
   if (debugMode) {
+    LOG.info("AFTER SORTING");
     printFile(file,startDocId,endDocId);
   }
 }

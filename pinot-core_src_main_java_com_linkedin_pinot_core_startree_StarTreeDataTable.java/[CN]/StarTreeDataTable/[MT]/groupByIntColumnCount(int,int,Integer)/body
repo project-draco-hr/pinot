@@ -1,22 +1,23 @@
 {
-  RandomAccessFile randomAccessFile=null;
+  MMapBuffer mappedByteBuffer=null;
   try {
     int length=endDocId - startDocId;
     Map<Integer,IntPair> rangeMap=new LinkedHashMap<>();
-    randomAccessFile=new RandomAccessFile(file,"rw");
     final int startOffset=startDocId * totalSizeInBytes;
-    final MappedByteBuffer mappedByteBuffer=randomAccessFile.getChannel().map(MapMode.READ_WRITE,startOffset,length * totalSizeInBytes);
+    mappedByteBuffer=new MMapBuffer(file,startOffset,length * totalSizeInBytes,MMapMode.READ_WRITE);
     int prevValue=-1;
     int prevStart=0;
+    byte[] dimBuff=new byte[dimensionSizeInBytes];
     for (int i=0; i < length; i++) {
-      int value=mappedByteBuffer.getInt(i * totalSizeInBytes + colIndex * 4);
+      mappedByteBuffer.copyTo(i * totalSizeInBytes,dimBuff,0,dimensionSizeInBytes);
+      int value=ByteBuffer.wrap(dimBuff).asIntBuffer().get(colIndex);
       if (prevValue != -1 && prevValue != value) {
-        rangeMap.put(prevValue,new IntPair(prevStart,i));
+        rangeMap.put(prevValue,new IntPair(startDocId + prevStart,startDocId + i));
         prevStart=i;
       }
       prevValue=value;
       if (i == length - 1) {
-        rangeMap.put(prevValue,new IntPair(prevStart,length));
+        rangeMap.put(prevValue,new IntPair(startDocId + prevStart,startDocId + i));
       }
     }
     return rangeMap;
@@ -25,7 +26,14 @@
     e.printStackTrace();
   }
  finally {
-    IOUtils.closeQuietly(randomAccessFile);
+    if (mappedByteBuffer != null) {
+      try {
+        mappedByteBuffer.close();
+      }
+ catch (      IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
   return Collections.emptyMap();
 }

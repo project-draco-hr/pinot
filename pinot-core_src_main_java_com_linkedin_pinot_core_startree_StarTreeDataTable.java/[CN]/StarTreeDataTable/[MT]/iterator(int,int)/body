@@ -1,10 +1,8 @@
 {
-  RandomAccessFile randomAccessFile=null;
   try {
     final int length=endDocId - startDocId;
-    randomAccessFile=new RandomAccessFile(file,"rw");
     final int startOffset=startDocId * totalSizeInBytes;
-    final MappedByteBuffer mappedByteBuffer=randomAccessFile.getChannel().map(MapMode.READ_ONLY,startOffset,length * totalSizeInBytes);
+    final MMapBuffer mappedByteBuffer=new MMapBuffer(file,startOffset,length * totalSizeInBytes,MMapMode.READ_WRITE);
     return new Iterator<Pair<byte[],byte[]>>(){
       int pointer=0;
       @Override public boolean hasNext(){
@@ -16,12 +14,19 @@
       @Override public Pair<byte[],byte[]> next(){
         byte[] dimBuff=new byte[dimensionSizeInBytes];
         byte[] metBuff=new byte[metricSizeInBytes];
-        mappedByteBuffer.position(pointer * totalSizeInBytes);
-        mappedByteBuffer.get(dimBuff);
+        mappedByteBuffer.copyTo(pointer * totalSizeInBytes,dimBuff,0,dimensionSizeInBytes);
         if (metricSizeInBytes > 0) {
-          mappedByteBuffer.get(metBuff);
+          mappedByteBuffer.copyTo(pointer * totalSizeInBytes + dimensionSizeInBytes,metBuff,0,metricSizeInBytes);
         }
         pointer=pointer + 1;
+        if (pointer == length) {
+          try {
+            mappedByteBuffer.close();
+          }
+ catch (          IOException e) {
+            e.printStackTrace();
+          }
+        }
         return Pair.of(dimBuff,metBuff);
       }
     }
@@ -31,6 +36,5 @@
     throw e;
   }
  finally {
-    IOUtils.closeQuietly(randomAccessFile);
   }
 }

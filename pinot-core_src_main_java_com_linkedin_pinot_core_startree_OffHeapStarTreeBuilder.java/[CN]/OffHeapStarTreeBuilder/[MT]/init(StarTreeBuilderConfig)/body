@@ -1,5 +1,6 @@
 {
-  schema=builderConfig.schema;
+  Schema schema=builderConfig.schema;
+  timeColumnName=schema.getTimeColumnName();
   this.splitOrder=builderConfig.splitOrder;
   this.maxLeafRecords=builderConfig.maxLeafRecords;
   this.outDir=builderConfig.getOutDir();
@@ -7,44 +8,56 @@
     outDir=new File(System.getProperty("java.io.tmpdir"),V1Constants.STAR_TREE_INDEX_DIR + "_" + DateTime.now());
   }
   LOG.info("Index output directory:{}",outDir);
-  List<String> dimensionNames=schema.getDimensionNames();
-  List<String> metricNames=schema.getMetricNames();
-  dimensionSizeBytes=dimensionNames.size() * Integer.SIZE / 8;
   dimensionTypes=new ArrayList<>();
-  this.numDimensions=dimensionNames.size();
-  dimensionNameToIndexMap=new HashMap<>();
+  dimensionNames=new ArrayList<>();
+  dimensionNameToIndexMap=HashBiMap.create();
+  dimensionNameToStarValueMap=new HashMap<>();
   dictionaryMap=new HashMap<>();
-  for (int i=0; i < dimensionNames.size(); i++) {
-    String dimensionName=dimensionNames.get(i);
-    dimensionNameToIndexMap.put(dimensionName,i);
-    dimensionTypes.add(schema.getFieldSpecFor(dimensionName).getDataType());
+  List<DimensionFieldSpec> dimensionFieldSpecs=schema.getDimensionFieldSpecs();
+  for (int index=0; index < dimensionFieldSpecs.size(); index++) {
+    DimensionFieldSpec spec=dimensionFieldSpecs.get(index);
+    String dimensionName=spec.getName();
+    dimensionNames.add(dimensionName);
+    dimensionNameToIndexMap.put(dimensionName,index);
+    Object starValue;
+    starValue=getAllStarValue(spec);
+    dimensionNameToStarValueMap.put(dimensionName,starValue);
+    dimensionTypes.add(spec.getDataType());
     HashBiMap<Object,Integer> dictionary=HashBiMap.create();
-    dictionaryMap.put(schema.getDimensionNames().get(i),dictionary);
+    dictionaryMap.put(dimensionName,dictionary);
   }
-  if (schema.getTimeColumnName() != null) {
+  if (timeColumnName != null) {
+    dimensionNames.add(timeColumnName);
     dimensionTypes.add(schema.getTimeFieldSpec().getDataType());
-    dimensionNameToIndexMap.put(schema.getTimeColumnName(),numDimensions);
-    numDimensions=numDimensions + 1;
+    int index=dimensionNameToIndexMap.size();
+    dimensionNameToIndexMap.put(timeColumnName,index);
     HashBiMap<Object,Integer> dictionary=HashBiMap.create();
     dictionaryMap.put(schema.getTimeColumnName(),dictionary);
-    dimensionSizeBytes=dimensionSizeBytes + Integer.SIZE / 8;
   }
-  metricTypes=new ArrayList<>();
-  this.numMetrics=metricNames.size();
-  metricNameToIndexMap=new HashMap<>();
-  metricSizeBytes=0;
-  for (int i=0; i < metricNames.size(); i++) {
-    String metricName=metricNames.get(i);
-    metricNameToIndexMap.put(metricName,i);
-    DataType dataType=schema.getFieldSpecFor(metricName).getDataType();
+  dimensionSizeBytes=dimensionNames.size() * Integer.SIZE / 8;
+  this.numDimensions=dimensionNames.size();
+  this.metricTypes=new ArrayList<>();
+  this.metricNames=new ArrayList<>();
+  this.metricNameToIndexMap=new HashMap<>();
+  this.metricSizeBytes=0;
+  List<MetricFieldSpec> metricFieldSpecs=schema.getMetricFieldSpecs();
+  for (int index=0; index < metricFieldSpecs.size(); index++) {
+    MetricFieldSpec spec=metricFieldSpecs.get(index);
+    String metricName=spec.getName();
+    metricNames.add(metricName);
+    metricNameToIndexMap.put(metricName,index);
+    DataType dataType=spec.getDataType();
     metricTypes.add(dataType);
     metricSizeBytes+=dataType.size();
   }
+  this.numMetrics=metricNames.size();
   builderConfig.getOutDir().mkdirs();
   dataFile=new File(outDir,"star-tree.buf");
   dataBuffer=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)));
-  this.starTree=new StarTreeIndexNode();
-  this.starTree.setDimensionName(StarTreeIndexNode.all());
-  this.starTree.setDimensionValue(StarTreeIndexNode.all());
-  this.starTree.setLevel(0);
+  this.starTreeRootIndexNode=new StarTreeIndexNode();
+  this.starTreeRootIndexNode.setDimensionName(StarTreeIndexNode.all());
+  this.starTreeRootIndexNode.setDimensionValue(StarTreeIndexNode.all());
+  this.starTreeRootIndexNode.setLevel(0);
+  LOG.info("dimensionNames:{}",dimensionNames);
+  LOG.info("metricNames:{}",metricNames);
 }

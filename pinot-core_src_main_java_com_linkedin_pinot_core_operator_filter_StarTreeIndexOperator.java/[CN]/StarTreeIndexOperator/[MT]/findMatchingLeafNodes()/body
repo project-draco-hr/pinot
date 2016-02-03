@@ -1,0 +1,42 @@
+{
+  Queue<SearchEntry> matchedEntries=new LinkedList<>();
+  Queue<SearchEntry> searchQueue=new LinkedList<>();
+  HashBiMap<String,Integer> dimensionIndexToNameMapping=segment.getStarTree().getDimensionNameToIndexMap();
+  SearchEntry startEntry=new SearchEntry();
+  startEntry.starTreeIndexnode=segment.getStarTree().getRoot();
+  startEntry.remainingColumnsToFilter=new HashSet<>(pathValuesToTraverse.keySet());
+  searchQueue.add(startEntry);
+  while (!searchQueue.isEmpty()) {
+    SearchEntry searchEntry=searchQueue.remove();
+    StarTreeIndexNode current=searchEntry.starTreeIndexnode;
+    HashSet<String> remainingColumnsToFilter=searchEntry.remainingColumnsToFilter;
+    if (current.isLeaf()) {
+      matchedEntries.add(searchEntry);
+      continue;
+    }
+    String nextDimension=dimensionIndexToNameMapping.inverse().get(current.getChildDimensionName());
+    HashSet<String> newRemainingColumnsToFilter=new HashSet<>();
+    newRemainingColumnsToFilter.addAll(remainingColumnsToFilter);
+    newRemainingColumnsToFilter.remove(nextDimension);
+    if (remainingColumnsToFilter.contains(nextDimension)) {
+      int nextValueId=pathValuesToTraverse.get(nextDimension).dictionaryId;
+      SearchEntry newEntry=new SearchEntry();
+      newEntry.starTreeIndexnode=current.getChildren().get(nextValueId);
+      if (newEntry.starTreeIndexnode != null) {
+        newEntry.remainingColumnsToFilter=newRemainingColumnsToFilter;
+        searchQueue.add(newEntry);
+      }
+    }
+ else {
+      for (      Map.Entry<Integer,StarTreeIndexNode> entry : current.getChildren().entrySet()) {
+        if (entry.getKey() != StarTreeIndexNode.all()) {
+          SearchEntry newEntry=new SearchEntry();
+          newEntry.starTreeIndexnode=entry.getValue();
+          newEntry.remainingColumnsToFilter=newRemainingColumnsToFilter;
+          searchQueue.add(newEntry);
+        }
+      }
+    }
+  }
+  return matchedEntries;
+}

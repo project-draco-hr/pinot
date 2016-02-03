@@ -1,22 +1,17 @@
 {
   GenericRow row=new GenericRow();
   Map<String,Object> map=new HashMap<>();
-  for (int i=0; i < schema.getDimensionNames().size(); i++) {
-    String dimName=schema.getDimensionNames().get(i);
-    BiMap<Integer,Object> inverse=dictionaryMap.get(dimName).inverse();
-    Object dimValue=inverse.get(dimensionKey.getDimension(i));
+  for (int i=0; i < dimensionNames.size(); i++) {
+    String dimName=dimensionNames.get(i);
+    BiMap<Integer,Object> inverseDictionary=dictionaryMap.get(dimName).inverse();
+    Object dimValue=inverseDictionary.get(dimensionKey.getDimension(i));
     if (dimValue == null) {
-      dimValue="ALL";
+      dimValue=dimensionNameToStarValueMap.get(dimName);
     }
     map.put(dimName,dimValue);
   }
-  if (schema.getTimeColumnName() != null) {
-    int index=numDimensions - 1;
-    BiMap<Integer,Object> inverse=dictionaryMap.get(schema.getTimeColumnName()).inverse();
-    map.put(schema.getTimeColumnName(),inverse.get(dimensionKey.getDimension(index)));
-  }
   for (int i=0; i < numMetrics; i++) {
-    String metName=schema.getMetricNames().get(i);
+    String metName=metricNames.get(i);
     map.put(metName,metricsHolder.get(i));
   }
   row.init(map);

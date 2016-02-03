@@ -1,0 +1,23 @@
+{
+  FilterQueryTree filterTree=RequestUtils.generateFilterQueryTree(brokerRequest);
+  HashMap<String,PathEntry> pathMap=new HashMap<>();
+  for (  String column : segment.getColumnNames()) {
+    FieldType fieldType=segment.getDataSource(column).getDataSourceMetadata().getFieldType();
+    if (!fieldType.equals(FieldType.METRIC)) {
+      PathEntry pathEntry=new PathEntry(null,StarTreeIndexNode.all());
+      pathMap.put(column,pathEntry);
+    }
+  }
+  if (filterTree != null) {
+    traverseFilterTree(filterTree,pathMap);
+  }
+  GroupBy groupBy=brokerRequest.getGroupBy();
+  if (groupBy != null) {
+    for (    String groupByCol : groupBy.getColumns()) {
+      if (pathMap.get(groupByCol).dictionaryId != StarTreeIndexNode.all()) {
+        pathMap.remove(groupByCol);
+      }
+    }
+  }
+  return pathMap;
+}

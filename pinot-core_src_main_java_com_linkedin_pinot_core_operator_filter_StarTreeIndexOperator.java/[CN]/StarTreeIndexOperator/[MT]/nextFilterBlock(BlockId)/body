@@ -1,0 +1,81 @@
+{
+  MutableRoaringBitmap finalResult=null;
+  if (pathValuesToTraverse.values().contains(Constants.EOF)) {
+    finalResult=new MutableRoaringBitmap();
+  }
+ else {
+    Queue<SearchEntry> matchedEntries=findMatchingLeafNodes();
+    for (    SearchEntry matchedEntry : matchedEntries) {
+      MutableRoaringBitmap answer=new MutableRoaringBitmap();
+      int startDocId=matchedEntry.starTreeIndexnode.getStartDocumentId();
+      int endDocId=matchedEntry.starTreeIndexnode.getEndDocumentId();
+      answer.add(startDocId,endDocId);
+      if (!matchedEntry.remainingColumnsToFilter.isEmpty()) {
+        for (        String column : matchedEntry.remainingColumnsToFilter) {
+          PathEntry pathEntry=pathValuesToTraverse.get(column);
+          Integer dictId=pathEntry.dictionaryId;
+          if (dictId == StarTreeIndexNode.all()) {
+            continue;
+          }
+          DataSource dataSource=segment.getDataSource(column);
+          DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
+          if (dataSourceMetadata.hasInvertedIndex()) {
+            if (dataSourceMetadata.isSorted()) {
+              IntPair minMaxRange=dataSource.getInvertedIndex().getMinMaxRangeFor(dictId);
+              MutableRoaringBitmap sortedRangeBitmap=new MutableRoaringBitmap();
+              sortedRangeBitmap.add(minMaxRange.getLeft(),minMaxRange.getRight() + 1);
+              answer.and(sortedRangeBitmap);
+            }
+ else {
+              ImmutableRoaringBitmap bitmap=dataSource.getInvertedIndex().getImmutable(dictId);
+              answer.and(bitmap);
+            }
+          }
+ else {
+            ScanBasedFilterOperator operator=new ScanBasedFilterOperator(dataSource,startDocId,endDocId - 1);
+            EqPredicate predicate=new EqPredicate(column,pathEntry.tree.getValue());
+            operator.setPredicate(predicate);
+            BlockDocIdIterator iterator=operator.getNextBlock().getBlockDocIdSet().iterator();
+            ScanBasedDocIdIterator scanBasedDocIdIterator=(ScanBasedDocIdIterator)iterator;
+            MutableRoaringBitmap scanAnswer=scanBasedDocIdIterator.applyAnd(answer);
+            answer.and(scanAnswer);
+          }
+        }
+      }
+      if (finalResult == null) {
+        finalResult=answer;
+      }
+ else {
+        finalResult.or(answer);
+      }
+    }
+  }
+  final BitmapDocIdIterator bitmapDocIdIterator=new BitmapDocIdIterator(finalResult.getIntIterator());
+  return new BaseFilterBlock(){
+    @Override public FilterBlockDocIdSet getFilteredBlockDocIdSet(){
+      return new FilterBlockDocIdSet(){
+        @Override public BlockDocIdIterator iterator(){
+          return bitmapDocIdIterator;
+        }
+        @Override public <T>T getRaw(){
+          return null;
+        }
+        @Override public void setStartDocId(        int startDocId){
+        }
+        @Override public void setEndDocId(        int endDocId){
+        }
+        @Override public int getMinDocId(){
+          return 0;
+        }
+        @Override public int getMaxDocId(){
+          return segment.getSegmentMetadata().getTotalRawDocs() + segment.getSegmentMetadata().getTotalAggregateDocs();
+        }
+      }
+;
+    }
+    @Override public BlockId getId(){
+      return new BlockId(0);
+    }
+  }
+;
+}

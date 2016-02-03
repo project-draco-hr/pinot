@@ -1,6 +1,8 @@
 {
   final int cardinality=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.CARDINALITY));
   final int totalDocs=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_DOCS));
+  final int totalRawDocs=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_RAW_DOCS),totalDocs);
+  final int totalAggDocs=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_AGG_DOCS),0);
   final DataType dataType=DataType.valueOf(_segmentMetadataPropertiesConfiguration.getString(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.DATA_TYPE)));
   final int bitsPerElement=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.BITS_PER_ELEMENT));
   final int stringColumnMaxLength=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.DICTIONARY_ELEMENT_SIZE));
@@ -16,5 +18,5 @@
   }
   final boolean hasDictionary=_segmentMetadataPropertiesConfiguration.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.HAS_DICTIONARY),true);
   final int totalNumberOfEntries=_segmentMetadataPropertiesConfiguration.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_NUMBER_OF_ENTRIES));
-  return new ColumnMetadata(column,cardinality,totalDocs,dataType,bitsPerElement,stringColumnMaxLength,fieldType,isSorted,hasInvertedIndex,insSingleValue,maxNumberOfMultiValues,hasNulls,hasDictionary,segmentTimeUnit,totalNumberOfEntries);
+  return new ColumnMetadata(column,cardinality,totalRawDocs,totalAggDocs,totalDocs,dataType,bitsPerElement,stringColumnMaxLength,fieldType,isSorted,hasInvertedIndex,insSingleValue,maxNumberOfMultiValues,hasNulls,hasDictionary,segmentTimeUnit,totalNumberOfEntries);
 }

@@ -1,0 +1,35 @@
+{
+  final Map<String,BlockSingleValIterator> singleValIteratorMap=new HashMap<>();
+  final Map<String,BlockMultiValIterator> multiValIteratorMap=new HashMap<>();
+  for (  String column : getColumnNames()) {
+    DataSource dataSource=getDataSource(column);
+    BlockValIterator iterator=dataSource.getNextBlock().getBlockValueSet().iterator();
+    if (dataSource.getDataSourceMetadata().isSingleValue()) {
+      singleValIteratorMap.put(column,(BlockSingleValIterator)iterator);
+    }
+ else {
+      multiValIteratorMap.put(column,(BlockMultiValIterator)iterator);
+    }
+  }
+  return new Iterator<GenericRow>(){
+    int docId=startDocId;
+    @Override public boolean hasNext(){
+      return docId < endDocId;
+    }
+    @Override public GenericRow next(){
+      Map<String,Object> map=new HashMap<>();
+      for (      String column : singleValIteratorMap.keySet()) {
+        int dictId=singleValIteratorMap.get(column).nextIntVal();
+        Dictionary dictionary=getDictionaryFor(column);
+        map.put(column,dictionary.get(dictId));
+      }
+      for (      String column : multiValIteratorMap.keySet()) {
+      }
+      GenericRow genericRow=new GenericRow();
+      genericRow.init(map);
+      docId++;
+      return genericRow;
+    }
+  }
+;
+}

@@ -4,7 +4,7 @@
   if (starTreeIndexSpec == null) {
     starTreeIndexSpec=new StarTreeIndexSpec();
     starTreeIndexSpec.setExcludedDimensions(Lists.newArrayList(dataSchema.getTimeColumnName()));
-    starTreeIndexSpec.setMaxLeafRecords(10000);
+    starTreeIndexSpec.setMaxLeafRecords(StarTreeIndexSpec.DEFAULT_MAX_LEAF_RECORDS);
   }
   List<String> splitOrder=starTreeIndexSpec.getSplitOrder();
   if (splitOrder != null && !splitOrder.isEmpty()) {
@@ -26,6 +26,7 @@
     GenericRow row=recordReader.next();
     starTreeBuilder.append(row);
     statsCollector.collectRow(row);
+    totalRawDocs++;
     totalDocs++;
   }
   recordReader.close();
@@ -38,20 +39,19 @@
   while (aggregatedRowsIterator.hasNext()) {
     GenericRow genericRow=aggregatedRowsIterator.next();
     statsCollector.collectRow(genericRow);
+    totalAggDocs++;
     totalDocs++;
   }
   buildIndexCreationInfo();
   LOGGER.info("Collected stats for {} documents",totalDocs);
   long statCollectionFinishTime=System.currentTimeMillis();
-  indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
+  indexCreator.init(config,segementIndexCreationInfo,indexCreationInfoMap,dataSchema,tempIndexDir);
   Iterator<GenericRow> allRowsIterator=starTreeBuilder.iterator(0,starTreeBuilder.getTotalRawDocumentCount() + starTreeBuilder.getTotalAggregateDocumentCount());
   while (allRowsIterator.hasNext()) {
     GenericRow genericRow=allRowsIterator.next();
     indexCreator.indexRow(genericRow);
   }
-  BufferedInputStream src=new BufferedInputStream(new FileInputStream(new File(starTreeTempDir,V1Constants.STAR_TREE_INDEX_FILE)));
-  BufferedOutputStream dest=new BufferedOutputStream(new FileOutputStream(new File(tempIndexDir,V1Constants.STAR_TREE_INDEX_FILE)));
-  IOUtils.copyLarge(src,dest);
+  serializeTree(starTreeBuilder);
   handlePostCreation();
   long end=System.currentTimeMillis();
   LOGGER.info("Total time:{} \n star tree build time:{} \n stat collection time:{} \n column index build time:{}",(end - start),(starTreeBuildFinishTime - start),statCollectionFinishTime - starTreeBuildFinishTime,end - statCollectionFinishTime);

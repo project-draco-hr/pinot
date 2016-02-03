@@ -1,6 +1,9 @@
 {
   for (  final String column : dictionaryCreatorMap.keySet()) {
     Object columnValueToIndex=row.getValue(column);
+    if (columnValueToIndex == null) {
+      throw new RuntimeException("Null value for column:" + column);
+    }
     if (schema.getFieldSpecFor(column).isSingleValueField()) {
       int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
       ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);

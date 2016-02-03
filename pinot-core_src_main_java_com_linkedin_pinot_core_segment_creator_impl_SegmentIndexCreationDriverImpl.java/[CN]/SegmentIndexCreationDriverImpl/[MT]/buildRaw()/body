@@ -3,6 +3,7 @@
   totalDocs=0;
   while (recordReader.hasNext()) {
     totalDocs++;
+    totalRawDocs++;
     long start=System.currentTimeMillis();
     GenericRow row=recordReader.next();
     long stop=System.currentTimeMillis();
@@ -14,7 +15,7 @@
   buildIndexCreationInfo();
   LOGGER.info("Finished building StatsCollector!");
   LOGGER.info("Collected stats for {} documents",totalDocs);
-  indexCreator.init(config,indexCreationInfoMap,dataSchema,totalDocs,tempIndexDir);
+  indexCreator.init(config,segementIndexCreationInfo,indexCreationInfoMap,dataSchema,tempIndexDir);
   recordReader.rewind();
   LOGGER.info("Start building IndexCreator!");
   while (recordReader.hasNext()) {
