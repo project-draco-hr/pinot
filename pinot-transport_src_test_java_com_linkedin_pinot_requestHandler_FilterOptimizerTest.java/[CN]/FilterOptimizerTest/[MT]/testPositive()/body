@@ -1,0 +1,86 @@
+{
+  Pql2Compiler pql2Compiler=new Pql2Compiler();
+  BrokerRequest req;
+  FilterQueryTree tree;
+  int numLeaves;
+  int numOps;
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE (A = 4 AND B = 5) AND (C=7)");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),3);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.AND);
+  for (  FilterQueryTree node : tree.getChildren()) {
+    Assert.assertNull(node.getChildren());
+    Assert.assertEquals(node.getOperator(),FilterOperator.EQUALITY);
+  }
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE ((A = 4 AND B = 5) AND (C=7)) AND D=8");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),4);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.AND);
+  for (  FilterQueryTree node : tree.getChildren()) {
+    Assert.assertNull(node.getChildren());
+    Assert.assertEquals(node.getOperator(),FilterOperator.EQUALITY);
+  }
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE (A = 4 OR B = 5) OR (C=7)");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),3);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.OR);
+  for (  FilterQueryTree node : tree.getChildren()) {
+    Assert.assertNull(node.getChildren());
+    Assert.assertEquals(node.getOperator(),FilterOperator.EQUALITY);
+  }
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE ((A = 4 OR B = 5) OR (C=7)) OR D=8");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),4);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.OR);
+  for (  FilterQueryTree node : tree.getChildren()) {
+    Assert.assertNull(node.getChildren());
+    Assert.assertEquals(node.getOperator(),FilterOperator.EQUALITY);
+  }
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE ((A = 4 OR (B = 5 OR D = 9)) OR (C=7)) OR D=8");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),5);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.OR);
+  for (  FilterQueryTree node : tree.getChildren()) {
+    Assert.assertNull(node.getChildren());
+    Assert.assertEquals(node.getOperator(),FilterOperator.EQUALITY);
+  }
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE ((A = 4 OR (B = 5 AND D = 9)) OR (C=7)) OR D=8");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),4);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.OR);
+  numLeaves=0;
+  numOps=0;
+  for (  FilterQueryTree node : tree.getChildren()) {
+    if (node.getOperator().equals(FilterOperator.EQUALITY)) {
+      Assert.assertNull(node.getChildren());
+      numLeaves++;
+    }
+ else {
+      Assert.assertNotNull(node.getChildren());
+      Assert.assertEquals(node.getOperator(),FilterOperator.AND);
+      numOps++;
+    }
+  }
+  Assert.assertEquals(1,numOps);
+  Assert.assertEquals(3,numLeaves);
+  final int maxNodesAtTopLevel=BrokerRequestOptimizer.MAX_OPTIMIZING_DEPTH;
+  String whereClause=constructWhereClause(FilterOperator.OR,maxNodesAtTopLevel + 50);
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE " + whereClause);
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),maxNodesAtTopLevel + 1);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.OR);
+  numLeaves=0;
+  numOps=0;
+  for (  FilterQueryTree node : tree.getChildren()) {
+    if (node.getOperator().equals(FilterOperator.EQUALITY)) {
+      Assert.assertNull(node.getChildren());
+      numLeaves++;
+    }
+ else {
+      Assert.assertNotNull(node.getChildren());
+      numOps++;
+    }
+  }
+  Assert.assertEquals(maxNodesAtTopLevel,numLeaves);
+  Assert.assertEquals(1,numOps);
+}

@@ -1,0 +1,24 @@
+{
+  Pql2Compiler pql2Compiler=new Pql2Compiler();
+  BrokerRequest req;
+  FilterQueryTree tree;
+  int numLeaves;
+  int numOps;
+  req=pql2Compiler.compileToBrokerRequest("SELECT * FROM T WHERE (A = 4 AND (B = 5 OR D = 9))");
+  tree=RequestUtils.generateFilterQueryTree(_optimizer.optimize(req));
+  Assert.assertEquals(tree.getChildren().size(),2);
+  Assert.assertEquals(tree.getOperator(),FilterOperator.AND);
+  numOps=0;
+  numLeaves=0;
+  for (  FilterQueryTree node : tree.getChildren()) {
+    if (node.getOperator().equals(FilterOperator.OR)) {
+      Assert.assertEquals(2,node.getChildren().size());
+      numOps++;
+    }
+ else {
+      numLeaves++;
+    }
+  }
+  Assert.assertEquals(1,numOps);
+  Assert.assertEquals(1,numLeaves);
+}

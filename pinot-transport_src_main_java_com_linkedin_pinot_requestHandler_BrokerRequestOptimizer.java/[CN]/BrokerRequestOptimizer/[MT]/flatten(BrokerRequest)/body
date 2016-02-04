@@ -1,0 +1,11 @@
+{
+  FilterQueryTree root=null;
+  FilterQuery q=request.getFilterQuery();
+  if (q == null || request.getFilterSubQueryMap() == null) {
+    return request;
+  }
+  root=RequestUtils.buildFilterQuery(q.getId(),request.getFilterSubQueryMap().getFilterQueryMap());
+  flatten(root,null,MAX_OPTIMIZING_DEPTH);
+  RequestUtils.generateFilterFromTree(root,request);
+  return request;
+}
