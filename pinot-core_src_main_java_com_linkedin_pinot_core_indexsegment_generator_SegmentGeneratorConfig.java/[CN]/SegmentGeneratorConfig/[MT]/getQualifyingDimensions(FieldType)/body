@@ -1,9 +1,10 @@
 {
-  String dims="";
+  List<String> dimensions=new ArrayList<>();
   for (  final FieldSpec spec : getSchema().getAllFieldSpecs()) {
     if (spec.getFieldType() == type) {
-      dims+=spec.getName() + ",";
+      dimensions.add(spec.getName());
     }
   }
-  return StringUtils.chomp(dims,",");
+  Collections.sort(dimensions);
+  return StringUtils.join(dimensions,",");
 }
