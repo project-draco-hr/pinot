@@ -9,7 +9,7 @@
   FileUtils.copyURLToFile(RealtimeQuickStart.class.getClassLoader().getResource("sample_data/rsvp_pinot_schema.json"),schema);
   FileUtils.copyURLToFile(RealtimeQuickStart.class.getClassLoader().getResource("sample_data/rsvp_create_table_request.json"),tableCreate);
   printStatus(color.CYAN,"Starting Kafka");
-  ZkStarter.startLocalZkServer();
+  _zookeeperInstance=ZkStarter.startLocalZkServer();
   final KafkaServerStartable kafkaStarter=KafkaStarterUtils.startServer(KafkaStarterUtils.DEFAULT_KAFKA_PORT,KafkaStarterUtils.DEFAULT_BROKER_ID,KafkaStarterUtils.DEFAULT_ZK_STR,KafkaStarterUtils.getDefaultKafkaConfiguration());
   KafkaStarterUtils.createTopic("meetupRSVPEvents",KafkaStarterUtils.DEFAULT_ZK_STR);
   File tempDir=new File("/tmp/" + String.valueOf(System.currentTimeMillis()));
@@ -60,7 +60,7 @@
         runner.stop();
         runner.clean();
         KafkaStarterUtils.stopServer(kafkaStarter);
-        ZkStarter.stopLocalZkServer();
+        ZkStarter.stopLocalZkServer(_zookeeperInstance);
       }
  catch (      Exception e) {
         e.printStackTrace();

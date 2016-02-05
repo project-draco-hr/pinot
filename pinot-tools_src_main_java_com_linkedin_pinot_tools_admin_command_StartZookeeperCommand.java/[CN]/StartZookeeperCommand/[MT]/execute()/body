@@ -8,9 +8,8 @@
     }
   }
 ;
-  ZkServer zkServer=new ZkServer(datadir.getAbsolutePath(),logdir.getAbsolutePath(),_defaultNameSpace,_zkPort,_tickTime,_minSessionTimeout);
-  zkServer.start();
-  LOGGER.info("Start zookeeper at localhost:" + zkServer.getPort() + " in thread "+ Thread.currentThread().getName());
+  _zookeeperInstance=ZkStarter.startLocalZkServer(_zkPort,datadir.getAbsolutePath());
+  LOGGER.info("Start zookeeper at localhost:" + _zkPort + " in thread "+ Thread.currentThread().getName());
   savePID(System.getProperty("java.io.tmpdir") + File.separator + ".zooKeeper.pid");
   return true;
 }

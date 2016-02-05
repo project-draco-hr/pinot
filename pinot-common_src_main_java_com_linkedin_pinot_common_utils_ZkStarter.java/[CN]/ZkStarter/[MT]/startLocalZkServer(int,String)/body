@@ -1,15 +1,11 @@
 {
-  if (_zookeeperServerMain != null) {
-    throw new RuntimeException("Zookeeper server is already started!");
-  }
   try {
-    _zookeeperServerMain=new PublicZooKeeperServerMain();
-    _zkDataDir=dataDirPath;
+    final PublicZooKeeperServerMain zookeeperServerMain=new PublicZooKeeperServerMain();
     final String[] args=new String[]{Integer.toString(port),dataDirPath};
     new Thread(){
       @Override public void run(){
         try {
-          _zookeeperServerMain.initializeAndRun(args);
+          zookeeperServerMain.initializeAndRun(args);
         }
  catch (        QuorumPeerConfig.ConfigException e) {
           LOGGER.warn("Caught exception while starting ZK",e);
@@ -20,12 +16,13 @@ catch (        IOException e) {
       }
     }
 .start();
+    ZkClient client=new ZkClient("localhost:" + port,10000);
+    client.waitUntilConnected(10L,TimeUnit.SECONDS);
+    client.close();
+    return new ZookeeperInstance(zookeeperServerMain,dataDirPath);
   }
  catch (  Exception e) {
     LOGGER.warn("Caught exception while starting ZK",e);
     throw new RuntimeException(e);
   }
-  ZkClient client=new ZkClient("localhost:" + port,10000);
-  client.waitUntilConnected(10L,TimeUnit.SECONDS);
-  client.close();
 }
