@@ -1,0 +1,8 @@
+{
+  initMap();
+  clientMap.close();
+  for (  ThirdEyeClient client : clients) {
+    verify(client).close();
+  }
+  Assert.assertFalse(clientMap.getClients().isEmpty());
+}

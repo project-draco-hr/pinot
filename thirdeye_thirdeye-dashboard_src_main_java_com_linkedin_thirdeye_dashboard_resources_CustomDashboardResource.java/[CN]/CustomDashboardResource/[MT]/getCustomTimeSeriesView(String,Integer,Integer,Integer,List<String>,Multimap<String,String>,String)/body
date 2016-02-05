@@ -15,8 +15,8 @@
   }
   Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValues,dimensionGroups);
   ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baseline).setEndTime(current).setDimensionValues(expandedDimensionValues).setGroupBy(groupBy).build();
-  QueryResult result=queryCache.getQueryResult(serverUri,req);
-  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+  QueryResult result=queryCache.getQueryResult(req);
+  CollectionSchema schema=dataCache.getCollectionSchema(collection);
   int groupByIdx=-1;
   for (int i=0; i < schema.getDimensions().size(); i++) {
     if (schema.getDimensions().get(i).equals(groupBy)) {

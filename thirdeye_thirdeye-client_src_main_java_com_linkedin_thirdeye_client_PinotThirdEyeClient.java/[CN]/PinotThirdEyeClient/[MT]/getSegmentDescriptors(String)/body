@@ -1,0 +1,14 @@
+{
+  TimeSpec timeSpec=getStarTreeConfig(collection).getTime();
+  String timeColumnName=timeSpec.getColumnName();
+  String sql=PqlUtils.getDataTimeRangeSql(collection,timeColumnName);
+  LOG.info("Retrieving segment: {}",sql);
+  ResultSetGroup result=resultSetGroupCache.get(sql);
+  double minTime=result.getResultSet(0).getDouble(0);
+  double maxTime=result.getResultSet(1).getDouble(0);
+  TimeUnit dataUnit=timeSpec.getBucket().getUnit();
+  long minTimeMillis=dataUnit.toMillis((long)minTime);
+  long maxTimeMillis=dataUnit.toMillis((long)maxTime);
+  SegmentDescriptor singletonDescriptor=new SegmentDescriptor(null,null,null,new DateTime(minTimeMillis,DateTimeZone.UTC),new DateTime(maxTimeMillis,DateTimeZone.UTC));
+  return Collections.singletonList(singletonDescriptor);
+}

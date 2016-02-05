@@ -1,0 +1,16 @@
+{
+  File file=new File(filePath);
+  if (!file.exists()) {
+    LOGGER.error("ThirdEyeClient configuration file does not exist: {}",file);
+    return Collections.emptyList();
+  }
+  try {
+    List<ThirdEyeClientConfig> fileClients=ymlReader.readValue(file,ymlReader.getTypeFactory().constructCollectionType(List.class,ThirdEyeClientConfig.class));
+    LOGGER.info("Successfully read client configs from {}: {}",file,fileClients);
+    return fileClients;
+  }
+ catch (  Exception e) {
+    LOGGER.error("Unable to load ThirdEyeClient configuration file: {}",file);
+    return Collections.emptyList();
+  }
+}

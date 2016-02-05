@@ -1,0 +1,16 @@
+{
+  List<String> expectedRawMetrics=Arrays.asList("impressions","submits");
+  int expressionCount=3;
+  TimeGranularity timeGranularity=new TimeGranularity(1,TimeUnit.HOURS);
+  String noQuotes="AGGREGATE_1_HOURS(submits,impressions,RATIO(submits,impressions))";
+  String ratioQuotes="AGGREGATE_1_HOURS(submits,impressions,RATIO('submits','impressions'))";
+  String baseQuotes="AGGREGATE_1_HOURS('submits','impressions',RATIO(submits,impressions))";
+  String lowercaseAgg="aggregate_1_hours(submits,impressions,RATIO(submits,impressions))";
+  String[] testStrs=new String[]{noQuotes,ratioQuotes,baseQuotes,lowercaseAgg};
+  Object[][] result=new Object[testStrs.length][];
+  for (int i=0; i < testStrs.length; i++) {
+    String string=testStrs[i];
+    result[i]=new Object[]{string,expectedRawMetrics,expressionCount,timeGranularity};
+  }
+  return result;
+}

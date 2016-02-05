@@ -1,7 +1,7 @@
 {
-  List<String> collections=dataCache.getCollections(serverUri);
-  if (collections.isEmpty()) {
-    throw new NotFoundException("No collections loaded into " + serverUri);
+  List<String> collections=dataCache.getCollections();
+  if (collections == null || collections.isEmpty()) {
+    throw new NotFoundException("No collections loaded!");
   }
   return Response.seeOther(URI.create("/dashboard/" + collections.get(0))).build();
 }

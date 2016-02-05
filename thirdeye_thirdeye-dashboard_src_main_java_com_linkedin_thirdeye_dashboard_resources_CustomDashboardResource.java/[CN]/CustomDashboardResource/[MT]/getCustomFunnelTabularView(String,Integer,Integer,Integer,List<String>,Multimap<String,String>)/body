@@ -14,8 +14,8 @@
   ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStart).setEndTime(currentEnd).setDimensionValues(expandedDimensionValues).build();
   LOG.info("Generated Req: {}",baselineReq);
   LOG.info("Generated Req: {}",currentReq);
-  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineReq);
-  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentReq);
+  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(baselineReq);
+  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(currentReq);
   Map<Long,Number[]> baselineData=extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=extractFunnelData(currentResult.get());
   List<Pair<Long,Number[]>> table=new ArrayList<>();

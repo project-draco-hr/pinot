@@ -1,0 +1,38 @@
+{
+  DataType dataType=metricFieldSpec.getDataType();
+  MetricType metricType;
+switch (dataType) {
+case BOOLEAN:
+case BYTE:
+case BYTE_ARRAY:
+case CHAR:
+case CHAR_ARRAY:
+case DOUBLE_ARRAY:
+case FLOAT_ARRAY:
+case INT_ARRAY:
+case LONG_ARRAY:
+case OBJECT:
+case SHORT_ARRAY:
+case STRING:
+case STRING_ARRAY:
+default :
+    throw new UnsupportedOperationException(dataType + " is not a supported metric type");
+case DOUBLE:
+  metricType=MetricType.DOUBLE;
+break;
+case FLOAT:
+metricType=MetricType.FLOAT;
+break;
+case INT:
+metricType=MetricType.INT;
+break;
+case LONG:
+metricType=MetricType.LONG;
+break;
+case SHORT:
+metricType=MetricType.SHORT;
+break;
+}
+MetricSpec metricSpec=new MetricSpec(metricFieldSpec.getName(),metricType);
+return metricSpec;
+}

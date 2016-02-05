@@ -1,5 +1,5 @@
 {
-  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+  CollectionSchema schema=dataCache.getCollectionSchema(collection);
   DateTime baseline=new DateTime(baselineMillis);
   DateTime current=new DateTime(currentMillis);
   LOGGER.info("Request uri: {}",uriInfo.getRequestUri());
@@ -20,7 +20,7 @@ for (String dimension : schema.getDimensions()) {
 if (!selectedDimensions.containsKey(dimension)) {
 ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baseline).setEndTime(current).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).build();
 LOGGER.info("Generated request for heat map: {}",req);
-resultActualFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,req));
+resultActualFutures.put(dimension,queryCache.getQueryResultAsync(req));
 }
 }
 Map<String,Map<String,String>> dimensionGroups=null;

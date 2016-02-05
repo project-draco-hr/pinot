@@ -4,7 +4,7 @@
   DateTime currentRangeStart=new DateTime(currentMillis - windowMillis);
   DateTime currentRangeEnd=new DateTime(currentMillis);
   Multimap<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo);
-  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+  CollectionSchema schema=dataCache.getCollectionSchema(collection);
   Map<String,Multimap<String,String>> reverseDimensionGroups=null;
   DimensionGroupSpec dimensionGroupSpec=configCache.getDimensionGroupSpec(collection);
   if (dimensionGroupSpec != null) {
@@ -13,8 +13,8 @@
   Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValues,reverseDimensionGroups);
   ThirdEyeRequest baselineSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineRangeStart).setEndTime(baselineRangeEnd).setDimensionValues(expandedDimensionValues).build();
   ThirdEyeRequest currentSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentRangeStart).setEndTime(currentRangeEnd).setDimensionValues(expandedDimensionValues).build();
-  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineSeriesReq);
-  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentSeriesReq);
+  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(baselineSeriesReq);
+  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(currentSeriesReq);
   List<AnomalyTableRow> anomalies=null;
   if (displayAnomalies) {
     anomalies=AnomalyTable.selectRows(anomalyDatabase,collection,null,null,null,null,null,false,null,new TimeRange(currentMillis - windowMillis,currentMillis));

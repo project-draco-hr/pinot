@@ -1,0 +1,9 @@
+{
+  this.needToInitializeClients=false;
+  CollectionKey collectionKey=new CollectionKey(collection);
+  ThirdEyeClient prev=clientMap.put(collectionKey,client);
+  if (prev != null) {
+    LOGGER.info("Replacing existing client for collection {}: {}",collectionKey,client);
+  }
+  return prev;
+}

@@ -1,0 +1,19 @@
+{
+  HttpGet req=new HttpGet(TABLES_ENDPOINT + URLEncoder.encode(collection,UTF_8) + "/schema");
+  LOG.info("Retrieving schema: {}",req);
+  CloseableHttpResponse res=controllerClient.execute(controllerHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    Schema schema=new ObjectMapper().readValue(content,Schema.class);
+    return schema;
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+    res.close();
+  }
+}

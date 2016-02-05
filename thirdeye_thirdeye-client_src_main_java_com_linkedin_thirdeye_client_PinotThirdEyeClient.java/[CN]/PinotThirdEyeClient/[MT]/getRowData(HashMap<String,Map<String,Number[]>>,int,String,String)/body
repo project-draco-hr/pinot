@@ -1,0 +1,13 @@
+{
+  if (!data.containsKey(dimensionKey)) {
+    data.put(dimensionKey,new TreeMap<String,Number[]>());
+  }
+  Map<String,Number[]> dimKeyData=data.get(dimensionKey);
+  if (!dimKeyData.containsKey(timeStamp)) {
+    Double[] row=new Double[columnCount];
+    Arrays.fill(row,Double.valueOf(0));
+    dimKeyData.put(timeStamp,row);
+  }
+  Double[] rowData=(Double[])dimKeyData.get(timeStamp);
+  return rowData;
+}

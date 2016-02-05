@@ -1,0 +1,16 @@
+{
+  StarTreeConfig starTreeConfig=getStarTreeConfig(request.getCollection());
+  TimeSpec dataTimeSpec=starTreeConfig.getTime();
+  List<String> rawMetrics=request.getRawMetricNames();
+  List<String> dimensionNames=starTreeConfig.getDimensionNames();
+  String sql=PqlUtils.getPql(request,dataTimeSpec);
+  LOG.info("getRawResponse: {}",sql);
+  ResultSetGroup result=resultSetGroupCache.get(sql);
+  Map<String,Map<String,Number[]>> data=parseResultSetGroup(request,result,rawMetrics,starTreeConfig,dimensionNames);
+  data=calculateDerivedMetrics(request,data,rawMetrics);
+  ThirdEyeRawResponse resp=new ThirdEyeRawResponse();
+  resp.setData(data);
+  resp.setDimensions(dimensionNames);
+  resp.setMetrics(request.getMetricNames());
+  return resp;
+}

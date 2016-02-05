@@ -6,11 +6,11 @@
   if (dimensionGroupSpec != null) {
     reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
   }
-  CollectionSchema schema=dataCache.getCollectionSchema(serverUri,collection);
+  CollectionSchema schema=dataCache.getCollectionSchema(collection);
   Multimap<String,String> dimensionValues=UriUtils.extractDimensionValues(uriInfo);
   Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValues,reverseDimensionGroups);
   ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baseline).setEndTime(current).setDimensionValues(expandedDimensionValues).build();
-  QueryResult queryResult=queryCache.getQueryResult(serverUri,req).checkEmpty();
+  QueryResult queryResult=queryCache.getQueryResult(req).checkEmpty();
   List<FlotTimeSeries> allSeries=FlotTimeSeries.fromQueryResult(schema,objectMapper,queryResult);
   if (displayAnomalies) {
     List<AnomalyTableRow> anomalies=AnomalyTable.selectRows(anomalyDatabase,collection,null,null,null,null,null,false,null,new TimeRange(baselineMillis,currentMillis));

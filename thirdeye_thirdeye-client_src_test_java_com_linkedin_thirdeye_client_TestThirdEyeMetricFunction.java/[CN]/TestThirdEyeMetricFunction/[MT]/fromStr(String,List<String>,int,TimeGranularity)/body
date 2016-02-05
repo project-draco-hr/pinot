@@ -1,0 +1,17 @@
+{
+  ThirdEyeMetricFunction func=ThirdEyeMetricFunction.fromStr(test);
+  List<String> rawMetricNames=func.getRawMetricNames();
+  Assert.assertEquals(rawMetricNames,expectedRawMetrics);
+  List<Expression> metricExpressions=func.getMetricExpressions();
+  Assert.assertEquals(metricExpressions.size(),expectedExpressionCount);
+  for (  Expression expression : metricExpressions) {
+    Assert.assertEquals(expression.isAtomic(),!expression.getName().contains("RATIO"));
+    if (!expression.isAtomic()) {
+      Assert.assertEquals(expression.getArguments().size(),2);
+    }
+  }
+  TimeGranularity timeGranularity=func.getTimeGranularity();
+  Assert.assertEquals(timeGranularity,expectedGranularity);
+  String sqlFunction=func.getSqlFunction();
+  Assert.assertEquals(sqlFunction.toLowerCase(),test.replaceAll("'","").toLowerCase());
+}

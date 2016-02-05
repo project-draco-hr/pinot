@@ -1,0 +1,14 @@
+{
+  Set<String> rawNameSet=new TreeSet<>();
+  for (  Expression expression : metricExpressions) {
+    if (expression.isAtomic()) {
+      rawNameSet.add(expression.getAtomicValue());
+    }
+ else {
+      for (      String arg : expression.getArguments()) {
+        rawNameSet.add(arg);
+      }
+    }
+  }
+  return new ArrayList<>(rawNameSet);
+}

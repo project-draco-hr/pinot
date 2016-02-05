@@ -1,0 +1,26 @@
+{
+  Number[] metricData=new Number[metrics.size()];
+  for (int i=0; i < metrics.size(); i++) {
+    Expression expression=metrics.get(i);
+    Number expressionValue;
+    if (expression.isAtomic()) {
+      int idx=rawMetricIndexMap.get(expression.getAtomicValue());
+      expressionValue=rawData[idx];
+    }
+ else {
+      List<String> arguments=expression.getArguments();
+      int numeratorIdx=rawMetricIndexMap.get(arguments.get(0));
+      int denominatorIdx=rawMetricIndexMap.get(arguments.get(1));
+      double numeratorVal=rawData[numeratorIdx].doubleValue();
+      double denominatorVal=rawData[denominatorIdx].doubleValue();
+      if (denominatorVal == 0) {
+        expressionValue=null;
+      }
+ else {
+        expressionValue=numeratorVal / denominatorVal;
+      }
+    }
+    metricData[i]=expressionValue;
+  }
+  return metricData;
+}

@@ -1,7 +1,6 @@
 {
-  ThirdEyeClient client=new DefaultThirdEyeClient(hostname,port);
-  if (config != null) {
-    client=new CachedThirdEyeClient(client,config);
-  }
-  return client;
+  Properties properties=new Properties();
+  properties.put(HOST,hostname);
+  properties.put(PORT,port);
+  return this.getClient(properties);
 }

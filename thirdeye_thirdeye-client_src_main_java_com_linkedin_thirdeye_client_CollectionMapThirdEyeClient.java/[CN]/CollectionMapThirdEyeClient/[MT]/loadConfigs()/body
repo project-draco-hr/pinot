@@ -1,0 +1,17 @@
+{
+  clear();
+  if (configs == null || configs.isEmpty()) {
+    LOGGER.warn("No configurations provided, using empty map.");
+    return;
+  }
+  for (  ThirdEyeClientConfig config : configs) {
+    try {
+      LOGGER.info("Building client: {}",config);
+      createClient(config);
+    }
+ catch (    Exception e) {
+      LOGGER.error("Unable to create client and retrieve collections for config: {}",config);
+      LOGGER.error("Client exception was: ",e);
+    }
+  }
+}

@@ -9,8 +9,8 @@
   ThirdEyeRequest currentTotalReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStart).setEndTime(currentStart.plus(intraPeriodMillis)).setDimensionValues(expandedDimensionValues).build();
   LOGGER.info("Generated request for contributor baseline total: {}",baselineTotalReq);
   LOGGER.info("Generated request for contributor current total: {}",currentTotalReq);
-  Future<QueryResult> baselineTotalResultFuture=queryCache.getQueryResultAsync(serverUri,baselineTotalReq);
-  Future<QueryResult> currentTotalResultFuture=queryCache.getQueryResultAsync(serverUri,currentTotalReq);
+  Future<QueryResult> baselineTotalResultFuture=queryCache.getQueryResultAsync(baselineTotalReq);
+  Future<QueryResult> currentTotalResultFuture=queryCache.getQueryResultAsync(currentTotalReq);
   Map<String,Future<QueryResult>> baselineResultFutures=new HashMap<>();
   Map<String,Future<QueryResult>> currentResultFutures=new HashMap<>();
   for (  String dimension : dimensions) {
@@ -19,8 +19,8 @@
       ThirdEyeRequest currentGroupByReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStart).setEndTime(currentStart.plus(intraPeriodMillis)).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).build();
       LOGGER.info("Generated request for contributor baseline {} : {}",dimension,baselineGroupByReq);
       LOGGER.info("Generated request for contributor current {}: {}",dimension,currentGroupByReq);
-      baselineResultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,baselineGroupByReq));
-      currentResultFutures.put(dimension,queryCache.getQueryResultAsync(serverUri,currentGroupByReq));
+      baselineResultFutures.put(dimension,queryCache.getQueryResultAsync(baselineGroupByReq));
+      currentResultFutures.put(dimension,queryCache.getQueryResultAsync(currentGroupByReq));
     }
  else {
       LOGGER.warn("Found overlap between dimensions to query and pre-selected dimensions: ({}:{})",dimension,selectedDimensions.get(dimension));

@@ -13,8 +13,8 @@
   LOG.info("funnel queries for collection : {}, with name : {} ",collection,spec.getName());
   LOG.info("Generated request for funnel baseline: {}",baselineReq);
   LOG.info("Generated request for funnel current: {}",currentReq);
-  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(serverUri,baselineReq);
-  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(serverUri,currentReq);
+  Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(baselineReq);
+  Future<QueryResult> currentResult=queryCache.getQueryResultAsync(currentReq);
   Map<Long,Number[]> baselineData=CustomDashboardResource.extractFunnelData(baselineResult.get());
   Map<Long,Number[]> currentData=CustomDashboardResource.extractFunnelData(currentResult.get());
   long baselineOffsetMillis=currentStart.getMillis() - baselineStart.getMillis();

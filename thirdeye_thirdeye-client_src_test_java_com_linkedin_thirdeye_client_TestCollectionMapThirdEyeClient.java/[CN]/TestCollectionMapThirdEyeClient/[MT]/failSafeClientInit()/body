@@ -1,0 +1,13 @@
+{
+  ThirdEyeClientConfig badConfig=mock(ThirdEyeClientConfig.class);
+  when(badConfig.buildClient()).thenThrow(new RuntimeException("Intentionally thrown failure from config buildClient"));
+  ThirdEyeClient badClient=mock(ThirdEyeClient.class);
+  ThirdEyeClientConfig badClientConfig=mock(ThirdEyeClientConfig.class);
+  when(badClientConfig.buildClient()).thenReturn(badClient);
+  when(badClient.getCollections()).thenThrow(new RuntimeException("Intentionally thrown failure from client getCollections"));
+  List<ThirdEyeClientConfig> badClientConfigs=Arrays.asList(badConfig,badClientConfig);
+  CollectionMapThirdEyeClient collectionMapThirdEyeClient=new CollectionMapThirdEyeClient(badClientConfigs);
+  Assert.assertEquals(collectionMapThirdEyeClient.getClientConfigs(),badClientConfigs);
+  Assert.assertEquals(collectionMapThirdEyeClient.getCollections(),Collections.emptyList());
+  Assert.assertEquals(collectionMapThirdEyeClient.getClients(),Arrays.asList(badClient));
+}

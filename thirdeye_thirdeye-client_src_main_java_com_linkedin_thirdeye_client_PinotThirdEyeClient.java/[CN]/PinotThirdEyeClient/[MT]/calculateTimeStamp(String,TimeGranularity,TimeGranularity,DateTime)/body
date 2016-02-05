@@ -1,0 +1,9 @@
+{
+  long startMillis=start.getMillis();
+  long millisSinceEpoch=dataGranularity.getUnit().toMillis(Long.valueOf(timeKey) * dataGranularity.getSize());
+  long millisSinceStart=millisSinceEpoch - startMillis;
+  long bucketMillis=aggGranularity.getUnit().toMillis(aggGranularity.getSize());
+  long alignedMillisSinceStart=(millisSinceStart / bucketMillis) * bucketMillis;
+  millisSinceEpoch=startMillis + alignedMillisSinceStart;
+  return String.valueOf(millisSinceEpoch);
+}

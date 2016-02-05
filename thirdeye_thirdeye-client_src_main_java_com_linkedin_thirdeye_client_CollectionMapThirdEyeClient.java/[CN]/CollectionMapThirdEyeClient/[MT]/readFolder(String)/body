@@ -1,0 +1,13 @@
+{
+  List<ThirdEyeClientConfig> configs=new ArrayList<ThirdEyeClientConfig>();
+  File folder=new File(folderPath);
+  if (!folder.exists() || !folder.isDirectory()) {
+    LOGGER.error("{} does not exist or is not a directory!",folderPath);
+    return Collections.emptyList();
+  }
+  for (  File file : folder.listFiles()) {
+    List<ThirdEyeClientConfig> fileClients=readFile(file.getAbsolutePath());
+    configs.addAll(fileClients);
+  }
+  return configs;
+}
