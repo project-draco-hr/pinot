@@ -1,0 +1,26 @@
+{
+  Schema schema=new Schema();
+  for (  DimensionSpec dimensionSpec : starTreeConfig.getDimensions()) {
+    FieldSpec fieldSpec=new DimensionFieldSpec();
+    fieldSpec.setName(dimensionSpec.getName());
+    fieldSpec.setFieldType(FieldType.DIMENSION);
+    fieldSpec.setDataType(DataType.STRING);
+    fieldSpec.setSingleValueField(true);
+    schema.addField(dimensionSpec.getName(),fieldSpec);
+  }
+  for (  MetricSpec metricSpec : starTreeConfig.getMetrics()) {
+    FieldSpec fieldSpec=new MetricFieldSpec();
+    fieldSpec.setName(metricSpec.getName());
+    fieldSpec.setFieldType(FieldType.METRIC);
+    fieldSpec.setDataType(DataType.valueOf(metricSpec.getType().toString()));
+    fieldSpec.setSingleValueField(true);
+    schema.addField(metricSpec.getName(),fieldSpec);
+  }
+  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.LONG,starTreeConfig.getTime().getBucket().getUnit(),starTreeConfig.getTime().getColumnName());
+  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,starTreeConfig.getTime().getBucket().getUnit(),starTreeConfig.getTime().getColumnName());
+  FieldSpec fieldSpec=new TimeFieldSpec(incoming,outgoing);
+  fieldSpec.setFieldType(FieldType.TIME);
+  schema.addField(starTreeConfig.getTime().getColumnName(),new TimeFieldSpec(incoming,outgoing));
+  schema.setSchemaName(starTreeConfig.getCollection());
+  return schema;
+}

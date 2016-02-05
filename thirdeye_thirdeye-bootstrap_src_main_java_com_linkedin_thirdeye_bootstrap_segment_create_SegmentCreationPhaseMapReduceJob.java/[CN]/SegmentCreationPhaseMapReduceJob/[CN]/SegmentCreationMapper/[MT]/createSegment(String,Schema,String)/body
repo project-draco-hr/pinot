@@ -14,11 +14,24 @@
   segmentGeneratorConfig.setInputFilePath(new File(dataPath,hdfsDataPath.getName()).getAbsolutePath());
   segmentGeneratorConfig.setSegmentNamePostfix(seqId);
   segmentGeneratorConfig.setIndexOutputDir(localDiskSegmentDirectory);
+  segmentGeneratorConfig.setCreateStarTreeIndex(true);
+  StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
+  starTreeIndexSpec.setMaxLeafRecords(starTreeConfig.getSplit().getThreshold());
+  starTreeIndexSpec.setSplitOrder(starTreeConfig.getSplit().getOrder());
+  starTreeIndexSpec.setExcludedDimensions(Lists.newArrayList(starTreeConfig.getTime().getColumnName()));
+  segmentGeneratorConfig.setStarTreeIndexSpec(starTreeIndexSpec);
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   ThirdeyeRecordReader thirdeyeRecordReader=new ThirdeyeRecordReader(segmentGeneratorConfig.getInputFilePath(),schema,properties.get(SEGMENT_CREATION_CONFIG_PATH.toString()));
   driver.init(segmentGeneratorConfig,thirdeyeRecordReader);
   driver.build();
-  String segmentName=(new File(localDiskSegmentDirectory).listFiles()[0]).getName();
+  String segmentName=null;
+  File localDiskSegmentDirectoryFile=new File(localDiskSegmentDirectory);
+  for (  File file : localDiskSegmentDirectoryFile.listFiles()) {
+    segmentName=file.getName();
+    if (segmentName.startsWith(tableName)) {
+      break;
+    }
+  }
   String localSegmentPath=new File(localDiskSegmentDirectory,segmentName).getAbsolutePath();
   String localTarPath=localDiskSegmentTarPath + "/" + segmentName+ ".tar.gz";
   LOGGER.info("Trying to tar the segment to: {}",localTarPath);

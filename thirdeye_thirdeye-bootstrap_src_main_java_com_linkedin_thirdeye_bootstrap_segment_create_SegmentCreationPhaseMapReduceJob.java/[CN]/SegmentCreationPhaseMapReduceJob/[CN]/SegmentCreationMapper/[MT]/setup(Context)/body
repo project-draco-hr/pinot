@@ -14,4 +14,6 @@
   properties=context.getConfiguration();
   outputPath=properties.get(SEGMENT_CREATION_OUTPUT_PATH.toString());
   tableName=properties.get(SEGMENT_CREATION_SEGMENT_TABLE_NAME.toString());
+  schema=OBJECT_MAPPER.readValue(properties.get(SEGMENT_CREATION_DATA_SCHEMA.toString()),Schema.class);
+  starTreeConfig=OBJECT_MAPPER.readValue(properties.get(SEGMENT_CREATION_STARTREE_CONFIG.toString()),StarTreeConfig.class);
 }

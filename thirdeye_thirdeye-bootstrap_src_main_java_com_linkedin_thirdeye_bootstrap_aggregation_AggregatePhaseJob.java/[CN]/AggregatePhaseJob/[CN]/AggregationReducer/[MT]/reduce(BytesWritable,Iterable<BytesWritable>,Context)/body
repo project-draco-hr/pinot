@@ -9,6 +9,8 @@
     dimensionStats.record(dimensionNames.get(i),key.getDimensionValues()[i]);
   }
   aggregationStats.record(out);
+  int numSplitRecords=out.getTimeWindowSet().size();
+  context.getCounter(AggregationCounter.NUMBER_OF_SPLIT_RECORDS).increment(numSplitRecords);
   byte[] serializedBytes=out.toBytes();
   context.write(aggregationKey,new BytesWritable(serializedBytes));
 }
