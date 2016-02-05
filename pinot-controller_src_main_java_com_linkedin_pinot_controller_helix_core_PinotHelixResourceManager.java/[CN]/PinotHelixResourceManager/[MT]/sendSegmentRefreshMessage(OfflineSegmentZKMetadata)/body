@@ -11,12 +11,12 @@
   recipientCriteria.setPartition(segmentName);
   recipientCriteria.setSessionSpecific(true);
   ClusterMessagingService messagingService=_helixZkManager.getMessagingService();
-  LOGGER.info("Sending message for segment {}:{} to recipients {}",segmentName,refreshMessage,recipientCriteria);
+  LOGGER.info("Sending refresh message for segment {} of table {}:{} to recipients {}",segmentName,rawTableName,refreshMessage,recipientCriteria);
   int nMsgsSent=messagingService.send(recipientCriteria,refreshMessage,null,timeoutMs);
   if (nMsgsSent > 0) {
-    LOGGER.info("Sent {} msgs to refresh segment {}",nMsgsSent,segmentName);
+    LOGGER.info("Sent {} msgs to refresh segment {} of table {}",nMsgsSent,segmentName,rawTableName);
   }
  else {
-    LOGGER.warn("Unable to send segment refresh message for {}, nMsgs={}",segmentName,nMsgsSent);
+    LOGGER.warn("Unable to send segment refresh message for {} of table {}, nMsgs={}",segmentName,tableName,nMsgsSent);
   }
 }

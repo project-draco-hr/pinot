@@ -1,13 +1,16 @@
 {
   OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_propertyStore,segmentMetadata.getTableName(),segmentMetadata.getName());
   if (offlineSegmentZKMetadata == null) {
+    LOGGER.info("Rejecting because Zk metadata is null for segment {} of table {}",segmentName,tableName);
     return false;
   }
   final SegmentMetadata existedSegmentMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
   if (segmentMetadata.getIndexCreationTime() <= existedSegmentMetadata.getIndexCreationTime()) {
+    LOGGER.info("Rejecting because of older creation time {} (we have {}) for segment {} of table {}",segmentMetadata.getIndexCreationTime(),existedSegmentMetadata.getIndexCreationTime(),segmentName,tableName);
     return false;
   }
   if (segmentMetadata.getCrc().equals(existedSegmentMetadata.getCrc())) {
+    LOGGER.info("Rejecting because of mismatching CRC (incoming={}, existing={}) for {} of table {}",segmentMetadata.getCrc(),existedSegmentMetadata.getCrc(),segmentName,tableName);
     return false;
   }
   return true;
