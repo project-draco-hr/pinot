@@ -13,5 +13,12 @@
   if (config.getTopKRollup() != null && config.getTopKRollup().getTopKDimensionSpec() != null) {
     rollupDimensionConfig=config.getTopKRollup().getTopKDimensionSpec();
   }
-  return new TopKRollupPhaseTwoConfig(dimensionNames,metricNames,metricTypes,rollupDimensionConfig);
+  Map<String,List<String>> dimensionExceptions=new HashMap<>();
+  Map<String,String> exceptions=config.getTopKRollup().getExceptions();
+  if (exceptions != null) {
+    for (    Entry<String,String> entry : exceptions.entrySet()) {
+      dimensionExceptions.put(entry.getKey(),Arrays.asList(entry.getValue().split(",")));
+    }
+  }
+  return new TopKRollupPhaseTwoConfig(dimensionNames,metricNames,metricTypes,rollupDimensionConfig,dimensionExceptions);
 }

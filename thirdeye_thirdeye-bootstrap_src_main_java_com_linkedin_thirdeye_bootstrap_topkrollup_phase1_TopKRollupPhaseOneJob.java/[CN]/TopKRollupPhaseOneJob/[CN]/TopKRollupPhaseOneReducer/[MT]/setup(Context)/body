@@ -10,6 +10,7 @@
     metricTypes=config.getMetricTypes();
     metricSchema=new MetricSchema(config.getMetricNames(),metricTypes);
     metricThresholds=config.getMetricThresholds();
+    dimensionExceptions=config.getDimensionExceptions();
     keyWritable=new BytesWritable();
     valWritable=new BytesWritable();
     MetricSums metricSumsObj=OBJECT_MAPPER.readValue(fileSystem.open(new Path(configuration.get(TOPK_ROLLUP_PHASE1_METRIC_SUMS_PATH.toString()))),MetricSums.class);
