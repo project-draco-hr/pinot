@@ -8,30 +8,25 @@
       JSONArray groupByResultsArray=new JSONArray();
       int groupSize=_groupByColumns.size();
       Map<String,Serializable> reducedGroupByResult=finalAggregationResult.get(i);
+      AggregationFunction aggregationFunction=_aggregationFunctionList.get(i);
       if (!reducedGroupByResult.isEmpty()) {
-        PriorityQueue priorityQueue=getPriorityQueue(_aggregationFunctionList.get(i),reducedGroupByResult.values().iterator().next());
-        if (priorityQueue != null) {
+        boolean reverseOrder=aggregationFunction.getFunctionName().startsWith(MIN_PREFIX);
+        MinMaxPriorityQueue<ImmutablePair<Serializable,String>> minMaxPriorityQueue=getMinMaxPriorityQueue(reducedGroupByResult.values().iterator().next(),_groupByTopN,reverseOrder);
+        if (minMaxPriorityQueue != null) {
           for (          String groupedKey : reducedGroupByResult.keySet()) {
-            priorityQueue.enqueue(new Pair(reducedGroupByResult.get(groupedKey),groupedKey));
-            if (priorityQueue.size() == (_groupByTopN + 1)) {
-              priorityQueue.dequeue();
-            }
+            minMaxPriorityQueue.add(new ImmutablePair(reducedGroupByResult.get(groupedKey),groupedKey));
           }
-          int realGroupSize=_groupByTopN;
-          if (priorityQueue.size() < _groupByTopN) {
-            realGroupSize=priorityQueue.size();
-          }
-          for (int j=0; j < realGroupSize; ++j) {
+          ImmutablePair res;
+          while ((res=(ImmutablePair)minMaxPriorityQueue.pollFirst()) != null) {
             JSONObject groupByResultObject=new JSONObject();
-            Pair res=(Pair)priorityQueue.dequeue();
-            groupByResultObject.put("group",new JSONArray(((String)res.getSecond()).split(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter.toString(),groupSize)));
-            groupByResultObject.put("value",_aggregationFunctionList.get(i).render((Serializable)res.getFirst()).get("value"));
-            groupByResultsArray.put(realGroupSize - 1 - j,groupByResultObject);
+            groupByResultObject.put("group",new JSONArray(((String)res.getRight()).split(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter.toString(),groupSize)));
+            groupByResultObject.put("value",aggregationFunction.render((Serializable)res.getLeft()).get("value"));
+            groupByResultsArray.put(groupByResultObject);
           }
         }
       }
       JSONObject result=new JSONObject();
-      result.put("function",_aggregationFunctionList.get(i).getFunctionName());
+      result.put("function",aggregationFunction.getFunctionName());
       result.put("groupByResult",groupByResultsArray);
       result.put("groupByColumns",new JSONArray(_groupByColumns));
       retJsonResultList.add(result);

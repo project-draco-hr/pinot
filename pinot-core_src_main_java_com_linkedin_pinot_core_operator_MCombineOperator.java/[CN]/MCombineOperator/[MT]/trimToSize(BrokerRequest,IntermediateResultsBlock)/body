@@ -1,4 +1,5 @@
 {
   AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(brokerRequest.getAggregationsInfo(),brokerRequest.getGroupBy());
-  aggregationGroupByOperatorService.trimToSize(mergedBlock.getAggregationGroupByOperatorResult());
+  List<Map<String,Serializable>> trimmedResults=aggregationGroupByOperatorService.trimToSize(mergedBlock.getAggregationGroupByOperatorResult());
+  mergedBlock.setAggregationGroupByResult1(trimmedResults);
 }

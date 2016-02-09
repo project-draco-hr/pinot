@@ -1,16 +1,16 @@
 {
-  PriorityQueue priorityQueue=getPriorityQueue(aggregationFunction,aggregationGroupByResult.values().iterator().next());
-  if (priorityQueue == null) {
-    return;
+  boolean reverseOrder=aggregationFunction.getFunctionName().startsWith(MIN_PREFIX);
+  MinMaxPriorityQueue<ImmutablePair<Serializable,String>> minMaxPriorityQueue=getMinMaxPriorityQueue(aggregationGroupByResult.values().iterator().next(),trimSize,reverseOrder);
+  if (minMaxPriorityQueue == null) {
+    return aggregationGroupByResult;
   }
   for (  String groupedKey : aggregationGroupByResult.keySet()) {
-    priorityQueue.enqueue(new Pair(aggregationGroupByResult.get(groupedKey),groupedKey));
-    if (priorityQueue.size() == (_groupByTopN + 1)) {
-      priorityQueue.dequeue();
-    }
+    minMaxPriorityQueue.add(new ImmutablePair(aggregationGroupByResult.get(groupedKey),groupedKey));
   }
-  for (int i=0; i < (priorityQueue.size() - trimSize); ++i) {
-    Pair res=(Pair)priorityQueue.dequeue();
-    aggregationGroupByResult.remove(res.getSecond());
+  Map<String,Serializable> trimmedResult=new HashMap<>();
+  ImmutablePair<Serializable,String> pair;
+  while ((pair=(ImmutablePair)minMaxPriorityQueue.pollFirst()) != null) {
+    trimmedResult.put(pair.getRight(),pair.getLeft());
   }
+  return trimmedResult;
 }

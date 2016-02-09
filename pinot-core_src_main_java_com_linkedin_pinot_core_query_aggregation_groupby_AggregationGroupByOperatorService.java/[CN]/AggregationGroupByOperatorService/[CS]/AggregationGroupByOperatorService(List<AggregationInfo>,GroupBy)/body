@@ -2,4 +2,7 @@
   _aggregationFunctionList=AggregationFunctionFactory.getAggregationFunction(aggregationInfos);
   _groupByColumns=groupByQuery.getColumns();
   _groupByTopN=(int)groupByQuery.getTopN();
+  int minTrimSize=Math.max(_groupByTopN,1000);
+  _trimThreshold=minTrimSize * 20;
+  _trimSize=minTrimSize * 5;
 }

@@ -1,0 +1,8 @@
+{
+  if (!(sampleObject instanceof Comparable)) {
+    return null;
+  }
+  Comparator<ImmutablePair<Serializable,String>> comparator=new GroupByResultComparator<ImmutablePair<Serializable,String>>().newComparator(reverseOrder);
+  MinMaxPriorityQueue.Builder<ImmutablePair<Serializable,String>> minMaxPriorityQueueBuilder=MinMaxPriorityQueue.orderedBy(comparator).maximumSize(maxSize);
+  return minMaxPriorityQueueBuilder.create();
+}
