@@ -1,12 +1,14 @@
 {
   TopKRollupPhaseOneMapOutputKey wrapper=TopKRollupPhaseOneMapOutputKey.fromBytes(topkRollupKey.getBytes());
-  LOGGER.info("DimensionName {} DimensionValue {}",wrapper.getDimensionName(),wrapper.getDimensionValue());
+  String dimensionName=wrapper.getDimensionName();
+  String dimensionValue=wrapper.getDimensionValue();
+  LOGGER.info("DimensionName {} DimensionValue {}",dimensionName,dimensionValue);
   MetricTimeSeries aggregateSeries=new MetricTimeSeries(metricSchema);
   for (  BytesWritable writable : timeSeriesIterable) {
     MetricTimeSeries series=MetricTimeSeries.fromBytes(writable.copyBytes(),metricSchema);
     aggregateSeries.aggregate(series);
   }
-  if (dimensionException(wrapper.getDimensionName(),wrapper.getDimensionValue()) || aboveThreshold(aggregateSeries,wrapper.getDimensionName(),wrapper.getDimensionValue())) {
+  if (dimensionException(dimensionName,dimensionValue) || aboveThreshold(aggregateSeries)) {
     LOGGER.info("Passed threshold");
     valWritable.set(aggregateSeries.toBytes(),0,aggregateSeries.toBytes().length);
     context.write(topkRollupKey,valWritable);

@@ -47,8 +47,8 @@
       LOGGER.info("K : {} dimensionvalue : {}",k,dimensionValue);
       topKDimensionValues.addValue(dimensionName,dimensionValue);
     }
-    List<String> dimensionExceptionsList=null;
-    if ((dimensionExceptionsList=dimensionExceptions.get(dimensionName)) != null) {
+    List<String> dimensionExceptionsList=dimensionExceptions.get(dimensionName);
+    if (dimensionExceptionsList != null) {
       for (; k < mapOutputValues.size(); k++) {
         TopKRollupPhaseTwoMapOutputValue valueWrapper=mapOutputValues.get(k);
         String dimensionValue=valueWrapper.getDimensionValue();
