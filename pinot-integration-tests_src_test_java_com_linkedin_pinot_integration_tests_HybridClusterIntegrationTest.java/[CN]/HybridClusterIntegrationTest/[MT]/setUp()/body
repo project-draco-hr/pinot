@@ -2,14 +2,7 @@
   ensureDirectoryExistsAndIsEmpty(_tmpDir);
   ensureDirectoryExistsAndIsEmpty(_segmentDir);
   ensureDirectoryExistsAndIsEmpty(_tarDir);
-  startZk();
-  kafkaStarter=KafkaStarterUtils.startServer(KafkaStarterUtils.DEFAULT_KAFKA_PORT,KafkaStarterUtils.DEFAULT_BROKER_ID,KafkaStarterUtils.DEFAULT_ZK_STR,KafkaStarterUtils.getDefaultKafkaConfiguration());
-  KafkaStarterUtils.createTopic(KAFKA_TOPIC,KafkaStarterUtils.DEFAULT_ZK_STR);
-  startController(true);
-  startBroker();
-  startServers(2);
-  createBrokerTenant("TestTenant",1);
-  createServerTenant("TestTenant",1,1);
+  startHybridCluster();
   TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
   _tmpDir.mkdirs();
   final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
@@ -18,14 +11,8 @@
   }
   File schemaFile=getSchemaFile();
   setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
-  final List<File> offlineAvroFiles=new ArrayList<File>(OFFLINE_SEGMENT_COUNT);
-  for (int i=0; i < OFFLINE_SEGMENT_COUNT; i++) {
-    offlineAvroFiles.add(avroFiles.get(i));
-  }
-  final List<File> realtimeAvroFiles=new ArrayList<File>(REALTIME_SEGMENT_COUNT);
-  for (int i=SEGMENT_COUNT - REALTIME_SEGMENT_COUNT; i < SEGMENT_COUNT; i++) {
-    realtimeAvroFiles.add(avroFiles.get(i));
-  }
+  final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
+  final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
   ExecutorService executor=Executors.newCachedThreadPool();
   setupH2AndInsertAvro(avroFiles,executor);
   buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"mytable");
@@ -69,21 +56,10 @@
   int pinotRecordCount, h2RecordCount;
   long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;
   Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
-  do {
-    Thread.sleep(5000L);
-    JSONObject response=postQuery("select count(*) from 'mytable'");
-    JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
-    JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
-    String pinotValue=firstAggregationResult.getString("value");
-    pinotRecordCount=Integer.parseInt(pinotValue);
-    statement.execute("select count(*) from mytable");
-    ResultSet rs=statement.getResultSet();
-    rs.first();
-    h2RecordCount=rs.getInt(1);
-    rs.close();
-    LOGGER.info("H2 record count: " + h2RecordCount + "\tPinot record count: "+ pinotRecordCount);
-    Assert.assertTrue(System.currentTimeMillis() < timeInTwoMinutes,"Failed to read all records within two minutes");
-    TOTAL_DOCS=response.getLong("totalDocs");
-  }
- while (h2RecordCount != pinotRecordCount);
+  statement.execute("select count(*) from mytable");
+  ResultSet rs=statement.getResultSet();
+  rs.first();
+  h2RecordCount=rs.getInt(1);
+  rs.close();
+  waitForRecordCountToStabilizeToExpectedCount(h2RecordCount,timeInTwoMinutes);
 }

@@ -14,24 +14,12 @@
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
   setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
-  int pinotRecordCount, h2RecordCount;
   long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;
   Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
-  do {
-    Thread.sleep(5000L);
-    JSONObject response=postQuery("select count(*) from 'mytable'");
-    JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
-    JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
-    String pinotValue=firstAggregationResult.getString("value");
-    pinotRecordCount=Integer.parseInt(pinotValue);
-    statement.execute("select count(*) from mytable");
-    ResultSet rs=statement.getResultSet();
-    rs.first();
-    h2RecordCount=rs.getInt(1);
-    rs.close();
-    LOGGER.info("H2 record count: " + h2RecordCount + "\tPinot record count: "+ pinotRecordCount);
-    Assert.assertTrue(System.currentTimeMillis() < timeInTwoMinutes,"Failed to read all records within two minutes");
-    TOTAL_DOCS=response.getLong("totalDocs");
-  }
- while (h2RecordCount != pinotRecordCount);
+  statement.execute("select count(*) from mytable");
+  ResultSet rs=statement.getResultSet();
+  rs.first();
+  int h2RecordCount=rs.getInt(1);
+  rs.close();
+  waitForRecordCountToStabilizeToExpectedCount(h2RecordCount,timeInTwoMinutes);
 }

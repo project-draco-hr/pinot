@@ -1,0 +1,10 @@
+{
+  startZk();
+  kafkaStarter=KafkaStarterUtils.startServer(KafkaStarterUtils.DEFAULT_KAFKA_PORT,KafkaStarterUtils.DEFAULT_BROKER_ID,KafkaStarterUtils.DEFAULT_ZK_STR,KafkaStarterUtils.getDefaultKafkaConfiguration());
+  KafkaStarterUtils.createTopic(KAFKA_TOPIC,KafkaStarterUtils.DEFAULT_ZK_STR);
+  startController(true);
+  startBroker();
+  startServers(2);
+  createBrokerTenant("TestTenant",1);
+  createServerTenant("TestTenant",1,1);
+}

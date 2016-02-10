@@ -1,0 +1,15 @@
+{
+  int pinotRecordCount;
+  do {
+    Thread.sleep(5000L);
+    JSONObject response=postQuery("select count(*) from 'mytable'");
+    JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
+    JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
+    String pinotValue=firstAggregationResult.getString("value");
+    pinotRecordCount=Integer.parseInt(pinotValue);
+    LOGGER.info("Pinot record count: " + pinotRecordCount + "\tExpected count: "+ expectedRecordCount);
+    Assert.assertTrue(System.currentTimeMillis() < deadline,"Failed to read all records within the deadline");
+    TOTAL_DOCS=response.getLong("totalDocs");
+  }
+ while (expectedRecordCount != pinotRecordCount);
+}
