@@ -4,13 +4,15 @@
     return result;
   }
   IntIterator intIterator=answer.getIntIterator();
-  int docId, length;
-  while (intIterator.hasNext()) {
+  int docId=-1, length;
+  while (intIterator.hasNext() && docId < endDocId) {
     docId=intIterator.next();
-    valueIterator.skipTo(docId);
-    length=valueIterator.nextIntVal(intArray);
-    if (evaluator.apply(intArray,length)) {
-      result.add(docId);
+    if (docId >= startDocId) {
+      valueIterator.skipTo(docId);
+      length=valueIterator.nextIntVal(intArray);
+      if (evaluator.apply(intArray,length)) {
+        result.add(docId);
+      }
     }
   }
   return result;

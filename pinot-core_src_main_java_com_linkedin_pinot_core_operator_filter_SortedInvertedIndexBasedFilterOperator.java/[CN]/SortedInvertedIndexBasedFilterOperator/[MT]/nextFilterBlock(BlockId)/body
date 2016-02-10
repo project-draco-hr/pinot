@@ -7,7 +7,16 @@
   int[] dictionaryIds=evaluator.getMatchingDictionaryIds();
   for (int i=0; i < dictionaryIds.length; i++) {
     IntPair pair=invertedIndex.getMinMaxRangeFor(dictionaryIds[i]);
-    pairs.add(pair);
+    if (startDocId <= pair.getLeft() && pair.getRight() <= endDocId) {
+      pairs.add(pair);
+    }
+ else {
+      int newStart=Math.max(pair.getLeft(),startDocId);
+      int newEnd=Math.min(pair.getRight(),endDocId);
+      if (newStart <= newEnd) {
+        pairs.add(Pairs.intPair(newStart,newEnd));
+      }
+    }
   }
   LOGGER.debug("Creating a Sorted Block with pairs: {}",pairs);
   sortedBlock=new SortedBlock(dataSource.getOperatorName(),pairs);
