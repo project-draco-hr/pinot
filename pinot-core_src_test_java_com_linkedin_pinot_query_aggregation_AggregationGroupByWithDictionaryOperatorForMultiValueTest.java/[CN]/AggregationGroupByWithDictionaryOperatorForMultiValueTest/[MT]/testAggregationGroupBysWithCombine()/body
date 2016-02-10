@@ -1,8 +1,8 @@
 {
   final IntermediateResultsBlock block=getIntermediateResultsBlock();
   final List<AggregationFunctionGroupByOperator> aggregationFunctionGroupByOperatorList1=new ArrayList<AggregationFunctionGroupByOperator>();
-  Operator filterOperator1=new MatchEntireSegmentOperator(_indexSegment.getSegmentMetadata().getTotalRawDocs());
-  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(filterOperator1,_indexSegment.getSegmentMetadata().getTotalRawDocs(),5000);
+  Operator filterOperator1=new MatchEntireSegmentOperator(_indexSegment.getSegmentMetadata().getTotalDocs());
+  final BReusableFilteredDocIdSetOperator docIdSetOperator1=new BReusableFilteredDocIdSetOperator(filterOperator1,_indexSegment.getSegmentMetadata().getTotalDocs(),5000);
   final Map<String,DataSource> dataSourceMap1=getDataSourceMap();
   final MProjectionOperator projectionOperator1=new MProjectionOperator(dataSourceMap1,docIdSetOperator1);
   for (int i=0; i < _numAggregations; ++i) {

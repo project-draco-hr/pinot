@@ -1,7 +1,7 @@
 {
   File fwdIndexFile=new File(indexDir,column + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION);
   File invertedIndexFile=new File(indexDir,column + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
-  SingleColumnSingleValueReader fwdIndexReader=new FixedBitSingleValueReader(fwdIndexFile,metadata.getTotalRawDocs(),metadata.getBitsPerElement(),mode == ReadMode.mmap,metadata.hasNulls());
+  SingleColumnSingleValueReader fwdIndexReader=new FixedBitSingleValueReader(fwdIndexFile,metadata.getTotalDocs(),metadata.getBitsPerElement(),mode == ReadMode.mmap,metadata.hasNulls());
   BitmapInvertedIndexReader invertedIndex=null;
   if (loadInverted) {
     invertedIndex=createAndLoadInvertedIndexFor(column,fwdIndexReader,metadata,invertedIndexFile,mode,indexDir);

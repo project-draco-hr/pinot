@@ -9,18 +9,18 @@
     FileUtils.deleteQuietly(invertedIndexFile);
   }
   LOGGER.warn("did not find inverted index for colummn {}, creating it",column);
-  InvertedIndexCreator creator=new OffHeapBitmapInvertedIndexCreator(indexDir,metadata.getCardinality(),metadata.getTotalRawDocs(),metadata.getTotalNumberOfEntries(),metadata.toFieldSpec());
+  InvertedIndexCreator creator=new OffHeapBitmapInvertedIndexCreator(indexDir,metadata.getCardinality(),metadata.getTotalDocs(),metadata.getTotalNumberOfEntries(),metadata.toFieldSpec());
   if (!metadata.isSingleValue()) {
     SingleColumnMultiValueReader mvFwdIndex=(SingleColumnMultiValueReader)fwdIndex;
     int[] dictIds=new int[metadata.getMaxNumberOfMultiValues()];
-    for (int i=0; i < metadata.getTotalRawDocs(); i++) {
+    for (int i=0; i < metadata.getTotalDocs(); i++) {
       int len=mvFwdIndex.getIntArray(i,dictIds);
       creator.add(i,dictIds,len);
     }
   }
  else {
     FixedBitSingleValueReader svFwdIndex=(FixedBitSingleValueReader)fwdIndex;
-    for (int i=0; i < metadata.getTotalRawDocs(); i++) {
+    for (int i=0; i < metadata.getTotalDocs(); i++) {
       creator.add(i,svFwdIndex.getInt(i));
     }
   }
