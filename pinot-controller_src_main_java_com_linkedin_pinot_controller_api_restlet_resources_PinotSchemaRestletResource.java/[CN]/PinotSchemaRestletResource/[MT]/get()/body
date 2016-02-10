@@ -10,7 +10,7 @@
   }
  catch (  Exception e) {
     LOGGER.error("Caught exception while fetching schema ",e);
-    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
+    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_GET_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
     return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
   }
