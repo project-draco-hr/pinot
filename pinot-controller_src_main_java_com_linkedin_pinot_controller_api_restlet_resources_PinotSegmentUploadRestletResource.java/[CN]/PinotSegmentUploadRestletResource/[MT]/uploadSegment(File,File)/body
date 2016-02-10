@@ -13,6 +13,12 @@
  else {
     response=_pinotHelixResourceManager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
   }
-  setStatus((response.isSuccessfull() ? Status.SUCCESS_OK : Status.SERVER_ERROR_INTERNAL));
+  if (response.isSuccessfull()) {
+    setStatus(Status.SUCCESS_OK);
+  }
+ else {
+    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+  }
   return new StringRepresentation(response.toJSON().toString());
 }

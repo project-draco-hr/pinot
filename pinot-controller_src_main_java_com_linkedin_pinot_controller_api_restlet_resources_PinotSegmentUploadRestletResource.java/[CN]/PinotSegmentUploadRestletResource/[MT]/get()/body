@@ -15,6 +15,7 @@
  catch (  final Exception e) {
     presentation=exceptionToStringRepresentation(e);
     LOGGER.error("Caught exception while processing get request",e);
+    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;

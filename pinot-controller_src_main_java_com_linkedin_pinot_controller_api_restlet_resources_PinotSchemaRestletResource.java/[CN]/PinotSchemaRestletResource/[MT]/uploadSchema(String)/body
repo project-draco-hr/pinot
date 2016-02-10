@@ -10,6 +10,7 @@
  else {
         final String message="Schema name mismatch for uploaded schema, tried to add schema with name " + schema.getSchemaName() + " as "+ schemaName;
         LOGGER.warn(message);
+        ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
         setStatus(Status.SERVER_ERROR_INTERNAL);
         return new StringRepresentation(message,MediaType.TEXT_PLAIN);
       }
@@ -17,12 +18,14 @@
  catch (    Exception e) {
       LOGGER.error("error adding schema ",e);
       LOGGER.error("Caught exception in file upload",e);
+      ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
       setStatus(Status.SERVER_ERROR_INTERNAL);
       return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
     }
   }
  else {
     LOGGER.warn("No file was uploaded");
+    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
     return new StringRepresentation("schema not added",MediaType.TEXT_PLAIN);
   }
