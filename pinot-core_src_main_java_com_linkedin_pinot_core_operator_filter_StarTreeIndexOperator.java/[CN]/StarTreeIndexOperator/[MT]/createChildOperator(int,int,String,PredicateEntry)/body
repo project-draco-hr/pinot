@@ -1,0 +1,18 @@
+{
+  DataSource dataSource=segment.getDataSource(column);
+  DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
+  BaseFilterOperator childOperator;
+  if (dataSourceMetadata.hasInvertedIndex()) {
+    if (dataSourceMetadata.isSorted()) {
+      childOperator=new SortedInvertedIndexBasedFilterOperator(dataSource,startDocId,endDocId);
+    }
+ else {
+      childOperator=new BitmapBasedFilterOperator(dataSource,startDocId,endDocId);
+    }
+  }
+ else {
+    childOperator=new ScanBasedFilterOperator(dataSource,startDocId,endDocId);
+  }
+  childOperator.setPredicate(predicateEntry.predicate);
+  return childOperator;
+}

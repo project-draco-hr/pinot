@@ -13,13 +13,15 @@
   PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
   driver.run();
   Set<String> tables=new HashSet<String>();
-  File[] segments=new File(directory,offlineTableName).listFiles();
-  for (  File segmentDir : segments) {
-    SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segmentDir);
-    if (!tables.contains(segmentMetadata.getTableName())) {
-      driver.configureTable(segmentMetadata.getTableName(),invertedIndexColumns);
-      tables.add(segmentMetadata.getTableName());
+  for (  String offlineTableName : offlineTableNames) {
+    File[] segments=new File(directory,offlineTableName).listFiles();
+    for (    File segmentDir : segments) {
+      SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segmentDir);
+      if (!tables.contains(segmentMetadata.getTableName())) {
+        driver.configureTable(segmentMetadata.getTableName(),invertedIndexColumns);
+        tables.add(segmentMetadata.getTableName());
+      }
+      driver.addSegment(segmentMetadata);
     }
-    driver.addSegment(segmentMetadata);
   }
 }

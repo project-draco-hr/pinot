@@ -1,0 +1,18 @@
+{
+  int startDocId=matchedEntry.starTreeIndexnode.getStartDocumentId();
+  int endDocId=matchedEntry.starTreeIndexnode.getEndDocumentId();
+  List<Operator> childOperators=new ArrayList<>();
+  Map<String,PredicateEntry> remainingPredicatesMap=new HashMap<>();
+  for (  String column : matchedEntry.remainingPredicates) {
+    PredicateEntry predicateEntry=eligibleEqualityPredicatesMap.get(column);
+    remainingPredicatesMap.put(column,predicateEntry);
+  }
+  remainingPredicatesMap.putAll(inEligiblePredicatesMap);
+  remainingPredicatesMap.putAll(nonEqualityPredicatesMap);
+  for (  String column : remainingPredicatesMap.keySet()) {
+    PredicateEntry predicateEntry=remainingPredicatesMap.get(column);
+    BaseFilterOperator childOperator=createChildOperator(startDocId,endDocId - 1,column,predicateEntry);
+    childOperators.add(childOperator);
+  }
+  return childOperators;
+}

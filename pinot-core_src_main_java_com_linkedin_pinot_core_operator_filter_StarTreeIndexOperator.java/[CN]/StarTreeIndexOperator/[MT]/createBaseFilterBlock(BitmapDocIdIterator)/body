@@ -1,0 +1,29 @@
+{
+  return new BaseFilterBlock(){
+    @Override public FilterBlockDocIdSet getFilteredBlockDocIdSet(){
+      return new FilterBlockDocIdSet(){
+        @Override public BlockDocIdIterator iterator(){
+          return bitmapDocIdIterator;
+        }
+        @Override public <T>T getRaw(){
+          return null;
+        }
+        @Override public void setStartDocId(        int startDocId){
+        }
+        @Override public void setEndDocId(        int endDocId){
+        }
+        @Override public int getMinDocId(){
+          return 0;
+        }
+        @Override public int getMaxDocId(){
+          return segment.getSegmentMetadata().getTotalDocs() - 1;
+        }
+      }
+;
+    }
+    @Override public BlockId getId(){
+      return new BlockId(0);
+    }
+  }
+;
+}

@@ -1,22 +1,27 @@
 {
   for (  final String column : dictionaryCreatorMap.keySet()) {
-    Object columnValueToIndex=row.getValue(column);
-    if (columnValueToIndex == null) {
-      throw new RuntimeException("Null value for column:" + column);
-    }
-    if (schema.getFieldSpecFor(column).isSingleValueField()) {
-      int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
-      ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
-      if (invertedIndexCreatorMap.containsKey(column)) {
-        invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+    try {
+      Object columnValueToIndex=row.getValue(column);
+      if (columnValueToIndex == null) {
+        throw new RuntimeException("Null value for column:" + column);
       }
-    }
+      if (schema.getFieldSpecFor(column).isSingleValueField()) {
+        int dictionaryIndex=dictionaryCreatorMap.get(column).indexOfSV(columnValueToIndex);
+        ((SingleValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
+        if (invertedIndexCreatorMap.containsKey(column)) {
+          invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+        }
+      }
  else {
-      int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
-      ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
-      if (invertedIndexCreatorMap.containsKey(column)) {
-        invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+        int[] dictionaryIndex=dictionaryCreatorMap.get(column).indexOfMV(columnValueToIndex);
+        ((MultiValueForwardIndexCreator)forwardIndexCreatorMap.get(column)).index(docIdCounter,dictionaryIndex);
+        if (invertedIndexCreatorMap.containsKey(column)) {
+          invertedIndexCreatorMap.get(column).add(docIdCounter,dictionaryIndex);
+        }
       }
+    }
+ catch (    Exception e) {
+      throw new RuntimeException("Exception while indexing column:" + column,e);
     }
   }
   docIdCounter++;

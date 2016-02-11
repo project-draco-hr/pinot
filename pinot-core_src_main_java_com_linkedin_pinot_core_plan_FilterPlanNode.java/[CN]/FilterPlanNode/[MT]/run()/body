@@ -1,7 +1,14 @@
 {
   long start=System.currentTimeMillis();
-  Operator constructPhysicalOperator=constructPhysicalOperator(RequestUtils.generateFilterQueryTree(_brokerRequest));
+  Operator operator;
+  FilterQueryTree filterQueryTree=RequestUtils.generateFilterQueryTree(_brokerRequest);
+  if (_segment.getSegmentMetadata().hasStarTree() && isSimpleAggregation(_brokerRequest.getAggregationsInfo()) && isSimpleConjunction(filterQueryTree)) {
+    operator=new StarTreeIndexOperator(_segment,_brokerRequest);
+  }
+ else {
+    operator=constructPhysicalOperator(filterQueryTree);
+  }
   long end=System.currentTimeMillis();
   LOGGER.debug("FilterPlanNode.run took:{}",(end - start));
-  return constructPhysicalOperator;
+  return operator;
 }

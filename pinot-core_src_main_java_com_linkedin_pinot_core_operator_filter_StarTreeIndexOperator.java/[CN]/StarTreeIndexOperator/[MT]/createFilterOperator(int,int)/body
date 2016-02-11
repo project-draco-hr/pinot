@@ -1,0 +1,16 @@
+{
+  final MutableRoaringBitmap answer=new MutableRoaringBitmap();
+  answer.add(startDocId,endDocId);
+  return new BaseFilterOperator(){
+    @Override public boolean open(){
+      return true;
+    }
+    @Override public boolean close(){
+      return true;
+    }
+    @Override public BaseFilterBlock nextFilterBlock(    BlockId blockId){
+      return createBaseFilterBlock(new BitmapDocIdIterator(answer.getIntIterator()));
+    }
+  }
+;
+}

@@ -4,7 +4,7 @@
       startComponents(true,true,true,false);
     }
     if (args[0].equalsIgnoreCase("startServerWithPreLoadedSegments") || args[0].equalsIgnoreCase("startAll")) {
-      String offlineTableName=args[1];
+      String offlineTableNames=args[1];
       String indexRootDirectory=args[2];
       List<String> invertedIndexColumns=new ArrayList<>();
       if (args.length == 4) {
@@ -13,7 +13,7 @@
           invertedIndexColumns.add(columns[i].trim());
         }
       }
-      startServerWithPreLoadedSegments(indexRootDirectory,offlineTableName,invertedIndexColumns);
+      startServerWithPreLoadedSegments(indexRootDirectory,Lists.newArrayList(offlineTableNames.split(",")),invertedIndexColumns);
     }
   }
  else {

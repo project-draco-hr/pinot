@@ -1,81 +1,34 @@
 {
   MutableRoaringBitmap finalResult=null;
-  if (pathValuesToTraverse.values().contains(Constants.EOF)) {
+  if (emptyResult) {
     finalResult=new MutableRoaringBitmap();
+    final BitmapDocIdIterator bitmapDocIdIterator=new BitmapDocIdIterator(finalResult.getIntIterator());
+    return createBaseFilterBlock(bitmapDocIdIterator);
+  }
+  Queue<SearchEntry> matchedEntries=findMatchingLeafNodes();
+  List<Operator> matchingLeafOperators=new ArrayList<>();
+  for (  SearchEntry matchedEntry : matchedEntries) {
+    Operator matchingLeafOperator;
+    int startDocId=matchedEntry.starTreeIndexnode.getStartDocumentId();
+    int endDocId=matchedEntry.starTreeIndexnode.getEndDocumentId();
+    List<Operator> filterOperators=createFilterOperatorsForRemainingPredicates(matchedEntry);
+    if (filterOperators.size() == 0) {
+      matchingLeafOperator=createFilterOperator(startDocId,endDocId);
+    }
+ else     if (filterOperators.size() == 1) {
+      matchingLeafOperator=filterOperators.get(0);
+    }
+ else {
+      matchingLeafOperator=new AndOperator(filterOperators);
+    }
+    matchingLeafOperators.add(matchingLeafOperator);
+  }
+  if (matchingLeafOperators.size() == 1) {
+    BaseFilterOperator baseFilterOperator=(BaseFilterOperator)matchingLeafOperators.get(0);
+    return baseFilterOperator.nextFilterBlock(blockId);
   }
  else {
-    Queue<SearchEntry> matchedEntries=findMatchingLeafNodes();
-    for (    SearchEntry matchedEntry : matchedEntries) {
-      MutableRoaringBitmap answer=new MutableRoaringBitmap();
-      int startDocId=matchedEntry.starTreeIndexnode.getStartDocumentId();
-      int endDocId=matchedEntry.starTreeIndexnode.getEndDocumentId();
-      answer.add(startDocId,endDocId);
-      if (!matchedEntry.remainingColumnsToFilter.isEmpty()) {
-        for (        String column : matchedEntry.remainingColumnsToFilter) {
-          PathEntry pathEntry=pathValuesToTraverse.get(column);
-          Integer dictId=pathEntry.dictionaryId;
-          if (dictId == StarTreeIndexNode.all()) {
-            continue;
-          }
-          DataSource dataSource=segment.getDataSource(column);
-          DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
-          if (dataSourceMetadata.hasInvertedIndex()) {
-            if (dataSourceMetadata.isSorted()) {
-              IntPair minMaxRange=dataSource.getInvertedIndex().getMinMaxRangeFor(dictId);
-              MutableRoaringBitmap sortedRangeBitmap=new MutableRoaringBitmap();
-              sortedRangeBitmap.add(minMaxRange.getLeft(),minMaxRange.getRight() + 1);
-              answer.and(sortedRangeBitmap);
-            }
- else {
-              ImmutableRoaringBitmap bitmap=dataSource.getInvertedIndex().getImmutable(dictId);
-              answer.and(bitmap);
-            }
-          }
- else {
-            ScanBasedFilterOperator operator=new ScanBasedFilterOperator(dataSource,startDocId,endDocId - 1);
-            EqPredicate predicate=new EqPredicate(column,pathEntry.tree.getValue());
-            operator.setPredicate(predicate);
-            BlockDocIdIterator iterator=operator.getNextBlock().getBlockDocIdSet().iterator();
-            ScanBasedDocIdIterator scanBasedDocIdIterator=(ScanBasedDocIdIterator)iterator;
-            MutableRoaringBitmap scanAnswer=scanBasedDocIdIterator.applyAnd(answer);
-            answer.and(scanAnswer);
-          }
-        }
-      }
-      if (finalResult == null) {
-        finalResult=answer;
-      }
- else {
-        finalResult.or(answer);
-      }
-    }
+    OrOperator orOperator=new OrOperator(matchingLeafOperators);
+    return orOperator.nextFilterBlock(blockId);
   }
-  final BitmapDocIdIterator bitmapDocIdIterator=new BitmapDocIdIterator(finalResult.getIntIterator());
-  return new BaseFilterBlock(){
-    @Override public FilterBlockDocIdSet getFilteredBlockDocIdSet(){
-      return new FilterBlockDocIdSet(){
-        @Override public BlockDocIdIterator iterator(){
-          return bitmapDocIdIterator;
-        }
-        @Override public <T>T getRaw(){
-          return null;
-        }
-        @Override public void setStartDocId(        int startDocId){
-        }
-        @Override public void setEndDocId(        int endDocId){
-        }
-        @Override public int getMinDocId(){
-          return 0;
-        }
-        @Override public int getMaxDocId(){
-          return segment.getSegmentMetadata().getTotalDocs();
-        }
-      }
-;
-    }
-    @Override public BlockId getId(){
-      return new BlockId(0);
-    }
-  }
-;
 }

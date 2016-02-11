@@ -28,30 +28,7 @@ throw new UnsupportedOperationException("Not support filter type - " + filterTyp
  else {
 final FilterOperator filterType=filterQueryTree.getOperator();
 final String column=filterQueryTree.getColumn();
-Predicate predicate=null;
-final List<String> value=filterQueryTree.getValue();
-switch (filterType) {
-case EQUALITY:
-predicate=new EqPredicate(column,value);
-break;
-case RANGE:
-predicate=new RangePredicate(column,value);
-break;
-case REGEX:
-predicate=new RegexPredicate(column,value);
-break;
-case NOT:
-predicate=new NEqPredicate(column,value);
-break;
-case NOT_IN:
-predicate=new NotInPredicate(column,value);
-break;
-case IN:
-predicate=new InPredicate(column,value);
-break;
-default :
-throw new UnsupportedOperationException("Unsupported filterType:" + filterType);
-}
+Predicate predicate=Predicate.newPredicate(filterQueryTree);
 DataSource ds;
 ds=_segment.getDataSource(column);
 DataSourceMetadata dataSourceMetadata=ds.getDataSourceMetadata();

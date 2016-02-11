@@ -1,0 +1,15 @@
+{
+  String column=childFilter.getColumn();
+  Predicate predicate=Predicate.newPredicate(childFilter);
+  if (childFilter.getOperator() == FilterOperator.EQUALITY) {
+    EqPredicate eqPredicate=(EqPredicate)predicate;
+    int dictId=segment.getDataSource(column).getDictionary().indexOf(eqPredicate.getEqualsValue());
+    if (dictId < 0) {
+      emptyResult=true;
+    }
+    eligibleEqualityPredicatesMap.put(column,new PredicateEntry(predicate,dictId));
+  }
+ else {
+    nonEqualityPredicatesMap.put(column,new PredicateEntry(predicate,-1));
+  }
+}

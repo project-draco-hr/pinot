@@ -4,26 +4,32 @@
   HashBiMap<String,Integer> dimensionIndexToNameMapping=segment.getStarTree().getDimensionNameToIndexMap();
   SearchEntry startEntry=new SearchEntry();
   startEntry.starTreeIndexnode=segment.getStarTree().getRoot();
-  startEntry.remainingColumnsToFilter=new HashSet<>(pathValuesToTraverse.keySet());
+  startEntry.remainingPredicates=new HashSet<>(eligibleEqualityPredicatesMap.keySet());
   searchQueue.add(startEntry);
   while (!searchQueue.isEmpty()) {
     SearchEntry searchEntry=searchQueue.remove();
     StarTreeIndexNode current=searchEntry.starTreeIndexnode;
-    HashSet<String> remainingColumnsToFilter=searchEntry.remainingColumnsToFilter;
+    HashSet<String> remainingColumnsToFilter=searchEntry.remainingPredicates;
     if (current.isLeaf()) {
       matchedEntries.add(searchEntry);
       continue;
     }
     String nextDimension=dimensionIndexToNameMapping.inverse().get(current.getChildDimensionName());
-    HashSet<String> newRemainingColumnsToFilter=new HashSet<>();
-    newRemainingColumnsToFilter.addAll(remainingColumnsToFilter);
-    newRemainingColumnsToFilter.remove(nextDimension);
-    if (remainingColumnsToFilter.contains(nextDimension)) {
-      int nextValueId=pathValuesToTraverse.get(nextDimension).dictionaryId;
+    HashSet<String> newRemainingPredicates=new HashSet<>();
+    newRemainingPredicates.addAll(remainingColumnsToFilter);
+    newRemainingPredicates.remove(nextDimension);
+    if (!inEligiblePredicatesMap.containsKey(nextDimension) && !nonEqualityPredicatesMap.containsKey(nextDimension)) {
+      int nextValueId;
+      if (eligibleEqualityPredicatesMap.containsKey(nextDimension)) {
+        nextValueId=eligibleEqualityPredicatesMap.get(nextDimension).dictionaryId;
+      }
+ else {
+        nextValueId=StarTreeIndexNode.all();
+      }
       SearchEntry newEntry=new SearchEntry();
       newEntry.starTreeIndexnode=current.getChildren().get(nextValueId);
       if (newEntry.starTreeIndexnode != null) {
-        newEntry.remainingColumnsToFilter=newRemainingColumnsToFilter;
+        newEntry.remainingPredicates=newRemainingPredicates;
         searchQueue.add(newEntry);
       }
     }
@@ -32,7 +38,7 @@
         if (entry.getKey() != StarTreeIndexNode.all()) {
           SearchEntry newEntry=new SearchEntry();
           newEntry.starTreeIndexnode=entry.getValue();
-          newEntry.remainingColumnsToFilter=newRemainingColumnsToFilter;
+          newEntry.remainingPredicates=newRemainingPredicates;
           searchQueue.add(newEntry);
         }
       }
