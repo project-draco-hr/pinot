@@ -1,0 +1,11 @@
+def convert_to_iso(s):
+    result = None
+    m = re.search('daysago\\((\\d+)\\)', s)
+    if m:
+        daysago = (- int(m.group(1)))
+        today = datetime.combine(datetime.now(), datetime.min.time())
+        target_date = (today - timedelta(days=((-1) * daysago)))
+        result = target_date.isoformat()
+    else:
+        result = s
+    return result

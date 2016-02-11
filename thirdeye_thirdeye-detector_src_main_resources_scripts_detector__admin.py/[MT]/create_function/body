@@ -1,0 +1,7 @@
+@MultipleInps
+@Request
+def create_function(file_path):
+    print ('Creating function from file_path %s' % file_path)
+    with open(file_path, 'r') as f:
+        data = f.read()
+    return ('POST', FUNCTIONS_ENDPOINT, {'data': data, 'print_result': create_msg_success('function'), })

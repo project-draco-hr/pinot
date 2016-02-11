@@ -1,0 +1,19 @@
+def MultipleInps(func):
+
+    def func_wrapper(inps, **args):
+        results = []
+        failed = []
+        for inp in inps:
+            try:
+                if args:
+                    result = func(inp, **args)
+                else:
+                    result = func(inp)
+                results.append(result)
+            except Exception as e:
+                failed.append(inp)
+                print e
+        if failed:
+            print 'Failed: ', failed
+        return results
+    return func_wrapper

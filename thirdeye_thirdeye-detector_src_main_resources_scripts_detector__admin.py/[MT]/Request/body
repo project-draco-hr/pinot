@@ -1,0 +1,7 @@
+def Request(func):
+
+    def func_wrapper(*args, **kwargs):
+        curl_params = func(*args, **kwargs)
+        (status, reason, result) = client.curl(*curl_params)
+        return (status, reason, result)
+    return func_wrapper

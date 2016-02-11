@@ -1,0 +1,9 @@
+def default(self, line):
+    try:
+        args = vars(self.parser.parse_args(line.split()))
+        func = args.pop('func')
+        func(**args)
+    except SystemExit:
+        pass
+    except Exception as e:
+        print type(e), e

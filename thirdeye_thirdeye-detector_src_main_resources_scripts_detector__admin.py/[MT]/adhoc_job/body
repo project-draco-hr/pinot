@@ -1,0 +1,13 @@
+@MultipleInps
+@Request
+def adhoc_job(id, start=None, end=None):
+    if (bool(start) != bool(end)):
+        raise ValueError('Both start and end are required if either is present')
+    if (start and end):
+        start = convert_to_iso(start)
+        end = convert_to_iso(end)
+        print ('Running adhoc job id %d on window %s to %s' % (id, start, end))
+        return ('POST', (((JOBS_ENDPOINT + str(id)) + '/ad-hoc?') + urllib.urlencode({'start': start, 'end': end, })))
+    else:
+        print ('Running adhoc job id %d' % id)
+        return ('POST', ((JOBS_ENDPOINT + str(id)) + '/ad-hoc'))

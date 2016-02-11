@@ -1,0 +1,28 @@
+def curl_helper(self, method, endpoint, data=None, print_result=False, is_admin_request=False):
+    host = (self.application_host if (not is_admin_request) else self.admin_host)
+    print method, (host + endpoint), (data or '')
+    conn = httplib.HTTPConnection(host)
+    conn.request(method, endpoint, data, headers={'Content-type': 'application/json', })
+    resp = conn.getresponse()
+    result = resp.read()
+    conn.close()
+    status = resp.status
+    reason = resp.reason
+    print status, reason
+    if ((status == 200) and result):
+        try:
+            result = byteify(json.loads(result))
+        except Exception:
+            pass
+    if print_result:
+        if ((status == 200) or 204):
+            if callable(print_result):
+                result = print_result(result)
+            elif ((not result) and (type(print_result) == str)):
+                result = print_result
+        if result:
+            if (type(result) == str):
+                print result
+            else:
+                pprint(result)
+    return (resp.status, resp.reason, result)

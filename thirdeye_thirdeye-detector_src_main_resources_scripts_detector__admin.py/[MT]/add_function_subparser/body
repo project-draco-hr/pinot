@@ -1,0 +1,17 @@
+def add_function_subparser(subparsers):
+    ' GET, GET <id>, POST <data>, DELETE <id> '
+    functions = subparsers.add_parser('functions', help='anomaly function definitions')
+    function_subparsers = functions.add_subparsers()
+    show_parser = function_subparsers.add_parser('show', help='show all functions')
+    show_parser.set_defaults(func=show_functions)
+    show_ids_parser = function_subparsers.add_parser('show_ids', help='show only function ids')
+    show_ids_parser.set_defaults(func=show_function_ids)
+    find_parser = function_subparsers.add_parser('find', help='find a function')
+    find_parser.add_argument('inps', type=int, nargs='+', help='function ids', metavar='ids')
+    find_parser.set_defaults(func=find_function)
+    create_parser = function_subparsers.add_parser('create', help='create a new function')
+    create_parser.add_argument('inps', nargs='+', help='JSON files specifying functions to be created', metavar='file_paths')
+    create_parser.set_defaults(func=create_function)
+    delete_parser = function_subparsers.add_parser('delete', help='delete a function')
+    delete_parser.add_argument('inps', type=int, nargs='+', help='function ids', metavar='ids')
+    delete_parser.set_defaults(func=delete_function)

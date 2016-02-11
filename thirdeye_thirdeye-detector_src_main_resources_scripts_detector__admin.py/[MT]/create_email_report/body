@@ -1,0 +1,7 @@
+@MultipleInps
+@Request
+def create_email_report(file_path):
+    print ('Creating email report from file_path %s' % file_path)
+    with open(file_path, 'r') as f:
+        data = f.read()
+    return ('POST', EMAIL_REPORTS_ENDPOINT, {'data': data, 'print_result': create_email_report_helper, })

@@ -1,0 +1,9 @@
+@Request
+def show_anomaly_results_for_collection(collection, start, end=None):
+    start = convert_to_iso(start)
+    url = (((ANOMALY_RESULTS_ENDPOINT + str(collection)) + '/') + start)
+    if end:
+        end = convert_to_iso(end)
+        url += ('/' + end)
+    print url
+    return ('GET', url, {'print_result': True, })

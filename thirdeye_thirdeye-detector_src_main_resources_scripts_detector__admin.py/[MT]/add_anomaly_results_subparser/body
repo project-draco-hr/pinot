@@ -1,0 +1,12 @@
+def add_anomaly_results_subparser(subparsers):
+    ' GET <id>, GET <collection> <start> [<end>], POST <data>, DELETE <id> '
+    results = subparsers.add_parser('results', help='anomaly results')
+    results_subparser = results.add_subparsers()
+    find_parser = results_subparser.add_parser('find', help='find an anomaly result')
+    find_parser.add_argument('inps', type=int, nargs='+', help='result ids', metavar='ids')
+    find_parser.set_defaults(func=find_anomaly_result)
+    show_parser = results_subparser.add_parser('show', help='show anomaly results for a collection + time frame')
+    show_parser.add_argument('collection', help='thirdeye collection')
+    show_parser.add_argument('--start', help='start time in IS08601 or as daysago(#), default=daysago(7)', required=False, default=convert_to_iso('daysago(7)'))
+    show_parser.add_argument('--end', help='end time in IS08601 or as daysago(#)', required=False)
+    show_parser.set_defaults(func=show_anomaly_results_for_collection)
