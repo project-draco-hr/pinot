@@ -1,0 +1,22 @@
+{
+  Set<String> enabledAvroFiles=new HashSet<String>();
+  List<File> segmentsToUnpack=new ArrayList<File>();
+  for (  Map.Entry<File,File> avroAndSegment : _offlineAvroToSegmentMap.entrySet()) {
+    if (!enabledAvroFiles.contains(avroAndSegment.getKey().getName())) {
+      enabledAvroFiles.add(avroAndSegment.getKey().getName());
+      segmentsToUnpack.add(avroAndSegment.getValue());
+    }
+  }
+  for (  Pair<File,File> avroAndSegment : enabledRealtimeSegments) {
+    if (!enabledAvroFiles.contains(avroAndSegment.getLeft().getName())) {
+      enabledAvroFiles.add(avroAndSegment.getLeft().getName());
+      segmentsToUnpack.add(avroAndSegment.getRight());
+    }
+  }
+  ensureDirectoryExistsAndIsEmpty(_unpackedSegments);
+  for (  File file : segmentsToUnpack) {
+    System.out.println("unpacked file = " + file);
+    TarGzCompressionUtils.unTar(file,_unpackedSegments);
+  }
+  _scanBasedQueryProcessor=new ScanBasedQueryProcessor(_unpackedSegments.getAbsolutePath());
+}

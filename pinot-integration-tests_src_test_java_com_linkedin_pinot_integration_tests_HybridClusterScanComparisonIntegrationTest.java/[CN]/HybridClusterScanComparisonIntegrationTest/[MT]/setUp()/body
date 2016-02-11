@@ -1,0 +1,35 @@
+{
+  ensureDirectoryExistsAndIsEmpty(_tmpDir);
+  ensureDirectoryExistsAndIsEmpty(_segmentDir);
+  ensureDirectoryExistsAndIsEmpty(_offlineTarDir);
+  ensureDirectoryExistsAndIsEmpty(_realtimeTarDir);
+  ensureDirectoryExistsAndIsEmpty(_unpackedSegments);
+  startHybridCluster();
+  TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
+  _tmpDir.mkdirs();
+  final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
+  for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
+    avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
+  }
+  _schemaFile=getSchemaFile();
+  _schema=Schema.fromFile(_schemaFile);
+  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,_schemaFile,avroFiles.get(0));
+  final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
+  final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
+  ExecutorService executor=Executors.newCachedThreadPool();
+  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_offlineTarDir,"mytable");
+  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_segmentDir,_realtimeTarDir,"mytable");
+  setupQueryGenerator(avroFiles,executor);
+  _offlineAvroToSegmentMap=offlineAvroToSegmentMapFuture.get();
+  _realtimeAvroToSegmentMap=realtimeAvroToSegmentMapFuture.get();
+  executor.shutdown();
+  executor.awaitTermination(10,TimeUnit.MINUTES);
+  final CountDownLatch latch=setupSegmentCountCountDownLatch("mytable",OFFLINE_SEGMENT_COUNT);
+  int i=0;
+  for (  String segmentName : _offlineTarDir.list()) {
+    System.out.println("Uploading segment " + (i++) + " : "+ segmentName);
+    File file=new File(_offlineTarDir,segmentName);
+    FileUploadUtils.sendSegmentFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
+  }
+  latch.await();
+}
