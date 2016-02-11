@@ -48,15 +48,16 @@
       boolean notFull=true;
       long exceptionSleepMillis=50L;
       do {
+        GenericRow row=null;
         try {
-          GenericRow row=kafkaStreamProvider.next();
+          row=kafkaStreamProvider.next();
           if (row != null) {
             notFull=realtimeSegment.index(row);
             exceptionSleepMillis=50L;
           }
         }
  catch (        Exception e) {
-          LOGGER.warn("Caught exception while indexing row, sleeping for {} ms",exceptionSleepMillis,e);
+          LOGGER.warn("Caught exception while indexing row, sleeping for {} ms, row contents {}",exceptionSleepMillis,row,e);
           Uninterruptibles.sleepUninterruptibly(exceptionSleepMillis,TimeUnit.MILLISECONDS);
           exceptionSleepMillis=Math.min(60000L,exceptionSleepMillis * 2);
         }
