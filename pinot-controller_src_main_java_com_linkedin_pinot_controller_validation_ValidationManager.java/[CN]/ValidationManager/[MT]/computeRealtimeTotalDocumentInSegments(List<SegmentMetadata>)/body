@@ -1,0 +1,14 @@
+{
+  long totalDocumentCount=0;
+  HashSet<String> segmentGroupIdNameSet=new HashSet<>();
+  for (  SegmentMetadata segmentMetadata : segmentMetadataList) {
+    String segmentId=segmentMetadata.getName();
+    String segmentGroupIdName=SegmentNameBuilder.Realtime.extractGroupIdName(segmentId);
+    if (segmentGroupIdNameSet.contains(segmentGroupIdName)) {
+      continue;
+    }
+    totalDocumentCount+=segmentMetadata.getTotalRawDocs();
+    segmentGroupIdNameSet.add(segmentGroupIdName);
+  }
+  return totalDocumentCount;
+}
