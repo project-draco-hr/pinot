@@ -127,7 +127,7 @@ LOGGER.info("Timed out waiting for input");
 }
 }
 String thirdeyeCheckCompletenessClass=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_CHECK_COMPLETENESS_CLASS.getName());
-if (thirdeyeCheckCompletenessClass != null) {
+if (thirdeyeCheckCompletenessClass != null && !thirdeyeCheckCompletenessClass.isEmpty()) {
 LOGGER.info("Initializing class {}",thirdeyeCheckCompletenessClass);
 Constructor<?> constructor=Class.forName(thirdeyeCheckCompletenessClass).getConstructor();
 WaitUDF waitUdf=(WaitUDF)constructor.newInstance();

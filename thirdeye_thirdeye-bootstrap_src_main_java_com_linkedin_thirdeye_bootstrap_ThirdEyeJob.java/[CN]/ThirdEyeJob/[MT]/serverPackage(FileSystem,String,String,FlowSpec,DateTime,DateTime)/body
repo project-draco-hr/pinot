@@ -6,6 +6,9 @@
   Path dataPath=new Path(bootstrapPhase2Output);
   String outputTarGzFile=metricIndexDir + "/data.tar.gz";
   Path outputTarGzFilePath=new Path(outputTarGzFile);
+  if (fileSystem.exists(outputTarGzFilePath)) {
+    fileSystem.delete(outputTarGzFilePath,false);
+  }
   LOGGER.info("START: Creating output {} to upload to server ",outputTarGzFilePath.getName());
   fileSystem.delete(new Path(dataPath,StarTreeConstants.METADATA_FILE_NAME),false);
   TarGzBuilder builder=new TarGzBuilder(outputTarGzFile,fileSystem,fileSystem);

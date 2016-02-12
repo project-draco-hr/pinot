@@ -13,8 +13,11 @@
   Schema.Parser parser=new Schema.Parser();
   Schema outputSchema=parser.parse(fs.open(new Path(outputSchemaPath)));
   LOGGER.info("{}",outputSchema);
-  String outputPathDir=getAndSetConfiguration(configuration,TRANSFORM_OUTPUT_PATH);
-  FileOutputFormat.setOutputPath(job,new Path(outputPathDir));
+  Path outputPath=new Path(getAndSetConfiguration(configuration,TRANSFORM_OUTPUT_PATH));
+  if (fs.exists(outputPath)) {
+    fs.delete(outputPath,true);
+  }
+  FileOutputFormat.setOutputPath(job,outputPath);
   String sources=getAndSetConfiguration(configuration,TRANSFORM_SOURCE_NAMES);
   List<String> sourceNames=Arrays.asList(sources.split(","));
   Map<String,String> schemaMap=new HashMap<String,String>();
