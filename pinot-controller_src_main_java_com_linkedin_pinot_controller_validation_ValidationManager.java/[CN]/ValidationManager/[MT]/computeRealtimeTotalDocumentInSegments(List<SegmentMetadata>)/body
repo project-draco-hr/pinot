@@ -1,13 +1,13 @@
 {
   long totalDocumentCount=0;
-  String groupId=new String();
+  String groupId="";
   for (  SegmentMetadata segmentMetadata : segmentMetadataList) {
     String segmentName=segmentMetadata.getName();
     String segmentGroupIdName=SegmentNameBuilder.Realtime.extractGroupIdName(segmentName);
     if (groupId.isEmpty()) {
       groupId=segmentGroupIdName;
     }
-    if (groupId.equals(segmentGroupIdName)) {
+    if (groupId.equals(segmentGroupIdName) && segmentMetadata.getTotalRawDocs() >= 0) {
       totalDocumentCount+=segmentMetadata.getTotalRawDocs();
     }
   }

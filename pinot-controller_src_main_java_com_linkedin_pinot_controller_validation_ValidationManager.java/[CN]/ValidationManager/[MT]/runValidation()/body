@@ -13,8 +13,8 @@
       for (      RealtimeSegmentZKMetadata realtimeSegmentZKMetadata : realtimeSegmentZKMetadatas) {
         SegmentMetadata segmentMetadata=new SegmentMetadataImpl(realtimeSegmentZKMetadata);
         segmentMetadataList.add(segmentMetadata);
-        _validationMetrics.updateTotalDocumentsGauge(tableName,computeRealtimeTotalDocumentInSegments(segmentMetadataList));
       }
+      _validationMetrics.updateTotalDocumentsGauge(tableName,computeRealtimeTotalDocumentInSegments(segmentMetadataList));
     }
  else {
       List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineSegmentZKMetadataListForTable(propertyStore,tableName);
