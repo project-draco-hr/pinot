@@ -1,0 +1,26 @@
+{
+  if (tree != null && tree.getChildren() != null && !tree.getChildren().isEmpty()) {
+    if (tree.getOperator() != FilterOperator.AND) {
+      return false;
+    }
+    Set<String> predicateColumns=new HashSet<>();
+    for (    FilterQueryTree child : tree.getChildren()) {
+      if (child.getChildren() != null && !child.getChildren().isEmpty()) {
+        return false;
+      }
+      if (predicateColumns.contains(child.getColumn())) {
+        return false;
+      }
+      predicateColumns.add(child.getColumn());
+    }
+  }
+  if (aggregationsInfo == null || aggregationsInfo.isEmpty()) {
+    return false;
+  }
+  for (  AggregationInfo aggregationInfo : aggregationsInfo) {
+    if (!aggregationInfo.getAggregationType().equalsIgnoreCase("sum")) {
+      return false;
+    }
+  }
+  return true;
+}
