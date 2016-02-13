@@ -18,7 +18,7 @@
     HashSet<String> newRemainingPredicates=new HashSet<>();
     newRemainingPredicates.addAll(remainingColumnsToFilter);
     newRemainingPredicates.remove(nextDimension);
-    if (!inEligiblePredicatesMap.containsKey(nextDimension) && !nonEqualityPredicatesMap.containsKey(nextDimension)) {
+    if (!(inEligiblePredicatesMap.containsKey(nextDimension) || nonEqualityPredicatesMap.containsKey(nextDimension))) {
       int nextValueId;
       if (eligibleEqualityPredicatesMap.containsKey(nextDimension)) {
         nextValueId=eligibleEqualityPredicatesMap.get(nextDimension).dictionaryId;

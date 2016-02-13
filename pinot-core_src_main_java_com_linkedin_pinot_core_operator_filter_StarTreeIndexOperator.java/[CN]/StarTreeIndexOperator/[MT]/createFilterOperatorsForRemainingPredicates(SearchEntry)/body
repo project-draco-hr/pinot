@@ -11,8 +11,10 @@
   remainingPredicatesMap.putAll(nonEqualityPredicatesMap);
   for (  String column : remainingPredicatesMap.keySet()) {
     PredicateEntry predicateEntry=remainingPredicatesMap.get(column);
-    BaseFilterOperator childOperator=createChildOperator(startDocId,endDocId - 1,column,predicateEntry);
-    childOperators.add(childOperator);
+    if (predicateEntry != null) {
+      BaseFilterOperator childOperator=createChildOperator(startDocId,endDocId - 1,column,predicateEntry);
+      childOperators.add(childOperator);
+    }
   }
   return childOperators;
 }
