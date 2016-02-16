@@ -1,0 +1,35 @@
+{
+  _segmentDirName=segmentDirName;
+  File segmentsDir=new File(_segmentDirName);
+  File segment=segmentsDir.listFiles()[0];
+  if (segment.isFile()) {
+    File tmpDir=File.createTempFile("query-comparison",null,new File("/tmp"));
+    FileUtils.deleteQuietly(tmpDir);
+    tmpDir.mkdir();
+    TarGzCompressionUtils.unTar(segment,tmpDir);
+  }
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segment);
+  Schema schema=segmentMetadata.getSchema();
+  _dictionaryMap=new HashMap<>();
+  _dimensionColumns=schema.getDimensionNames();
+  _metricColumns=schema.getMetricNames();
+  for (  DimensionFieldSpec fieldSpec : schema.getDimensionFieldSpecs()) {
+    if (!fieldSpec.isSingleValueField()) {
+      continue;
+    }
+    String column=fieldSpec.getName();
+    IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(segment,ReadMode.heap);
+    Dictionary dictionary=indexSegment.getDictionaryFor(column);
+    _dictionaryMap.put(column,dictionary);
+  }
+  _valuesMap=new HashMap<>(_dimensionColumns.size());
+  for (  String column : _dimensionColumns) {
+    Dictionary dictionary=_dictionaryMap.get(column);
+    int numValues=dictionary.length();
+    List<String> values=new ArrayList<>(numValues);
+    for (int i=0; i < numValues; ++i) {
+      values.add(dictionary.get(i).toString());
+    }
+    _valuesMap.put(column,values);
+  }
+}

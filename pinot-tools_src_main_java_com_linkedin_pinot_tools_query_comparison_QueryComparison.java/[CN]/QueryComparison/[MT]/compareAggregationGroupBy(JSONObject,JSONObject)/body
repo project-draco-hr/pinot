@@ -1,26 +1,26 @@
 {
-  JSONArray clusterGroupByResults=clusterJson.getJSONArray(AGGREGATION_RESULTS);
-  JSONArray scanGroupByResults=scanJson.getJSONArray(AGGREGATION_RESULTS);
-  int numClusterGroupBy=clusterGroupByResults.length();
-  int numScanGroupBy=scanGroupByResults.length();
+  JSONArray flowGroupByResults=flowJson.getJSONArray(AGGREGATION_RESULTS);
+  JSONArray refGroupByResults=refJson.getJSONArray(AGGREGATION_RESULTS);
+  int numFlowGroupBy=flowGroupByResults.length();
+  int numRefGroupBy=refGroupByResults.length();
   Map<String,Integer> functionMap=new HashMap<>();
-  for (int i=0; i < numScanGroupBy; ++i) {
-    JSONObject scanAggr=scanGroupByResults.getJSONObject(i);
-    String scanFunction=scanAggr.getString(FUNCTION).toLowerCase();
-    functionMap.put(scanFunction,i);
+  for (int i=0; i < numRefGroupBy; ++i) {
+    JSONObject refAggr=refGroupByResults.getJSONObject(i);
+    String refFunction=refAggr.getString(FUNCTION).toLowerCase();
+    functionMap.put(refFunction,i);
   }
-  for (int i=0; i < numClusterGroupBy; ++i) {
-    JSONObject clusterAggr=clusterGroupByResults.getJSONObject(i);
-    String clusterFunction=clusterAggr.getString(FUNCTION).toLowerCase();
-    if (!functionMap.containsKey(clusterFunction)) {
-      LOGGER.error("Missing group by function in scan: {}",clusterFunction);
+  for (int i=0; i < numFlowGroupBy; ++i) {
+    JSONObject flowAggr=flowGroupByResults.getJSONObject(i);
+    String flowFunction=flowAggr.getString(FUNCTION).toLowerCase();
+    if (!functionMap.containsKey(flowFunction)) {
+      LOGGER.error("Missing group by function in ref response: {}",flowFunction);
       return false;
     }
-    JSONObject scanAggr=scanGroupByResults.getJSONObject(functionMap.get(clusterFunction));
-    if (!compareGroupByColumns(clusterAggr,scanAggr)) {
+    JSONObject refAggr=refGroupByResults.getJSONObject(functionMap.get(flowFunction));
+    if (!compareGroupByColumns(flowAggr,refAggr)) {
       return false;
     }
-    if (!compareAggregationValues(clusterAggr,scanAggr)) {
+    if (!compareAggregationValues(flowAggr,refAggr)) {
       return false;
     }
   }

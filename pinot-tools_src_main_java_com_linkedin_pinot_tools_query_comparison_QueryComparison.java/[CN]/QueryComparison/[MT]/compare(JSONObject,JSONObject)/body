@@ -1,11 +1,12 @@
 {
-  if ((clusterJson.getInt(NUM_DOCS_SCANNED) == 0) && scanJson.getInt(NUM_DOCS_SCANNED) == 0) {
+  if ((flowJson.getInt(NUM_DOCS_SCANNED) == 0) && refJson.getInt(NUM_DOCS_SCANNED) == 0) {
+    LOGGER.info("Empty results, nothing to compare.");
     return true;
   }
-  if (!compareSelection(clusterJson,scanJson)) {
+  if (!compareSelection(flowJson,refJson)) {
     return false;
   }
-  if (!compareAggregation(clusterJson,scanJson)) {
+  if (!compareAggregation(flowJson,refJson)) {
     return false;
   }
   return true;

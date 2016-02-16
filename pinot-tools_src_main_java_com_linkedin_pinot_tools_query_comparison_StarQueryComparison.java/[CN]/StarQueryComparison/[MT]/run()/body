@@ -1,0 +1,24 @@
+{
+  _startTreeCluster.start();
+  _refCluster.start();
+  SegmentDictionaryReader segmentDictionaryReader=new SegmentDictionaryReader(_segmentDirName);
+  StarTreeQueryGenerator queryGenerator=new StarTreeQueryGenerator(_tableName,segmentDictionaryReader.getDimensionColumns(),segmentDictionaryReader.getMetricColumns(),segmentDictionaryReader.getValues());
+  boolean ret=true;
+  for (int i=0; i < _numQueries; i++) {
+    String query=queryGenerator.nextQuery();
+    LOGGER.info("QUERY: {}",query);
+    JSONObject refResponse=new JSONObject(_refCluster.query(query));
+    JSONObject starTreeResponse=new JSONObject((_startTreeCluster.query(query)));
+    QueryComparison.setCompareNumDocs(false);
+    if (QueryComparison.compare(refResponse,starTreeResponse)) {
+      LOGGER.error("Comparison PASSED: {}",query);
+    }
+ else {
+      ret=false;
+      LOGGER.error("Comparison FAILED: {}",query);
+      LOGGER.info("Ref Response: {}",_refCluster.query(query));
+      LOGGER.info("StarTree Response: {}",_startTreeCluster.query(query));
+    }
+  }
+  return ret;
+}

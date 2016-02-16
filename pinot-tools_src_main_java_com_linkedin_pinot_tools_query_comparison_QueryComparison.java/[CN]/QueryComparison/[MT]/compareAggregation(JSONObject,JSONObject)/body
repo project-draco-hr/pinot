@@ -1,17 +1,17 @@
 {
-  if ((clusterJson.getJSONArray(AGGREGATION_RESULTS).length() == 0) && !scanJson.has(AGGREGATION_RESULTS)) {
+  if ((flowJson.getJSONArray(AGGREGATION_RESULTS).length() == 0) && !refJson.has(AGGREGATION_RESULTS)) {
     return true;
   }
-  if (!compareNumDocsScanned(clusterJson,scanJson)) {
+  if (_compareNumDocs && !compareNumDocsScanned(flowJson,refJson)) {
     return false;
   }
-  JSONArray clusterAggregation=clusterJson.getJSONArray(AGGREGATION_RESULTS);
-  if (clusterAggregation.length() == 0) {
+  JSONArray flowAggregation=flowJson.getJSONArray(AGGREGATION_RESULTS);
+  if (flowAggregation.length() == 0) {
     return true;
   }
-  if (clusterAggregation.getJSONObject(0).has(GROUP_BY_RESULT)) {
-    return compareAggregationGroupBy(clusterJson,scanJson);
+  if (flowAggregation.getJSONObject(0).has(GROUP_BY_RESULT)) {
+    return compareAggregationGroupBy(flowJson,refJson);
   }
-  JSONArray scanAggregation=scanJson.getJSONArray(AGGREGATION_RESULTS);
-  return compareAggregationArrays(clusterAggregation,scanAggregation);
+  JSONArray refAggregation=refJson.getJSONArray(AGGREGATION_RESULTS);
+  return compareAggregationArrays(flowAggregation,refAggregation);
 }

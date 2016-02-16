@@ -1,15 +1,15 @@
 {
-  int clusterSize=clusterList.length();
-  int scanSize=scanList.length();
-  if (clusterSize != scanSize) {
-    LOGGER.error("Number of columns mismatch: Cluster: {} Scan: {}",clusterSize,scanSize);
+  int flowSize=flowList.length();
+  int refSize=refList.length();
+  if (flowSize != refSize) {
+    LOGGER.error("Number of columns mismatch: Flow: {} Ref: {}",flowSize,refSize);
     return false;
   }
-  for (int i=0; i < scanList.length(); ++i) {
-    String clusterColumn=clusterList.getString(i);
-    String scanColumn=scanList.getString(i);
-    if (!clusterColumn.equals(scanColumn)) {
-      LOGGER.error("Column name mis-match: Cluster: {} Scan: {}",clusterColumn,scanColumn);
+  for (int i=0; i < refList.length(); ++i) {
+    String flowColumn=flowList.getString(i);
+    String refColumn=refList.getString(i);
+    if (!flowColumn.equals(refColumn)) {
+      LOGGER.error("Column name mis-match: Flow: {} Ref: {}",flowColumn,refColumn);
       return false;
     }
   }

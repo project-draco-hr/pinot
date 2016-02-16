@@ -1,0 +1,14 @@
+{
+  if (args.length != 1) {
+    LOGGER.info("Usage: <exec> <config_file_path>");
+  }
+  File configFile=new File(args[0]);
+  try {
+    StarQueryComparison comparator=new StarQueryComparison(new QueryComparisonConfig(configFile));
+    comparator.run();
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception caught when comparing queries",e);
+  }
+  System.exit(0);
+}

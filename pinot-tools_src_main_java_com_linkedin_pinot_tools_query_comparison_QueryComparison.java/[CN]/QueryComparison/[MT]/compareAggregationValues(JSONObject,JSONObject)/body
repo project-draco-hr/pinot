@@ -1,23 +1,23 @@
 {
-  JSONArray clusterResult=clusterAggr.getJSONArray(GROUP_BY_RESULT);
-  JSONArray scanResult=scanAggr.getJSONArray(GROUP_BY_RESULT);
-  Map<GroupByOperator,Double> scanMap=new HashMap<>();
-  for (int i=0; i < scanResult.length(); ++i) {
-    List<Object> group=jsonArrayToList(scanResult.getJSONObject(i).getJSONArray(GROUP));
+  JSONArray flowResult=flowAggr.getJSONArray(GROUP_BY_RESULT);
+  JSONArray refResult=refAggr.getJSONArray(GROUP_BY_RESULT);
+  Map<GroupByOperator,Double> refMap=new HashMap<>();
+  for (int i=0; i < refResult.length(); ++i) {
+    List<Object> group=jsonArrayToList(refResult.getJSONObject(i).getJSONArray(GROUP));
     GroupByOperator groupByOperator=new GroupByOperator(group);
-    scanMap.put(groupByOperator,scanResult.getJSONObject(i).getDouble(VALUE));
+    refMap.put(groupByOperator,refResult.getJSONObject(i).getDouble(VALUE));
   }
-  for (int i=0; i < clusterResult.length(); ++i) {
-    List<Object> group=jsonArrayToList(clusterResult.getJSONObject(i).getJSONArray(GROUP));
+  for (int i=0; i < flowResult.length(); ++i) {
+    List<Object> group=jsonArrayToList(flowResult.getJSONObject(i).getJSONArray(GROUP));
     GroupByOperator groupByOperator=new GroupByOperator(group);
-    double clusterValue=clusterResult.getJSONObject(i).getDouble(VALUE);
-    if (!scanMap.containsKey(groupByOperator)) {
+    double flowValue=flowResult.getJSONObject(i).getDouble(VALUE);
+    if (!refMap.containsKey(groupByOperator)) {
       LOGGER.error("Missing group by value for group: {}",group);
       return false;
     }
-    double scanValue=scanMap.get(groupByOperator);
-    if (!fuzzyEqual(clusterValue,scanValue)) {
-      LOGGER.error("Aggregation group by value mis-match: Cluster: {}, Scan: {}",clusterValue,scanValue);
+    double refValue=refMap.get(groupByOperator);
+    if (!fuzzyEqual(flowValue,refValue)) {
+      LOGGER.error("Aggregation group by value mis-match: Flow: {}, Ref: {}",flowValue,refValue);
       return false;
     }
   }

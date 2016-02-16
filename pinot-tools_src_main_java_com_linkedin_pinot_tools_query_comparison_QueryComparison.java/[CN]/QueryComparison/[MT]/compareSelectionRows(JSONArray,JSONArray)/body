@@ -1,20 +1,20 @@
 {
-  int numClusterRows=clusterRows.length();
-  int numScanRows=scanRows.length();
-  for (int i=0; i < numClusterRows; ++i) {
-    JSONArray clusterRow=clusterRows.getJSONArray(i);
-    JSONArray scanRow=scanRows.getJSONArray(i);
-    int numClusterCols=clusterRow.length();
-    int numScanCols=scanRow.length();
-    if (numClusterCols != numClusterCols) {
-      LOGGER.error("Number of columns mis-match: Cluster: {} Scan: {}",numClusterCols,numScanCols);
+  int numFlowRows=flowRows.length();
+  int numRefRows=refRows.length();
+  for (int i=0; i < numFlowRows; ++i) {
+    JSONArray flowRow=flowRows.getJSONArray(i);
+    JSONArray refRow=refRows.getJSONArray(i);
+    int numFlowCols=flowRow.length();
+    int numRefCols=refRow.length();
+    if (numFlowCols != numFlowCols) {
+      LOGGER.error("Number of columns mis-match: Flow: {} Ref: {}",numFlowCols,numRefCols);
       return false;
     }
-    for (int j=0; j < numClusterCols; ++j) {
-      String clusterVal=clusterRow.getString(j);
-      String scanVal=scanRow.getString(j);
-      if (!compareAsNumber(clusterVal,scanVal) && !compareAsString(clusterVal,scanVal)) {
-        LOGGER.error("Value mis-match: Cluster {} Scan: {}",clusterVal,scanVal);
+    for (int j=0; j < numFlowCols; ++j) {
+      String flowVal=flowRow.getString(j);
+      String refVal=refRow.getString(j);
+      if (!compareAsNumber(flowVal,refVal) && !compareAsString(flowVal,refVal)) {
+        LOGGER.error("Value mis-match: Flow {} Ref: {}",flowVal,refVal);
         return false;
       }
     }

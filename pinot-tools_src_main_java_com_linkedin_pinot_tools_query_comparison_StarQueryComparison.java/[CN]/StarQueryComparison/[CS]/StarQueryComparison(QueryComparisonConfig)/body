@@ -1,0 +1,15 @@
+{
+  _segmentDirName=config.getSegmentsDir();
+  _tableName=config.getTableName();
+  String starCluster=config.getClusterName() + STAR;
+  String starSegmentDir=_segmentDirName + STAR;
+  _startTreeCluster=new ClusterStarter(config);
+  _startTreeCluster.setClusterName(starCluster);
+  _startTreeCluster.setEnableStarTree(true);
+  _startTreeCluster.setSegmentDirName(starSegmentDir);
+  String controllerPort=config.getRefControllerPort();
+  String brokerHost=config.getRefBrokerHost();
+  String brokerPort=config.getRefBrokerPort();
+  String serverPort=config.getRefServerPort();
+  _refCluster=new ClusterStarter(config).setControllerPort(controllerPort).setBrokerHost(brokerHost).setBrokerPort(brokerPort).setServerPort(serverPort).setStartZookeeper(true);
+}

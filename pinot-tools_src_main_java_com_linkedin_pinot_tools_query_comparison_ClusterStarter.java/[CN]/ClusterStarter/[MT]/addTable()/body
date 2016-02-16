@@ -1,16 +1,14 @@
 {
-  String tableConfigFile=_config.getTableConfigFile();
-  if (tableConfigFile != null) {
-    AddTableCommand addTableCommand=new AddTableCommand().setControllerPort(_controllerPort).setFilePath(tableConfigFile).setExecute(true);
+  if (_tableConfigFile != null) {
+    AddTableCommand addTableCommand=new AddTableCommand().setControllerPort(_controllerPort).setFilePath(_tableConfigFile).setExecute(true);
     addTableCommand.execute();
     return;
   }
-  String tableName=_config.getTableName();
-  if (tableName == null) {
+  if (_tableName == null) {
     LOGGER.error("Table info not specified in configuration, please specify either config file or table name");
     return;
   }
   String controllerAddress="http://" + _localhost + ":"+ _controllerPort;
-  JSONObject request=ControllerRequestBuilder.buildCreateOfflineTableJSON(tableName,"server","broker",_config.getTimeColumnName(),_config.getTimeUnit(),"","",3,"BalanceNumSegmentAssignmentStrategy");
+  JSONObject request=ControllerRequestBuilder.buildCreateOfflineTableJSON(_tableName,"server","broker",_timeColumnName,_timeUnit,"","",3,"BalanceNumSegmentAssignmentStrategy");
   sendPostRequest(ControllerRequestURLBuilder.baseUrl(controllerAddress).forTableCreate(),request.toString());
 }
