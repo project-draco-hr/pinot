@@ -11,7 +11,7 @@
   }
   tableDataManager.init(config);
   tableDataManager.start();
-  Field segsMapField=OfflineTableDataManager.class.getDeclaredField("_segmentsMap");
+  Field segsMapField=AbstractTableDataManager.class.getDeclaredField("_segmentsMap");
   segsMapField.setAccessible(true);
   _internalSegMap=(Map<String,OfflineSegmentDataManager>)segsMapField.get(tableDataManager);
   return tableDataManager;

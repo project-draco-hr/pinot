@@ -1,4 +1,5 @@
 {
+  super();
   this.schema=schema;
   IndexingConfig indexingConfig=tableConfig.getIndexingConfig();
   if (indexingConfig.getSortedColumn().isEmpty()) {
@@ -28,14 +29,12 @@
   if (!resourceTmpDir.exists()) {
     resourceTmpDir.mkdirs();
   }
-  this.mode=mode;
   this.kafkaStreamProvider=StreamProviderFactory.buildStreamProvider();
   this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
   this.kafkaStreamProvider.start();
   realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment());
   realtimeSegment.setSegmentName(segmentMetadata.getSegmentName());
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
-  indexSegment=realtimeSegment;
   notifier=realtimeResourceManager;
   segmentStatusTask=new TimerTask(){
     @Override public void run(){
@@ -83,7 +82,6 @@ catch (        Error e) {
         long startTime=realtimeSegment.getMinTime();
         long endTime=realtimeSegment.getMaxTime();
         TimeUnit timeUnit=schema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType();
-        swap();
         RealtimeSegmentZKMetadata metadaToOverrite=new RealtimeSegmentZKMetadata();
         metadaToOverrite.setTableName(segmentMetadata.getTableName());
         metadaToOverrite.setSegmentName(segmentMetadata.getSegmentName());
@@ -93,10 +91,25 @@ catch (        Error e) {
         metadaToOverrite.setEndTime(endTime);
         metadaToOverrite.setTotalRawDocs(realtimeSegment.getSegmentMetadata().getTotalDocs());
         metadaToOverrite.setTimeUnit(timeUnit);
-        notifier.notify(metadaToOverrite);
-        kafkaStreamProvider.commit();
-        kafkaStreamProvider.shutdown();
-        realtimeSegment=null;
+        Configuration configuration=new PropertyListConfiguration();
+        configuration.setProperty(IndexLoadingConfigMetadata.KEY_OF_LOADING_INVERTED_INDEX,invertedIndexColumns);
+        IndexLoadingConfigMetadata configMetadata=new IndexLoadingConfigMetadata(configuration);
+        IndexSegment segment=Loaders.IndexSegment.load(new File(resourceDir,segmentMetatdaZk.getSegmentName()),mode,configMetadata);
+        notifier.notifySegmentCommitted(metadaToOverrite,segment);
+        boolean commitSuccessful=false;
+        try {
+          kafkaStreamProvider.commit();
+          commitSuccessful=true;
+          kafkaStreamProvider.shutdown();
+        }
+ catch (        Throwable e) {
+          LOGGER.error("FATAL: Exception committing or shutting down consumer for segment {} table {}:commitSuccessful={}",segmentName,segmentMetadata.getTableName(),commitSuccessful,e);
+          if (!commitSuccessful) {
+            kafkaStreamProvider.shutdown();
+          }
+          throw e;
+        }
+        LOGGER.info("Successfully closed and committed kafka for {}",segmentName);
       }
  catch (      Exception e) {
         LOGGER.error("Caught exception in the realtime indexing thread",e);

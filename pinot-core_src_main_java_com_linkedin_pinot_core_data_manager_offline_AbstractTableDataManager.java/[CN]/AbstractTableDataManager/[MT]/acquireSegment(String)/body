@@ -1,0 +1,13 @@
+{
+  try {
+    _rwLock.readLock().lock();
+    SegmentDataManager segmentDataManager=_segmentsMap.get(segmentName);
+    if (segmentDataManager != null) {
+      segmentDataManager.incrementRefCnt();
+    }
+    return segmentDataManager;
+  }
+  finally {
+    _rwLock.readLock().unlock();
+  }
+}

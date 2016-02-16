@@ -1,0 +1,18 @@
+{
+  List<SegmentDataManager> ret=new ArrayList<SegmentDataManager>();
+  try {
+    _rwLock.readLock().lock();
+    for (    String segName : segmentList) {
+      SegmentDataManager segmentDataManager;
+      segmentDataManager=_segmentsMap.get(segName);
+      if (segmentDataManager != null) {
+        segmentDataManager.incrementRefCnt();
+        ret.add(segmentDataManager);
+      }
+    }
+  }
+  finally {
+    _rwLock.readLock().unlock();
+  }
+  return ret;
+}

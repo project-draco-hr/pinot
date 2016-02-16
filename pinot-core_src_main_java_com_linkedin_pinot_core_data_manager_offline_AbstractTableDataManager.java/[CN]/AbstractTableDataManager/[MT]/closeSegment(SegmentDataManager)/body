@@ -1,0 +1,9 @@
+{
+  final String segmentName=segmentDataManager.getSegmentName();
+  LOGGER.info("Closing segment {} for table {}",segmentName,_tableName);
+  _currentNumberOfSegments.dec();
+  _numDeletedSegments.inc();
+  _currentNumberOfDocuments.dec(segmentDataManager.getSegment().getSegmentMetadata().getTotalRawDocs());
+  segmentDataManager.getSegment().destroy();
+  LOGGER.info("Segment {} for table {} has been closed",segmentName,_tableName);
+}

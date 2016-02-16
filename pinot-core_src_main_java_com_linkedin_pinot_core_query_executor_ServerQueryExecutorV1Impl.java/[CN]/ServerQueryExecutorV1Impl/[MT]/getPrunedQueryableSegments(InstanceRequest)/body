@@ -1,12 +1,12 @@
 {
-  LOGGER.info("InstanceRequest contains {} segments",instanceRequest.getSearchSegments().size());
+  LOGGER.debug("InstanceRequest contains {} segments",instanceRequest.getSearchSegments().size());
   final String tableName=instanceRequest.getQuery().getQuerySource().getTableName();
   final TableDataManager tableDataManager=_instanceDataManager.getTableDataManager(tableName);
   if (tableDataManager == null || instanceRequest.getSearchSegmentsSize() == 0) {
     return new ArrayList<SegmentDataManager>();
   }
   List<SegmentDataManager> listOfQueryableSegments=tableDataManager.acquireSegments(instanceRequest.getSearchSegments());
-  LOGGER.info("TableDataManager found {} segments before pruning",listOfQueryableSegments.size());
+  LOGGER.debug("TableDataManager found {} segments before pruning",listOfQueryableSegments.size());
   Iterator<SegmentDataManager> it=listOfQueryableSegments.iterator();
   while (it.hasNext()) {
     SegmentDataManager segmentDataManager=it.next();

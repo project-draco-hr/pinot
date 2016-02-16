@@ -1,34 +1,38 @@
 {
   this._helixPropertyStore=propertyStore;
-  String segmentId=segmentZKMetadata.getSegmentName();
-  if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
-    if (new File(_indexDir,segmentId).exists() && ((RealtimeSegmentZKMetadata)segmentZKMetadata).getStatus() == Status.DONE) {
-      if (!_segmentsMap.containsKey(segmentId)) {
-synchronized (getGlobalLock()) {
-          if (!_segmentsMap.containsKey(segmentId)) {
-            IndexSegment segment=ColumnarSegmentLoader.load(new File(_indexDir,segmentId),_readMode,_indexLoadingConfigMetadata);
-            _segmentsMap.put(segmentId,new OfflineSegmentDataManager(segment));
-            markSegmentAsLoaded(segmentId);
-            _referenceCounts.put(segmentId,new AtomicInteger(1));
-          }
-        }
-      }
+  final String segmentId=inputSegmentZKMetadata.getSegmentName();
+  final String tableName=inputSegmentZKMetadata.getTableName();
+  if (!(inputSegmentZKMetadata instanceof RealtimeSegmentZKMetadata)) {
+    LOGGER.warn("Got called with an unexpected instance object:{},table {}, segment {}",inputSegmentZKMetadata.getClass().getSimpleName(),tableName,segmentId);
+    return;
+  }
+  RealtimeSegmentZKMetadata segmentZKMetadata=(RealtimeSegmentZKMetadata)inputSegmentZKMetadata;
+  if (new File(_indexDir,segmentId).exists() && (segmentZKMetadata).getStatus() == Status.DONE) {
+    if (_segmentsMap.containsKey(segmentId)) {
+      LOGGER.warn("Got reload for segment already on disk {} table {}, have {}",segmentId,tableName,_segmentsMap.get(segmentId).getClass().getSimpleName());
+      return;
     }
+    IndexSegment segment=ColumnarSegmentLoader.load(new File(_indexDir,segmentId),_readMode,_indexLoadingConfigMetadata);
+    addSegment(segment);
+    markSegmentAsLoaded(segmentId);
+  }
  else {
-      if (!_segmentsMap.containsKey(segmentId)) {
-synchronized (getGlobalLock()) {
-          if (!_segmentsMap.containsKey(segmentId)) {
-            PinotHelixPropertyStoreZnRecordProvider propertyStoreHelper=PinotHelixPropertyStoreZnRecordProvider.forSchema(propertyStore);
-            ZNRecord record=propertyStoreHelper.get(tableConfig.getValidationConfig().getSchemaName());
-            LOGGER.info("found schema {} ",tableConfig.getValidationConfig().getSchemaName());
-            SegmentDataManager manager=new RealtimeSegmentDataManager((RealtimeSegmentZKMetadata)segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record));
-            LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);
-            _segmentsMap.put(segmentId,manager);
-            _loadingSegments.add(segmentId);
-            _referenceCounts.put(segmentId,new AtomicInteger(1));
-          }
-        }
-      }
+    if (_segmentsMap.containsKey(segmentId)) {
+      LOGGER.warn("Got reload for segment not on disk {} table {}, have {}",segmentId,tableName,_segmentsMap.get(segmentId).getClass().getSimpleName());
+      return;
     }
+    PinotHelixPropertyStoreZnRecordProvider propertyStoreHelper=PinotHelixPropertyStoreZnRecordProvider.forSchema(propertyStore);
+    ZNRecord record=propertyStoreHelper.get(tableConfig.getValidationConfig().getSchemaName());
+    LOGGER.info("found schema {} ",tableConfig.getValidationConfig().getSchemaName());
+    SegmentDataManager manager=new RealtimeSegmentDataManager(segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record));
+    LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);
+    try {
+      _rwLock.writeLock().lock();
+      _segmentsMap.put(segmentId,manager);
+    }
+  finally {
+      _rwLock.writeLock().unlock();
+    }
+    _loadingSegments.add(segmentId);
   }
 }

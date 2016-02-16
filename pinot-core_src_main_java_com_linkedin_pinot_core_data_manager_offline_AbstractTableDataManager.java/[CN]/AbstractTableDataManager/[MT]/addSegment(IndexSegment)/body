@@ -1,0 +1,29 @@
+{
+  final String segmentName=indexSegmentToAdd.getSegmentName();
+  LOGGER.info("Trying to add a new segment {} of table {}",segmentName,_tableName);
+  OfflineSegmentDataManager newSegmentManager=new OfflineSegmentDataManager(indexSegmentToAdd);
+  final int newNumDocs=indexSegmentToAdd.getSegmentMetadata().getTotalRawDocs();
+  SegmentDataManager oldSegmentManager;
+  int refCnt=-1;
+  try {
+    _rwLock.writeLock().lock();
+    oldSegmentManager=_segmentsMap.put(segmentName,newSegmentManager);
+    if (oldSegmentManager != null) {
+      refCnt=oldSegmentManager.decrementRefCnt();
+    }
+  }
+  finally {
+    _rwLock.writeLock().unlock();
+  }
+  if (oldSegmentManager == null) {
+    LOGGER.info("Added new segment {} for table {}",segmentName,_tableName);
+  }
+ else {
+    LOGGER.info("Replaced segment {}(refCnt {}) with new segment for table {}",segmentName,refCnt,_tableName);
+  }
+  if (refCnt == 0) {
+    closeSegment(oldSegmentManager);
+  }
+  _currentNumberOfDocuments.inc(newNumDocs);
+  _currentNumberOfSegments.inc();
+}

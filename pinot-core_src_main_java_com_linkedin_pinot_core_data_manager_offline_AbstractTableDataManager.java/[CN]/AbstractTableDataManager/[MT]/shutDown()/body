@@ -1,0 +1,12 @@
+{
+  LOGGER.info("Trying to shutdown table : " + _tableName);
+  doShutdown();
+  if (_isStarted) {
+    _queryExecutorService.shutdown();
+    _tableDataManagerConfig=null;
+    _isStarted=false;
+  }
+ else {
+    LOGGER.warn("Already shutDown table : " + _tableName);
+  }
+}
