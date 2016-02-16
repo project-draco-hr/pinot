@@ -1,12 +1,15 @@
 {
+  long start, end;
   MutableRoaringBitmap finalResult=null;
   if (emptyResult) {
     finalResult=new MutableRoaringBitmap();
     final BitmapDocIdIterator bitmapDocIdIterator=new BitmapDocIdIterator(finalResult.getIntIterator());
     return createBaseFilterBlock(bitmapDocIdIterator);
   }
+  start=System.currentTimeMillis();
   Queue<SearchEntry> matchedEntries=findMatchingLeafNodes();
   List<Operator> matchingLeafOperators=new ArrayList<>();
+  int totalDocsToScan=0;
   for (  SearchEntry matchedEntry : matchedEntries) {
     Operator matchingLeafOperator;
     int startDocId=matchedEntry.starTreeIndexnode.getStartDocumentId();
@@ -22,13 +25,17 @@
       matchingLeafOperator=new AndOperator(filterOperators);
     }
     matchingLeafOperators.add(matchingLeafOperator);
+    totalDocsToScan+=(endDocId - startDocId);
+    LOGGER.debug("{}",matchedEntry.starTreeIndexnode);
   }
+  end=System.currentTimeMillis();
+  LOGGER.debug("Found {} matching leaves, took {} ms to create remaining filter operators. Total docs to scan:{}",matchedEntries.size(),(end - start),totalDocsToScan);
   if (matchingLeafOperators.size() == 1) {
     BaseFilterOperator baseFilterOperator=(BaseFilterOperator)matchingLeafOperators.get(0);
     return baseFilterOperator.nextFilterBlock(blockId);
   }
  else {
-    OrOperator orOperator=new OrOperator(matchingLeafOperators);
-    return orOperator.nextFilterBlock(blockId);
+    CompositeOperator compositeOperator=new CompositeOperator(matchingLeafOperators);
+    return compositeOperator.nextFilterBlock(blockId);
   }
 }
