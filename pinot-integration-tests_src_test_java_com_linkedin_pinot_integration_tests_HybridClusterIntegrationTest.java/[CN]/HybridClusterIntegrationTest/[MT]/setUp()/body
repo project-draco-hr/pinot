@@ -15,7 +15,7 @@
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
   ExecutorService executor=Executors.newCachedThreadPool();
   setupH2AndInsertAvro(avroFiles,executor);
-  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"mytable");
+  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"mytable",false);
   setupQueryGenerator(avroFiles,executor);
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);

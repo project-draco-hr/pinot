@@ -1,0 +1,17 @@
+{
+  _segmentDirName=segmentDirName;
+  File segmentsDir=new File(_segmentDirName);
+  HashMap<String,Set<String>> uniqueColumnValues=new HashMap<>();
+  Set<String> uniqueDimensions=new HashSet<>();
+  Set<String> uniqueMetrics=new HashSet<>();
+  for (  File segment : segmentsDir.listFiles()) {
+    readOneSegment(segment,uniqueDimensions,uniqueMetrics,uniqueColumnValues);
+  }
+  _dimensionColumns=new ArrayList<>(uniqueDimensions);
+  _metricColumns=new ArrayList<>(uniqueMetrics);
+  _columnValuesMap=new HashMap<>(_dimensionColumns.size());
+  for (  Map.Entry<String,Set<String>> entry : uniqueColumnValues.entrySet()) {
+    Set<String> values=entry.getValue();
+    _columnValuesMap.put(entry.getKey(),new ArrayList<>(values));
+  }
+}

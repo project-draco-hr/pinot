@@ -1,0 +1,32 @@
+{
+  final ZKHelixAdmin helixAdmin=new ZKHelixAdmin(ZkStarter.DEFAULT_ZK_STR);
+  ClusterStateVerifier.Verifier customVerifier=new ClusterStateVerifier.Verifier(){
+    @Override public boolean verify(){
+      String clusterName=getHelixClusterName();
+      List<String> resourcesInCluster=helixAdmin.getResourcesInCluster(clusterName);
+      LOGGER.info("Waiting for external view to update " + new Timestamp(System.currentTimeMillis()));
+      for (      String resourceName : resourcesInCluster) {
+        IdealState idealState=helixAdmin.getResourceIdealState(clusterName,resourceName);
+        ExternalView externalView=helixAdmin.getResourceExternalView(clusterName,resourceName);
+        if (idealState == null || externalView == null) {
+          return false;
+        }
+        Set<String> partitionSet=idealState.getPartitionSet();
+        for (        String partition : partitionSet) {
+          Map<String,String> instanceStateMapIS=idealState.getInstanceStateMap(partition);
+          Map<String,String> instanceStateMapEV=externalView.getStateMap(partition);
+          if (instanceStateMapIS == null || instanceStateMapEV == null) {
+            return false;
+          }
+          if (!instanceStateMapIS.equals(instanceStateMapEV)) {
+            return false;
+          }
+        }
+      }
+      LOGGER.info("External View updated successfully.");
+      return true;
+    }
+  }
+;
+  ClusterStateVerifier.verifyByPolling(customVerifier,TIMEOUT_IN_SECONDS);
+}

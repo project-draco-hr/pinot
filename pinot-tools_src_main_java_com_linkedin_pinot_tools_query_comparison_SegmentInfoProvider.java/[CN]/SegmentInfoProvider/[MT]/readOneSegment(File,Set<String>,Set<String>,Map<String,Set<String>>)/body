@@ -1,0 +1,37 @@
+{
+  File segmentDir;
+  if (segmentFile.isFile()) {
+    segmentDir=File.createTempFile(SEGMENT_DICTIONARY_READER,null,new File(TMP_DIR));
+    FileUtils.deleteQuietly(segmentDir);
+    segmentDir.mkdir();
+    TarGzCompressionUtils.unTar(segmentFile,segmentDir);
+    segmentDir=segmentDir.listFiles()[0];
+  }
+ else {
+    segmentDir=segmentFile;
+  }
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segmentDir);
+  Schema schema=segmentMetadata.getSchema();
+  List<String> dimensionColumns=schema.getDimensionNames();
+  uniqueDimensions.addAll(dimensionColumns);
+  uniqueMetrics.addAll(schema.getMetricNames());
+  Map<String,Dictionary> dictionaryMap=new HashMap<>();
+  for (  DimensionFieldSpec fieldSpec : schema.getDimensionFieldSpecs()) {
+    if (!fieldSpec.isSingleValueField()) {
+      continue;
+    }
+    String column=fieldSpec.getName();
+    IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(segmentDir,ReadMode.heap);
+    Dictionary dictionary=indexSegment.getDictionaryFor(column);
+    dictionaryMap.put(column,dictionary);
+  }
+  for (  String column : dimensionColumns) {
+    Dictionary dictionary=dictionaryMap.get(column);
+    int numValues=dictionary.length();
+    Set<String> values=new HashSet<>();
+    for (int i=0; i < numValues; ++i) {
+      values.add(dictionary.get(i).toString());
+    }
+    columnValuesMap.put(column,values);
+  }
+}

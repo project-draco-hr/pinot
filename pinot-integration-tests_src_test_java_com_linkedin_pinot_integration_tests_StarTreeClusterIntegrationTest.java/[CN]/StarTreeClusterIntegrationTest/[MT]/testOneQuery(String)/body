@@ -1,0 +1,13 @@
+{
+  try {
+    JSONObject starResponse=postQuery(starQuery);
+    String refQuery=convertToRefQuery(starQuery);
+    JSONObject refResponse=postQuery(refQuery);
+    boolean result=QueryComparison.compare(starResponse,refResponse,false);
+    String message="Result mis-match for Query: " + starQuery + "\nStar: "+ starResponse.toString()+ "\nRef: "+ refResponse.toString();
+    Assert.assertTrue(result,message);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception caught when executing query {}",starQuery,e);
+  }
+}

@@ -1,0 +1,15 @@
+{
+  startCluster();
+  addOfflineTables();
+  BaseClusterIntegrationTest.ensureDirectoryExistsAndIsEmpty(_tmpDir);
+  List<File> avroFiles=BaseClusterIntegrationTest.unpackAvroData(_tmpDir,SEGMENT_COUNT);
+  _queryFile=new File(TestUtils.getFileFromResourceUrl(BaseClusterIntegrationTest.class.getClassLoader().getResource("OnTimeStarTreeQueries.txt")));
+  generateAndUploadSegments(avroFiles,DEFAULT_TABLE_NAME,false);
+  generateAndUploadSegments(avroFiles,DEFAULT_STAR_TREE_TABLE_NAME,true);
+  waitForExternalViewUpdate();
+  SegmentInfoProvider dictionaryReader=new SegmentInfoProvider(_tarredSegmentsDir.getAbsolutePath());
+  List<String> dimensionColumns=dictionaryReader.getDimensionColumns();
+  List<String> metricColumns=dictionaryReader.getMetricColumns();
+  Map<String,List<String>> columnValuesMap=dictionaryReader.getColumnValuesMap();
+  _queryGenerator=new StarTreeQueryGenerator(DEFAULT_STAR_TREE_TABLE_NAME,dimensionColumns,metricColumns,columnValuesMap);
+}

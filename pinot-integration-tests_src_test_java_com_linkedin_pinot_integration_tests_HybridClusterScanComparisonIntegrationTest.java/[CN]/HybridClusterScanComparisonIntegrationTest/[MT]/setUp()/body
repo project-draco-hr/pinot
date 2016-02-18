@@ -17,8 +17,8 @@
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
   ExecutorService executor=Executors.newCachedThreadPool();
-  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_offlineTarDir,"mytable");
-  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_segmentDir,_realtimeTarDir,"mytable");
+  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_offlineTarDir,"mytable",false);
+  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_segmentDir,_realtimeTarDir,"mytable",false);
   setupQueryGenerator(avroFiles,executor);
   _offlineAvroToSegmentMap=offlineAvroToSegmentMapFuture.get();
   _realtimeAvroToSegmentMap=realtimeAvroToSegmentMapFuture.get();

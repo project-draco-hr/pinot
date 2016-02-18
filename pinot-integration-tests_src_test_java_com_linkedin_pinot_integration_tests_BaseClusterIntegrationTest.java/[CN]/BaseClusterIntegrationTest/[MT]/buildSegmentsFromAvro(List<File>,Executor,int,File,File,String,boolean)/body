@@ -1,0 +1,51 @@
+{
+  int segmentCount=avroFiles.size();
+  LOGGER.info("Building " + segmentCount + " segments in parallel");
+  List<ListenableFutureTask<Pair<File,File>>> futureTasks=new ArrayList<ListenableFutureTask<Pair<File,File>>>();
+  for (int i=1; i <= segmentCount; ++i) {
+    final int segmentIndex=i - 1;
+    final int segmentNumber=i + baseSegmentIndex;
+    final ListenableFutureTask<Pair<File,File>> buildSegmentFutureTask=ListenableFutureTask.<Pair<File,File>>create(new Callable<Pair<File,File>>(){
+      @Override public Pair<File,File> call() throws Exception {
+        try {
+          LOGGER.info("Starting to build segment " + segmentNumber);
+          File outputDir=new File(baseDirectory,"segment-" + segmentNumber);
+          final File inputAvroFile=avroFiles.get(segmentIndex);
+          final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(inputAvroFile,outputDir,TimeUnit.DAYS,tableName);
+          if (createStarTreeIndex) {
+            final File pinotSchemaFile=new File(TestUtils.getFileFromResourceUrl(BaseClusterIntegrationTest.class.getClassLoader().getResource(PINOT_SCHEMA_FILE)));
+            com.linkedin.pinot.common.data.Schema pinotSchema=com.linkedin.pinot.common.data.Schema.fromFile(pinotSchemaFile);
+            genConfig.setSchema(pinotSchema);
+          }
+          genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber));
+          genConfig.setCreateStarTreeIndex(createStarTreeIndex);
+          genConfig.setStarTreeIndexSpec(null);
+          final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+          driver.init(genConfig);
+          driver.build();
+          String segmentName=outputDir.list()[0];
+          final String tarGzPath=TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/" + segmentName,new File(segmentTarDir,segmentName).getAbsolutePath());
+          LOGGER.info("Completed segment " + segmentNumber + " : "+ segmentName);
+          return new ImmutablePair<File,File>(inputAvroFile,new File(tarGzPath));
+        }
+ catch (        Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+);
+    futureTasks.add(buildSegmentFutureTask);
+    executor.execute(buildSegmentFutureTask);
+  }
+  ListenableFuture<List<Pair<File,File>>> pairListFuture=Futures.allAsList(futureTasks);
+  return Futures.transform(pairListFuture,new AsyncFunction<List<Pair<File,File>>,Map<File,File>>(){
+    @Override public ListenableFuture<Map<File,File>> apply(    List<Pair<File,File>> input) throws Exception {
+      Map<File,File> avroToSegmentMap=new HashMap<File,File>();
+      for (      Pair<File,File> avroToSegmentPair : input) {
+        avroToSegmentMap.put(avroToSegmentPair.getLeft(),avroToSegmentPair.getRight());
+      }
+      return Futures.immediateFuture(avroToSegmentMap);
+    }
+  }
+);
+}
