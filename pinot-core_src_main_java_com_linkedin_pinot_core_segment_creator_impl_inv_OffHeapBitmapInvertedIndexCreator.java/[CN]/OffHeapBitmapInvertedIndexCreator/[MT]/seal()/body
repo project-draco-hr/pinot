@@ -45,14 +45,26 @@
     IOUtils.closeQuietly(fisOffsets);
     IOUtils.closeQuietly(fos);
     IOUtils.closeQuietly(fos);
-    MmapUtils.unloadByteBuffer(valueBuffer);
-    if (!spec.isSingleValueField()) {
-      MmapUtils.unloadByteBuffer(lengths);
+    MmapUtils.unloadByteBuffer(origValueBuffer);
+    origValueBuffer=null;
+    valueBuffer=null;
+    if (origLengths != null) {
+      MmapUtils.unloadByteBuffer(origLengths);
+      origLengths=null;
+      lengths=null;
     }
-    MmapUtils.unloadByteBuffer(postingListBuffer);
-    MmapUtils.unloadByteBuffer(postingListCurrentOffsets);
-    MmapUtils.unloadByteBuffer(postingListLengths);
-    MmapUtils.unloadByteBuffer(postingListStartOffsets);
+    MmapUtils.unloadByteBuffer(origPostingListBuffer);
+    origPostingListBuffer=null;
+    postingListBuffer=null;
+    MmapUtils.unloadByteBuffer(origPostingListCurrentOffsets);
+    origPostingListCurrentOffsets=null;
+    postingListCurrentOffsets=null;
+    MmapUtils.unloadByteBuffer(origPostingListLengths);
+    origPostingListLengths=null;
+    postingListLengths=null;
+    MmapUtils.unloadByteBuffer(origPostingListStartOffsets);
+    origPostingListStartOffsets=null;
+    postingListStartOffsets=null;
     FileUtils.deleteQuietly(new File(tempOffsetsFile));
     FileUtils.deleteQuietly(new File(tempBitmapsFile));
   }
