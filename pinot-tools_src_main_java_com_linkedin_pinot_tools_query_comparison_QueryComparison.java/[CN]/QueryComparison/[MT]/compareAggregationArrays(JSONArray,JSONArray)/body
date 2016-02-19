@@ -1,11 +1,11 @@
 {
   Map<String,Double> map=new HashMap<>();
-  for (int i=0; i < refAggregation.length(); ++i) {
-    JSONObject object=refAggregation.getJSONObject(i);
+  for (int i=0; i < expectedAggregation.length(); ++i) {
+    JSONObject object=expectedAggregation.getJSONObject(i);
     map.put(object.getString(FUNCTION).toLowerCase(),Double.valueOf(object.getString(VALUE)));
   }
-  for (int i=0; i < flowAggregation.length(); ++i) {
-    JSONObject object=flowAggregation.getJSONObject(i);
+  for (int i=0; i < actualAggregation.length(); ++i) {
+    JSONObject object=actualAggregation.getJSONObject(i);
     String function=object.getString(FUNCTION).toLowerCase();
     String valueString=object.getString(VALUE);
     if (!isNumeric(valueString)) {
@@ -14,12 +14,12 @@
     }
     Double value=Double.valueOf(valueString);
     if (!map.containsKey(function)) {
-      LOGGER.error("Ref Response does not contain function {}",function);
+      LOGGER.error("expected Response does not contain function {}",function);
       return false;
     }
-    Double refValue=map.get(function);
-    if (!fuzzyEqual(value,refValue)) {
-      LOGGER.error("Aggregation value mismatch for function {}, {}, {}",function,value,refValue);
+    Double expectedValue=map.get(function);
+    if (!fuzzyEqual(value,expectedValue)) {
+      LOGGER.error("Aggregation value mismatch for function {}, {}, {}",function,value,expectedValue);
       return false;
     }
   }

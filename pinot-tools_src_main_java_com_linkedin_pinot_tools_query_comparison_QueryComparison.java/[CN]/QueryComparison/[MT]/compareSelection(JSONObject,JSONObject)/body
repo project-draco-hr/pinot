@@ -1,13 +1,13 @@
 {
-  if (!flowJson.has(SELECTION_RESULTS) && !refJson.has(SELECTION_RESULTS)) {
+  if (!actualJson.has(SELECTION_RESULTS) && !expectedJson.has(SELECTION_RESULTS)) {
     return true;
   }
-  JSONObject flowSelection=flowJson.getJSONObject(SELECTION_RESULTS);
-  JSONObject refSelection=refJson.getJSONObject(SELECTION_RESULTS);
-  if (!compareLists(flowSelection.getJSONArray(COLUMNS),refSelection.getJSONArray(COLUMNS))) {
+  JSONObject actualSelection=actualJson.getJSONObject(SELECTION_RESULTS);
+  JSONObject expectedSelection=expectedJson.getJSONObject(SELECTION_RESULTS);
+  if (!compareLists(actualSelection.getJSONArray(COLUMNS),expectedSelection.getJSONArray(COLUMNS))) {
     return false;
   }
-  if (!compareSelectionRows(flowSelection.getJSONArray(RESULTS),refSelection.getJSONArray(RESULTS))) {
+  if (!compareSelectionRows(actualSelection.getJSONArray(RESULTS),expectedSelection.getJSONArray(RESULTS))) {
     return false;
   }
   return true;

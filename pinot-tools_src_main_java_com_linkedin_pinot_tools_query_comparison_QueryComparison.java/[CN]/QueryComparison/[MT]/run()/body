@@ -17,26 +17,26 @@
       continue;
     }
     try {
-      JSONObject refJson;
+      JSONObject expectedJson;
       if (resultReader != null) {
-        refJson=new JSONObject(resultReader.readLine());
+        expectedJson=new JSONObject(resultReader.readLine());
       }
  else {
-        QueryResponse refResponse=scanBasedQueryProcessor.processQuery(query);
-        refJson=new JSONObject(new ObjectMapper().writeValueAsString(refResponse));
+        QueryResponse expectedResponse=scanBasedQueryProcessor.processQuery(query);
+        expectedJson=new JSONObject(new ObjectMapper().writeValueAsString(expectedResponse));
       }
-      String flowResponse=_clusterStarter.query(query);
-      JSONObject flowJson=new JSONObject(flowResponse);
-      if (compare(flowJson,refJson)) {
+      String actualResponse=_clusterStarter.query(query);
+      JSONObject actualJson=new JSONObject(actualResponse);
+      if (compare(actualJson,expectedJson)) {
         ++passed;
-        LOGGER.info("Comparison PASSED: Id: {} Flow Time: {} ms Ref Time: {} ms Docs Scanned: {}",total,flowJson.get(TIME_USED_MS),refJson.get(TIME_USED_MS),flowJson.get(NUM_DOCS_SCANNED));
-        LOGGER.debug("Flow Response: {}",flowJson);
-        LOGGER.debug("Ref Response: {}",refJson);
+        LOGGER.info("Comparison PASSED: Id: {} actual Time: {} ms expected Time: {} ms Docs Scanned: {}",total,actualJson.get(TIME_USED_MS),expectedJson.get(TIME_USED_MS),actualJson.get(NUM_DOCS_SCANNED));
+        LOGGER.debug("actual Response: {}",actualJson);
+        LOGGER.debug("expected Response: {}",expectedJson);
       }
  else {
         LOGGER.error("Comparison FAILED: {}",query);
-        LOGGER.info("Flow Response: {}",flowJson);
-        LOGGER.info("Ref Response: {}",refJson);
+        LOGGER.info("actual Response: {}",actualJson);
+        LOGGER.info("expected Response: {}",expectedJson);
       }
     }
  catch (    Exception e) {

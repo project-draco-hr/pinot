@@ -1,20 +1,19 @@
 {
-  int numFlowRows=flowRows.length();
-  int numRefRows=refRows.length();
-  for (int i=0; i < numFlowRows; ++i) {
-    JSONArray flowRow=flowRows.getJSONArray(i);
-    JSONArray refRow=refRows.getJSONArray(i);
-    int numFlowCols=flowRow.length();
-    int numRefCols=refRow.length();
-    if (numFlowCols != numFlowCols) {
-      LOGGER.error("Number of columns mis-match: Flow: {} Ref: {}",numFlowCols,numRefCols);
+  int numActualRows=actualRows.length();
+  for (int i=0; i < numActualRows; ++i) {
+    JSONArray actualRow=actualRows.getJSONArray(i);
+    JSONArray expectedRow=expectedRows.getJSONArray(i);
+    int numActualCols=actualRow.length();
+    int numExpectedCols=expectedRow.length();
+    if (numActualCols != numActualCols) {
+      LOGGER.error("Number of columns mis-match: actual: {} expected: {}",numActualCols,numExpectedCols);
       return false;
     }
-    for (int j=0; j < numFlowCols; ++j) {
-      String flowVal=flowRow.getString(j);
-      String refVal=refRow.getString(j);
-      if (!compareAsNumber(flowVal,refVal) && !compareAsString(flowVal,refVal)) {
-        LOGGER.error("Value mis-match: Flow {} Ref: {}",flowVal,refVal);
+    for (int j=0; j < numActualCols; ++j) {
+      String actualVal=actualRow.getString(j);
+      String expectedVal=expectedRow.getString(j);
+      if (!compareAsNumber(actualVal,expectedVal) && !compareAsString(actualVal,expectedVal)) {
+        LOGGER.error("Value mis-match: actual {} expected: {}",actualVal,expectedVal);
         return false;
       }
     }

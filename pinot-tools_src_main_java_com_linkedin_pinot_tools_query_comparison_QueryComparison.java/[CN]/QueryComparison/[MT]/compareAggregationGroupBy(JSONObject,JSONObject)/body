@@ -1,26 +1,26 @@
 {
-  JSONArray flowGroupByResults=flowJson.getJSONArray(AGGREGATION_RESULTS);
-  JSONArray refGroupByResults=refJson.getJSONArray(AGGREGATION_RESULTS);
-  int numFlowGroupBy=flowGroupByResults.length();
-  int numRefGroupBy=refGroupByResults.length();
+  JSONArray actualGroupByResults=actualJson.getJSONArray(AGGREGATION_RESULTS);
+  JSONArray expectedGroupByResults=expectedJson.getJSONArray(AGGREGATION_RESULTS);
+  int numActualGroupBy=actualGroupByResults.length();
+  int numExpectedGroupBy=expectedGroupByResults.length();
   Map<String,Integer> functionMap=new HashMap<>();
-  for (int i=0; i < numRefGroupBy; ++i) {
-    JSONObject refAggr=refGroupByResults.getJSONObject(i);
-    String refFunction=refAggr.getString(FUNCTION).toLowerCase();
-    functionMap.put(refFunction,i);
+  for (int i=0; i < numExpectedGroupBy; ++i) {
+    JSONObject expectedAggr=expectedGroupByResults.getJSONObject(i);
+    String expectedFunction=expectedAggr.getString(FUNCTION).toLowerCase();
+    functionMap.put(expectedFunction,i);
   }
-  for (int i=0; i < numFlowGroupBy; ++i) {
-    JSONObject flowAggr=flowGroupByResults.getJSONObject(i);
-    String flowFunction=flowAggr.getString(FUNCTION).toLowerCase();
-    if (!functionMap.containsKey(flowFunction)) {
-      LOGGER.error("Missing group by function in ref response: {}",flowFunction);
+  for (int i=0; i < numActualGroupBy; ++i) {
+    JSONObject actualAggr=actualGroupByResults.getJSONObject(i);
+    String actualFunction=actualAggr.getString(FUNCTION).toLowerCase();
+    if (!functionMap.containsKey(actualFunction)) {
+      LOGGER.error("Missing group by function in expected response: {}",actualFunction);
       return false;
     }
-    JSONObject refAggr=refGroupByResults.getJSONObject(functionMap.get(flowFunction));
-    if (!compareGroupByColumns(flowAggr,refAggr)) {
+    JSONObject expectedAggr=expectedGroupByResults.getJSONObject(functionMap.get(actualFunction));
+    if (!compareGroupByColumns(actualAggr,expectedAggr)) {
       return false;
     }
-    if (!compareAggregationValues(flowAggr,refAggr)) {
+    if (!compareAggregationValues(actualAggr,expectedAggr)) {
       return false;
     }
   }

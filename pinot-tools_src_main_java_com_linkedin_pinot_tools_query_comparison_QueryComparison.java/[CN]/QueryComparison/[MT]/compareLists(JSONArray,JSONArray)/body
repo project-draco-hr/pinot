@@ -1,15 +1,15 @@
 {
-  int flowSize=flowList.length();
-  int refSize=refList.length();
-  if (flowSize != refSize) {
-    LOGGER.error("Number of columns mismatch: Flow: {} Ref: {}",flowSize,refSize);
+  int actualSize=actualList.length();
+  int expectedSize=expectedList.length();
+  if (actualSize != expectedSize) {
+    LOGGER.error("Number of columns mismatch: actual: {} expected: {}",actualSize,expectedSize);
     return false;
   }
-  for (int i=0; i < refList.length(); ++i) {
-    String flowColumn=flowList.getString(i);
-    String refColumn=refList.getString(i);
-    if (!flowColumn.equals(refColumn)) {
-      LOGGER.error("Column name mis-match: Flow: {} Ref: {}",flowColumn,refColumn);
+  for (int i=0; i < expectedList.length(); ++i) {
+    String actualColumn=actualList.getString(i);
+    String expectedColumn=expectedList.getString(i);
+    if (!actualColumn.equals(expectedColumn)) {
+      LOGGER.error("Column name mis-match: actual: {} expected: {}",actualColumn,expectedColumn);
       return false;
     }
   }

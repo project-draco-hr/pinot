@@ -1,23 +1,23 @@
 {
-  JSONArray flowResult=flowAggr.getJSONArray(GROUP_BY_RESULT);
-  JSONArray refResult=refAggr.getJSONArray(GROUP_BY_RESULT);
-  Map<GroupByOperator,Double> refMap=new HashMap<>();
-  for (int i=0; i < refResult.length(); ++i) {
-    List<Object> group=jsonArrayToList(refResult.getJSONObject(i).getJSONArray(GROUP));
+  JSONArray actualResult=actualAggr.getJSONArray(GROUP_BY_RESULT);
+  JSONArray expectedResult=expectedAggr.getJSONArray(GROUP_BY_RESULT);
+  Map<GroupByOperator,Double> expectedMap=new HashMap<>();
+  for (int i=0; i < expectedResult.length(); ++i) {
+    List<Object> group=jsonArrayToList(expectedResult.getJSONObject(i).getJSONArray(GROUP));
     GroupByOperator groupByOperator=new GroupByOperator(group);
-    refMap.put(groupByOperator,refResult.getJSONObject(i).getDouble(VALUE));
+    expectedMap.put(groupByOperator,expectedResult.getJSONObject(i).getDouble(VALUE));
   }
-  for (int i=0; i < flowResult.length(); ++i) {
-    List<Object> group=jsonArrayToList(flowResult.getJSONObject(i).getJSONArray(GROUP));
+  for (int i=0; i < actualResult.length(); ++i) {
+    List<Object> group=jsonArrayToList(actualResult.getJSONObject(i).getJSONArray(GROUP));
     GroupByOperator groupByOperator=new GroupByOperator(group);
-    double flowValue=flowResult.getJSONObject(i).getDouble(VALUE);
-    if (!refMap.containsKey(groupByOperator)) {
+    double actualValue=actualResult.getJSONObject(i).getDouble(VALUE);
+    if (!expectedMap.containsKey(groupByOperator)) {
       LOGGER.error("Missing group by value for group: {}",group);
       return false;
     }
-    double refValue=refMap.get(groupByOperator);
-    if (!fuzzyEqual(flowValue,refValue)) {
-      LOGGER.error("Aggregation group by value mis-match: Flow: {}, Ref: {}",flowValue,refValue);
+    double expectedValue=expectedMap.get(groupByOperator);
+    if (!fuzzyEqual(actualValue,expectedValue)) {
+      LOGGER.error("Aggregation group by value mis-match: actual: {}, expected: {}",actualValue,expectedValue);
       return false;
     }
   }
