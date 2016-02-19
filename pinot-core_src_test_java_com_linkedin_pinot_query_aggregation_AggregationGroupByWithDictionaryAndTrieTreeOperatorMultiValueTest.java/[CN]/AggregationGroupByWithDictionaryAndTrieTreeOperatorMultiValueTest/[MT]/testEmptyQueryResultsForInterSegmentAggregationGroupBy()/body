@@ -1,7 +1,7 @@
 {
   final int numSegments=20;
   setupSegmentList(numSegments);
-  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV1();
+  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
   final BrokerRequest brokerRequest=getAggregationGroupByWithEmptyFilterBrokerRequest();
   final ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
   final Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(makeSegMgrList(_indexSegmentList),brokerRequest,executorService,150000);
