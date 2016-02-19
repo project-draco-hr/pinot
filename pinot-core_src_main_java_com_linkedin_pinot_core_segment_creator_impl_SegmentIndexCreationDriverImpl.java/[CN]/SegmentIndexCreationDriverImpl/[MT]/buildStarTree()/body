@@ -5,6 +5,7 @@
     starTreeIndexSpec=new StarTreeIndexSpec();
     starTreeIndexSpec.setExcludedDimensions(Lists.newArrayList(dataSchema.getTimeColumnName()));
     starTreeIndexSpec.setMaxLeafRecords(StarTreeIndexSpec.DEFAULT_MAX_LEAF_RECORDS);
+    config.setStarTreeIndexSpec(starTreeIndexSpec);
   }
   List<String> splitOrder=starTreeIndexSpec.getSplitOrder();
   if (splitOrder != null && !splitOrder.isEmpty()) {
@@ -50,6 +51,9 @@
   while (allRowsIterator.hasNext()) {
     GenericRow genericRow=allRowsIterator.next();
     indexCreator.indexRow(genericRow);
+  }
+  if (splitOrder == null || splitOrder.isEmpty()) {
+    starTreeIndexSpec.setSplitOrder(starTreeBuilder.getSplitOrder());
   }
   serializeTree(starTreeBuilder);
   handlePostCreation();

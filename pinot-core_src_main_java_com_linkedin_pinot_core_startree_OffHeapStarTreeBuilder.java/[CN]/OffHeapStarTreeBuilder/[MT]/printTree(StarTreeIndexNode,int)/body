@@ -1,6 +1,6 @@
 {
   for (int i=0; i < level; i++) {
-    LOG.info("  ");
+    LOG.debug("  ");
   }
   BiMap<Integer,String> inverse=dimensionNameToIndexMap.inverse();
   String dimName="ALL";
@@ -12,7 +12,7 @@
     dimValue=dictionaryMap.get(dimName).inverse().get(node.getDimensionValue());
   }
   String formattedOutput=Objects.toStringHelper(node).add("nodeId",node.getNodeId()).add("level",level).add("dimensionName",dimName).add("dimensionValue",dimValue).add("childDimensionName",inverse.get(node.getChildDimensionName())).add("childCount",node.getChildren() == null ? 0 : node.getChildren().size()).add("startDocumentId",node.getStartDocumentId()).add("endDocumentId",node.getEndDocumentId()).add("documentCount",(node.getEndDocumentId() - node.getStartDocumentId())).toString();
-  LOG.info(formattedOutput);
+  LOG.debug(formattedOutput);
   if (!node.isLeaf()) {
     for (    StarTreeIndexNode child : node.getChildren().values()) {
       printTree(child,level + 1);

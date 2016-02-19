@@ -2,18 +2,18 @@
   if (splitOrder == null || splitOrder.isEmpty()) {
     splitOrder=computeDefaultSplitOrder();
   }
-  LOG.info("Split order:{}",splitOrder);
+  LOG.debug("Split order:{}",splitOrder);
   long start=System.currentTimeMillis();
   dataBuffer.flush();
   sort(dataFile,0,rawRecordCount);
   constructStarTree(starTreeRootIndexNode,0,rawRecordCount,0,dataFile);
   long end=System.currentTimeMillis();
-  LOG.info("Took {} ms to build star tree index. Original records:{} Materialized record:{}",(end - start),rawRecordCount,aggRecordCount);
+  LOG.debug("Took {} ms to build star tree index. Original records:{} Materialized record:{}",(end - start),rawRecordCount,aggRecordCount);
   starTree=new StarTree(starTreeRootIndexNode,dimensionNameToIndexMap);
   File treeBinary=new File(outDir,"star-tree.bin");
-  LOG.info("Saving tree binary at: {} ",treeBinary);
+  LOG.debug("Saving tree binary at: {} ",treeBinary);
   starTree.writeTree(new BufferedOutputStream(new FileOutputStream(treeBinary)));
   printTree(starTreeRootIndexNode,0);
-  LOG.info("Finished build tree. out dir: {} ",outDir);
+  LOG.debug("Finished build tree. out dir: {} ",outDir);
   dataBuffer.close();
 }

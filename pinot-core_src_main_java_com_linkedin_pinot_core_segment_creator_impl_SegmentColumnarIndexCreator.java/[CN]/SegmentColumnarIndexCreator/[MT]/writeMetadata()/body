@@ -11,6 +11,11 @@
   properties.setProperty(SEGMENT_TOTAL_DOCS,String.valueOf(totalDocs));
   properties.setProperty(STAR_TREE_ENABLED,String.valueOf(config.isCreateStarTreeIndex()));
   String timeColumn=config.getTimeColumnName();
+  StarTreeIndexSpec starTreeIndexSpec=config.getStarTreeIndexSpec();
+  if (starTreeIndexSpec != null) {
+    properties.setProperty(STAR_TREE_SPLIT_ORDER,starTreeIndexSpec.getSplitOrder());
+    properties.setProperty(STAR_TREE_MAX_LEAF_RECORDS,starTreeIndexSpec.getMaxLeafRecords());
+  }
   if (indexCreationInfoMap.get(timeColumn) != null) {
     properties.setProperty(SEGMENT_START_TIME,indexCreationInfoMap.get(timeColumn).getMin());
     properties.setProperty(SEGMENT_END_TIME,indexCreationInfoMap.get(timeColumn).getMax());

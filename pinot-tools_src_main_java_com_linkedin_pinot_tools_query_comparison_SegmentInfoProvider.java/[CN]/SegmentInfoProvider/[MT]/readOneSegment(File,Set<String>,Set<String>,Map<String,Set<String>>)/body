@@ -1,11 +1,12 @@
 {
   File segmentDir;
+  File tmpDir=null;
   if (segmentFile.isFile()) {
-    segmentDir=File.createTempFile(SEGMENT_DICTIONARY_READER,null,new File(TMP_DIR));
-    FileUtils.deleteQuietly(segmentDir);
-    segmentDir.mkdir();
-    TarGzCompressionUtils.unTar(segmentFile,segmentDir);
-    segmentDir=segmentDir.listFiles()[0];
+    tmpDir=File.createTempFile(SEGMENT_INFO_PROVIDER,null,new File(TMP_DIR));
+    FileUtils.deleteQuietly(tmpDir);
+    tmpDir.mkdir();
+    TarGzCompressionUtils.unTar(segmentFile,tmpDir);
+    segmentDir=tmpDir.listFiles()[0];
   }
  else {
     segmentDir=segmentFile;
@@ -33,5 +34,8 @@
       values.add(dictionary.get(i).toString());
     }
     columnValuesMap.put(column,values);
+  }
+  if (tmpDir != null) {
+    FileUtils.deleteQuietly(tmpDir);
   }
 }

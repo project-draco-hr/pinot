@@ -5,9 +5,9 @@
   }
   String splitDimensionName=splitOrder.get(level);
   Integer splitDimensionId=dimensionNameToIndexMap.get(splitDimensionName);
-  LOG.info("Building tree at level:{} using file:{} from startDoc:{} endDocId:{} splitting on dimension:{}",level,file.getName(),startDocId,endDocId,splitDimensionName);
+  LOG.debug("Building tree at level:{} using file:{} from startDoc:{} endDocId:{} splitting on dimension:{}",level,file.getName(),startDocId,endDocId,splitDimensionName);
   Map<Integer,IntPair> sortGroupBy=groupBy(startDocId,endDocId,splitDimensionId,file);
-  LOG.info("Group stats:{}",sortGroupBy);
+  LOG.debug("Group stats:{}",sortGroupBy);
   node.setChildDimensionName(splitDimensionId);
   node.setChildren(new HashMap<Integer,StarTreeIndexNode>());
   for (  int childDimensionValue : sortGroupBy.keySet()) {
@@ -44,7 +44,7 @@
     rowsAdded++;
   }
   docsAdded+=rowsAdded;
-  LOG.info("Added {} additional records at level {}",rowsAdded,level);
+  LOG.debug("Added {} additional records at level {}",rowsAdded,level);
   dataBuffer.flush();
   if (rowsAdded >= maxLeafRecords) {
     sort(dataFile,startOffset,startOffset + rowsAdded);
