@@ -1,0 +1,12 @@
+{
+  int actualRecordCount;
+  do {
+    String query="select count(*) from " + tableName;
+    JSONObject response=postQuery(query);
+    actualRecordCount=response.getInt("totalDocs");
+    LOGGER.info("Actual record count: " + actualRecordCount + "\tExpected count: "+ expectedRecordCount);
+    Assert.assertTrue(System.currentTimeMillis() < deadline,"Failed to read all records within the deadline");
+    Thread.sleep(2000L);
+  }
+ while (expectedRecordCount != actualRecordCount);
+}
