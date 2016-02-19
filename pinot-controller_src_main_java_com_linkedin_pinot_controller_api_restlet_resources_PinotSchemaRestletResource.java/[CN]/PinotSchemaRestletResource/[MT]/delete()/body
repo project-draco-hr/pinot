@@ -11,7 +11,7 @@
   }
  catch (  Exception e) {
     LOGGER.error("Caught exception while processing delete request",e);
-    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_DELETE_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_DELETE_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
     result=new StringRepresentation("Error: Caught Exception " + e.getStackTrace());
   }

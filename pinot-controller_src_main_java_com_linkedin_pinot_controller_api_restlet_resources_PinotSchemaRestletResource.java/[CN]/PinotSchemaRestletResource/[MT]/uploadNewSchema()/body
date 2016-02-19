@@ -10,13 +10,13 @@
       LOGGER.error("error adding schema ",e);
       LOGGER.error("Caught exception in file upload",e);
       setStatus(Status.SERVER_ERROR_INTERNAL);
-      ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_UPLOAD_ERROR,1L);
+      ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_UPLOAD_ERROR,1L);
       return PinotSegmentUploadRestletResource.exceptionToStringRepresentation(e);
     }
   }
  else {
     LOGGER.warn("No file was uploaded");
-    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_UPLOAD_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_SCHEMA_UPLOAD_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
     return new StringRepresentation("schema not added",MediaType.TEXT_PLAIN);
   }

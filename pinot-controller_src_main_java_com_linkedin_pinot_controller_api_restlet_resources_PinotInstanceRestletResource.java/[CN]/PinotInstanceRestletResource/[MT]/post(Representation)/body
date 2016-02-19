@@ -7,7 +7,7 @@
  catch (  final Exception e) {
     presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
     LOGGER.error("Caught exception while processing post request",e);
-    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;

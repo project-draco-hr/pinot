@@ -24,7 +24,7 @@
   }
  catch (  final Exception e) {
     presentation=exceptionToStringRepresentation(e);
-    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_TABLE_TENANT_GET_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_TABLE_TENANT_GET_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
     LOGGER.error("Caught exception while fetching tenant ",e);
     setStatus(Status.SERVER_ERROR_INTERNAL);

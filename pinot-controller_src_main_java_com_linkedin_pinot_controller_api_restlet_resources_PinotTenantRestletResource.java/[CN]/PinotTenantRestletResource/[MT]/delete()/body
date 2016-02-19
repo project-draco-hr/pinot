@@ -8,7 +8,7 @@
  catch (  final Exception e) {
     presentation=exceptionToStringRepresentation(e);
     LOGGER.error("Caught exception while deleting tenant ",e);
-    ControllerRestApplication.metrics.addMeteredValue(null,ControllerMeter.CONTROLLER_TABLE_TENANT_DELETE_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_TABLE_TENANT_DELETE_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;
