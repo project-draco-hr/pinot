@@ -1,9 +1,6 @@
 {
-  checkIterator();
-  int next=itr.next();
-  while (next == Constants.EOF && blockIdx < docIdIterators.size()) {
-    checkIterator();
-    next=itr.next();
+  while (((currentItr == null) || ((currentDocId=currentItr.next()) == Constants.EOF)) && blockIdx < docIdIterators.size()) {
+    currentItr=docIdIterators.get(blockIdx++);
   }
-  return next;
+  return currentDocId;
 }

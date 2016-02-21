@@ -1,6 +1,11 @@
 {
   try {
     JSONObject starResponse=postQuery(starQuery);
+    if (expectNonZeroDocsScanned) {
+      int numDocsScanned=starResponse.getInt("numDocsScanned");
+      String message="Zero Docs Scanned for query: " + starQuery;
+      Assert.assertTrue((numDocsScanned > 0),message);
+    }
     String refQuery=convertToRefQuery(starQuery);
     JSONObject refResponse=postQuery(refQuery);
     boolean result=QueryComparison.compare(starResponse,refResponse,false);

@@ -1,8 +1,7 @@
 {
-  do {
-    checkIterator();
-    itr.advance(targetDocId);
+  if (targetDocId < currentDocId) {
+    throw new IllegalArgumentException("Trying to move backwards to docId " + targetDocId + ", current position "+ currentDocId);
   }
- while (itr.currentDocId() == Constants.EOF && blockIdx < docIdIterators.size());
-  return next();
+  while (currentDocId < targetDocId && (next() != Constants.EOF))   ;
+  return currentDocId;
 }
