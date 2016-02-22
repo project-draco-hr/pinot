@@ -5,12 +5,9 @@
   startHybridCluster();
   TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
   _tmpDir.mkdirs();
-  final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
-  for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
-    avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
-  }
+  final List<File> avroFiles=getAllAvroFiles();
   File schemaFile=getSchemaFile();
-  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0));
+  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0),null);
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
   ExecutorService executor=Executors.newCachedThreadPool();
@@ -27,7 +24,7 @@
       for (      ExternalView externalView : externalViewList) {
         if (externalView.getId().contains("mytable")) {
           Set<String> partitionSet=externalView.getPartitionSet();
-          if (partitionSet.size() == OFFLINE_SEGMENT_COUNT) {
+          if (partitionSet.size() == offlineSegmentCount) {
             int onlinePartitionCount=0;
             for (            String partitionId : partitionSet) {
               Map<String,String> partitionStateMap=externalView.getStateMap(partitionId);
@@ -35,8 +32,8 @@
                 onlinePartitionCount++;
               }
             }
-            if (onlinePartitionCount == OFFLINE_SEGMENT_COUNT) {
-              System.out.println("Got " + OFFLINE_SEGMENT_COUNT + " online tables, unlatching the main thread");
+            if (onlinePartitionCount == offlineSegmentCount) {
+              System.out.println("Got " + offlineSegmentCount + " online tables, unlatching the main thread");
               latch.countDown();
             }
           }

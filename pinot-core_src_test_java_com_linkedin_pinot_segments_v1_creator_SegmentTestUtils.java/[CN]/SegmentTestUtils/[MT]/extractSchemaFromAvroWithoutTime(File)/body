@@ -2,6 +2,13 @@
   DataFileStream<GenericRecord> dataStream=new DataFileStream<GenericRecord>(new FileInputStream(avroFile),new GenericDatumReader<GenericRecord>());
   Schema schema=new Schema();
   for (  final Field field : dataStream.getSchema().getFields()) {
+    try {
+      getColumnType(field);
+    }
+ catch (    Exception e) {
+      LOGGER.warn("Caught exception while converting Avro field {} of type {}, field will not be in schema.",field.name(),field.schema().getType());
+      continue;
+    }
     final String columnName=field.name();
     final String pinotType=field.getProp("pinotType");
     final FieldSpec fieldSpec;

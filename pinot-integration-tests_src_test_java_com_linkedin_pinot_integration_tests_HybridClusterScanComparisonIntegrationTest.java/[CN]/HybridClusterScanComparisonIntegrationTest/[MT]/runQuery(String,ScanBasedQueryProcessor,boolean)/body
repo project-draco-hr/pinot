@@ -1,0 +1,32 @@
+{
+  QueryResponse scanResponse=scanBasedQueryProcessor.processQuery(pqlQuery);
+  JSONObject scanJson=new JSONObject(new ObjectMapper().writeValueAsString(scanResponse));
+  JSONObject pinotJson=postQuery(pqlQuery);
+  QueryComparison.setCompareNumDocs(false);
+  try {
+    QueryComparison.ComparisonStatus comparisonStatus=QueryComparison.compareWithEmpty(pinotJson,scanJson);
+    if (comparisonStatus.equals(QueryComparison.ComparisonStatus.FAILED)) {
+      _fileWriter.write("\nQuery comparison failed for query:" + pqlQuery + "\n"+ "Scan json: "+ scanJson+ "\n"+ "Pinot json: "+ pinotJson+ "\n");
+      _failedQueries.getAndIncrement();
+    }
+ else {
+      _successfulQueries.getAndIncrement();
+      if (comparisonStatus.equals(QueryComparison.ComparisonStatus.EMPTY)) {
+        _emptyResults.getAndIncrement();
+      }
+ else       if (_logMatchingResults) {
+        _fileWriter.write("\nMatched for query:" + pqlQuery + "\n"+ scanJson+ "\n");
+      }
+    }
+    _fileWriter.flush();
+  }
+ catch (  Exception e) {
+    _fileWriter.write("Caught exception while running query comparison, failed for query " + pqlQuery + "\n"+ "Scan json: "+ scanJson+ "\n"+ "Pinot json: "+ pinotJson+ "\n");
+    _failedQueries.getAndIncrement();
+    _fileWriter.flush();
+  }
+  int totalQueries=_successfulQueries.get() + _failedQueries.get();
+  if (displayStatus || totalQueries % 1000 == 0) {
+    doDisplayStatus(totalQueries);
+  }
+}

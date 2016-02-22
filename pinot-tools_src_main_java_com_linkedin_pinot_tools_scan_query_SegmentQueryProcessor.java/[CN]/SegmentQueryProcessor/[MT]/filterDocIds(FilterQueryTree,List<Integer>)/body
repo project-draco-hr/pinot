@@ -15,9 +15,9 @@
     return getMatchingDocIds(inputDocIds,filterType,column,value);
   }
   List<Integer> result=filterDocIds(childFilters.get(0),inputDocIds);
+  final FilterOperator operator=filterQueryTree.getOperator();
   for (int i=1; i < childFilters.size(); ++i) {
-    FilterOperator operator=filterQueryTree.getOperator();
-    List<Integer> childResult=operator.equals(FilterOperator.AND) ? filterDocIds(childFilters.get(i),result) : filterDocIds(childFilters.get(i),inputDocIds);
+    List<Integer> childResult=filterDocIds(childFilters.get(i),inputDocIds);
     result=combine(result,childResult,operator);
   }
   return result;

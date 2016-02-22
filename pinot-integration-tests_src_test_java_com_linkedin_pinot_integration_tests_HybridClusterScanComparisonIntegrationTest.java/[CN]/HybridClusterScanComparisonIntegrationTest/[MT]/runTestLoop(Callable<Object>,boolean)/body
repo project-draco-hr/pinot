@@ -1,0 +1,30 @@
+{
+  List<Pair<File,File>> enabledRealtimeSegments=new ArrayList<>();
+  TreeMap<File,File> sortedRealtimeSegments=new TreeMap<File,File>(new Comparator<File>(){
+    @Override public int compare(    File o1,    File o2){
+      return _realtimeAvroToSegmentMap.get(o1).getName().compareTo(_realtimeAvroToSegmentMap.get(o2).getName());
+    }
+  }
+);
+  sortedRealtimeSegments.putAll(_realtimeAvroToSegmentMap);
+  for (  File avroFile : sortedRealtimeSegments.keySet()) {
+    enabledRealtimeSegments.add(Pair.of(avroFile,sortedRealtimeSegments.get(avroFile)));
+    if (useMultipleThreads) {
+      _queryExecutor=new ThreadPoolExecutor(4,4,5,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(50),new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+    LOGGER.info("Pushing Avro file {}",avroFile);
+    pushAvroIntoKafka(Collections.singletonList(avroFile),KafkaStarterUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
+    configureScanBasedComparator(enabledRealtimeSegments);
+    QueryResponse queryResponse=_scanBasedQueryProcessor.processQuery("select count(*) from mytable");
+    int expectedRecordCount=queryResponse.getNumDocsScanned();
+    waitForRecordCountToStabilizeToExpectedCount(expectedRecordCount,System.currentTimeMillis() + 120000L);
+    testMethod.call();
+    if (useMultipleThreads) {
+      _queryExecutor.shutdown();
+      _queryExecutor.awaitTermination(5,TimeUnit.MINUTES);
+      int totalQueries=_failedQueries.get() + _successfulQueries.get();
+      doDisplayStatus(totalQueries);
+    }
+    _scanBasedQueryProcessor.close();
+  }
+}

@@ -32,7 +32,7 @@
   int counter=0;
   for (  final File avro : avroDataDir.listFiles()) {
     for (    final String table : FileBasedServerBrokerStarters.TABLE_NAMES) {
-      final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avro,new File(bootstrapDir,"segment-" + counter),TimeUnit.DAYS,table);
+      final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avro,new File(bootstrapDir,"segment-" + counter),"daysSinceEpoch",TimeUnit.DAYS,table);
       final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
       driver.init(genConfig);
       driver.build();

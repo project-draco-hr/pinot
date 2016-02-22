@@ -1,0 +1,17 @@
+{
+  final int numExpectedRows=expectedRows.length();
+  Set<String> expectedRowSet=new HashSet<String>(numExpectedRows);
+  for (int i=0; i < numExpectedRows; i++) {
+    expectedRowSet.add(serializeRow(expectedRows.getJSONArray(i),null));
+  }
+  final int numActualRows=actualRows.length();
+  for (int i=0; i < numActualRows; i++) {
+    if (expectedRowSet.contains(serializeRow(actualRows.getJSONArray(i),expectedToActualColMap))) {
+      continue;
+    }
+ else {
+      return false;
+    }
+  }
+  return true;
+}

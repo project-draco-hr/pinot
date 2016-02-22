@@ -1,6 +1,8 @@
 {
   Set<String> enabledAvroFiles=new HashSet<String>();
   List<File> segmentsToUnpack=new ArrayList<File>();
+  LOGGER.info("Offline avro to segment map {}",_offlineAvroToSegmentMap);
+  LOGGER.info("Enabled realtime segments {}",enabledRealtimeSegments);
   for (  Map.Entry<File,File> avroAndSegment : _offlineAvroToSegmentMap.entrySet()) {
     if (!enabledAvroFiles.contains(avroAndSegment.getKey().getName())) {
       enabledAvroFiles.add(avroAndSegment.getKey().getName());
@@ -13,9 +15,10 @@
       segmentsToUnpack.add(avroAndSegment.getRight());
     }
   }
+  LOGGER.info("Enabled Avro files {}",enabledAvroFiles);
   ensureDirectoryExistsAndIsEmpty(_unpackedSegments);
   for (  File file : segmentsToUnpack) {
-    System.out.println("unpacked file = " + file);
+    LOGGER.info("Unpacking file {}",file);
     TarGzCompressionUtils.unTar(file,_unpackedSegments);
   }
   _scanBasedQueryProcessor=new ScanBasedQueryProcessor(_unpackedSegments.getAbsolutePath());

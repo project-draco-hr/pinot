@@ -3,7 +3,11 @@
   HelixManager manager=HelixManagerFactory.getZKHelixManager(getHelixClusterName(),"test_instance",InstanceType.SPECTATOR,ZkStarter.DEFAULT_ZK_STR);
   manager.connect();
   manager.addExternalViewChangeListener(new ExternalViewChangeListener(){
+    private boolean _hasBeenTriggered=false;
     @Override public void onExternalViewChange(    List<ExternalView> externalViewList,    NotificationContext changeContext){
+      if (_hasBeenTriggered) {
+        return;
+      }
       for (      ExternalView externalView : externalViewList) {
         if (externalView.getId().contains(tableName)) {
           Set<String> partitionSet=externalView.getPartitionSet();
@@ -18,6 +22,7 @@
             if (onlinePartitionCount == expectedSegmentCount) {
               System.out.println("Got " + expectedSegmentCount + " online tables, unlatching the main thread");
               latch.countDown();
+              _hasBeenTriggered=true;
             }
           }
         }

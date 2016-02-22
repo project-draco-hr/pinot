@@ -1,7 +1,3 @@
 {
-  QueryResponse scanResponse=_scanBasedQueryProcessor.processQuery(pqlQuery);
-  JSONObject scanJson=new JSONObject(new ObjectMapper().writeValueAsString(scanResponse));
-  System.out.println("scanJson = " + scanJson);
-  JSONObject pinotJson=postQuery(pqlQuery);
-  Assert.assertTrue(QueryComparison.compare(pinotJson,scanJson));
+  runQuery(pqlQuery,_scanBasedQueryProcessor,false);
 }

@@ -4,10 +4,11 @@
   }
   JSONObject actualSelection=actualJson.getJSONObject(SELECTION_RESULTS);
   JSONObject expectedSelection=expectedJson.getJSONObject(SELECTION_RESULTS);
-  if (!compareLists(actualSelection.getJSONArray(COLUMNS),expectedSelection.getJSONArray(COLUMNS))) {
+  Map<Integer,Integer> expectedToActualColMap=new HashMap<Integer,Integer>(actualSelection.getJSONArray(COLUMNS).length());
+  if (!compareLists(actualSelection.getJSONArray(COLUMNS),expectedSelection.getJSONArray(COLUMNS),expectedToActualColMap)) {
     return false;
   }
-  if (!compareSelectionRows(actualSelection.getJSONArray(RESULTS),expectedSelection.getJSONArray(RESULTS))) {
+  if (!compareSelectionRows(actualSelection.getJSONArray(RESULTS),expectedSelection.getJSONArray(RESULTS),expectedToActualColMap)) {
     return false;
   }
   return true;

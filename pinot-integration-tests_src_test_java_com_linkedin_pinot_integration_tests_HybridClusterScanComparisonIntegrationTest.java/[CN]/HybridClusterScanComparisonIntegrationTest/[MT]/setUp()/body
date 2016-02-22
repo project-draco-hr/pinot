@@ -1,35 +1,46 @@
 {
   ensureDirectoryExistsAndIsEmpty(_tmpDir);
   ensureDirectoryExistsAndIsEmpty(_segmentDir);
+  ensureDirectoryExistsAndIsEmpty(_offlineSegmentDir);
+  ensureDirectoryExistsAndIsEmpty(_realtimeSegmentDir);
   ensureDirectoryExistsAndIsEmpty(_offlineTarDir);
   ensureDirectoryExistsAndIsEmpty(_realtimeTarDir);
   ensureDirectoryExistsAndIsEmpty(_unpackedSegments);
   startHybridCluster();
-  TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
-  _tmpDir.mkdirs();
-  final List<File> avroFiles=new ArrayList<File>(SEGMENT_COUNT);
-  for (int segmentNumber=1; segmentNumber <= SEGMENT_COUNT; ++segmentNumber) {
-    avroFiles.add(new File(_tmpDir.getPath() + "/On_Time_On_Time_Performance_2014_" + segmentNumber+ ".avro"));
-  }
+  extractAvroIfNeeded();
+  int avroFileCount=getAvroFileCount();
+  Preconditions.checkArgument(3 <= avroFileCount,"Need at least three Avro files for this test");
+  setSegmentCount(avroFileCount);
+  setOfflineSegmentCount(2);
+  setRealtimeSegmentCount(avroFileCount - 1);
+  final List<File> avroFiles=getAllAvroFiles();
   _schemaFile=getSchemaFile();
   _schema=Schema.fromFile(_schemaFile);
-  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,_schemaFile,avroFiles.get(0));
+  setUpTable("mytable",getTimeColumnName(),getTimeColumnType(),KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,_schemaFile,avroFiles.get(0),invertedIndexColumns);
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
-  ExecutorService executor=Executors.newCachedThreadPool();
-  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_offlineTarDir,"mytable",false);
-  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_segmentDir,_realtimeTarDir,"mytable",false);
+  ExecutorService executor=Executors.newSingleThreadExecutor();
+  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_offlineSegmentDir,_offlineTarDir,"mytable",false);
+  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_realtimeSegmentDir,_realtimeTarDir,"mytable",false);
   setupQueryGenerator(avroFiles,executor);
   _offlineAvroToSegmentMap=offlineAvroToSegmentMapFuture.get();
   _realtimeAvroToSegmentMap=realtimeAvroToSegmentMapFuture.get();
+  LOGGER.info("Offline avro to segment map: {}",_offlineAvroToSegmentMap);
+  LOGGER.info("Realtime avro to segment map: {}",_realtimeAvroToSegmentMap);
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);
-  final CountDownLatch latch=setupSegmentCountCountDownLatch("mytable",OFFLINE_SEGMENT_COUNT);
+  final CountDownLatch latch=setupSegmentCountCountDownLatch("mytable",getOfflineSegmentCount());
   int i=0;
   for (  String segmentName : _offlineTarDir.list()) {
-    System.out.println("Uploading segment " + (i++) + " : "+ segmentName);
+    i++;
+    LOGGER.info("Uploading segment {} : {}",i,segmentName);
     File file=new File(_offlineTarDir,segmentName);
     FileUploadUtils.sendSegmentFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
   }
   latch.await();
+  _fileWriter=getLogWriter();
+  _fileWriter.write("Start time:" + System.currentTimeMillis() + "\n");
+  _fileWriter.flush();
+  startTimeMs=System.currentTimeMillis();
+  LOGGER.info("Setup completed");
 }

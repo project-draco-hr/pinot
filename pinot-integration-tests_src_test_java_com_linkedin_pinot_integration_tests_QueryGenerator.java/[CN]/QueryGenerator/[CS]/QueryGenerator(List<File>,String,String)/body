@@ -16,7 +16,11 @@ case UNION:
         List<Schema> unionTypes=fieldSchema.getTypes();
       _columnNames.add(fieldName);
     _columnToValues.put(fieldName,new TreeSet<String>());
-  if (unionTypes.get(0).getType() != Schema.Type.STRING) {
+  if (unionTypes.get(0).getType() == Schema.Type.ARRAY) {
+    _columnNames.add(fieldName);
+    _multivalueColumnCardinality.put(fieldName,0);
+  }
+ else   if (unionTypes.get(0).getType() != Schema.Type.STRING) {
     _nonMultivalueNumericalColumnNames.add(fieldName);
   }
 break;

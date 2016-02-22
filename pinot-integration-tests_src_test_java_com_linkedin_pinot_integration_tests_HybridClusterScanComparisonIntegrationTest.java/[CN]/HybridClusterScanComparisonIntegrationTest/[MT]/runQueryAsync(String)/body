@@ -1,0 +1,19 @@
+{
+  _queryExecutor.execute(new Runnable(){
+    @Override public void run(){
+      final ScanBasedQueryProcessor scanBasedQueryProcessor=ThreadLocal.withInitial(new Supplier<ScanBasedQueryProcessor>(){
+        @Override public ScanBasedQueryProcessor get(){
+          return _scanBasedQueryProcessor.clone();
+        }
+      }
+).get();
+      try {
+        runQuery(pqlQuery,scanBasedQueryProcessor,false);
+      }
+ catch (      Exception e) {
+        Assert.fail("Caught exception",e);
+      }
+    }
+  }
+);
+}
