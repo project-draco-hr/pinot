@@ -1,5 +1,13 @@
 {
   String text=ctx.getText();
   int textLength=text.length();
-  pushNode(new StringLiteralAstNode(text.substring(1,textLength - 1)));
+  if (text.charAt(0) == '\'') {
+    pushNode(new StringLiteralAstNode(text.substring(1,textLength - 1).replaceAll("''","'")));
+  }
+ else   if (text.charAt(0) == '"') {
+    pushNode(new StringLiteralAstNode(text.substring(1,textLength - 1).replaceAll("\"\"","\"")));
+  }
+ else {
+    throw new Pql2CompilationException("String literal does not start with either '  or \"");
+  }
 }

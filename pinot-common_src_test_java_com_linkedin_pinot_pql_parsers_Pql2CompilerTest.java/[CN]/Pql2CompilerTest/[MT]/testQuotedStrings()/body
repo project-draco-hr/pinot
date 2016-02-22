@@ -1,0 +1,11 @@
+{
+  Pql2Compiler compiler=new Pql2Compiler();
+  BrokerRequest brokerRequest=compiler.compileToBrokerRequest("select * from vegetables where origin = 'Martha''s Vineyard'");
+  Assert.assertEquals(brokerRequest.getFilterQuery().getValue().get(0),"Martha's Vineyard");
+  brokerRequest=compiler.compileToBrokerRequest("select * from vegetables where origin = 'Martha\"\"s Vineyard'");
+  Assert.assertEquals(brokerRequest.getFilterQuery().getValue().get(0),"Martha\"\"s Vineyard");
+  brokerRequest=compiler.compileToBrokerRequest("select * from vegetables where origin = \"Martha\"\"s Vineyard\"");
+  Assert.assertEquals(brokerRequest.getFilterQuery().getValue().get(0),"Martha\"s Vineyard");
+  brokerRequest=compiler.compileToBrokerRequest("select * from vegetables where origin = \"Martha''s Vineyard\"");
+  Assert.assertEquals(brokerRequest.getFilterQuery().getValue().get(0),"Martha''s Vineyard");
+}
