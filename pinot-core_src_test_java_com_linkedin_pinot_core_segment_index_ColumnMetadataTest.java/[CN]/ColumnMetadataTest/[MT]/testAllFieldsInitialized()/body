@@ -1,0 +1,28 @@
+{
+  final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(INDEX_DIR.listFiles()[0],ReadMode.mmap);
+  SegmentMetadataImpl metadata=(SegmentMetadataImpl)segment.getSegmentMetadata();
+  ColumnMetadata col7Meta=metadata.getColumnMetadataFor("column7");
+  Assert.assertEquals("column7",col7Meta.getColumnName());
+  Assert.assertEquals(359,col7Meta.getCardinality());
+  Assert.assertEquals(false,col7Meta.isSingleValue());
+  Assert.assertEquals(FieldSpec.DataType.INT,col7Meta.getDataType());
+  Assert.assertEquals(9,col7Meta.getBitsPerElement());
+  Assert.assertEquals(FieldSpec.FieldType.DIMENSION,col7Meta.getFieldType());
+  Assert.assertEquals(24,col7Meta.getMaxNumberOfMultiValues());
+  Assert.assertEquals(0,col7Meta.getTotalAggreateDocs());
+  Assert.assertEquals(100000,col7Meta.getTotalRawDocs());
+  Assert.assertEquals(100000,col7Meta.getTotalDocs());
+  Assert.assertEquals(0,col7Meta.getStringColumnMaxLength());
+  Assert.assertEquals(true,col7Meta.hasDictionary());
+  Assert.assertEquals(true,col7Meta.isHasInvertedIndex());
+  Assert.assertEquals(false,col7Meta.hasNulls());
+  Assert.assertEquals(false,col7Meta.isSorted());
+  Assert.assertTrue(col7Meta.getTotalDocs() < col7Meta.getTotalNumberOfEntries());
+  ColumnMetadata col3=metadata.getColumnMetadataFor("column3");
+  Assert.assertEquals(FieldSpec.DataType.STRING,col3.getDataType());
+  Assert.assertEquals(true,col3.isSingleValue());
+  Assert.assertEquals(4,col3.getStringColumnMaxLength());
+  Assert.assertEquals(0,col3.getMaxNumberOfMultiValues());
+  ColumnMetadata timeColumn=metadata.getColumnMetadataFor("daysSinceEpoch");
+  Assert.assertEquals(TimeUnit.HOURS,timeColumn.getTimeunit());
+}

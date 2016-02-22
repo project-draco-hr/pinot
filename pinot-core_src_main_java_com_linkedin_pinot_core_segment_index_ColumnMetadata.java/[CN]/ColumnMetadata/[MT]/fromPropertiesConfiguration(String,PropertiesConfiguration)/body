@@ -1,0 +1,40 @@
+{
+  Builder builder=new Builder();
+  builder.setColumnName(column);
+  int cardinality=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.CARDINALITY));
+  builder.setCardinality(cardinality);
+  int totalDocs=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_DOCS));
+  builder.setTotalDocs(totalDocs);
+  final int totalRawDocs=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_RAW_DOCS),totalDocs);
+  builder.setTotalRawDocs(totalRawDocs);
+  final int totalAggDocs=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_AGG_DOCS),0);
+  builder.setTotalAggDocs(totalAggDocs);
+  final DataType dataType=DataType.valueOf(config.getString(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.DATA_TYPE)));
+  builder.setDataType(dataType);
+  final int bitsPerElement=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.BITS_PER_ELEMENT));
+  builder.setBitsPerElement(bitsPerElement);
+  final int stringColumnMaxLength=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.DICTIONARY_ELEMENT_SIZE));
+  builder.setStringColumnMaxLength(stringColumnMaxLength);
+  final FieldType fieldType=FieldType.valueOf(config.getString(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.COLUMN_TYPE)).toUpperCase());
+  builder.setFieldType(fieldType);
+  final boolean isSorted=config.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.IS_SORTED));
+  builder.setIsSorted(isSorted);
+  final boolean hasInvertedIndex=config.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.HAS_INVERTED_INDEX));
+  builder.setHasInvertedIndex(hasInvertedIndex);
+  final boolean isSingleValue=config.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.IS_SINGLE_VALUED));
+  builder.setInSingleValue(isSingleValue);
+  final int maxNumberOfMultiValues=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.MAX_MULTI_VALUE_ELEMTS));
+  builder.setMaxNumberOfMultiValues(maxNumberOfMultiValues);
+  final boolean hasNulls=config.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.HAS_NULL_VALUE));
+  builder.setContainsNulls(hasNulls);
+  TimeUnit segmentTimeUnit=TimeUnit.DAYS;
+  if (config.containsKey(V1Constants.MetadataKeys.Segment.TIME_UNIT)) {
+    segmentTimeUnit=TimeUtils.timeUnitFromString(config.getString(TIME_UNIT));
+  }
+  builder.setTimeunit(segmentTimeUnit);
+  final boolean hasDictionary=config.getBoolean(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.HAS_DICTIONARY),true);
+  builder.setHasDictionary(hasDictionary);
+  final int totalNumberOfEntries=config.getInt(V1Constants.MetadataKeys.Column.getKeyFor(column,V1Constants.MetadataKeys.Column.TOTAL_NUMBER_OF_ENTRIES));
+  builder.setTotalNumberOfEntries(totalNumberOfEntries);
+  return builder.build();
+}
