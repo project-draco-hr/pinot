@@ -1,5 +1,8 @@
 {
   LOGGER.info("Reloading client configurations from {}",clientConfigFolder);
   clientMap.reloadFromFolder(clientConfigFolder);
+  if (funnelsProvider != null) {
+    funnelsProvider.loadConfigs();
+  }
   return Response.ok().build();
 }
