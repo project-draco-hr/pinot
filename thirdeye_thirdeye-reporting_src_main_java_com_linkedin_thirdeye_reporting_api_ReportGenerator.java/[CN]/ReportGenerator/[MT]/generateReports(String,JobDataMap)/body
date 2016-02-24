@@ -46,8 +46,9 @@
         baselineEndHour=baselineStartHour.plus(TimeUnit.MILLISECONDS.convert(aggregationSize,aggregationUnit));
         for (        String metric : tableSpec.getMetrics()) {
           LOGGER.info("Metric : " + metric);
-          ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metric).setStartTime(currentStartHour).setEndTime(currentEndHour).setDimensionValues(dimensionValues).setGroupBy(groupBy).build();
-          ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metric).setStartTime(baselineStartHour).setEndTime(baselineEndHour).setDimensionValues(dimensionValues).setGroupBy(groupBy).build();
+          ThirdEyeMetricFunction metricFunction=new ThirdEyeMetricFunction(starTreeConfig.getTime().getBucket(),Collections.singletonList(metric));
+          ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStartHour).setEndTime(currentEndHour).setDimensionValues(dimensionValues).setGroupBy(groupBy).build();
+          ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineStartHour).setEndTime(baselineEndHour).setDimensionValues(dimensionValues).setGroupBy(groupBy).build();
           LOGGER.info("Current req: {}",currentReq);
           LOGGER.info("Baseline req: {}",baselineReq);
           ThirdEyeRawResponse currentQueryResult=thirdeyeClient.getRawResponse(currentReq);
