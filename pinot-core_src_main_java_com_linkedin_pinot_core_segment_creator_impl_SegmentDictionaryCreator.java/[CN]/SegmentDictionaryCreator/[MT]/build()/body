@@ -56,6 +56,7 @@ stringColumnMaxLength=length;
 }
 final FixedByteSingleValueMultiColWriter stringDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,new int[]{stringColumnMaxLength});
 final String[] revised=new String[rowCount];
+Map<String,Integer> revisedMap=new HashMap<String,Integer>();
 for (int i=0; i < rowCount; i++) {
 final String toWrite=sortedObjects[i].toString();
 final int padding=stringColumnMaxLength - toWrite.getBytes(Charset.forName("UTF-8")).length;
@@ -67,12 +68,15 @@ bld.append(V1Constants.Str.STRING_PAD_CHAR);
 String entry=bld.toString();
 revised[i]=entry;
 assert(revised[i].getBytes(Charset.forName("UTF-8")).length == stringColumnMaxLength);
+revisedMap.put(revised[i],i);
 }
 Arrays.sort(revised);
 stringValueToIndexMap=new Object2IntOpenHashMap<>(rowCount);
 for (int i=0; i < revised.length; i++) {
 stringDictionaryWrite.setString(i,0,revised[i]);
-stringValueToIndexMap.put(sortedObjects[i].toString(),i);
+Integer origIndex=revisedMap.get(revised[i]);
+String origString=sortedObjects[origIndex].toString();
+stringValueToIndexMap.put(origString,origIndex);
 }
 stringDictionaryWrite.close();
 break;
