@@ -3,7 +3,12 @@
   DateTime maxTime=new DateTime(maxTimeMillis,DateTimeZone.UTC);
   LOG.info("Received data for {} in {} to {}",collection,minTime,maxTime);
   LOG.info("Deleting older segment for same date range, if exists");
-  dataUpdateManager.deleteData(collection,schedule,minTime,maxTime);
+  try {
+    dataUpdateManager.deleteData(collection,schedule,minTime,maxTime);
+  }
+ catch (  Exception e) {
+    LOG.info("Older segment does not exist");
+  }
   dataUpdateManager.updateData(collection,schedule,minTime,maxTime,dataBytes);
   final String collectionName=collection;
   AtomicLong value=lastPostDataMillis.putIfAbsent(collectionName,new AtomicLong(System.currentTimeMillis()));
