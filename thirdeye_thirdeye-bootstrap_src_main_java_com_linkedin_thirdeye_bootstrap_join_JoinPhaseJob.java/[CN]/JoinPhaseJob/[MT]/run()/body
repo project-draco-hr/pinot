@@ -45,13 +45,16 @@
   LOGGER.info("Setting number of reducers : " + job.getNumReduceTasks());
   Map<String,String> schemaMap=new HashMap<String,String>();
   Map<String,String> schemaPathMapping=new HashMap<String,String>();
-  for (  String sourceName : sourceNames) {
+  String[] joinInputAvroSchemas=getAndCheck(JOIN_INPUT_AVRO_SCHEMA.toString()).split(CONFIGS_SEPARATOR);
+  String[] joinInputPaths=getAndCheck(JOIN_INPUT_PATH.toString()).split(CONFIGS_SEPARATOR);
+  for (int i=0; i < sourceNames.size(); i++) {
+    String sourceName=sourceNames.get(i);
     LOGGER.info("Loading Schema for {}",sourceName);
-    FSDataInputStream schemaStream=fs.open(new Path(getAndCheck(sourceName + "." + JOIN_INPUT_AVRO_SCHEMA.toString())));
+    FSDataInputStream schemaStream=fs.open(new Path(joinInputAvroSchemas[i]));
     Schema schema=new Schema.Parser().parse(schemaStream);
     schemaMap.put(sourceName,schema.toString());
     LOGGER.info("Schema for {}:  \n{}",sourceName,schema);
-    String inputPathDir=getAndCheck(sourceName + "." + JOIN_INPUT_PATH.toString());
+    String inputPathDir=joinInputPaths[i];
     LOGGER.info("Input path dir for " + sourceName + ": "+ inputPathDir);
     for (    String inputPath : inputPathDir.split(",")) {
       Path input=new Path(inputPath);
