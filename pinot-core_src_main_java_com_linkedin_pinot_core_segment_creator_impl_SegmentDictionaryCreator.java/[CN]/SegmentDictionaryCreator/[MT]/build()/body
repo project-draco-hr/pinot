@@ -49,34 +49,27 @@ case BOOLEAN:
 Object[] sortedObjects=(Object[])sortedList;
 for (final Object e : sortedObjects) {
 String val=e.toString();
-int length=val.getBytes(Charset.forName("UTF-8")).length;
+int length=val.getBytes(utf8CharSet).length;
 if (stringColumnMaxLength < length) {
 stringColumnMaxLength=length;
 }
 }
 final FixedByteSingleValueMultiColWriter stringDictionaryWrite=new FixedByteSingleValueMultiColWriter(dictionaryFile,rowCount,1,new int[]{stringColumnMaxLength});
 final String[] revised=new String[rowCount];
-Map<String,Integer> revisedMap=new HashMap<String,Integer>();
+Map<String,String> revisedMap=new HashMap<String,String>();
 for (int i=0; i < rowCount; i++) {
 final String toWrite=sortedObjects[i].toString();
-final int padding=stringColumnMaxLength - toWrite.getBytes(Charset.forName("UTF-8")).length;
-final StringBuilder bld=new StringBuilder();
-bld.append(toWrite);
-for (int j=0; j < padding; j++) {
-bld.append(V1Constants.Str.STRING_PAD_CHAR);
-}
-String entry=bld.toString();
+String entry=getPaddedString(toWrite,stringColumnMaxLength);
 revised[i]=entry;
-assert(revised[i].getBytes(Charset.forName("UTF-8")).length == stringColumnMaxLength);
-revisedMap.put(revised[i],i);
+assert(revised[i].getBytes(utf8CharSet).length == stringColumnMaxLength);
+revisedMap.put(revised[i],toWrite);
 }
 Arrays.sort(revised);
 stringValueToIndexMap=new Object2IntOpenHashMap<>(rowCount);
 for (int i=0; i < revised.length; i++) {
 stringDictionaryWrite.setString(i,0,revised[i]);
-Integer origIndex=revisedMap.get(revised[i]);
-String origString=sortedObjects[origIndex].toString();
-stringValueToIndexMap.put(origString,origIndex);
+String origString=revisedMap.get(revised[i]);
+stringValueToIndexMap.put(origString,i);
 }
 stringDictionaryWrite.close();
 break;
