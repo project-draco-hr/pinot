@@ -2,7 +2,7 @@
   String query="select count(*) from testTable where column1='186154188'";
   LOGGER.info("running  : " + query);
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
-  final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(query));
+  final BrokerRequest brokerRequest=REQUEST_COMPILER.compileToBrokerRequest(query);
   brokerRequest.setEnableTrace(true);
   InstanceRequest instanceRequest=new InstanceRequest(1,brokerRequest);
   instanceRequest.setEnableTrace(true);

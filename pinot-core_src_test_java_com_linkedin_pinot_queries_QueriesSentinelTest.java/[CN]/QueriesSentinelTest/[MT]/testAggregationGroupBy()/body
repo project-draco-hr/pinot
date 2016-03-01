@@ -4,7 +4,7 @@
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   for (  final TestGroupByAggreationQuery groupBy : groupByCalls) {
     LOGGER.info("running " + counter + " : "+ groupBy.pql);
-    final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(groupBy.pql));
+    final BrokerRequest brokerRequest=REQUEST_COMPILER.compileToBrokerRequest(groupBy.pql);
     InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
     instanceRequest.setSearchSegments(new ArrayList<String>());
     instanceRequest.getSearchSegments().add(segmentName);

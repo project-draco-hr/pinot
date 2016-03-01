@@ -4,7 +4,7 @@
   final List<TestSimpleAggreationQuery> aggCalls=AVRO_QUERY_GENERATOR.giveMeNSimpleAggregationQueries(10000);
   for (  final TestSimpleAggreationQuery aggCall : aggCalls) {
     LOGGER.info("running " + counter + " : "+ aggCall.pql);
-    final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(aggCall.pql));
+    final BrokerRequest brokerRequest=REQUEST_COMPILER.compileToBrokerRequest(aggCall.pql);
     InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
     instanceRequest.setSearchSegments(new ArrayList<String>());
     instanceRequest.getSearchSegments().add("testTable_testTable");

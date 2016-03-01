@@ -3,7 +3,7 @@
   query="select count(*) from testTable where column5='kCMyNVGCASKYDdQbftOPaqVMWc'";
   LOGGER.info("running  : " + query);
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
-  final BrokerRequest brokerRequest=RequestConverter.fromJSON(REQUEST_COMPILER.compile(query));
+  final BrokerRequest brokerRequest=REQUEST_COMPILER.compileToBrokerRequest(query);
   InstanceRequest instanceRequest=new InstanceRequest(1,brokerRequest);
   instanceRequest.setSearchSegments(new ArrayList<String>());
   instanceRequest.getSearchSegments().add(segmentName);

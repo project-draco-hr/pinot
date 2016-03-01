@@ -3,24 +3,11 @@
   final String pqlString=getQuery().getValues("pql");
   final String traceEnabled=getQuery().getValues("trace");
   LOGGER.info("*** found pql : " + pqlString);
-  JSONObject compiledJSON;
-  try {
-    compiledJSON=compiler.compile(pqlString);
-  }
- catch (  final RecognitionException e) {
-    LOGGER.error("Caught exception while processing get request",e);
-    ProcessingException parsingException=QueryException.PQL_PARSING_ERROR.deepCopy();
-    parsingException.setMessage(e.toString());
-    return new StringRepresentation(parsingException.toString());
-  }
-  if (!compiledJSON.has("collection")) {
-    return new StringRepresentation("your request does not contain the collection information");
-  }
   final String resource;
   try {
-    resource=compiledJSON.getString("collection");
+    resource=REQUEST_COMPILER.compileToBrokerRequest(pqlString).getQuerySource().getTableName();
   }
- catch (  final JSONException e) {
+ catch (  final Exception e) {
     LOGGER.error("Caught exception while processing get request",e);
     return new StringRepresentation(QueryException.BROKER_RESOURCE_MISSING_ERROR.toString());
   }

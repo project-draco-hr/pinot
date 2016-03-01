@@ -3,9 +3,8 @@
   File[] segmentDirs=new File(rootDir).listFiles();
   String query=args[1];
   AtomicInteger totalDocsMatched=new AtomicInteger(0);
-  PQLCompiler compiler=new PQLCompiler(new HashMap<String,String[]>());
-  JSONObject jsonObject=compiler.compile(query);
-  BrokerRequest brokerRequest=RequestConverter.fromJSON(jsonObject);
+  Pql2Compiler pql2Compiler=new Pql2Compiler();
+  BrokerRequest brokerRequest=pql2Compiler.compileToBrokerRequest(query);
   List<Callable<Void>> segmentProcessors=new ArrayList<>();
   long[] timesSpent=new long[segmentDirs.length];
   for (int i=0; i < segmentDirs.length; i++) {

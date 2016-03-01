@@ -2,12 +2,6 @@
   final JSONObject json=new JSONObject();
   json.put("pql",query);
   json.put("trace",isTraceEnabled);
-  if (usePql2Compiler) {
-    json.put("dialect","pql2");
-  }
- else {
-    json.put("dialect","bql");
-  }
   final long start=System.currentTimeMillis();
   final URLConnection conn=new URL(brokerBaseApiUrl + "/query").openConnection();
   conn.setDoOutput(true);
