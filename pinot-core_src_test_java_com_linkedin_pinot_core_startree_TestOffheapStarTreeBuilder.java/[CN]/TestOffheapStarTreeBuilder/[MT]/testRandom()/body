@@ -4,12 +4,12 @@
   int numMetrics=6;
   StarTreeBuilderConfig builderConfig=new StarTreeBuilderConfig();
   Schema schema=new Schema();
-  builderConfig.splitOrder=new ArrayList<>();
+  builderConfig.dimensionsSplitOrder=new ArrayList<>();
   for (int i=0; i < numDimensions; i++) {
     String dimName="d" + (i + 1);
     DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(dimName,DataType.INT,true);
     schema.addField(dimName,dimensionFieldSpec);
-    builderConfig.splitOrder.add(dimName);
+    builderConfig.dimensionsSplitOrder.add(dimName);
   }
   schema.setTimeFieldSpec(new TimeFieldSpec("daysSinceEpoch",DataType.INT,TimeUnit.DAYS));
   for (int i=0; i < numMetrics; i++) {

@@ -1,9 +1,9 @@
 {
   int docsAdded=0;
-  if (level == splitOrder.size() - 1) {
+  if (level == dimensionsSplitOrder.size() - 1) {
     return 0;
   }
-  String splitDimensionName=splitOrder.get(level);
+  String splitDimensionName=dimensionsSplitOrder.get(level);
   Integer splitDimensionId=dimensionNameToIndexMap.get(splitDimensionName);
   LOG.debug("Building tree at level:{} using file:{} from startDoc:{} endDocId:{} splitting on dimension:{}",level,file.getName(),startDocId,endDocId,splitDimensionName);
   Map<Integer,IntPair> sortGroupBy=groupBy(startDocId,endDocId,splitDimensionId,file);
@@ -25,6 +25,9 @@
       child.setStartDocumentId(range.getLeft());
       child.setEndDocumentId(range.getRight());
     }
+  }
+  if (skipStarNodeCreationForDimensions.contains(splitDimensionName)) {
+    return docsAdded;
   }
   StarTreeIndexNode starChild=new StarTreeIndexNode();
   starChild.setDimensionName(splitDimensionId);

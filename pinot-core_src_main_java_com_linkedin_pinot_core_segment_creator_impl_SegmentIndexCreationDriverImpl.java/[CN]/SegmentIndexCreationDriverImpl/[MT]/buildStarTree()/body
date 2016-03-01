@@ -3,20 +3,21 @@
   StarTreeIndexSpec starTreeIndexSpec=config.getStarTreeIndexSpec();
   if (starTreeIndexSpec == null) {
     starTreeIndexSpec=new StarTreeIndexSpec();
-    starTreeIndexSpec.setExcludedDimensions(Lists.newArrayList(dataSchema.getTimeColumnName()));
     starTreeIndexSpec.setMaxLeafRecords(StarTreeIndexSpec.DEFAULT_MAX_LEAF_RECORDS);
     config.setStarTreeIndexSpec(starTreeIndexSpec);
   }
-  List<String> splitOrder=starTreeIndexSpec.getSplitOrder();
-  if (splitOrder != null && !splitOrder.isEmpty()) {
-    if (starTreeIndexSpec.getSplitExcludes() != null) {
-      splitOrder.removeAll(starTreeIndexSpec.getSplitExcludes());
+  List<String> dimensionsSplitOrder=starTreeIndexSpec.getDimensionsSplitOrder();
+  if (dimensionsSplitOrder != null && !dimensionsSplitOrder.isEmpty()) {
+    String timeColumnName=config.getTimeColumnName();
+    if (timeColumnName != null) {
+      dimensionsSplitOrder.remove(timeColumnName);
     }
   }
   StarTreeBuilderConfig starTreeBuilderConfig=new StarTreeBuilderConfig();
   starTreeBuilderConfig.setSchema(dataSchema);
-  starTreeBuilderConfig.setSplitOrder(splitOrder);
+  starTreeBuilderConfig.setDimensionsSplitOrder(dimensionsSplitOrder);
   starTreeBuilderConfig.setMaxLeafRecords(starTreeIndexSpec.getMaxLeafRecords());
+  starTreeBuilderConfig.setSkipStarNodeCreationForDimensions(starTreeIndexSpec.getSkipStarNodeCreationForDimensions());
   starTreeBuilderConfig.setOutDir(starTreeTempDir);
   StarTreeBuilder starTreeBuilder=new OffHeapStarTreeBuilder();
   starTreeBuilder.init(starTreeBuilderConfig);
@@ -52,8 +53,8 @@
     GenericRow genericRow=allRowsIterator.next();
     indexCreator.indexRow(genericRow);
   }
-  if (splitOrder == null || splitOrder.isEmpty()) {
-    starTreeIndexSpec.setSplitOrder(starTreeBuilder.getSplitOrder());
+  if (dimensionsSplitOrder == null || dimensionsSplitOrder.isEmpty()) {
+    starTreeIndexSpec.setDimensionsSplitOrder(starTreeBuilder.getDimensionsSplitOrder());
   }
   serializeTree(starTreeBuilder);
   handlePostCreation();
