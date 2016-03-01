@@ -46,6 +46,7 @@
     @Override public void run(){
       boolean notFull=true;
       long exceptionSleepMillis=50L;
+      LOGGER.info("Starting to collect rows for segment {}",segmentName);
       do {
         GenericRow row=null;
         try {
@@ -67,13 +68,13 @@ catch (        Error e) {
       }
  while (notFull && keepIndexing);
       try {
-        LOGGER.info("Indexing threshold reached, proceeding with index conversion");
+        LOGGER.info("Indexing threshold reached, proceeding with index conversion for {}",segmentName);
         segmentStatusTask.cancel();
-        LOGGER.info("Trying to persist a realtimeSegment - " + realtimeSegment.getSegmentName());
-        LOGGER.info("Indexed " + realtimeSegment.getRawDocumentCount() + " raw events, current number of docs = "+ realtimeSegment.getSegmentMetadata().getTotalDocs());
+        LOGGER.info("Trying to persist a realtimeSegment {}" + realtimeSegment.getSegmentName());
+        LOGGER.info("Indexed {} raw events, current number of docs = {} for {}",realtimeSegment.getRawDocumentCount(),realtimeSegment.getSegmentMetadata().getTotalDocs(),segmentName);
         File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
         RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn,invertedIndexColumns);
-        LOGGER.info("Trying to build segment!");
+        LOGGER.info("Trying to build segment {}",segmentName);
         converter.build();
         File destDir=new File(resourceDataDir,segmentMetadata.getSegmentName());
         FileUtils.deleteQuietly(destDir);
@@ -112,7 +113,7 @@ catch (        Error e) {
         LOGGER.info("Successfully closed and committed kafka for {}",segmentName);
       }
  catch (      Exception e) {
-        LOGGER.error("Caught exception in the realtime indexing thread",e);
+        LOGGER.error("Caught exception in the realtime indexing thread for {}",segmentName,e);
       }
     }
   }
