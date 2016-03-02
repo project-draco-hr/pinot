@@ -29,31 +29,32 @@
   long numBuckets=(windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis;
   averageValue/=numBuckets;
   if (averageValue < volumeThreshold) {
+    LOGGER.info("{} does not meet volume threshold {}: {}",dimensionKey,volumeThreshold,averageValue);
     return anomalyResults;
   }
-  DateTime current=windowEnd;
-  DateTime baseline=current.minus(baselineMillis);
-  while (baseline.compareTo(windowStart) >= 0) {
-    double currentValue=timeSeries.get(current.getMillis(),metric).doubleValue();
-    double baselineValue=timeSeries.get(baseline.getMillis(),metric).doubleValue();
-    if (baselineValue > 0) {
-      double percentChange=(currentValue - baselineValue) / baselineValue;
-      if (changeThreshold > 0 && percentChange > changeThreshold || changeThreshold < 0 && percentChange < changeThreshold) {
-        AnomalyResult anomalyResult=new AnomalyResult();
-        anomalyResult.setCollection(getSpec().getCollection());
-        anomalyResult.setMetric(metric);
-        anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
-        anomalyResult.setFunctionId(getSpec().getId());
-        anomalyResult.setProperties(getSpec().getProperties());
-        anomalyResult.setStartTimeUtc(current.getMillis());
-        anomalyResult.setEndTimeUtc(null);
-        anomalyResult.setScore(percentChange);
-        anomalyResult.setWeight(averageValue);
-        anomalyResults.add(anomalyResult);
-      }
+  for (  Long baselineKey : new TreeSet<Long>(timeSeries.getTimeWindowSet())) {
+    if (baselineKey < windowStart.getMillis()) {
+      continue;
     }
-    current=current.minus(bucketMillis);
-    baseline=baseline.minus(bucketMillis);
+ else     if (baselineKey > windowEnd.minus(baselineMillis).getMillis()) {
+      break;
+    }
+    Long currentKey=baselineKey + baselineMillis;
+    double currentValue=timeSeries.get(currentKey,metric).doubleValue();
+    double baselineValue=timeSeries.get(baselineKey,metric).doubleValue();
+    if (isAnomaly(currentValue,baselineValue,changeThreshold)) {
+      AnomalyResult anomalyResult=new AnomalyResult();
+      anomalyResult.setCollection(getSpec().getCollection());
+      anomalyResult.setMetric(metric);
+      anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
+      anomalyResult.setFunctionId(getSpec().getId());
+      anomalyResult.setProperties(getSpec().getProperties());
+      anomalyResult.setStartTimeUtc(currentKey);
+      anomalyResult.setEndTimeUtc(null);
+      anomalyResult.setScore(calculatePercentChange(currentValue,baselineValue));
+      anomalyResult.setWeight(averageValue);
+      anomalyResults.add(anomalyResult);
+    }
   }
   return anomalyResults;
 }
