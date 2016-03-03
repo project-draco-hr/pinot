@@ -18,6 +18,10 @@
  catch (  Exception e) {
     throw new JobExecutionException(e);
   }
+  if (results.isEmpty() && !config.getSendZeroAnomalyEmail()) {
+    LOG.info("Zero anomalies found, skipping sending email");
+    return;
+  }
   Collections.sort(results,Collections.reverseOrder());
   String visualizerLink;
   try {
