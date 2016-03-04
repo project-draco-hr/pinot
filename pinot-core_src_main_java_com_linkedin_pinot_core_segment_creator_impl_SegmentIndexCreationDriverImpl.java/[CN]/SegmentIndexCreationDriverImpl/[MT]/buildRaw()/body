@@ -5,7 +5,7 @@
     totalDocs++;
     totalRawDocs++;
     long start=System.currentTimeMillis();
-    GenericRow row=recordReader.next();
+    GenericRow row=readNextRowSanitized();
     long stop=System.currentTimeMillis();
     statsCollector.collectRow(row);
     long stop1=System.currentTimeMillis();
@@ -20,7 +20,7 @@
   LOGGER.info("Start building IndexCreator!");
   while (recordReader.hasNext()) {
     long start=System.currentTimeMillis();
-    GenericRow row=recordReader.next();
+    GenericRow row=readNextRowSanitized();
     long stop=System.currentTimeMillis();
     indexCreator.indexRow(row);
     long stop1=System.currentTimeMillis();

@@ -25,7 +25,7 @@
   LOGGER.info("Start building star tree!");
   totalDocs=0;
   while (recordReader.hasNext()) {
-    GenericRow row=recordReader.next();
+    GenericRow row=readNextRowSanitized();
     starTreeBuilder.append(row);
     statsCollector.collectRow(row);
     totalRawDocs++;
