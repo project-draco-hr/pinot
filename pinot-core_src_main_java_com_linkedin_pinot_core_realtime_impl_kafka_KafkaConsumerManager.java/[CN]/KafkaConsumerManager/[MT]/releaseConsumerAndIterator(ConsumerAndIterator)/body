@@ -1,0 +1,42 @@
+{
+synchronized (KafkaConsumerManager.class) {
+    final long releaseTime=System.currentTimeMillis() + CONSUMER_SHUTDOWN_DELAY_MILLIS;
+    CONSUMER_RELEASE_TIME.put(consumerAndIterator,releaseTime);
+    LOGGER.info("Marking consumer/iterator with id {} for release at {}",consumerAndIterator.getId(),releaseTime);
+    new Thread(){
+      @Override public void run(){
+        try {
+          Uninterruptibles.sleepUninterruptibly(CONSUMER_SHUTDOWN_DELAY_MILLIS,TimeUnit.MILLISECONDS);
+synchronized (KafkaConsumerManager.class) {
+            LOGGER.info("Executing release check for consumer/iterator {} at {}, scheduled at ",consumerAndIterator.getId(),System.currentTimeMillis(),releaseTime);
+            Iterator<Map.Entry<KafkaHighLevelStreamProviderConfig,ConsumerAndIterator>> configIterator=CONSUMER_AND_ITERATOR_FOR_CONFIG.entrySet().iterator();
+            while (configIterator.hasNext()) {
+              Map.Entry<KafkaHighLevelStreamProviderConfig,ConsumerAndIterator> entry=configIterator.next();
+              KafkaHighLevelStreamProviderConfig config=entry.getKey();
+              ConsumerAndIterator consumerAndIterator=entry.getValue();
+              final Long releaseTime=CONSUMER_RELEASE_TIME.get(consumerAndIterator);
+              if (!releaseTime.equals(IN_USE) && releaseTime < System.currentTimeMillis()) {
+                LOGGER.info("Releasing consumer/iterator {}",consumerAndIterator.getId());
+                try {
+                  consumerAndIterator.getConsumer().shutdown();
+                }
+ catch (                Exception e) {
+                  LOGGER.warn("Caught exception while shutting down Kafka consumer with id {}",consumerAndIterator.getId(),e);
+                }
+                configIterator.remove();
+                CONSUMER_RELEASE_TIME.remove(consumerAndIterator);
+              }
+ else {
+                LOGGER.info("Not releasing consumer/iterator {}, it has been reacquired",consumerAndIterator.getId());
+              }
+            }
+          }
+        }
+ catch (        Exception e) {
+          LOGGER.warn("Caught exception in release of consumer/iterator {}",e,consumerAndIterator);
+        }
+      }
+    }
+.start();
+  }
+}

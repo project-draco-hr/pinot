@@ -1,3 +1,9 @@
 {
-  _streamProvider.commit();
+  boolean failToCommit=_random.nextBoolean();
+  if (failToCommit) {
+    throw new RuntimeException("Flaky stream provider exception");
+  }
+ else {
+    _streamProvider.commit();
+  }
 }

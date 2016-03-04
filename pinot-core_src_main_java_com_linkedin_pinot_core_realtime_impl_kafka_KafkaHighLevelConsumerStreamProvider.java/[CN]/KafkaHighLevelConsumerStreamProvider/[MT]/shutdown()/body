@@ -1,5 +1,8 @@
 {
-  if (consumer != null) {
-    consumer.shutdown();
+  if (consumerAndIterator != null) {
+    kafkaIterator=null;
+    consumer=null;
+    KafkaConsumerManager.releaseConsumerAndIterator(consumerAndIterator);
+    consumerAndIterator=null;
   }
 }

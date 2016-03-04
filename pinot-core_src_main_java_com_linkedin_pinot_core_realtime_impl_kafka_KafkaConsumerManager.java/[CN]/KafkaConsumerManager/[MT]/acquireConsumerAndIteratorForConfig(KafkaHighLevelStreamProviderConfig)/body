@@ -1,0 +1,23 @@
+{
+synchronized (KafkaConsumerManager.class) {
+    if (CONSUMER_AND_ITERATOR_FOR_CONFIG.containsKey(config)) {
+      ConsumerAndIterator consumerAndIterator=CONSUMER_AND_ITERATOR_FOR_CONFIG.get(config);
+      if (CONSUMER_RELEASE_TIME.get(consumerAndIterator).equals(IN_USE)) {
+        throw new RuntimeException("Consumer/iterator " + consumerAndIterator.getId() + " already in use!");
+      }
+ else {
+        LOGGER.info("Reusing kafka consumer/iterator with id {}",consumerAndIterator.getId());
+        CONSUMER_RELEASE_TIME.put(consumerAndIterator,IN_USE);
+        return consumerAndIterator;
+      }
+    }
+    LOGGER.info("Creating new kafka consumer and iterator for topic {}",config.getTopicName());
+    ConsumerConnector consumer=kafka.consumer.Consumer.createJavaConsumerConnector(config.getKafkaConsumerConfig());
+    ConsumerIterator<byte[],byte[]> iterator=consumer.createMessageStreams(config.getTopicMap(1)).get(config.getTopicName()).get(0).iterator();
+    ConsumerAndIterator consumerAndIterator=new ConsumerAndIterator(consumer,iterator);
+    CONSUMER_AND_ITERATOR_FOR_CONFIG.put(config,consumerAndIterator);
+    CONSUMER_RELEASE_TIME.put(consumerAndIterator,IN_USE);
+    LOGGER.info("Created consumer/iterator with id {} for topic {}",consumerAndIterator.getId(),config.getTopicName());
+    return consumerAndIterator;
+  }
+}
