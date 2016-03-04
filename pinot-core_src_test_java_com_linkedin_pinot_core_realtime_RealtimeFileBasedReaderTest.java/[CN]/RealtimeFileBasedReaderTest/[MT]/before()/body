@@ -18,8 +18,9 @@
   schema=SegmentTestUtils.extractSchemaFromAvro(new File(filePath),fieldTypeMap,TimeUnit.MINUTES);
   StreamProviderConfig config=new FileBasedStreamProviderConfig(FileFormat.AVRO,filePath,schema);
   StreamProvider provider=new FileBasedStreamProviderImpl();
-  provider.init(config);
-  realtimeSegment=new RealtimeSegmentImpl(schema,100000);
+  final String tableName=RealtimeFileBasedReaderTest.class.getSimpleName() + ".noTable";
+  provider.init(config,tableName);
+  realtimeSegment=new RealtimeSegmentImpl(schema,100000,tableName,segmentName,AVRO_DATA);
   GenericRow row=provider.next();
   while (row != null) {
     realtimeSegment.index(row);
@@ -29,7 +30,7 @@
   if (new File("/tmp/realtime").exists()) {
     FileUtils.deleteQuietly(new File("/tmp/realtime"));
   }
-  RealtimeSegmentConverter conveter=new RealtimeSegmentConverter(realtimeSegment,"/tmp/realtime",schema,"testTable","seomg-segment",null);
+  RealtimeSegmentConverter conveter=new RealtimeSegmentConverter(realtimeSegment,"/tmp/realtime",schema,tableName,segmentName,null);
   conveter.build();
   offlineSegment=Loaders.IndexSegment.load(new File("/tmp/realtime").listFiles()[0],ReadMode.mmap);
 }

@@ -1,39 +1,41 @@
 {
   super();
   this.schema=schema;
+  this.segmentName=segmentMetadata.getSegmentName();
   IndexingConfig indexingConfig=tableConfig.getIndexingConfig();
   if (indexingConfig.getSortedColumn().isEmpty()) {
-    LOGGER.info("RealtimeDataResourceZKMetadata contains no information about sorted column");
+    GLOBAL_LOGGER.info("RealtimeDataResourceZKMetadata contains no information about sorted column for segment {}",segmentName);
     this.sortedColumn=null;
   }
  else {
     String firstSortedColumn=indexingConfig.getSortedColumn().get(0);
     if (this.schema.isExisted(firstSortedColumn)) {
-      LOGGER.info("Setting sorted column name: {} from RealtimeDataResourceZKMetadata.",firstSortedColumn);
+      GLOBAL_LOGGER.info("Setting sorted column name: {} from RealtimeDataResourceZKMetadata for segment {}",firstSortedColumn,segmentName);
       this.sortedColumn=firstSortedColumn;
     }
  else {
-      LOGGER.warn("Sorted column name: {} from RealtimeDataResourceZKMetadata is not existed in schema.",firstSortedColumn);
+      GLOBAL_LOGGER.warn("Sorted column name: {} from RealtimeDataResourceZKMetadata is not existed in schema for segment {}.",firstSortedColumn,segmentName);
       this.sortedColumn=null;
     }
   }
   invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
-  LOGGER.info("Enabling inverted  index for columns name: {}",invertedIndexColumns);
   this.segmentMetatdaZk=segmentMetadata;
-  this.segmentName=segmentMetadata.getSegmentName();
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
   this.kafkaStreamProviderConfig.init(tableConfig,instanceMetadata,schema);
+  LOGGER=LoggerFactory.getLogger(RealtimeSegmentDataManager.class.getName() + "_" + segmentName+ "_"+ kafkaStreamProviderConfig.getStreamName());
+  LOGGER.info("Created segment data manager with Sorted column:{}, invertedIndexColumns:{}",sortedColumn,invertedIndexColumns);
   segmentEndTimeThreshold=start + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
   this.resourceDir=new File(resourceDataDir);
   this.resourceTmpDir=new File(resourceDataDir,"_tmp");
   if (!resourceTmpDir.exists()) {
     resourceTmpDir.mkdirs();
   }
+  final String tableName=tableConfig.getTableName();
   this.kafkaStreamProvider=StreamProviderFactory.buildStreamProvider();
-  this.kafkaStreamProvider.init(kafkaStreamProviderConfig);
+  this.kafkaStreamProvider.init(kafkaStreamProviderConfig,tableName);
   this.kafkaStreamProvider.start();
-  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment());
-  realtimeSegment.setSegmentName(segmentMetadata.getSegmentName());
+  LOGGER.info("Started kafka stream provider");
+  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName());
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
   notifier=realtimeResourceManager;
   segmentStatusTask=new TimerTask(){
@@ -46,7 +48,7 @@
     @Override public void run(){
       boolean notFull=true;
       long exceptionSleepMillis=50L;
-      LOGGER.info("Starting to collect rows for segment {}",segmentName);
+      LOGGER.info("Starting to collect rows");
       do {
         GenericRow row=null;
         try {
@@ -68,28 +70,30 @@ catch (        Error e) {
       }
  while (notFull && keepIndexing);
       try {
-        LOGGER.info("Indexing threshold reached, proceeding with index conversion for {}",segmentName);
+        LOGGER.info("Indexing threshold reached, proceeding with index conversion");
         segmentStatusTask.cancel();
-        LOGGER.info("Trying to persist a realtimeSegment {}" + realtimeSegment.getSegmentName());
-        LOGGER.info("Indexed {} raw events, current number of docs = {} for {}",realtimeSegment.getRawDocumentCount(),realtimeSegment.getSegmentMetadata().getTotalDocs(),segmentName);
+        LOGGER.info("Indexed {} raw events, current number of docs = {}",realtimeSegment.getRawDocumentCount(),realtimeSegment.getSegmentMetadata().getTotalDocs());
         File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
         RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn,invertedIndexColumns);
         LOGGER.info("Trying to build segment {}",segmentName);
+        final long buildStartTime=System.nanoTime();
         converter.build();
+        final long buildEndTime=System.nanoTime();
+        LOGGER.info("Built segment in {}ms",TimeUnit.MILLISECONDS.convert((buildEndTime - buildStartTime),TimeUnit.NANOSECONDS));
         File destDir=new File(resourceDataDir,segmentMetadata.getSegmentName());
         FileUtils.deleteQuietly(destDir);
         FileUtils.moveDirectory(tempSegmentFolder.listFiles()[0],destDir);
         FileUtils.deleteQuietly(tempSegmentFolder);
-        long startTime=realtimeSegment.getMinTime();
-        long endTime=realtimeSegment.getMaxTime();
+        long segStartTime=realtimeSegment.getMinTime();
+        long segEndTime=realtimeSegment.getMaxTime();
         TimeUnit timeUnit=schema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType();
         RealtimeSegmentZKMetadata metadaToOverrite=new RealtimeSegmentZKMetadata();
         metadaToOverrite.setTableName(segmentMetadata.getTableName());
         metadaToOverrite.setSegmentName(segmentMetadata.getSegmentName());
         metadaToOverrite.setSegmentType(SegmentType.OFFLINE);
         metadaToOverrite.setStatus(Status.DONE);
-        metadaToOverrite.setStartTime(startTime);
-        metadaToOverrite.setEndTime(endTime);
+        metadaToOverrite.setStartTime(segStartTime);
+        metadaToOverrite.setEndTime(segEndTime);
         metadaToOverrite.setTotalRawDocs(realtimeSegment.getSegmentMetadata().getTotalDocs());
         metadaToOverrite.setTimeUnit(timeUnit);
         Configuration configuration=new PropertyListConfiguration();
@@ -97,6 +101,7 @@ catch (        Error e) {
         IndexLoadingConfigMetadata configMetadata=new IndexLoadingConfigMetadata(configuration);
         IndexSegment segment=Loaders.IndexSegment.load(new File(resourceDir,segmentMetatdaZk.getSegmentName()),mode,configMetadata);
         notifier.notifySegmentCommitted(metadaToOverrite,segment);
+        LOGGER.info("Committing Kafka offset");
         boolean commitSuccessful=false;
         try {
           kafkaStreamProvider.commit();
@@ -104,16 +109,16 @@ catch (        Error e) {
           kafkaStreamProvider.shutdown();
         }
  catch (        Throwable e) {
-          LOGGER.error("FATAL: Exception committing or shutting down consumer for segment {} table {}:commitSuccessful={}",segmentName,segmentMetadata.getTableName(),commitSuccessful,e);
+          LOGGER.error("FATAL: Exception committing or shutting down consumer commitSuccessful={}",commitSuccessful,e);
           if (!commitSuccessful) {
             kafkaStreamProvider.shutdown();
           }
           throw e;
         }
-        LOGGER.info("Successfully closed and committed kafka for {}",segmentName);
+        LOGGER.info("Successfully closed and committed kafka",segmentName);
       }
  catch (      Exception e) {
-        LOGGER.error("Caught exception in the realtime indexing thread for {}",segmentName,e);
+        LOGGER.error("Caught exception in the realtime indexing thread",e);
       }
     }
   }
@@ -121,5 +126,5 @@ catch (        Error e) {
   indexingThread.start();
   LOGGER.debug("scheduling keepIndexing timer check");
   TimerService.timer.schedule(segmentStatusTask,ONE_MINUTE_IN_MILLSEC,ONE_MINUTE_IN_MILLSEC);
-  LOGGER.debug("finished scheduling keepIndexing timer check");
+  LOGGER.info("finished scheduling keepIndexing timer check");
 }

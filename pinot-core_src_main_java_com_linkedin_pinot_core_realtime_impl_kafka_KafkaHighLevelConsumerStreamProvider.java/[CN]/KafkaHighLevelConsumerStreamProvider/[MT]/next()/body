@@ -3,14 +3,15 @@
     try {
       GenericRow row=decoder.decode(kafkaIterator.next().message());
       kafkaEventsConsumedCount.inc();
+      globalKafkaEventsConsumedCount.inc();
       final long now=System.currentTimeMillis();
       final long currentCount=kafkaEventsConsumedCount.count();
       if (now - lastLogTime > 60000 || currentCount - lastCount >= 100000) {
         if (lastCount == 0) {
-          LOGGER.info("Consumed {} events from kafka",currentCount);
+          INSTANCE_LOGGER.info("Consumed {} events from kafka",currentCount);
         }
  else {
-          LOGGER.info("Consumed {} events from kafka (rate:{}/s)",currentCount - lastCount,(float)(currentCount - lastCount) * 1000 / (now - lastLogTime));
+          INSTANCE_LOGGER.info("Consumed {} events from kafka (rate:{}/s)",currentCount - lastCount,(float)(currentCount - lastCount) * 1000 / (now - lastLogTime));
         }
         lastCount=currentCount;
         lastLogTime=now;
@@ -18,8 +19,9 @@
       return row;
     }
  catch (    Exception e) {
-      LOGGER.warn("Caught exception while consuming events",e);
+      INSTANCE_LOGGER.warn("Caught exception while consuming events",e);
       kafkaEventsFailedCount.inc();
+      globalKafkaEventsFailedCount.inc();
     }
   }
   return null;
