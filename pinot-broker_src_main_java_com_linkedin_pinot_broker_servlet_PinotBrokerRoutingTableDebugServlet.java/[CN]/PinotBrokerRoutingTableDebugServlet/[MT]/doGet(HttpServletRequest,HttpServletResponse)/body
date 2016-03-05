@@ -1,7 +1,15 @@
 {
   try {
+    String tableName;
+    String pathInfo=req.getPathInfo();
+    if (pathInfo.startsWith("/") && pathInfo.lastIndexOf('/') == 0) {
+      tableName=pathInfo.substring(1);
+    }
+ else {
+      tableName="";
+    }
     resp.setContentType("application/json");
-    resp.getOutputStream().print(broker.getDebugInfo());
+    resp.getOutputStream().print(broker.getRoutingTableSnapshot(tableName));
     resp.getOutputStream().flush();
     resp.getOutputStream().close();
   }
