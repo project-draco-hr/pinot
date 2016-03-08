@@ -1,0 +1,13 @@
+{
+  ZKHelixAdmin helixAdmin=new ZKHelixAdmin(zkUrl);
+  List<String> thirdeyeBrokerList=helixAdmin.getInstancesInClusterWithTag(clusterName,tag);
+  String[] thirdeyeBrokers=new String[thirdeyeBrokerList.size()];
+  for (int i=0; i < thirdeyeBrokerList.size(); i++) {
+    String instanceName=thirdeyeBrokerList.get(i);
+    InstanceConfig instanceConfig=helixAdmin.getInstanceConfig(clusterName,instanceName);
+    thirdeyeBrokers[i]=instanceConfig.getHostName().replaceAll(BROKER_PREFIX,"") + ":" + instanceConfig.getPort();
+  }
+  Connection connection=ConnectionFactory.fromHostList(thirdeyeBrokers);
+  LOG.info("Created PinotThirdEyeClient to zookeeper: {}",zkUrl);
+  return new PinotThirdEyeClient(connection,controllerHost,controllerPort);
+}
