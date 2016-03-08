@@ -8,7 +8,7 @@
   final DefaultReduceService defaultReduceService=new DefaultReduceService();
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  final BrokerResponse brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  final BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   LOGGER.debug("Broker Response: {}",new JSONArray(brokerResponse.getAggregationResults()));
   LOGGER.debug("Time used : {}",brokerResponse.getTimeUsedMs());
   return brokerResponse;

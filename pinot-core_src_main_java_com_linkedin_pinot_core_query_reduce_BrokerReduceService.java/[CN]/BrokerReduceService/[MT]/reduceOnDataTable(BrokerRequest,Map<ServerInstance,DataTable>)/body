@@ -1,0 +1,58 @@
+{
+  BrokerResponseNative brokerResponseNative=new BrokerResponseNative();
+  if (instanceResponseMap == null || instanceResponseMap.size() == 0) {
+    return BrokerResponseNative.EMPTY_RESULT;
+  }
+  for (  ServerInstance serverInstance : instanceResponseMap.keySet().toArray(new ServerInstance[instanceResponseMap.size()])) {
+    DataTable instanceResponse=instanceResponseMap.get(serverInstance);
+    if (instanceResponse == null) {
+      continue;
+    }
+    if (brokerRequest.isEnableTrace() && instanceResponse.getMetadata() != null) {
+      brokerResponseNative.getTraceInfo().put(serverInstance.getHostname(),instanceResponse.getMetadata().get("traceInfo"));
+    }
+    if (instanceResponse.getDataSchema() == null && instanceResponse.getMetadata() != null) {
+      for (      String key : instanceResponse.getMetadata().keySet()) {
+        if (key.startsWith("Exception")) {
+          QueryProcessingException processingException=new QueryProcessingException();
+          processingException.setErrorCode(Integer.parseInt(key.substring(9)));
+          processingException.setMessage(instanceResponse.getMetadata().get(key));
+          brokerResponseNative.getProcessingExceptions().add(processingException);
+        }
+      }
+      instanceResponseMap.remove(serverInstance);
+      continue;
+    }
+    brokerResponseNative.setNumDocsScanned(brokerResponseNative.getNumDocsScanned() + Long.parseLong(instanceResponse.getMetadata().get(NUM_DOCS_SCANNED)));
+    brokerResponseNative.setTotalDocs(brokerResponseNative.getTotalDocs() + Long.parseLong(instanceResponse.getMetadata().get(TOTAL_DOCS)));
+    if (Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)) > brokerResponseNative.getTimeUsedMs()) {
+      brokerResponseNative.setTimeUsedMs(Long.parseLong(instanceResponse.getMetadata().get(TIME_USED_MS)));
+    }
+  }
+  try {
+    if (brokerRequest.isSetSelections() && (brokerRequest.getSelections().getSelectionColumns() != null) && (brokerRequest.getSelections().getSelectionColumns().size() >= 0)) {
+      SelectionResults selectionResults=reduceOnSelectionResults(brokerRequest,instanceResponseMap);
+      brokerResponseNative.setSelectionResults(selectionResults);
+      return brokerResponseNative;
+    }
+    if (brokerRequest.isSetAggregationsInfo()) {
+      if (!brokerRequest.isSetGroupBy()) {
+        List<List<Serializable>> aggregationResultsList=getShuffledAggregationResults(brokerRequest,instanceResponseMap);
+        brokerResponseNative.setAggregationResults(reduceOnAggregationResults(brokerRequest,aggregationResultsList));
+      }
+ else {
+        AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(brokerRequest.getAggregationsInfo(),brokerRequest.getGroupBy());
+        brokerResponseNative.setAggregationResults(reduceOnAggregationGroupByOperatorResults(aggregationGroupByOperatorService,instanceResponseMap));
+      }
+      return brokerResponseNative;
+    }
+  }
+ catch (  Exception e) {
+    QueryProcessingException processingException=new QueryProcessingException();
+    processingException.setMessage(e.getMessage());
+    processingException.setErrorCode(QueryException.BROKER_GATHER_ERROR_CODE);
+    brokerResponseNative.getProcessingExceptions().add(processingException);
+    return brokerResponseNative;
+  }
+  throw new UnsupportedOperationException("Should not reach here, the query has no attributes of selection or aggregation!");
+}

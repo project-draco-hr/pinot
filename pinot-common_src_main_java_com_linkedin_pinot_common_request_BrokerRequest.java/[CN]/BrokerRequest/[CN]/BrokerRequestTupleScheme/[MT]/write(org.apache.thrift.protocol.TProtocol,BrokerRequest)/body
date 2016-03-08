@@ -34,7 +34,10 @@
   if (struct.isSetEnableTrace()) {
     optionals.set(10);
   }
-  oprot.writeBitSet(optionals,11);
+  if (struct.isSetResponseFormat()) {
+    optionals.set(11);
+  }
+  oprot.writeBitSet(optionals,12);
   if (struct.isSetQueryType()) {
     struct.queryType.write(oprot);
   }
@@ -72,5 +75,8 @@
   }
   if (struct.isSetEnableTrace()) {
     oprot.writeBool(struct.enableTrace);
+  }
+  if (struct.isSetResponseFormat()) {
+    oprot.writeString(struct.responseFormat);
   }
 }

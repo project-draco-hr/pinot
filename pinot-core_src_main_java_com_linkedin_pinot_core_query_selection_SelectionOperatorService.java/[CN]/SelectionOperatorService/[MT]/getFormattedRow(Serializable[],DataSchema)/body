@@ -1,0 +1,38 @@
+{
+  Serializable[] formattedRow=new Serializable[inputValues.length];
+  for (int i=0; i < dataSchema.size(); ++i) {
+    if (_selectionColumns.contains(dataSchema.getColumnName(i))) {
+      if (dataSchema.getColumnType(i).isSingleValue()) {
+        if (dataSchema.getColumnType(i) == DataType.STRING) {
+          formattedRow[i]=inputValues[i];
+        }
+ else {
+          formattedRow[i]=DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(inputValues[i]);
+        }
+      }
+ else {
+        Object[] pollArray=(Object[])inputValues[i];
+        Serializable[] multiValued=new Serializable[pollArray.length];
+switch (dataSchema.getColumnType(i)) {
+case STRING_ARRAY:
+          for (          String value : (String[])pollArray) {
+            multiValued[i]=value;
+          }
+        break;
+case INT_ARRAY:
+case FLOAT_ARRAY:
+case LONG_ARRAY:
+case DOUBLE_ARRAY:
+      for (int j=0; j < pollArray.length; j++) {
+        DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(pollArray[j]);
+      }
+    break;
+default :
+  throw new RuntimeException("Unsupported data type in selection results");
+}
+formattedRow[i]=multiValued;
+}
+}
+}
+return formattedRow;
+}

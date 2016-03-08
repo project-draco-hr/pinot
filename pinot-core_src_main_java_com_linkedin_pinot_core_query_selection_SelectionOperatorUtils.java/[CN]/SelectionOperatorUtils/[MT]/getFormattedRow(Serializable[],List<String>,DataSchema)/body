@@ -1,0 +1,57 @@
+{
+  Serializable[] formattedRow=new Serializable[inputValues.length];
+  for (int i=0; i < dataSchema.size(); ++i) {
+    if (!selectionColumns.contains(dataSchema.getColumnName(i))) {
+      continue;
+    }
+    if (dataSchema.getColumnType(i).isSingleValue()) {
+      if (dataSchema.getColumnType(i) == DataType.STRING) {
+        formattedRow[i]=inputValues[i];
+      }
+ else {
+        formattedRow[i]=DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i)).format(inputValues[i]);
+      }
+    }
+ else {
+      String[] multiValued;
+      DecimalFormat decimalFormat=DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(i));
+switch (dataSchema.getColumnType(i)) {
+case STRING_ARRAY:
+        multiValued=(String[])inputValues[i];
+      break;
+case INT_ARRAY:
+    int[] intValues=(int[])inputValues[i];
+  multiValued=new String[intValues.length];
+for (int j=0; j < intValues.length; j++) {
+  multiValued[j]=decimalFormat.format(intValues[j]);
+}
+break;
+case FLOAT_ARRAY:
+float[] floatValues=(float[])inputValues[i];
+multiValued=new String[floatValues.length];
+for (int j=0; j < floatValues.length; j++) {
+multiValued[j]=decimalFormat.format(floatValues[j]);
+}
+break;
+case LONG_ARRAY:
+long[] longValues=(long[])inputValues[i];
+multiValued=new String[longValues.length];
+for (int j=0; j < longValues.length; j++) {
+multiValued[j]=decimalFormat.format(longValues[j]);
+}
+break;
+case DOUBLE_ARRAY:
+double[] doubleValues=(double[])inputValues[i];
+multiValued=new String[doubleValues.length];
+for (int j=0; j < doubleValues.length; j++) {
+multiValued[j]=decimalFormat.format(doubleValues[j]);
+}
+break;
+default :
+throw new RuntimeException("Unsupported data type in selection results");
+}
+formattedRow[i]=multiValued;
+}
+}
+return formattedRow;
+}

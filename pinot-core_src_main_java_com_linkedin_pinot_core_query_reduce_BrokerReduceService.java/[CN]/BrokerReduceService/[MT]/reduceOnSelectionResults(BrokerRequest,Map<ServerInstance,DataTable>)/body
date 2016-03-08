@@ -1,0 +1,24 @@
+{
+  try {
+    if (instanceResponseMap.size() > 0) {
+      DataTable dt=chooseFirstNonEmptySchema(instanceResponseMap.values());
+      removeConflictingResponses(dt.getDataSchema(),instanceResponseMap);
+      if (brokerRequest.getSelections().isSetSelectionSortSequence()) {
+        SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),dt.getDataSchema());
+        return selectionService.renderSelectionResults(selectionService.reduce(instanceResponseMap));
+      }
+ else {
+        Collection<Serializable[]> reduceResult=SelectionOperatorUtils.reduce(instanceResponseMap,brokerRequest.getSelections().getSize());
+        return SelectionOperatorUtils.renderSelectionResults(reduceResult,brokerRequest.getSelections().getSelectionColumns(),dt.getDataSchema());
+      }
+    }
+ else {
+      return null;
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while reducing results",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
+  }
+}

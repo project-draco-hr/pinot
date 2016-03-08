@@ -1,0 +1,20 @@
+{
+  final LinkedList<Serializable[]> rows=new LinkedList<Serializable[]>();
+  if (reducedResults instanceof PriorityQueue<?>) {
+    PriorityQueue<Serializable[]> queue=(PriorityQueue<Serializable[]>)reducedResults;
+    while (reducedResults.size() > offset) {
+      rows.addFirst(getFormattedRow(queue.poll(),dataSchema));
+    }
+  }
+ else   if (reducedResults instanceof ArrayList<?>) {
+    List<Serializable[]> list=(List<Serializable[]>)reducedResults;
+    for (int i=offset; i < list.size(); i++) {
+      rows.add(getFormattedRow(list.get(i),dataSchema));
+    }
+  }
+ else {
+    throw new UnsupportedDataTypeException("type of results Expected: (PriorityQueue| ArrayList)) actual:" + reducedResults.getClass());
+  }
+  List<String> columns=getSelectionColumnsFromDataSchema(dataSchema);
+  return new SelectionResults(columns,rows);
+}

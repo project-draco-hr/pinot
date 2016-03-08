@@ -1,0 +1,11 @@
+{
+  List<Serializable[]> rowData=(List<Serializable[]>)reducedResults;
+  List<Serializable[]> rows=new ArrayList<Serializable[]>();
+  if (selectionColumns.size() == 1 && selectionColumns.get(0).equals("*")) {
+    selectionColumns=getSelectionColumns(selectionColumns,dataSchema);
+  }
+  for (int i=0; i < rowData.size(); i++) {
+    rows.add(getFormattedRow(rowData.get(i),selectionColumns,dataSchema));
+  }
+  return new SelectionResults(selectionColumns,rows);
+}

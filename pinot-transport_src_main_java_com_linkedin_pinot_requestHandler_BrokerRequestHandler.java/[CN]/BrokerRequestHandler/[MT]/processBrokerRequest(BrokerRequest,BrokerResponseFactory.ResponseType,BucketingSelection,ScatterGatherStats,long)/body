@@ -1,0 +1,14 @@
+{
+  if (request == null || request.getQuerySource() == null || request.getQuerySource().getTableName() == null) {
+    LOGGER.info("Query contains null table.");
+    return BrokerResponseFactory.getNoTableHitBrokerResponse(responseType);
+  }
+  List<String> matchedTables=getMatchedTables(request);
+  if (matchedTables.size() > 1) {
+    return processFederatedBrokerRequest(request,overriddenSelection,scatterGatherStats,requestId);
+  }
+  if (matchedTables.size() == 1) {
+    return processSingleTableBrokerRequest(request,responseType,matchedTables.get(0),overriddenSelection,scatterGatherStats,requestId);
+  }
+  return BrokerResponseFactory.getNoTableHitBrokerResponse(responseType);
+}

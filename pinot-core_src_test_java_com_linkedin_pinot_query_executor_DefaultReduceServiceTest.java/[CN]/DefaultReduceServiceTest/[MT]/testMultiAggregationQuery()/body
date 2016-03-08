@@ -20,7 +20,7 @@
     instanceResponseMap.put(new ServerInstance("localhost:7777"),_queryExecutor.processQuery(instanceRequest));
     instanceResponseMap.put(new ServerInstance("localhost:8888"),_queryExecutor.processQuery(instanceRequest));
     instanceResponseMap.put(new ServerInstance("localhost:9999"),_queryExecutor.processQuery(instanceRequest));
-    BrokerResponse brokerResponse=_reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    BrokerResponseJSON brokerResponse=(BrokerResponseJSON)_reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
     LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
     JsonAssert.assertEqualsIgnoreOrder(brokerResponse.getAggregationResults().get(0).toString(),"{\"value\":\"4000020\",\"function\":\"count_star\"}");
     LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(1));

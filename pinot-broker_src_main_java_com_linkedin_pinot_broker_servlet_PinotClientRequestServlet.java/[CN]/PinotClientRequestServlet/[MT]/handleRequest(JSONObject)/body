@@ -3,6 +3,7 @@
   final long requestId=requestIdGenerator.incrementAndGet();
   LOGGER.info("Query string for requestId {}: {}",requestId,pql);
   boolean isTraceEnabled=false;
+  final BrokerResponseFactory.ResponseType responseType=BrokerResponseFactory.getResponseType(request);
   if (request.has("trace")) {
     try {
       isTraceEnabled=Boolean.parseBoolean(request.getString("trace"));
@@ -18,10 +19,12 @@
   final BrokerRequest brokerRequest;
   try {
     brokerRequest=REQUEST_COMPILER.compileToBrokerRequest(pql);
-    if (isTraceEnabled)     brokerRequest.setEnableTrace(true);
+    if (isTraceEnabled) {
+      brokerRequest.setEnableTrace(true);
+    }
   }
  catch (  Exception e) {
-    BrokerResponse brokerResponse=new BrokerResponse();
+    BrokerResponse brokerResponse=BrokerResponseFactory.get(responseType);
     brokerResponse.setExceptions(Arrays.asList(QueryException.getException(QueryException.PQL_PARSING_ERROR,e)));
     brokerMetrics.addMeteredValue(null,BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
     return brokerResponse;
@@ -33,13 +36,14 @@
   final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
     @Override public BrokerResponse call() throws Exception {
       final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
-      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection,scatterGatherStats,requestId);
+      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,responseType,bucketingSelection,scatterGatherStats,requestId);
     }
   }
 );
   long queryProcessingTimeInNanos=System.nanoTime() - startTime;
   long queryProcessingTimeInMillis=TimeUnit.MILLISECONDS.convert(queryProcessingTimeInNanos,TimeUnit.NANOSECONDS);
   resp.setTimeUsedMs(queryProcessingTimeInMillis);
+  LOGGER.info("BrokerResponse type : {}",responseType);
   LOGGER.debug("Broker Response : {}",resp);
   LOGGER.info("ResponseTimes for {} {}",requestId,scatterGatherStats);
   LOGGER.info("Total query processing time : {} ms",queryProcessingTimeInMillis);

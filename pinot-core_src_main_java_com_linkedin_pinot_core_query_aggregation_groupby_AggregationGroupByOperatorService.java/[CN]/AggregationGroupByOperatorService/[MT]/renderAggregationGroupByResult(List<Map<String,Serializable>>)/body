@@ -1,0 +1,35 @@
+{
+  if (reducedGroupByResults == null || reducedGroupByResults.size() != _aggregationFunctionList.size()) {
+    return null;
+  }
+  List<AggregationResult> aggregationResults=new ArrayList<AggregationResult>();
+  for (int i=0; i < _aggregationFunctionList.size(); ++i) {
+    int groupSize=_groupByColumns.size();
+    Map<String,Serializable> reducedGroupByResult=reducedGroupByResults.get(i);
+    AggregationFunction aggregationFunction=_aggregationFunctionList.get(i);
+    String functionName=aggregationFunction.getFunctionName();
+    List<GroupByResult> groupByResults=new ArrayList<GroupByResult>();
+    if (!reducedGroupByResult.isEmpty()) {
+      boolean reverseOrder=aggregationFunction.getFunctionName().startsWith(MIN_PREFIX);
+      MinMaxPriorityQueue<ImmutablePair<Serializable,String>> minMaxPriorityQueue=getMinMaxPriorityQueue(reducedGroupByResult.values().iterator().next(),_groupByTopN,reverseOrder);
+      if (minMaxPriorityQueue != null) {
+        for (        String groupedKey : reducedGroupByResult.keySet()) {
+          minMaxPriorityQueue.add(new ImmutablePair(reducedGroupByResult.get(groupedKey),groupedKey));
+        }
+        ImmutablePair res;
+        while ((res=(ImmutablePair)minMaxPriorityQueue.pollFirst()) != null) {
+          String groupByColumnsString=(String)res.getRight();
+          List<String> groupByColumns=Arrays.asList(groupByColumnsString.split(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter.toString(),groupSize));
+          Serializable value=(Serializable)res.getLeft();
+          GroupByResult groupValue=new GroupByResult();
+          groupValue.setGroup(groupByColumns);
+          groupValue.setValue(formatValue(value));
+          groupByResults.add(groupValue);
+        }
+      }
+    }
+    AggregationResult aggregationResult=new AggregationResult(groupByResults,_groupByColumns,functionName);
+    aggregationResults.add(aggregationResult);
+  }
+  return aggregationResults;
+}

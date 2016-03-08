@@ -1,9 +1,9 @@
 {
-  final JSONArray jsonArray=new JSONArray();
-  for (int idx=0; idx < dataSchema.size(); ++idx) {
-    if (_selectionColumns.contains(dataSchema.getColumnName(idx))) {
-      jsonArray.put(dataSchema.getColumnName(idx));
+  List<String> columns=new ArrayList<String>();
+  for (int i=0; i < dataSchema.size(); i++) {
+    if (_selectionColumns.contains(dataSchema.getColumnName(i))) {
+      columns.add(dataSchema.getColumnName(i));
     }
   }
-  return jsonArray;
+  return columns;
 }
