@@ -35,6 +35,9 @@
     DataType dataType=DataType.valueOf(metricSpec.getType().toString());
     fieldMap.put(metricName,RecordReaderUtils.convertToDataType(metricValue,dataType));
   }
+  if (!countIncluded) {
+    fieldMap.put(StarTreeConstants.AUTO_METRIC_COUNT,1);
+  }
   fieldMap.put(_starTreeConfig.getTime().getColumnName(),metricTimeSeries.getKey());
   GenericRow genericRow=new GenericRow();
   genericRow.init(fieldMap);

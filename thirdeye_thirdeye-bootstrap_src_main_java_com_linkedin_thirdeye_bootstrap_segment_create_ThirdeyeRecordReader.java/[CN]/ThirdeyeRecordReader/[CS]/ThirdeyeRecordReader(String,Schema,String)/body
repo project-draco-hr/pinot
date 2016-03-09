@@ -13,5 +13,12 @@
   for (int i=0; i < _starTreeConfig.getMetrics().size(); i++) {
     _metricToIndexMapping.put(_starTreeConfig.getMetrics().get(i).getName(),i);
   }
+  countIncluded=false;
+  for (  String metricName : _starTreeConfig.getMetricNames()) {
+    if (metricName.equals(StarTreeConstants.AUTO_METRIC_COUNT)) {
+      countIncluded=true;
+      break;
+    }
+  }
   _metricSchema=MetricSchema.fromMetricSpecs(_starTreeConfig.getMetrics());
 }
