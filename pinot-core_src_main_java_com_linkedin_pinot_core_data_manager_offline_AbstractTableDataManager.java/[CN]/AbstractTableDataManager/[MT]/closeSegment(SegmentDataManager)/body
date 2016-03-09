@@ -1,9 +1,9 @@
 {
   final String segmentName=segmentDataManager.getSegmentName();
   LOGGER.info("Closing segment {} for table {}",segmentName,_tableName);
-  _currentNumberOfSegments.dec();
-  _numDeletedSegments.inc();
-  _currentNumberOfDocuments.dec(segmentDataManager.getSegment().getSegmentMetadata().getTotalRawDocs());
+  _serverMetrics.addValueToTableGauge(_tableName,ServerGauge.SEGMENT_COUNT,-1L);
+  _serverMetrics.addMeteredTableValue(_tableName,ServerMeter.DELETED_SEGMENT_COUNT,1L);
+  _serverMetrics.addValueToTableGauge(_tableName,ServerGauge.DOCUMENT_COUNT,-segmentDataManager.getSegment().getSegmentMetadata().getTotalRawDocs());
   segmentDataManager.getSegment().destroy();
   LOGGER.info("Segment {} for table {} has been closed",segmentName,_tableName);
 }

@@ -1,0 +1,7 @@
+{
+  final String fullMeterName;
+  String meterName=meter.getMeterName();
+  fullMeterName=_metricPrefix + tableName + "."+ meterName;
+  final MetricName metricName=new MetricName(_clazz,fullMeterName);
+  MetricsHelper.newMeter(_metricsRegistry,metricName,meter.getUnit(),TimeUnit.SECONDS).mark(unitCount);
+}

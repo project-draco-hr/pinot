@@ -1,6 +1,6 @@
 {
   Schema schema=new Schema.SchemaBuilder().setSchemaName("potato").addSingleValueDimension("dimension",FieldSpec.DataType.STRING).addMetric("metric",FieldSpec.DataType.LONG).addTime("time",TimeUnit.SECONDS,FieldSpec.DataType.LONG).build();
-  RealtimeSegmentImpl realtimeSegment=new RealtimeSegmentImpl(schema,100,"noTable","noSegment",schema.getSchemaName());
+  RealtimeSegmentImpl realtimeSegment=new RealtimeSegmentImpl(schema,100,"noTable","noSegment",schema.getSchemaName(),new ServerMetrics(new MetricsRegistry()));
   Assert.assertEquals(realtimeSegment.getRawDocumentCount(),0);
   Map<String,Object> genericRowContents=new HashMap<>();
   genericRowContents.put("dimension","potato");

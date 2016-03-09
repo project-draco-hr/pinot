@@ -20,8 +20,8 @@
   System.out.println(config);
   StreamProvider provider=new FileBasedStreamProviderImpl();
   final String tableName=RealtimeSegmentTest.class.getSimpleName() + ".noTable";
-  provider.init(config,tableName);
-  segment=new RealtimeSegmentImpl(schema,100000,tableName,"noSegment",AVRO_DATA);
+  provider.init(config,tableName,new ServerMetrics(new MetricsRegistry()));
+  segment=new RealtimeSegmentImpl(schema,100000,tableName,"noSegment",AVRO_DATA,new ServerMetrics(new MetricsRegistry()));
   GenericRow row=provider.next();
   while (row != null) {
     segment.index(row);

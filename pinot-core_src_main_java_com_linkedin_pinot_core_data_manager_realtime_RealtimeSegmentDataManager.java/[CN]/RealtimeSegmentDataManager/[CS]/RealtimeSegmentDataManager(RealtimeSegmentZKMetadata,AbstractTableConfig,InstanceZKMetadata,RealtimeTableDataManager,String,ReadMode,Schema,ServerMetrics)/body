@@ -32,10 +32,10 @@
   }
   final String tableName=tableConfig.getTableName();
   this.kafkaStreamProvider=StreamProviderFactory.buildStreamProvider();
-  this.kafkaStreamProvider.init(kafkaStreamProviderConfig,tableName);
+  this.kafkaStreamProvider.init(kafkaStreamProviderConfig,tableName,serverMetrics);
   this.kafkaStreamProvider.start();
   LOGGER.info("Started kafka stream provider");
-  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName());
+  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName(),serverMetrics);
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
   notifier=realtimeResourceManager;
   segmentStatusTask=new TimerTask(){

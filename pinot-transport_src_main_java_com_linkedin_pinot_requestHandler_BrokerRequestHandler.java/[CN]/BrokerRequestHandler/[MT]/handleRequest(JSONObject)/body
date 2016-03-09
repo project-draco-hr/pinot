@@ -26,14 +26,14 @@
  catch (  Exception e) {
     BrokerResponse brokerResponse=BrokerResponseFactory.get(responseType);
     brokerResponse.setExceptions(Arrays.asList(QueryException.getException(QueryException.PQL_PARSING_ERROR,e)));
-    _brokerMetrics.addMeteredValue(null,BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
+    _brokerMetrics.addMeteredGlobalValue(BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
     return brokerResponse;
   }
-  _brokerMetrics.addMeteredValue(brokerRequest,BrokerMeter.QUERIES,1);
+  _brokerMetrics.addMeteredQueryValue(brokerRequest,BrokerMeter.QUERIES,1);
   final long requestCompilationTime=System.nanoTime() - startTime;
   _brokerMetrics.addPhaseTiming(brokerRequest,BrokerQueryPhase.REQUEST_COMPILATION,requestCompilationTime);
   final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
-  final BrokerResponse resp=_brokerMetrics.timePhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
+  final BrokerResponse resp=_brokerMetrics.timeQueryPhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
     @Override public BrokerResponse call() throws Exception {
       final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
       return (BrokerResponse)processBrokerRequest(brokerRequest,bucketingSelection,scatterGatherStats,requestId);

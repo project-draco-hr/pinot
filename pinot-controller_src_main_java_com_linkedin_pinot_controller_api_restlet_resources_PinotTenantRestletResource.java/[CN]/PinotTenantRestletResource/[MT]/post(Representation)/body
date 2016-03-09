@@ -7,7 +7,7 @@
  catch (  final Exception e) {
     presentation=exceptionToStringRepresentation(e);
     LOGGER.error("Caught exception while creating tenant ",e);
-    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_TABLE_TENANT_CREATE_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_TABLE_TENANT_CREATE_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;

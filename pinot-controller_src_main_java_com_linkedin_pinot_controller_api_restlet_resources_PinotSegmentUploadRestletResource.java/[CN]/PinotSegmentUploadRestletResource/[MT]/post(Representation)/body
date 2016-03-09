@@ -36,14 +36,14 @@
  else {
       rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);
       LOGGER.warn("No file was uploaded");
-      ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+      ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
       setStatus(Status.SERVER_ERROR_INTERNAL);
     }
   }
  catch (  final Exception e) {
     rep=exceptionToStringRepresentation(e);
     LOGGER.error("Caught exception in file upload",e);
-    ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
  finally {
@@ -53,7 +53,7 @@
       }
  catch (      final IOException e) {
         LOGGER.error("Caught exception in file upload",e);
-        ControllerRestApplication.getControllerMetrics().addMeteredValue(null,ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+        ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
         setStatus(Status.SERVER_ERROR_INTERNAL);
       }
     }

@@ -1,9 +1,10 @@
 {
+  Preconditions.checkNotNull(SERVER_METRICS);
   try {
     Class<? extends TableDataManager> cls=keyToFunction.get(tableDataManagerConfig.getTableDataManagerType().toLowerCase());
     if (cls != null) {
-      TableDataManager tableDataManager=(TableDataManager)cls.newInstance();
-      tableDataManager.init(tableDataManagerConfig);
+      TableDataManager tableDataManager=cls.newInstance();
+      tableDataManager.init(tableDataManagerConfig,SERVER_METRICS);
       return tableDataManager;
     }
  else {

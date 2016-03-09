@@ -2,10 +2,10 @@
   if (kafkaIterator.hasNext()) {
     try {
       GenericRow row=decoder.decode(kafkaIterator.next().message());
-      kafkaEventsConsumedCount.inc();
-      globalKafkaEventsConsumedCount.inc();
+      serverMetrics.addMeteredTableValue(tableAndStreamName,ServerMeter.REALTIME_ROWS_CONSUMED,1L);
+      serverMetrics.addMeteredGlobalValue(ServerMeter.REALTIME_ROWS_CONSUMED,1L);
+      ++currentCount;
       final long now=System.currentTimeMillis();
-      final long currentCount=kafkaEventsConsumedCount.count();
       if (now - lastLogTime > 60000 || currentCount - lastCount >= 100000) {
         if (lastCount == 0) {
           INSTANCE_LOGGER.info("Consumed {} events from kafka",currentCount);
@@ -20,8 +20,8 @@
     }
  catch (    Exception e) {
       INSTANCE_LOGGER.warn("Caught exception while consuming events",e);
-      kafkaEventsFailedCount.inc();
-      globalKafkaEventsFailedCount.inc();
+      serverMetrics.addMeteredTableValue(tableAndStreamName,ServerMeter.REALTIME_CONSUMPTION_EXCEPTIONS,1L);
+      serverMetrics.addMeteredGlobalValue(ServerMeter.REALTIME_CONSUMPTION_EXCEPTIONS,1L);
     }
   }
   return null;

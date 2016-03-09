@@ -1,5 +1,5 @@
 {
   consumer.commitOffsets();
-  kafkaEventsCommitCount.inc();
-  globalKafkaEventsCommitCount.inc();
+  serverMetrics.addMeteredTableValue(tableAndStreamName,ServerMeter.REALTIME_OFFSET_COMMITS,1L);
+  serverMetrics.addMeteredGlobalValue(ServerMeter.REALTIME_OFFSET_COMMITS,1L);
 }

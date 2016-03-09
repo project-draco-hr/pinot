@@ -35,7 +35,7 @@
   }
   if (invalidColumns != null) {
     LOGGER.warn("Dropping invalid row {} with null values for column(s) {}",row,invalidColumns);
-    invalidRowsDropped.inc();
+    serverMetrics.addMeteredTableValue(tableAndStreamName,ServerMeter.INVALID_REALTIME_ROWS_DROPPED,1L);
     return true;
   }
   for (  String dimension : dataSchema.getDimensionNames()) {

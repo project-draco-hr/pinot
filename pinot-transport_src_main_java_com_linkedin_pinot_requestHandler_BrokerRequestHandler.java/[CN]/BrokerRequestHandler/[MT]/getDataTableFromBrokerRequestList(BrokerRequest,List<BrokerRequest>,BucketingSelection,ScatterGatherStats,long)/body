@@ -38,7 +38,7 @@
       }
  catch (      ExecutionException e) {
         LOGGER.warn("Caught exception while fetching response",e);
-        _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+        _brokerMetrics.addMeteredQueryValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
       }
       scatterGatherTime+=System.nanoTime() - scatterGatherStartTime;
       final long deserializationStartTime=System.nanoTime();
@@ -58,14 +58,14 @@
               Throwable throwable=errors.get(responseEntry.getKey());
               if (throwable != null) {
                 r2.getMetadata().put("exception",new RequestProcessingException(throwable).toString());
-                _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
+                _brokerMetrics.addMeteredQueryValue(federatedBrokerRequest,BrokerMeter.REQUEST_FETCH_EXCEPTIONS,1);
               }
             }
             instanceResponseMap.put(decoratedServerInstance,r2);
           }
  catch (          Exception ex) {
             LOGGER.error("Got exceptions in collect query result for instance " + responseEntry.getKey() + ", error: "+ ex.getMessage(),ex);
-            _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.REQUEST_DESERIALIZATION_EXCEPTIONS,1);
+            _brokerMetrics.addMeteredQueryValue(federatedBrokerRequest,BrokerMeter.REQUEST_DESERIALIZATION_EXCEPTIONS,1);
           }
         }
       }
@@ -75,10 +75,10 @@
   _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.SCATTER_GATHER,scatterGatherTime);
   _brokerMetrics.addPhaseTiming(federatedBrokerRequest,BrokerQueryPhase.DESERIALIZATION,deserializationTime);
   try {
-    return _brokerMetrics.timePhase(federatedBrokerRequest,BrokerQueryPhase.REDUCE,new Callable<BrokerResponse>(){
+    return _brokerMetrics.timeQueryPhase(federatedBrokerRequest,BrokerQueryPhase.REDUCE,new Callable<BrokerResponse>(){
       @Override public BrokerResponse call(){
         BrokerResponse returnValue=_reduceService.reduceOnDataTable(federatedBrokerRequest,instanceResponseMap);
-        _brokerMetrics.addMeteredValue(federatedBrokerRequest,BrokerMeter.DOCUMENTS_SCANNED,returnValue.getNumDocsScanned());
+        _brokerMetrics.addMeteredQueryValue(federatedBrokerRequest,BrokerMeter.DOCUMENTS_SCANNED,returnValue.getNumDocsScanned());
         return returnValue;
       }
     }

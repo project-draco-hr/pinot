@@ -1,5 +1,6 @@
 {
   this.segmentName=segmentName;
+  this.serverMetrics=serverMetrics;
   LOGGER=LoggerFactory.getLogger(RealtimeSegmentImpl.class.getName() + "_" + segmentName+ "_"+ streamName);
   dataSchema=schema;
   dictionaryMap=new HashMap<String,MutableDictionaryReader>();
@@ -36,5 +37,5 @@
   }
   invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
   columnIndexReaderWriterMap.put(outgoingTimeColumnName,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
-  invalidRowsDropped=Metrics.newCounter(new MetricName(RealtimeSegmentImpl.class,tableName + "-" + streamName+ "-"+ "invalidRowsDropped"));
+  tableAndStreamName=tableName + "-" + streamName;
 }

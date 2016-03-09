@@ -42,7 +42,7 @@
     return instanceResponse;
   }
  catch (  Exception e) {
-    _serverMetrics.addMeteredValue(instanceRequest.getQuery(),ServerMeter.QUERY_EXECUTION_EXCEPTIONS,1);
+    _serverMetrics.addMeteredQueryValue(instanceRequest.getQuery(),ServerMeter.QUERY_EXECUTION_EXCEPTIONS,1);
     LOGGER.error("Exception processing requestId {}",requestId,e);
     instanceResponse=new DataTable();
     instanceResponse.addException(QueryException.getException(QueryException.QUERY_EXECUTION_ERROR,e));
