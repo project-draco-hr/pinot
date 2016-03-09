@@ -14,13 +14,20 @@ case MULTI_TIME_SERIES:
     List<String> viewDimensions=dashboardConfigResource.getDimensions(collection,uriInfo);
   return contributorResource.generateDimensionContributorView(collection,metricFunction,selectedDimensions,viewDimensions,baseline,current,reverseDimensionGroups);
 case HEAT_MAP:
-Map<String,Future<QueryResult>> resultActualFutures=new HashMap<>();
+Map<String,List<Future<QueryResult>>> resultActualFutures=new HashMap<>();
 Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(selectedDimensions,reverseDimensionGroups);
 for (String dimension : schema.getDimensions()) {
 if (!selectedDimensions.containsKey(dimension)) {
-ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baseline).setEndTime(current).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).build();
-LOGGER.info("Generated request for heat map: {}",req);
-resultActualFutures.put(dimension,queryCache.getQueryResultAsync(req));
+ThirdEyeMetricFunction thirdEyeMetricFunction=ThirdEyeMetricFunction.fromStr(metricFunction);
+int secs=(int)thirdEyeMetricFunction.getTimeGranularity().toSeconds();
+ThirdEyeRequest baseLineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(thirdEyeMetricFunction).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).setStartTime(baseline.minusSeconds(secs)).setEndTime(baseline.plusSeconds(secs)).build();
+ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(thirdEyeMetricFunction).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).setStartTime(current.minusSeconds(secs)).setEndTime(current.plusSeconds(secs)).build();
+ArrayList<Future<QueryResult>> futures=new ArrayList<>();
+futures.add(queryCache.getQueryResultAsync(baseLineReq));
+futures.add(queryCache.getQueryResultAsync(currentReq));
+LOGGER.info("Generated request for heat map: {}",baseLineReq);
+LOGGER.info("Generated request for heat map: {}",currentReq);
+resultActualFutures.put(dimension,futures);
 }
 }
 Map<String,Map<String,String>> dimensionGroups=null;
@@ -30,8 +37,8 @@ if (groupSpec != null) {
 dimensionGroups=groupSpec.getMapping();
 dimensionRegex=groupSpec.getRegexMapping();
 }
-Map<String,QueryResult> actualResults=QueryUtils.waitForQueries(resultActualFutures);
-return new DimensionViewHeatMap(schema,objectMapper,actualResults,dimensionGroups,dimensionRegex);
+Map<String,QueryResult> actualResults=QueryUtils.waitForAndMergeMultipleResults(resultActualFutures);
+return new DimensionViewHeatMap(schema,objectMapper,actualResults,dimensionGroups,dimensionRegex,baseline,current);
 case TABULAR:
 List<FunnelTable> funnelTables=funnelResource.computeFunnelViews(collection,metricFunction,funnels,baselineMillis,currentMillis,selectedDimensions);
 return new DimensionViewFunnel(funnelTables);

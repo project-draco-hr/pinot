@@ -30,13 +30,29 @@
     String value=combination.get(dimensionIdx);
     long minTime=-1;
     long maxTime=-1;
-    for (    String timeString : entry.getValue().keySet()) {
-      long time=Long.valueOf(timeString);
-      if (minTime == -1 || time < minTime) {
-        minTime=time;
+    long baselineSinceEpoch=baseline.getMillis();
+    long currentSinceEpoch=current.getMillis();
+    Set<String> timeStamps=entry.getValue().keySet();
+    if (timeStamps.contains(Long.toString(baselineSinceEpoch))) {
+      minTime=baselineSinceEpoch;
+    }
+ else {
+      for (      String timeString : timeStamps) {
+        long time=Long.valueOf(timeString);
+        if (minTime == -1 || time < minTime) {
+          minTime=time;
+        }
       }
-      if (maxTime == -1 || time > maxTime) {
-        maxTime=time;
+    }
+    if (timeStamps.contains(Long.toString(currentSinceEpoch))) {
+      maxTime=currentSinceEpoch;
+    }
+ else {
+      for (      String timeString : timeStamps) {
+        long time=Long.valueOf(timeString);
+        if (maxTime == -1 || time > maxTime) {
+          maxTime=time;
+        }
       }
     }
     for (int i=0; i < queryResult.getMetrics().size(); i++) {
