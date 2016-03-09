@@ -1,7 +1,9 @@
 {
   try {
     resp.setCharacterEncoding("UTF-8");
-    resp.getOutputStream().print(handleRequest(extractJSON(req)).toJsonString());
+    BrokerResponse brokerResponse=broker.handleRequest(extractJSON(req));
+    String jsonString=brokerResponse.toJsonString();
+    resp.getOutputStream().print(jsonString);
     resp.getOutputStream().flush();
     resp.getOutputStream().close();
   }

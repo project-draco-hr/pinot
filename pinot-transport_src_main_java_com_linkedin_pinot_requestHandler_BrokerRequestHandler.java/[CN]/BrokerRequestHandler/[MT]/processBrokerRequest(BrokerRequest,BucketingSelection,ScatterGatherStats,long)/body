@@ -1,16 +1,16 @@
 {
-  _responseType=BrokerResponseFactory.getResponseType(request.getResponseFormat());
+  ResponseType responseType=BrokerResponseFactory.getResponseType(request.getResponseFormat());
   if (request.getQuerySource() == null || request.getQuerySource().getTableName() == null) {
     LOGGER.info("Query contains null table.");
-    return BrokerResponseFactory.getNoTableHitBrokerResponse(_responseType);
+    return BrokerResponseFactory.getNoTableHitBrokerResponse(responseType);
   }
   List<String> matchedTables=getMatchedTables(request);
-  _reduceService=_reduceServiceRegistry.get(_responseType);
+  _reduceService=_reduceServiceRegistry.get(responseType);
   if (matchedTables.size() > 1) {
     return processFederatedBrokerRequest(request,overriddenSelection,scatterGatherStats,requestId);
   }
   if (matchedTables.size() == 1) {
     return processSingleTableBrokerRequest(request,matchedTables.get(0),overriddenSelection,scatterGatherStats,requestId);
   }
-  return BrokerResponseFactory.getNoTableHitBrokerResponse(_responseType);
+  return BrokerResponseFactory.getNoTableHitBrokerResponse(responseType);
 }
