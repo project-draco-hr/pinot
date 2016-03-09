@@ -36,7 +36,7 @@
   final BrokerResponse resp=brokerMetrics.timePhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
     @Override public BrokerResponse call() throws Exception {
       final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);
-      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,responseType,bucketingSelection,scatterGatherStats,requestId);
+      return (BrokerResponse)broker.processBrokerRequest(brokerRequest,bucketingSelection,scatterGatherStats,requestId);
     }
   }
 );

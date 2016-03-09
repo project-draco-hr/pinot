@@ -1,0 +1,8 @@
+{
+  ReduceServiceRegistry reduceServiceRegistry=new ReduceServiceRegistry();
+  DefaultReduceService defaultReduceService=new DefaultReduceService();
+  reduceServiceRegistry.register(BrokerResponseFactory.ResponseType.BROKER_RESPONSE_TYPE_JSON,new DefaultReduceService());
+  reduceServiceRegistry.register(BrokerResponseFactory.ResponseType.BROKER_RESPONSE_TYPE_NATIVE,new BrokerReduceService());
+  reduceServiceRegistry.registerDefault(defaultReduceService);
+  return reduceServiceRegistry;
+}

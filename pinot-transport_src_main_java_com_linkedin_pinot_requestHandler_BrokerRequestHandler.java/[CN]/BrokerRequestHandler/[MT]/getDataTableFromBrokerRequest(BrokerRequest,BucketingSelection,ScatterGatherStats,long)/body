@@ -4,7 +4,7 @@
   Map<ServerInstance,SegmentIdSet> segmentServices=_routingTable.findServers(rtRequest);
   if (segmentServices == null || segmentServices.isEmpty()) {
     LOGGER.warn("Not found ServerInstances to Segments Mapping:");
-    return BrokerResponseFactory.getEmptyBrokerResponse(responseType);
+    return BrokerResponseFactory.getEmptyBrokerResponse(_responseType);
   }
   final long queryRoutingTime=System.nanoTime() - routingStartTime;
   _brokerMetrics.addPhaseTiming(request,BrokerQueryPhase.QUERY_ROUTING,queryRoutingTime);

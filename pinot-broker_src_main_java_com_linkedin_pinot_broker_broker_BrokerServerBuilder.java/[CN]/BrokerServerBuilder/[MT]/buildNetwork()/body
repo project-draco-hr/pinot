@@ -35,6 +35,7 @@
     }
   }
   LOGGER.info("Broker timeout is - " + brokerTimeOutMs + " ms");
-  _requestHandler=new BrokerRequestHandler(_routingTable,_timeBoundaryService,_scatterGather,new DefaultReduceService(),_brokerMetrics,brokerTimeOutMs);
+  ReduceServiceRegistry reduceServiceRegistry=buildReduceServiceRegistry();
+  _requestHandler=new BrokerRequestHandler(_routingTable,_timeBoundaryService,_scatterGather,reduceServiceRegistry,_brokerMetrics,brokerTimeOutMs);
   LOGGER.info("Network initialized !!");
 }
