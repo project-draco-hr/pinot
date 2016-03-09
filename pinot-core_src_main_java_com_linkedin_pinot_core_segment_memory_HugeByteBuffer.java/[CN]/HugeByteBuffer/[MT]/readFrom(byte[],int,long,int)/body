@@ -1,0 +1,21 @@
+{
+  int bufIndex=bufferIndex(destOffset);
+  int bufPosition=bufferOffset(destOffset);
+  int origLength=length;
+  while (length > 0) {
+    ByteBuffer bb=buffers[bufIndex].duplicate();
+    bb.position(bufPosition);
+    int toCopy=Math.min(length,bb.remaining());
+    bb.put(src,srcOffset,toCopy);
+    if (toCopy == length) {
+      length-=toCopy;
+      srcOffset+=toCopy;
+      break;
+    }
+    length-=(toCopy - extension);
+    srcOffset+=(toCopy - extension);
+    bufPosition=0;
+    ++bufIndex;
+  }
+  return (origLength - length);
+}

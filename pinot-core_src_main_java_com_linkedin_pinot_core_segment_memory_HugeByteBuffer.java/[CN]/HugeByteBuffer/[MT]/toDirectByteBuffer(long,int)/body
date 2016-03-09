@@ -1,0 +1,30 @@
+{
+  if (size > Integer.MAX_VALUE) {
+    throw new UnsupportedOperationException("Can not create buffers of size greater than 2GB");
+  }
+  int startBufIndex=bufferIndex(bufferOffset);
+  long endPos=bufferOffset + size;
+  int endBufIndex=bufferIndex(endPos);
+  int startOffset=bufferOffset(bufferOffset);
+  int endOffset=bufferOffset(endPos);
+  if (startBufIndex == endBufIndex) {
+    ByteBuffer bb=buffers[startBufIndex].duplicate();
+    bb.position(startOffset);
+    bb.limit(endOffset);
+    return bb.slice();
+  }
+ else {
+    ByteBuffer toReturn=ByteBuffer.allocateDirect(size);
+    toReturn.position(0);
+    int pending=size;
+    while (startBufIndex <= endBufIndex) {
+      ByteBuffer src=buffers[startBufIndex].duplicate();
+      src.position(startOffset);
+      if (startBufIndex == endBufIndex) {
+        src.limit(endOffset);
+      }
+      toReturn.put(src);
+    }
+    return toReturn;
+  }
+}

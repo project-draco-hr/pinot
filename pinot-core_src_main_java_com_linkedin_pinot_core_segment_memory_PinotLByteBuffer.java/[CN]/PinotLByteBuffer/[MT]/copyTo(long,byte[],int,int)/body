@@ -1,0 +1,9 @@
+{
+  int cursor=destOffset;
+  for (  ByteBuffer bb : toDirectByteBuffers(srcOffset,size)) {
+    int bbSize=bb.remaining();
+    if ((cursor + bbSize) > destArray.length)     throw new ArrayIndexOutOfBoundsException(String.format("cursor + bbSize = %,d",cursor + bbSize));
+    bb.get(destArray,cursor,bbSize);
+    cursor+=bbSize;
+  }
+}

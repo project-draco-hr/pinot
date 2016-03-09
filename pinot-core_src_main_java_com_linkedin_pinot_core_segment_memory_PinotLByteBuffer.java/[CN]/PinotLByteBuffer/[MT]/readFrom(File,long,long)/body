@@ -1,0 +1,14 @@
+{
+  long bufPosition=0;
+  RandomAccessFile raf=new RandomAccessFile(file,"rw");
+  int readSize=10 * 1024 * 1024;
+  ByteBuffer readBuffer=ByteBuffer.allocateDirect(readSize);
+  long endPosition=startPosition + length;
+  for (long offset=startPosition; offset < endPosition; ) {
+    int bytesRead=raf.getChannel().read(readBuffer,offset);
+    this.readFrom(readBuffer,0,bufPosition,bytesRead);
+    readBuffer.clear();
+    bufPosition+=bytesRead;
+    offset+=bytesRead;
+  }
+}

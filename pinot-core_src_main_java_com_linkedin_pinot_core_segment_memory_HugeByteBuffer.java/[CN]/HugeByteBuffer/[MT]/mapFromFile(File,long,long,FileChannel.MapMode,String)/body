@@ -1,0 +1,19 @@
+{
+  final int bufSize=DEFAULT_SEGMENT_SIZE + MMAP_EXTENSION_SIZE;
+  ByteBuffer[] buffers=allocBufferArray(length,bufSize);
+  String rafOpenMode=openMode == FileChannel.MapMode.READ_ONLY ? "r" : "rw";
+  if (openMode == FileChannel.MapMode.READ_WRITE && !file.exists()) {
+    file.createNewFile();
+  }
+  RandomAccessFile raf=new RandomAccessFile(file,rafOpenMode);
+  int bufIndex=0;
+  long pending=length;
+  while (pending > 0) {
+    int toMap=(int)Math.min(bufSize,pending);
+    buffers[bufIndex]=MmapUtils.mmapFile(raf,openMode,start,toMap,file,context);
+    start+=DEFAULT_SEGMENT_SIZE;
+    pending-=DEFAULT_SEGMENT_SIZE;
+    ++bufIndex;
+  }
+  return new HugeByteBuffer(buffers,0,length,true,DEFAULT_SEGMENT_SIZE,MMAP_EXTENSION_SIZE);
+}

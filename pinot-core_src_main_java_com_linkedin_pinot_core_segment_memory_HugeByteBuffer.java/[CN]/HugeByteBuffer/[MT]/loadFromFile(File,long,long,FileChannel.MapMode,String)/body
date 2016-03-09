@@ -1,0 +1,8 @@
+{
+  HugeByteBuffer buffer=allocateDirect(length);
+  if (openMode == FileChannel.MapMode.READ_WRITE && !file.exists()) {
+    file.createNewFile();
+  }
+  buffer.readFrom(file,startPosition,length);
+  return buffer;
+}

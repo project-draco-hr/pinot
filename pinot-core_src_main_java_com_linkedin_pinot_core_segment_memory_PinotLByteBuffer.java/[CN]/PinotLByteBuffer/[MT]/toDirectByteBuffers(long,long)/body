@@ -1,0 +1,14 @@
+{
+  long pos=startPosition + startOffset;
+  long blockSize=Integer.MAX_VALUE;
+  long limit=pos + size;
+  int numBuffers=(int)((size + (blockSize - 1)) / blockSize);
+  ByteBuffer[] result=new ByteBuffer[numBuffers];
+  int index=0;
+  while (pos < limit) {
+    long blockLength=Math.min(limit - pos,blockSize);
+    result[index++]=UnsafeUtil.newDirectByteBuffer(address() + pos,(int)blockLength).order(ByteOrder.nativeOrder());
+    pos+=blockLength;
+  }
+  return result;
+}

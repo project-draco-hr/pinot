@@ -1,0 +1,24 @@
+{
+  PinotDataBuffer buffer=PinotDataBuffer.allocateDirect(1024);
+  Assert.assertTrue(buffer instanceof HugeByteBuffer);
+  buffer.close();
+  File f=new File("temp");
+  PinotDataBuffer fileBuffer=null;
+  PinotDataBuffer heapBuffer=null;
+  try {
+    f.createNewFile();
+    fileBuffer=PinotDataBuffer.fromFile(f,ReadMode.mmap,FileChannel.MapMode.READ_WRITE,"context");
+    heapBuffer=PinotDataBuffer.fromFile(f,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"context");
+    Assert.assertTrue(fileBuffer instanceof HugeByteBuffer);
+    Assert.assertTrue(heapBuffer instanceof HugeByteBuffer);
+  }
+  finally {
+    org.apache.commons.io.FileUtils.deleteQuietly(f);
+    if (fileBuffer != null) {
+      fileBuffer.close();
+    }
+    if (heapBuffer != null) {
+      heapBuffer.close();
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  ByteBuffer dupBuffer=sourceBuffer.duplicate();
+  int readLen=(int)Math.min(dupBuffer.limit() - srcOffset,Math.min(size() - destOffset,length));
+  ByteBuffer b=toDirectByteBuffer(destOffset,readLen);
+  dupBuffer.position(srcOffset);
+  dupBuffer.limit(srcOffset + length);
+  b.put(dupBuffer);
+  return readLen;
+}

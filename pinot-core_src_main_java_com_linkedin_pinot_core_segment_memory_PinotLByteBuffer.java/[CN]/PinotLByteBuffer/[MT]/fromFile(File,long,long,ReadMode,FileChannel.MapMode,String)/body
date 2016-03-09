@@ -1,0 +1,12 @@
+{
+  Preconditions.checkNotNull(file,"Index file can not be null");
+  if (readMode == ReadMode.heap) {
+    return loadFromFile(file,startPosition,length,openMode,context);
+  }
+ else   if (readMode == ReadMode.mmap) {
+    return mapFromFile(file,startPosition,length,openMode,context);
+  }
+ else {
+    throw new RuntimeException("Unknown readmode: " + readMode.name());
+  }
+}

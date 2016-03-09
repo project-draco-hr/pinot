@@ -1,0 +1,17 @@
+{
+  HugeByteBuffer buffer=HugeByteBuffer.allocateDirect(3L * PinotDataBufferTest.ONE_GB);
+  byte[] data=new byte[PinotDataBufferTest.ONE_GB];
+  ByteBuffer db=ByteBuffer.wrap(data);
+  Random random=new Random();
+  int elemCount=data.length / 4;
+  for (int i=0; i < elemCount; i++) {
+    db.putInt(random.nextInt());
+  }
+  long offset=1800 * 1024 * 1024;
+  buffer.readFrom(data,offset);
+  for (int i=0; i < elemCount; i++) {
+    Assert.assertEquals(buffer.getInt(offset),db.getInt(i * 4));
+    offset+=4;
+  }
+  buffer.close();
+}

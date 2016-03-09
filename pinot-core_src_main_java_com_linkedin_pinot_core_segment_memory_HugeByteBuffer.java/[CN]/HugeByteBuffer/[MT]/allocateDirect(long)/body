@@ -1,0 +1,12 @@
+{
+  int bufsize=DEFAULT_SEGMENT_SIZE + OFF_HEAP_EXTENSION_SIZE;
+  ByteBuffer[] buffers=allocBufferArray(size,bufsize);
+  long pending=size;
+  for (int i=0; i < buffers.length; i++) {
+    Preconditions.checkState(pending > 0);
+    int toAllocate=(int)Math.min(bufsize,pending);
+    buffers[i]=MmapUtils.allocateDirectByteBuffer(toAllocate,null,"direct huge buffer");
+    pending-=(bufsize - OFF_HEAP_EXTENSION_SIZE);
+  }
+  return new HugeByteBuffer(buffers,0,size,true,DEFAULT_SEGMENT_SIZE,OFF_HEAP_EXTENSION_SIZE);
+}

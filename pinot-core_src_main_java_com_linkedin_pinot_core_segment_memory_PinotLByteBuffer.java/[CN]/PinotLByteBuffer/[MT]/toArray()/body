@@ -1,0 +1,8 @@
+{
+  if (size() > Integer.MAX_VALUE)   throw new IllegalStateException("Cannot create byte array of more than 2GB");
+  int len=(int)size();
+  ByteBuffer bb=toDirectByteBuffer(0L,len);
+  byte[] b=new byte[len];
+  bb.get(b,0,len);
+  return b;
+}
