@@ -110,6 +110,7 @@ catch (        Error e) {
         }
  catch (        Throwable e) {
           LOGGER.error("FATAL: Exception committing or shutting down consumer commitSuccessful={}",commitSuccessful,e);
+          serverMetrics.addMeteredTableValue(tableName,ServerMeter.REALTIME_OFFSET_COMMIT_EXCEPTIONS,1L);
           if (!commitSuccessful) {
             kafkaStreamProvider.shutdown();
           }
