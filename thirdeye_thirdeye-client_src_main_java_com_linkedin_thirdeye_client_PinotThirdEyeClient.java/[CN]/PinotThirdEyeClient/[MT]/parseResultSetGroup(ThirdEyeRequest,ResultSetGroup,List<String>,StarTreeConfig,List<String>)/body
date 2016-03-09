@@ -5,15 +5,14 @@
   TimeGranularity aggGranularity=request.getTimeGranularity();
   DateTime startTime=request.getStartTime();
   int columnOffset=0;
-  String dimensionKey;
-  String timestamp=null;
-  List<String> dimensionKeyList=new LinkedList<String>();
-  Double[] rowData;
   for (int groupIdx=0; groupIdx < result.getResultSetCount(); groupIdx++) {
     ResultSet resultSet=result.getResultSet(groupIdx);
     int columnCount=resultSet.getColumnCount();
     for (int row=0; row < resultSet.getRowCount(); row++) {
+      String dimensionKey;
+      String timestamp=null;
       if (resultSet.getGroupKeyLength() > 0) {
+        List<String> dimensionKeyList=new LinkedList<String>();
         for (int group=0; group < resultSet.getGroupKeyLength(); group++) {
           String timeKey=resultSet.getGroupKeyString(row,group);
           if (group == 0) {
@@ -29,7 +28,7 @@
  else {
         throw new RuntimeException("Error: no dimension key can be derived from the results.");
       }
-      rowData=getRowData(data,rawMetrics.size(),dimensionKey,timestamp);
+      Double[] rowData=getRowData(data,rawMetrics.size(),dimensionKey,timestamp);
       for (int col=0; col < columnCount; col++) {
         String colValStr=resultSet.getString(row,col);
         int metricIdx=col + columnOffset;
@@ -37,8 +36,6 @@
       }
     }
     columnOffset+=columnCount;
-    dimensionKeyList.clear();
-    timestamp=null;
   }
   return data;
 }
