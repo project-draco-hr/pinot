@@ -1,0 +1,19 @@
+{
+  Set<String> invertedIndexColumns=new HashSet<>();
+  Set<String> allColumns=metadata.getAllColumns();
+  Set<String> invertedIndexColumnConfig=new HashSet<>();
+  if (!indexConfig.isPresent() || indexConfig.get().getLoadingInvertedIndexColumns() == null) {
+    return invertedIndexColumnConfig;
+  }
+  Set<String> inputIIColumnList=indexConfig.get().getLoadingInvertedIndexColumns();
+  for (  String column : inputIIColumnList) {
+    ColumnMetadata columnMetadata=metadata.getColumnMetadataFor(column);
+    if (columnMetadata == null) {
+      continue;
+    }
+    if (!columnMetadata.isSorted()) {
+      invertedIndexColumnConfig.add(column);
+    }
+  }
+  return invertedIndexColumnConfig;
+}

@@ -1,0 +1,44 @@
+{
+  final int ITERATIONS=100000;
+  final int LENGTH=256;
+  final int MAX_BITS_ON=32;
+  Random random=new Random();
+  for (int i=0; i < ITERATIONS; i++) {
+    PinotDataCustomBitSet bitset=PinotDataCustomBitSet.withBitLength(LENGTH);
+    TreeSet<Integer> bitsOn=new TreeSet<Integer>();
+    int bitsToTurnOn=random.nextInt(MAX_BITS_ON);
+    while (bitsOn.size() < bitsToTurnOn) {
+      bitsOn.add(random.nextInt(LENGTH));
+    }
+    TreeSet<Integer> bitsOnCopy=new TreeSet<Integer>(bitsOn);
+    for (    Integer indexOfBitToTurnOn : bitsOn) {
+      bitset.setBit(indexOfBitToTurnOn);
+    }
+    int startSearchIndex=random.nextInt(LENGTH);
+    Iterator<Integer> bitsOnIterator=bitsOn.iterator();
+    while (bitsOnIterator.hasNext()) {
+      Integer next=bitsOnIterator.next();
+      if (next <= startSearchIndex) {
+        bitsOnIterator.remove();
+      }
+    }
+    int nthBitToFind=random.nextInt(MAX_BITS_ON / 2) + 1;
+    for (int j=0; j < nthBitToFind - 1 && !bitsOn.isEmpty(); j++) {
+      bitsOn.pollFirst();
+    }
+    int expectedIndex;
+    if (bitsOn.isEmpty()) {
+      expectedIndex=-1;
+    }
+ else {
+      expectedIndex=bitsOn.pollFirst();
+    }
+    long nthBitSetAfter=bitset.findNthBitSetAfter(startSearchIndex,nthBitToFind);
+    if (nthBitSetAfter != expectedIndex) {
+      System.out.println("Bits set " + bitsOnCopy + ", searching for "+ nthBitToFind+ "th bit from "+ startSearchIndex);
+      nthBitSetAfter=bitset.findNthBitSetAfter(startSearchIndex,nthBitToFind);
+    }
+    Assert.assertEquals(nthBitSetAfter,expectedIndex,"Bits set " + bitsOnCopy + ", searching for "+ nthBitToFind+ "th bit from "+ startSearchIndex);
+    bitset.close();
+  }
+}

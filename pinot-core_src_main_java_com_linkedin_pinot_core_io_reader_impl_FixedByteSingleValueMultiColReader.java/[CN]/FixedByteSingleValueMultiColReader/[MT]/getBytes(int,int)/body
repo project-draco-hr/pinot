@@ -2,8 +2,6 @@
   final int length=getColumnSizes()[col];
   final byte[] dst=new byte[length];
   final int offset=computeOffset(row,col);
-  ByteBuffer bufferCopy=byteBuffer.duplicate();
-  bufferCopy.position(offset);
-  bufferCopy.get(dst,0,length);
+  indexDataBuffer.copyTo(offset,dst,0,length);
   return dst;
 }

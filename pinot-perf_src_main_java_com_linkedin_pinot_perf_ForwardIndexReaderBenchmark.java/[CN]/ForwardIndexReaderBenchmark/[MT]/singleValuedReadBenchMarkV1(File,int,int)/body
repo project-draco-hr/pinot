@@ -1,7 +1,8 @@
 {
   boolean signed=false;
   boolean isMmap=false;
-  BaseSingleColumnSingleValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitSingleValueReader(file,numDocs,columnSizeInBits,signed,isMmap);
+  PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(file,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"benchmark");
+  BaseSingleColumnSingleValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitSingleValueReader(heapBuffer,numDocs,columnSizeInBits,signed);
   long start, end;
   DescriptiveStatistics stats=new DescriptiveStatistics();
   for (int run=0; run < MAX_RUNS; run++) {
@@ -15,4 +16,5 @@
   System.out.println(" v1 sequential read stats for " + file.getName());
   System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
   reader.close();
+  heapBuffer.close();
 }

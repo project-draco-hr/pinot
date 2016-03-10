@@ -1,0 +1,13 @@
+{
+  PinotDataBuffer indexBuffer=segmentWriter.getIndexFor(columnMetadata.getColumnName(),ColumnIndexType.FORWARD_INDEX);
+  DataFileReader reader;
+  if (columnMetadata.isSingleValue()) {
+    SingleColumnSingleValueReader fwdIndexReader=new FixedBitSingleValueReader(indexBuffer,columnMetadata.getTotalDocs(),columnMetadata.getBitsPerElement(),columnMetadata.hasNulls());
+    reader=fwdIndexReader;
+  }
+ else {
+    SingleColumnMultiValueReader<? extends ReaderContext> fwdIndexReader=new FixedBitMultiValueReader(indexBuffer,columnMetadata.getTotalDocs(),columnMetadata.getTotalNumberOfEntries(),columnMetadata.getBitsPerElement(),false);
+    reader=fwdIndexReader;
+  }
+  return reader;
+}

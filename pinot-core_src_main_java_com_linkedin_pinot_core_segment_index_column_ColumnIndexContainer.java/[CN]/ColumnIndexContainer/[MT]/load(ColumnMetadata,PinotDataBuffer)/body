@@ -1,0 +1,16 @@
+{
+switch (metadata.getDataType()) {
+case INT:
+    return new IntDictionary(dictionaryBuffer,metadata);
+case LONG:
+  return new LongDictionary(dictionaryBuffer,metadata);
+case FLOAT:
+return new FloatDictionary(dictionaryBuffer,metadata);
+case DOUBLE:
+return new DoubleDictionary(dictionaryBuffer,metadata);
+case STRING:
+case BOOLEAN:
+return new StringDictionary(dictionaryBuffer,metadata);
+}
+throw new UnsupportedOperationException("unsupported data type : " + metadata.getDataType());
+}

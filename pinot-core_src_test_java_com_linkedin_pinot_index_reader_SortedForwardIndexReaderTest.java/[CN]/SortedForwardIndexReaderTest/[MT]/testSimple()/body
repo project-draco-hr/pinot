@@ -22,7 +22,8 @@
     totalDocs+=length;
   }
   writer.close();
-  FixedByteSingleValueMultiColReader rawFileReader=FixedByteSingleValueMultiColReader.forHeap(file,cardinality,columnSizes.length,columnSizes);
+  PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(file,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"testing");
+  FixedByteSingleValueMultiColReader rawFileReader=new FixedByteSingleValueMultiColReader(heapBuffer,cardinality,columnSizes.length,columnSizes);
   SortedForwardIndexReader reader=new SortedForwardIndexReader(rawFileReader,totalDocs);
   long start, end;
   start=System.currentTimeMillis();
@@ -41,7 +42,8 @@
     }
   }
   end=System.currentTimeMillis();
-  System.out.println("Took " + (end - start) + " to scan "+ totalDocs+ " with context");
+  LOGGER.debug("Took " + (end - start) + " to scan "+ totalDocs+ " with context");
   reader.close();
   file.delete();
+  heapBuffer.close();
 }

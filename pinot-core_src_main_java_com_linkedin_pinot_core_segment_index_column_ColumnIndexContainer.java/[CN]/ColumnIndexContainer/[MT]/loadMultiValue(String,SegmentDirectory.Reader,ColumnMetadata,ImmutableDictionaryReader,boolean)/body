@@ -1,0 +1,10 @@
+{
+  PinotDataBuffer fwdIndexBuffer=segmentReader.getIndexFor(column,ColumnIndexType.FORWARD_INDEX);
+  SingleColumnMultiValueReader<? extends ReaderContext> fwdIndexReader=new FixedBitMultiValueReader(fwdIndexBuffer,metadata.getTotalDocs(),metadata.getTotalNumberOfEntries(),metadata.getBitsPerElement(),false);
+  BitmapInvertedIndexReader invertedIndex=null;
+  if (loadInverted) {
+    PinotDataBuffer invertedIndexBuffer=segmentReader.getIndexFor(column,ColumnIndexType.INVERTED_INDEX);
+    invertedIndex=new BitmapInvertedIndexReader(invertedIndexBuffer,metadata.getCardinality());
+  }
+  return new UnSortedMVColumnIndexContainer(column,metadata,fwdIndexReader,dictionary,invertedIndex);
+}

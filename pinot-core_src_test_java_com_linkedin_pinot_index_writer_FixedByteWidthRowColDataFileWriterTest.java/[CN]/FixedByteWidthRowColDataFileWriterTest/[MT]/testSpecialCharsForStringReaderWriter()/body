@@ -24,7 +24,8 @@
     writer.setString(i,0,data[i]);
   }
   writer.close();
-  FixedByteSingleValueMultiColReader dataFileReader=FixedByteSingleValueMultiColReader.forMmap(file,rows,1,new int[]{stringColumnMaxLength});
+  PinotDataBuffer mmapBuffer=PinotDataBuffer.fromFile(file,ReadMode.mmap,FileChannel.MapMode.READ_ONLY,"testing");
+  FixedByteSingleValueMultiColReader dataFileReader=new FixedByteSingleValueMultiColReader(mmapBuffer,rows,1,new int[]{stringColumnMaxLength});
   for (int i=0; i < rows; i++) {
     String stringInFile=dataFileReader.getString(i,0);
     Assert.assertEquals(stringInFile,data[i]);

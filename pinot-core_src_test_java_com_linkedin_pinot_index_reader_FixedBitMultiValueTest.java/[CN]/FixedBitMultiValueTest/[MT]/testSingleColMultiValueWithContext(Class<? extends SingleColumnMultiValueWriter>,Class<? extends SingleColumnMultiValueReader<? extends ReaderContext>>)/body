@@ -1,7 +1,7 @@
 {
   LOGGER.info("Testing for writerClazz:{} readerClass:{}",writerClazz.getName(),readerClazz.getName());
   Constructor<? extends SingleColumnMultiValueWriter> writerClazzConstructor=writerClazz.getConstructor(new Class[]{File.class,int.class,int.class,int.class});
-  Constructor<? extends SingleColumnMultiValueReader<? extends ReaderContext>> readerClazzConstructor=readerClazz.getConstructor(new Class[]{File.class,int.class,int.class,int.class,boolean.class,boolean.class});
+  Constructor<? extends SingleColumnMultiValueReader<? extends ReaderContext>> readerClazzConstructor=readerClazz.getConstructor(new Class[]{PinotDataBuffer.class,int.class,int.class,int.class,boolean.class});
   int maxBits=1;
   while (maxBits < 32) {
     final String fileName=getClass().getName() + "_test_single_col_mv_fixed_bit.dat";
@@ -32,7 +32,8 @@
     writer.close();
     final RandomAccessFile raf=new RandomAccessFile(f,"rw");
     raf.close();
-    SingleColumnMultiValueReader heapReader=readerClazzConstructor.newInstance(new Object[]{f,numDocs,totalNumValues,maxBits,false,false});
+    PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(f,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"testing");
+    SingleColumnMultiValueReader heapReader=readerClazzConstructor.newInstance(new Object[]{heapBuffer,numDocs,totalNumValues,maxBits,false});
     ReaderContext context=heapReader.createContext();
     final int[] readValues=new int[maxNumValues];
     for (int i=0; i < data.length; i++) {
@@ -47,7 +48,9 @@
       }
     }
     heapReader.close();
-    SingleColumnMultiValueReader<? extends ReaderContext> mmapReader=readerClazzConstructor.newInstance(new Object[]{f,numDocs,totalNumValues,maxBits,false,true});
+    heapBuffer.close();
+    PinotDataBuffer mmapBuffer=PinotDataBuffer.fromFile(f,ReadMode.mmap,FileChannel.MapMode.READ_ONLY,"testing");
+    SingleColumnMultiValueReader<? extends ReaderContext> mmapReader=readerClazzConstructor.newInstance(new Object[]{mmapBuffer,numDocs,totalNumValues,maxBits,false});
     for (int i=0; i < data.length; i++) {
       final int numValues=mmapReader.getIntArray(i,readValues);
       Assert.assertEquals(numValues,data[i].length);
@@ -56,6 +59,7 @@
       }
     }
     mmapReader.close();
+    mmapBuffer.close();
     f.delete();
     maxBits=maxBits + 1;
   }

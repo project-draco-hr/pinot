@@ -1,15 +1,17 @@
 {
   SegmentMetadataImpl segmentMetadataImpl=new SegmentMetadataImpl(indexSegmentDir);
+  SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(indexSegmentDir,segmentMetadataImpl,ReadMode.mmap);
   Set<String> columns=segmentMetadataImpl.getAllColumns();
+  SegmentDirectory.Writer segmentWriter=segmentDirectory.createWriter();
   for (  String column : columns) {
     ColumnMetadata columnMetadata=segmentMetadataImpl.getColumnMetadataFor(column);
     if (columnMetadata.isSorted()) {
       continue;
     }
+    PinotDataBuffer fwdIndexBuffer=segmentWriter.getIndexFor(column,ColumnIndexType.FORWARD_INDEX);
     if (columnMetadata.isSingleValue() && !columnMetadata.isSorted()) {
-      File fwdIndexFile=new File(indexSegmentDir,column + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION);
       boolean signed=false;
-      SingleColumnSingleValueReader v1Reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitSingleValueReader(fwdIndexFile,segmentMetadataImpl.getTotalDocs(),columnMetadata.getBitsPerElement(),true,false);
+      SingleColumnSingleValueReader v1Reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitSingleValueReader(fwdIndexBuffer,segmentMetadataImpl.getTotalDocs(),columnMetadata.getBitsPerElement(),false);
       File convertedFwdIndexFile=new File(indexSegmentDir,column + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION + ".tmp");
       SingleColumnSingleValueWriter v2Writer=new com.linkedin.pinot.core.io.writer.impl.v2.FixedBitSingleValueWriter(convertedFwdIndexFile,segmentMetadataImpl.getTotalDocs(),columnMetadata.getBitsPerElement());
       for (int row=0; row < segmentMetadataImpl.getTotalDocs(); row++) {
@@ -19,23 +21,14 @@
       v1Reader.close();
       v2Writer.close();
       File fwdIndexFileCopy=new File(indexSegmentDir,column + V1Constants.Indexes.UN_SORTED_SV_FWD_IDX_FILE_EXTENTION + ".orig");
-      bis=new BufferedInputStream(new FileInputStream(fwdIndexFile));
-      bos=new BufferedOutputStream(new FileOutputStream(fwdIndexFileCopy));
-      IOUtils.copy(bis,bos);
-      bis.close();
-      bos.close();
-      fwdIndexFile.delete();
-      bis=new BufferedInputStream(new FileInputStream(convertedFwdIndexFile));
-      bos=new BufferedOutputStream(new FileOutputStream(fwdIndexFile));
-      IOUtils.copy(bis,bos);
-      bis.close();
-      bos.close();
+      segmentWriter.removeIndex(column,ColumnIndexType.FORWARD_INDEX);
+      PinotDataBuffer newIndexBuffer=segmentWriter.newIndexFor(column,ColumnIndexType.FORWARD_INDEX,(int)convertedFwdIndexFile.length());
+      newIndexBuffer.readFrom(convertedFwdIndexFile);
       convertedFwdIndexFile.delete();
     }
     if (!columnMetadata.isSingleValue()) {
-      File fwdIndexFile=new File(indexSegmentDir,column + V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION);
       boolean signed=false;
-      SingleColumnMultiValueReader v1Reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitMultiValueReader(fwdIndexFile,segmentMetadataImpl.getTotalDocs(),columnMetadata.getTotalNumberOfEntries(),columnMetadata.getBitsPerElement(),signed,false);
+      SingleColumnMultiValueReader v1Reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitMultiValueReader(fwdIndexBuffer,segmentMetadataImpl.getTotalDocs(),columnMetadata.getTotalNumberOfEntries(),columnMetadata.getBitsPerElement(),signed);
       File convertedFwdIndexFile=new File(indexSegmentDir,column + V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION + ".tmp");
       SingleColumnMultiValueWriter v2Writer=new com.linkedin.pinot.core.io.writer.impl.v2.FixedBitMultiValueWriter(convertedFwdIndexFile,segmentMetadataImpl.getTotalDocs(),columnMetadata.getTotalNumberOfEntries(),columnMetadata.getBitsPerElement());
       int[] values=new int[columnMetadata.getMaxNumberOfMultiValues()];
@@ -47,18 +40,9 @@
       }
       v1Reader.close();
       v2Writer.close();
-      File fwdIndexFileCopy=new File(indexSegmentDir,column + V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION + ".orig");
-      bis=new BufferedInputStream(new FileInputStream(fwdIndexFile));
-      bos=new BufferedOutputStream(new FileOutputStream(fwdIndexFileCopy));
-      IOUtils.copy(bis,bos);
-      bis.close();
-      bos.close();
-      fwdIndexFile.delete();
-      bis=new BufferedInputStream(new FileInputStream(convertedFwdIndexFile));
-      bos=new BufferedOutputStream(new FileOutputStream(fwdIndexFile));
-      IOUtils.copy(bis,bos);
-      bis.close();
-      bos.close();
+      segmentWriter.removeIndex(column,ColumnIndexType.FORWARD_INDEX);
+      PinotDataBuffer newIndexBuffer=segmentWriter.newIndexFor(column,ColumnIndexType.FORWARD_INDEX,(int)convertedFwdIndexFile.length());
+      newIndexBuffer.readFrom(convertedFwdIndexFile);
       convertedFwdIndexFile.delete();
     }
   }

@@ -5,7 +5,8 @@
   boolean fullScan=true;
   boolean batchRead=true;
   boolean singleRead=true;
-  com.linkedin.pinot.core.io.reader.impl.v2.FixedBitSingleValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v2.FixedBitSingleValueReader(file,numDocs,numBits,signed,isMmap);
+  PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(file,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"benchmarking");
+  com.linkedin.pinot.core.io.reader.impl.v2.FixedBitSingleValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v2.FixedBitSingleValueReader(heapBuffer,numDocs,numBits,signed);
   if (fullScan) {
     DescriptiveStatistics stats=new DescriptiveStatistics();
     ByteBuffer buffer=ByteBuffer.allocateDirect((int)file.length());

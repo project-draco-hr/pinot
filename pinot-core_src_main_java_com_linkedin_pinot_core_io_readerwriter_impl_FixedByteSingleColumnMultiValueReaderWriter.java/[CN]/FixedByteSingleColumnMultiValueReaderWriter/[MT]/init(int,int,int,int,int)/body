@@ -2,8 +2,7 @@
   this.columnSizeInBytes=columnSizeInBytes;
   this.maxNumberOfMultiValuesPerRow=maxNumberOfMultiValuesPerRow;
   headerSize=rows * SIZE_OF_INT * NUM_COLS_IN_HEADER;
-  headerBuffer=MmapUtils.allocateDirectByteBuffer(headerSize,null,this.getClass().getSimpleName() + " headerBuffer");
-  headerBuffer.order(ByteOrder.nativeOrder());
+  headerBuffer=PinotDataBuffer.allocateDirect(headerSize);
   headerWriter=new FixedByteSingleValueMultiColWriter(headerBuffer,rows,3,new int[]{SIZE_OF_INT,SIZE_OF_INT,SIZE_OF_INT});
   headerReader=new FixedByteSingleValueMultiColReader(headerBuffer,rows,3,new int[]{SIZE_OF_INT,SIZE_OF_INT,SIZE_OF_INT});
   this.incrementalCapacity=incrementalCapacity;
