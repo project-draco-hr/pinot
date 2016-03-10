@@ -1,0 +1,13 @@
+{
+  ColumnIndexType indexType=key.type;
+switch (indexType) {
+case DICTIONARY:
+    return columnIndexDirectory.newDictionaryBuffer(key.name,(int)size);
+case FORWARD_INDEX:
+  return columnIndexDirectory.newForwardIndexBuffer(key.name,(int)size);
+case INVERTED_INDEX:
+return columnIndexDirectory.newInvertedIndexBuffer(key.name,((int)size));
+default :
+throw new RuntimeException("Unknown index type: " + indexType.name());
+}
+}

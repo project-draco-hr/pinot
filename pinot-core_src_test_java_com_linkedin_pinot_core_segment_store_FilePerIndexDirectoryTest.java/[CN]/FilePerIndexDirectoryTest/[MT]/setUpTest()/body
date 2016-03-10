@@ -1,0 +1,11 @@
+{
+  segmentDir=new File(TEST_DIRECTORY,"segmentDirectory");
+  if (segmentDir.exists()) {
+    FileUtils.deleteQuietly(segmentDir);
+  }
+  if (segmentDir.exists()) {
+    throw new RuntimeException("directory exists");
+  }
+  segmentDir.mkdirs();
+  segmentMetadata=ColumnIndexDirectoryTestHelper.writeMetadata(SegmentVersion.v1);
+}

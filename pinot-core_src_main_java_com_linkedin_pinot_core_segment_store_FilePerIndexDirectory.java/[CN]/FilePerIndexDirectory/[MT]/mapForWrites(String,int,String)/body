@@ -1,0 +1,8 @@
+{
+  Preconditions.checkNotNull(filename);
+  Preconditions.checkArgument(size >= 0,"File size must not be negative. Path: " + filename);
+  File f=new File(segmentDirectory,filename);
+  Preconditions.checkState(!f.exists(),"File: " + filename + " already exists");
+  String allocContext=allocationContext(f,context);
+  return PinotDataBuffer.fromFile(f,0,size,ReadMode.mmap,FileChannel.MapMode.READ_WRITE,context);
+}

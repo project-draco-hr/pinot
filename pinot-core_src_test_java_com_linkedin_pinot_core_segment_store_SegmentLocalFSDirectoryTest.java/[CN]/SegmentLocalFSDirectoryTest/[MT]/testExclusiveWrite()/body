@@ -1,0 +1,12 @@
+{
+  SegmentLocalFSDirectory.Writer writer=segmentDirectory.createWriter();
+  Assert.assertNotNull(writer);
+  SegmentLocalFSDirectory.Reader reader2=segmentDirectory.createReader();
+  Assert.assertNull(reader2);
+  SegmentLocalFSDirectory.Writer writer1=segmentDirectory.createWriter();
+  Assert.assertNull(writer1);
+  writer.close();
+  reader2=segmentDirectory.createReader();
+  Assert.assertNotNull(reader2);
+  reader2.close();
+}

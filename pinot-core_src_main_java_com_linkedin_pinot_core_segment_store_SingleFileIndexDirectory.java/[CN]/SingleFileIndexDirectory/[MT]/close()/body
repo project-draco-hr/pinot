@@ -1,0 +1,14 @@
+{
+  for (  Map.Entry<IndexKey,IndexEntry> colEntry : columnEntries.entrySet()) {
+    IndexEntry entry=colEntry.getValue();
+    if (entry.buffer != null) {
+      entry.buffer.close();
+    }
+  }
+  columnEntries.clear();
+  for (  PinotDataBuffer buf : appendedBuffers) {
+    buf.close();
+  }
+  appendedBuffers.clear();
+  fullFileBuffer.close();
+}

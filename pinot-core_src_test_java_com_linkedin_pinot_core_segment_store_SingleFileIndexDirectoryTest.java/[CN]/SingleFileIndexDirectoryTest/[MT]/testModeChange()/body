@@ -1,0 +1,14 @@
+{
+  int size=ONE_MB;
+  testMultipleRW(ReadMode.heap,6,size);
+  ColumnIndexDirectory columnDirectory=null;
+  try {
+    columnDirectory=new SingleFileIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);
+    ColumnIndexDirectoryTestHelper.verifyMultipleReads(columnDirectory,"foo",6);
+  }
+  finally {
+    if (columnDirectory != null) {
+      columnDirectory.close();
+    }
+  }
+}

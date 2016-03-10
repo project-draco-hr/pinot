@@ -1,0 +1,23 @@
+{
+  SegmentMetadataImpl meta=mock(SegmentMetadataImpl.class);
+  when(meta.getVersion()).thenReturn(version.toString());
+  when(meta.getDictionaryFileName(anyString(),anyString())).thenAnswer(new Answer<String>(){
+    @Override public String answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      return invocationOnMock.getArguments()[0] + ".dictionary";
+    }
+  }
+);
+  when(meta.getForwardIndexFileName(anyString(),anyString())).thenAnswer(new Answer<String>(){
+    @Override public String answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      return invocationOnMock.getArguments()[0] + ".fwd.index";
+    }
+  }
+);
+  when(meta.getBitmapInvertedIndexFileName(anyString(),anyString())).thenAnswer(new Answer<String>(){
+    @Override public String answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      return invocationOnMock.getArguments()[0] + ".ii";
+    }
+  }
+);
+  return meta;
+}

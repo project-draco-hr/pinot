@@ -1,0 +1,18 @@
+{
+  String filename;
+switch (type) {
+case DICTIONARY:
+    filename=metadata.getDictionaryFileName(column,metadata.getVersion());
+  break;
+case FORWARD_INDEX:
+filename=metadata.getForwardIndexFileName(column,metadata.getVersion());
+break;
+case INVERTED_INDEX:
+filename=metadata.getBitmapInvertedIndexFileName(column,metadata.getVersion());
+break;
+default :
+throw new UnsupportedOperationException("Unknown column index type: " + type.name());
+}
+File indexFile=new File(filename);
+return indexFile.exists();
+}

@@ -1,0 +1,13 @@
+{
+  File mapFile=new File(segmentDirectory,INDEX_MAP_FILE);
+  try (PrintWriter writer=new PrintWriter(new BufferedWriter(new FileWriter(mapFile,true)))){
+    String startKey=getKey(entry.key.name,entry.key.type.getIndexName(),true);
+    StringBuilder sb=new StringBuilder();
+    sb.append(startKey).append(" = ").append(entry.startOffset);
+    writer.println(sb.toString());
+    String endKey=getKey(entry.key.name,entry.key.type.getIndexName(),false);
+    sb=new StringBuilder();
+    sb.append(endKey).append(" = ").append(entry.size);
+    writer.println(sb.toString());
+  }
+ }

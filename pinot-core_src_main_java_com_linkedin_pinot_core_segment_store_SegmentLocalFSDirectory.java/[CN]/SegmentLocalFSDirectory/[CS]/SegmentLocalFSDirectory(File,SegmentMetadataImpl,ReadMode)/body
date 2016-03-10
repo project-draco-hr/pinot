@@ -1,0 +1,16 @@
+{
+  Preconditions.checkNotNull(directoryFile);
+  Preconditions.checkNotNull(metadata);
+  segmentDirectory=directoryFile;
+  Preconditions.checkState(segmentDirectory.exists(),"Segment directory: " + directoryFile + " must exist");
+  segmentLock=new SegmentLock();
+  this.segmentMetadata=metadata;
+  this.readMode=readMode;
+  try {
+    load();
+  }
+ catch (  IOException|ConfigurationException e) {
+    LOGGER.error("Failed to load segment, error: ",e);
+    throw new RuntimeException(e);
+  }
+}

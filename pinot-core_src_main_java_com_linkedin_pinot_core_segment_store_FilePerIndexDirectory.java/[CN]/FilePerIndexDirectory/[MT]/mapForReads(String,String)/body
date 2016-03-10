@@ -1,0 +1,7 @@
+{
+  Preconditions.checkNotNull(fileName);
+  Preconditions.checkNotNull(context);
+  File file=new File(segmentDirectory,fileName);
+  String allocationContext=allocationContext(file,context);
+  return PinotDataBuffer.fromFile(file,readMode,FileChannel.MapMode.READ_ONLY,allocationContext);
+}

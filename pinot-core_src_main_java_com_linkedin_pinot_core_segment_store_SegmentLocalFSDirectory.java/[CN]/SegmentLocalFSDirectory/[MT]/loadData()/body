@@ -1,0 +1,22 @@
+{
+  if (columnIndexDirectory != null) {
+    return;
+  }
+  String version=segmentMetadata.getVersion();
+  SegmentVersion segmentVersion=SegmentVersion.valueOf(version);
+switch (segmentVersion) {
+case v1:
+case v2:
+    columnIndexDirectory=new FilePerIndexDirectory(segmentDirectory,segmentMetadata,readMode);
+  break;
+case v3:
+try {
+  columnIndexDirectory=new SingleFileIndexDirectory(segmentDirectory,segmentMetadata,readMode);
+}
+ catch (ConfigurationException e) {
+  LOGGER.error("Failed to create columnar index directory",e);
+  throw new RuntimeException(e);
+}
+break;
+}
+}

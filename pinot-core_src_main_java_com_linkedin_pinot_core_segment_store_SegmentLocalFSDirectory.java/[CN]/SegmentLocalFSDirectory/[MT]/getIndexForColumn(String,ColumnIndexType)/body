@@ -1,0 +1,12 @@
+{
+switch (type) {
+case DICTIONARY:
+    return columnIndexDirectory.getDictionaryBufferFor(column);
+case FORWARD_INDEX:
+  return columnIndexDirectory.getForwardIndexBufferFor(column);
+case INVERTED_INDEX:
+return columnIndexDirectory.getInvertedIndexBufferFor(column);
+default :
+throw new RuntimeException("Unknown index type: " + type.name());
+}
+}

@@ -1,0 +1,17 @@
+{
+  String columnName=column + Integer.toString(index);
+  ColumnIndexType indexType=indexTypes[index % indexTypes.length];
+  PinotDataBuffer buf=null;
+switch (indexType) {
+case DICTIONARY:
+    buf=columnDirectory.getDictionaryBufferFor(columnName);
+  break;
+case FORWARD_INDEX:
+buf=columnDirectory.getForwardIndexBufferFor(columnName);
+break;
+case INVERTED_INDEX:
+buf=columnDirectory.getInvertedIndexBufferFor(columnName);
+break;
+}
+return buf;
+}

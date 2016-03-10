@@ -1,0 +1,31 @@
+{
+  File mapFile=new File(segmentDirectory,INDEX_MAP_FILE);
+  PropertiesConfiguration mapConfig=new PropertiesConfiguration(mapFile);
+  Iterator keys=mapConfig.getKeys();
+  while (keys.hasNext()) {
+    String key=(String)keys.next();
+    String[] keyParts=key.split(MAP_KEY_SEPARATOR);
+    Preconditions.checkState(keyParts.length == 3,"Invalid key: " + key);
+    IndexKey indexKey=new IndexKey(keyParts[0],ColumnIndexType.getValue(keyParts[1]));
+    IndexEntry entry=columnEntries.get(indexKey);
+    if (entry == null) {
+      entry=new IndexEntry(indexKey);
+      columnEntries.put(indexKey,entry);
+    }
+    if (keyParts[2].equals(MAP_KEY_NAME_START_OFFSET)) {
+      entry.startOffset=mapConfig.getLong(key);
+    }
+ else     if (keyParts[2].equals(MAP_KEY_NAME_SIZE)) {
+      entry.size=mapConfig.getLong(key);
+    }
+ else {
+      throw new ConfigurationException("Invalid map file key: " + key);
+    }
+  }
+  for (  Map.Entry<IndexKey,IndexEntry> colIndexEntry : columnEntries.entrySet()) {
+    IndexEntry entry=colIndexEntry.getValue();
+    if (entry.size < 0 || entry.startOffset < 0) {
+      throw new ConfigurationException("Invalid map entry for key: " + colIndexEntry.getKey().toString());
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  super(segmentDirectory,metadata,readMode);
+  indexFile=new File(segmentDirectory,DEFAULT_INDEX_FILE_NAME);
+  String context=allocationContext(indexFile,"single_file_index.read_write");
+  if (!indexFile.exists()) {
+    indexFile.createNewFile();
+  }
+  fullFileBuffer=PinotDataBuffer.fromFile(indexFile,readMode,FileChannel.MapMode.READ_WRITE,context);
+  columnEntries=new HashMap<IndexKey,IndexEntry>(metadata.getAllColumns().size());
+  appendedBuffers=new ArrayList<>();
+  load();
+}

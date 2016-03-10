@@ -1,0 +1,16 @@
+{
+  FilePerIndexDirectory fpiDir=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.heap);
+  Assert.assertEquals(0,segmentDir.list().length);
+  PinotDataBuffer buffer=fpiDir.newDictionaryBuffer("col1",1024);
+  buffer.putLong(0,0xbadfadL);
+  buffer.putInt(8,51);
+  buffer.putInt(101,55);
+  buffer.close();
+  fpiDir.close();
+  Assert.assertEquals(1,segmentDir.list().length);
+  FilePerIndexDirectory colDir=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);
+  PinotDataBuffer readBuffer=colDir.getDictionaryBufferFor("col1");
+  Assert.assertEquals(readBuffer.getLong(0),0xbadfadL);
+  Assert.assertEquals(readBuffer.getInt(8),51);
+  Assert.assertEquals(readBuffer.getInt(101),55);
+}

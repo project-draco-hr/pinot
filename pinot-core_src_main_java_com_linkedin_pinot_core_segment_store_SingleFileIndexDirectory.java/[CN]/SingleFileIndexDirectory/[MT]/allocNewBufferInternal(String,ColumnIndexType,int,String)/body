@@ -1,0 +1,16 @@
+{
+  IndexKey key=new IndexKey(column,indexType);
+  checkKeyNotPresent(key);
+  String allocContext=allocationContext(key) + context;
+  IndexEntry entry=new IndexEntry(key);
+  entry.startOffset=indexFile.length();
+  entry.size=size + MAGIC_MARKER_SIZE_BYTES;
+  PinotDataBuffer appendBuffer=PinotDataBuffer.fromFile(indexFile,entry.startOffset,entry.size,ReadMode.mmap,FileChannel.MapMode.READ_WRITE,allocContext);
+  LOGGER.debug("Allotted buffer for key: {}, startOffset: {}, size: {}",key,entry.startOffset,entry.size);
+  appendBuffer.putLong(0,MAGIC_MARKER);
+  appendedBuffers.add(appendBuffer);
+  entry.buffer=appendBuffer.view(0 + MAGIC_MARKER_SIZE_BYTES,entry.size);
+  columnEntries.put(key,entry);
+  persistIndexMap(entry);
+  return entry.buffer.duplicate();
+}
