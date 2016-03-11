@@ -1,0 +1,15 @@
+{
+  QueryResult result=new QueryResult();
+  result.setDimensions(dimensions);
+  result.setMetrics(metrics);
+  Map<String,Map<String,Number[]>> data=new HashMap<String,Map<String,Number[]>>();
+  for (  String dimensionValue : dimensionValues) {
+    HashMap<String,Number[]> entry=new HashMap<>();
+    data.put("[\"" + dimensionValue + "\"]",entry);
+    Number[] values=new Number[metrics.size()];
+    Arrays.fill(values,1.0);
+    entry.put(Long.toString(timestamp),values);
+  }
+  result.setData(data);
+  return ConcurrentUtils.constantFuture(result);
+}

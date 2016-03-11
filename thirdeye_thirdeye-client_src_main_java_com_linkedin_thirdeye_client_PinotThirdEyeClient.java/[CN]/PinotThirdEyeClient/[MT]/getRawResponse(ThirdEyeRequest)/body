@@ -3,7 +3,7 @@
   TimeSpec dataTimeSpec=starTreeConfig.getTime();
   List<String> rawMetrics=request.getRawMetricNames();
   List<String> dimensionNames=starTreeConfig.getDimensionNames();
-  String sql=PqlUtils.getPql(request,dataTimeSpec);
+  String sql=pqlGenerator.getPql(request,dataTimeSpec);
   LOG.info("getRawResponse: {}",sql);
   ResultSetGroup result=resultSetGroupCache.get(sql);
   Map<String,Map<String,Number[]>> data=parseResultSetGroup(request,result,rawMetrics,starTreeConfig,dimensionNames);

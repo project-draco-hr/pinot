@@ -8,10 +8,10 @@
   Map<String,List<Future<QueryResult>>> resultFutures=new HashMap<>();
   for (  String dimension : dimensions) {
     ArrayList<Future<QueryResult>> futures=new ArrayList<>();
-    ThirdEyeRequest req1=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(dummyFunction).setStartTime(baseline).setEndTime(baseline.plusDays(1)).setDimensionValues(dimensionValues).setGroupBy(dimension).build();
+    ThirdEyeRequest req1=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(dummyFunction).setStartTime(baseline).setEndTime(baseline.plusDays(1)).setDimensionValues(dimensionValues).setGroupBy(dimension).setShouldGroupByTime(false).build();
     LOGGER.info("Generated request for dimension retrieval: {}",req1);
     futures.add(queryCache.getQueryResultAsync(req1));
-    ThirdEyeRequest req2=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(dummyFunction).setStartTime(current.minusDays(1)).setEndTime(current).setDimensionValues(dimensionValues).setGroupBy(dimension).build();
+    ThirdEyeRequest req2=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(dummyFunction).setStartTime(current.minusDays(1)).setEndTime(current).setDimensionValues(dimensionValues).setGroupBy(dimension).setShouldGroupByTime(false).build();
     LOGGER.info("Generated request for dimension retrieval: {}",req2);
     futures.add(queryCache.getQueryResultAsync(req2));
     resultFutures.put(dimension,futures);

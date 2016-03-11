@@ -10,12 +10,12 @@
     int columnCount=resultSet.getColumnCount();
     for (int row=0; row < resultSet.getRowCount(); row++) {
       String dimensionKey;
-      String timestamp=null;
+      String timestamp=request.shouldGroupByTime() ? null : Long.toString(startTime.getMillis());
       if (resultSet.getGroupKeyLength() > 0) {
         List<String> dimensionKeyList=new LinkedList<String>();
         for (int group=0; group < resultSet.getGroupKeyLength(); group++) {
           String timeKey=resultSet.getGroupKeyString(row,group);
-          if (group == 0) {
+          if (group == 0 && request.shouldGroupByTime()) {
             timestamp=calculateTimeStamp(timeKey,bucketGranularity,aggGranularity,startTime);
           }
  else {

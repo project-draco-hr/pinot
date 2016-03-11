@@ -1,7 +1,7 @@
 {
   TimeSpec timeSpec=getStarTreeConfig(collection).getTime();
   String timeColumnName=timeSpec.getColumnName();
-  String sql=PqlUtils.getDataTimeRangeSql(collection,timeColumnName);
+  String sql=pqlGenerator.getDataTimeRangeSql(collection,timeColumnName);
   LOG.info("Retrieving segment: {}",sql);
   ResultSetGroup result=resultSetGroupCache.get(sql);
   if (result.getResultSetCount() == 0) {

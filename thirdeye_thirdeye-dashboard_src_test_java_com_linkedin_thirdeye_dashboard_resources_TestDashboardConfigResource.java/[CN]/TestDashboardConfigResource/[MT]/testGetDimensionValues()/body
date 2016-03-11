@@ -1,2 +1,18 @@
 {
+  long baselineMillis=0;
+  long currentMillis=TimeUnit.DAYS.toMillis(7);
+  List<String> dimensions=Arrays.asList("a");
+  when(mockCollectionSchema.getDimensions()).thenReturn(dimensions);
+  String metric="__COUNT";
+  List<String> metrics=Collections.singletonList(metric);
+  when(mockCollectionSchema.getMetrics()).thenReturn(metrics);
+  List<String> values1=Arrays.asList("v1","v3");
+  List<String> values2=Arrays.asList("v2","v4");
+  Set<String> expectedValues=new HashSet<>(values1);
+  expectedValues.addAll(values2);
+  Future<QueryResult> result1=createQueryResultFuture(dimensions,metrics,values1,baselineMillis);
+  Future<QueryResult> result2=createQueryResultFuture(dimensions,metrics,values2,currentMillis);
+  when(mockQueryCache.getQueryResultAsync(any(ThirdEyeRequest.class))).thenReturn(result1,result2);
+  Map<String,Collection<String>> dimensionValues=testDashboardConfigResource.getDimensionValues(COLLECTION,baselineMillis,currentMillis,0.0,expectedValues.size());
+  Assert.assertTrue(CollectionUtils.isEqualCollection(dimensionValues.get(dimensions.get(0)),expectedValues));
 }
