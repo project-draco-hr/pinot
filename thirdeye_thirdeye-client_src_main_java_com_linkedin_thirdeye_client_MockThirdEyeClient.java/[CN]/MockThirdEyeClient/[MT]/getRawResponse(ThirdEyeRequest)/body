@@ -1,0 +1,20 @@
+{
+  ThirdEyeRawResponse response=new ThirdEyeRawResponse();
+  StarTreeConfig config=getStarTreeConfig(request.getCollection());
+  List<String> dimensions=config.getDimensionNames();
+  response.setDimensions(dimensions);
+  response.setMetrics(config.getMetricNames());
+  Set<String> groupBy=request.getGroupBy();
+  List<String> timestamps=generateTimestamps(request,config);
+  int metricCount=config.getMetrics().size();
+  HashMap<String,Map<String,Number[]>> data=new HashMap<String,Map<String,Number[]>>();
+  for (  String dimensionKey : generateDimensionKeys(dimensions,groupBy)) {
+    HashMap<String,Number[]> keyData=new HashMap<String,Number[]>();
+    data.put(dimensionKey,keyData);
+    for (    String timestamp : timestamps) {
+      keyData.put(timestamp,generateMetricData(metricCount));
+    }
+  }
+  response.setData(data);
+  return response;
+}

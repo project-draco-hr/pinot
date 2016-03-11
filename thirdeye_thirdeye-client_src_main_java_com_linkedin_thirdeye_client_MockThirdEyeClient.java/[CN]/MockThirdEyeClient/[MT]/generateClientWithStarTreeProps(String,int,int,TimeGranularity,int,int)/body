@@ -1,0 +1,12 @@
+{
+  StarTreeConfig.Builder configBuilder=new StarTreeConfig.Builder().setCollection(collection);
+  configBuilder.setDimensions(generateDimensions(generateRangeList("dim",numDimensions)));
+  configBuilder.setMetrics(generateMetrics(generateRangeList("metric",numMetrics)));
+  configBuilder.setTime(new TimeSpec("dummy",dataBucket,dataBucket,dataBucket));
+  try {
+    return new MockThirdEyeClient(configBuilder.build(),metricValueRange,dimensionValueCardinality);
+  }
+ catch (  Exception e) {
+    throw new IllegalArgumentException(e);
+  }
+}

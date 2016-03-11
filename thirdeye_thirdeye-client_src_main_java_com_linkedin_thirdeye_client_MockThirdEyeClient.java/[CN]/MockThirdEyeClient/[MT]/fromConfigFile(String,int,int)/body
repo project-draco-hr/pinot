@@ -1,0 +1,13 @@
+{
+  FileInputStream inp=null;
+  try {
+    inp=new FileInputStream(starTreeConfigFilePath);
+    return new MockThirdEyeClient(StarTreeConfig.decode(inp),metricValueRange,dimensionValueCardinality);
+  }
+ catch (  Throwable t) {
+    throw new RuntimeException(t);
+  }
+ finally {
+    IOUtils.closeQuietly(inp);
+  }
+}

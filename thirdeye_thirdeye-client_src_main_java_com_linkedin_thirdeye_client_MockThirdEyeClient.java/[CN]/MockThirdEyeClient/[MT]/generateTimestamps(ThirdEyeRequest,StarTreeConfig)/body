@@ -1,0 +1,18 @@
+{
+  long bucketMillis=config.getTime().getBucket().toMillis();
+  long startMillis=request.getStartTime().getMillis();
+  startMillis=(startMillis + bucketMillis - 1) / bucketMillis * bucketMillis;
+  List<String> timestamps=new LinkedList<>();
+  if (!request.shouldGroupByTime()) {
+    timestamps.add(Long.toString(startMillis));
+  }
+ else {
+    long currentMillis=startMillis;
+    long endMillis=request.getEndTime().getMillis();
+    while (currentMillis < endMillis) {
+      timestamps.add(Long.toString(currentMillis));
+      currentMillis+=bucketMillis;
+    }
+  }
+  return timestamps;
+}
