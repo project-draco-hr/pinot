@@ -1,0 +1,11 @@
+{
+  int bufsize=(int)(size / numIter);
+  for (int i=0; i < numIter; i++) {
+    try (PinotDataBuffer buf=ColumnIndexDirectoryTestHelper.newIndexBuffer(columnDirectory,column,bufsize,i)){
+      int numValues=bufsize / 4;
+      for (int j=0; j < numValues; j++) {
+        buf.putInt(j * 4,j);
+      }
+    }
+   }
+}
