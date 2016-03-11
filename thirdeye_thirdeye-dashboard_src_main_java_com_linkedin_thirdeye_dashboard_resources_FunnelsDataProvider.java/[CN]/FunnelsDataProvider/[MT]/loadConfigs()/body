@@ -1,5 +1,6 @@
 {
   funnelSpecsMap.clear();
+  Set<String> collections=new HashSet<>(dataCache.getCollections());
   ObjectMapper ymlReader=new ObjectMapper(new YAMLFactory());
   if (funnelsRoot.exists()) {
     for (    File f : funnelsRoot.listFiles()) {
@@ -11,6 +12,10 @@
       try {
         CustomFunnelSpec spec=ymlReader.readValue(funnelsFile,CustomFunnelSpec.class);
         String collection=spec.getCollection();
+        if (!collections.contains(collection)) {
+          LOG.error("Invalid funnel collection: {}",collection);
+          continue;
+        }
         FunnelSpec defaultFunnelSpec=createDefaultFunnelSpec(collection);
         spec.getFunnels().put(defaultFunnelSpec.getName(),defaultFunnelSpec);
         this.funnelSpecsMap.put(collection,spec);
