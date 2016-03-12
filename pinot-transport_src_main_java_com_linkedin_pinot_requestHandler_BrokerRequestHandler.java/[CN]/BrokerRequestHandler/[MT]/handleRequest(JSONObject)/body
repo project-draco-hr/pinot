@@ -22,6 +22,12 @@
     if (isTraceEnabled) {
       brokerRequest.setEnableTrace(true);
     }
+    if (request.has(BROKER_RESPONSE_TYPE)) {
+      brokerRequest.setResponseFormat(request.getString(BROKER_RESPONSE_TYPE));
+    }
+ else {
+      brokerRequest.setResponseFormat(ResponseType.BROKER_RESPONSE_TYPE_JSON.name());
+    }
   }
  catch (  Exception e) {
     BrokerResponse brokerResponse=BrokerResponseFactory.get(responseType);

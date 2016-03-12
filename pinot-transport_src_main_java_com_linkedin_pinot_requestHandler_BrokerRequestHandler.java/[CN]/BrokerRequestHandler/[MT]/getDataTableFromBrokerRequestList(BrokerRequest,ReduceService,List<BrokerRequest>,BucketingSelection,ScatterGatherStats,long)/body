@@ -77,7 +77,7 @@
   try {
     return _brokerMetrics.timeQueryPhase(federatedBrokerRequest,BrokerQueryPhase.REDUCE,new Callable<BrokerResponse>(){
       @Override public BrokerResponse call(){
-        BrokerResponse returnValue=_reduceService.reduceOnDataTable(federatedBrokerRequest,instanceResponseMap);
+        BrokerResponse returnValue=reduceService.reduceOnDataTable(federatedBrokerRequest,instanceResponseMap);
         _brokerMetrics.addMeteredQueryValue(federatedBrokerRequest,BrokerMeter.DOCUMENTS_SCANNED,returnValue.getNumDocsScanned());
         return returnValue;
       }
