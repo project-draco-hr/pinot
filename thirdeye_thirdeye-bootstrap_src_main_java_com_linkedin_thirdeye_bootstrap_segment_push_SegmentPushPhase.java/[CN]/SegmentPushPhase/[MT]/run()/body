@@ -16,7 +16,7 @@
       pushOneTarFile(fs,fileStatus.getPath());
     }
   }
-  if (uploadSuccess) {
+  if (uploadSuccess && segmentName != null) {
     segmentPushControllerAPIs=new SegmentPushControllerAPIs(hosts,port);
     LOGGER.info("Deleting segments overlapping to {} from table {}  ",segmentName,tablename);
     segmentPushControllerAPIs.deleteOverlappingSegments(tablename,segmentName);
