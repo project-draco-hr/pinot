@@ -9,10 +9,14 @@
     try {
       inputStream=fs.open(path);
       fileName=fileName.split(".tar")[0];
+      segmentName=fileName.substring(0,fileName.lastIndexOf(SEGMENT_JOINER));
       LOGGER.info("******** Upoading file: {} to Host: {} and Port: {} *******",fileName,host,port);
       try {
         int responseCode=FileUploadUtils.sendSegmentFile(host,port,fileName,inputStream,length);
         LOGGER.info("Response code: {}",responseCode);
+        if (uploadSuccess == true && responseCode != 200) {
+          uploadSuccess=false;
+        }
       }
  catch (      Exception e) {
         LOGGER.error("******** Error Upoading file: {} to Host: {} and Port: {}  *******",fileName,host,port);

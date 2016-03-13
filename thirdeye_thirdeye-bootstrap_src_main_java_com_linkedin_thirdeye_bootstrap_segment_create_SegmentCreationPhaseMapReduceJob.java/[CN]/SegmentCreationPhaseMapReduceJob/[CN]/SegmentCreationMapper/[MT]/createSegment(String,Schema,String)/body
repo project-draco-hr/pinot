@@ -15,6 +15,9 @@
   segmentGeneratorConfig.setSegmentNamePostfix(seqId);
   segmentGeneratorConfig.setIndexOutputDir(localDiskSegmentDirectory);
   segmentGeneratorConfig.setCreateStarTreeIndex(true);
+  String minTime=StarTreeConstants.DATE_TIME_FORMATTER.print(segmentWallClockStartTime);
+  String maxTime=StarTreeConstants.DATE_TIME_FORMATTER.print(segmentWallClockEndTime);
+  segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
   StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
   starTreeIndexSpec.setMaxLeafRecords(starTreeConfig.getSplit().getThreshold());
   starTreeIndexSpec.setDimensionsSplitOrder(starTreeConfig.getSplit().getOrder());

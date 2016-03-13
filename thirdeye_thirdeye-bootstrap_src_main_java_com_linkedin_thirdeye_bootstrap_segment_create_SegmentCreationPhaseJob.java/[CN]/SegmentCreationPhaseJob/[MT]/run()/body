@@ -19,6 +19,12 @@
   LOGGER.info("Staging dir : {}",stagingDir);
   String tableName=getAndSetConfiguration(configuration,SEGMENT_CREATION_SEGMENT_TABLE_NAME);
   LOGGER.info("Segment table name : {}",tableName);
+  String segmentWallClockStart=getAndSetConfiguration(configuration,SEGMENT_CREATION_WALLCLOCK_START_TIME);
+  LOGGER.info("Segment wallclock start time : {}",segmentWallClockStart);
+  String segmentWallClockEnd=getAndSetConfiguration(configuration,SEGMENT_CREATION_WALLCLOCK_END_TIME);
+  LOGGER.info("Segment wallclock end time : {}",segmentWallClockEnd);
+  String schedule=getAndSetConfiguration(configuration,SEGMENT_CREATION_SCHEDULE);
+  LOGGER.info("Segment schedule : {}",schedule);
   if (fs.exists(stagingDir)) {
     LOGGER.warn("Found the temp folder, deleting it");
     fs.delete(stagingDir,true);

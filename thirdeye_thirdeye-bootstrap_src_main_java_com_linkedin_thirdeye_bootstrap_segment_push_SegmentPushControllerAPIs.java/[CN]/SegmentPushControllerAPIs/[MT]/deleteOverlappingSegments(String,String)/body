@@ -1,0 +1,19 @@
+{
+  if (segmentName.contains(DAILY_SCHEDULE)) {
+    for (    String controllerHost : controllerHosts) {
+      controllerHttpHost=new HttpHost(controllerHost,controllerPort);
+      LOGGER.info("Getting overlapped segments*************");
+      List<String> overlappingSegments=getOverlappingSegments(tableName,segmentName);
+      if (overlappingSegments.isEmpty()) {
+        LOGGER.info("No overlapping segments found");
+      }
+ else {
+        LOGGER.info("Deleting overlapped segments****************");
+        deleteOverlappingSegments(tableName,overlappingSegments);
+      }
+    }
+  }
+ else {
+    LOGGER.info("No overlapping segments to delete for HOURLY");
+  }
+}
