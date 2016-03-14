@@ -1,0 +1,20 @@
+{
+  TreeSet<String> pathsOrderedByLength=new TreeSet<String>(ComparatorUtils.chainedComparator(new Comparator<String>(){
+    @Override public int compare(    String left,    String right){
+      int leftLength=left.length();
+      int rightLength=right.length();
+      return leftLength < rightLength ? -1 : (leftLength == rightLength ? 0 : 1);
+    }
+  }
+,ComparatorUtils.NATURAL_COMPARATOR));
+  for (  Method method : clazz.getDeclaredMethods()) {
+    Annotation annotationInstance=method.getAnnotation(Paths.class);
+    if (annotationInstance != null) {
+      pathsOrderedByLength.addAll(Arrays.asList(((Paths)annotationInstance).value()));
+    }
+  }
+  for (  String routePath : pathsOrderedByLength) {
+    LOGGER.info("Attaching route {} -> {}",routePath,clazz.getSimpleName());
+    attachRoute(router,routePath,clazz);
+  }
+}
