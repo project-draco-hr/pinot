@@ -3,6 +3,14 @@
     for (    ByteBuffer buffer : buffers) {
       MmapUtils.unloadByteBuffer(buffer);
     }
+    if (raf != null) {
+      try {
+        raf.close();
+      }
+ catch (      IOException e) {
+        LOGGER.error("Failed to close file: {}. Continuing with errors.",raf,e);
+      }
+    }
     buffers=null;
   }
 }

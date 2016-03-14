@@ -15,5 +15,7 @@
     pending-=DEFAULT_SEGMENT_SIZE_BYTES;
     ++bufIndex;
   }
-  return new HugeByteBuffer(buffers,0,length,true,DEFAULT_SEGMENT_SIZE_BYTES,MMAP_EXTENSION_SIZE_BYTES);
+  HugeByteBuffer bb=new HugeByteBuffer(buffers,0,length,true,DEFAULT_SEGMENT_SIZE_BYTES,MMAP_EXTENSION_SIZE_BYTES);
+  bb.raf=raf;
+  return bb;
 }

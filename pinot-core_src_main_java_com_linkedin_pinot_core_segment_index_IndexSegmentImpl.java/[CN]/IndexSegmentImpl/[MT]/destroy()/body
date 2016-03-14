@@ -22,5 +22,11 @@
       LOGGER.error("Error when close inverted index for column : " + column,e);
     }
   }
+  try {
+    segmentDirectory.close();
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to close segment directory: {}. Continuing with error.",segmentDirectory.getPath(),e);
+  }
   indexContainerMap.clear();
 }
