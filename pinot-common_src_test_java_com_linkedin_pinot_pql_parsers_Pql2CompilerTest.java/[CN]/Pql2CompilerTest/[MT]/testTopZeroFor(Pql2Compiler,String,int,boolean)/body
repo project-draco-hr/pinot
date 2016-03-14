@@ -1,0 +1,16 @@
+{
+  BrokerRequest req;
+  try {
+    req=compiler.compileToBrokerRequest(s);
+  }
+ catch (  Pql2CompilationException e) {
+    if (parseException) {
+      return;
+    }
+    throw e;
+  }
+  Assert.assertTrue(req.isSetGroupBy());
+  GroupBy groupBy=req.getGroupBy();
+  Assert.assertTrue(groupBy.isSetTopN());
+  Assert.assertEquals(expectedTopN,groupBy.getTopN());
+}

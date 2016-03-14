@@ -1,0 +1,6 @@
+{
+  Pql2Compiler compiler=new Pql2Compiler();
+  testTopZeroFor(compiler,"select count(*) from someTable where c = 5 group by X top 0",TopAstNode.DEFAULT_TOP_N,false);
+  testTopZeroFor(compiler,"select count(*) from someTable where c = 5 group by X top 1",1,false);
+  testTopZeroFor(compiler,"select count(*) from someTable where c = 5 group by X top -1",TopAstNode.DEFAULT_TOP_N,true);
+}
