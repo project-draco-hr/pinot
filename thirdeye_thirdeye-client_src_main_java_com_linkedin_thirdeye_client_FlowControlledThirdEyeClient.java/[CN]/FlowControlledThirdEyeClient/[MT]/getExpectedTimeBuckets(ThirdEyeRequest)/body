@@ -1,0 +1,9 @@
+{
+  requestPermits.acquireUninterruptibly();
+  try {
+    return client.getExpectedTimeBuckets(request);
+  }
+  finally {
+    requestPermits.release();
+  }
+}

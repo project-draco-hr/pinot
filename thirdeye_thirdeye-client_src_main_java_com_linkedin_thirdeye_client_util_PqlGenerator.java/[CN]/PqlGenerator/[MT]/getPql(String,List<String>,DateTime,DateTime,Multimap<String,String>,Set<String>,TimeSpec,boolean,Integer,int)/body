@@ -12,11 +12,7 @@
   if (StringUtils.isNotBlank(groupByClause)) {
     sb.append(" ").append(groupByClause);
   }
-  int bucketCount=DEFAULT_TOP;
-  if (groupBy == null || groupBy.isEmpty()) {
-    long duration=endTime.getMillis() - startTime.getMillis();
-    bucketCount=(int)dataTimeSpec.getBucket().getUnit().convert(duration,TimeUnit.MILLISECONDS) + 1;
-  }
+  int bucketCount=getTopCountClause(topCount,numTimeBuckets,groupBy);
   sb.append(" TOP ").append(bucketCount);
   return sb.toString();
 }

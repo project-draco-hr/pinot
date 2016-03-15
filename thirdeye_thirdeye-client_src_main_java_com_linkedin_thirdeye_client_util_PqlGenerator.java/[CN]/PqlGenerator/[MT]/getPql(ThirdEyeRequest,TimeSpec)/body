@@ -1,3 +1,4 @@
 {
-  return getPql(request.getCollection(),request.getRawMetricNames(),request.getStartTime(),request.getEndTime(),request.getDimensionValues(),request.getGroupBy(),dataTimeSpec,request.shouldGroupByTime());
+  int numTimeBuckets=ThirdEyeClientUtils.getTimeBucketCount(request,dataTimeSpec);
+  return getPql(request.getCollection(),request.getRawMetricNames(),request.getStartTime(),request.getEndTime(),request.getDimensionValues(),request.getGroupBy(),dataTimeSpec,request.shouldGroupByTime(),request.getTopCount(),numTimeBuckets);
 }

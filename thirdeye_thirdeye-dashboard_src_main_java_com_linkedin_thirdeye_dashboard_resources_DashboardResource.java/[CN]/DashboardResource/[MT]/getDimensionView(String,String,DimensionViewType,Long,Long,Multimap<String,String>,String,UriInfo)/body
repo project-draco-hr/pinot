@@ -19,9 +19,9 @@ Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimen
 for (String dimension : schema.getDimensions()) {
 if (!selectedDimensions.containsKey(dimension)) {
 ThirdEyeMetricFunction thirdEyeMetricFunction=ThirdEyeMetricFunction.fromStr(metricFunction);
-int secs=(int)thirdEyeMetricFunction.getTimeGranularity().toSeconds();
-ThirdEyeRequest baseLineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(thirdEyeMetricFunction).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).setStartTime(baseline.minusSeconds(secs)).setEndTime(baseline.plusSeconds(secs)).build();
-ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(thirdEyeMetricFunction).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).setStartTime(current.minusSeconds(secs)).setEndTime(current.plusSeconds(secs)).build();
+long bucketSize=thirdEyeMetricFunction.getTimeGranularity().toMillis();
+ThirdEyeRequest baseLineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(thirdEyeMetricFunction).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).setStartTime(baseline.minus(bucketSize)).setEndTime(baseline.plus(bucketSize)).setTopCount(HEATMAP_GROUP_COUNT).build();
+ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(thirdEyeMetricFunction).setDimensionValues(expandedDimensionValues).setGroupBy(dimension).setTopCount(HEATMAP_GROUP_COUNT).setStartTime(current.minus(bucketSize)).setEndTime(current.plus(bucketSize)).build();
 ArrayList<Future<QueryResult>> futures=new ArrayList<>();
 futures.add(queryCache.getQueryResultAsync(baseLineReq));
 futures.add(queryCache.getQueryResultAsync(currentReq));
