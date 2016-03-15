@@ -1,0 +1,9 @@
+{
+  attachRoutesForClass(router,MmapDebugResource.class);
+  router.attach("/api",SwaggerResource.class);
+  final Directory swaggerUiDir=new Directory(getContext(),getClass().getClassLoader().getResource("META-INF/resources/webjars/swagger-ui/2.1.8-M1").toString());
+  swaggerUiDir.setDeeplyAccessible(true);
+  router.attach("/swagger-ui",swaggerUiDir);
+  final Redirector redirector=new Redirector(getContext(),"/swagger-ui/index.html?url=/api",Redirector.MODE_CLIENT_TEMPORARY);
+  router.attach("/help",redirector);
+}

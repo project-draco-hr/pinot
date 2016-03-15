@@ -33,10 +33,14 @@ BUFFER_TO_CONTEXT_MAP.remove(buffer);
 LOGGER.warn("Attempted to release byte buffer of size {} with no context, no deallocation performed.",bufferSize);
 if (LOGGER.isDebugEnabled()) {
 List<String> matchingAllocationContexts=new ArrayList<>();
+synchronized (BUFFER_TO_CONTEXT_MAP) {
+clearSynchronizedMapEntrySetCache();
 for (Map.Entry<ByteBuffer,AllocationContext> byteBufferAllocationContextEntry : BUFFER_TO_CONTEXT_MAP.entrySet()) {
 if (byteBufferAllocationContextEntry.getKey().capacity() == bufferSize) {
-matchingAllocationContexts.add(byteBufferAllocationContextEntry.getValue().toString());
+  matchingAllocationContexts.add(byteBufferAllocationContextEntry.getValue().toString());
 }
+}
+clearSynchronizedMapEntrySetCache();
 }
 LOGGER.debug("Contexts with a size of {}: {}",bufferSize,matchingAllocationContexts);
 LOGGER.debug("Called by: {}",Utils.getCallingMethodDetails());

@@ -1,0 +1,19 @@
+{
+  try {
+    JSONObject returnValue=new JSONObject();
+    JSONArray allocationsArray=new JSONArray();
+    List<Pair<MmapUtils.AllocationContext,Integer>> allocations=MmapUtils.getAllocationsAndSizes();
+    for (    Pair<MmapUtils.AllocationContext,Integer> allocation : allocations) {
+      JSONObject jsonAllocation=new JSONObject();
+      jsonAllocation.put("context",allocation.getKey().getContext());
+      jsonAllocation.put("type",allocation.getKey().getAllocationType().toString());
+      jsonAllocation.put("size",allocation.getValue());
+      allocationsArray.put(jsonAllocation);
+    }
+    returnValue.put("allocations",allocationsArray);
+    return new StringRepresentation(returnValue.toString(2));
+  }
+ catch (  JSONException e) {
+    return new StringRepresentation(e.toString());
+  }
+}

@@ -1,0 +1,12 @@
+{
+  List<Pair<AllocationContext,Integer>> returnValue=new ArrayList<Pair<AllocationContext,Integer>>();
+synchronized (BUFFER_TO_CONTEXT_MAP) {
+    clearSynchronizedMapEntrySetCache();
+    Set<Map.Entry<ByteBuffer,AllocationContext>> entries=BUFFER_TO_CONTEXT_MAP.entrySet();
+    clearSynchronizedMapEntrySetCache();
+    for (    Map.Entry<ByteBuffer,AllocationContext> bufferAndContext : entries) {
+      returnValue.add(new ImmutablePair<AllocationContext,Integer>(bufferAndContext.getValue(),bufferAndContext.getKey().capacity()));
+    }
+  }
+  return returnValue;
+}
