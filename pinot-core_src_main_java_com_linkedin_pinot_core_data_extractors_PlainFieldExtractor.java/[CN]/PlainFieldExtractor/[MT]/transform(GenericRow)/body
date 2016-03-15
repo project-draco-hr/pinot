@@ -1,53 +1,55 @@
 {
   Map<String,Object> fieldMap=new HashMap<String,Object>();
   if (_schema.size() > 0) {
+    boolean hasError=false;
     for (    String column : _schema.getColumnNames()) {
       Object value=row.getValue(column);
-switch (_schema.getFieldSpecFor(column).getDataType()) {
-case DOUBLE:
-        if (value instanceof Number) {
-          value=((Number)value).doubleValue();
+      FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
+      PinotDataType dest=_columnType.get(column);
+      PinotDataType source;
+      if (value == null) {
+        source=PinotDataType.OBJECT;
+      }
+ else {
+        String typeName=(value.getClass().getCanonicalName());
+        if ((typeName.equals("java.lang.Object[]")) && ((Object[])value).length != 0) {
+          typeName=((Object[])value)[0].getClass().getCanonicalName();
+          typeName=typeName + "[]";
         }
-      break;
-case FLOAT:
-    if (value instanceof Number) {
-      value=((Number)value).floatValue();
+        source=_typeMap.get(typeName);
+        if (source == null) {
+          source=PinotDataType.OBJECT;
+        }
+      }
+      if ((source != dest) && (value != null)) {
+        try {
+          value=dest.convert(value,source);
+        }
+ catch (        Exception e) {
+          value=null;
+        }
+      }
+      if (value == null) {
+        _errorCount.put(column,_errorCount.get(column) + 1);
+        hasError=true;
+        LOGGER.debug("Invalid value {} in column {} in schema {}",row.getValue(column),column,_schema.getSchemaName());
+        try {
+          if (fieldSpec.isSingleValueField()) {
+            value=fieldSpec.getDefaultNullValue();
+          }
+ else {
+            value=new Object[]{fieldSpec.getDefaultNullValue()};
+          }
+        }
+ catch (        UnsupportedOperationException e) {
+        }
+      }
+      fieldMap.put(column,value);
     }
-  break;
-case INT:
-if (value instanceof Number) {
-  value=((Number)value).intValue();
-}
-break;
-case LONG:
-if (value instanceof Number) {
-value=((Number)value).longValue();
-}
-break;
-case SHORT:
-if (value instanceof Number) {
-value=((Number)value).shortValue();
-}
-break;
-case FLOAT_ARRAY:
-case DOUBLE_ARRAY:
-case LONG_ARRAY:
-case OBJECT:
-case INT_ARRAY:
-case SHORT_ARRAY:
-case STRING:
-case STRING_ARRAY:
-case BOOLEAN:
-case BYTE:
-case BYTE_ARRAY:
-case CHAR:
-case CHAR_ARRAY:
-default :
-break;
-}
-fieldMap.put(column,value);
-}
-row.init(fieldMap);
-}
-return row;
+    if (hasError) {
+      _totalErrors++;
+    }
+    row.init(fieldMap);
+  }
+  return row;
 }
