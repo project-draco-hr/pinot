@@ -1,0 +1,11 @@
+{
+  String query;
+  BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile));
+  while ((query=queryReader.readLine()) != null) {
+    if (query.isEmpty() || query.startsWith("#")) {
+      continue;
+    }
+    int clientTime=_clusterStarter.perfQuery(query);
+    LOGGER.info("Client side response time: {} ms",clientTime);
+  }
+}

@@ -1,0 +1,19 @@
+{
+  LOGGER.debug("Running perf query on Pinot Cluster");
+  String encodedQuery=URLEncoder.encode(query,"UTF-8");
+  String brokerUrl=_perfUrl + encodedQuery;
+  LOGGER.info("Executing command: " + brokerUrl);
+  URLConnection conn=new URL(brokerUrl).openConnection();
+  conn.setDoOutput(true);
+  long startTime=System.currentTimeMillis();
+  InputStream input=conn.getInputStream();
+  long endTime=System.currentTimeMillis();
+  BufferedReader reader=new BufferedReader(new InputStreamReader(input,"UTF-8"));
+  StringBuilder sb=new StringBuilder();
+  String line;
+  while ((line=reader.readLine()) != null) {
+    sb.append(line);
+  }
+  LOGGER.debug("Actual response: " + sb.toString());
+  return (int)(endTime - startTime);
+}

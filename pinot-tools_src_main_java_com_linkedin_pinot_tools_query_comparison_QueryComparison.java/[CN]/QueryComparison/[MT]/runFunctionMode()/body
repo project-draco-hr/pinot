@@ -1,0 +1,49 @@
+{
+  String query;
+  ScanBasedQueryProcessor scanBasedQueryProcessor=null;
+  BufferedReader resultReader=null;
+  BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile));
+  if (_resultFile == null) {
+    scanBasedQueryProcessor=new ScanBasedQueryProcessor(_segmentsDir.getAbsolutePath());
+  }
+ else {
+    resultReader=new BufferedReader(new FileReader(_resultFile));
+  }
+  int passed=0;
+  int total=0;
+  while ((query=queryReader.readLine()) != null) {
+    if (query.isEmpty() || query.startsWith("#")) {
+      continue;
+    }
+    try {
+      JSONObject expectedJson;
+      if (resultReader != null) {
+        expectedJson=new JSONObject(resultReader.readLine());
+      }
+ else {
+        QueryResponse expectedResponse=scanBasedQueryProcessor.processQuery(query);
+        expectedJson=new JSONObject(new ObjectMapper().writeValueAsString(expectedResponse));
+      }
+      String actualResponse=_clusterStarter.query(query);
+      JSONObject actualJson=new JSONObject(actualResponse);
+      if (compare(actualJson,expectedJson)) {
+        ++passed;
+        LOGGER.info("Comparison PASSED: Id: {} actual Time: {} ms expected Time: {} ms Docs Scanned: {}",total,actualJson.get(TIME_USED_MS),expectedJson.get(TIME_USED_MS),actualJson.get(NUM_DOCS_SCANNED));
+        LOGGER.debug("actual Response: {}",actualJson);
+        LOGGER.debug("expected Response: {}",expectedJson);
+      }
+ else {
+        LOGGER.error("Comparison FAILED: {}",query);
+        LOGGER.info("actual Response: {}",actualJson);
+        LOGGER.info("expected Response: {}",expectedJson);
+      }
+    }
+ catch (    Exception e) {
+      LOGGER.error("Exception caught while processing query: '{}'",query,e);
+    }
+ finally {
+      ++total;
+    }
+  }
+  LOGGER.info("Total {} out of {} queries passed.",passed,total);
+}
