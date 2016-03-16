@@ -17,11 +17,13 @@
     child.setParent(node);
     child.setLevel(node.getLevel() + 1);
     node.getChildren().put(childDimensionValue,child);
+    int childDocs=0;
     IntPair range=sortGroupBy.get(childDimensionValue);
     if (range.getRight() - range.getLeft() > maxLeafRecords) {
-      docsAdded+=constructStarTree(child,range.getLeft(),range.getRight(),level + 1,file);
+      childDocs=constructStarTree(child,range.getLeft(),range.getRight(),level + 1,file);
+      docsAdded+=childDocs;
     }
- else {
+    if (childDocs == 0) {
       child.setStartDocumentId(range.getLeft());
       child.setEndDocumentId(range.getRight());
     }
@@ -49,11 +51,13 @@
   docsAdded+=rowsAdded;
   LOG.debug("Added {} additional records at level {}",rowsAdded,level);
   dataBuffer.flush();
+  int childDocs=0;
   if (rowsAdded >= maxLeafRecords) {
     sort(dataFile,startOffset,startOffset + rowsAdded);
-    docsAdded+=constructStarTree(starChild,startOffset,startOffset + rowsAdded,level + 1,dataFile);
+    childDocs=constructStarTree(starChild,startOffset,startOffset + rowsAdded,level + 1,dataFile);
+    docsAdded+=childDocs;
   }
- else {
+  if (childDocs == 0) {
     starChild.setStartDocumentId(startOffset);
     starChild.setEndDocumentId(startOffset + rowsAdded);
   }
