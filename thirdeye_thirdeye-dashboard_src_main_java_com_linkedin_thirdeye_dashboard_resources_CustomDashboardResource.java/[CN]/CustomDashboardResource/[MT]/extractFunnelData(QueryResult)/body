@@ -1,6 +1,10 @@
 {
   Map<Long,Number[]> data=new HashMap<>();
-  if (queryResult.getData().size() != 1) {
+  if (queryResult.getData().isEmpty()) {
+    LOG.warn("No data returned!");
+    return Collections.emptyMap();
+  }
+  if (queryResult.getData().size() > 1) {
     throw new WebApplicationException(new Exception("Custom funnel tabular view cannot support multi-dimensional queries"),Response.Status.BAD_REQUEST);
   }
   Map.Entry<String,Map<String,Number[]>> first=queryResult.getData().entrySet().iterator().next();
