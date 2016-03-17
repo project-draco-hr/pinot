@@ -1,13 +1,13 @@
 {
   if (keepIndexing) {
-    LOGGER.debug("Current indexed " + realtimeSegment.getRawDocumentCount() + " raw events, success = "+ realtimeSegment.getSuccessIndexedCount()+ " docs, total = "+ realtimeSegment.getSegmentMetadata().getTotalDocs()+ " docs in realtime segment");
+    segmentLogger.debug("Current indexed " + realtimeSegment.getRawDocumentCount() + " raw events, success = "+ realtimeSegment.getSuccessIndexedCount()+ " docs, total = "+ realtimeSegment.getSegmentMetadata().getTotalDocs()+ " docs in realtime segment");
     if ((System.currentTimeMillis() >= segmentEndTimeThreshold) || realtimeSegment.getRawDocumentCount() >= kafkaStreamProviderConfig.getSizeThresholdToFlushSegment()) {
       if (realtimeSegment.getRawDocumentCount() == 0) {
-        LOGGER.info("no new events coming in, extending the end time by another hour");
+        segmentLogger.info("no new events coming in, extending the end time by another hour");
         segmentEndTimeThreshold=System.currentTimeMillis() + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
         return;
       }
-      LOGGER.info("Stopped indexing due to reaching segment limit: {} raw documents indexed, segment is aged {}" + realtimeSegment.getRawDocumentCount() + ((System.currentTimeMillis() - start) / (ONE_MINUTE_IN_MILLSEC))+ " minutes");
+      segmentLogger.info("Stopped indexing due to reaching segment limit: {} raw documents indexed, segment is aged {}" + realtimeSegment.getRawDocumentCount() + ((System.currentTimeMillis() - start) / (ONE_MINUTE_IN_MILLSEC))+ " minutes");
       keepIndexing=false;
     }
   }
