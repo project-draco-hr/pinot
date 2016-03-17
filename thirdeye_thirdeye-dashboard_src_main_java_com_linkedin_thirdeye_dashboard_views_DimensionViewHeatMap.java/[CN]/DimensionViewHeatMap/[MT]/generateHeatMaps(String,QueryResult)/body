@@ -28,37 +28,13 @@
   for (  Map.Entry<List<String>,Map<String,Number[]>> entry : processedResult.entrySet()) {
     List<String> combination=entry.getKey();
     String value=combination.get(dimensionIdx);
-    long minTime=-1;
-    long maxTime=-1;
-    long baselineSinceEpoch=baseline.getMillis();
-    long currentSinceEpoch=current.getMillis();
-    Set<String> timeStamps=entry.getValue().keySet();
-    if (timeStamps.contains(Long.toString(baselineSinceEpoch))) {
-      minTime=baselineSinceEpoch;
-    }
- else {
-      for (      String timeString : timeStamps) {
-        long time=Long.valueOf(timeString);
-        if (minTime == -1 || time < minTime) {
-          minTime=time;
-        }
-      }
-    }
-    if (timeStamps.contains(Long.toString(currentSinceEpoch))) {
-      maxTime=currentSinceEpoch;
-    }
- else {
-      for (      String timeString : timeStamps) {
-        long time=Long.valueOf(timeString);
-        if (maxTime == -1 || time > maxTime) {
-          maxTime=time;
-        }
-      }
-    }
+    String minTime=String.valueOf(baseline.getMillis());
+    String maxTime=String.valueOf(current.getMillis());
     for (int i=0; i < queryResult.getMetrics().size(); i++) {
       String metric=queryResult.getMetrics().get(i);
-      Number baselineValue=getMetricValue(entry.getValue().get(String.valueOf(minTime)),i);
-      Number currentValue=getMetricValue(entry.getValue().get(String.valueOf(maxTime)),i);
+      Map<String,Number[]> entryValue=entry.getValue();
+      Number baselineValue=getMetricValue(entryValue.get(minTime),i);
+      Number currentValue=getMetricValue(entryValue.get(maxTime),i);
       if (baselineValue == null) {
         baselineValue=new Double(0);
       }
@@ -73,6 +49,7 @@
       allCells.get(metric).add(cell);
     }
   }
+  addOtherCategory(queryResult,allCells,allBaselineStats,allCurrentStats);
   List<HeatMap> heatMaps=new ArrayList<>();
   for (  Map.Entry<String,List<HeatMapCell>> entry : allCells.entrySet()) {
     String metric=entry.getKey();
@@ -162,19 +139,6 @@
       }
     }
     heatMaps.add(new HeatMap(objectMapper,entry.getKey(),metricAliases.get(entry.getKey()),dimension,dimensionAliases.get(dimension),cells,Arrays.asList(Stat.BASELINE_VALUE.toString(),Stat.CURRENT_VALUE.toString(),Stat.BASELINE_CDF_VALUE.toString(),Stat.CURRENT_CDF_VALUE.toString(),Stat.BASELINE_TOTAL.toString(),Stat.CURRENT_TOTAL.toString(),Stat.BASELINE_RATIO.toString(),Stat.CURRENT_RATIO.toString(),Stat.CONTRIBUTION_DIFFERENCE.toString(),Stat.VOLUME_DIFFERENCE.toString(),Stat.SNAPSHOT_CATEGORY.toString(),Stat.DELTA_PERCENT_CHANGE.toString())));
-  }
-  for (  String metric : queryResult.getMetrics()) {
-    Map<String,Number> map=new HashMap<String,Number>();
-    double baselineTotal=allBaselineStats.get(metric).getSum();
-    double currentTotal=allCurrentStats.get(metric).getSum();
-    map.put(Stat.BASELINE_TOTAL.toString(),baselineTotal);
-    map.put(Stat.CURRENT_TOTAL.toString(),currentTotal);
-    double delta=currentTotal - baselineTotal;
-    map.put(Stat.DELTA_ABSOLUTE_CHANGE.toString(),delta);
-    if (baselineTotal > 0) {
-      map.put(Stat.DELTA_PERCENT_CHANGE.toString(),(delta / baselineTotal) * 100.0);
-    }
-    metricGlobalStats.put(metric,map);
   }
   return heatMaps;
 }

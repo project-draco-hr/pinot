@@ -9,8 +9,10 @@
   this.dimensionNames=new ArrayList<>();
   this.baseline=baseline;
   this.current=current;
+  updateMetricGlobalStats(resultForTotal);
   for (  Map.Entry<String,QueryResult> entry : queryResults.entrySet()) {
-    this.heatMaps.addAll(generateHeatMaps(entry.getKey(),entry.getValue()));
+    List<HeatMap> heatMapsPerDimension=generateHeatMaps(entry.getKey(),entry.getValue());
+    this.heatMaps.addAll(heatMapsPerDimension);
   }
   Collections.sort(heatMaps);
   for (  HeatMap heatMap : heatMaps) {

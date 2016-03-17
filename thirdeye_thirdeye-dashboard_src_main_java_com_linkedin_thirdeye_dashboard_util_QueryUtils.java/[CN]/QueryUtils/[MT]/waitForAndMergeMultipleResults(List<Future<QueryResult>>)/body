@@ -1,0 +1,13 @@
+{
+  QueryResult finalQueryResult=null;
+  for (  Future<QueryResult> futureQueryResult : resultFutures) {
+    QueryResult queryResult=futureQueryResult.get();
+    if (finalQueryResult == null) {
+      finalQueryResult=queryResult;
+    }
+ else {
+      finalQueryResult=mergeQueryResults(finalQueryResult,queryResult);
+    }
+  }
+  return finalQueryResult;
+}
