@@ -11,8 +11,8 @@
     reverseDimensionGroups=dimensionGroupSpec.getReverseMapping();
   }
   Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValues,reverseDimensionGroups);
-  ThirdEyeRequest baselineSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineRangeStart).setEndTime(baselineRangeEnd).setDimensionValues(expandedDimensionValues).build();
-  ThirdEyeRequest currentSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentRangeStart).setEndTime(currentRangeEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest baselineSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTimeInclusive(baselineRangeStart).setEndTime(baselineRangeEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest currentSeriesReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTimeInclusive(currentRangeStart).setEndTime(currentRangeEnd).setDimensionValues(expandedDimensionValues).build();
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(baselineSeriesReq);
   Future<QueryResult> currentResult=queryCache.getQueryResultAsync(currentSeriesReq);
   List<AnomalyTableRow> anomalies=null;

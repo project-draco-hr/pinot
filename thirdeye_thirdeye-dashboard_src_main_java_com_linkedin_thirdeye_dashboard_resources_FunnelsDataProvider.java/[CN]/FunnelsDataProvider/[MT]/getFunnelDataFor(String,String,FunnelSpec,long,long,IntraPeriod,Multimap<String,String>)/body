@@ -8,8 +8,8 @@
   String metricFunction=StringUtils.join(metricFunctionLevels,"(") + String.format("(%s)",METRIC_FUNCTION_JOINER.join(spec.getActualMetricNames())) + StringUtils.repeat(")",metricFunctionLevels.size() - 1);
   Map<String,Multimap<String,String>> dimensionGroups=DimensionGroupSpec.emptySpec(collection).getReverseMapping();
   Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(dimensionValuesMap,dimensionGroups);
-  ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineStart).setEndTime(baselineEnd).setDimensionValues(expandedDimensionValues).build();
-  ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStart).setEndTime(currentEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTimeInclusive(baselineStart).setEndTime(baselineEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTimeInclusive(currentStart).setEndTime(currentEnd).setDimensionValues(expandedDimensionValues).build();
   LOG.info("funnel queries for collection : {}, with name : {} ",collection,spec.getName());
   LOG.info("Generated request for funnel baseline: {}",baselineReq);
   LOG.info("Generated request for funnel current: {}",currentReq);

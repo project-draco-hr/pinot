@@ -35,7 +35,7 @@
   collection=anomalyFunction.getSpec().getCollection();
   knownAnomalies=getExistingAnomalies();
   Queue<ThirdEyeRequest> queue=new LinkedList<>();
-  ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(anomalyFunction.getSpec().getCollection()).setMetricFunction(metricFunction).setStartTime(windowStart).setEndTime(windowEnd).build();
+  ThirdEyeRequest req=new ThirdEyeRequestBuilder().setCollection(anomalyFunction.getSpec().getCollection()).setMetricFunction(metricFunction).setStartTimeInclusive(windowStart).setEndTime(windowEnd).build();
   queue.add(req);
   String exploreDimensionsString=anomalyFunction.getSpec().getExploreDimensions();
   if (exploreDimensionsString != null) {

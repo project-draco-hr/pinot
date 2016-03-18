@@ -10,8 +10,8 @@
     dimensionGroups=dimensionGroupSpec.getReverseMapping();
   }
   Multimap<String,String> expandedDimensionValues=ThirdEyeRequestUtils.expandDimensionGroups(queryParams,dimensionGroups);
-  ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(baselineStart).setEndTime(baselineEnd).setDimensionValues(expandedDimensionValues).build();
-  ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTime(currentStart).setEndTime(currentEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest baselineReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTimeInclusive(baselineStart).setEndTime(baselineEnd).setDimensionValues(expandedDimensionValues).build();
+  ThirdEyeRequest currentReq=new ThirdEyeRequestBuilder().setCollection(collection).setMetricFunction(metricFunction).setStartTimeInclusive(currentStart).setEndTime(currentEnd).setDimensionValues(expandedDimensionValues).build();
   LOG.info("Generated Req: {}",baselineReq);
   LOG.info("Generated Req: {}",currentReq);
   Future<QueryResult> baselineResult=queryCache.getQueryResultAsync(baselineReq);

@@ -4,7 +4,7 @@
     timeBucketCount=1;
   }
  else {
-    long duration=request.getEndTime().getMillis() - request.getStartTime().getMillis();
+    long duration=request.getEndTimeExclusive().getMillis() - request.getStartTimeInclusive().getMillis();
     timeBucketCount=dataTimeGranularity.convertToUnit(duration);
   }
   return timeBucketCount;
