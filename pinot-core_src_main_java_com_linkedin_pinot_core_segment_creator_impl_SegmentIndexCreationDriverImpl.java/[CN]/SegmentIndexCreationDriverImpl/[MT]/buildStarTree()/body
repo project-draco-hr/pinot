@@ -18,6 +18,9 @@
   starTreeBuilderConfig.setDimensionsSplitOrder(dimensionsSplitOrder);
   starTreeBuilderConfig.setMaxLeafRecords(starTreeIndexSpec.getMaxLeafRecords());
   starTreeBuilderConfig.setSkipStarNodeCreationForDimensions(starTreeIndexSpec.getSkipStarNodeCreationForDimensions());
+  Set<String> skipMaterializationForDimensions=starTreeIndexSpec.getskipMaterializationForDimensions();
+  starTreeBuilderConfig.setSkipMaterializationForDimensions(skipMaterializationForDimensions);
+  starTreeBuilderConfig.setSkipMaterializationCardinalityThreshold(starTreeIndexSpec.getskipMaterializationCardinalityThreshold());
   starTreeBuilderConfig.setOutDir(starTreeTempDir);
   StarTreeBuilder starTreeBuilder=new OffHeapStarTreeBuilder();
   starTreeBuilder.init(starTreeBuilderConfig);
@@ -55,6 +58,9 @@
   }
   if (dimensionsSplitOrder == null || dimensionsSplitOrder.isEmpty()) {
     starTreeIndexSpec.setDimensionsSplitOrder(starTreeBuilder.getDimensionsSplitOrder());
+  }
+  if (skipMaterializationForDimensions == null || skipMaterializationForDimensions.isEmpty()) {
+    starTreeIndexSpec.setSkipMaterializationForDimensions(starTreeBuilder.getSkipMaterializationForDimensions());
   }
   serializeTree(starTreeBuilder);
   handlePostCreation();

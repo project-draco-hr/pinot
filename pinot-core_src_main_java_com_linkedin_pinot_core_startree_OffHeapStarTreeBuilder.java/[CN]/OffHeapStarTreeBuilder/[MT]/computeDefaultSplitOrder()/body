@@ -1,6 +1,10 @@
 {
   ArrayList<String> defaultSplitOrder=new ArrayList<>();
-  defaultSplitOrder.addAll(dimensionNames);
+  for (  String dimensionName : dimensionNames) {
+    if (skipMaterializationForDimensions != null && !skipMaterializationForDimensions.contains(dimensionName)) {
+      defaultSplitOrder.add(dimensionName);
+    }
+  }
   if (timeColumnName != null) {
     defaultSplitOrder.remove(timeColumnName);
   }

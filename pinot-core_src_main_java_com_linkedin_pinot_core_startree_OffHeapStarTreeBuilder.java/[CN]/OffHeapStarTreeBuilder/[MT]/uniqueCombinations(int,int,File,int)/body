@@ -9,7 +9,8 @@
     byte[] metricBuffer=next.getRight();
     DimensionBuffer dimensions=DimensionBuffer.fromBytes(dimensionBuffer);
     for (int i=0; i < numDimensions; i++) {
-      if (i == splitDimensionId) {
+      String dimensionName=dimensionNameToIndexMap.inverse().get(i);
+      if (i == splitDimensionId || (skipMaterializationForDimensions != null && skipMaterializationForDimensions.contains(dimensionName))) {
         dos.writeInt(StarTreeIndexNode.all());
       }
  else {
