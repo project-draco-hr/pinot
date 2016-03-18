@@ -1,11 +1,11 @@
 {
-  int timeBucketCount;
+  long timeBucketCount;
   if (!request.shouldGroupByTime()) {
     timeBucketCount=1;
   }
  else {
     long duration=request.getEndTime().getMillis() - request.getStartTime().getMillis();
-    timeBucketCount=(int)dataTimeSpec.getBucket().getUnit().convert(duration,TimeUnit.MILLISECONDS) + 1;
+    timeBucketCount=dataTimeGranularity.convertToUnit(duration);
   }
   return timeBucketCount;
 }

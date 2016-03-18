@@ -1,5 +1,5 @@
 {
-  long bucketMillis=config.getTime().getBucket().toMillis();
+  long bucketMillis=dataTimeGranularity.toMillis();
   long startMillis=request.getStartTime().getMillis();
   startMillis=(startMillis + bucketMillis - 1) / bucketMillis * bucketMillis;
   List<String> timestamps=new LinkedList<>();
@@ -8,7 +8,7 @@
   }
  else {
     long currentMillis=startMillis;
-    long endMillis=request.getEndTime().getMillis();
+    long endMillis=request.getEndTime().getMillis() / bucketMillis * bucketMillis;
     while (currentMillis < endMillis) {
       timestamps.add(Long.toString(currentMillis));
       currentMillis+=bucketMillis;

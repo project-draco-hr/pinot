@@ -1,7 +1,7 @@
 {
   String timeField=timeFieldSpec.getColumnName();
-  TimeUnit timeFieldUnit=timeFieldSpec.getBucket().getUnit();
-  long startInConvertedUnits=timeFieldUnit.convert(start.getMillis(),TimeUnit.MILLISECONDS);
-  long endInConvertedUnits=timeFieldUnit.convert(end.getMillis(),TimeUnit.MILLISECONDS);
+  TimeGranularity timeGranularity=timeFieldSpec.getBucket();
+  long startInConvertedUnits=timeGranularity.convertToUnit(start.getMillis());
+  long endInConvertedUnits=timeGranularity.convertToUnit(end.getMillis()) - 1;
   return String.format("%s BETWEEN '%s' AND '%s'",timeField,startInConvertedUnits,endInConvertedUnits);
 }
