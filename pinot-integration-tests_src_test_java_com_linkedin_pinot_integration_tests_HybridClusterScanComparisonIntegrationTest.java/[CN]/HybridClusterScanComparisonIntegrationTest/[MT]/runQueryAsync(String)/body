@@ -1,7 +1,7 @@
 {
   _queryExecutor.execute(new Runnable(){
     @Override public void run(){
-      final ScanBasedQueryProcessor scanBasedQueryProcessor=ThreadLocal.withInitial(new Supplier<ScanBasedQueryProcessor>(){
+      final ScanBasedQueryProcessor scanBasedQueryProcessor=(new ThreadLocal<ScanBasedQueryProcessor>(){
         @Override public ScanBasedQueryProcessor get(){
           return _scanBasedQueryProcessor.clone();
         }
