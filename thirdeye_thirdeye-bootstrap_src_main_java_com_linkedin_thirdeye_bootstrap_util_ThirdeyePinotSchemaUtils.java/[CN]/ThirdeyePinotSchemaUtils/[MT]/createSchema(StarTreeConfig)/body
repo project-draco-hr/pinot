@@ -30,8 +30,8 @@
     fieldSpec.setDefaultNullValue(1);
     schema.addField(metricName,fieldSpec);
   }
-  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.LONG,starTreeConfig.getTime().getBucket().getUnit(),starTreeConfig.getTime().getColumnName());
-  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,starTreeConfig.getTime().getBucket().getUnit(),starTreeConfig.getTime().getColumnName());
+  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.LONG,new TimeGranularity(starTreeConfig.getTime().getBucket().getSize(),starTreeConfig.getTime().getBucket().getUnit()),starTreeConfig.getTime().getColumnName());
+  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,new TimeGranularity(starTreeConfig.getTime().getBucket().getSize(),starTreeConfig.getTime().getBucket().getUnit()),starTreeConfig.getTime().getColumnName());
   FieldSpec fieldSpec=new TimeFieldSpec(incoming,outgoing);
   fieldSpec.setFieldType(FieldType.TIME);
   schema.addField(starTreeConfig.getTime().getColumnName(),new TimeFieldSpec(incoming,outgoing));
