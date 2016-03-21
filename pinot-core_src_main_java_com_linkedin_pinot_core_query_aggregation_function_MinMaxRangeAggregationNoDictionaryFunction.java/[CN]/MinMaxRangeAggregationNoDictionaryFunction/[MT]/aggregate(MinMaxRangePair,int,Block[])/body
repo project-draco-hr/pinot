@@ -1,0 +1,11 @@
+{
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  if (blockValIterator.skipTo(docId)) {
+    double nextDoubleVal=blockValIterator.nextDoubleVal();
+    if (mergedResult == null) {
+      return new MinMaxRangePair(nextDoubleVal,nextDoubleVal);
+    }
+    return new MinMaxRangePair(Math.min(mergedResult.getFirst(),nextDoubleVal),Math.max(mergedResult.getSecond(),nextDoubleVal));
+  }
+  return mergedResult;
+}

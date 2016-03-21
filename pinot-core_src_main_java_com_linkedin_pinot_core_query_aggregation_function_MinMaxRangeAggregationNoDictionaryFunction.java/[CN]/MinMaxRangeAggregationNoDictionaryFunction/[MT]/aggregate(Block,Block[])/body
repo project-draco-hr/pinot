@@ -1,0 +1,15 @@
+{
+  double min=Double.POSITIVE_INFINITY;
+  double max=Double.NEGATIVE_INFINITY;
+  int docId=0;
+  BlockDocIdIterator docIdIterator=docIdSetBlock.getBlockDocIdSet().iterator();
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    if (blockValIterator.skipTo(docId)) {
+      double nextDoubleVal=blockValIterator.nextDoubleVal();
+      min=Math.min(min,nextDoubleVal);
+      max=Math.max(max,nextDoubleVal);
+    }
+  }
+  return new MinMaxRangePair(min,max);
+}

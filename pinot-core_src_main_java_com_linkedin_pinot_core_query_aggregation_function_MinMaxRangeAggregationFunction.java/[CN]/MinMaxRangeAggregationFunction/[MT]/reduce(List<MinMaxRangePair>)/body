@@ -1,0 +1,17 @@
+{
+  if (combinedResult.isEmpty()) {
+    return DEFAULT_MIN_MAX_RANGE_VALUE;
+  }
+  double reducedMinResult=Double.POSITIVE_INFINITY;
+  double reducedMaxResult=Double.NEGATIVE_INFINITY;
+  for (  MinMaxRangePair combineResult : combinedResult) {
+    reducedMinResult=Math.min(reducedMinResult,combineResult.getFirst());
+    reducedMaxResult=Math.max(reducedMaxResult,combineResult.getSecond());
+  }
+  if (reducedMinResult != Double.POSITIVE_INFINITY && reducedMaxResult != Double.NEGATIVE_INFINITY) {
+    return reducedMaxResult - reducedMinResult;
+  }
+ else {
+    return DEFAULT_MIN_MAX_RANGE_VALUE;
+  }
+}
