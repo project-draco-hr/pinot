@@ -1,0 +1,20 @@
+{
+  final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
+  if (segmentDir.exists()) {
+    FileUtils.deleteQuietly(segmentDir);
+  }
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,"time_day",TimeUnit.DAYS,TABLE_NAME);
+  config.setTableName(TABLE_NAME);
+  config.setSegmentName(SEGMENT_NAME);
+  StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
+  starTreeIndexSpec.setDimensionsSplitOrder(DIMENSIONS_SPLIT_ORDER);
+  starTreeIndexSpec.setMaxLeafRecords(MAX_LEAF_RECORDS);
+  starTreeIndexSpec.setSkipMaterializationCardinalityThreshold(SKIP_CARDINALITY_THRESHOLD);
+  starTreeIndexSpec.setSkipStarNodeCreationForDimensions(SKIP_STAR_NODE_CREATION_DIMENSTIONS);
+  starTreeIndexSpec.setSkipMaterializationForDimensions(SKIP_MATERIALIZATION_DIMENSIONS);
+  config.setCreateStarTreeIndex(true);
+  config.setStarTreeIndexSpec(starTreeIndexSpec);
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(config);
+  driver.build();
+}

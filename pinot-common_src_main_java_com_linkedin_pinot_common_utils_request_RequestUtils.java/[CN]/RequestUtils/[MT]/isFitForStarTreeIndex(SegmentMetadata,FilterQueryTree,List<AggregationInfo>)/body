@@ -1,0 +1,45 @@
+{
+  if (aggregationsInfo == null || aggregationsInfo.isEmpty()) {
+    return false;
+  }
+  StarTreeMetadata starTreeMetadata=segmentMetadata.getStarTreeMetadata();
+  if (starTreeMetadata == null) {
+    return false;
+  }
+  List<String> skipMaterializationList=starTreeMetadata.getSkipMaterializationForDimensions();
+  Set<String> skipMaterializationSet=null;
+  if (skipMaterializationList != null && !skipMaterializationList.isEmpty()) {
+    skipMaterializationSet=new HashSet<String>(skipMaterializationList);
+  }
+  for (  AggregationInfo aggregationInfo : aggregationsInfo) {
+    if (!aggregationInfo.getAggregationType().equalsIgnoreCase("sum")) {
+      return false;
+    }
+  }
+  if (filterTree != null && filterTree.getChildren() != null && !filterTree.getChildren().isEmpty()) {
+    if (filterTree.getOperator() != FilterOperator.AND) {
+      return false;
+    }
+    Set<String> predicateColumns=new HashSet<>();
+    for (    FilterQueryTree child : filterTree.getChildren()) {
+      if (child.getChildren() != null && !child.getChildren().isEmpty()) {
+        return false;
+      }
+      String column=child.getColumn();
+      if (predicateColumns.contains(column)) {
+        return false;
+      }
+      if ((skipMaterializationSet != null) && skipMaterializationSet.contains(column)) {
+        return false;
+      }
+      predicateColumns.add(child.getColumn());
+    }
+  }
+ else   if (filterTree != null) {
+    String rootColumn=filterTree.getColumn();
+    if (skipMaterializationSet != null && skipMaterializationSet.contains(rootColumn)) {
+      return false;
+    }
+  }
+  return true;
+}
