@@ -17,6 +17,11 @@
   tableIndexConfig.put("loadMode","HEAP");
   tableIndexConfig.put("lazyLoad","false");
   tableIndexConfig.put("streamConfigs",streamConfigs);
+  JSONArray sortedColumns=new JSONArray();
+  if (sortedColumn != null) {
+    sortedColumns.put(sortedColumn);
+  }
+  tableIndexConfig.put("sortedColumn",sortedColumns);
   creationRequest.put("tableIndexConfig",tableIndexConfig);
   JSONObject tenants=new JSONObject();
   tenants.put("broker",brokerTenant);
