@@ -1,17 +1,29 @@
 {
-  final int numExpectedRows=expectedRows.length();
-  Set<String> expectedRowSet=new HashSet<String>(numExpectedRows);
-  for (int i=0; i < numExpectedRows; i++) {
-    expectedRowSet.add(serializeRow(expectedRows.getJSONArray(i),null));
-  }
   final int numActualRows=actualRows.length();
-  for (int i=0; i < numActualRows; i++) {
-    if (expectedRowSet.contains(serializeRow(actualRows.getJSONArray(i),expectedToActualColMap))) {
-      continue;
+  final int numExpectedRows=expectedRows.length();
+  if (numActualRows > numExpectedRows) {
+    LOGGER.error("In selection, number of actual rows: {} more than expected rows: {}",numActualRows,numExpectedRows);
+    return false;
+  }
+  Map<String,Integer> expectedRowMap=new HashMap<>(numExpectedRows);
+  for (int i=0; i < numExpectedRows; i++) {
+    String serialized=serializeRow(expectedRows.getJSONArray(i),expectedToActualColMap);
+    Integer count=expectedRowMap.get(serialized);
+    if (count == null) {
+      expectedRowMap.put(serialized,1);
     }
  else {
+      expectedRowMap.put(serialized,count + 1);
+    }
+  }
+  for (int i=0; i < numActualRows; i++) {
+    String serialized=serializeRow(actualRows.getJSONArray(i),null);
+    Integer count=expectedRowMap.get(serialized);
+    if (count == null || count == 0) {
+      LOGGER.error("Cannot find match for row {} in actual result",i);
       return false;
     }
+    expectedRowMap.put(serialized,count - 1);
   }
   return true;
 }
