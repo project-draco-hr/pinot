@@ -1,0 +1,10 @@
+{
+  String segment=INDEX_DIR_NAME + File.separator + SEGMENT_NAME;
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(new File(segment));
+  StarTreeMetadata starTreeMetadata=segmentMetadata.getStarTreeMetadata();
+  Assert.assertEquals(starTreeMetadata.getDimensionsSplitOrder(),DIMENSIONS_SPLIT_ORDER);
+  Assert.assertEquals(starTreeMetadata.getMaxLeafRecords(),MAX_LEAF_RECORDS);
+  Assert.assertEquals(starTreeMetadata.getSkipStarNodeCreationForDimensions(),SKIP_STAR_NODE_CREATION_DIMENSTIONS);
+  Assert.assertEquals(starTreeMetadata.getSkipMaterializationCardinality(),SKIP_CARDINALITY_THRESHOLD);
+  Assert.assertEquals(starTreeMetadata.getSkipMaterializationForDimensions(),SKIP_MATERIALIZATION_DIMENSIONS);
+}

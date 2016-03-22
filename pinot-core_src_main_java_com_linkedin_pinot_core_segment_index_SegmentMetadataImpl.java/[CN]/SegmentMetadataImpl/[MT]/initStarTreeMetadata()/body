@@ -1,0 +1,32 @@
+{
+  _starTreeMetadata=new StarTreeMetadata();
+  String maxLeafRecordsString=_segmentMetadataPropertiesConfiguration.getString(MetadataKeys.StarTree.STAR_TREE_MAX_LEAF_RECORDS);
+  if (maxLeafRecordsString != null) {
+    _starTreeMetadata.setMaxLeafRecords(Long.valueOf(maxLeafRecordsString));
+  }
+  Iterator<String> iterator=_segmentMetadataPropertiesConfiguration.getList(MetadataKeys.StarTree.STAR_TREE_SPLIT_ORDER).iterator();
+  List<String> splitOrder=new ArrayList<String>();
+  while (iterator.hasNext()) {
+    final String splitColumn=iterator.next();
+    splitOrder.add(splitColumn);
+  }
+  _starTreeMetadata.setDimensionsSplitOrder(splitOrder);
+  iterator=_segmentMetadataPropertiesConfiguration.getList(MetadataKeys.StarTree.STAR_TREE_SKIP_STAR_NODE_CREATION_FOR_DIMENSIONS).iterator();
+  List<String> skipStarNodeCreationForDimensions=new ArrayList<String>();
+  while (iterator.hasNext()) {
+    final String column=iterator.next();
+    skipStarNodeCreationForDimensions.add(column);
+  }
+  _starTreeMetadata.setSkipStarNodeCreationForDimensions(skipStarNodeCreationForDimensions);
+  iterator=_segmentMetadataPropertiesConfiguration.getList(MetadataKeys.StarTree.STAR_TREE_SKIP_MATERIALIZATION_FOR_DIMENSIONS).iterator();
+  List<String> skipMaterializationForDimensions=new ArrayList<String>();
+  while (iterator.hasNext()) {
+    final String column=iterator.next();
+    skipMaterializationForDimensions.add(column);
+  }
+  _starTreeMetadata.setSkipMaterializationForDimensions(skipMaterializationForDimensions);
+  String skipMaterializationCardinalityString=_segmentMetadataPropertiesConfiguration.getString(MetadataKeys.StarTree.STAR_TREE_SKIP_MATERIALIZATION_CARDINALITY);
+  if (skipMaterializationCardinalityString != null) {
+    _starTreeMetadata.setSkipMaterializationCardinality(Long.valueOf(skipMaterializationCardinalityString));
+  }
+}
