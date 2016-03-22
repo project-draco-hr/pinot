@@ -1,0 +1,15 @@
+{
+  AggregationFunction aggregationFunction=new MinMaxRangeAggregationFunction();
+  aggregationFunction.init(_paramsInfo);
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> aggregationResults=getMinMaxRangePairValues(i);
+    List<Serializable> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+    MinMaxRangePair retMinMaxRangePair=(MinMaxRangePair)combinedResult.get(0);
+    assertEquals(retMinMaxRangePair.getSecond() - retMinMaxRangePair.getFirst(),(double)i);
+  }
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<Serializable> combinedResults=getMinMaxRangePairValues(i);
+    Serializable reduceResult=aggregationFunction.reduce(combinedResults);
+    assertEquals(reduceResult,(double)i);
+  }
+}

@@ -1,0 +1,14 @@
+{
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)block[0].getBlockValueSet().iterator();
+  if (blockValIterator.skipTo(docId)) {
+    int dictId=blockValIterator.nextIntVal();
+    if (dictId != Dictionary.NULL_VALUE_INDEX) {
+      double currentValue=block[0].getMetadata().getDictionary().getDoubleValue(dictId);
+      if (mergedResult == null) {
+        return new MinMaxRangePair(currentValue,currentValue);
+      }
+      return new MinMaxRangePair(Math.min(mergedResult.getFirst(),currentValue),Math.max(mergedResult.getSecond(),currentValue));
+    }
+  }
+  return mergedResult;
+}

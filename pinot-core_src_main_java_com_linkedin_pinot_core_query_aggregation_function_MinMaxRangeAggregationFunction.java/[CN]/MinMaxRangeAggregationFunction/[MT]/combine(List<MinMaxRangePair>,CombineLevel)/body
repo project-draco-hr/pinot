@@ -1,0 +1,11 @@
+{
+  double combinedMinResult=Double.POSITIVE_INFINITY;
+  double combinedMaxResult=Double.NEGATIVE_INFINITY;
+  for (  MinMaxRangePair aggregationResult : aggregationResultList) {
+    combinedMinResult=Math.min(combinedMinResult,aggregationResult.getFirst());
+    combinedMaxResult=Math.max(combinedMaxResult,aggregationResult.getSecond());
+  }
+  aggregationResultList.clear();
+  aggregationResultList.add(new MinMaxRangePair(combinedMinResult,combinedMaxResult));
+  return aggregationResultList;
+}

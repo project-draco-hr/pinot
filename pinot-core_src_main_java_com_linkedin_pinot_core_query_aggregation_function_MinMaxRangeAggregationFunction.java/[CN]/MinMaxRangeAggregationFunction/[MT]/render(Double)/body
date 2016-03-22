@@ -1,0 +1,13 @@
+{
+  try {
+    if ((finalAggregationResult == null) || (Double.isNaN(finalAggregationResult))) {
+      return new JSONObject().put("value",DEFAULT_MIN_MAX_RANGE_VALUE);
+    }
+    return new JSONObject().put("value",String.format(Locale.US,"%1.5f",finalAggregationResult));
+  }
+ catch (  JSONException e) {
+    LOGGER.error("Caught exception while rendering to JSON",e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
+  }
+}
