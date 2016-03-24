@@ -2,7 +2,7 @@
   _indexSegment=indexSegment;
   _brokerRequest=query;
   _selection=_brokerRequest.getSelections();
-  int maxDocPerNextCall=10000;
+  int maxDocPerNextCall=DocIdSetPlanNode.MAX_DOC_PER_CALL;
   if ((_selection.getSelectionSortSequence() == null) || _selection.getSelectionSortSequence().isEmpty()) {
     maxDocPerNextCall=Math.min(_selection.getOffset() + _selection.getSize(),maxDocPerNextCall);
   }

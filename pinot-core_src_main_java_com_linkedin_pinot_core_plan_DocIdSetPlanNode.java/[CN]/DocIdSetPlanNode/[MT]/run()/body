@@ -2,7 +2,7 @@
   int totalRawDocs=_indexSegment.getSegmentMetadata().getTotalDocs();
   long start=System.currentTimeMillis();
   if (_projectOp == null) {
-    _projectOp=new BReusableFilteredDocIdSetOperator(_filterNode.run(),totalRawDocs,_maxDocPerAggregation);
+    _projectOp=new BReusableFilteredDocIdSetOperator(_filterNode.run(),totalRawDocs,_maxDocPerCall);
     long end=System.currentTimeMillis();
     LOGGER.debug("DocIdSetPlanNode.run took:" + (end - start));
     return _projectOp;
