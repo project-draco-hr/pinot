@@ -8,22 +8,16 @@
     _currentBlock=_filterOperator.nextBlock();
     _currentBlockDocIdIterator=_currentBlock.getBlockDocIdSet().iterator();
   }
-  _pos=0;
-  getNextDoc();
-  while (_currentDoc != Constants.EOF) {
-    _docIdArray[_pos++]=_currentDoc;
-    if (_pos == _maxSizeOfdocIdSet) {
-      _searchableDocIdSize=_pos;
-      _currentDocIdSetBlock=new DocIdSetBlock(_docIdArray,_pos);
-      return _currentDocIdSetBlock;
+  int pos=0;
+  for (int i=0; i < _maxSizeOfdocIdSet; i++) {
+    _currentDoc=_currentBlockDocIdIterator.next();
+    if (_currentDoc == Constants.EOF) {
+      break;
     }
-    getNextDoc();
+    _docIdArray[pos++]=_currentDoc;
   }
-  if (_pos > 0) {
-    _searchableDocIdSize=_pos;
-    _currentDocIdSetBlock=new DocIdSetBlock(_docIdArray,_pos);
-    return _currentDocIdSetBlock;
+  if (pos > 0) {
+    _currentDocIdSetBlock=new DocIdSetBlock(_docIdArray,pos);
   }
-  _currentDocIdSetBlock=null;
   return _currentDocIdSetBlock;
 }

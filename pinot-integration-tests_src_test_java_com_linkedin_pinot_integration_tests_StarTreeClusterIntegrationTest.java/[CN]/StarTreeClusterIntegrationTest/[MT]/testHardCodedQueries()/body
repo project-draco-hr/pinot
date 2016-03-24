@@ -1,6 +1,7 @@
 {
+  BufferedReader queryReader=null;
   try {
-    BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile));
+    queryReader=new BufferedReader(new FileReader(_queryFile));
     String starQuery;
     while ((starQuery=queryReader.readLine()) != null) {
       testOneQuery(starQuery,true);
@@ -8,5 +9,8 @@
   }
  catch (  IOException e) {
     throw new RuntimeException(e.getMessage());
+  }
+ finally {
+    IOUtils.closeQuietly(queryReader);
   }
 }
