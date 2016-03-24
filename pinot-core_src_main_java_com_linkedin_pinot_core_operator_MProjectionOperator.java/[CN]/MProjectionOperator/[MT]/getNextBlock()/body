@@ -1,5 +1,10 @@
 {
-  _currentBlock=new ProjectionBlock(_docIdSetOperator,_columnToDataSourceMap);
+  Block docIdSetBlock=_docIdSetOperator.nextBlock();
+  _blockMap.put("_docIdSet",docIdSetBlock);
+  for (  String column : _columnToDataSourceMap.keySet()) {
+    _blockMap.put(column,_columnToDataSourceMap.get(column).nextBlock(new BlockId(0)));
+  }
+  _currentBlock=new ProjectionBlock(_blockMap,docIdSetBlock);
   if (_currentBlock.getDocIdSetBlock() == null) {
     return null;
   }
