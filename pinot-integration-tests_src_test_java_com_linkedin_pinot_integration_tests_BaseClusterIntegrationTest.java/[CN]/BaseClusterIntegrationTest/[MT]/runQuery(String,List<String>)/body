@@ -20,22 +20,30 @@
         statement.execute(sqlQueries.get(0));
         ResultSet rs=statement.getResultSet();
         LOGGER.debug("Trying to get result from sql: " + rs);
-        String bqlValue=firstAggregationResult.getString("value");
+        final String bqlValue=firstAggregationResult.getString("value");
         rs.first();
-        String sqlValue=rs.getString(1);
-        if (bqlValue != null && sqlValue != null) {
-          bqlValue=bqlValue.replaceAll("\\..*","");
-          sqlValue=sqlValue.replaceAll("\\..*","");
-        }
+        final String sqlValue=rs.getString(1);
         LOGGER.debug("bql value: " + bqlValue);
         LOGGER.debug("sql value: " + sqlValue);
+        long compareSqlValue=-1;
+        long compareBqlValue=-1;
+        if (bqlValue != null && sqlValue != null) {
+          try {
+            compareSqlValue=new BigDecimal(sqlValue).longValue();
+            compareBqlValue=new BigDecimal(bqlValue).longValue();
+          }
+ catch (          NumberFormatException e) {
+            LOGGER.warn("Ignoring number format excection in " + sqlValue);
+            compareBqlValue=-2;
+          }
+        }
         if (GATHER_FAILED_QUERIES) {
-          if (!EqualityUtils.isEqual(bqlValue,sqlValue)) {
+          if (!EqualityUtils.isEqual(compareBqlValue,compareSqlValue)) {
             saveFailedQuery(pqlQuery,sqlQueries,"Values did not match for query " + pqlQuery + ", expected "+ sqlValue+ ", got "+ bqlValue);
           }
         }
  else {
-          Assert.assertEquals(bqlValue,sqlValue,"Values did not match for query " + pqlQuery);
+          Assert.assertEquals(compareBqlValue,compareSqlValue,"Values did not match for query " + pqlQuery + ",SQL:"+ sqlValue+ ",BQL:"+ bqlValue);
         }
       }
  else       if (firstAggregationResult.has("groupByResult")) {
@@ -126,6 +134,7 @@
       }
     }
  else {
+      LOGGER.warn("Skipping comparison since there are no aggregation columns");
     }
   }
  catch (  JSONException exception) {
