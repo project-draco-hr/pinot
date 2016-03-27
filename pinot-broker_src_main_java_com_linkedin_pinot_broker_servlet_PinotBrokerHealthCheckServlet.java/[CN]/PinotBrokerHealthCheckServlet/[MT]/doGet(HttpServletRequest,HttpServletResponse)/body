@@ -1,0 +1,13 @@
+{
+  if (this.brokerServerBuilder != null && this.brokerServerBuilder.getCurrentState() == State.RUNNING) {
+    resp.getWriter().write("OK");
+    resp.getWriter().close();
+    brokerMetrics.addMeteredGlobalValue(BrokerMeter.HEALTHCHECK_OK_CALLS,1);
+  }
+ else {
+    resp.setStatus(503);
+    resp.getWriter().write("Pinot broker is disabled");
+    resp.getWriter().close();
+    brokerMetrics.addMeteredGlobalValue(BrokerMeter.HEALTHCHECK_BAD_CALLS,1);
+  }
+}

@@ -4,6 +4,7 @@
   _server=new Server(clientConfig.getQueryPort());
   WebAppContext context=new WebAppContext();
   context.addServlet(PinotClientRequestServlet.class,"/query");
+  context.addServlet(PinotBrokerHealthCheckServlet.class,"/health");
   context.addServlet(PinotBrokerRoutingTableDebugServlet.class,"/debug/routingTable/*");
   if (clientConfig.enableConsole()) {
     context.setResourceBase(clientConfig.getConsoleWebappPath());
@@ -12,5 +13,6 @@
     context.setResourceBase("");
   }
   context.addEventListener(new PinotBrokerServletContextChangeListener(_requestHandler,_brokerMetrics));
+  context.setAttribute(BrokerServerBuilder.class.toString(),this);
   _server.setHandler(context);
 }
