@@ -1,0 +1,22 @@
+{
+  File wfile=new File("test_single_col_writer.dat");
+  wfile.delete();
+  final int rows=100;
+  final int cols=1;
+  final int[] columnSizes=new int[]{8};
+  FixedByteSingleValueMultiColWriter writer=new FixedByteSingleValueMultiColWriter(wfile,rows,cols,columnSizes);
+  final long[] data=new long[rows];
+  Random r=new Random();
+  for (int i=0; i < rows; i++) {
+    data[i]=r.nextLong();
+    writer.setLong(i,0,data[i]);
+  }
+  writer.close();
+  File rfile=new File("test_single_col_writer.dat");
+  FixedByteSingleValueMultiColReader reader=new FixedByteSingleValueMultiColReader(rfile,rows,cols,columnSizes,false);
+  for (int i=0; i < rows; i++) {
+    Assert.assertEquals(reader.getLong(i,0),data[i]);
+  }
+  reader.close();
+  rfile.delete();
+}
