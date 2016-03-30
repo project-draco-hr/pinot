@@ -1,0 +1,18 @@
+{
+  List<String> dimensions=schema.getDimensionNames();
+  final int nDimensions=dimensions.size();
+  int dimPos=random.nextInt(dimensions.size() + 1);
+  List<String> invIndexColumns=new ArrayList<String>(2);
+  invIndexColumns.add("DestStateFips");
+  invIndexColumns.add("OriginStateFips");
+  if (dimPos == nDimensions) {
+    return null;
+  }
+  invIndexColumns.add(dimensions.get(dimPos));
+  dimPos=random.nextInt(dimensions.size() + 1);
+  if (dimPos == nDimensions || dimensions.get(dimPos).equals(invIndexColumns.get(0))) {
+    return invIndexColumns;
+  }
+  invIndexColumns.add(dimensions.get(dimPos));
+  return invIndexColumns;
+}

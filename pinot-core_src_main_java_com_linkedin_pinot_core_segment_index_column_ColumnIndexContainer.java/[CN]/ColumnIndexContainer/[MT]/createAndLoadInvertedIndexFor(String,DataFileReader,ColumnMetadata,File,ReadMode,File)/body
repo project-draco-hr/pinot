@@ -1,14 +1,14 @@
 {
   File inProgress=new File(column + "_inv.inprogress");
   if (!inProgress.exists() && invertedIndexFile.exists()) {
-    LOGGER.warn("found inverted index for colummn {}, loading it",column);
+    LOGGER.info("found inverted index for colummn {}, loading it",column);
     return new BitmapInvertedIndexReader(invertedIndexFile,metadata.getCardinality(),mode == ReadMode.mmap);
   }
   FileUtils.touch(inProgress);
   if (invertedIndexFile.exists()) {
     FileUtils.deleteQuietly(invertedIndexFile);
   }
-  LOGGER.warn("did not find inverted index for colummn {}, creating it",column);
+  LOGGER.info("did not find inverted index for colummn {}, creating it",column);
   InvertedIndexCreator creator=new OffHeapBitmapInvertedIndexCreator(indexDir,metadata.getCardinality(),metadata.getTotalDocs(),metadata.getTotalNumberOfEntries(),metadata.toFieldSpec());
   if (!metadata.isSingleValue()) {
     SingleColumnMultiValueReader mvFwdIndex=(SingleColumnMultiValueReader)fwdIndex;
@@ -26,6 +26,6 @@
   }
   creator.seal();
   FileUtils.deleteQuietly(inProgress);
-  LOGGER.warn("created inverted index for colummn {}, loading it",column);
+  LOGGER.info("created inverted index for colummn {}, loading it",column);
   return new BitmapInvertedIndexReader(invertedIndexFile,metadata.getCardinality(),mode == ReadMode.mmap);
 }

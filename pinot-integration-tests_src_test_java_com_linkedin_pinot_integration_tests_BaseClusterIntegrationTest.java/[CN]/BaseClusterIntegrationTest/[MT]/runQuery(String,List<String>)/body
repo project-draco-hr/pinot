@@ -61,7 +61,7 @@
               actualValues.put(pinotGroupKey,groupByResults.getJSONObject(resultIndex).getString("value"));
             }
             Map<String,String> correctValues=new TreeMap<String,String>(new NullableStringComparator());
-            LOGGER.info("Trying to execute sql query: " + sqlQueries.get(aggregationGroupIndex));
+            LOGGER.debug("Trying to execute sql query:{}",sqlQueries.get(aggregationGroupIndex));
             statement.execute(sqlQueries.get(aggregationGroupIndex));
             ResultSet rs=statement.getResultSet();
             LOGGER.debug("Trying to get result from sql: " + rs);
@@ -109,7 +109,7 @@
               }
             }
  else {
-              LOGGER.warn("SQL query returned more than 10k rows, skipping comparison");
+              LOGGER.warn("SQL: {} returned more than 10k rows, skipping comparison",sqlQueries.get(aggregationGroupIndex));
               queryCount--;
             }
           }

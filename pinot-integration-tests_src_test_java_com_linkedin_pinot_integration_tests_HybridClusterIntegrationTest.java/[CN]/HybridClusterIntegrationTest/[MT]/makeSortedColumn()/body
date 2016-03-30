@@ -1,0 +1,21 @@
+{
+  List<String> dimensions=schema.getDimensionNames();
+  final int nDimensions=dimensions.size();
+  int ntries=nDimensions;
+  int rand=random.nextInt();
+  if (rand % 5 == 0) {
+    return null;
+  }
+  while (ntries-- > 0) {
+    int dimPos=random.nextInt(dimensions.size() + 1);
+    if (dimPos == nDimensions) {
+      continue;
+    }
+    String sortedColumn=dimensions.get(dimPos);
+    FieldSpec fieldSpec=schema.getFieldSpecFor(sortedColumn);
+    if (fieldSpec.isSingleValueField()) {
+      return sortedColumn;
+    }
+  }
+  return null;
+}

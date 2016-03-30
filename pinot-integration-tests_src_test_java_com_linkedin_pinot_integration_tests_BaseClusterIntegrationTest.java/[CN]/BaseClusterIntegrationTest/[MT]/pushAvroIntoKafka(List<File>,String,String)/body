@@ -24,6 +24,7 @@
           messagesToWrite.add(data);
           messagesInThisBatch++;
           if (MAX_MESSAGES_PER_BATCH <= messagesInThisBatch) {
+            LOGGER.info("Sending a batch of {} records to Kafka",messagesInThisBatch);
             messagesInThisBatch=0;
             producer.send(messagesToWrite);
             messagesToWrite.clear();
@@ -35,11 +36,12 @@
         recordCount+=1;
       }
       if (BATCH_KAFKA_MESSAGES) {
+        LOGGER.info("Sending last match of {} records to Kafka",messagesToWrite.size());
         producer.send(messagesToWrite);
       }
       outputStream.close();
       reader.close();
-      LOGGER.info("Finished writing " + recordCount + " records from "+ avroFile.getName()+ " into Kafka topic "+ kafkaTopic);
+      LOGGER.info("Finished writing " + recordCount + " records from "+ avroFile.getName()+ " into Kafka topic "+ kafkaTopic+ " from file "+ avroFile.getName());
       int totalRecordCount=totalAvroRecordWrittenCount.addAndGet(recordCount);
       LOGGER.info("Total records written so far " + totalRecordCount);
     }

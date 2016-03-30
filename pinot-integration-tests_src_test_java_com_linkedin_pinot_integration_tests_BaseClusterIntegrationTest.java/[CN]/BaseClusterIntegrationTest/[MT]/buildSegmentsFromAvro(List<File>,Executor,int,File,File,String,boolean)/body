@@ -25,7 +25,7 @@
           driver.build();
           String segmentName=outputDir.list()[0];
           final String tarGzPath=TarGzCompressionUtils.createTarGzOfDirectory(outputDir.getAbsolutePath() + "/" + segmentName,new File(segmentTarDir,segmentName).getAbsolutePath());
-          LOGGER.info("Completed segment " + segmentNumber + " : "+ segmentName);
+          LOGGER.info("Completed segment " + segmentNumber + " : "+ segmentName+ " from file "+ inputAvroFile.getName());
           return new ImmutablePair<File,File>(inputAvroFile,new File(tarGzPath));
         }
  catch (        Exception e) {

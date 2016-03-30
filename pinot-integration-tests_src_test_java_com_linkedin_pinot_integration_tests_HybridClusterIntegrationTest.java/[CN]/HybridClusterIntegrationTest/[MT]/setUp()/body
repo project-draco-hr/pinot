@@ -7,11 +7,17 @@
   _tmpDir.mkdirs();
   final List<File> avroFiles=getAllAvroFiles();
   File schemaFile=getSchemaFile();
-  setUpTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schemaFile,avroFiles.get(0),"Carrier",null);
+  schema=Schema.fromFile(schemaFile);
+  addSchema(schemaFile,schema.getSchemaName());
+  final List<String> invertedIndexColumns=makeInvertedIndexColumns();
+  final String sortedColumn=makeSortedColumn();
+  addHybridTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schema.getSchemaName(),TENANT_NAME,TENANT_NAME,avroFiles.get(0),sortedColumn,invertedIndexColumns);
+  LOGGER.info("Running with Sorted column=" + sortedColumn + " and inverted index columns = "+ invertedIndexColumns);
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
   ExecutorService executor=Executors.newCachedThreadPool();
   setupH2AndInsertAvro(avroFiles,executor);
+  LOGGER.info("Creating offline segments from avro files " + offlineAvroFiles);
   buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"mytable",false);
   setupQueryGenerator(avroFiles,executor);
   executor.shutdown();
@@ -49,6 +55,7 @@
     FileUploadUtils.sendSegmentFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
   }
   latch.await();
+  LOGGER.info("Pushing data from realtime avro files " + realtimeAvroFiles);
   pushAvroIntoKafka(realtimeAvroFiles,KafkaStarterUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
   int pinotRecordCount, h2RecordCount;
   long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;

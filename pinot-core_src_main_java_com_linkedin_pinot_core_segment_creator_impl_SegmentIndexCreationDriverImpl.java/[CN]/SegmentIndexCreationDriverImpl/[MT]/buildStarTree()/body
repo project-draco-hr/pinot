@@ -48,7 +48,7 @@
     totalDocs++;
   }
   buildIndexCreationInfo();
-  LOGGER.info("Collected stats for {} documents",totalDocs);
+  LOGGER.info("Collected stats for {} raw documents, {} aggregated documents",totalRawDocs,totalAggDocs);
   long statCollectionFinishTime=System.currentTimeMillis();
   indexCreator.init(config,segementIndexCreationInfo,indexCreationInfoMap,dataSchema,tempIndexDir);
   Iterator<GenericRow> allRowsIterator=starTreeBuilder.iterator(0,starTreeBuilder.getTotalRawDocumentCount() + starTreeBuilder.getTotalAggregateDocumentCount());
