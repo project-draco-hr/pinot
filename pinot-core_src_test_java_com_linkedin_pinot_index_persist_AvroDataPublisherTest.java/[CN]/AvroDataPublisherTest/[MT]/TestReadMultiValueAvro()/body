@@ -1,7 +1,7 @@
 {
   final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_MULTI_DATA));
   final SegmentGeneratorConfig config=new SegmentGeneratorConfig(AvroUtils.extractSchemaFromAvro(new File(filePath)));
-  config.setInputFileFormat(FileFormat.AVRO);
+  config.setFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
   config.setSegmentVersion(SegmentVersion.v1);
   AvroRecordReader avroDataPublisher=(AvroRecordReader)RecordReaderFactory.get(config);

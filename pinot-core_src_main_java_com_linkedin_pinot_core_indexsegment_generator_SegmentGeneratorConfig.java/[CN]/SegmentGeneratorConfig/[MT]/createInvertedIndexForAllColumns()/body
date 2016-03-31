@@ -1,9 +1,9 @@
 {
-  if (schema == null) {
-    throw new RuntimeException("schema cannot be null, make sure that schema is property set before calling this method");
+  if (_schema == null) {
+    LOGGER.warn("Schema has not been set, will not create inverted index for all columns.");
+    return;
   }
-  createInvertedIndex=true;
-  for (  FieldSpec spec : schema.getAllFieldSpecs()) {
-    invertedIndexCreationColumns.add(spec.getName());
+  for (  FieldSpec spec : _schema.getAllFieldSpecs()) {
+    _invertedIndexCreationColumns.add(spec.getName());
   }
 }

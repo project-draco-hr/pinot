@@ -1,5 +1,72 @@
 {
-  LOGGER.info("Executing command: " + toString());
+  LOGGER.info("Executing command: {}",toString());
+  final SegmentGeneratorConfig segmentGeneratorConfig;
+  if (_generatorConfigFile != null) {
+    segmentGeneratorConfig=new ObjectMapper().readValue(new File(_generatorConfigFile),SegmentGeneratorConfig.class);
+  }
+ else {
+    segmentGeneratorConfig=new SegmentGeneratorConfig();
+  }
+  String configDataDir=segmentGeneratorConfig.getDataDir();
+  if (_dataDir == null) {
+    if (configDataDir == null) {
+      throw new RuntimeException("Must specify dataDir.");
+    }
+    _dataDir=configDataDir;
+  }
+ else {
+    if (configDataDir != null && !configDataDir.equals(_dataDir)) {
+      LOGGER.warn("Find dataDir conflict in command line and config file, use config in command line: {}",_dataDir);
+    }
+  }
+  FileFormat configFormat=segmentGeneratorConfig.getFormat();
+  if (_format == null) {
+    _format=configFormat;
+  }
+ else {
+    if (configFormat != _format) {
+      LOGGER.warn("Find format conflict in command line and config file, use config in command line: {}",_format);
+    }
+  }
+  String configOutDir=segmentGeneratorConfig.getOutDir();
+  if (_outDir == null) {
+    if (configOutDir == null) {
+      throw new RuntimeException("Must specify outDir.");
+    }
+    _outDir=configOutDir;
+  }
+ else {
+    if (configOutDir != null && !configOutDir.equals(_outDir)) {
+      LOGGER.warn("Find outDir conflict in command line and config file, use config in command line: {}",_outDir);
+    }
+  }
+  if (segmentGeneratorConfig.isOverwrite()) {
+    _overwrite=true;
+  }
+  String configTableName=segmentGeneratorConfig.getTableName();
+  if (_tableName == null) {
+    if (configTableName == null) {
+      throw new RuntimeException("Must specify tableName.");
+    }
+    _tableName=configTableName;
+  }
+ else {
+    if (configTableName != null && !configTableName.equals(_tableName)) {
+      LOGGER.warn("Find tableName conflict in command line and config file, use config in command line: {}",_tableName);
+    }
+  }
+  String configSegmentName=segmentGeneratorConfig.getSegmentName();
+  if (_segmentName == null) {
+    if (configSegmentName == null) {
+      throw new RuntimeException("Must specify segmentName.");
+    }
+    _segmentName=configSegmentName;
+  }
+ else {
+    if (configSegmentName != null && !configSegmentName.equals(_segmentName)) {
+      LOGGER.warn("Find segmentName conflict in command line and config file, use config in command line: {}",_segmentName);
+    }
+  }
   File dir=new File(_dataDir);
   if (!dir.exists() || !dir.isDirectory()) {
     throw new RuntimeException("Data directory " + _dataDir + " not found.");
@@ -11,42 +78,43 @@
   }
 );
   if ((files == null) || (files.length == 0)) {
-    throw new RuntimeException("Data directory " + _dataDir + " does not contain AVRO files.");
+    throw new RuntimeException("Data directory " + _dataDir + " does not contain "+ _format.toString().toUpperCase()+ " files.");
   }
-  File odir=new File(_outDir);
-  if (odir.exists()) {
+  File outDir=new File(_outDir);
+  if (outDir.exists()) {
     if (!_overwrite) {
-      throw new IOException("Error: Output directory already exists.");
+      throw new IOException("Output directory " + _outDir + " already exists.");
     }
  else {
-      FileUtils.deleteDirectory(odir);
+      FileUtils.deleteDirectory(outDir);
     }
   }
-  final Schema schema;
+  segmentGeneratorConfig.setDataDir(_dataDir);
+  segmentGeneratorConfig.setFormat(_format);
+  segmentGeneratorConfig.setOutDir(_outDir);
+  segmentGeneratorConfig.setOverwrite(_overwrite);
+  segmentGeneratorConfig.setTableName(_tableName);
+  segmentGeneratorConfig.setSegmentName(_segmentName);
   if (_schemaFile != null) {
-    File schemaFile=new File(_schemaFile);
-    schema=new ObjectMapper().readValue(schemaFile,Schema.class);
+    if (segmentGeneratorConfig.getSchemaFile() != null && !segmentGeneratorConfig.getSchemaFile().equals(_schemaFile)) {
+      LOGGER.warn("Find schemaFile conflict in command line and config file, use config in command line: {}",_schemaFile);
+    }
+    segmentGeneratorConfig.setSchemaFile(_schemaFile);
   }
- else   if (_format == FileFormat.AVRO) {
-    schema=AvroUtils.extractSchemaFromAvro(files[0]);
+  if (_readerConfigFile != null) {
+    if (segmentGeneratorConfig.getReaderConfigFile() != null && !segmentGeneratorConfig.getReaderConfigFile().equals(_readerConfigFile)) {
+      LOGGER.warn("Find readerConfigFile conflict in command line and config file, use config in command line: {}",_readerConfigFile);
+    }
+    segmentGeneratorConfig.setReaderConfigFile(_readerConfigFile);
   }
- else {
-    LOGGER.error("Error: Input format requires schema");
-    return false;
+  if (_enableStarTreeIndex) {
+    segmentGeneratorConfig.setEnableStarTreeIndex(true);
   }
-  final CSVRecordReaderConfig recordReaderConfig;
-  if (_recordReaderConfigFile != null) {
-    recordReaderConfig=new ObjectMapper().readValue(new File(_recordReaderConfigFile),CSVRecordReaderConfig.class);
-  }
- else {
-    recordReaderConfig=null;
-  }
-  final StarTreeIndexSpec starTreeIndexSpec;
   if (_starTreeIndexSpecFile != null) {
-    starTreeIndexSpec=new ObjectMapper().readValue(new File(_starTreeIndexSpecFile),StarTreeIndexSpec.class);
-  }
- else {
-    starTreeIndexSpec=null;
+    if (segmentGeneratorConfig.getStarTreeIndexSpecFile() != null && !segmentGeneratorConfig.getStarTreeIndexSpecFile().equals(_starTreeIndexSpecFile)) {
+      LOGGER.warn("Find starTreeIndexSpecFile conflict in command line and config file, use config in command line: {}",_starTreeIndexSpecFile);
+    }
+    segmentGeneratorConfig.setStarTreeIndexSpecFile(_starTreeIndexSpecFile);
   }
   ExecutorService executor=Executors.newFixedThreadPool(_numThreads);
   int cnt=0;
@@ -55,25 +123,10 @@
     executor.execute(new Runnable(){
       @Override public void run(){
         try {
-          SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
-          config.setInputFileFormat(_format);
-          config.setRecordeReaderConfig(recordReaderConfig);
-          config.setSegmentVersion(SegmentVersion.v1);
-          config.setIndexOutputDir(_outDir);
-          config.setTableName(_tableName);
+          SegmentGeneratorConfig config=new SegmentGeneratorConfig(segmentGeneratorConfig);
           config.setInputFilePath(file.getAbsolutePath());
           config.setSegmentName(_segmentName + "_" + segCnt);
-          if (schema.getTimeColumnName() != null) {
-            config.setTimeColumnName(schema.getTimeColumnName());
-          }
-          if (schema.getTimeFieldSpec() != null) {
-            config.setTimeUnitForSegment(schema.getTimeFieldSpec().getIncomingGranularitySpec().getTimeType());
-          }
- else {
-            config.setTimeUnitForSegment(TimeUnit.DAYS);
-          }
-          config.setCreateStarTreeIndex(_enableStarTreeIndex);
-          config.setStarTreeIndexSpec(starTreeIndexSpec);
+          config.loadConfigFiles();
           final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
           driver.init(config);
           driver.build();
@@ -87,6 +140,5 @@
     cnt+=1;
   }
   executor.shutdown();
-  executor.awaitTermination(1,TimeUnit.HOURS);
-  return true;
+  return executor.awaitTermination(1,TimeUnit.HOURS);
 }

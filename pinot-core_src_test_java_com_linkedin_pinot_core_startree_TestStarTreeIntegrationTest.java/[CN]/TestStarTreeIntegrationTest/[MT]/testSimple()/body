@@ -15,10 +15,10 @@
     schema.addField(metricName,metricFieldSpec);
   }
   SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
-  config.setCreateStarTreeIndex(true);
+  config.setEnableStarTreeIndex(true);
   String tempOutputDir="/tmp/star-tree-index";
-  config.setIndexOutputDir(tempOutputDir);
-  config.setInputFileFormat(FileFormat.AVRO);
+  config.setOutDir(tempOutputDir);
+  config.setFormat(FileFormat.AVRO);
   config.setSegmentName("testSimple");
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   final List<GenericRow> data=new ArrayList<>();

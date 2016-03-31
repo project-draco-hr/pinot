@@ -1,0 +1,29 @@
+{
+  ObjectMapper objectMapper=new ObjectMapper();
+  Schema schema;
+  if (_schemaFile != null) {
+    schema=objectMapper.readValue(new File(_schemaFile),Schema.class);
+    setSchema(schema);
+  }
+ else   if (_format == FileFormat.AVRO) {
+    schema=AvroUtils.extractSchemaFromAvro(new File(_inputFilePath));
+    setSchema(schema);
+  }
+ else {
+    throw new RuntimeException("Input format " + _format + " requires schema.");
+  }
+  setTimeColumnName(schema.getTimeColumnName());
+  TimeFieldSpec timeFieldSpec=schema.getTimeFieldSpec();
+  if (timeFieldSpec != null) {
+    setSegmentTimeUnit(timeFieldSpec.getIncomingGranularitySpec().getTimeType());
+  }
+ else {
+    setSegmentTimeUnit(TimeUnit.DAYS);
+  }
+  if (_readerConfigFile != null) {
+    setReaderConfig(objectMapper.readValue(new File(_readerConfigFile),CSVRecordReaderConfig.class));
+  }
+  if (_starTreeIndexSpecFile != null) {
+    setStarTreeIndexSpec(objectMapper.readValue(new File(_starTreeIndexSpecFile),StarTreeIndexSpec.class));
+  }
+}

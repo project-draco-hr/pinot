@@ -1,6 +1,6 @@
 {
   this.config=config;
-  this.createStarTree=config.isCreateStarTreeIndex();
+  this.createStarTree=config.isEnableStarTreeIndex();
   recordReader=reader;
   recordReader.init();
   dataSchema=recordReader.getSchema();
@@ -10,7 +10,7 @@
   segementIndexCreationInfo=new SegmentIndexCreationInfo();
   indexCreationInfoMap=new HashMap<String,ColumnIndexCreationInfo>();
   indexCreator=new SegmentColumnarIndexCreator();
-  final File indexDir=new File(config.getIndexOutputDir());
+  final File indexDir=new File(config.getOutDir());
   if (!indexDir.exists()) {
     indexDir.mkdirs();
   }

@@ -3,7 +3,7 @@
   final String jsonPath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(JSON_DATA));
   Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("column3",DataType.STRING).addSingleValueDimension("column2",DataType.STRING).build();
   final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
-  config.setInputFileFormat(FileFormat.AVRO);
+  config.setFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
   config.setSegmentVersion(SegmentVersion.v1);
   AvroRecordReader avroDataPublisher=(AvroRecordReader)RecordReaderFactory.get(config);

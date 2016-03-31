@@ -1,0 +1,16 @@
+{
+  if (_segmentTimeUnit != null) {
+    return _segmentTimeUnit;
+  }
+ else {
+    if (_schema.getTimeFieldSpec() != null) {
+      if (_schema.getTimeFieldSpec().getOutgoingGranularitySpec() != null) {
+        return _schema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType();
+      }
+      if (_schema.getTimeFieldSpec().getIncomingGranularitySpec() != null) {
+        return _schema.getTimeFieldSpec().getIncomingGranularitySpec().getTimeType();
+      }
+    }
+    return TimeUnit.DAYS;
+  }
+}

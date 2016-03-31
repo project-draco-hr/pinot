@@ -1,3 +1,14 @@
 {
-  this.schema=schema;
+  Preconditions.checkNotNull(schema);
+  _schema=schema;
+  if (_invertedIndexCreationColumns != null) {
+    Iterator<String> iterator=_invertedIndexCreationColumns.iterator();
+    while (iterator.hasNext()) {
+      String column=iterator.next();
+      if (_schema.getFieldSpecFor(column) == null) {
+        LOGGER.warn("Cannot find column {} in schema, will not create inverted index.",column);
+        iterator.remove();
+      }
+    }
+  }
 }

@@ -7,17 +7,16 @@
     reader=new RealtimeSegmentRecordReader(realtimeSegmentImpl,dataSchema,sortedColumn);
   }
   SegmentGeneratorConfig genConfig=new SegmentGeneratorConfig(dataSchema);
-  genConfig.setInputFilePath(null);
   if (invertedIndexColumns != null && !invertedIndexColumns.isEmpty()) {
     for (    String column : invertedIndexColumns) {
       genConfig.createInvertedIndexForColumn(column);
     }
   }
   genConfig.setTimeColumnName(dataSchema.getTimeFieldSpec().getOutGoingTimeColumnName());
-  genConfig.setTimeUnitForSegment(dataSchema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType());
+  genConfig.setSegmentTimeUnit(dataSchema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType());
   genConfig.setSegmentVersion(SegmentVersion.v1);
   genConfig.setTableName(tableName);
-  genConfig.setIndexOutputDir(outputPath);
+  genConfig.setOutDir(outputPath);
   genConfig.setSegmentName(segmentName);
   final SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   driver.init(genConfig,reader);

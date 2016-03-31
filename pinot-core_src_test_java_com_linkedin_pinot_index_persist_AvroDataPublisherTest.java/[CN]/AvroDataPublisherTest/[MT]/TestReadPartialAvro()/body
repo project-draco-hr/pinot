@@ -6,7 +6,7 @@
   projectedColumns.add("column2");
   Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("column3",DataType.STRING).addSingleValueDimension("column2",DataType.STRING).build();
   final SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
-  config.setInputFileFormat(FileFormat.AVRO);
+  config.setFormat(FileFormat.AVRO);
   config.setInputFilePath(filePath);
   config.setSegmentVersion(SegmentVersion.v1);
   final AvroRecordReader avroDataPublisher=new AvroRecordReader(FieldExtractorFactory.getPlainFieldExtractor(config),config.getInputFilePath());

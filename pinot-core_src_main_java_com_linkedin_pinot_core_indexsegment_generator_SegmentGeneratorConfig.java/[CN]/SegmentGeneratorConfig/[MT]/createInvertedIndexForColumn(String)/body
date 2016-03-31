@@ -1,6 +1,11 @@
 {
-  if (createInvertedIndex == false) {
-    createInvertedIndex=true;
+  Preconditions.checkNotNull(column);
+  if (_schema != null && _schema.getFieldSpecFor(column) == null) {
+    LOGGER.warn("Cannot find column {} in schema, will not create inverted index.",column);
+    return;
   }
-  invertedIndexCreationColumns.add(column);
+  if (_schema == null) {
+    LOGGER.warn("Schema has not been set, column {} might not exist in schema after all.",column);
+  }
+  _invertedIndexCreationColumns.add(column);
 }
