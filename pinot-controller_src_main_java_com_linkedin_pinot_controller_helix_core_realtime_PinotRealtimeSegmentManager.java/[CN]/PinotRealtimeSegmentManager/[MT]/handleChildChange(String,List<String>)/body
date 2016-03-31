@@ -1,6 +1,9 @@
 {
+  LOGGER.info("PinotRealtimeSegmentManager.handleChildChange: {}",parentPath);
+  processPropertyStoreChange(parentPath);
   for (  String table : currentChilds) {
     if (table.endsWith("_REALTIME")) {
+      LOGGER.info("PinotRealtimeSegmentManager.handleChildChange with table: {}",parentPath + "/" + table);
       processPropertyStoreChange(parentPath + "/" + table);
     }
   }
