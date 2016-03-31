@@ -1,0 +1,13 @@
+{
+  LOGGER.info("Trying to shutdown RealtimeSegmentDataManager : {}!",this.segmentName);
+  isShuttingDown=true;
+  try {
+    kafkaStreamProvider.shutdown();
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to shutdown kafka stream provider!",e);
+  }
+  keepIndexing=false;
+  segmentStatusTask.cancel();
+  realtimeSegment.destroy();
+}

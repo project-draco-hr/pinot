@@ -68,7 +68,11 @@ catch (        Error e) {
           throw e;
         }
       }
- while (notFull && keepIndexing);
+ while (notFull && keepIndexing && (!isShuttingDown));
+      if (isShuttingDown) {
+        segmentLogger.info("Shutting down indexing thread!");
+        return;
+      }
       try {
         segmentLogger.info("Indexing threshold reached, proceeding with index conversion");
         segmentStatusTask.cancel();

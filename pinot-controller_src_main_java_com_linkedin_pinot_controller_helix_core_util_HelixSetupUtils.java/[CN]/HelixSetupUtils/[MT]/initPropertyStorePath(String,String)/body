@@ -1,0 +1,10 @@
+{
+  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,helixClusterName);
+  ZkHelixPropertyStore<ZNRecord> propertyStore=new ZkHelixPropertyStore<ZNRecord>(zkPath,new ZNRecordSerializer(),propertyStorePath);
+  propertyStore.create("/CONFIGS",new ZNRecord(""),AccessOption.PERSISTENT);
+  propertyStore.create("/CONFIGS/CLUSTER",new ZNRecord(""),AccessOption.PERSISTENT);
+  propertyStore.create("/CONFIGS/TABLE",new ZNRecord(""),AccessOption.PERSISTENT);
+  propertyStore.create("/CONFIGS/INSTANCE",new ZNRecord(""),AccessOption.PERSISTENT);
+  propertyStore.create("/SCHEMAS",new ZNRecord(""),AccessOption.PERSISTENT);
+  propertyStore.create("/SEGMENTS",new ZNRecord(""),AccessOption.PERSISTENT);
+}
