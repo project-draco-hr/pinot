@@ -1,0 +1,19 @@
+{
+  List<String> sortedColumns=indexingConfig.getSortedColumn();
+  boolean isValid=true;
+  if (!sortedColumns.isEmpty()) {
+    final String sortedColumn=sortedColumns.get(0);
+    if (sortedColumns.size() > 0) {
+      LOGGER.warn("More than one sorted column configured. Using {}",sortedColumn);
+    }
+    FieldSpec fieldSpec=schema.getFieldSpecFor(sortedColumn);
+    if (!fieldSpec.isSingleValueField()) {
+      LOGGER.error("Cannot configure multi-valued column {} as sorted column",sortedColumn);
+      isValid=false;
+    }
+  }
+  if (!schema.validate(LOGGER)) {
+    isValid=false;
+  }
+  return isValid;
+}

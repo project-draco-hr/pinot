@@ -24,6 +24,11 @@
     PinotHelixPropertyStoreZnRecordProvider propertyStoreHelper=PinotHelixPropertyStoreZnRecordProvider.forSchema(propertyStore);
     ZNRecord record=propertyStoreHelper.get(tableConfig.getValidationConfig().getSchemaName());
     LOGGER.info("found schema {} ",tableConfig.getValidationConfig().getSchemaName());
+    Schema schema=Schema.fromZNRecord(record);
+    if (!isValid(schema,tableConfig.getIndexingConfig())) {
+      LOGGER.error("Not adding segment {}",segmentId);
+      throw new RuntimeException("Mismatching schema/table config for " + _tableName);
+    }
     SegmentDataManager manager=new RealtimeSegmentDataManager(segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record),_serverMetrics);
     LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);
     try {
