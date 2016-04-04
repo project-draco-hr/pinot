@@ -4,10 +4,11 @@
     @Override public boolean verify(){
       String clusterName=getHelixClusterName();
       List<String> resourcesInCluster=helixAdmin.getResourcesInCluster(clusterName);
-      LOGGER.info("Waiting for external view to update " + new Timestamp(System.currentTimeMillis()));
+      LOGGER.info("Waiting for external view to update for resources: {} startTime: {}",resourcesInCluster,new Timestamp(System.currentTimeMillis()));
       for (      String resourceName : resourcesInCluster) {
         IdealState idealState=helixAdmin.getResourceIdealState(clusterName,resourceName);
         ExternalView externalView=helixAdmin.getResourceExternalView(clusterName,resourceName);
+        LOGGER.info("HERE for {},\n IS:{} \n EV:{}",resourceName,idealState,externalView);
         if (idealState == null || externalView == null) {
           return false;
         }
@@ -22,11 +23,12 @@
             return false;
           }
         }
+        LOGGER.info("External View updated successfully for {},\n IS:{} \n EV:{}",resourceName,idealState,externalView);
       }
-      LOGGER.info("External View updated successfully.");
+      LOGGER.info("External View updated successfully for {}",resourcesInCluster);
       return true;
     }
   }
 ;
-  ClusterStateVerifier.verifyByPolling(customVerifier,TIMEOUT_IN_SECONDS);
+  return ClusterStateVerifier.verifyByPolling(customVerifier,TIMEOUT_IN_MILLISECONDS);
 }
