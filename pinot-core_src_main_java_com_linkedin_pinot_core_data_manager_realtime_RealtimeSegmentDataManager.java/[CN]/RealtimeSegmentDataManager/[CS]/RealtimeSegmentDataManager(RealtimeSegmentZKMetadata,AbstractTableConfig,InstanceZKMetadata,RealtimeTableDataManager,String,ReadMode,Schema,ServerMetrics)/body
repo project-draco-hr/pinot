@@ -1,7 +1,9 @@
 {
   super();
   this.schema=schema;
+  this.serverMetrics=serverMetrics;
   this.segmentName=segmentMetadata.getSegmentName();
+  this.tableName=tableConfig.getTableName();
   IndexingConfig indexingConfig=tableConfig.getIndexingConfig();
   if (indexingConfig.getSortedColumn().isEmpty()) {
     LOGGER.info("RealtimeDataResourceZKMetadata contains no information about sorted column for segment {}",segmentName);
@@ -76,6 +78,7 @@ catch (        Error e) {
       try {
         segmentLogger.info("Indexing threshold reached, proceeding with index conversion");
         segmentStatusTask.cancel();
+        updateCurrentDocumentCountMetrics();
         segmentLogger.info("Indexed {} raw events, current number of docs = {}",realtimeSegment.getRawDocumentCount(),realtimeSegment.getSegmentMetadata().getTotalDocs());
         File tempSegmentFolder=new File(resourceTmpDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
         RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn,invertedIndexColumns);
@@ -140,6 +143,7 @@ catch (        Error e) {
   }
 );
   indexingThread.start();
+  serverMetrics.addValueToTableGauge(tableName,ServerGauge.SEGMENT_COUNT,1L);
   segmentLogger.debug("scheduling keepIndexing timer check");
   TimerService.timer.schedule(segmentStatusTask,ONE_MINUTE_IN_MILLSEC,ONE_MINUTE_IN_MILLSEC);
   segmentLogger.info("finished scheduling keepIndexing timer check");
