@@ -6,6 +6,7 @@
   _queryFile=new File(TestUtils.getFileFromResourceUrl(BaseClusterIntegrationTest.class.getClassLoader().getResource("OnTimeStarTreeQueries.txt")));
   generateAndUploadSegments(avroFiles,DEFAULT_TABLE_NAME,false);
   generateAndUploadSegments(avroFiles,STAR_TREE_TABLE_NAME,true);
+  Thread.sleep(15000);
   if (!waitForExternalViewUpdate()) {
     Assert.fail("Cluster did not reach stable state");
   }
