@@ -30,6 +30,12 @@
   MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));
   MetricsHelper.registerMetricsRegistry(_metricsRegistry);
   final ControllerMetrics controllerMetrics=new ControllerMetrics(_metricsRegistry);
+  try {
+    helixResourceManager.getHelixZkManager().addExternalViewChangeListener(new ControllerExternalViewChangeListener(controllerMetrics));
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while adding external view change listener",e);
+  }
   controllerMetrics.addCallbackGauge("helix.connected",new Callable<Long>(){
     @Override public Long call() throws Exception {
       return helixResourceManager.getHelixZkManager().isConnected() ? 1L : 0L;
