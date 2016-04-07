@@ -1,6 +1,7 @@
 {
   super();
   this.schema=schema;
+  this.extractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
   this.serverMetrics=serverMetrics;
   this.segmentName=segmentMetadata.getSegmentName();
   this.tableName=tableConfig.getTableName();
@@ -36,6 +37,7 @@
   this.kafkaStreamProvider=StreamProviderFactory.buildStreamProvider();
   this.kafkaStreamProvider.init(kafkaStreamProviderConfig,tableName,serverMetrics);
   this.kafkaStreamProvider.start();
+  this.tableStreamName=tableName + "_" + kafkaStreamProviderConfig.getStreamName();
   segmentLogger.info("Started kafka stream provider");
   realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName(),serverMetrics);
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
@@ -55,6 +57,7 @@
         GenericRow row=null;
         try {
           row=kafkaStreamProvider.next();
+          row=extractor.transform(row);
           if (row != null) {
             notFull=realtimeSegment.index(row);
             exceptionSleepMillis=50L;
@@ -76,6 +79,28 @@ catch (        Error e) {
         return;
       }
       try {
+        int numErrors, numConversions, numNulls, numNullCols;
+        if ((numErrors=extractor.getTotalErrors()) > 0) {
+          serverMetrics.addMeteredTableValue(tableStreamName,ServerMeter.ROWS_WITH_ERRORS,(long)numErrors);
+        }
+        Map<String,Integer> errorCount=extractor.getError_count();
+        for (        String column : errorCount.keySet()) {
+          if ((numErrors=errorCount.get(column)) > 0) {
+            segmentLogger.warn("Column {} had {} rows with errors",column,numErrors);
+          }
+        }
+        if ((numConversions=extractor.getTotalConversions()) > 0) {
+          serverMetrics.addMeteredTableValue(tableStreamName,ServerMeter.ROWS_NEEDING_CONVERSIONS,(long)numConversions);
+          segmentLogger.info("{} rows needed conversions ",numConversions);
+        }
+        if ((numNulls=extractor.getTotalNulls()) > 0) {
+          serverMetrics.addMeteredTableValue(tableStreamName,ServerMeter.ROWS_WITH_NULL_VALUES,(long)numNulls);
+          segmentLogger.info("{} rows had null columns",numNulls);
+        }
+        if ((numNullCols=extractor.getTotalNullCols()) > 0) {
+          serverMetrics.addMeteredTableValue(tableStreamName,ServerMeter.COLUMNS_WITH_NULL_VALUES,(long)numNullCols);
+          segmentLogger.info("{} columns had null values",numNullCols);
+        }
         segmentLogger.info("Indexing threshold reached, proceeding with index conversion");
         segmentStatusTask.cancel();
         updateCurrentDocumentCountMetrics();

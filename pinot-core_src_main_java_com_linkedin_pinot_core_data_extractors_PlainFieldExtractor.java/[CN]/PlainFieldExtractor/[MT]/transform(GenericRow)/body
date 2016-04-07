@@ -2,6 +2,8 @@
   Map<String,Object> fieldMap=new HashMap<String,Object>();
   if (_schema.size() > 0) {
     boolean hasError=false;
+    boolean hasNull=false;
+    boolean hasConversion=false;
     for (    String column : _schema.getColumnNames()) {
       Object value=row.getValue(column);
       FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
@@ -9,6 +11,8 @@
       PinotDataType source;
       if (value == null) {
         source=PinotDataType.OBJECT;
+        hasNull=true;
+        _totalNullCols++;
       }
  else {
         String typeName=(value.getClass().getCanonicalName());
@@ -23,15 +27,19 @@
       }
       if ((source != dest) && (value != null)) {
         try {
+          hasConversion=true;
           value=dest.convert(value,source);
+          if (value == null) {
+            hasError=true;
+          }
         }
  catch (        Exception e) {
           value=null;
+          hasError=true;
         }
       }
       if (value == null) {
         _errorCount.put(column,_errorCount.get(column) + 1);
-        hasError=true;
         LOGGER.debug("Invalid value {} in column {} in schema {}",row.getValue(column),column,_schema.getSchemaName());
         try {
           if (fieldSpec.isSingleValueField()) {
@@ -48,6 +56,12 @@
     }
     if (hasError) {
       _totalErrors++;
+    }
+    if (hasNull) {
+      _totalNulls++;
+    }
+    if (hasConversion) {
+      _totalConversions++;
     }
     row.init(fieldMap);
   }
