@@ -1,6 +1,13 @@
 {
-  try (FilePerIndexDirectory columnDirectory=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);PinotDataBuffer buffer=columnDirectory.newDictionaryBuffer("column1",1024)){
+{
+    FilePerIndexDirectory columnDirectory=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);
+    try (PinotDataBuffer buffer=columnDirectory.newDictionaryBuffer("column1",1024)){
+    }
+     columnDirectory.close();
   }
-   try (FilePerIndexDirectory columnDirectory=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);PinotDataBuffer repeatBuffer=columnDirectory.newDictionaryBuffer("column1",1024)){
-  }
- }
+{
+    FilePerIndexDirectory columnDirectory=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);
+    try (PinotDataBuffer repeatBuffer=columnDirectory.newDictionaryBuffer("column1",1024)){
+    }
+   }
+}

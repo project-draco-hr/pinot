@@ -1,10 +1,13 @@
 {
 {
-    try (SingleFileIndexDirectory columnDirectory=new SingleFileIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);PinotDataBuffer buffer=columnDirectory.newDictionaryBuffer("column1",1024)){
+    SingleFileIndexDirectory columnDirectory=new SingleFileIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);
+    try (PinotDataBuffer buffer=columnDirectory.newDictionaryBuffer("column1",1024)){
     }
-   }
+     columnDirectory.close();
+  }
 {
-    try (SingleFileIndexDirectory columnDirectory=new SingleFileIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);PinotDataBuffer repeatBuffer=columnDirectory.newDictionaryBuffer("column1",1024)){
+    SingleFileIndexDirectory columnDirectory=new SingleFileIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap);
+    try (PinotDataBuffer repeatBuffer=columnDirectory.newDictionaryBuffer("column1",1024)){
     }
    }
 }
