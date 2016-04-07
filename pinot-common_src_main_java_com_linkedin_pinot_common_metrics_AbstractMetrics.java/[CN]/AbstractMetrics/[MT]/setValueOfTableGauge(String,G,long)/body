@@ -1,0 +1,24 @@
+{
+  final String fullGaugeName;
+  String gaugeName=gauge.getGaugeName();
+  fullGaugeName=gaugeName + "." + tableName;
+  if (!_gaugeValues.containsKey(fullGaugeName)) {
+synchronized (_gaugeValues) {
+      if (!_gaugeValues.containsKey(fullGaugeName)) {
+        _gaugeValues.put(fullGaugeName,new AtomicLong(value));
+        addCallbackGauge(fullGaugeName,new Callable<Long>(){
+          @Override public Long call() throws Exception {
+            return _gaugeValues.get(fullGaugeName).get();
+          }
+        }
+);
+      }
+ else {
+        _gaugeValues.get(fullGaugeName).set(value);
+      }
+    }
+  }
+ else {
+    _gaugeValues.get(fullGaugeName).set(value);
+  }
+}
