@@ -1,4 +1,11 @@
 {
+  if (_indexSegment != null) {
+    _indexSegment.destroy();
+  }
+  for (  IndexSegment segment : _indexSegmentList) {
+    segment.destroy();
+  }
+  _indexSegmentList.clear();
   if (INDEX_DIR.exists()) {
     FileUtils.deleteQuietly(INDEX_DIR);
   }

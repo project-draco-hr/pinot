@@ -1,0 +1,22 @@
+{
+  SortedMap<Long,IndexEntry> indexStartMap=new TreeMap<>();
+  for (  Map.Entry<IndexKey,IndexEntry> columnEntry : columnEntries.entrySet()) {
+    long startOffset=columnEntry.getValue().startOffset;
+    indexStartMap.put(startOffset,columnEntry.getValue());
+  }
+  long runningSize=0;
+  List<Long> offsetAccum=new ArrayList<>();
+  for (  Map.Entry<Long,IndexEntry> offsetEntry : indexStartMap.entrySet()) {
+    IndexEntry entry=offsetEntry.getValue();
+    runningSize+=entry.size;
+    if (runningSize >= MAX_ALLOCATION_SIZE) {
+      mapAndSliceFile(indexStartMap,offsetAccum,offsetEntry.getKey());
+      runningSize=entry.size;
+      offsetAccum.clear();
+    }
+    offsetAccum.add(offsetEntry.getKey());
+  }
+  if (offsetAccum.size() > 0) {
+    mapAndSliceFile(indexStartMap,offsetAccum,offsetAccum.get(0) + runningSize);
+  }
+}

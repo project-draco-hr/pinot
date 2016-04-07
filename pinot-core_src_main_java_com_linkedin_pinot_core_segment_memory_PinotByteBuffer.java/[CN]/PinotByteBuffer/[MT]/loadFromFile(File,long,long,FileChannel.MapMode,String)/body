@@ -1,0 +1,12 @@
+{
+  Preconditions.checkArgument(length >= 0 && length < Integer.MAX_VALUE);
+  Preconditions.checkNotNull(file);
+  Preconditions.checkArgument(startPosition >= 0);
+  Preconditions.checkNotNull(context);
+  PinotByteBuffer buffer=allocateDirect((int)length,file.toString() + "-" + context);
+  if (openMode == FileChannel.MapMode.READ_WRITE && !file.exists()) {
+    file.createNewFile();
+  }
+  buffer.readFrom(file,startPosition,length);
+  return buffer;
+}

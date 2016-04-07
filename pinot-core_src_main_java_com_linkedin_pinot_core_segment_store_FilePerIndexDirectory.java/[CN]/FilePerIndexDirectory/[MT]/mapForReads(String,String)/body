@@ -2,6 +2,8 @@
   Preconditions.checkNotNull(fileName);
   Preconditions.checkNotNull(context);
   File file=new File(segmentDirectory,fileName);
+  Preconditions.checkArgument(file.exists(),"File: " + fileName + " must exist");
+  Preconditions.checkArgument(file.isFile(),"File: " + fileName + " must be a regular file");
   String allocationContext=allocationContext(file,context);
   return PinotDataBuffer.fromFile(file,readMode,FileChannel.MapMode.READ_ONLY,allocationContext);
 }

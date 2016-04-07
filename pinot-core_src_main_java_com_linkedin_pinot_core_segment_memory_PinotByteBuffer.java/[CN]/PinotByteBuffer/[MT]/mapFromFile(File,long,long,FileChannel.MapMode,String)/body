@@ -1,0 +1,20 @@
+{
+  Preconditions.checkNotNull(file);
+  Preconditions.checkArgument(start >= 0);
+  Preconditions.checkArgument(length >= 0 && length < Integer.MAX_VALUE,"Mapping files larger than 2GB is not supported, file: " + file.toString() + ", context: "+ context);
+  Preconditions.checkNotNull(context);
+  if (openMode == FileChannel.MapMode.READ_ONLY) {
+    if (!file.exists()) {
+      throw new IllegalArgumentException("File: " + file + " must exist to open in read-only mode");
+    }
+    if (length > (file.length() - start)) {
+      throw new IllegalArgumentException(String.format("Mapping limits exceed file size, start: %d, length: %d, file size: %d",start,length,file.length()));
+    }
+  }
+  String rafOpenMode=openMode == FileChannel.MapMode.READ_ONLY ? "r" : "rw";
+  RandomAccessFile raf=new RandomAccessFile(file,rafOpenMode);
+  ByteBuffer bb=MmapUtils.mmapFile(raf,openMode,start,length,file,context);
+  PinotByteBuffer pbb=new PinotByteBuffer(bb,true);
+  pbb.raf=raf;
+  return pbb;
+}

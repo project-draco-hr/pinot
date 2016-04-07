@@ -1,4 +1,4 @@
 {
-  String fwdIndexFilename=metadata.getForwardIndexFileName(column,metadata.getVersion());
-  return mapForReads(fwdIndexFilename,"forward_index.reader");
+  IndexKey key=new IndexKey(column,ColumnIndexType.FORWARD_INDEX);
+  return getReadBufferFor(key);
 }

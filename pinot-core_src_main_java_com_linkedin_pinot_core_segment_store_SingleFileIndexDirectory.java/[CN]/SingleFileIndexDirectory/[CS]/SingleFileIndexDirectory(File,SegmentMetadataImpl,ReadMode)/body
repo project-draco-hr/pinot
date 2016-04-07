@@ -5,8 +5,7 @@
   if (!indexFile.exists()) {
     indexFile.createNewFile();
   }
-  fullFileBuffer=PinotDataBuffer.fromFile(indexFile,readMode,FileChannel.MapMode.READ_WRITE,context);
-  columnEntries=new HashMap<IndexKey,IndexEntry>(metadata.getAllColumns().size());
-  appendedBuffers=new ArrayList<>();
+  columnEntries=new HashMap<>(metadata.getAllColumns().size());
+  allocBuffers=new ArrayList<>();
   load();
 }

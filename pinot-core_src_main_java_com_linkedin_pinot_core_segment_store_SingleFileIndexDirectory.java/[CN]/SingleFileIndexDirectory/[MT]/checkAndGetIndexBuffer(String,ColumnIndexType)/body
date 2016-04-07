@@ -1,0 +1,8 @@
+{
+  IndexKey key=new IndexKey(column,type);
+  IndexEntry entry=columnEntries.get(key);
+  if (entry == null || entry.buffer == null) {
+    throw new RuntimeException("Could not find index for column: " + column + ", type: "+ type+ ", segment: "+ segmentDirectory.toString());
+  }
+  return entry.buffer;
+}

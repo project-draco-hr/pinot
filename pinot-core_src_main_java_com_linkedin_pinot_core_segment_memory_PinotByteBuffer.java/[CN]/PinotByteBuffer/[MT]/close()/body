@@ -1,5 +1,16 @@
 {
-  if (owner && buffer != null) {
-    MmapUtils.unloadByteBuffer(buffer);
+  if (!owner || buffer == null) {
+    return;
   }
+  MmapUtils.unloadByteBuffer(buffer);
+  if (raf != null) {
+    try {
+      raf.close();
+    }
+ catch (    IOException e) {
+      LOGGER.error("Failed to close file: {}. Continuing with errors",raf.toString(),e);
+    }
+  }
+  buffer=null;
+  raf=null;
 }

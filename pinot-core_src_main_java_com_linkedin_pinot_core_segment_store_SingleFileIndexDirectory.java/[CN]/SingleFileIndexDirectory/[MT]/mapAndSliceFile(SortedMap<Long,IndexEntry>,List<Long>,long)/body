@@ -1,0 +1,19 @@
+{
+  Preconditions.checkNotNull(startOffsets);
+  Preconditions.checkNotNull(offsetAccum);
+  Preconditions.checkArgument(offsetAccum.size() >= 1);
+  long fromFilePos=offsetAccum.get(0);
+  long toFilePos=endOffset - fromFilePos;
+  String context=allocationContext(indexFile,"single_file_index.rw." + "." + String.valueOf(fromFilePos) + "."+ String.valueOf(toFilePos));
+  PinotDataBuffer buffer=PinotDataBuffer.fromFile(indexFile,fromFilePos,toFilePos,readMode,FileChannel.MapMode.READ_WRITE,context);
+  allocBuffers.add(buffer);
+  int prevSlicePoint=0;
+  for (  Long fileOffset : offsetAccum) {
+    IndexEntry entry=startOffsets.get(fileOffset);
+    int endSlicePoint=prevSlicePoint + (int)entry.size;
+    validateMagicMarker(buffer,prevSlicePoint);
+    PinotDataBuffer viewBuffer=buffer.view(prevSlicePoint + MAGIC_MARKER_SIZE_BYTES,endSlicePoint);
+    entry.buffer=viewBuffer;
+    prevSlicePoint=endSlicePoint;
+  }
+}

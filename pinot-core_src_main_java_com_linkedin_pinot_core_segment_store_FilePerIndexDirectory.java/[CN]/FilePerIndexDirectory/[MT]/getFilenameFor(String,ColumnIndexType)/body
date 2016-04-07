@@ -1,0 +1,12 @@
+{
+switch (indexType) {
+case DICTIONARY:
+    return metadata.getDictionaryFileName(column,metadata.getVersion());
+case FORWARD_INDEX:
+  return metadata.getForwardIndexFileName(column,metadata.getVersion());
+case INVERTED_INDEX:
+return metadata.getBitmapInvertedIndexFileName(column,metadata.getVersion());
+default :
+throw new UnsupportedOperationException("Unknown index type: " + indexType.toString());
+}
+}

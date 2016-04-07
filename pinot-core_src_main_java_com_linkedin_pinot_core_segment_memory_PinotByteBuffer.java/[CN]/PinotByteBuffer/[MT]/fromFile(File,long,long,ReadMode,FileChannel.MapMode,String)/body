@@ -1,0 +1,11 @@
+{
+  if (readMode == ReadMode.heap) {
+    return PinotByteBuffer.loadFromFile(file,startPosition,length,openMode,context);
+  }
+ else   if (readMode == ReadMode.mmap) {
+    return PinotByteBuffer.mapFromFile(file,startPosition,length,openMode,context);
+  }
+ else {
+    throw new RuntimeException("Unknown readmode: " + readMode.name() + ", file: "+ file);
+  }
+}

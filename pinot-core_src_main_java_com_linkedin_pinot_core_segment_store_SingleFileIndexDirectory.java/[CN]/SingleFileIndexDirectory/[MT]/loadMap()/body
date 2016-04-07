@@ -19,13 +19,13 @@
       entry.size=mapConfig.getLong(key);
     }
  else {
-      throw new ConfigurationException("Invalid map file key: " + key);
+      throw new ConfigurationException("Invalid map file key: " + key + ", segmentDirectory: "+ segmentDirectory.toString());
     }
   }
   for (  Map.Entry<IndexKey,IndexEntry> colIndexEntry : columnEntries.entrySet()) {
     IndexEntry entry=colIndexEntry.getValue();
     if (entry.size < 0 || entry.startOffset < 0) {
-      throw new ConfigurationException("Invalid map entry for key: " + colIndexEntry.getKey().toString());
+      throw new ConfigurationException("Invalid map entry for key: " + colIndexEntry.getKey().toString() + ", segment: "+ segmentDirectory.toString());
     }
   }
 }

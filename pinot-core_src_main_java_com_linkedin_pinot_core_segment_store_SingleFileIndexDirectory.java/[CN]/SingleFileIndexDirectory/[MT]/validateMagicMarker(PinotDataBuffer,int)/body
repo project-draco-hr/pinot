@@ -1,0 +1,7 @@
+{
+  long actualMarkerValue=buffer.getLong(startOffset);
+  if (actualMarkerValue != MAGIC_MARKER) {
+    LOGGER.error("Missing magic marker in index file: {} at position: {}",indexFile,startOffset);
+    throw new RuntimeException("Inconsistent data read. Index data file " + indexFile.toString() + " is possibly corrupted");
+  }
+}
