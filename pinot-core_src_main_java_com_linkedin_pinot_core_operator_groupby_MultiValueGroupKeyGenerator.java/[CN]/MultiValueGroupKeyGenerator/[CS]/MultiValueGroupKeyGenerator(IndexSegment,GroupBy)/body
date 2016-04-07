@@ -1,0 +1,31 @@
+{
+  List<String> groupByColumns=groupBy.getColumns();
+  _uniqueGroupKeys=new LongOpenHashSet();
+  _groupByColumns=groupByColumns.toArray(new String[groupByColumns.size()]);
+  int numGroupByColumns=_groupByColumns.length;
+  _maxMultiValuesArray=new int[numGroupByColumns][];
+  _cardinalities=new int[numGroupByColumns];
+  _dictionaries=new Dictionary[numGroupByColumns];
+  _reusableGroupByValuesArray=new int[numGroupByColumns];
+  _isSingleValueGroupByColumn=new boolean[numGroupByColumns];
+  _singleValIterators=new BlockSingleValIterator[numGroupByColumns];
+  _multiValIterators=new BlockMultiValIterator[numGroupByColumns];
+  for (int i=0; i < _groupByColumns.length; i++) {
+    String groupByColumn=_groupByColumns[i];
+    DataSource dataSource=indexSegment.getDataSource(groupByColumn);
+    _dictionaries[i]=dataSource.getDictionary();
+    DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
+    _cardinalities[i]=dataSourceMetadata.cardinality();
+    Block block=dataSource.nextBlock();
+    int maxNumberOfMultiValues=block.getMetadata().getMaxNumberOfMultiValues();
+    _maxMultiValuesArray[i]=new int[maxNumberOfMultiValues];
+    if (dataSourceMetadata.isSingleValue()) {
+      _isSingleValueGroupByColumn[i]=true;
+      _singleValIterators[i]=(BlockSingleValIterator)block.getBlockValueSet().iterator();
+    }
+ else {
+      _isSingleValueGroupByColumn[i]=false;
+      _multiValIterators[i]=(BlockMultiValIterator)block.getBlockValueSet().iterator();
+    }
+  }
+}

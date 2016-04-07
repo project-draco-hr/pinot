@@ -1,0 +1,16 @@
+{
+  int maxGroupKeys=1;
+  for (  String column : groupBy.getColumns()) {
+    DataSource dataSource=indexSegment.getDataSource(column);
+    DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
+    if (!dataSourceMetadata.isSingleValue()) {
+      return Integer.MAX_VALUE;
+    }
+    int cardinality=dataSourceMetadata.cardinality();
+    if (maxGroupKeys > (Integer.MAX_VALUE / cardinality)) {
+      return Integer.MAX_VALUE;
+    }
+    maxGroupKeys*=dataSourceMetadata.cardinality();
+  }
+  return maxGroupKeys;
+}

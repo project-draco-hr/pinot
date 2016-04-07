@@ -1,0 +1,17 @@
+{
+  Preconditions.checkState(_finish,"GetResult cannot be called before finish.");
+  List<Map<String,Serializable>> result=new ArrayList<Map<String,Serializable>>(_aggrFuncContextList.size());
+  for (int i=0; i < _aggrFuncContextList.size(); i++) {
+    result.add(new HashMap<String,Serializable>());
+  }
+  Iterator<Pair<Long,String>> groupKeys=_groupKeyGenerator.getUniqueGroupKeys();
+  while (groupKeys.hasNext()) {
+    Pair<Long,String> idKeyPair=groupKeys.next();
+    String stringGroupKey=idKeyPair.getSecond();
+    for (int i=0; i < _aggrFuncContextList.size(); i++) {
+      double resultForGroupKey=_resultHolderArray[i].getResultForGroupKey(idKeyPair.getFirst());
+      result.get(i).put(stringGroupKey,resultForGroupKey);
+    }
+  }
+  return result;
+}

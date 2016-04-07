@@ -1,0 +1,9 @@
+{
+  if (_storageType == STORAGE_TYPE.ARRAY_BASED) {
+    return new ArrayBasedGroupKeyIterator();
+  }
+ else {
+    final ObjectIterator<Map.Entry<Long,Integer>> iterator=_groupKeyToId.entrySet().iterator();
+    return new MapBasedGroupKeyIterator(iterator);
+  }
+}

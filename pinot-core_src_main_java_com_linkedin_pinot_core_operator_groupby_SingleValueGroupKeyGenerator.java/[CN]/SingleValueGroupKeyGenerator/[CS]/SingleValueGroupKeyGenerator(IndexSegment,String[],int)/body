@@ -1,0 +1,28 @@
+{
+  _groupByColumns=groupByColumns;
+  _groupByCapacity=groupByCapacity;
+  _singleValIterators=new BlockSingleValIterator[groupByColumns.length];
+  _dictionaries=new Dictionary[groupByColumns.length];
+  _cardinalities=new int[groupByColumns.length];
+  _isSingleValueArray=new boolean[groupByColumns.length];
+  int maxCardinalityProduct=1;
+  for (int i=0; i < groupByColumns.length; i++) {
+    DataSource dataSource=indexSegment.getDataSource(_groupByColumns[i]);
+    _singleValIterators[i]=(BlockSingleValIterator)dataSource.nextBlock().getBlockValueSet().iterator();
+    _dictionaries[i]=dataSource.getDictionary();
+    _cardinalities[i]=dataSource.getDataSourceMetadata().cardinality();
+    maxCardinalityProduct=maxCardinalityProduct * _cardinalities[i];
+    _isSingleValueArray[i]=(dataSource.getDataSourceMetadata().isSingleValue()) ? true : false;
+  }
+  _numUniqueGroupKeys=0;
+  if (maxCardinalityProduct <= groupByCapacity) {
+    _storageType=STORAGE_TYPE.ARRAY_BASED;
+  }
+ else {
+    _storageType=STORAGE_TYPE.MAP_BASED;
+    _groupKeyToId=new Long2IntOpenHashMap();
+  }
+  _reusableGroupByValuesArray=new int[groupByColumns.length];
+  _uniqueGroupKeysFlag=new boolean[groupByCapacity];
+  _idToGroupKey=new int[groupByCapacity];
+}

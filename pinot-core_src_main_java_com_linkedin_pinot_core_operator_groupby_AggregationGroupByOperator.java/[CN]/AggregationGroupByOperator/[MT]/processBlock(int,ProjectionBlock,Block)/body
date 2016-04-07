@@ -1,0 +1,28 @@
+{
+  if (block instanceof DocIdSetBlock) {
+    DocIdSetBlock docIdSetBlock=(DocIdSetBlock)block;
+    _docIdSet=docIdSetBlock.getDocIdSet();
+    _groupByExecutor.process(_docIdSet,0,docIdSetBlock.getSearchableLength());
+    numDocsScanned+=((DocIdSetBlock)block).getSearchableLength();
+  }
+ else {
+    _docIdSet=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+    BlockDocIdSet blockDocIdSet=currentBlock.getBlockDocIdSet();
+    BlockDocIdIterator iterator=blockDocIdSet.iterator();
+    int docId;
+    int pos=0;
+    while ((docId=iterator.next()) != Constants.EOF) {
+      _docIdSet[pos++]=docId;
+      if (pos == _docIdSet.length) {
+        numDocsScanned+=pos;
+        pos=0;
+        _groupByExecutor.process(_docIdSet,0,pos);
+      }
+    }
+    if (pos > 0) {
+      _groupByExecutor.process(_docIdSet,0,pos);
+      numDocsScanned+=pos;
+    }
+  }
+  return numDocsScanned;
+}

@@ -7,11 +7,17 @@
  else {
       PlanNode aggregationGroupByPlanNode;
       if (indexSegment instanceof IndexSegmentImpl) {
-        if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
+        boolean useAggregationGroupByPlanNode=false;
+        if (useAggregationGroupByPlanNode) {
+          aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
         }
  else {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+          if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
+            aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
+          }
+ else {
+            aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+          }
         }
       }
  else {

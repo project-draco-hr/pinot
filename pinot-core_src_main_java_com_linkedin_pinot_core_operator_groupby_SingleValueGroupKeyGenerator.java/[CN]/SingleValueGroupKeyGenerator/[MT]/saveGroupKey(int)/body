@@ -1,0 +1,25 @@
+{
+  int groupKey;
+  if (_storageType == STORAGE_TYPE.ARRAY_BASED) {
+    if (_uniqueGroupKeysFlag[rawKey] == false) {
+      _uniqueGroupKeysFlag[rawKey]=true;
+      _numUniqueGroupKeys++;
+    }
+    groupKey=rawKey;
+  }
+ else {
+    if (_numUniqueGroupKeys >= _groupByCapacity) {
+      expandGroupKeyStorage();
+    }
+    if (!_groupKeyToId.containsKey(rawKey)) {
+      groupKey=_groupKeyToId.size();
+      _idToGroupKey[groupKey]=rawKey;
+      _groupKeyToId.put(rawKey,groupKey);
+      _numUniqueGroupKeys++;
+    }
+ else {
+      groupKey=_groupKeyToId.get(rawKey);
+    }
+  }
+  return groupKey;
+}

@@ -1,0 +1,13 @@
+{
+  for (int i=0; i < _groupByColumns.length; i++) {
+    if (_isSingleValueArray[i]) {
+      _singleValIterators[i].skipTo(docId);
+      _reusableGroupByValuesArray[i]=_singleValIterators[i].nextIntVal();
+    }
+ else {
+      throw new RuntimeException("GroupBy on multi-valued columns not supported.");
+    }
+  }
+  int rawKey=generateGroupKey(_reusableGroupByValuesArray,_cardinalities);
+  return saveGroupKey(rawKey);
+}

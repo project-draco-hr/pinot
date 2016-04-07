@@ -1,0 +1,14 @@
+{
+  Preconditions.checkState(_init,"process cannot be called before init.");
+  fetchColumnValues(docIdSet,startIndex,length);
+  Int2ObjectOpenHashMap docIdToGroupKeys=_groupKeyGenerator.generateKeysForDocIdSet(docIdSet,startIndex,length);
+  for (int i=0; i < _aggrFuncContextList.size(); i++) {
+    AggregationFunctionContext aggrFuncContext=_aggrFuncContextList.get(i);
+    String[] aggrColumns=aggrFuncContext.getAggregationColumns();
+    for (int j=0; j < aggrColumns.length; j++) {
+      String aggrColumn=aggrColumns[j];
+      double[] valueArray=_columnToValueArrayMap.get(aggrColumn);
+      aggrFuncContext.apply(length,docIdToGroupKeys,_resultHolderArray[i],valueArray);
+    }
+  }
+}
