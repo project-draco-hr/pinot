@@ -7,7 +7,8 @@
     rowSize+=columnSizesInBytes[i];
   }
   final int totalSize=rowSize * rows;
-  _buffer=PinotDataBuffer.allocateDirect(totalSize);
+  _buffer=MmapUtils.allocateDirectByteBuffer(totalSize,null,this.getClass().getSimpleName() + " buffer");
+  _buffer.order(ByteOrder.nativeOrder());
   reader=new FixedByteSingleValueMultiColReader(_buffer,rows,cols,columnSizesInBytes);
   writer=new FixedByteSingleValueMultiColWriter(_buffer,rows,cols,columnSizesInBytes);
 }

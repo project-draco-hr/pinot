@@ -1,7 +1,8 @@
 {
-  PinotDataBuffer dataBuffer;
+  ByteBuffer dataBuffer;
   try {
-    dataBuffer=PinotDataBuffer.allocateDirect(rowCapacity * columnSizeInBytes);
+    dataBuffer=MmapUtils.allocateDirectByteBuffer(rowCapacity * columnSizeInBytes,null,this.getClass().getSimpleName() + " dataBuffer");
+    dataBuffer.order(ByteOrder.nativeOrder());
     dataBuffers.add(dataBuffer);
     currentDataWriter=new FixedByteSingleValueMultiColWriter(dataBuffer,rowCapacity,1,new int[]{columnSizeInBytes});
     dataWriters.add(currentDataWriter);

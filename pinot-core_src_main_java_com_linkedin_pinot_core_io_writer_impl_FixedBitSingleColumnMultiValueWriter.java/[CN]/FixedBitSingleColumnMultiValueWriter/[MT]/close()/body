@@ -1,11 +1,13 @@
 {
-  dataWriter.close();
-  headerReader.close();
-  headerWriter.close();
-  indexDataBuffer.close();
-  indexDataBuffer=null;
+  IOUtils.closeQuietly(raf);
+  raf=null;
+  MmapUtils.unloadByteBuffer(dataBuffer);
   dataBuffer=null;
+  MmapUtils.unloadByteBuffer(headerBuffer);
   headerBuffer=null;
+  headerWriter.close();
   headerWriter=null;
+  headerReader.close();
+  dataWriter.close();
   dataWriter=null;
 }

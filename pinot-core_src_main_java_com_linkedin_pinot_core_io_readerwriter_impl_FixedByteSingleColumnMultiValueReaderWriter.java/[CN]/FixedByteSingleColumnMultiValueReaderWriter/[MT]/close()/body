@@ -1,8 +1,8 @@
 {
-  for (  PinotDataBuffer dataBuffer : dataBuffers) {
-    dataBuffer.close();
+  for (  ByteBuffer dataBuffer : dataBuffers) {
+    MmapUtils.unloadByteBuffer(dataBuffer);
   }
   dataBuffers.clear();
-  headerBuffer.close();
+  MmapUtils.unloadByteBuffer(headerBuffer);
   headerBuffer=null;
 }

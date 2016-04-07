@@ -1,4 +1,8 @@
 {
-  this.indexDataBuffer.close();
-  this.indexDataBuffer=null;
+  IOUtils.closeQuietly(raf);
+  raf=null;
+  if (ownsByteBuffer) {
+    MmapUtils.unloadByteBuffer(byteBuffer);
+    byteBuffer=null;
+  }
 }

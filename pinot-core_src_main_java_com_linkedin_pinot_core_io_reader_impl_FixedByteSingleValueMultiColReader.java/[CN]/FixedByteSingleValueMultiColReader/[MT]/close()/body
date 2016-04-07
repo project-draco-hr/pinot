@@ -1,4 +1,7 @@
 {
-  indexDataBuffer.close();
-  indexDataBuffer=null;
+  MmapUtils.unloadByteBuffer(byteBuffer);
+  byteBuffer=null;
+  if (isMMap) {
+    file.close();
+  }
 }

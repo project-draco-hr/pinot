@@ -1,5 +1,5 @@
 {
-  init(rows,cols,columnSizesInBits,hasNegativeValues);
-  this.indexDataBuffer=PinotDataBuffer.fromFile(file,0,bytesRequired,ReadMode.mmap,FileChannel.MapMode.READ_WRITE,file.getAbsolutePath() + this.getClass().getCanonicalName());
-  bitSet=PinotDataCustomBitSet.withDataBuffer(bytesRequired,indexDataBuffer);
+  init(file,rows,cols,columnSizesInBits,hasNegativeValues);
+  createBuffer(file);
+  bitSet=CustomBitSet.withByteBuffer(bytesRequired,byteBuffer);
 }

@@ -19,8 +19,7 @@
   RandomAccessFile raf=new RandomAccessFile(f,"rw");
   System.out.println("file size: " + raf.getChannel().size());
   raf.close();
-  PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(f,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"testing-heap");
-  FixedByteSingleValueMultiColReader heapReader=new FixedByteSingleValueMultiColReader(heapBuffer,numRows,numCols,new int[]{4,4});
+  FixedByteSingleValueMultiColReader heapReader=new FixedByteSingleValueMultiColReader(f,numRows,numCols,new int[]{4,4},false);
   heapReader.open();
   for (int i=0; i < numRows; i++) {
     for (int j=0; j < numCols; j++) {
@@ -28,8 +27,7 @@
     }
   }
   heapReader.close();
-  PinotDataBuffer mmapBuffer=PinotDataBuffer.fromFile(f,ReadMode.mmap,FileChannel.MapMode.READ_ONLY,"mmap_testing");
-  FixedByteSingleValueMultiColReader mmapReader=new FixedByteSingleValueMultiColReader(mmapBuffer,numRows,numCols,new int[]{4,4});
+  FixedByteSingleValueMultiColReader mmapReader=new FixedByteSingleValueMultiColReader(f,numRows,numCols,new int[]{4,4},true);
   mmapReader.open();
   for (int i=0; i < numRows; i++) {
     for (int j=0; j < numCols; j++) {

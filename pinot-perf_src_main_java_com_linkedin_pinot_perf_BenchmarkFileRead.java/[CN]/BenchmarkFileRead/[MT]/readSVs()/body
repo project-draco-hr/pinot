@@ -3,8 +3,7 @@
   int columnSizeInBits=3;
   boolean isMMap=true;
   boolean hasNulls=false;
-  PinotDataBuffer dataBuffer=PinotDataBuffer.fromFile(file,ReadMode.mmap,FileChannel.MapMode.READ_ONLY,"benchmark");
-  FixedBitSingleValueReader reader=new FixedBitSingleValueReader(dataBuffer,rows,columnSizeInBits,hasNulls);
+  FixedBitSingleValueReader reader=new FixedBitSingleValueReader(file,rows,columnSizeInBits,isMMap,hasNulls);
   int[] result2=new int[rows];
   for (int i=0; i < rows; i++) {
     result2[i]=reader.getInt(i);

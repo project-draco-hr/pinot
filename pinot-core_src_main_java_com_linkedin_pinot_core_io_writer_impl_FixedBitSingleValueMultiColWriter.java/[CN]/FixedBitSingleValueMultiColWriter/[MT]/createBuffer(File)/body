@@ -1,0 +1,8 @@
+{
+  raf=new RandomAccessFile(file,"rw");
+  byteBuffer=MmapUtils.mmapFile(raf,FileChannel.MapMode.READ_WRITE,0,bytesRequired,file,this.getClass().getSimpleName() + " byteBuffer");
+  byteBuffer.position(0);
+  for (int i=0; i < bytesRequired; i++) {
+    byteBuffer.put((byte)0);
+  }
+}

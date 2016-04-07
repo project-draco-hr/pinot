@@ -1,4 +1,11 @@
 {
-  customBitSet.close();
-  indexBuffer.close();
+  if (ownsByteBuffer) {
+    MmapUtils.unloadByteBuffer(byteBuffer);
+    byteBuffer=null;
+    customBitSet.close();
+    customBitSet=null;
+    if (isMmap) {
+      file.close();
+    }
+  }
 }

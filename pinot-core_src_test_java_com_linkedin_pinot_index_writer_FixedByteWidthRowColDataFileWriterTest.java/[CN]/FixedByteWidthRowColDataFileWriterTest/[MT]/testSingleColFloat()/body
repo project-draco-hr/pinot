@@ -13,8 +13,7 @@
   }
   writer.close();
   File rfile=new File("test_single_col_writer.dat");
-  PinotDataBuffer buffer=PinotDataBuffer.fromFile(rfile,ReadMode.mmap,FileChannel.MapMode.READ_WRITE,"testing");
-  FixedByteSingleValueMultiColReader reader=new FixedByteSingleValueMultiColReader(buffer,rows,cols,columnSizes);
+  FixedByteSingleValueMultiColReader reader=new FixedByteSingleValueMultiColReader(rfile,rows,cols,columnSizes,false);
   for (int i=0; i < rows; i++) {
     Assert.assertEquals(reader.getFloat(i,0),data[i]);
   }

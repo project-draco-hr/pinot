@@ -9,14 +9,9 @@
     converter.convert(indexDir);
     LOGGER.info("Successfully up-converted segment:{} from :{} to {} version.",indexDir.getName(),from,to);
   }
-  metadata=new SegmentMetadataImpl(indexDir);
-  SegmentPreProcessor preProcessor=new SegmentPreProcessor(indexDir,metadata,indexLoadingConfigMetadata);
-  preProcessor.process();
-  SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(indexDir,metadata,readMode);
-  Set<String> allColumns=metadata.getAllColumns();
   Map<String,ColumnIndexContainer> indexContainerMap=new HashMap<String,ColumnIndexContainer>();
   for (  String column : metadata.getColumnMetadataMap().keySet()) {
-    indexContainerMap.put(column,ColumnIndexContainer.init(segmentDirectory.createReader(),metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata));
+    indexContainerMap.put(column,ColumnIndexContainer.init(column,indexDir,metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata,readMode));
   }
   StarTree starTree=null;
   if (metadata.hasStarTree()) {

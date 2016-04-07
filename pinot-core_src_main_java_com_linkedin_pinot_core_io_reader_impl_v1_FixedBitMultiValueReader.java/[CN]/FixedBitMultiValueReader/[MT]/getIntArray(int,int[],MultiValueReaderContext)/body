@@ -8,7 +8,7 @@
       startOffset=readerContext.endPosition;
     }
  else {
-      startOffset=customBitSet.findNthBitSetAfter(readerContext.endPosition,(row - readerContext.rowId - 1));
+      startOffset=(int)customBitSet.findNthBitSetAfter(readerContext.endPosition,(row - readerContext.rowId - 1));
     }
   }
  else {
@@ -17,15 +17,15 @@
       startOffset=chunkIdOffset;
     }
  else {
-      startOffset=customBitSet.findNthBitSetAfter(chunkIdOffset,row - chunkId * docsPerChunk);
+      startOffset=(int)customBitSet.findNthBitSetAfter(chunkIdOffset,row - chunkId * docsPerChunk);
     }
   }
   endOffset=customBitSet.findNthBitSetAfter(startOffset,1);
   if (endOffset < 0) {
-    length=totalNumValues - startOffset;
+    length=(int)(totalNumValues - startOffset);
   }
  else {
-    length=endOffset - startOffset;
+    length=(int)(endOffset - startOffset);
   }
   rawDataReader.getInt(startOffset,length,0,intArray);
   readerContext.rowId=row;
