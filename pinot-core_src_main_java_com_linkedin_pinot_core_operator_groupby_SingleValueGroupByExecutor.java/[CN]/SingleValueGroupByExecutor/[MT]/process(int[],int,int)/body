@@ -7,10 +7,10 @@
   for (int i=0; i < _aggrFuncContextList.size(); i++) {
     AggregationFunctionContext aggrFuncContext=_aggrFuncContextList.get(i);
     String[] aggrColumns=aggrFuncContext.getAggregationColumns();
+    _resultHolderArray[i].ensureCapacity(maxUniqueKeys);
     for (int j=0; j < aggrColumns.length; j++) {
       String aggrColumn=aggrColumns[j];
       double[] valueArray=_columnToValueArrayMap.get(aggrColumn);
-      _resultHolderArray[i].ensureCapacity(maxUniqueKeys);
       aggrFuncContext.apply(length,_docIdToGroupKey,_resultHolderArray[i],valueArray);
     }
   }
