@@ -4,7 +4,7 @@
   Iterator keys=mapConfig.getKeys();
   while (keys.hasNext()) {
     String key=(String)keys.next();
-    String[] keyParts=key.split(MAP_KEY_SEPARATOR);
+    String[] keyParts=key.split("\\" + MAP_KEY_SEPARATOR);
     Preconditions.checkState(keyParts.length == 3,"Invalid key: " + key);
     IndexKey indexKey=new IndexKey(keyParts[0],ColumnIndexType.getValue(keyParts[1]));
     IndexEntry entry=columnEntries.get(indexKey);
