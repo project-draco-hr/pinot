@@ -1,0 +1,21 @@
+{
+  int indexOfFirstSlash=zkStr.indexOf('/');
+  if (indexOfFirstSlash != -1) {
+    String bareZkUrl=zkStr.substring(0,indexOfFirstSlash);
+    String zkNodePath=zkStr.substring(indexOfFirstSlash);
+    ZkClient client=new ZkClient(bareZkUrl);
+    client.createPersistent(zkNodePath,true);
+    client.close();
+  }
+  File logDir=new File(logDirPath);
+  logDir.mkdirs();
+  configureKafkaPort(configuration,port);
+  configureZkConnectionString(configuration,zkStr);
+  configureBrokerId(configuration,brokerId);
+  configureKafkaLogDirectory(configuration,logDir);
+  configuration.put("zookeeper.session.timeout.ms","60000");
+  KafkaConfig config=new KafkaConfig(configuration);
+  KafkaServerStartable serverStartable=new KafkaServerStartable(config);
+  serverStartable.startup();
+  return serverStartable;
+}
