@@ -1,0 +1,25 @@
+{
+  final int LENGTH=256;
+  final int CONFUSING_BIT_RANGE=8;
+  for (int setBitIndex=0; setBitIndex < LENGTH - CONFUSING_BIT_RANGE; ++setBitIndex) {
+    for (int confusingBitOffset=1; confusingBitOffset < CONFUSING_BIT_RANGE; ++confusingBitOffset) {
+      for (int searchStartIndex=0; searchStartIndex < LENGTH; ++searchStartIndex) {
+        int confusingBitIndex=setBitIndex + confusingBitOffset;
+        PinotDataCustomBitSet bitset=PinotDataCustomBitSet.withBitLength(LENGTH);
+        bitset.setBit(setBitIndex);
+        bitset.setBit(confusingBitIndex);
+        long foundSetBitIndex=bitset.nextSetBit(searchStartIndex);
+        if (searchStartIndex <= setBitIndex) {
+          Assert.assertEquals(foundSetBitIndex,setBitIndex,"Found bit at index " + foundSetBitIndex + " while it was set at "+ setBitIndex+ " searching from "+ searchStartIndex);
+        }
+ else         if (searchStartIndex <= confusingBitIndex) {
+          Assert.assertEquals(foundSetBitIndex,confusingBitIndex,"Found bit at index " + foundSetBitIndex + " while it was set at "+ confusingBitIndex+ " searching from "+ searchStartIndex);
+        }
+ else {
+          Assert.assertEquals(foundSetBitIndex,-1,"Found bit at index " + foundSetBitIndex + " while it was set at "+ setBitIndex+ " searching from "+ searchStartIndex);
+        }
+        bitset.close();
+      }
+    }
+  }
+}

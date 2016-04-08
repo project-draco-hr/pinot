@@ -2,7 +2,8 @@
   boolean signed=false;
   boolean isMmap=false;
   boolean readOneEachTime=true;
-  com.linkedin.pinot.core.io.reader.impl.v2.FixedBitMultiValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v2.FixedBitMultiValueReader(file,numDocs,totalNumValues,columnSizeInBits,signed,isMmap);
+  PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(file,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"benchmarking");
+  com.linkedin.pinot.core.io.reader.impl.v2.FixedBitMultiValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v2.FixedBitMultiValueReader(heapBuffer,numDocs,totalNumValues,columnSizeInBits,signed);
   int[] intArray=new int[maxEntriesPerDoc];
   long start, end;
   if (readOneEachTime) {
@@ -19,4 +20,5 @@
     System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
   }
   reader.close();
+  heapBuffer.close();
 }

@@ -1,7 +1,7 @@
 {
   int maxBits=1;
   while (maxBits < 32) {
-    System.out.println("START test maxBits:" + maxBits);
+    LOGGER.debug("START test maxBits:" + maxBits);
     final String fileName=getClass().getName() + "_single_col_fixed_bit_" + maxBits+ ".dat";
     final File file=new File(fileName);
     file.delete();
@@ -18,16 +18,20 @@
       writer.setInt(i,0,data[i]);
     }
     writer.close();
-    FixedBitSingleValueMultiColReader heapReader=FixedBitSingleValueMultiColReader.forHeap(file,rows,cols,columnSizesInBits,new boolean[]{true});
+    PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(file,ReadMode.heap,FileChannel.MapMode.READ_ONLY,"testing");
+    FixedBitSingleValueMultiColReader heapReader=new FixedBitSingleValueMultiColReader(heapBuffer,rows,cols,columnSizesInBits,new boolean[]{true});
     for (int i=0; i < rows; i++) {
       Assert.assertEquals(heapReader.getInt(i,0),data[i]);
     }
     heapReader.close();
-    FixedBitSingleValueMultiColReader mmapReader=FixedBitSingleValueMultiColReader.forMmap(file,rows,cols,columnSizesInBits,new boolean[]{true});
+    heapBuffer.close();
+    PinotDataBuffer mmapBuffer=PinotDataBuffer.fromFile(file,ReadMode.mmap,FileChannel.MapMode.READ_ONLY,"mmap-testing");
+    FixedBitSingleValueMultiColReader mmapReader=new FixedBitSingleValueMultiColReader(mmapBuffer,rows,cols,columnSizesInBits,new boolean[]{true});
     for (int i=0; i < rows; i++) {
       Assert.assertEquals(mmapReader.getInt(i,0),data[i]);
     }
     mmapReader.close();
+    mmapBuffer.close();
     maxBits=maxBits + 1;
     file.delete();
   }

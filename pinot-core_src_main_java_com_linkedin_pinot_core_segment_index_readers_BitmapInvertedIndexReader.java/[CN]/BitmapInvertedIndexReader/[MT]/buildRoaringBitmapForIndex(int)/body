@@ -2,9 +2,7 @@
   final int currentOffset=getOffset(index);
   final int nextOffset=getOffset(index + 1);
   final int bufferLength=nextOffset - currentOffset;
-  buffer.position(currentOffset);
-  final ByteBuffer bb=buffer.slice();
-  bb.limit(bufferLength);
+  ByteBuffer bb=buffer.toDirectByteBuffer(currentOffset,bufferLength);
   ImmutableRoaringBitmap immutableRoaringBitmap=null;
   try {
     immutableRoaringBitmap=new ImmutableRoaringBitmap(bb);

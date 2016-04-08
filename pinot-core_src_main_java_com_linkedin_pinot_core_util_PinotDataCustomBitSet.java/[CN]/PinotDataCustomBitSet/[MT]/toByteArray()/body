@@ -1,0 +1,8 @@
+{
+  if (buf.size() > Integer.MAX_VALUE) {
+    throw new IllegalArgumentException("Can not convert Pinot data buffer of size > 2GB to byte array");
+  }
+  byte[] dst=new byte[(int)buf.size()];
+  buf.copyTo(0,dst,0,(int)buf.size());
+  return dst;
+}

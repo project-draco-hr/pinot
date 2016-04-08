@@ -1,15 +1,6 @@
 {
-  MmapUtils.unloadByteBuffer(chunkOffsetsBuffer);
-  chunkOffsetsBuffer=null;
-  MmapUtils.unloadByteBuffer(bitsetBuffer);
-  bitsetBuffer=null;
-  MmapUtils.unloadByteBuffer(rawDataBuffer);
-  rawDataBuffer=null;
-  customBitSet.close();
-  customBitSet=null;
+  chunkOffsetsReader.close();
   rawDataReader.close();
-  rawDataReader=null;
-  if (isMmap) {
-    raf.close();
-  }
+  customBitSet.close();
+  indexDataBuffer.close();
 }

@@ -7,7 +7,8 @@
   boolean contextualRead=true;
   boolean signed=false;
   boolean isMmap=false;
-  BaseSingleColumnMultiValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitMultiValueReader(file,numDocs,totalNumValues,columnSizeInBits,signed,isMmap);
+  PinotDataBuffer heapBuffer=PinotDataBuffer.fromFile(file,ReadMode.mmap,FileChannel.MapMode.READ_ONLY,"benchmarking");
+  BaseSingleColumnMultiValueReader reader=new com.linkedin.pinot.core.io.reader.impl.v1.FixedBitMultiValueReader(heapBuffer,numDocs,totalNumValues,columnSizeInBits,signed);
   int[] intArray=new int[maxEntriesPerDoc];
   File outfile=new File("/tmp/" + file.getName() + ".raw");
   FileWriter fw=new FileWriter(outfile);
@@ -70,5 +71,6 @@
     System.out.println(stats.toString().replaceAll("\n",", ") + " raw:" + Arrays.toString(stats.getValues()));
   }
   reader.close();
+  heapBuffer.close();
   System.out.println("******************************************************************");
 }
