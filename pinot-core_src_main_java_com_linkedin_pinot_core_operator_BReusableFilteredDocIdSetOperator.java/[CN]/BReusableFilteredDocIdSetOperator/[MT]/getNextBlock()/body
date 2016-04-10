@@ -2,6 +2,7 @@
   if (_currentDoc == Constants.EOF) {
     return null;
   }
+  int[] docIdArray=DOC_ID_ARRAY.get();
   if (!inited) {
     inited=true;
     _currentDoc=0;
@@ -14,11 +15,11 @@
     if (_currentDoc == Constants.EOF) {
       break;
     }
-    _docIdArray[pos++]=_currentDoc;
+    docIdArray[pos++]=_currentDoc;
   }
   DocIdSetBlock docIdSetBlock=null;
   if (pos > 0) {
-    docIdSetBlock=new DocIdSetBlock(_docIdArray,pos);
+    docIdSetBlock=new DocIdSetBlock(docIdArray,pos);
   }
   return docIdSetBlock;
 }
