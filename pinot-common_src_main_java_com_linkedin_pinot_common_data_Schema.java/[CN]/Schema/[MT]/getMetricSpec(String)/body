@@ -1,12 +1,7 @@
 {
-  return (MetricFieldSpec)CollectionUtils.find(metricFieldSpecs,new Predicate(){
-    @Override public boolean evaluate(    Object object){
-      if (object instanceof MetricFieldSpec) {
-        MetricFieldSpec spec=(MetricFieldSpec)object;
-        return spec.getName().equals(metricName);
-      }
-      return false;
-    }
+  FieldSpec fieldSpec=fieldSpecMap.get(metricName);
+  if (fieldSpec != null && fieldSpec.getFieldType() == FieldType.METRIC) {
+    return (MetricFieldSpec)fieldSpec;
   }
-);
+  return null;
 }
