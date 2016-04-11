@@ -1,0 +1,15 @@
+{
+  Serializable resultForGroupKey;
+switch (resultDataType) {
+case DOUBLE:
+    resultForGroupKey=resultHolder.getDoubleResult(idKeyPair.getFirst());
+  break;
+case AVERAGE_PAIR:
+resultForGroupKey=(AvgAggregationFunction.AvgPair)resultHolder.getResult(idKeyPair.getFirst());
+break;
+case RANGE_PAIR:
+default :
+throw new RuntimeException("Unsupported result data type RANGE_PAIR in class " + getClass().getName());
+}
+return resultForGroupKey;
+}

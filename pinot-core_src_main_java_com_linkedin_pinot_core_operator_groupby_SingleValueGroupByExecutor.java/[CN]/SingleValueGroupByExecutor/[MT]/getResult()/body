@@ -9,7 +9,9 @@
     Pair<Long,String> idKeyPair=groupKeys.next();
     String stringGroupKey=idKeyPair.getSecond();
     for (int i=0; i < _aggrFuncContextList.size(); i++) {
-      double resultForGroupKey=_resultHolderArray[i].getResultForGroupKey(idKeyPair.getFirst());
+      AggregationFunction aggregationFunction=_aggrFuncContextList.get(i).getAggregationFunction();
+      AggregationFunction.ResultDataType resultDataType=aggregationFunction.getResultDataType();
+      Serializable resultForGroupKey=getResultForKey(idKeyPair,_resultHolderArray[i],resultDataType);
       result.get(i).put(stringGroupKey,resultForGroupKey);
     }
   }

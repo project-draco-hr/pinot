@@ -16,7 +16,9 @@
   }
   _resultHolderArray=new ResultHolder[_aggrFuncContextList.size()];
   for (int i=0; i < _aggrFuncContextList.size(); i++) {
-    double defaultValue=_aggrFuncContextList.get(i).getAggregationFunction().getDefaultValue();
-    _resultHolderArray[i]=ResultHolderFactory.getResultHolder(Integer.MAX_VALUE,defaultValue);
+    AggregationFunctionContext aggregationFunctionContext=_aggrFuncContextList.get(i);
+    String functionName=aggregationFunctionContext.getFunctionName();
+    double defaultValue=aggregationFunctionContext.getAggregationFunction().getDefaultValue();
+    _resultHolderArray[i]=ResultHolderFactory.getResultHolder(functionName,Integer.MAX_VALUE,defaultValue);
   }
 }

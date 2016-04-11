@@ -1,0 +1,13 @@
+{
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    Pair<Double,Long> avgValue=(Pair<Double,Long>)resultHolder.getResult(groupKey);
+    if (avgValue == null) {
+      avgValue=new com.linkedin.pinot.core.query.aggregation.function.AvgAggregationFunction.AvgPair(0.0,0L);
+    }
+    avgValue.setFirst(avgValue.getFirst() + valueArray[0][i]);
+    avgValue.setSecond(avgValue.getSecond() + 1);
+    resultHolder.putValueForKey(groupKey,avgValue);
+  }
+}

@@ -23,8 +23,10 @@
   _groupKeyGenerator=new SingleValueGroupKeyGenerator(indexSegment,_groupByColumns,resultHolderSize);
   _resultHolderArray=new ResultHolder[_aggrFuncContextList.size()];
   for (int i=0; i < _aggrFuncContextList.size(); i++) {
-    double defaultValue=_aggrFuncContextList.get(i).getAggregationFunction().getDefaultValue();
-    _resultHolderArray[i]=ResultHolderFactory.getResultHolder(maxNumGroupKeys,defaultValue);
+    AggregationFunctionContext aggregationFunctionContext=_aggrFuncContextList.get(i);
+    String functionName=aggregationFunctionContext.getFunctionName();
+    double defaultValue=aggregationFunctionContext.getAggregationFunction().getDefaultValue();
+    _resultHolderArray[i]=ResultHolderFactory.getResultHolder(functionName,maxNumGroupKeys,defaultValue);
   }
   _docIdToGroupKey=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL];
 }
