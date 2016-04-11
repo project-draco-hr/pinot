@@ -1,0 +1,13 @@
+{
+  final String prefix=segmentDirectory.getName() + V3_TEMP_DIR_SUFFIX;
+  File[] files=segmentDirectory.listFiles(new FilenameFilter(){
+    @Override public boolean accept(    File dir,    String name){
+      return name.startsWith(prefix);
+    }
+  }
+);
+  for (  File file : files) {
+    LOGGER.info("Deleting stale v3 directory: {}",file);
+    FileUtils.deleteQuietly(file);
+  }
+}

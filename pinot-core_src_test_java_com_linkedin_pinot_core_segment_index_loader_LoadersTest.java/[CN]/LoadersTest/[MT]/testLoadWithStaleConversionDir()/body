@@ -1,0 +1,18 @@
+{
+  SegmentMetadataImpl originalMetadata=new SegmentMetadataImpl(segmentDirectory);
+  Assert.assertEquals(originalMetadata.getSegmentVersion(),SegmentVersion.v1);
+  Assert.assertFalse(SegmentDirectoryPaths.segmentDirectoryFor(segmentDirectory,SegmentVersion.v3).exists());
+  File v3TempDir=new SegmentV1V2ToV3FormatConverter().v3ConversionTempDirectory(segmentDirectory);
+  FileUtils.touch(v3TempDir);
+{
+    IndexSegment indexSegment=Loaders.IndexSegment.load(segmentDirectory,ReadMode.mmap);
+    Assert.assertEquals(indexSegment.getSegmentMetadata().getVersion(),originalMetadata.getVersion());
+    Assert.assertFalse(SegmentDirectoryPaths.segmentDirectoryFor(segmentDirectory,SegmentVersion.v3).exists());
+  }
+{
+    IndexSegment indexSegment=Loaders.IndexSegment.load(segmentDirectory,ReadMode.mmap,v3LoadingConfig);
+    Assert.assertEquals(SegmentVersion.valueOf(indexSegment.getSegmentMetadata().getVersion()),SegmentVersion.v3);
+    Assert.assertTrue(SegmentDirectoryPaths.segmentDirectoryFor(segmentDirectory,SegmentVersion.v3).exists());
+    Assert.assertFalse(v3TempDir.exists());
+  }
+}

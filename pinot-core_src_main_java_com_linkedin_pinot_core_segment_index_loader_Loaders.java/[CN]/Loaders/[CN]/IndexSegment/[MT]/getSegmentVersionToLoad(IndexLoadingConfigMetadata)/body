@@ -1,0 +1,14 @@
+{
+  if (indexLoadingConfigMetadata == null) {
+    return IndexSegmentImpl.EXPECTED_SEGMENT_VERSION;
+  }
+  String versionName=indexLoadingConfigMetadata.segmentVersionToLoad();
+  try {
+    SegmentVersion versionToLoad=SegmentVersion.valueOf(versionName);
+    return versionToLoad;
+  }
+ catch (  IllegalArgumentException e) {
+    LOGGER.error("Invalid configuration for segment version, value: {}. Attempting to continue with default version",versionName,e);
+    return IndexSegmentImpl.EXPECTED_SEGMENT_VERSION;
+  }
+}

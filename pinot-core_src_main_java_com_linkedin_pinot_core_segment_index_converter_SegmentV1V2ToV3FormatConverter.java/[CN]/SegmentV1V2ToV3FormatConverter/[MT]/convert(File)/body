@@ -1,0 +1,18 @@
+{
+  Preconditions.checkNotNull(v2SegmentDirectory,"Segment directory should not be null");
+  Preconditions.checkState(v2SegmentDirectory.exists() && v2SegmentDirectory.isDirectory(),"Segment directory: " + v2SegmentDirectory.toString() + " must exist and should be a directory");
+  LOGGER.info("Converting segment: {} to v3 format",v2SegmentDirectory);
+  SegmentMetadataImpl v2Metadata=new SegmentMetadataImpl(v2SegmentDirectory);
+  SegmentVersion oldVersion=SegmentVersion.valueOf(v2Metadata.getVersion());
+  Preconditions.checkState(oldVersion != SegmentVersion.v3,"Segment {} is already in v3 format but at wrong path",v2Metadata.getName());
+  Preconditions.checkArgument(oldVersion == SegmentVersion.v1 || oldVersion == SegmentVersion.v2,"Can not convert segment version: {} at path: {} ",oldVersion,v2SegmentDirectory);
+  deleteStaleConversionDirectories(v2SegmentDirectory);
+  File v3TempDirectory=v3ConversionTempDirectory(v2SegmentDirectory);
+  setDirectoryPermissions(v3TempDirectory);
+  createMetadataFile(v2SegmentDirectory,v3TempDirectory);
+  copyCreationMetadata(v2SegmentDirectory,v3TempDirectory);
+  copyIndexData(v2SegmentDirectory,v2Metadata,v3TempDirectory);
+  File newLocation=SegmentDirectoryPaths.segmentDirectoryFor(v2SegmentDirectory,SegmentVersion.v3);
+  LOGGER.info("v3 segment location for segment: {} is {}",v2Metadata.getName(),newLocation);
+  v3TempDirectory.renameTo(newLocation);
+}

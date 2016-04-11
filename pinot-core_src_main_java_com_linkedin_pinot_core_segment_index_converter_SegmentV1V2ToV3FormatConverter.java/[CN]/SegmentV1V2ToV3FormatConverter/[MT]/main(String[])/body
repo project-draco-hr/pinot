@@ -1,0 +1,22 @@
+{
+  if (args.length < 1) {
+    System.err.println("Usage: $0 <table directory with segments>");
+    System.exit(1);
+  }
+  File tableDirectory=new File(args[0]);
+  Preconditions.checkState(tableDirectory.exists(),"Directory: {} does not exist",tableDirectory);
+  Preconditions.checkState(tableDirectory.isDirectory(),"Path: {} is not a directory",tableDirectory);
+  File[] files=tableDirectory.listFiles();
+  SegmentFormatConverter converter=new SegmentV1V2ToV3FormatConverter();
+  for (  File file : files) {
+    if (!file.isDirectory()) {
+      System.out.println("Path: " + file + " is not a directory. Skipping...");
+      continue;
+    }
+    long startTimeNano=System.nanoTime();
+    converter.convert(file);
+    long endTimeNano=System.nanoTime();
+    long latency=(endTimeNano - startTimeNano) / (1000 * 1000);
+    System.out.println("Converting segment: " + file + " took "+ latency+ " milliseconds");
+  }
+}

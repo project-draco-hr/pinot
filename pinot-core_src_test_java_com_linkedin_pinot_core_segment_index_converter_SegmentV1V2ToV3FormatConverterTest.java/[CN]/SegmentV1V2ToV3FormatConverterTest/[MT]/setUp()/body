@@ -1,0 +1,17 @@
+{
+  INDEX_DIR=Files.createTempDirectory(SegmentV1V2ToV3FormatConverter.class.getName() + "_segmentDir").toFile();
+  final String filePath=TestUtils.getFileFromResourceUrl(SegmentV1V2ToV3FormatConverter.class.getClassLoader().getResource(AVRO_DATA));
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.HOURS,"testTable");
+  config.setSegmentNamePostfix("1");
+  config.setTimeColumnName("daysSinceEpoch");
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(config);
+  driver.build();
+  segmentDirectory=new File(INDEX_DIR,driver.getSegmentName());
+  Configuration tableConfig=new PropertiesConfiguration();
+  tableConfig.addProperty(IndexLoadingConfigMetadata.KEY_OF_SEGMENT_FORMAT_VERSION,"v1");
+  v1LoadingConfig=new IndexLoadingConfigMetadata(tableConfig);
+  tableConfig.clear();
+  tableConfig.addProperty(IndexLoadingConfigMetadata.KEY_OF_SEGMENT_FORMAT_VERSION,"v3");
+  v3LoadingConfig=new IndexLoadingConfigMetadata(tableConfig);
+}
