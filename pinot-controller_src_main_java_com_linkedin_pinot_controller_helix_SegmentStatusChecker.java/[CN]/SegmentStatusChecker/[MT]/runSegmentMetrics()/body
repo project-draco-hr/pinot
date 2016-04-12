@@ -1,0 +1,48 @@
+{
+  if (!_pinotHelixResourceManager.isLeader()) {
+    LOGGER.info("Skipping Segment Status check, not leader!");
+    stop();
+    return;
+  }
+  long startTime=System.nanoTime();
+  LOGGER.info("Starting Segment Status check for metrics");
+  List<String> allTableNames=_pinotHelixResourceManager.getAllPinotTableNames();
+  String helixClusterName=_pinotHelixResourceManager.getHelixClusterName();
+  HelixAdmin helixAdmin=_pinotHelixResourceManager.getHelixAdmin();
+  for (  String tableName : allTableNames) {
+    IdealState idealState=helixAdmin.getResourceIdealState(helixClusterName,tableName);
+    ExternalView externalView=helixAdmin.getResourceExternalView(helixClusterName,tableName);
+    final int nReplicasIdeal=Integer.parseInt(idealState.getReplicas());
+    int nReplicasExternal=nReplicasIdeal;
+    int nErrors=0;
+    for (    String partitionName : idealState.getPartitionSet()) {
+      int nReplicas=0;
+      int nIdeal=0;
+      for (      Map.Entry<String,String> serverAndState : idealState.getInstanceStateMap(partitionName).entrySet()) {
+        if (serverAndState.getValue().equals(ONLINE)) {
+          nIdeal++;
+          break;
+        }
+      }
+      if (nIdeal == 0) {
+        continue;
+      }
+      for (      Map.Entry<String,String> serverAndState : externalView.getStateMap(partitionName).entrySet()) {
+        if (serverAndState.getValue().equals(ONLINE)) {
+          nReplicas++;
+        }
+        if (serverAndState.getValue().equals(ERROR)) {
+          nErrors++;
+        }
+      }
+      nReplicasExternal=(nReplicasExternal > nReplicas) ? nReplicas : nReplicasExternal;
+    }
+    _metricsRegistry.setValueOfTableGauge(externalView.getId(),ControllerGauge.NUMBER_OF_REPLICAS,nReplicasExternal);
+    _metricsRegistry.setValueOfTableGauge(externalView.getId(),ControllerGauge.SEGMENTS_IN_ERROR_STATE,nErrors);
+    if (nReplicasExternal < nReplicasIdeal) {
+      LOGGER.warn("Table {} has {} replicas, below replication threshold :{}",externalView.getResourceName(),nReplicasExternal,nReplicasIdeal);
+    }
+  }
+  long totalNanos=System.nanoTime() - startTime;
+  LOGGER.info("Segment status metrics completed in {}ms",TimeUnit.MILLISECONDS.convert(totalNanos,TimeUnit.NANOSECONDS));
+}

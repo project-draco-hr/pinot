@@ -1,0 +1,16 @@
+{
+  try {
+    LOGGER.info("Processing change notification for path: {}",path);
+    if (!_pinotHelixResourceManager.isLeader()) {
+      if (path.equals(CONTROLLER_LEADER_CHANGE)) {
+        start(_metricsRegistry);
+      }
+    }
+ else {
+      LOGGER.info("Not the leader of this cluster, stopping Status Checker.");
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while processing leader change for path {}",path,e);
+  }
+}

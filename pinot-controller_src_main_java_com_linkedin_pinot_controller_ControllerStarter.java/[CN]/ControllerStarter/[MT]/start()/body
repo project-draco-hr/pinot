@@ -24,17 +24,13 @@
     validationManager.start();
     LOGGER.info("starting realtime segments manager");
     realtimeSegmentsManager.start(controllerMetrics);
+    LOGGER.info("starting segments status manager");
+    segmentStatusChecker.start(controllerMetrics);
   }
  catch (  final Exception e) {
     LOGGER.error("Caught exception while starting controller",e);
     Utils.rethrowException(e);
     throw new AssertionError("Should not reach this");
-  }
-  try {
-    helixResourceManager.getHelixZkManager().addExternalViewChangeListener(new ControllerExternalViewChangeListener(controllerMetrics));
-  }
- catch (  Exception e) {
-    LOGGER.error("Caught exception while adding external view change listener",e);
   }
   controllerMetrics.addCallbackGauge("helix.connected",new Callable<Long>(){
     @Override public Long call() throws Exception {
