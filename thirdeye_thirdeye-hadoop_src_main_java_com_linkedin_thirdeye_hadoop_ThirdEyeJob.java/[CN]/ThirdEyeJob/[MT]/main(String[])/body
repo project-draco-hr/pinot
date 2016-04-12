@@ -1,0 +1,10 @@
+{
+  if (args.length != 2) {
+    usage();
+    System.exit(1);
+  }
+  String phaseName=args[0];
+  Properties config=new Properties();
+  config.load(new FileInputStream(args[1]));
+  new ThirdEyeJob(phaseName,config).run();
+}

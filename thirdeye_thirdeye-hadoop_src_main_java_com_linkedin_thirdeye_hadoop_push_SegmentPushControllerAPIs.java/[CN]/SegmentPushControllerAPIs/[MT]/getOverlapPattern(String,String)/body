@@ -1,0 +1,9 @@
+{
+  String pattern=null;
+  String[] tokens=segmentName.split(SEGMENT_JOINER);
+  if (tokens.length > 2 && tokens[2].lastIndexOf("-") != -1) {
+    String datePrefix=tokens[2].substring(0,tokens[2].lastIndexOf("-"));
+    pattern=Joiner.on(SEGMENT_JOINER).join(tablename,HOURLY_SCHEDULE,datePrefix);
+  }
+  return pattern;
+}

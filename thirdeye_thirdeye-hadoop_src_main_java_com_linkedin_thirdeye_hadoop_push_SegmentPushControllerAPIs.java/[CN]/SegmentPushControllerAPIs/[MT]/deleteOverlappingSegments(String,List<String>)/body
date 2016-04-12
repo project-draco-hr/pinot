@@ -1,0 +1,13 @@
+{
+  for (  String segment : overlappingSegments) {
+    String response="";
+    long elapsedTime=0;
+    long startTimeMillis=System.currentTimeMillis();
+    while (elapsedTime < TIMEOUT && !response.toLowerCase().contains(SUCCESS)) {
+      response=deleteSegment(tablename,segment);
+      LOGGER.info("Response {} while deleting segment {} from table {}",response,segment,tablename);
+      long currentTimeMillis=System.currentTimeMillis();
+      elapsedTime=elapsedTime + (currentTimeMillis - startTimeMillis);
+    }
+  }
+}

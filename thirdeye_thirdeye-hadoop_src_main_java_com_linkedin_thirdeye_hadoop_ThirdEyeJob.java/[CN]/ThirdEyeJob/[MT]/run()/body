@@ -1,0 +1,32 @@
+{
+  LOGGER.info("Input config:{}",inputConfig);
+  PhaseSpec phaseSpec;
+  try {
+    phaseSpec=PhaseSpec.valueOf(phaseName.toUpperCase());
+  }
+ catch (  Exception e) {
+    usage();
+    throw e;
+  }
+  String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getName(),inputConfig);
+  String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getName(),inputConfig);
+  String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getName(),inputConfig);
+  DateTime minTime;
+  DateTime maxTime;
+  String minTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getName());
+  String maxTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getName());
+  minTime=ISODateTimeFormat.dateTimeParser().parseDateTime(minTimeProp);
+  maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
+  Properties jobProperties=phaseSpec.getJobProperties(inputConfig,root,collection,minTime,maxTime,inputPaths);
+  Constructor<Configured> constructor=(Constructor<Configured>)phaseSpec.getKlazz().getConstructor(String.class,Properties.class);
+  Configured instance=constructor.newInstance(phaseSpec.getName(),jobProperties);
+  setMapreduceConfig(instance.getConf());
+  Method runMethod=instance.getClass().getMethod("run");
+  Job job=(Job)runMethod.invoke(instance);
+  if (job != null) {
+    JobStatus status=job.getStatus();
+    if (status.getState() != JobStatus.State.SUCCEEDED) {
+      throw new RuntimeException("Job " + job.getJobName() + " failed to execute: Ran with config:"+ jobProperties);
+    }
+  }
+}
