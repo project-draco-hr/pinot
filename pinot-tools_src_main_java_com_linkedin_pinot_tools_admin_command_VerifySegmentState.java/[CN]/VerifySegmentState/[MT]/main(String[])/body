@@ -1,0 +1,13 @@
+{
+  VerifySegmentState verifier=new VerifySegmentState();
+  CmdLineParser cmdLineParser=new CmdLineParser(verifier);
+  try {
+    cmdLineParser.parseArgument(args);
+  }
+ catch (  CmdLineException e) {
+    LOGGER.error("Failed to read command line arguments: ",e);
+    cmdLineParser.printUsage(System.err);
+    System.exit(1);
+  }
+  verifier.execute();
+}

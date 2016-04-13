@@ -1,0 +1,44 @@
+{
+  ZKHelixAdmin helixAdmin=new ZKHelixAdmin(zkAddress);
+  List<String> resourcesInCluster=helixAdmin.getResourcesInCluster(clusterName);
+  for (  String resourceName : resourcesInCluster) {
+    if (resourceName.startsWith(tablePrefix)) {
+      IdealState resourceIdealState=helixAdmin.getResourceIdealState(clusterName,resourceName);
+      ExternalView resourceExternalView=helixAdmin.getResourceExternalView(clusterName,resourceName);
+      Map<String,Map<String,String>> mapFieldsFromIS=resourceIdealState.getRecord().getMapFields();
+      Map<String,Map<String,String>> mapFieldsFromEV=resourceExternalView.getRecord().getMapFields();
+      boolean error=false;
+      if (mapFieldsFromIS.size() != mapFieldsFromEV.size()) {
+        LOGGER.info("Table: {}, idealState size: {} does NOT match external view size: {}",resourceName,mapFieldsFromIS.size(),mapFieldsFromEV.size());
+        error=true;
+      }
+      if (!mapFieldsFromIS.keySet().equals(mapFieldsFromEV.keySet())) {
+        Set<String> idealStateKeys=mapFieldsFromIS.keySet();
+        Set<String> externalViewKeys=mapFieldsFromEV.keySet();
+        Sets.SetView<String> isToEVDiff=Sets.difference(idealStateKeys,externalViewKeys);
+        for (        String segmentName : isToEVDiff) {
+          LOGGER.info("Segment: {} is missing in external view, ideal state: {}",segmentName,mapFieldsFromIS.get(segmentName));
+        }
+        Sets.SetView<String> evToISDiff=Sets.difference(externalViewKeys,idealStateKeys);
+        for (        String segmentName : evToISDiff) {
+          LOGGER.error("Segment: {} is missing in ideal state, external view: {}",segmentName,mapFieldsFromEV.get(segmentName));
+        }
+        error=true;
+      }
+      for (      Map.Entry<String,Map<String,String>> idealEntry : mapFieldsFromIS.entrySet()) {
+        String segmentName=idealEntry.getKey();
+        Map<String,String> segmentIdealState=idealEntry.getValue();
+        if (!mapFieldsFromEV.containsKey(segmentName)) {
+          LOGGER.info("Segment: {} idealstate: {} is MISSING in external view: {}",segmentName,segmentIdealState,"");
+        }
+        Map<String,String> segmentExternalView=mapFieldsFromEV.get(segmentName);
+        if (!segmentIdealState.equals(segmentExternalView)) {
+          LOGGER.info("Segment: {} idealstate: {} does NOT match external view: {}",segmentName,segmentIdealState,segmentExternalView);
+          error=true;
+        }
+      }
+      LOGGER.info(resourceName + " = " + (error ? "ERROR" : "OK"));
+    }
+  }
+  return true;
+}
