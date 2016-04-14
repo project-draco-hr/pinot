@@ -17,8 +17,9 @@
     }
   }
   if (topkDimensionValues.getTopKDimensions().size() > 0) {
-    LOGGER.info("Writing top k values to {}",TOPK_ROLLUP_PHASE_OUTPUT_PATH.toString());
-    FSDataOutputStream topKDimensionValuesOutputStream=fileSystem.create(new Path(configuration.get(TOPK_ROLLUP_PHASE_OUTPUT_PATH.toString()) + File.separator + TOPK_VALUES_FILE));
+    String topkValuesPath=configuration.get(TOPK_ROLLUP_PHASE_OUTPUT_PATH.toString());
+    LOGGER.info("Writing top k values to {}",topkValuesPath);
+    FSDataOutputStream topKDimensionValuesOutputStream=fileSystem.create(new Path(topkValuesPath + File.separator + TOPK_VALUES_FILE));
     OBJECT_MAPPER.writeValue(topKDimensionValuesOutputStream,topkDimensionValues);
     topKDimensionValuesOutputStream.close();
   }
