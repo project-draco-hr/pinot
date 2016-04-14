@@ -1,0 +1,31 @@
+{
+  String functionName=function.getName();
+  double defaultValue=function.getDefaultValue();
+  if (maxNumResults <= MAX_NUM_GROUP_KEYS_FOR_ARRAY_BASED) {
+    int initialCapacity=(int)Math.min(maxNumResults,INITIAL_RESULT_HOLDER_CAPACITY);
+switch (functionName.toLowerCase()) {
+case "sum":
+case "min":
+case "max":
+      DoubleResultArray doubleResultArray=new DoubleResultArray(initialCapacity,defaultValue);
+    return new DoubleArrayBasedResultHolder(doubleResultArray,initialCapacity,(int)maxNumResults,defaultValue);
+case "avg":
+  DoubleLongResultArray doubleLongResultArray=new DoubleLongResultArray(initialCapacity,new Pair<Double,Long>(0.0,0L));
+return new PairArrayBasedResultHolder(doubleLongResultArray,initialCapacity,defaultValue);
+default :
+throw new RuntimeException("Aggregation function not implemented in ResultHolder: " + functionName);
+}
+}
+ else {
+switch (functionName.toLowerCase()) {
+case "sum":
+case "min":
+case "max":
+return new MapBasedDoubleResultHolder(defaultValue);
+case "avg":
+return new MapBasedPairResultHolder(defaultValue);
+default :
+throw new RuntimeException("Aggregation function not implemented in ResultHolder: " + functionName);
+}
+}
+}

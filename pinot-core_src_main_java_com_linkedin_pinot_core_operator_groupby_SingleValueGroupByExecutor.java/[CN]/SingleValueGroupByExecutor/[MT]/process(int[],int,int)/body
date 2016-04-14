@@ -1,13 +1,13 @@
 {
-  Preconditions.checkState(_init,"process cannot be called before init.");
+  Preconditions.checkState(_inited,"process cannot be called before init.");
   Preconditions.checkArgument(length <= _docIdToGroupKey.length);
   _groupKeyGenerator.generateKeysForDocIdSet(docIdSet,startIndex,length,_docIdToGroupKey);
-  int maxUniqueKeys=_groupKeyGenerator.getMaxUniqueKeys();
+  int numGroupKeys=_groupKeyGenerator.getNumGroupKeys();
   fetchColumnValues(docIdSet,startIndex,length);
   for (int i=0; i < _aggrFuncContextList.size(); i++) {
     AggregationFunctionContext aggrFuncContext=_aggrFuncContextList.get(i);
     String[] aggrColumns=aggrFuncContext.getAggregationColumns();
-    _resultHolderArray[i].ensureCapacity(maxUniqueKeys);
+    _resultHolderArray[i].ensureCapacity(numGroupKeys);
     for (int j=0; j < aggrColumns.length; j++) {
       String aggrColumn=aggrColumns[j];
       double[] valueArray=_columnToValueArrayMap.get(aggrColumn);

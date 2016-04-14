@@ -8,7 +8,7 @@
       PlanNode aggregationGroupByPlanNode;
       if (indexSegment instanceof IndexSegmentImpl) {
         boolean useAggregationGroupByPlanNode=false;
-        if (useAggregationGroupByPlanNode) {
+        if (useAggregationGroupByPlanNode && AggregationGroupByPlanNode.isFitForAggregationFastAggregation(brokerRequest)) {
           aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
         }
  else {

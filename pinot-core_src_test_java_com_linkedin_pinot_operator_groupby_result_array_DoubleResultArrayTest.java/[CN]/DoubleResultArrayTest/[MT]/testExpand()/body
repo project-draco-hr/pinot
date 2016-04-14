@@ -1,0 +1,23 @@
+{
+  int origSize=Math.max(10,_random.nextInt() % 100);
+  double defaultValue=_random.nextDouble();
+  DoubleResultArray doubleResultArray=new DoubleResultArray(origSize,defaultValue);
+  double[] expected=new double[origSize];
+  for (int i=0; i < origSize; i++) {
+    double value=_random.nextDouble();
+    doubleResultArray.set(i,value);
+    expected[i]=value;
+  }
+  int expandedSize=origSize * 2;
+  doubleResultArray.expand(expandedSize);
+  int actualSize=doubleResultArray.size();
+  Assert.assertEquals(expandedSize,actualSize,("Size Mis-match: Actual: " + actualSize + " Expected : "+ expandedSize));
+  for (int i=0; i < origSize; i++) {
+    double actual=doubleResultArray.getDoubleResult(i);
+    Assert.assertEquals(expected[i],actual,("Value Mis-match: Actual: " + actual + " Expected: "+ expected[i]));
+  }
+  for (int i=origSize; i < expandedSize; i++) {
+    double actual=doubleResultArray.getDoubleResult(i);
+    Assert.assertEquals(defaultValue,actual,("Value Mis-match: Actual: " + actual + " Expected: "+ defaultValue));
+  }
+}

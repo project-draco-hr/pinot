@@ -8,12 +8,9 @@
     groupKey=rawKey;
   }
  else {
-    if (_numUniqueGroupKeys >= _groupByCapacity) {
-      expandGroupKeyStorage();
-    }
-    if (!_groupKeyToId.containsKey(rawKey)) {
+    groupKey=_groupKeyToId.get(rawKey);
+    if (groupKey == INVALID_ID) {
       groupKey=_groupKeyToId.size();
-      _idToGroupKey[groupKey]=rawKey;
       _groupKeyToId.put(rawKey,groupKey);
       _numUniqueGroupKeys++;
     }
