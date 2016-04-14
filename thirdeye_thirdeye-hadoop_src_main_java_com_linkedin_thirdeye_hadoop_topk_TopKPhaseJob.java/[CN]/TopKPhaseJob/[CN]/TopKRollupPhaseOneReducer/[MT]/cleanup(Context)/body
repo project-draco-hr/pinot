@@ -1,0 +1,25 @@
+{
+  for (  String dimension : dimensionNames) {
+    TopKDimensionSpec topkSpec=topKDimensionSpecMap.get(dimension);
+    if (topkSpec != null && topkSpec.getDimensionName() != null && topkSpec.getMetricName() != null && topkSpec.getTop() != 0) {
+      LOGGER.info("Dimension : {} Metric : {} Top : {}",topkSpec.getDimensionName(),topkSpec.getMetricName(),topkSpec.getTop());
+      Map<String,Number[]> dimensionToMetricsMap=dimensionNameToValuesMap.get(dimension);
+      PriorityQueue<DimensionValueMetricPair> topKQueue=new PriorityQueue<>();
+      for (      Entry<String,Number[]> entry : dimensionToMetricsMap.entrySet()) {
+        topKQueue.add(new DimensionValueMetricPair(entry.getKey(),entry.getValue()[metricToIndexMapping.get(topkSpec.getMetricName())]));
+        if (topKQueue.size() > topkSpec.getTop()) {
+          topKQueue.remove();
+        }
+      }
+      for (      DimensionValueMetricPair pair : topKQueue) {
+        topkDimensionValues.addValue(dimension,pair.getDimensionValue());
+      }
+    }
+  }
+  if (topkDimensionValues.getTopKDimensions().size() > 0) {
+    LOGGER.info("Writing top k values to {}",TOPK_ROLLUP_PHASE_OUTPUT_PATH.toString());
+    FSDataOutputStream topKDimensionValuesOutputStream=fileSystem.create(new Path(configuration.get(TOPK_ROLLUP_PHASE_OUTPUT_PATH.toString()) + File.separator + TOPK_VALUES_FILE));
+    OBJECT_MAPPER.writeValue(topKDimensionValuesOutputStream,topkDimensionValues);
+    topKDimensionValuesOutputStream.close();
+  }
+}

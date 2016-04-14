@@ -1,0 +1,54 @@
+{
+  TopKPhaseMapOutputKey keyWrapper=TopKPhaseMapOutputKey.fromBytes(key.getBytes());
+  String dimensionName=keyWrapper.getDimensionName();
+  String dimensionValue=keyWrapper.getDimensionValue();
+  Number[] aggMetricValues=new Number[numMetrics];
+  Arrays.fill(aggMetricValues,0);
+  for (  BytesWritable value : values) {
+    TopKPhaseMapOutputValue valWrapper=TopKPhaseMapOutputValue.fromBytes(value.getBytes(),metricTypes);
+    Number[] metricValues=valWrapper.getMetricValues();
+    for (int i=0; i < numMetrics; i++) {
+      MetricType metricType=metricTypes.get(i);
+switch (metricType) {
+case SHORT:
+        aggMetricValues[i]=aggMetricValues[i].shortValue() + metricValues[i].shortValue();
+      break;
+case INT:
+    aggMetricValues[i]=aggMetricValues[i].intValue() + metricValues[i].intValue();
+  break;
+case FLOAT:
+aggMetricValues[i]=aggMetricValues[i].floatValue() + metricValues[i].floatValue();
+break;
+case DOUBLE:
+aggMetricValues[i]=aggMetricValues[i].doubleValue() + metricValues[i].doubleValue();
+break;
+case LONG:
+default :
+aggMetricValues[i]=aggMetricValues[i].longValue() + metricValues[i].longValue();
+break;
+}
+}
+}
+if (dimensionName.equals(TOPK_ALL_DIMENSION_NAME) && dimensionValue.equals(TOPK_ALL_DIMENSION_VALUE)) {
+LOGGER.info("Setting metric sums");
+metricSums=new Number[numMetrics];
+metricSums=Arrays.copyOf(aggMetricValues,numMetrics);
+return;
+}
+boolean isPassThreshold=false;
+for (int i=0; i < numMetrics; i++) {
+String metric=metricNames.get(i);
+double metricValue=aggMetricValues[i].doubleValue();
+double metricSum=metricSums[i].doubleValue();
+double metricThresholdPercentage=metricThresholds.get(metric);
+if (metricValue > (metricSum * metricThresholdPercentage / 100)) {
+isPassThreshold=true;
+break;
+}
+}
+if (!isPassThreshold) {
+LOGGER.info("No metric passed threshold");
+return;
+}
+dimensionNameToValuesMap.get(dimensionName).put(dimensionValue,aggMetricValues);
+}

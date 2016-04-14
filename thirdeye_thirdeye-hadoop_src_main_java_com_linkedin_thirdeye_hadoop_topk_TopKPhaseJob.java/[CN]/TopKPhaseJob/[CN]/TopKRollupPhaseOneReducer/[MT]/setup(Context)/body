@@ -1,0 +1,30 @@
+{
+  LOGGER.info("TopKRollupPhaseOneJob.TopKRollupPhaseOneReducer.setup()");
+  configuration=context.getConfiguration();
+  fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(TOPK_ROLLUP_PHASE_CONFIG_PATH.toString()));
+  try {
+    thirdeyeConfig=ThirdEyeConfig.decode(fileSystem.open(configPath));
+    config=TopKPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
+    metricThresholds=config.getMetricThresholds();
+    topKDimensionSpecMap=config.getTopKDimensionSpec();
+    dimensionNames=config.getDimensionNames();
+    metricNames=config.getMetricNames();
+    metricTypes=config.getMetricTypes();
+    numMetrics=metricNames.size();
+    metricToIndexMapping=new HashMap<>();
+    for (int i=0; i < numMetrics; i++) {
+      metricToIndexMapping.put(metricNames.get(i),i);
+    }
+    keyWritable=new BytesWritable();
+    valWritable=new BytesWritable();
+    dimensionNameToValuesMap=new HashMap<>();
+    for (    String dimension : dimensionNames) {
+      dimensionNameToValuesMap.put(dimension,new HashMap<String,Number[]>());
+    }
+    topkDimensionValues=new TopKDimensionValues();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

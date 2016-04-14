@@ -1,0 +1,29 @@
+{
+  DataInputStream dis=new DataInputStream(new ByteArrayInputStream(buffer));
+  int length;
+  length=dis.readInt();
+  Number[] metricValues=new Number[length];
+  for (int i=0; i < length; i++) {
+    MetricType metricType=metricTypes.get(i);
+switch (metricType) {
+case SHORT:
+      metricValues[i]=dis.readShort();
+    break;
+case LONG:
+  metricValues[i]=dis.readLong();
+break;
+case INT:
+metricValues[i]=dis.readInt();
+break;
+case FLOAT:
+metricValues[i]=dis.readFloat();
+break;
+case DOUBLE:
+metricValues[i]=dis.readDouble();
+break;
+}
+}
+TopKPhaseMapOutputValue wrapper;
+wrapper=new TopKPhaseMapOutputValue(metricValues,metricTypes);
+return wrapper;
+}

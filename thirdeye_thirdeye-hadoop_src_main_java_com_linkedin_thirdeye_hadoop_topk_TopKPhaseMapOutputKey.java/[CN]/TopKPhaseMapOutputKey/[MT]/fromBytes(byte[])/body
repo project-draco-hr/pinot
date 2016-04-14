@@ -1,0 +1,16 @@
+{
+  DataInputStream dis=new DataInputStream(new ByteArrayInputStream(buffer));
+  int length;
+  byte[] bytes;
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
+  String dimensionName=new String(bytes);
+  length=dis.readInt();
+  bytes=new byte[length];
+  dis.read(bytes);
+  String dimensionValue=new String(bytes);
+  TopKPhaseMapOutputKey wrapper;
+  wrapper=new TopKPhaseMapOutputKey(dimensionName,dimensionValue);
+  return wrapper;
+}

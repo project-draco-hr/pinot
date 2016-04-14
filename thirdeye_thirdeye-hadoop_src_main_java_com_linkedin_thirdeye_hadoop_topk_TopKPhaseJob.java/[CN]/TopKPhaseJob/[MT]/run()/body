@@ -1,0 +1,35 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(TopKPhaseJob.class);
+  Configuration configuration=job.getConfiguration();
+  FileSystem fs=FileSystem.get(configuration);
+  Path schemaPath=new Path(getAndSetConfiguration(configuration,TOPK_ROLLUP_PHASE_SCHEMA_PATH));
+  FSDataInputStream schemaStream=fs.open(schemaPath);
+  Schema inputSchema=new Schema.Parser().parse(schemaStream);
+  String inputPathDir=getAndSetConfiguration(configuration,TOPK_ROLLUP_PHASE_INPUT_PATH);
+  getAndSetConfiguration(configuration,TOPK_ROLLUP_PHASE_CONFIG_PATH);
+  Path outputPath=new Path(getAndSetConfiguration(configuration,TOPK_ROLLUP_PHASE_OUTPUT_PATH));
+  LOGGER.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOGGER.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  if (fs.exists(outputPath)) {
+    fs.delete(outputPath,true);
+  }
+  FileOutputFormat.setOutputPath(job,outputPath);
+  job.setMapperClass(TopKRollupPhaseOneMapper.class);
+  AvroJob.setInputKeySchema(job,inputSchema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setCombinerClass(TopKRollupPhaseCombiner.class);
+  job.setReducerClass(TopKRollupPhaseOneReducer.class);
+  job.setOutputKeyClass(NullWritable.class);
+  job.setOutputValueClass(NullWritable.class);
+  job.setNumReduceTasks(1);
+  job.waitForCompletion(true);
+  return job;
+}

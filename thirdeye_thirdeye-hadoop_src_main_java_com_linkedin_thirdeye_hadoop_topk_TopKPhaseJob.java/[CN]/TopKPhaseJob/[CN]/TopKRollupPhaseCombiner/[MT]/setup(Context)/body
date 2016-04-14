@@ -1,0 +1,17 @@
+{
+  LOGGER.info("TopKRollupPhaseOneJob.TopKRollupPhaseOneCombiner.setup()");
+  Configuration configuration=context.getConfiguration();
+  FileSystem fileSystem=FileSystem.get(configuration);
+  Path configPath=new Path(configuration.get(TOPK_ROLLUP_PHASE_CONFIG_PATH.toString()));
+  try {
+    thirdeyeConfig=ThirdEyeConfig.decode(fileSystem.open(configPath));
+    config=TopKPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
+    metricTypes=config.getMetricTypes();
+    numMetrics=metricTypes.size();
+    valWritable=new BytesWritable();
+    keyWritable=new BytesWritable();
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

@@ -1,0 +1,28 @@
+{
+  List<String> metricNames=new ArrayList<String>(config.getMetrics().size());
+  List<MetricType> metricTypes=new ArrayList<MetricType>(config.getMetrics().size());
+  for (  MetricSpec spec : config.getMetrics()) {
+    metricNames.add(spec.getName());
+    metricTypes.add(spec.getType());
+  }
+  List<String> dimensionNames=new ArrayList<String>(config.getDimensions().size());
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    dimensionNames.add(dimensionSpec.getName());
+  }
+  Map<String,Double> metricThresholds=new HashMap<>();
+  if (config.getTopKRollup() != null && config.getTopKRollup().getThreshold() != null) {
+    metricThresholds=config.getTopKRollup().getThreshold();
+  }
+  for (  String metric : metricNames) {
+    if (metricThresholds.get(metric) == null) {
+      metricThresholds.put(metric,1.0);
+    }
+  }
+  Map<String,TopKDimensionSpec> topKDimensionSpec=new HashMap<>();
+  if (config.getTopKRollup() != null && config.getTopKRollup().getTopKDimensionSpec() != null) {
+    for (    TopKDimensionSpec topkSpec : config.getTopKRollup().getTopKDimensionSpec()) {
+      topKDimensionSpec.put(topkSpec.getDimensionName(),topkSpec);
+    }
+  }
+  return new TopKPhaseConfig(dimensionNames,metricNames,metricTypes,metricThresholds,topKDimensionSpec);
+}
