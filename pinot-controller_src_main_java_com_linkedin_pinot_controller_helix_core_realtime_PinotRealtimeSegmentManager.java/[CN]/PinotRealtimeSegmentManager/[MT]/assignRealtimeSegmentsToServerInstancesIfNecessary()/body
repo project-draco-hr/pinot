@@ -17,7 +17,8 @@
       for (      String instanceId : instancesInResource) {
         InstanceZKMetadata instanceZKMetadata=_pinotHelixResourceManager.getInstanceZKMetadata(instanceId);
         String groupId=instanceZKMetadata.getGroupId(resource);
-        listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.build(groupId,SegmentNameBuilder.Realtime.ALL_PARTITIONS,String.valueOf(System.currentTimeMillis())),instanceId));
+        String partitionId=instanceZKMetadata.getPartition(resource);
+        listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.build(groupId,partitionId,String.valueOf(System.currentTimeMillis())),instanceId));
       }
     }
  else {
@@ -32,7 +33,8 @@
       for (      String instanceId : instancesToAssignRealtimeSegment) {
         InstanceZKMetadata instanceZKMetadata=_pinotHelixResourceManager.getInstanceZKMetadata(instanceId);
         String groupId=instanceZKMetadata.getGroupId(resource);
-        listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.build(groupId,SegmentNameBuilder.Realtime.ALL_PARTITIONS,String.valueOf(System.currentTimeMillis())),instanceId));
+        String partitionId=instanceZKMetadata.getPartition(resource);
+        listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.build(groupId,partitionId,String.valueOf(System.currentTimeMillis())),instanceId));
       }
     }
   }
