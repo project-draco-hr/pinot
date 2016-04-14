@@ -1,0 +1,17 @@
+{
+  Configuration segmentFetcherFactoryConfig=pinotHelixProperties.subset(CommonConstants.Server.PREFIX_OF_CONFIG_OF_SEGMENT_FETCHER_FACTORY);
+  Iterator segmentFetcherFactoryConfigIterator=segmentFetcherFactoryConfig.getKeys();
+  while (segmentFetcherFactoryConfigIterator.hasNext()) {
+    Object configKeyObject=segmentFetcherFactoryConfigIterator.next();
+    try {
+      String segmentFetcherConfigKey=configKeyObject.toString();
+      String protocol=segmentFetcherConfigKey.split(".",2)[0];
+      if (!SegmentFetcherFactory.containsProtocol(protocol)) {
+        SegmentFetcherFactory.initSegmentFetcher(new ConfigurationMap(segmentFetcherFactoryConfig.subset(protocol)));
+      }
+    }
+ catch (    Exception e) {
+      LOGGER.error("Got exception to process the key: " + configKeyObject);
+    }
+  }
+}

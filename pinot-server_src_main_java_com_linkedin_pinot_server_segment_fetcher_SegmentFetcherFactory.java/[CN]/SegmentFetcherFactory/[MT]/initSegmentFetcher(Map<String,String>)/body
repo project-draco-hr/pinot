@@ -1,0 +1,12 @@
+{
+  try {
+    String segmentFetcherKlass=configs.get(SEGMENT_FETCHER_CLASS_KEY);
+    SegmentFetcher segmentFetcher=(SegmentFetcher)Class.forName(segmentFetcherKlass).newInstance();
+    segmentFetcher.init(configs);
+    String segmentFetcherProtocol=configs.get(SEGMENT_FETCHER_PROTOCOL_KEY);
+    SEGMENT_FETCHER_MAP.put(segmentFetcherProtocol,segmentFetcher);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to init SegmentFetcher: {}",Arrays.toString(configs.entrySet().toArray()));
+  }
+}
