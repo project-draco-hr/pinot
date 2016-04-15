@@ -20,13 +20,13 @@
     fs.delete(outputPath,true);
   }
   FileOutputFormat.setOutputPath(job,outputPath);
-  job.setMapperClass(TopKRollupPhaseOneMapper.class);
+  job.setMapperClass(TopKPhaseMapper.class);
   AvroJob.setInputKeySchema(job,inputSchema);
   job.setInputFormatClass(AvroKeyInputFormat.class);
   job.setMapOutputKeyClass(BytesWritable.class);
   job.setMapOutputValueClass(BytesWritable.class);
-  job.setCombinerClass(TopKRollupPhaseCombiner.class);
-  job.setReducerClass(TopKRollupPhaseOneReducer.class);
+  job.setCombinerClass(TopKPhaseCombiner.class);
+  job.setReducerClass(TopKPhaseReducer.class);
   job.setOutputKeyClass(NullWritable.class);
   job.setOutputValueClass(NullWritable.class);
   job.setNumReduceTasks(1);

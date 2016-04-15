@@ -1,15 +1,13 @@
 {
   for (  String dimension : dimensionNames) {
+    LOGGER.info("{} records passed metric threshold for dimension {}",thresholdPassCount.get(dimension),dimension);
     TopKDimensionSpec topkSpec=topKDimensionSpecMap.get(dimension);
     if (topkSpec != null && topkSpec.getDimensionName() != null && topkSpec.getMetricName() != null && topkSpec.getTop() != 0) {
-      LOGGER.info("Dimension : {} Metric : {} Top : {}",topkSpec.getDimensionName(),topkSpec.getMetricName(),topkSpec.getTop());
+      LOGGER.info("Picking Top {} values based on Metric {}",topkSpec.getTop(),topkSpec.getMetricName());
+      MinMaxPriorityQueue<DimensionValueMetricPair> topKQueue=MinMaxPriorityQueue.maximumSize(topkSpec.getTop()).create();
       Map<String,Number[]> dimensionToMetricsMap=dimensionNameToValuesMap.get(dimension);
-      PriorityQueue<DimensionValueMetricPair> topKQueue=new PriorityQueue<>();
       for (      Entry<String,Number[]> entry : dimensionToMetricsMap.entrySet()) {
         topKQueue.add(new DimensionValueMetricPair(entry.getKey(),entry.getValue()[metricToIndexMapping.get(topkSpec.getMetricName())]));
-        if (topKQueue.size() > topkSpec.getTop()) {
-          topKQueue.remove();
-        }
       }
       for (      DimensionValueMetricPair pair : topKQueue) {
         topkDimensionValues.addValue(dimension,pair.getDimensionValue());

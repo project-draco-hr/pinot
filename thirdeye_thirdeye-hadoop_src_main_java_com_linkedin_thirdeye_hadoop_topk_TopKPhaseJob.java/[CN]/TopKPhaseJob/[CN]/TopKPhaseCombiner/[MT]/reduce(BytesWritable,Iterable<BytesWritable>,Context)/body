@@ -1,0 +1,13 @@
+{
+  Number[] aggMetricValues=new Number[numMetrics];
+  Arrays.fill(aggMetricValues,0);
+  for (  BytesWritable value : values) {
+    TopKPhaseMapOutputValue valWrapper=TopKPhaseMapOutputValue.fromBytes(value.getBytes(),metricTypes);
+    Number[] metricValues=valWrapper.getMetricValues();
+    ThirdeyeAggregateMetricUtils.aggregate(metricTypes,aggMetricValues,metricValues);
+  }
+  TopKPhaseMapOutputValue valWrapper=new TopKPhaseMapOutputValue(aggMetricValues,metricTypes);
+  byte[] valBytes=valWrapper.toBytes();
+  valWritable.set(valBytes,0,valBytes.length);
+  context.write(key,valWritable);
+}
