@@ -1,0 +1,51 @@
+{
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segmentDirectoryFile);
+  boolean exists=true;
+  SegmentVersion version=SegmentVersion.valueOf(segmentMetadata.getVersion());
+  File col7File=null;
+  FileTime preLastModifiedTime=null;
+  File singleFileIndex=null;
+  long singleFileSize=0;
+  if (version == SegmentVersion.v1 || version == SegmentVersion.v2) {
+    String col7IIFilename=segmentMetadata.getBitmapInvertedIndexFileName(column7Name,segmentMetadata.getVersion());
+    col7File=new File(segmentDirectoryFile,col7IIFilename);
+    Assert.assertTrue(col7File.exists());
+    preLastModifiedTime=Files.getLastModifiedTime(col7File.toPath());
+  }
+ else {
+    singleFileIndex=new File(segmentDirectoryFile,"index.psf");
+    preLastModifiedTime=Files.getLastModifiedTime(singleFileIndex.toPath());
+    singleFileSize=singleFileIndex.length();
+  }
+  try (SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryFile,segmentMetadata,ReadMode.mmap)){
+    try (SegmentDirectory.Reader reader=segmentDirectory.createReader()){
+      Assert.assertFalse(reader.hasIndexFor(column1Name,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertFalse(reader.hasIndexFor(column13Name,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertTrue(reader.hasIndexFor(column7Name,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertFalse(reader.hasIndexFor(noSuchColumnName,ColumnIndexType.INVERTED_INDEX));
+    }
+     SegmentPreProcessor processor=new SegmentPreProcessor(segmentDirectoryFile,segmentMetadata,indexLoadingConfigMetadata);
+    processor.process();
+    long newLength=0;
+    try (SegmentDirectory.Reader reader=segmentDirectory.createReader()){
+      Assert.assertTrue(reader.hasIndexFor(column1Name,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertTrue(reader.hasIndexFor(column13Name,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertTrue(reader.hasIndexFor(column7Name,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertFalse(reader.hasIndexFor(noSuchColumnName,ColumnIndexType.INVERTED_INDEX));
+      try (PinotDataBuffer col1Buffer=reader.getIndexFor(column1Name,ColumnIndexType.INVERTED_INDEX)){
+        newLength+=col1Buffer.size();
+      }
+       try (PinotDataBuffer col13Buffer=reader.getIndexFor(column13Name,ColumnIndexType.INVERTED_INDEX)){
+        newLength+=col13Buffer.size();
+      }
+     }
+     if (version == SegmentVersion.v1 || version == SegmentVersion.v2) {
+      Assert.assertEquals(Files.getLastModifiedTime(col7File.toPath()),preLastModifiedTime);
+    }
+ else {
+      Assert.assertTrue(Files.getLastModifiedTime(singleFileIndex.toPath()).compareTo(preLastModifiedTime) > 0);
+      long newFileSize=singleFileIndex.length();
+      Assert.assertEquals(newFileSize,singleFileSize + newLength + 16);
+    }
+  }
+ }

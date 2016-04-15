@@ -1,0 +1,8 @@
+{
+  try (SingleFileIndexDirectory sfd=new SingleFileIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap)){
+    try (PinotDataBuffer buffer=sfd.newDictionaryBuffer("col1",1024)){
+    }
+     Assert.assertFalse(sfd.isIndexRemovalSupported());
+    sfd.removeIndex("col1",ColumnIndexType.DICTIONARY);
+  }
+ }

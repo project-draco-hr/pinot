@@ -2,7 +2,7 @@
   if (indexBuffers.containsKey(key)) {
     return indexBuffers.get(key).duplicate();
   }
-  String filename=getFilenameFor(key.name,key.type);
+  File filename=getFileFor(key.name,key.type);
   PinotDataBuffer buffer=mapForReads(filename,key.type.toString() + ".reader");
   indexBuffers.put(key,buffer);
   return buffer.duplicate();

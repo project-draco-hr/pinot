@@ -1,6 +1,9 @@
 {
   Preconditions.checkNotNull(indexDir);
   Preconditions.checkNotNull(metadata);
+  Preconditions.checkState(indexDir.exists(),"Segment directory: {} does not exist",indexDir);
+  ;
+  Preconditions.checkState(indexDir.isDirectory(),"Segment path: {} is not a directory",indexDir);
   this.indexDir=indexDir;
   this.metadata=metadata;
   this.indexConfig=Optional.fromNullable(indexConfig);

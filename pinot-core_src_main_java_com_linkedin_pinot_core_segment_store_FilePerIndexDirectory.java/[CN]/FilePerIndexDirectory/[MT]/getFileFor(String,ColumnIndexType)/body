@@ -1,0 +1,17 @@
+{
+  String filename;
+switch (indexType) {
+case DICTIONARY:
+    filename=metadata.getDictionaryFileName(column,metadata.getVersion());
+  break;
+case FORWARD_INDEX:
+filename=metadata.getForwardIndexFileName(column,metadata.getVersion());
+break;
+case INVERTED_INDEX:
+filename=metadata.getBitmapInvertedIndexFileName(column,metadata.getVersion());
+break;
+default :
+throw new UnsupportedOperationException("Unknown index type: " + indexType.toString());
+}
+return new File(segmentDirectory,filename);
+}

@@ -1,0 +1,7 @@
+{
+  try (FilePerIndexDirectory fpiDirectory=new FilePerIndexDirectory(segmentDir,segmentMetadata,ReadMode.mmap)){
+    PinotDataBuffer buffer=fpiDirectory.newDictionaryBuffer("foo",1024);
+    buffer.putInt(0,100);
+    Assert.assertTrue(fpiDirectory.hasIndexFor("foo",ColumnIndexType.DICTIONARY));
+  }
+ }
