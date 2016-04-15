@@ -1,10 +1,8 @@
 {
   LOGGER.info("TopKRollupPhaseOneJob.TopKRollupPhaseOneMapper.setup()");
   Configuration configuration=context.getConfiguration();
-  FileSystem fileSystem=FileSystem.get(configuration);
-  Path configPath=new Path(configuration.get(TOPK_ROLLUP_PHASE_CONFIG_PATH.toString()));
   try {
-    thirdeyeConfig=ThirdEyeConfig.decode(fileSystem.open(configPath));
+    thirdeyeConfig=OBJECT_MAPPER.readValue(configuration.get(TOPK_PHASE_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
     config=TopKPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();

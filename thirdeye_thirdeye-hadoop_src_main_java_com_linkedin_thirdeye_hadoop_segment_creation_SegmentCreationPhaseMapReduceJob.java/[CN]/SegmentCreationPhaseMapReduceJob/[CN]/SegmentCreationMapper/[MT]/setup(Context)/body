@@ -13,9 +13,9 @@
   LOGGER.info("*********************************************************************");
   properties=context.getConfiguration();
   outputPath=properties.get(SEGMENT_CREATION_OUTPUT_PATH.toString());
-  tableName=properties.get(SEGMENT_CREATION_SEGMENT_TABLE_NAME.toString());
   schema=OBJECT_MAPPER.readValue(properties.get(SEGMENT_CREATION_DATA_SCHEMA.toString()),Schema.class);
   thirdeyeConfig=OBJECT_MAPPER.readValue(properties.get(SEGMENT_CREATION_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
+  tableName=thirdeyeConfig.getCollection();
   segmentWallClockStartTime=Long.valueOf(properties.get(SEGMENT_CREATION_WALLCLOCK_START_TIME.toString()));
   segmentWallClockEndTime=Long.valueOf(properties.get(SEGMENT_CREATION_WALLCLOCK_END_TIME.toString()));
   segmentSchedule=properties.get(SEGMENT_CREATION_SCHEDULE.toString());

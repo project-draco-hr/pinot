@@ -5,7 +5,7 @@
   LOGGER.info("Segment path : {}",segmentPath);
   hosts=getAndSetConfiguration(configuration,SEGMENT_PUSH_CONTROLLER_HOSTS).split(",");
   port=getAndSetConfiguration(configuration,SEGMENT_PUSH_CONTROLLER_PORT);
-  tablename=getAndSetConfiguration(configuration,SEGMENT_PUSH_TABLENAME);
+  tablename=getAndCheck(ThirdEyeConfigConstants.THIRDEYE_TABLE_NAME.toString());
   Path path=new Path(segmentPath);
   FileStatus[] fileStatusArr=fs.globStatus(path);
   for (  FileStatus fileStatus : fileStatusArr) {
