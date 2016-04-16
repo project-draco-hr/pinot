@@ -1,9 +1,12 @@
 {
   AggregationFunction function;
 switch (functionName.toLowerCase()) {
-case SUM_AGGREGATION_FUNCTION:
-    function=new SumAggregationFunction();
+case COUNT_AGGREGATION_FUNCTION:
+    function=new CountAggregationFunction();
   break;
+case SUM_AGGREGATION_FUNCTION:
+function=new SumAggregationFunction();
+break;
 case MIN_AGGREGATION_FUNCTION:
 function=new MinAggregationFunction();
 break;
@@ -12,6 +15,9 @@ function=new MaxAggregationFunction();
 break;
 case AVG_AGGREGATION_FUNCTION:
 function=new AvgAggregationFunction();
+break;
+case RANGE_AGGREGATION_FUNCTION:
+function=new RangeAggregationFunction();
 break;
 default :
 throw new RuntimeException("Unsupported aggregation function: " + functionName);
