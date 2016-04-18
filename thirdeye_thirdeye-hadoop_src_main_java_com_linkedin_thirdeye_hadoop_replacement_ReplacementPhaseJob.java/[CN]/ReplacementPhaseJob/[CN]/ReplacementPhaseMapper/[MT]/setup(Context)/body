@@ -1,0 +1,21 @@
+{
+  LOGGER.info("ReplacementPhaseJob.ReplacementPhaseMapper.setup()");
+  Configuration configuration=context.getConfiguration();
+  FileSystem fs=FileSystem.get(configuration);
+  thirdeyeConfig=OBJECT_MAPPER.readValue(configuration.get(REPLACEMENT_PHASE_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
+  replacementPhaseConfig=ReplacementPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
+  dimensionsNames=replacementPhaseConfig.getDimensionNames();
+  metricNames=replacementPhaseConfig.getMetricNames();
+  metricTypes=replacementPhaseConfig.getMetricTypes();
+  timeColumnName=replacementPhaseConfig.getTimeColumnName();
+  topKDimensionNames=replacementPhaseConfig.getTopKDimensionNames();
+  Path outputSchemaPath=new Path(configuration.get(REPLACEMENT_PHASE_OUTPUT_SCHEMA_PATH.toString()) + File.separator + REPLACEMENT_AVRO_SCHEMA);
+  FSDataInputStream outputSchemaStream=fs.open(outputSchemaPath);
+  outputSchema=new Schema.Parser().parse(outputSchemaStream);
+  outputSchemaStream.close();
+  Path topKPath=new Path(configuration.get(REPLACEMENT_PHASE_TOPK_PATH.toString()));
+  FSDataInputStream topkValuesStream=fs.open(topKPath);
+  topKDimensionValues=OBJECT_MAPPER.readValue(topkValuesStream,TopKDimensionValues.class);
+  topkValuesStream.close();
+  topKDimensionsMap=topKDimensionValues.getTopKDimensions();
+}

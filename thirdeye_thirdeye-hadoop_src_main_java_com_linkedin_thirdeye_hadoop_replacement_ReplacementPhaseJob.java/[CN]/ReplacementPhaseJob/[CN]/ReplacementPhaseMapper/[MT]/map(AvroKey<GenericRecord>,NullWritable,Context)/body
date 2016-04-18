@@ -1,0 +1,24 @@
+{
+  GenericRecord inputRecord=key.datum();
+  GenericRecord outputRecord=new Record(outputSchema);
+  for (  String dimension : dimensionsNames) {
+    String dimensionName=dimension;
+    String dimensionValue=getDimensionFromRecord(inputRecord,dimension);
+    if (topKDimensionsMap.containsKey(dimensionName)) {
+      if (topKDimensionsMap.get(dimensionName).contains(dimensionValue)) {
+        outputRecord.put(dimensionName,dimensionValue);
+      }
+ else {
+        outputRecord.put(dimensionName,OTHER);
+      }
+      dimensionName=dimension + RAW_DIMENSION_SUFFIX;
+    }
+    outputRecord.put(dimensionName,dimensionValue);
+  }
+  for (  String metric : metricNames) {
+    outputRecord.put(metric,getMetricFromRecord(inputRecord,metric));
+  }
+  outputRecord.put(timeColumnName,getMetricFromRecord(inputRecord,timeColumnName));
+  AvroKey<GenericRecord> outputKey=new AvroKey<GenericRecord>(outputRecord);
+  context.write(outputKey,NullWritable.get());
+}
