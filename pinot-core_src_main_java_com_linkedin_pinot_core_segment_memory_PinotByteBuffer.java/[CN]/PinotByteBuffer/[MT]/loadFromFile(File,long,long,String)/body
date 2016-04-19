@@ -1,0 +1,11 @@
+{
+  Preconditions.checkArgument(length >= 0 && length < Integer.MAX_VALUE);
+  Preconditions.checkNotNull(file);
+  Preconditions.checkArgument(startPosition >= 0);
+  Preconditions.checkNotNull(context);
+  Preconditions.checkState(file.exists(),"File: {} does not exist",file);
+  Preconditions.checkState(file.isFile(),"File: {} is not a regular file",file);
+  PinotByteBuffer buffer=allocateDirect((int)length,file.toString() + "-" + context);
+  buffer.readFrom(file,startPosition,length);
+  return buffer;
+}
