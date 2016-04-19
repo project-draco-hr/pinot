@@ -8,6 +8,6 @@
       throw new RuntimeException("GroupBy on multi-valued columns not supported.");
     }
   }
-  int rawKey=generateGroupKey(_reusableGroupByValuesArray,_cardinalities);
-  return saveGroupKey(rawKey);
+  long rawKey=generateRawKey(_reusableGroupByValuesArray,_cardinalities);
+  return updateRawKeyToGroupKeyMapping(rawKey);
 }

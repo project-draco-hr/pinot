@@ -1,11 +1,13 @@
 {
   int groupKey;
   if (_storageType == STORAGE_TYPE.ARRAY_BASED) {
-    if (_uniqueGroupKeysFlag[rawKey] == false) {
-      _uniqueGroupKeysFlag[rawKey]=true;
+    Preconditions.checkState(rawKey < _uniqueGroupKeysFlag.length);
+    int intRawKey=(int)rawKey;
+    if (_uniqueGroupKeysFlag[intRawKey] == false) {
+      _uniqueGroupKeysFlag[intRawKey]=true;
       _numUniqueGroupKeys++;
     }
-    groupKey=rawKey;
+    groupKey=intRawKey;
   }
  else {
     groupKey=_groupKeyToId.get(rawKey);

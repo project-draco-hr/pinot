@@ -1,0 +1,16 @@
+{
+  int[] cardinalities=new int[]{9,12,234,3456,56789};
+  int numValues=cardinalities.length;
+  int[] values=new int[numValues];
+  int[] decoded=new int[numValues];
+  for (int i=0; i < 10000; i++) {
+    for (int j=0; j < numValues; j++) {
+      values[j]=Math.abs(_random.nextInt()) % cardinalities[j];
+    }
+    long groupKey=SingleValueGroupKeyGenerator.generateRawKey(values,cardinalities);
+    SingleValueGroupKeyGenerator.decodeRawGroupKey(groupKey,cardinalities,decoded);
+    for (int j=0; j < numValues; j++) {
+      Assert.assertEquals(values[j],decoded[j],"Actual : " + decoded[j] + " Expected: "+ values[j]);
+    }
+  }
+}
