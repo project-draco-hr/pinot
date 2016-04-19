@@ -11,29 +11,26 @@
  else {
     segmentDir=segmentFile;
   }
-  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segmentDir);
-  Schema schema=segmentMetadata.getSchema();
-  List<String> dimensionColumns=schema.getDimensionNames();
-  uniqueDimensions.addAll(dimensionColumns);
-  uniqueMetrics.addAll(schema.getMetricNames());
   IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(segmentDir,ReadMode.heap);
-  Map<String,Dictionary> dictionaryMap=new HashMap<>();
+  SegmentMetadata segmentMetadata=indexSegment.getSegmentMetadata();
+  Schema schema=segmentMetadata.getSchema();
+  uniqueDimensions.addAll(schema.getDimensionNames());
+  uniqueMetrics.addAll(schema.getMetricNames());
   for (  DimensionFieldSpec fieldSpec : schema.getDimensionFieldSpecs()) {
     if (!fieldSpec.isSingleValueField()) {
       continue;
     }
     String column=fieldSpec.getName();
     Dictionary dictionary=indexSegment.getDictionaryFor(column);
-    dictionaryMap.put(column,dictionary);
-  }
-  for (  String column : dimensionColumns) {
-    Dictionary dictionary=dictionaryMap.get(column);
-    int numValues=dictionary.length();
-    Set<String> values=new HashSet<>();
-    for (int i=0; i < numValues; ++i) {
-      values.add(dictionary.get(i).toString());
+    Set<String> values=columnValuesMap.get(column);
+    if (values == null) {
+      values=new HashSet<>();
+      columnValuesMap.put(column,values);
     }
-    columnValuesMap.put(column,values);
+    int length=dictionary.length();
+    for (int i=0; i < length; i++) {
+      values.add(dictionary.getStringValue(i));
+    }
   }
   if (tmpDir != null) {
     FileUtils.deleteQuietly(tmpDir);
