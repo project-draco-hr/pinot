@@ -1,8 +1,9 @@
 {
-  RandomAccessFile raf=new RandomAccessFile(file,"r");
-  raf.getChannel().position(startPosition);
-  ByteBuffer dup=buffer.duplicate();
-  dup.position(0);
-  dup.limit((int)length);
-  raf.getChannel().read(dup,startPosition);
-}
+  try (RandomAccessFile raf=new RandomAccessFile(file,"r")){
+    raf.getChannel().position(startPosition);
+    ByteBuffer dup=buffer.duplicate();
+    dup.position(0);
+    dup.limit((int)length);
+    raf.getChannel().read(dup,startPosition);
+  }
+ }
