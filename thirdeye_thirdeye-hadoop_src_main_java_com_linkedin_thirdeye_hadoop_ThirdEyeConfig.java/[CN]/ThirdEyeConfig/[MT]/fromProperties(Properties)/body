@@ -60,10 +60,22 @@
       topKDimensionSpec.add(new TopKDimensionSpec(topKDimensions[i],Integer.parseInt(topKValues[i]),topKMetrics[i]));
     }
   }
-  if (threshold != null || topKDimensionSpec != null) {
+  Map<String,String> whitelist=null;
+  String whitelistDimensions=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_WHITELIST_DIMENSION_NAMES.toString(),null);
+  if (whitelistDimensions != null && whitelistDimensions.split(FIELD_SEPARATOR).length > 0) {
+    whitelist=new HashMap<>();
+    for (    String dimension : whitelistDimensions.split(FIELD_SEPARATOR)) {
+      String dimensionWhitelist=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_WHITELIST_DIMENSION.toString() + CONFIG_JOINER + dimension,null);
+      if (dimensionWhitelist != null) {
+        whitelist.put(dimension,dimensionWhitelist);
+      }
+    }
+  }
+  if (threshold != null || topKDimensionSpec != null || whitelist != null) {
     topKRollup=new TopKRollupSpec();
     topKRollup.setThreshold(threshold);
     topKRollup.setTopKDimensionSpec(topKDimensionSpec);
+    topKRollup.setExceptions(whitelist);
   }
   return new ThirdEyeConfig(collection,dimensions,metrics,time,topKRollup,split);
 }

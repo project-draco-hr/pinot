@@ -1,0 +1,40 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(DerivedColumnTransformationPhaseJob.class);
+  Configuration configuration=job.getConfiguration();
+  FileSystem fs=FileSystem.get(configuration);
+  Path inputSchemaPath=new Path(getAndSetConfiguration(configuration,DERIVED_COLUMN_TRANSFORMATION_PHASE_INPUT_SCHEMA_PATH));
+  FSDataInputStream inputSchemaStream=fs.open(inputSchemaPath);
+  Schema inputSchema=new Schema.Parser().parse(inputSchemaStream);
+  String inputPathDir=getAndSetConfiguration(configuration,DERIVED_COLUMN_TRANSFORMATION_PHASE_INPUT_PATH);
+  LOGGER.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(",")) {
+    LOGGER.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  getAndSetConfiguration(configuration,DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH);
+  Path outputPath=new Path(getAndSetConfiguration(configuration,DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_PATH));
+  if (fs.exists(outputPath)) {
+    fs.delete(outputPath,true);
+  }
+  FileOutputFormat.setOutputPath(job,outputPath);
+  ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
+  job.getConfiguration().set(DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
+  Path outputSchemaPath=new Path(getAndSetConfiguration(configuration,DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA_PATH) + File.separator + TRANSFORMATION_SCHEMA);
+  Schema outputSchema=newSchema(thirdeyeConfig,inputSchema);
+  FSDataOutputStream outputSchemaStream=fs.create(outputSchemaPath);
+  outputSchemaStream.writeBytes(outputSchema.toString(true));
+  outputSchemaStream.close();
+  job.setMapperClass(DerivedColumnTransformationPhaseMapper.class);
+  AvroJob.setInputKeySchema(job,inputSchema);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(AvroKey.class);
+  job.setMapOutputValueClass(NullWritable.class);
+  AvroJob.setOutputKeySchema(job,outputSchema);
+  job.setOutputFormatClass(AvroKeyOutputFormat.class);
+  job.setNumReduceTasks(0);
+  job.waitForCompletion(true);
+  return job;
+}

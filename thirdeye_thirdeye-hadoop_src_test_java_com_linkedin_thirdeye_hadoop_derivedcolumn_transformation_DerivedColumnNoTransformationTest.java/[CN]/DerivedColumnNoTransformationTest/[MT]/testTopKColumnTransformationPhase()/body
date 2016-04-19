@@ -1,0 +1,18 @@
+{
+  int recordCount=0;
+  List<GenericRecord> inputRecords=generateTestData();
+  for (  GenericRecord record : inputRecords) {
+    AvroKey<GenericRecord> inKey=new AvroKey<GenericRecord>();
+    inKey.datum(record);
+    mapDriver.addInput(new Pair<AvroKey<GenericRecord>,NullWritable>(inKey,NullWritable.get()));
+    recordCount++;
+  }
+  resetAvroSerialization();
+  List<Pair<AvroKey<GenericRecord>,NullWritable>> result=mapDriver.run();
+  Assert.assertEquals(recordCount,result.size());
+  for (  Pair<AvroKey<GenericRecord>,NullWritable> pair : result) {
+    GenericRecord datum=pair.getFirst().datum();
+    System.out.println(datum.getSchema().getFields().size());
+    Assert.assertEquals("Input records must contain same number of fields as output record, when schemas are not transformed",datum.getSchema().getFields().size(),6);
+  }
+}

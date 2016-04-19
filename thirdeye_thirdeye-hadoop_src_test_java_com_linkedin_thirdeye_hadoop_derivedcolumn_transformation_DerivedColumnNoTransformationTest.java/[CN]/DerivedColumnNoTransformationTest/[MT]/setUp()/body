@@ -1,0 +1,20 @@
+{
+  DerivedColumnTransformationPhaseMapper mapper=new DerivedColumnTransformationPhaseMapper();
+  mapDriver=MapDriver.newMapDriver(mapper);
+  Configuration configuration=mapDriver.getConfiguration();
+  configuration.set("io.serializations","org.apache.hadoop.io.serializer.JavaSerialization," + "org.apache.hadoop.io.serializer.WritableSerialization");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TABLE_NAME.toString(),"collection");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_DIMENSION_NAMES.toString(),"d1,d2,d3");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_NAMES.toString(),"m1,m2");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_TYPES.toString(),"INT,INT");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TIMECOLUMN_NAME.toString(),"hoursSinceEpoch");
+  ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
+  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
+  Schema inputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(SCHEMA_FILE));
+  setUpAvroSerialization(mapDriver.getConfiguration(),inputSchema);
+  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA_PATH.toString(),ClassLoader.getSystemResource(OUTPUT_SCHEMA_FOLDER).toString());
+  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString(),TOPK_FILE);
+  TemporaryPath tmpPath=new TemporaryPath();
+  outputPath=tmpPath.toString();
+  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_PATH.toString(),outputPath);
+}

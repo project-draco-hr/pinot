@@ -10,13 +10,12 @@
     dimensionNames=config.getDimensionNames();
     metricNames=config.getMetricNames();
     metricTypes=config.getMetricTypes();
+    whitelist=config.getWhitelist();
     numMetrics=metricNames.size();
     metricToIndexMapping=new HashMap<>();
     for (int i=0; i < numMetrics; i++) {
       metricToIndexMapping.put(metricNames.get(i),i);
     }
-    keyWritable=new BytesWritable();
-    valWritable=new BytesWritable();
     dimensionNameToValuesMap=new HashMap<>();
     thresholdPassCount=new HashMap<>();
     for (    String dimension : dimensionNames) {
@@ -24,6 +23,8 @@
       thresholdPassCount.put(dimension,0);
     }
     topkDimensionValues=new TopKDimensionValues();
+    keyWritable=new BytesWritable();
+    valWritable=new BytesWritable();
   }
  catch (  Exception e) {
     throw new IOException(e);
