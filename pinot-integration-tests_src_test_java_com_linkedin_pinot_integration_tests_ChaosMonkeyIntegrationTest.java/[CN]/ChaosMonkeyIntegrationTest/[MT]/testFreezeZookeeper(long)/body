@@ -1,39 +1,32 @@
 {
   System.out.println("System.getProperty(\"java.class.path\") = " + System.getProperty("java.class.path"));
   Process zookeeper=startZookeeper();
-  sleep(1000L);
-  Process controller=startController();
-  sleep(1000L);
-  Process server=startServer();
-  sleep(1000L);
-  Process broker=startBroker();
-  sleep(1000L);
+  startController();
+  Thread.sleep(3000L);
+  startServer();
+  startBroker();
+  Thread.sleep(3000L);
   createTable();
   generateData();
   convertData();
   uploadData();
-  sleep(5000L);
+  Thread.sleep(5000L);
   long timeInTwoMinutes=System.currentTimeMillis() + 120000L;
   int currentRecordCount=countRecords();
   int expectedRecordCount=Integer.parseInt(TOTAL_RECORD_COUNT);
   while (currentRecordCount != expectedRecordCount && System.currentTimeMillis() < timeInTwoMinutes) {
-    sleep(1000L);
-    try {
-      currentRecordCount=countRecords();
-    }
- catch (    Exception e) {
-      currentRecordCount=0;
-    }
+    Thread.sleep(1000L);
+    currentRecordCount=countRecords();
   }
   Assert.assertEquals(currentRecordCount,expectedRecordCount,"All segments did not load within 120 seconds");
   sendSignalToProcess(zookeeper,Signal.SIGSTOP);
-  sleep(freezeLength);
+  Thread.sleep(freezeLength);
   sendSignalToProcess(zookeeper,Signal.SIGCONT);
-  sleep(5000L);
+  Thread.sleep(5000L);
   timeInTwoMinutes=System.currentTimeMillis() + 120000L;
   currentRecordCount=countRecords();
   while (currentRecordCount != expectedRecordCount && System.currentTimeMillis() < timeInTwoMinutes) {
-    sleep(1000L);
+    Thread.sleep(1000L);
     currentRecordCount=countRecords();
   }
   Assert.assertEquals(currentRecordCount,expectedRecordCount,"Record count still inconsistent 120 seconds after zookeeper restart");
