@@ -1,0 +1,11 @@
+{
+  if (args.length != 1) {
+    LOGGER.error("USAGE: StarIndexViewer <segmentDirectory>");
+    System.exit(1);
+  }
+  String segmentDir=args[0];
+  if (!new File(segmentDir).exists()) {
+    throw new FileNotFoundException("Missing directory:" + segmentDir);
+  }
+  new StarTreeIndexViewer(new File(segmentDir));
+}

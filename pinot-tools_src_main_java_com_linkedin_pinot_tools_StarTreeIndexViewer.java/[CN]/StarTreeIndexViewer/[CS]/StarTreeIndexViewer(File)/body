@@ -1,0 +1,25 @@
+{
+  IndexSegment indexSegment=Loaders.IndexSegment.load(segmentDir,ReadMode.heap);
+  dictionaries=new HashMap<String,Dictionary>();
+  valueIterators=new HashMap<String,BlockSingleValIterator>();
+  SegmentMetadataImpl metadata=new SegmentMetadataImpl(segmentDir);
+  for (  String columnName : metadata.getAllColumns()) {
+    DataSource dataSource=indexSegment.getDataSource(columnName);
+    dataSource.open();
+    Block block=dataSource.nextBlock();
+    BlockValSet blockValSet=block.getBlockValueSet();
+    BlockSingleValIterator itr=(BlockSingleValIterator)blockValSet.iterator();
+    valueIterators.put(columnName,itr);
+    dictionaries.put(columnName,dataSource.getDictionary());
+  }
+  File starTreeFile=new File(segmentDir,V1Constants.STAR_TREE_INDEX_FILE);
+  StarTree tree=StarTree.fromBytes(new FileInputStream(starTreeFile));
+  dimensionNameToIndexMap=tree.getDimensionNameToIndexMap();
+  StarTreeJsonNode jsonRoot=new StarTreeJsonNode("ROOT");
+  build(tree.getRoot(),jsonRoot);
+  ObjectMapper objectMapper=new ObjectMapper();
+  objectMapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+  String writeValueAsString=objectMapper.defaultPrettyPrintingWriter().writeValueAsString(jsonRoot);
+  LOGGER.info(writeValueAsString);
+  startServer(segmentDir,writeValueAsString);
+}

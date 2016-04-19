@@ -1,0 +1,54 @@
+{
+  Map<Integer,StarTreeIndexNode> children=indexNode.getChildren();
+  if (children == null) {
+    return 0;
+  }
+  int childDimensionId=indexNode.getChildDimensionName();
+  String childDimensionName=dimensionNameToIndexMap.inverse().get(childDimensionId);
+  Dictionary dictionary=dictionaries.get(childDimensionName);
+  int totalChildNodes=children.size();
+  Comparator<Pair<String,Integer>> comparator=new Comparator<Pair<String,Integer>>(){
+    @Override public int compare(    Pair<String,Integer> o1,    Pair<String,Integer> o2){
+      return -1 * Integer.compare(o1.getRight(),o2.getRight());
+    }
+  }
+;
+  MinMaxPriorityQueue<Pair<String,Integer>> queue=MinMaxPriorityQueue.orderedBy(comparator).maximumSize(MAX_CHILDREN).create();
+  StarTreeJsonNode allNode=null;
+  for (  Entry<Integer,StarTreeIndexNode> entry : children.entrySet()) {
+    int childDimensionValueId=entry.getKey();
+    StarTreeIndexNode childIndexNode=entry.getValue();
+    String childDimensionValue="ALL";
+    if (childDimensionValueId != StarTreeIndexNode.all()) {
+      childDimensionValue=dictionary.get(childDimensionValueId).toString();
+    }
+    StarTreeJsonNode childJson=new StarTreeJsonNode(childDimensionValue);
+    totalChildNodes+=build(childIndexNode,childJson);
+    if (childDimensionValueId != StarTreeIndexNode.all()) {
+      json.addChild(childJson);
+      queue.add(ImmutablePair.of(childDimensionValue,totalChildNodes));
+    }
+ else {
+      allNode=childJson;
+    }
+  }
+  if (allNode != null) {
+    json.addChild(allNode);
+  }
+  if (children.size() > MAX_CHILDREN) {
+    Iterator<Pair<String,Integer>> qIterator=queue.iterator();
+    Set<String> topKDimensions=new HashSet<>();
+    topKDimensions.add("ALL");
+    while (qIterator.hasNext()) {
+      topKDimensions.add(qIterator.next().getKey());
+    }
+    Iterator<StarTreeJsonNode> iterator=json.getChildren().iterator();
+    while (iterator.hasNext()) {
+      StarTreeJsonNode next=iterator.next();
+      if (!topKDimensions.contains(next.getName())) {
+        iterator.remove();
+      }
+    }
+  }
+  return totalChildNodes;
+}

@@ -1,0 +1,21 @@
+{
+  Component component=new Component();
+  int port=8090;
+  component.getServers().add(Protocol.HTTP,port);
+  component.getClients().add(Protocol.FILE);
+  Application application=new Application(){
+    @Override public Restlet createInboundRoot(){
+      Router router=new Router(getContext());
+      StarTreeViewRestResource.json=json;
+      router.attach("/data",StarTreeViewRestResource.class);
+      Directory directory=new Directory(getContext(),getClass().getClassLoader().getResource("star-tree.html").toString());
+      router.attach(directory);
+      return router;
+    }
+  }
+;
+  VirtualHost defaultHost=component.getDefaultHost();
+  defaultHost.attach(application);
+  component.start();
+  LOGGER.info("Go to http://{}:{}/  to view the star tree",VirtualHost.getLocalHostName(),port);
+}
