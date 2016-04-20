@@ -1,4 +1,7 @@
 {
+  if (actualJson.getJSONArray(EXCEPTIONS).length() != 0) {
+    return ComparisonStatus.FAILED;
+  }
   if ((actualJson.getInt(NUM_DOCS_SCANNED) == 0) && expectedJson.getInt(NUM_DOCS_SCANNED) == 0) {
     LOGGER.info("Empty results, nothing to compare.");
     return ComparisonStatus.EMPTY;

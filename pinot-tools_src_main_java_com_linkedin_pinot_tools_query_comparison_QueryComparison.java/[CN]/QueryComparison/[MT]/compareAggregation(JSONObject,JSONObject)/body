@@ -1,13 +1,10 @@
 {
-  if ((actualJson.getJSONArray(AGGREGATION_RESULTS).length() == 0) && !expectedJson.has(AGGREGATION_RESULTS)) {
-    return true;
+  JSONArray actualAggregation=actualJson.getJSONArray(AGGREGATION_RESULTS);
+  if (actualAggregation.length() == 0) {
+    return !expectedJson.has(AGGREGATION_RESULTS);
   }
   if (_compareNumDocs && !compareNumDocsScanned(actualJson,expectedJson)) {
     return false;
-  }
-  JSONArray actualAggregation=actualJson.getJSONArray(AGGREGATION_RESULTS);
-  if (actualAggregation.length() == 0) {
-    return true;
   }
   if (actualAggregation.getJSONObject(0).has(GROUP_BY_RESULT)) {
     return compareAggregationGroupBy(actualJson,expectedJson);
