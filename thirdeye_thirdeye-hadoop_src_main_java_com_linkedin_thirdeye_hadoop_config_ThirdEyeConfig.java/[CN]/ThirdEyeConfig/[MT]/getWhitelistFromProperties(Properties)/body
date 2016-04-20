@@ -1,0 +1,12 @@
+{
+  Map<String,String> whitelist=null;
+  String whitelistDimensions=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_WHITELIST_DIMENSION_NAMES.toString(),null);
+  if (whitelistDimensions != null && whitelistDimensions.split(FIELD_SEPARATOR).length > 0) {
+    whitelist=new HashMap<>();
+    for (    String dimension : whitelistDimensions.split(FIELD_SEPARATOR)) {
+      String dimensionWhitelist=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_WHITELIST_DIMENSION.toString() + CONFIG_JOINER + dimension);
+      whitelist.put(dimension,dimensionWhitelist);
+    }
+  }
+  return whitelist;
+}

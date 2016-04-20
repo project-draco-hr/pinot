@@ -1,0 +1,12 @@
+{
+  List<MetricSpec> metrics=new ArrayList<>();
+  String[] metricNames=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_METRIC_NAMES.toString()).split(FIELD_SEPARATOR);
+  String[] metricTypes=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_METRIC_TYPES.toString()).split(FIELD_SEPARATOR);
+  if (metricNames.length != metricTypes.length) {
+    throw new IllegalStateException("Number of metric names provided " + "should be same as number of metric types");
+  }
+  for (int i=0; i < metricNames.length; i++) {
+    metrics.add(new MetricSpec(metricNames[i],MetricType.valueOf(metricTypes[i])));
+  }
+  return metrics;
+}

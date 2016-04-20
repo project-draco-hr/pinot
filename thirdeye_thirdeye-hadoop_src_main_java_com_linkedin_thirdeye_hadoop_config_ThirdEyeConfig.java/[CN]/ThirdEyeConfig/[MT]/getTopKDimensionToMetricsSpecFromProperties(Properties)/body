@@ -1,0 +1,20 @@
+{
+  List<TopKDimensionToMetricsSpec> topKDimensionToMetricsSpec=null;
+  String topKDimensionNames=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_DIMENSION_NAMES.toString(),null);
+  if (topKDimensionNames != null && topKDimensionNames.split(FIELD_SEPARATOR).length > 0) {
+    topKDimensionToMetricsSpec=new ArrayList<>();
+    for (    String dimension : topKDimensionNames.split(FIELD_SEPARATOR)) {
+      String[] topKDimensionMetrics=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_METRICS.toString() + CONFIG_JOINER + dimension).split(FIELD_SEPARATOR);
+      String[] topKDimensionKValues=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_KVALUES.toString() + CONFIG_JOINER + dimension).split(FIELD_SEPARATOR);
+      if (topKDimensionMetrics.length != topKDimensionKValues.length) {
+        throw new IllegalStateException("Number of topk metric names and kvalues should be same for a dimension");
+      }
+      Map<String,Integer> topk=new HashMap<>();
+      for (int i=0; i < topKDimensionMetrics.length; i++) {
+        topk.put(topKDimensionMetrics[i],Integer.parseInt(topKDimensionKValues[i]));
+      }
+      topKDimensionToMetricsSpec.add(new TopKDimensionToMetricsSpec(dimension,topk));
+    }
+  }
+  return topKDimensionToMetricsSpec;
+}

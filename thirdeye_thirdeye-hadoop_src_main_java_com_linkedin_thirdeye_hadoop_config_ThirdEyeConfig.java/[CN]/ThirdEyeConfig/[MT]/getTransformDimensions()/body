@@ -1,0 +1,16 @@
+{
+  Set<String> transformDimensions=new HashSet<>();
+  if (topKWhitelist != null) {
+    List<TopKDimensionToMetricsSpec> topk=topKWhitelist.getTopKDimensionToMetricsSpec();
+    if (topk != null) {
+      for (      TopKDimensionToMetricsSpec spec : topk) {
+        transformDimensions.add(spec.getDimensionName());
+      }
+    }
+    Map<String,String> whitelist=topKWhitelist.getWhitelist();
+    if (whitelist != null) {
+      transformDimensions.addAll(whitelist.keySet());
+    }
+  }
+  return transformDimensions;
+}

@@ -1,0 +1,17 @@
+{
+  Map<String,Double> threshold=null;
+  String thresholdMetricNames=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_THRESHOLD_METRIC_NAMES.toString(),null);
+  String metricThresholdValues=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_METRIC_THRESHOLD_VALUES.toString(),null);
+  if (thresholdMetricNames != null && metricThresholdValues != null) {
+    String[] thresholdMetrics=thresholdMetricNames.split(FIELD_SEPARATOR);
+    String[] thresholdValues=metricThresholdValues.split(FIELD_SEPARATOR);
+    if (thresholdMetrics.length != thresholdValues.length) {
+      throw new IllegalStateException("Number of threshold metric names should be same as threshold values");
+    }
+    threshold=new HashMap<>();
+    for (int i=0; i < thresholdMetrics.length; i++) {
+      threshold.put(thresholdMetrics[i],Double.parseDouble(thresholdValues[i]));
+    }
+  }
+  return threshold;
+}

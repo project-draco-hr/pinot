@@ -1,0 +1,13 @@
+{
+  TopkWhitelistSpec topKWhitelist=null;
+  Map<String,Double> threshold=getThresholdFromProperties(props);
+  List<TopKDimensionToMetricsSpec> topKDimensionToMetricsSpec=getTopKDimensionToMetricsSpecFromProperties(props);
+  Map<String,String> whitelist=getWhitelistFromProperties(props);
+  if (threshold != null || topKDimensionToMetricsSpec != null || whitelist != null) {
+    topKWhitelist=new TopkWhitelistSpec();
+    topKWhitelist.setThreshold(threshold);
+    topKWhitelist.setTopKDimensionToMetricsSpec(topKDimensionToMetricsSpec);
+    topKWhitelist.setWhitelist(whitelist);
+  }
+  return topKWhitelist;
+}

@@ -1,0 +1,13 @@
+{
+  SplitSpec split=null;
+  String splitThreshold=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_SPLIT_THRESHOLD.toString(),null);
+  if (splitThreshold != null) {
+    String splitOrder=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_SPLIT_ORDER.toString(),null);
+    List<String> splitOrderList=null;
+    if (splitOrder != null) {
+      splitOrderList=Arrays.asList(splitOrder.split(FIELD_SEPARATOR));
+    }
+    split=new SplitSpec(Integer.parseInt(splitThreshold),splitOrderList);
+  }
+  return split;
+}
