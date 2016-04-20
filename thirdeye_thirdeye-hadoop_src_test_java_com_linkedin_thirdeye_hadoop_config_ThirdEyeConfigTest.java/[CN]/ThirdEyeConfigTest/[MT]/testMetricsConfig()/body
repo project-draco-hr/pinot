@@ -1,0 +1,40 @@
+{
+  boolean failed=false;
+  Assert.assertEquals(3,thirdeyeConfig.getMetricNames().size(),"Incorrect number of metrics");
+  Assert.assertEquals(3,thirdeyeConfig.getMetrics().size(),"Incorrect number of metric specs");
+  Assert.assertEquals(new String[]{"m1","m2","m3"},thirdeyeConfig.getMetricNames().toArray(),"Incorrect metrics");
+  MetricType[] actualMetricTypes=new MetricType[3];
+  for (int i=0; i < 3; i++) {
+    actualMetricTypes[i]=thirdeyeConfig.getMetrics().get(i).getType();
+  }
+  Assert.assertEquals(actualMetricTypes,new MetricType[]{MetricType.LONG,MetricType.FLOAT,MetricType.INT},"Incorrect metric specs");
+  try {
+    props.remove(ThirdEyeConfigConstants.THIRDEYE_METRIC_NAMES.toString());
+    config=ThirdEyeConfig.fromProperties(props);
+  }
+ catch (  IllegalArgumentException e) {
+    failed=true;
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_NAMES.toString(),"m1,m2,m3");
+  }
+  Assert.assertTrue(failed,"Expected exception due to missing metric names property");
+  failed=false;
+  try {
+    props.remove(ThirdEyeConfigConstants.THIRDEYE_METRIC_TYPES.toString());
+    config=ThirdEyeConfig.fromProperties(props);
+  }
+ catch (  IllegalArgumentException e) {
+    failed=true;
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_TYPES.toString(),"LONG,FLOAT,INT");
+  }
+  Assert.assertTrue(failed,"Expected exception due to missing metric types property");
+  failed=false;
+  try {
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_NAMES.toString(),"m1,m2");
+    config=ThirdEyeConfig.fromProperties(props);
+  }
+ catch (  IllegalStateException e) {
+    failed=true;
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_NAMES.toString(),"m1,m2,m3");
+  }
+  Assert.assertTrue(failed,"Expecetd exception due to inequal number of metric names and types in properties");
+}

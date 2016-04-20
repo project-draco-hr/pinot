@@ -22,6 +22,7 @@
   FileOutputFormat.setOutputPath(job,outputPath);
   ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
   job.getConfiguration().set(DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
+  LOGGER.info("ThirdEyeConfig {}",thirdeyeConfig);
   Path outputSchemaPath=new Path(getAndSetConfiguration(configuration,DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA_PATH) + File.separator + TRANSFORMATION_SCHEMA);
   Schema outputSchema=newSchema(thirdeyeConfig,inputSchema);
   FSDataOutputStream outputSchemaStream=fs.create(outputSchemaPath);

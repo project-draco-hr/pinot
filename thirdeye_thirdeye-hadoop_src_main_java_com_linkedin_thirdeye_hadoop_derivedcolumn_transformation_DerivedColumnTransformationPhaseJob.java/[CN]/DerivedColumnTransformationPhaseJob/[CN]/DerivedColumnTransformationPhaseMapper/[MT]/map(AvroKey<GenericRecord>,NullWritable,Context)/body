@@ -5,7 +5,8 @@
     String dimensionName=dimension;
     String dimensionValue=getDimensionFromRecord(inputRecord,dimension);
     if (topKDimensionsMap.containsKey(dimensionName)) {
-      if (topKDimensionsMap.get(dimensionName).contains(dimensionValue)) {
+      Set<String> topKDimensionValues=topKDimensionsMap.get(dimensionName);
+      if (topKDimensionValues != null && topKDimensionValues.contains(dimensionValue)) {
         outputRecord.put(dimensionName,dimensionValue);
       }
  else {

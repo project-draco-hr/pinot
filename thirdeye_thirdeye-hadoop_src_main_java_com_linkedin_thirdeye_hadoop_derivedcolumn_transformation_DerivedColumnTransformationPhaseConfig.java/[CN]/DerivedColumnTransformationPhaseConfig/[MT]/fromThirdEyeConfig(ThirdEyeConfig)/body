@@ -10,12 +10,5 @@
     dimensionNames.add(dimensionSpec.getName());
   }
   String timeColumnName=config.getTime().getColumnName();
-  Set<String> topKDimensionNames=new HashSet<>();
-  TopKRollupSpec topKRollupSpec=config.getTopKRollup();
-  if (topKRollupSpec != null && topKRollupSpec.getTopKDimensionSpec() != null) {
-    for (    TopKDimensionSpec topKDimensionSpec : topKRollupSpec.getTopKDimensionSpec()) {
-      topKDimensionNames.add(topKDimensionSpec.getDimensionName());
-    }
-  }
-  return new DerivedColumnTransformationPhaseConfig(dimensionNames,metricNames,metricTypes,timeColumnName,topKDimensionNames);
+  return new DerivedColumnTransformationPhaseConfig(dimensionNames,metricNames,metricTypes,timeColumnName);
 }

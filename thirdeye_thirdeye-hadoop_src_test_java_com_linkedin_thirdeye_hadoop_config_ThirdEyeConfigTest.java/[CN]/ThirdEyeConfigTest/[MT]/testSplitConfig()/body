@@ -1,0 +1,7 @@
+{
+  Assert.assertEquals(thirdeyeConfig.getSplit().getThreshold(),1000,"Incorrect split threshold");
+  Assert.assertEquals(thirdeyeConfig.getSplit().getOrder().toArray(),new String[]{"d1","d2","d3"},"Incorrect split order");
+  props.remove(ThirdEyeConfigConstants.THIRDEYE_SPLIT_THRESHOLD.toString());
+  config=ThirdEyeConfig.fromProperties(props);
+  Assert.assertEquals(config.getSplit(),null,"Default split should be null");
+}

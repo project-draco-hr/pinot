@@ -6,9 +6,7 @@
   config=DerivedColumnTransformationPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
   dimensionsNames=config.getDimensionNames();
   metricNames=config.getMetricNames();
-  metricTypes=config.getMetricTypes();
   timeColumnName=config.getTimeColumnName();
-  topKDimensionNames=config.getTopKDimensionNames();
   Path outputSchemaPath=new Path(configuration.get(DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA_PATH.toString()) + File.separator + TRANSFORMATION_SCHEMA);
   FSDataInputStream outputSchemaStream=fs.open(outputSchemaPath);
   outputSchema=new Schema.Parser().parse(outputSchemaStream);

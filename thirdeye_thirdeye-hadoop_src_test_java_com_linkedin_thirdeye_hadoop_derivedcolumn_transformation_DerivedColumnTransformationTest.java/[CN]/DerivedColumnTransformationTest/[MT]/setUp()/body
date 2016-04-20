@@ -9,8 +9,8 @@
   props.setProperty(ThirdEyeConfigConstants.THIRDEYE_METRIC_TYPES.toString(),"INT,INT");
   props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TIMECOLUMN_NAME.toString(),"hoursSinceEpoch");
   props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_DIMENSION_NAMES.toString(),"d2,");
-  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_DIMENSION_METRICNAMES.toString(),"m1");
-  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_DIMENSION_KVALUES.toString(),"1");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_METRICS.toString() + ".d2","m1");
+  props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_KVALUES.toString() + ".d2","1");
   ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
   configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
   Schema inputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(SCHEMA_FILE));

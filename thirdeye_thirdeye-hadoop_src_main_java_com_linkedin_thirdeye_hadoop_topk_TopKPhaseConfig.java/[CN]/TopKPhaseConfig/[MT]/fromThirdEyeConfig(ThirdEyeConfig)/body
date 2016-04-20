@@ -9,30 +9,30 @@
   for (  DimensionSpec dimensionSpec : config.getDimensions()) {
     dimensionNames.add(dimensionSpec.getName());
   }
-  TopKRollupSpec topKRollupSpec=config.getTopKRollup();
+  TopkWhitelistSpec topKWhitelist=config.getTopKWhitelist();
   Map<String,Double> metricThresholds=new HashMap<>();
-  Map<String,TopKDimensionSpec> topKDimensionSpec=new HashMap<>();
+  Map<String,TopKDimensionToMetricsSpec> topKDimensionToMetricsSpec=new HashMap<>();
   Map<String,Set<String>> whitelist=new HashMap<>();
-  if (topKRollupSpec != null) {
-    if (topKRollupSpec.getThreshold() != null) {
-      metricThresholds=topKRollupSpec.getThreshold();
+  if (topKWhitelist != null) {
+    if (topKWhitelist.getThreshold() != null) {
+      metricThresholds=topKWhitelist.getThreshold();
     }
     for (    String metric : metricNames) {
       if (metricThresholds.get(metric) == null) {
         metricThresholds.put(metric,DEFAULT_METRIC_THRESHOLD);
       }
     }
-    if (topKRollupSpec.getTopKDimensionSpec() != null) {
-      for (      TopKDimensionSpec topkSpec : topKRollupSpec.getTopKDimensionSpec()) {
-        topKDimensionSpec.put(topkSpec.getDimensionName(),topkSpec);
+    if (topKWhitelist.getTopKDimensionToMetricsSpec() != null) {
+      for (      TopKDimensionToMetricsSpec topkSpec : topKWhitelist.getTopKDimensionToMetricsSpec()) {
+        topKDimensionToMetricsSpec.put(topkSpec.getDimensionName(),topkSpec);
       }
     }
-    if (topKRollupSpec.getExceptions() != null) {
-      for (      Entry<String,String> entry : topKRollupSpec.getExceptions().entrySet()) {
+    if (topKWhitelist.getWhitelist() != null) {
+      for (      Entry<String,String> entry : topKWhitelist.getWhitelist().entrySet()) {
         String[] whitelistValues=entry.getValue().split(FIELD_SEPARATOR);
         whitelist.put(entry.getKey(),new HashSet<String>(Arrays.asList(whitelistValues)));
       }
     }
   }
-  return new TopKPhaseConfig(dimensionNames,metricNames,metricTypes,metricThresholds,topKDimensionSpec,whitelist);
+  return new TopKPhaseConfig(dimensionNames,metricNames,metricTypes,metricThresholds,topKDimensionToMetricsSpec,whitelist);
 }

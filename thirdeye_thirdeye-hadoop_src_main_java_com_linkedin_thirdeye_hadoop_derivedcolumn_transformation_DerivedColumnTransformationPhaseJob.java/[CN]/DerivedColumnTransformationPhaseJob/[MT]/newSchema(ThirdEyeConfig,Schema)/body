@@ -1,16 +1,15 @@
 {
   Schema outputSchema=null;
   Set<String> transformDimensionSet=new HashSet<>();
-  TopKRollupSpec topkRollupSpec=thirdeyeConfig.getTopKRollup();
-  if (topkRollupSpec != null) {
-    List<TopKDimensionSpec> topKDimensionSpecs=topkRollupSpec.getTopKDimensionSpec();
-    if (topKDimensionSpecs != null) {
-      for (      TopKDimensionSpec topKDimensionSpec : topKDimensionSpecs) {
-        String dimension=topKDimensionSpec.getDimensionName();
-        transformDimensionSet.add(dimension);
+  TopkWhitelistSpec topkWhitelist=thirdeyeConfig.getTopKWhitelist();
+  if (topkWhitelist != null) {
+    List<TopKDimensionToMetricsSpec> topKDimensionToMetricsSpecs=topkWhitelist.getTopKDimensionToMetricsSpec();
+    if (topKDimensionToMetricsSpecs != null) {
+      for (      TopKDimensionToMetricsSpec topKDimensionToMetricsSpec : topKDimensionToMetricsSpecs) {
+        transformDimensionSet.add(topKDimensionToMetricsSpec.getDimensionName());
       }
     }
-    Map<String,String> whitelist=topkRollupSpec.getExceptions();
+    Map<String,String> whitelist=topkWhitelist.getWhitelist();
     if (whitelist != null) {
       transformDimensionSet.addAll(whitelist.keySet());
     }

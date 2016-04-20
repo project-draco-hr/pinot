@@ -1,0 +1,45 @@
+{
+  boolean failed=false;
+  TopkWhitelistSpec topKWhitelistSpec=thirdeyeConfig.getTopKWhitelist();
+  Map<String,Double> threshold=topKWhitelistSpec.getThreshold();
+  Assert.assertEquals(threshold.size(),2,"Incorrect metric thresholds size");
+  Assert.assertEquals(threshold.get("m1") == 0.02 && threshold.get("m3") == 0.1,true,"Incorrect metric thresholds config");
+  try {
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_METRIC_THRESHOLD_VALUES.toString(),"0.1");
+    config=ThirdEyeConfig.fromProperties(props);
+  }
+ catch (  IllegalStateException e) {
+    failed=true;
+  }
+  Assert.assertTrue(failed,"Expected exception due to unequal number of metrics and threshold");
+  props.remove(ThirdEyeConfigConstants.THIRDEYE_TOPK_METRIC_THRESHOLD_VALUES.toString());
+  props.remove(ThirdEyeConfigConstants.THIRDEYE_TOPK_THRESHOLD_METRIC_NAMES.toString());
+  config=ThirdEyeConfig.fromProperties(props);
+  Assert.assertEquals(config.getTopKWhitelist().getThreshold(),null,"Default threshold config should be null");
+  Map<String,String> whitelist=topKWhitelistSpec.getWhitelist();
+  Assert.assertEquals(whitelist.size(),2,"Incorrect size of whitelist dimensions");
+  Assert.assertEquals(whitelist.get("d1"),"x,y","Incorrect whitelist config");
+  Assert.assertEquals(whitelist.get("d2"),"a","Incorrect whitelist config");
+  props.remove(ThirdEyeConfigConstants.THIRDEYE_WHITELIST_DIMENSION_NAMES.toString());
+  config=ThirdEyeConfig.fromProperties(props);
+  Assert.assertEquals(config.getTopKWhitelist().getWhitelist(),null,"Default whitelist config should be null");
+  List<TopKDimensionToMetricsSpec> topk=topKWhitelistSpec.getTopKDimensionToMetricsSpec();
+  Assert.assertEquals(topk.size(),2,"Incorrect topk dimensions config size");
+  TopKDimensionToMetricsSpec topkSpec=topk.get(0);
+  Assert.assertEquals(topkSpec.getDimensionName().equals("d2") && topkSpec.getTopk().size() == 2 && topkSpec.getTopk().get("m1") == 20 && topkSpec.getTopk().get("m2") == 30,true,"Incorrect topk config");
+  topkSpec=topk.get(1);
+  Assert.assertEquals(topkSpec.getDimensionName().equals("d3") && topkSpec.getTopk().size() == 1 && topkSpec.getTopk().get("m1") == 50,true,"Incorrect topk config");
+  failed=false;
+  try {
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_METRICS.toString() + ".d3","m1");
+    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TOPK_KVALUES.toString() + ".d3","50,50");
+    config=ThirdEyeConfig.fromProperties(props);
+  }
+ catch (  IllegalStateException e) {
+    failed=true;
+  }
+  Assert.assertTrue(failed,"Expecetd exception due to inequal number of metrics and kvalues for dimension");
+  props.remove(ThirdEyeConfigConstants.THIRDEYE_TOPK_DIMENSION_NAMES.toString());
+  config=ThirdEyeConfig.fromProperties(props);
+  Assert.assertEquals(config.getTopKWhitelist(),null,"Default topk should be null");
+}

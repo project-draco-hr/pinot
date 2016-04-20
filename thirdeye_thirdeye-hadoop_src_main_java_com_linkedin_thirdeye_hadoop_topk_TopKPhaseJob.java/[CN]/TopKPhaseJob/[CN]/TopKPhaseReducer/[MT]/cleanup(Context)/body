@@ -1,20 +1,26 @@
 {
   for (  String dimension : dimensionNames) {
     LOGGER.info("{} records passed metric threshold for dimension {}",thresholdPassCount.get(dimension),dimension);
-    TopKDimensionSpec topkSpec=topKDimensionSpecMap.get(dimension);
-    if (topkSpec != null && topkSpec.getDimensionName() != null && topkSpec.getMetricName() != null && topkSpec.getTop() != 0) {
-      LOGGER.info("Picking Top {} values based on Metric {}",topkSpec.getTop(),topkSpec.getMetricName());
-      MinMaxPriorityQueue<DimensionValueMetricPair> topKQueue=MinMaxPriorityQueue.maximumSize(topkSpec.getTop()).create();
-      Map<String,Number[]> dimensionToMetricsMap=dimensionNameToValuesMap.get(dimension);
-      for (      Entry<String,Number[]> entry : dimensionToMetricsMap.entrySet()) {
-        topKQueue.add(new DimensionValueMetricPair(entry.getKey(),entry.getValue()[metricToIndexMapping.get(topkSpec.getMetricName())]));
-      }
-      for (      DimensionValueMetricPair pair : topKQueue) {
-        topkDimensionValues.addValue(dimension,pair.getDimensionValue());
+    TopKDimensionToMetricsSpec topkSpec=topKDimensionToMetricsSpecMap.get(dimension);
+    if (topkSpec != null && topkSpec.getDimensionName() != null && topkSpec.getTopk() != null) {
+      Map<String,Integer> topkMetricsMap=topkSpec.getTopk();
+      for (      Entry<String,Integer> topKEntry : topkMetricsMap.entrySet()) {
+        String metric=topKEntry.getKey();
+        int k=topKEntry.getValue();
+        MinMaxPriorityQueue<DimensionValueMetricPair> topKQueue=MinMaxPriorityQueue.maximumSize(k).create();
+        Map<String,Number[]> dimensionToMetricsMap=dimensionNameToValuesMap.get(dimension);
+        for (        Entry<String,Number[]> entry : dimensionToMetricsMap.entrySet()) {
+          topKQueue.add(new DimensionValueMetricPair(entry.getKey(),entry.getValue()[metricToIndexMapping.get(metric)]));
+        }
+        LOGGER.info("Picking Top {} values for {} based on Metric {} : {}",k,dimension,metric,topKQueue);
+        for (        DimensionValueMetricPair pair : topKQueue) {
+          topkDimensionValues.addValue(dimension,pair.getDimensionValue());
+        }
       }
     }
     Set<String> whitelistValues=whitelist.get(dimension);
     if (whitelistValues != null) {
+      LOGGER.info("Adding whitelist values for {} : {}",dimension,whitelistValues);
       topkDimensionValues.addAllValues(dimension,whitelistValues);
     }
   }
