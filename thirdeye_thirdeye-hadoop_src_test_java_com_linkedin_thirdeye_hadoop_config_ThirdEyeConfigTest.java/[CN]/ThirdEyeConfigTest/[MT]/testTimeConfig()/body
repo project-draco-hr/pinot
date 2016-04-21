@@ -4,16 +4,16 @@
   Assert.assertEquals(thirdeyeConfig.getTime().getTimeGranularity().getSize(),10,"Incorrect time size");
   Assert.assertEquals(thirdeyeConfig.getTime().getTimeGranularity().getUnit(),TimeUnit.DAYS,"Incorrect time unit");
   try {
-    props.remove(ThirdEyeConfigConstants.THIRDEYE_TIMECOLUMN_NAME.toString());
+    props.remove(ThirdEyeConfigProperties.THIRDEYE_TIMECOLUMN_NAME.toString());
     config=ThirdEyeConfig.fromProperties(props);
   }
  catch (  IllegalArgumentException e) {
     failed=true;
-    props.setProperty(ThirdEyeConfigConstants.THIRDEYE_TIMECOLUMN_NAME.toString(),"t1");
+    props.setProperty(ThirdEyeConfigProperties.THIRDEYE_TIMECOLUMN_NAME.toString(),"t1");
   }
   Assert.assertTrue(failed,"Expected exception due to missing time column property");
-  props.remove(ThirdEyeConfigConstants.THIRDEYE_TIMECOLUMN_SIZE.toString());
-  props.remove(ThirdEyeConfigConstants.THIRDEYE_TIMECOLUMN_TYPE.toString());
+  props.remove(ThirdEyeConfigProperties.THIRDEYE_TIMECOLUMN_SIZE.toString());
+  props.remove(ThirdEyeConfigProperties.THIRDEYE_TIMECOLUMN_TYPE.toString());
   config=ThirdEyeConfig.fromProperties(props);
   Assert.assertEquals(config.getTime().getTimeGranularity().getSize(),1,"Incorrect default time size");
   Assert.assertEquals(config.getTime().getTimeGranularity().getUnit(),TimeUnit.HOURS,"Incorrect default time unit");

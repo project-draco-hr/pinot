@@ -1,11 +1,7 @@
 {
   Properties config=new Properties();
-  config.setProperty(SegmentCreationPhaseConstants.SEGMENT_CREATION_SCHEMA_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + TRANSFORMATION_SCHEMA);
-  config.setProperty(SegmentCreationPhaseConstants.SEGMENT_CREATION_INPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + DERIVED_COLUMN_TRANSFORMATION.getName());
-  config.setProperty(SegmentCreationPhaseConstants.SEGMENT_CREATION_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + SEGMENT_CREATION.getName());
-  config.setProperty(SegmentCreationPhaseConstants.SEGMENT_CREATION_WALLCLOCK_START_TIME.toString(),String.valueOf(minTime.getMillis()));
-  config.setProperty(SegmentCreationPhaseConstants.SEGMENT_CREATION_WALLCLOCK_END_TIME.toString(),String.valueOf(maxTime.getMillis()));
-  String schedule=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_FLOW_SCHEDULE.getName());
-  config.setProperty(SegmentCreationPhaseConstants.SEGMENT_CREATION_SCHEDULE.toString(),schedule);
+  config.setProperty(TopKPhaseConstants.TOPK_PHASE_SCHEMA_PATH.toString(),getSchemaPath(root,collection));
+  config.setProperty(TopKPhaseConstants.TOPK_PHASE_INPUT_PATH.toString(),inputPaths);
+  config.setProperty(TopKPhaseConstants.TOPK_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + TOPK.getName());
   return config;
 }

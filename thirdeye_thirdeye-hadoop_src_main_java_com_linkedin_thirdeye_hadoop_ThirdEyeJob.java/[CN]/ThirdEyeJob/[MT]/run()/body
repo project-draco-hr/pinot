@@ -8,13 +8,13 @@
     usage();
     throw e;
   }
-  String root=getAndCheck(ThirdEyeJobConstants.THIRDEYE_ROOT.getName(),inputConfig);
-  String collection=getAndCheck(ThirdEyeJobConstants.THIRDEYE_COLLECTION.getName(),inputConfig);
-  String inputPaths=getAndCheck(ThirdEyeJobConstants.INPUT_PATHS.getName(),inputConfig);
+  String root=getAndCheck(ThirdEyeJobProperties.THIRDEYE_ROOT.getName(),inputConfig);
+  String collection=getAndCheck(ThirdEyeJobProperties.THIRDEYE_COLLECTION.getName(),inputConfig);
+  String inputPaths=getAndCheck(ThirdEyeJobProperties.INPUT_PATHS.getName(),inputConfig);
   DateTime minTime;
   DateTime maxTime;
-  String minTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MIN.getName());
-  String maxTimeProp=inputConfig.getProperty(ThirdEyeJobConstants.THIRDEYE_TIME_MAX.getName());
+  String minTimeProp=inputConfig.getProperty(ThirdEyeJobProperties.THIRDEYE_TIME_MIN.getName());
+  String maxTimeProp=inputConfig.getProperty(ThirdEyeJobProperties.THIRDEYE_TIME_MAX.getName());
   minTime=ISODateTimeFormat.dateTimeParser().parseDateTime(minTimeProp);
   maxTime=ISODateTimeFormat.dateTimeParser().parseDateTime(maxTimeProp);
   Properties jobProperties=phaseSpec.getJobProperties(inputConfig,root,collection,minTime,maxTime,inputPaths);

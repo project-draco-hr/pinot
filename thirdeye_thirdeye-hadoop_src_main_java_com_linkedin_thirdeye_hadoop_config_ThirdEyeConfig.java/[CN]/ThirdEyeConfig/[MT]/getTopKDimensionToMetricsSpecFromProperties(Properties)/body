@@ -1,11 +1,11 @@
 {
   List<TopKDimensionToMetricsSpec> topKDimensionToMetricsSpec=null;
-  String topKDimensionNames=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_DIMENSION_NAMES.toString(),null);
+  String topKDimensionNames=getAndCheck(props,ThirdEyeConfigProperties.THIRDEYE_TOPK_DIMENSION_NAMES.toString(),null);
   if (topKDimensionNames != null && topKDimensionNames.split(FIELD_SEPARATOR).length > 0) {
     topKDimensionToMetricsSpec=new ArrayList<>();
     for (    String dimension : topKDimensionNames.split(FIELD_SEPARATOR)) {
-      String[] topKDimensionMetrics=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_METRICS.toString() + CONFIG_JOINER + dimension).split(FIELD_SEPARATOR);
-      String[] topKDimensionKValues=getAndCheck(props,ThirdEyeConfigConstants.THIRDEYE_TOPK_KVALUES.toString() + CONFIG_JOINER + dimension).split(FIELD_SEPARATOR);
+      String[] topKDimensionMetrics=getAndCheck(props,ThirdEyeConfigProperties.THIRDEYE_TOPK_METRICS.toString() + CONFIG_JOINER + dimension).split(FIELD_SEPARATOR);
+      String[] topKDimensionKValues=getAndCheck(props,ThirdEyeConfigProperties.THIRDEYE_TOPK_KVALUES.toString() + CONFIG_JOINER + dimension).split(FIELD_SEPARATOR);
       if (topKDimensionMetrics.length != topKDimensionKValues.length) {
         throw new IllegalStateException("Number of topk metric names and kvalues should be same for a dimension");
       }

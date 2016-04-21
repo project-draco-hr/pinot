@@ -16,9 +16,9 @@
   segmentGeneratorConfig.setSegmentNamePostfix(seqId);
   segmentGeneratorConfig.setOutDir(localDiskSegmentDirectory);
   segmentGeneratorConfig.setEnableStarTreeIndex(true);
-  String minTime=DATE_TIME_FORMATTER.print(segmentWallClockStartTime);
-  String maxTime=DATE_TIME_FORMATTER.print(segmentWallClockEndTime);
-  segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
+  String minTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockStartTime);
+  String maxTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockEndTime);
+  segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + ThirdEyeConstants.SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
   StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
   starTreeIndexSpec.setMaxLeafRecords(thirdeyeConfig.getSplit().getThreshold());
   starTreeIndexSpec.setDimensionsSplitOrder(thirdeyeConfig.getSplit().getOrder());

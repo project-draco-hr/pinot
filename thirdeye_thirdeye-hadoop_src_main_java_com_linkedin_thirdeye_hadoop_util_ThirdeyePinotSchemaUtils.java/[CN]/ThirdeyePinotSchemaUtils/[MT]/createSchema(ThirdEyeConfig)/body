@@ -1,18 +1,29 @@
 {
   Schema schema=new Schema();
+  Set<String> transformDimensions=thirdeyeConfig.getTransformDimensions();
   for (  DimensionSpec dimensionSpec : thirdeyeConfig.getDimensions()) {
     FieldSpec fieldSpec=new DimensionFieldSpec();
-    fieldSpec.setName(dimensionSpec.getName());
+    String dimensionName=dimensionSpec.getName();
+    fieldSpec.setName(dimensionName);
     fieldSpec.setFieldType(FieldType.DIMENSION);
     fieldSpec.setDataType(DataType.STRING);
     fieldSpec.setSingleValueField(true);
-    schema.addField(dimensionSpec.getName(),fieldSpec);
+    schema.addField(dimensionName,fieldSpec);
+    if (transformDimensions.contains(dimensionName)) {
+      fieldSpec=new DimensionFieldSpec();
+      dimensionName=dimensionName + ThirdEyeConstants.RAW_DIMENSION_SUFFIX;
+      fieldSpec.setName(dimensionName);
+      fieldSpec.setFieldType(FieldType.DIMENSION);
+      fieldSpec.setDataType(DataType.STRING);
+      fieldSpec.setSingleValueField(true);
+      schema.addField(dimensionName,fieldSpec);
+    }
   }
   boolean countIncluded=false;
   for (  MetricSpec metricSpec : thirdeyeConfig.getMetrics()) {
     FieldSpec fieldSpec=new MetricFieldSpec();
     String metricName=metricSpec.getName();
-    if (metricName.equals(AUTO_METRIC_COUNT)) {
+    if (metricName.equals(ThirdEyeConstants.AUTO_METRIC_COUNT)) {
       countIncluded=true;
     }
     fieldSpec.setName(metricName);
@@ -23,7 +34,7 @@
   }
   if (!countIncluded) {
     FieldSpec fieldSpec=new MetricFieldSpec();
-    String metricName=AUTO_METRIC_COUNT;
+    String metricName=ThirdEyeConstants.AUTO_METRIC_COUNT;
     fieldSpec.setName(metricName);
     fieldSpec.setFieldType(FieldType.METRIC);
     fieldSpec.setDataType(DataType.LONG);
