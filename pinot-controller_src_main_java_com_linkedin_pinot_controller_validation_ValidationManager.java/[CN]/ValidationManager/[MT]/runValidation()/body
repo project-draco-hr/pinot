@@ -22,42 +22,40 @@
         SegmentMetadata segmentMetadata=new SegmentMetadataImpl(offlineSegmentZKMetadata);
         segmentMetadataList.add(segmentMetadata);
       }
-      if (TableNameBuilder.getTableTypeFromTableName(tableName) != TableType.OFFLINE) {
-        int missingSegmentCount=0;
-        if (2 < segmentMetadataList.size()) {
-          List<Interval> segmentIntervals=new ArrayList<Interval>();
-          for (          SegmentMetadata segmentMetadata : segmentMetadataList) {
-            Interval timeInterval=segmentMetadata.getTimeInterval();
-            if (timeInterval != null && TimeUtils.timeValueInValidRange(timeInterval.getStartMillis()) && TimeUtils.timeValueInValidRange(timeInterval.getEndMillis())) {
-              segmentIntervals.add(timeInterval);
-            }
-          }
-          List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,segmentMetadataList.get(0).getTimeGranularity());
-          missingSegmentCount=missingIntervals.size();
-          for (          Interval missingInterval : missingIntervals) {
-            LOGGER.warn("Missing data in table {} for time interval {}",tableName,missingInterval);
-          }
-        }
-        _validationMetrics.updateMissingSegmentsGauge(tableName,missingSegmentCount);
-        long maxSegmentEndTime=Long.MIN_VALUE;
-        long maxSegmentPushTime=Long.MIN_VALUE;
+      int missingSegmentCount=0;
+      if (2 < segmentMetadataList.size()) {
+        List<Interval> segmentIntervals=new ArrayList<Interval>();
         for (        SegmentMetadata segmentMetadata : segmentMetadataList) {
-          Interval segmentInterval=segmentMetadata.getTimeInterval();
-          if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
-            maxSegmentEndTime=segmentInterval.getEndMillis();
-          }
-          long segmentPushTime=segmentMetadata.getPushTime();
-          long segmentRefreshTime=segmentMetadata.getRefreshTime();
-          long segmentUpdateTime=Math.max(segmentPushTime,segmentRefreshTime);
-          if (maxSegmentPushTime < segmentUpdateTime) {
-            maxSegmentPushTime=segmentUpdateTime;
+          Interval timeInterval=segmentMetadata.getTimeInterval();
+          if (timeInterval != null && TimeUtils.timeValueInValidRange(timeInterval.getStartMillis()) && TimeUtils.timeValueInValidRange(timeInterval.getEndMillis())) {
+            segmentIntervals.add(timeInterval);
           }
         }
-        _validationMetrics.updateOfflineSegmentDelayGauge(tableName,maxSegmentEndTime);
-        _validationMetrics.updateLastPushTimeGauge(tableName,maxSegmentPushTime);
-        _validationMetrics.updateTotalDocumentsGauge(tableName,computeRealtimeTotalDocumentInSegments(segmentMetadataList));
-        _validationMetrics.updateSegmentCountGauge(tableName,segmentMetadataList.size());
+        List<Interval> missingIntervals=computeMissingIntervals(segmentIntervals,segmentMetadataList.get(0).getTimeGranularity());
+        missingSegmentCount=missingIntervals.size();
+        for (        Interval missingInterval : missingIntervals) {
+          LOGGER.warn("Missing data in table {} for time interval {}",tableName,missingInterval);
+        }
       }
+      _validationMetrics.updateMissingSegmentsGauge(tableName,missingSegmentCount);
+      long maxSegmentEndTime=Long.MIN_VALUE;
+      long maxSegmentPushTime=Long.MIN_VALUE;
+      for (      SegmentMetadata segmentMetadata : segmentMetadataList) {
+        Interval segmentInterval=segmentMetadata.getTimeInterval();
+        if (segmentInterval != null && maxSegmentEndTime < segmentInterval.getEndMillis()) {
+          maxSegmentEndTime=segmentInterval.getEndMillis();
+        }
+        long segmentPushTime=segmentMetadata.getPushTime();
+        long segmentRefreshTime=segmentMetadata.getRefreshTime();
+        long segmentUpdateTime=Math.max(segmentPushTime,segmentRefreshTime);
+        if (maxSegmentPushTime < segmentUpdateTime) {
+          maxSegmentPushTime=segmentUpdateTime;
+        }
+      }
+      _validationMetrics.updateOfflineSegmentDelayGauge(tableName,maxSegmentEndTime);
+      _validationMetrics.updateLastPushTimeGauge(tableName,maxSegmentPushTime);
+      _validationMetrics.updateTotalDocumentsGauge(tableName,computeRealtimeTotalDocumentInSegments(segmentMetadataList));
+      _validationMetrics.updateSegmentCountGauge(tableName,segmentMetadataList.size());
     }
   }
   LOGGER.info("Validation completed");
