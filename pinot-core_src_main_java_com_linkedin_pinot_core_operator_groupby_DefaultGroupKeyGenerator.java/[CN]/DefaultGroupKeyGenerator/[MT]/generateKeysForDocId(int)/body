@@ -1,0 +1,38 @@
+{
+  List<Long> groupByKeys=new ArrayList<>();
+  groupByKeys.add(0l);
+  for (int i=0; i < _groupByColumns.length; i++) {
+    if (_isSingleValueGroupByColumn[i]) {
+      BlockSingleValIterator blockValIterator=_singleValIterators[i];
+      blockValIterator.skipTo(docId);
+      int dictId=blockValIterator.nextIntVal();
+      for (int j=0; j < groupByKeys.size(); j++) {
+        groupByKeys.set(j,groupByKeys.get(j) * _cardinalities[i] + dictId);
+      }
+    }
+ else {
+      BlockMultiValIterator blockValIterator=_multiValIterators[i];
+      blockValIterator.skipTo(docId);
+      int numMultiValues=blockValIterator.nextIntVal(_multiValueResulableArray[i]);
+      int originalSize=groupByKeys.size();
+      for (int j=0; j < numMultiValues - 1; ++j) {
+        for (int k=0; k < originalSize; k++) {
+          groupByKeys.add(groupByKeys.get(k));
+        }
+      }
+      for (int j=0; j < numMultiValues; j++) {
+        for (int k=0; k < originalSize; k++) {
+          int index=j * originalSize + k;
+          groupByKeys.set(index,(groupByKeys.get(index) * _cardinalities[i]) + _multiValueResulableArray[i][j]);
+        }
+      }
+    }
+  }
+  int numGroupKeys=groupByKeys.size();
+  int[] groupKeys=new int[numGroupKeys];
+  for (int i=0; i < numGroupKeys; i++) {
+    int groupKey=updateRawKeyToGroupKeyMapping(groupByKeys.get(i));
+    groupKeys[i]=groupKey;
+  }
+  return groupKeys;
+}

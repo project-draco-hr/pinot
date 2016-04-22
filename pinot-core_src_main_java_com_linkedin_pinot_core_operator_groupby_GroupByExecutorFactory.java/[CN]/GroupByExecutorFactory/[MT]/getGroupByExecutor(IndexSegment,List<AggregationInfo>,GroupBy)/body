@@ -1,9 +1,4 @@
 {
-  if (hasMultiValueGroupByColumns(indexSegment,groupBy)) {
-    return new MultiValueGroupByExecutor(indexSegment,aggregationInfoList,groupBy);
-  }
- else {
-    int maxNumGroupKeys=computeMaxNumGroupKeys(indexSegment,groupBy);
-    return new SingleValueGroupByExecutor(indexSegment,aggregationInfoList,groupBy,maxNumGroupKeys);
-  }
+  int maxNumGroupKeys=computeMaxNumGroupKeys(indexSegment,groupBy);
+  return new DefaultGroupByExecutor(indexSegment,aggregationInfoList,groupBy,maxNumGroupKeys);
 }

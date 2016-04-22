@@ -7,8 +7,8 @@
     for (int j=0; j < numValues; j++) {
       values[j]=Math.abs(_random.nextInt()) % cardinalities[j];
     }
-    long groupKey=SingleValueGroupKeyGenerator.generateRawKey(values,cardinalities);
-    SingleValueGroupKeyGenerator.decodeRawGroupKey(groupKey,cardinalities,decoded);
+    long groupKey=DefaultGroupKeyGenerator.generateRawKey(values,cardinalities);
+    DefaultGroupKeyGenerator.decodeRawGroupKey(groupKey,cardinalities,decoded);
     for (int j=0; j < numValues; j++) {
       Assert.assertEquals(values[j],decoded[j],"Actual : " + decoded[j] + " Expected: "+ values[j]);
     }

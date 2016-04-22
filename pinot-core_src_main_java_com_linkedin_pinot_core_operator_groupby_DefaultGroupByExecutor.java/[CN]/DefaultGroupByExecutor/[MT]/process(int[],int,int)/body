@@ -1,0 +1,11 @@
+{
+  Preconditions.checkState(_inited,"Method 'process' cannot be called before init.");
+  generateGroupKeysForDocIdSet(docIdSet,startIndex,length);
+  int numGroupKeys=_groupKeyGenerator.getNumGroupKeys();
+  fetchColumnValues(docIdSet,startIndex,length);
+  for (int i=0; i < _aggrFuncContextList.size(); i++) {
+    AggregationFunctionContext aggrFuncContext=_aggrFuncContextList.get(i);
+    _resultHolderArray[i].ensureCapacity(numGroupKeys);
+    aggregateColumn(aggrFuncContext,_resultHolderArray[i],length);
+  }
+}

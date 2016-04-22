@@ -1,0 +1,10 @@
+{
+  for (  String groupByColumn : groupByColumns) {
+    DataSource dataSource=indexSegment.getDataSource(groupByColumn);
+    DataSourceMetadata dataSourceMetadata=dataSource.getDataSourceMetadata();
+    if (!dataSourceMetadata.isSingleValue()) {
+      return true;
+    }
+  }
+  return false;
+}

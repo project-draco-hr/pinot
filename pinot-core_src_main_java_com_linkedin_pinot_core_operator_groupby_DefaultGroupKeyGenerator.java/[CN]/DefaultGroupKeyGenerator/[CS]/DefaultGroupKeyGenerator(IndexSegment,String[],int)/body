@@ -1,0 +1,36 @@
+{
+  _groupByColumns=groupByColumns;
+  int numGroupByColumns=groupByColumns.length;
+  _multiValueResulableArray=new int[numGroupByColumns][];
+  _singleValIterators=new BlockSingleValIterator[numGroupByColumns];
+  _multiValIterators=new BlockMultiValIterator[numGroupByColumns];
+  _dictionaries=new Dictionary[numGroupByColumns];
+  _cardinalities=new int[numGroupByColumns];
+  _isSingleValueGroupByColumn=new boolean[numGroupByColumns];
+  for (int i=0; i < numGroupByColumns; i++) {
+    DataSource dataSource=indexSegment.getDataSource(_groupByColumns[i]);
+    _dictionaries[i]=dataSource.getDictionary();
+    _cardinalities[i]=dataSource.getDataSourceMetadata().cardinality();
+    _isSingleValueGroupByColumn[i]=(dataSource.getDataSourceMetadata().isSingleValue()) ? true : false;
+    Block block=dataSource.nextBlock();
+    if (_isSingleValueGroupByColumn[i]) {
+      _singleValIterators[i]=(BlockSingleValIterator)block.getBlockValueSet().iterator();
+    }
+ else {
+      int maxNumberOfMultiValues=block.getMetadata().getMaxNumberOfMultiValues();
+      _multiValueResulableArray[i]=new int[maxNumberOfMultiValues];
+      _multiValIterators[i]=(BlockMultiValIterator)block.getBlockValueSet().iterator();
+    }
+  }
+  _numUniqueGroupKeys=0;
+  if (maxNumGroupKeys <= ResultHolderFactory.INITIAL_RESULT_HOLDER_CAPACITY) {
+    _storageType=STORAGE_TYPE.ARRAY_BASED;
+    _uniqueGroupKeysFlag=new boolean[maxNumGroupKeys];
+  }
+ else {
+    _storageType=STORAGE_TYPE.MAP_BASED;
+    _groupKeyToId=new Long2IntOpenHashMap();
+    _groupKeyToId.defaultReturnValue(INVALID_ID);
+  }
+  _reusableGroupByValuesArray=new int[numGroupByColumns];
+}

@@ -1,0 +1,23 @@
+{
+  if (aggrFuncContext.getFunctionName().equalsIgnoreCase("count")) {
+    if (_hasMultiValuedColumns) {
+      aggrFuncContext.applyMV(length,_docIdToMVGroupKey,resultHolder);
+    }
+ else {
+      aggrFuncContext.applySV(length,_docIdToSVGroupKey,resultHolder);
+    }
+  }
+ else {
+    String[] aggrColumns=aggrFuncContext.getAggregationColumns();
+    for (int j=0; j < aggrColumns.length; j++) {
+      String aggrColumn=aggrColumns[j];
+      double[] valueArray=_columnToValueArrayMap.get(aggrColumn);
+      if (_hasMultiValuedColumns) {
+        aggrFuncContext.applyMV(length,_docIdToMVGroupKey,resultHolder,valueArray);
+      }
+ else {
+        aggrFuncContext.applySV(length,_docIdToSVGroupKey,resultHolder,valueArray);
+      }
+    }
+  }
+}
