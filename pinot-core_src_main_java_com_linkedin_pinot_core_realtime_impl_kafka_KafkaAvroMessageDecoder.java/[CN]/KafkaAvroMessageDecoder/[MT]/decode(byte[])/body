@@ -2,8 +2,7 @@
   if (payload == null || payload.length == 0) {
     return null;
   }
-  byte[] md5=new byte[16];
-  md5=Arrays.copyOfRange(payload,1,1 + md5.length);
+  byte[] md5=Arrays.copyOfRange(payload,SCHEMA_HASH_START_OFFSET,SCHEMA_HASH_END_OFFSET);
   String md5String=hex(md5);
   org.apache.avro.Schema schema=null;
   if (md5ToAvroSchemaMap.containsKey(md5String)) {
@@ -19,11 +18,9 @@
       LOGGER.error("error fetching schema from md5 String",e);
     }
   }
-  int start=1 + md5.length;
-  int length=payload.length - 1 - md5.length;
   DatumReader<Record> reader=new GenericDatumReader<Record>(schema);
   try {
-    GenericData.Record avroRecord=reader.read(null,decoderFactory.createBinaryDecoder(payload,start,length,null));
+    GenericData.Record avroRecord=reader.read(null,decoderFactory.createBinaryDecoder(payload,HEADER_LENGTH,payload.length - HEADER_LENGTH,null));
     return avroRecordConvetrer.transform(avroRecord,schema);
   }
  catch (  IOException e) {
