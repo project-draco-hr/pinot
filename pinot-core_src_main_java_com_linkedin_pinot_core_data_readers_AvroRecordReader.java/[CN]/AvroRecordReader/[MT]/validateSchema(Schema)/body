@@ -1,0 +1,14 @@
+{
+  for (  final FieldSpec fieldSpec : schema.getAllFieldSpecs()) {
+    Field fieldStream=_dataStream.getSchema().getField(fieldSpec.getName());
+    if (fieldStream == null) {
+      LOGGER.warn("Pinot field {} absent in Avro Schema",fieldSpec.getName());
+    }
+ else     if (fieldSpec.getDataType() != getColumnType(fieldStream)) {
+      LOGGER.warn("Pinot field {} of type {} mismatches with corresponding field in Avro Schema of type {}",fieldSpec.getName(),fieldSpec.getDataType(),getColumnType(fieldStream));
+    }
+ else     if (fieldSpec.isSingleValueField() != isSingleValueField(fieldStream)) {
+      LOGGER.warn("{} -valued Pinot field {} mismatches with corresponding {} -valued field in Avro Schema",fieldSpec.isSingleValueField() ? "Single" : "Multi",fieldSpec.getName(),isSingleValueField(fieldStream) ? "Single" : "Multi");
+    }
+  }
+}
