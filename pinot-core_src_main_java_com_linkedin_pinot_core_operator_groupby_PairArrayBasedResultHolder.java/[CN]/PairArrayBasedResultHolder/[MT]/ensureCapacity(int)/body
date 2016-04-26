@@ -1,7 +1,8 @@
 {
+  Preconditions.checkArgument(capacity <= _maxCapacity);
   if (capacity > _resultHolderCapacity) {
     _resultHolderCapacity=Math.max(_resultHolderCapacity * 2,capacity);
-    _resultHolderCapacity=Math.min(_resultHolderCapacity,_capacityCap);
+    _resultHolderCapacity=Math.min(_resultHolderCapacity,_maxCapacity);
     _resultArray.expand(_resultHolderCapacity);
   }
 }

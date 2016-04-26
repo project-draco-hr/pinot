@@ -1,22 +1,22 @@
 {
-  Serializable resultForGroupKey;
 switch (resultDataType) {
 case LONG:
-    resultForGroupKey=new MutableLongValue((long)resultHolder.getDoubleResult(idKeyPair.getFirst()));
-  break;
+    return new MutableLongValue((long)resultHolder.getDoubleResult(idKeyPair.getFirst()));
 case DOUBLE:
-resultForGroupKey=resultHolder.getDoubleResult(idKeyPair.getFirst());
-break;
+  return resultHolder.getDoubleResult(idKeyPair.getFirst());
 case AVERAGE_PAIR:
 Pair<Double,Long> doubleLongPair=(Pair<Double,Long>)resultHolder.getResult(idKeyPair.getFirst());
-resultForGroupKey=new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
-break;
-case RANGE_PAIR:
+return new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
+case MINMAXRANGE_PAIR:
 Pair<Double,Double> doubleDoublePair=(Pair<Double,Double>)resultHolder.getResult(idKeyPair.getFirst());
-resultForGroupKey=new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
-break;
+return new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
+case DISTINCTCOUNT_SET:
+return (IntOpenHashSet)resultHolder.getResult(idKeyPair.getFirst());
+case DISTINCTCOUNTHLL_HYPERLOGLOG:
+return (HyperLogLog)resultHolder.getResult(idKeyPair.getFirst());
+case PERCENTILE_LIST:
+return (DoubleArrayList)resultHolder.getResult(idKeyPair.getFirst());
 default :
-throw new RuntimeException("Unsupported result data type RANGE_PAIR in class " + getClass().getName());
+throw new RuntimeException("Unsupported result data type in class " + getClass().getName());
 }
-return resultForGroupKey;
 }

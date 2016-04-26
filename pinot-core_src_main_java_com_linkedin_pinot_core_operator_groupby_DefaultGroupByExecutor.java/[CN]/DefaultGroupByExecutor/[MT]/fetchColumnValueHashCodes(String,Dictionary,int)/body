@@ -1,0 +1,15 @@
+{
+  int[] dictIdArray=_columnToDictArrayMap.get(aggrColumn);
+  if (_hashCodeArray == null) {
+    _hashCodeArray=new double[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+  }
+  for (int i=0; i < length; i++) {
+    int dictId=dictIdArray[i];
+    if (dictId == Dictionary.NULL_VALUE_INDEX) {
+      _hashCodeArray[i]=Integer.MIN_VALUE;
+    }
+ else {
+      _hashCodeArray[i]=dictionary.get(dictId).hashCode();
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    HyperLogLog hll=(HyperLogLog)resultHolder.getResult(groupKey);
+    if (hll == null) {
+      hll=new HyperLogLog(DEFAULT_BIT_SIZE);
+      resultHolder.putValueForKey(groupKey,hll);
+    }
+    hll.offer((int)valueArray[0][i]);
+  }
+}

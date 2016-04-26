@@ -1,0 +1,13 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    DoubleArrayList valueList=(DoubleArrayList)resultHolder.getResult(groupKey);
+    if (valueList == null) {
+      valueList=new DoubleArrayList();
+      resultHolder.putValueForKey(groupKey,valueList);
+    }
+    valueList.add(valueArray[0][i]);
+  }
+}
