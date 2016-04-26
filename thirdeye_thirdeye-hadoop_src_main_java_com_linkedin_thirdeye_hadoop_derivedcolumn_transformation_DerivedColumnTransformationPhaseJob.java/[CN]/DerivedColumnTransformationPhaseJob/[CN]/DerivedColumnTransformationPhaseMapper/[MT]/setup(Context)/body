@@ -7,10 +7,7 @@
   dimensionsNames=config.getDimensionNames();
   metricNames=config.getMetricNames();
   timeColumnName=config.getTimeColumnName();
-  Path outputSchemaPath=new Path(configuration.get(DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA_PATH.toString()) + File.separator + ThirdEyeConstants.TRANSFORMATION_SCHEMA);
-  FSDataInputStream outputSchemaStream=fs.open(outputSchemaPath);
-  outputSchema=new Schema.Parser().parse(outputSchemaStream);
-  outputSchemaStream.close();
+  outputSchema=new Schema.Parser().parse(configuration.get(DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA.toString()));
   Path topKPath=new Path(configuration.get(DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString()));
   topKDimensionValues=new TopKDimensionValues();
   if (fs.exists(topKPath)) {

@@ -1,0 +1,36 @@
+{
+  int recordCount=0;
+  List<GenericRecord> inputRecords=generateTestMapperData();
+  for (  GenericRecord record : inputRecords) {
+    AvroKey<GenericRecord> inKey=new AvroKey<GenericRecord>();
+    inKey.datum(record);
+    mapDriver.addInput(new Pair<AvroKey<GenericRecord>,NullWritable>(inKey,NullWritable.get()));
+    recordCount++;
+  }
+  List<Pair<BytesWritable,BytesWritable>> result=mapDriver.run();
+  Assert.assertEquals("Incorrect number of records emitted by mapper",recordCount * 3 * 2,result.size());
+  Map<String,Integer> counts=new HashMap<>();
+  for (  Pair<BytesWritable,BytesWritable> pair : result) {
+    TopKPhaseMapOutputKey key=TopKPhaseMapOutputKey.fromBytes(pair.getFirst().getBytes());
+    String dimensionName=key.getDimensionName();
+    Integer count=counts.get(dimensionName);
+    if (count == null) {
+      count=0;
+    }
+    counts.put(dimensionName,count + 1);
+  }
+  Assert.assertEquals("Incorrect number of records emitted from map",2,(int)counts.get("d1"));
+  Assert.assertEquals("Incorrect number of records emitted from map",2,(int)counts.get("d2"));
+  Assert.assertEquals("Incorrect number of records emitted from map",2,(int)counts.get("d3"));
+  Assert.assertEquals("Incorrect number of records emitted from map",6,(int)counts.get("0"));
+  List<Pair<BytesWritable,List<BytesWritable>>> reduceInput=generateTestReduceData(result);
+  reduceDriver.addAll(reduceInput);
+  reduceDriver.run();
+  File topKFile=new File(outputPath,ThirdEyeConstants.TOPK_VALUES_FILE);
+  Assert.assertTrue("Topk file failed to generate!",topKFile.exists());
+  TopKDimensionValues topk=OBJECT_MAPPER.readValue(new FileInputStream(topKFile),TopKDimensionValues.class);
+  Map<String,Set<String>> topkMap=topk.getTopKDimensions();
+  Assert.assertEquals("Incorrect topk object",topkMap.size(),2);
+  Assert.assertEquals("Incorrect topk values in topk object",Sets.newHashSet("pqr1"),topkMap.get("d2"));
+  Assert.assertEquals("Incorrect whitelist values in topk object",Sets.newHashSet("xyz2"),topkMap.get("d3"));
+}

@@ -1,0 +1,11 @@
+{
+  List<Pair<BytesWritable,List<BytesWritable>>> inputRecords=new ArrayList<>();
+  Map<BytesWritable,List<BytesWritable>> inputMap=new TreeMap<>();
+  for (  Pair<BytesWritable,BytesWritable> pair : result) {
+    inputMap.put(pair.getFirst(),Lists.newArrayList(pair.getSecond()));
+  }
+  for (  Entry<BytesWritable,List<BytesWritable>> listPair : inputMap.entrySet()) {
+    inputRecords.add(new Pair<BytesWritable,List<BytesWritable>>(listPair.getKey(),listPair.getValue()));
+  }
+  return inputRecords;
+}

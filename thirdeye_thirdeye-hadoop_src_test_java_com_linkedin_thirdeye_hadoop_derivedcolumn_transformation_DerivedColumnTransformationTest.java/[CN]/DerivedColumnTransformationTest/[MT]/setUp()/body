@@ -13,10 +13,11 @@
   props.setProperty(ThirdEyeConfigProperties.THIRDEYE_TOPK_KVALUES.toString() + ".d2","1");
   ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
   configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
-  Schema inputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(SCHEMA_FILE));
+  Schema inputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(AVRO_SCHEMA));
   setUpAvroSerialization(mapDriver.getConfiguration(),inputSchema);
-  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA_PATH.toString(),ClassLoader.getSystemResource(OUTPUT_SCHEMA_FOLDER).toString());
-  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString(),ClassLoader.getSystemResource(TOPK_FILE).toString());
+  Schema outputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(TRANSFORMATION_SCHEMA));
+  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA.toString(),outputSchema.toString());
+  configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString(),ClassLoader.getSystemResource(ThirdEyeConstants.TOPK_VALUES_FILE).toString());
   TemporaryPath tmpPath=new TemporaryPath();
   outputPath=tmpPath.toString();
   configuration.set(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_PATH.toString(),outputPath);

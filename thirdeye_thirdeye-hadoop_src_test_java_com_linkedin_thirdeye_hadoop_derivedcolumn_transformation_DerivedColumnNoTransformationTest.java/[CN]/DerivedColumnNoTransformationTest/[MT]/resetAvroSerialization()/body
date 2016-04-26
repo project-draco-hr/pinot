@@ -1,7 +1,7 @@
 {
   Configuration conf=mapDriver.getConfiguration();
   conf.set("io.serializations","org.apache.hadoop.io.serializer.JavaSerialization," + "org.apache.hadoop.io.serializer.WritableSerialization");
-  Schema outputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(OUTPUT_SCHEMA_FOLDER + File.separator + TRANSFORMATION_SCHEMA));
+  Schema outputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(NO_TRANSFORMATION_SCHEMA));
   String[] currentSerializations=conf.getStrings(HADOOP_IO_SERIALIZATION);
   String[] finalSerializations=new String[currentSerializations.length + 1];
   System.arraycopy(currentSerializations,0,finalSerializations,0,currentSerializations.length);

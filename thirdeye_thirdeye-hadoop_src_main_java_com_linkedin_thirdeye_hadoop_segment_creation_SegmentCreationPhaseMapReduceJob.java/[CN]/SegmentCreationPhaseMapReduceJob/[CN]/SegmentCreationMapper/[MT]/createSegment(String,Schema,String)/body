@@ -20,8 +20,10 @@
   String maxTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockEndTime);
   segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + ThirdEyeConstants.SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
   StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
-  starTreeIndexSpec.setMaxLeafRecords(thirdeyeConfig.getSplit().getThreshold());
-  starTreeIndexSpec.setDimensionsSplitOrder(thirdeyeConfig.getSplit().getOrder());
+  if (thirdeyeConfig.getSplit() != null) {
+    starTreeIndexSpec.setMaxLeafRecords(thirdeyeConfig.getSplit().getThreshold());
+    starTreeIndexSpec.setDimensionsSplitOrder(thirdeyeConfig.getSplit().getOrder());
+  }
   segmentGeneratorConfig.setStarTreeIndexSpec(starTreeIndexSpec);
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   driver.init(segmentGeneratorConfig);

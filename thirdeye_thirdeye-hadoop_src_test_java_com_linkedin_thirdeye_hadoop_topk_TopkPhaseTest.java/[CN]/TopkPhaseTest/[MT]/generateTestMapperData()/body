@@ -1,15 +1,14 @@
 {
-  Schema schema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(AVRO_SCHEMA));
   List<GenericRecord> inputRecords=new ArrayList<GenericRecord>();
-  GenericRecord input=new GenericData.Record(schema);
+  GenericRecord input=new GenericData.Record(inputSchema);
   input.put("d1","abc1");
   input.put("d2","pqr1");
   input.put("d3","xyz1");
   input.put("hoursSinceEpoch",generateRandomHoursSinceEpoch());
-  input.put("m1",10);
+  input.put("m1",100);
   input.put("m2",20);
   inputRecords.add(input);
-  input=new GenericData.Record(schema);
+  input=new GenericData.Record(inputSchema);
   input.put("d1","abc2");
   input.put("d2","pqr2");
   input.put("d3","xyz2");

@@ -14,7 +14,7 @@
       transformDimensionSet.addAll(whitelist.keySet());
     }
   }
-  RecordBuilder<Schema> recordBuilder=SchemaBuilder.record(inputSchema.getName());
+  RecordBuilder<Schema> recordBuilder=SchemaBuilder.record(thirdeyeConfig.getCollection());
   FieldAssembler<Schema> fieldAssembler=recordBuilder.fields();
   for (  String dimension : thirdeyeConfig.getDimensionNames()) {
     fieldAssembler=fieldAssembler.name(dimension).type().nullable().stringType().noDefault();

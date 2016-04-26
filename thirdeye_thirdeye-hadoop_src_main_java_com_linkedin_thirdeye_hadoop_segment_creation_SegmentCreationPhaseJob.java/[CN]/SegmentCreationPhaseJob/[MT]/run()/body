@@ -4,12 +4,8 @@
   job.setJobName(name);
   FileSystem fs=FileSystem.get(getConf());
   Configuration configuration=job.getConfiguration();
-  String schemaPath=getAndSetConfiguration(configuration,SEGMENT_CREATION_SCHEMA_PATH);
-  LOGGER.info("Schema path : {}",schemaPath);
   ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
   LOGGER.info("ThirdEyeConfig {}",thirdeyeConfig.encode());
-  Schema dataSchema=ThirdeyePinotSchemaUtils.createSchema(thirdeyeConfig);
-  LOGGER.info("Data schema : {}",dataSchema);
   String inputSegmentDir=getAndSetConfiguration(configuration,SEGMENT_CREATION_INPUT_PATH);
   LOGGER.info("Input path : {}",inputSegmentDir);
   String outputDir=getAndSetConfiguration(configuration,SEGMENT_CREATION_OUTPUT_PATH);
@@ -65,7 +61,6 @@
   FileInputFormat.addInputPath(job,new Path(stagingDir + "/input/"));
   FileOutputFormat.setOutputPath(job,new Path(stagingDir + "/output/"));
   job.getConfiguration().setInt(JobContext.NUM_MAPS,inputDataFiles.size());
-  job.getConfiguration().set(SEGMENT_CREATION_DATA_SCHEMA.toString(),OBJECT_MAPPER.writeValueAsString(dataSchema));
   job.getConfiguration().set(SEGMENT_CREATION_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
   job.setMaxReduceAttempts(1);
   job.setMaxMapAttempts(0);
