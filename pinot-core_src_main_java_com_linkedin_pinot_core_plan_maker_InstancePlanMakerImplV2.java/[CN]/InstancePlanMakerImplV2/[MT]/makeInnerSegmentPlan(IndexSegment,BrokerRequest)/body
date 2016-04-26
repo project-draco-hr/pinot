@@ -1,13 +1,17 @@
 {
   if (brokerRequest.isSetAggregationsInfo()) {
     if (!brokerRequest.isSetGroupBy()) {
-      final PlanNode aggregationPlanNode=new AggregationPlanNode(indexSegment,brokerRequest);
-      return aggregationPlanNode;
+      if (useNewAggregationOperator(brokerRequest)) {
+        return new AggregationPlanNode(indexSegment,brokerRequest);
+      }
+ else {
+        return new AggregationOperatorPlanNode(indexSegment,brokerRequest);
+      }
     }
  else {
       PlanNode aggregationGroupByPlanNode;
       if (indexSegment instanceof IndexSegmentImpl) {
-        if (useNewAggreagationGroupByOperator(brokerRequest)) {
+        if (useNewAggregationGroupByOperator(brokerRequest)) {
           aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
         }
  else {

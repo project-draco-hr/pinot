@@ -1,0 +1,17 @@
+{
+  _random=new Random(System.currentTimeMillis());
+  _docIdSet=new int[NUM_ROWS];
+  int numColumns=AGGREGATION_FUNCTIONS.length;
+  _inputData=new double[numColumns][NUM_ROWS];
+  _columns=new String[numColumns];
+  setupSegment();
+  _aggregationInfoList=new ArrayList<>();
+  for (int i=0; i < _columns.length; i++) {
+    AggregationInfo aggregationInfo=new AggregationInfo();
+    aggregationInfo.setAggregationType(AGGREGATION_FUNCTIONS[i]);
+    Map<String,String> params=new HashMap<String,String>();
+    params.put("column",_columns[i]);
+    aggregationInfo.setAggregationParams(params);
+    _aggregationInfoList.add(aggregationInfo);
+  }
+}

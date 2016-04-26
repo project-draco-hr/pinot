@@ -1,0 +1,15 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    int value=(int)valueArray[0][i];
+    for (    int groupKey : docIdToGroupKeys[i]) {
+      HyperLogLog hll=(HyperLogLog)resultHolder.getResult(groupKey);
+      if (hll == null) {
+        hll=new HyperLogLog(DEFAULT_BIT_SIZE);
+        resultHolder.setValueForKey(groupKey,hll);
+      }
+      hll.offer(value);
+    }
+  }
+}

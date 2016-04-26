@@ -1,0 +1,13 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    IntOpenHashSet valueSet=(IntOpenHashSet)resultHolder.getResult(groupKey);
+    if (valueSet == null) {
+      valueSet=new IntOpenHashSet();
+      resultHolder.setValueForKey(groupKey,valueSet);
+    }
+    valueSet.add((int)valueArray[0][i]);
+  }
+}

@@ -1,0 +1,13 @@
+{
+  double[] valuesToAggregate=new double[NUM_VALUES_TO_AGGREGATE];
+  double expected=DEFAULT_VALUE;
+  for (int i=0; i < NUM_VALUES_TO_AGGREGATE; i++) {
+    valuesToAggregate[i]=_random.nextDouble();
+    expected=Math.min(expected,valuesToAggregate[i]);
+  }
+  MinAggregationFunction minAggregationFunction=new MinAggregationFunction();
+  ResultHolder resultHolder=ResultHolderFactory.getResultHolder(minAggregationFunction,1);
+  minAggregationFunction.aggregate(NUM_VALUES_TO_AGGREGATE,resultHolder,valuesToAggregate);
+  double actual=resultHolder.getDoubleResult();
+  Assert.assertEquals(actual,expected,"Min Aggregation test failed Expected: " + expected + " Actual: "+ actual);
+}

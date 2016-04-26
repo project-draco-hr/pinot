@@ -1,0 +1,25 @@
+{
+  return new RecordReader(){
+    int counter=0;
+    @Override public void rewind() throws Exception {
+      counter=0;
+    }
+    @Override public GenericRow next(){
+      return data.get(counter++);
+    }
+    @Override public void init() throws Exception {
+    }
+    @Override public boolean hasNext(){
+      return counter < data.size();
+    }
+    @Override public Schema getSchema(){
+      return schema;
+    }
+    @Override public Map<String,MutableLong> getNullCountMap(){
+      return null;
+    }
+    @Override public void close() throws Exception {
+    }
+  }
+;
+}

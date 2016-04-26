@@ -1,0 +1,12 @@
+{
+  AggregationExecutor aggregationExecutor=new DefaultAggregationExecutor(_indexSegment,_aggregationInfoList);
+  aggregationExecutor.init();
+  aggregationExecutor.aggregate(_docIdSet,0,NUM_ROWS);
+  aggregationExecutor.finish();
+  List<Serializable> result=aggregationExecutor.getResult();
+  for (int i=0; i < result.size(); i++) {
+    double actual=(double)result.get(i);
+    double expected=computeAggregation(AGGREGATION_FUNCTIONS[i],_inputData[i]);
+    Assert.assertEquals(actual,expected,"Aggregation mis-match for function " + AGGREGATION_FUNCTIONS[i] + ", Expected: "+ expected+ " Actual: "+ actual);
+  }
+}

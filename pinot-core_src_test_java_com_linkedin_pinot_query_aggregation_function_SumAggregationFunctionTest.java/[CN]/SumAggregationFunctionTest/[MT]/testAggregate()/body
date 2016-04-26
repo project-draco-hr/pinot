@@ -1,0 +1,13 @@
+{
+  double[] valuesToAggregate=new double[NUM_VALUES_TO_AGGREGATE];
+  double expected=DEFAULT_VALUE;
+  for (int i=0; i < NUM_VALUES_TO_AGGREGATE; i++) {
+    valuesToAggregate[i]=_random.nextDouble();
+    expected+=valuesToAggregate[i];
+  }
+  SumAggregationFunction sumAggregationFunction=new SumAggregationFunction();
+  ResultHolder resultHolder=ResultHolderFactory.getResultHolder(sumAggregationFunction,1);
+  sumAggregationFunction.aggregate(NUM_VALUES_TO_AGGREGATE,resultHolder,valuesToAggregate);
+  double actual=resultHolder.getDoubleResult();
+  Assert.assertEquals(actual,expected,"Sum Aggregation test failed Expected: " + expected + " Actual: "+ actual);
+}

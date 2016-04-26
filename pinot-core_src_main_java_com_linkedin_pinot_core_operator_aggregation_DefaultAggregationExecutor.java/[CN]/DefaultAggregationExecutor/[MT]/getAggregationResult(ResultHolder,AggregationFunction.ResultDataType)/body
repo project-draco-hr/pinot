@@ -1,0 +1,22 @@
+{
+  Serializable result;
+switch (resultDataType) {
+case LONG:
+    result=new MutableLongValue((long)resultHolder.getDoubleResult());
+  break;
+case DOUBLE:
+result=resultHolder.getDoubleResult();
+break;
+case AVERAGE_PAIR:
+Pair<Double,Long> doubleLongPair=(Pair<Double,Long>)resultHolder.getResult();
+result=new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
+break;
+case MINMAXRANGE_PAIR:
+Pair<Double,Double> doubleDoublePair=(Pair<Double,Double>)resultHolder.getResult();
+result=new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
+break;
+default :
+throw new RuntimeException("Unsupported result data type " + resultDataType + " in class "+ getClass().getName());
+}
+return result;
+}

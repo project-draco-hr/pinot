@@ -1,0 +1,15 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; ++i) {
+    double value=valueArray[0][i];
+    for (    int groupKey : docIdToGroupKeys[i]) {
+      DoubleArrayList valueList=(DoubleArrayList)resultHolder.getResult(groupKey);
+      if (valueList == null) {
+        valueList=new DoubleArrayList();
+        resultHolder.setValueForKey(groupKey,valueList);
+      }
+      valueList.add(value);
+    }
+  }
+}

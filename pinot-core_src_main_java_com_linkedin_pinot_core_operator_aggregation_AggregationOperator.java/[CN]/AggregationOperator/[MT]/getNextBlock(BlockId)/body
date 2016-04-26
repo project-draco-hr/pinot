@@ -1,0 +1,20 @@
+{
+  if (blockId.getId() > 0) {
+    return null;
+  }
+  final long startTimeMillis=System.currentTimeMillis();
+  int numDocsScanned=0;
+  _aggregationExecutor.init();
+  while (_projectionOperator.nextBlock() != null) {
+    ProjectionBlock currentBlock=_projectionOperator.getCurrentBlock();
+    Block block=currentBlock.getDocIdSetBlock();
+    numDocsScanned=processBlock(numDocsScanned,currentBlock,block);
+  }
+  _aggregationExecutor.finish();
+  List<Serializable> aggregationResults=_aggregationExecutor.getResult();
+  final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(AggregationFunctionFactory.getAggregationFunction(_aggregationInfoList),aggregationResults);
+  resultBlock.setNumDocsScanned(numDocsScanned);
+  resultBlock.setTotalRawDocs(_indexSegment.getSegmentMetadata().getTotalRawDocs());
+  resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTimeMillis);
+  return resultBlock;
+}

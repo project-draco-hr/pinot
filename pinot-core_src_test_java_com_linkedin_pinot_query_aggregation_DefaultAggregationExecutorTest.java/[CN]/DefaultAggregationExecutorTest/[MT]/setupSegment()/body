@@ -1,0 +1,29 @@
+{
+  if (INDEX_DIR.exists()) {
+    FileUtils.deleteQuietly(INDEX_DIR);
+  }
+  SegmentGeneratorConfig config=new SegmentGeneratorConfig();
+  config.setSegmentName(SEGMENT_NAME);
+  config.setOutDir(INDEX_DIR.getAbsolutePath());
+  Schema schema=buildSchema();
+  config.setSchema(schema);
+  final List<GenericRow> data=new ArrayList<>();
+  for (int i=0; i < NUM_ROWS; i++) {
+    Map<String,Object> map=new HashMap<String,Object>();
+    for (int j=0; j < _columns.length; j++) {
+      String metricName=_columns[j];
+      double value=_random.nextDouble() * MAX_VALUE;
+      _inputData[j][i]=value;
+      map.put(metricName,value);
+    }
+    GenericRow genericRow=new GenericRow();
+    genericRow.init(map);
+    data.add(genericRow);
+    _docIdSet[i]=i;
+  }
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  RecordReader reader=createReader(schema,data);
+  driver.init(config,reader);
+  driver.build();
+  _indexSegment=Loaders.IndexSegment.load(new File(INDEX_DIR,driver.getSegmentName()),ReadMode.heap);
+}

@@ -1,0 +1,10 @@
+{
+  Preconditions.checkState(_finished,"Method 'getResult' cannot be called before 'finish' for class " + getClass().getName());
+  List<Serializable> aggregationResults=new ArrayList<Serializable>(_aggregationInfoList.size());
+  for (int i=0; i < _aggrFuncContextList.size(); i++) {
+    AggregationFunctionContext aggregationFunctionContext=_aggrFuncContextList.get(i);
+    Serializable result=getAggregationResult(_resultHolderArray[i],aggregationFunctionContext.getAggregationFunction().getResultDataType());
+    aggregationResults.add(result);
+  }
+  return aggregationResults;
+}

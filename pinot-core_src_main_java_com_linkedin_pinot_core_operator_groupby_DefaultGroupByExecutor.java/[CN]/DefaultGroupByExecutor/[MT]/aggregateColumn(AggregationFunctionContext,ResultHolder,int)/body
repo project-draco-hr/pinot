@@ -6,29 +6,29 @@
 switch (aggrFuncName) {
 case AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION:
     if (_hasMultiValuedColumns) {
-      aggrFuncContext.applyMV(length,_docIdToMVGroupKey,resultHolder);
+      aggrFuncContext.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder);
     }
  else {
-      aggrFuncContext.applySV(length,_docIdToSVGroupKey,resultHolder);
+      aggrFuncContext.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder);
     }
   return;
 case AggregationFunctionFactory.DISTINCTCOUNT_AGGREGATION_FUNCTION:
 case AggregationFunctionFactory.DISTINCTCOUNTHLL_AGGREGATION_FUNCTION:
 fetchColumnValueHashCodes(aggrColumn,aggrFuncContext.getDictionary(0),length);
 if (_hasMultiValuedColumns) {
-aggrFuncContext.applyMV(length,_docIdToMVGroupKey,resultHolder,_hashCodeArray);
+aggrFuncContext.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,_hashCodeArray);
 }
  else {
-aggrFuncContext.applySV(length,_docIdToSVGroupKey,resultHolder,_hashCodeArray);
+aggrFuncContext.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,_hashCodeArray);
 }
 return;
 default :
 double[] valueArray=_columnToValueArrayMap.get(aggrColumn);
 if (_hasMultiValuedColumns) {
-aggrFuncContext.applyMV(length,_docIdToMVGroupKey,resultHolder,valueArray);
+aggrFuncContext.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,valueArray);
 }
  else {
-aggrFuncContext.applySV(length,_docIdToSVGroupKey,resultHolder,valueArray);
+aggrFuncContext.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,valueArray);
 }
 }
 }
