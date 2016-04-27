@@ -1,3 +1,12 @@
 {
-  throw new RuntimeException("Unsupported method aggregate(double[] values) for class " + getClass().getName());
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    HyperLogLog hll=(HyperLogLog)resultHolder.getResult();
+    if (hll == null) {
+      hll=new HyperLogLog(DEFAULT_BIT_SIZE);
+      resultHolder.setValue(hll);
+    }
+    hll.offer((int)valueArray[0][i]);
+  }
 }

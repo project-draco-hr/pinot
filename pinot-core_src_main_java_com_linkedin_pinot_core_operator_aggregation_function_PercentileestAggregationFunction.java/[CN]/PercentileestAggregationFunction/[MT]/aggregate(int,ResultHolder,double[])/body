@@ -1,0 +1,12 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    QuantileDigest digest=(QuantileDigest)resultHolder.getResult();
+    if (digest == null) {
+      digest=new QuantileDigest(DEFAULT_MAX_ERROR);
+      resultHolder.setValue(digest);
+    }
+    digest.add((long)valueArray[0][i]);
+  }
+}

@@ -5,16 +5,11 @@
     double value=valueArray[0][i];
     for (    int groupKey : docIdToGroupKeys[i]) {
       Pair<Double,Double> rangeValue=(Pair<Double,Double>)resultHolder.getResult(groupKey);
-      if (rangeValue == null) {
-        rangeValue=new com.linkedin.pinot.core.query.aggregation.function.MinMaxRangeAggregationFunction.MinMaxRangePair(value,value);
+      if (value < rangeValue.getFirst()) {
+        rangeValue.setFirst(value);
       }
- else {
-        if (value < rangeValue.getFirst()) {
-          rangeValue.setFirst(value);
-        }
-        if (value > rangeValue.getSecond()) {
-          rangeValue.setSecond(value);
-        }
+      if (value > rangeValue.getSecond()) {
+        rangeValue.setSecond(value);
       }
       resultHolder.setValueForKey(groupKey,rangeValue);
     }

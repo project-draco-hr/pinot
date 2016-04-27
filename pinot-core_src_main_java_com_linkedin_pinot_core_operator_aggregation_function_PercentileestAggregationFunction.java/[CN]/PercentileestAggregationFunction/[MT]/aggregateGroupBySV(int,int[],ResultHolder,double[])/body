@@ -1,0 +1,13 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    QuantileDigest digest=(QuantileDigest)resultHolder.getResult(groupKey);
+    if (digest == null) {
+      digest=new QuantileDigest(DEFAULT_MAX_ERROR);
+      resultHolder.setValueForKey(groupKey,digest);
+    }
+    digest.add((long)valueArray[0][i]);
+  }
+}
