@@ -1,0 +1,14 @@
+{
+  FileSystem fs=FileSystem.get(new Configuration());
+  Schema avroSchema=null;
+  for (  String input : inputPathDir.split(ThirdEyeConstants.FIELD_SEPARATOR)) {
+    Path inputPath=new Path(input);
+    for (    FileStatus fileStatus : fs.listStatus(inputPath)) {
+      if (fileStatus.isFile()) {
+        avroSchema=extractSchemaFromAvro(fileStatus.getPath());
+        break;
+      }
+    }
+  }
+  return avroSchema;
+}

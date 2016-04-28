@@ -1,0 +1,9 @@
+{
+  FileSystem fs=FileSystem.get(new Configuration());
+  if (avroFile.getName().endsWith("gz")) {
+    return new DataFileStream<GenericRecord>(new GZIPInputStream(fs.open(avroFile)),new GenericDatumReader<GenericRecord>());
+  }
+ else {
+    return new DataFileStream<GenericRecord>(fs.open(avroFile),new GenericDatumReader<GenericRecord>());
+  }
+}

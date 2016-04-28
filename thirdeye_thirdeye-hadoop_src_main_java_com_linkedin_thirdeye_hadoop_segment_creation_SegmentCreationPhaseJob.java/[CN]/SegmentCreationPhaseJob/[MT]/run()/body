@@ -4,10 +4,14 @@
   job.setJobName(name);
   FileSystem fs=FileSystem.get(getConf());
   Configuration configuration=job.getConfiguration();
-  ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
-  LOGGER.info("ThirdEyeConfig {}",thirdeyeConfig.encode());
   String inputSegmentDir=getAndSetConfiguration(configuration,SEGMENT_CREATION_INPUT_PATH);
   LOGGER.info("Input path : {}",inputSegmentDir);
+  Schema avroSchema=ThirdeyeAvroUtils.getSchema(inputSegmentDir);
+  LOGGER.info("Schema : {}",avroSchema);
+  String metricTypesProperty=ThirdeyeAvroUtils.getMetricTypesProperty(props.getProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_NAMES.toString()),avroSchema);
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_TYPES.toString(),metricTypesProperty);
+  ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
+  LOGGER.info("ThirdEyeConfig {}",thirdeyeConfig.encode());
   String outputDir=getAndSetConfiguration(configuration,SEGMENT_CREATION_OUTPUT_PATH);
   LOGGER.info("Output path : {}",outputDir);
   Path stagingDir=new Path(outputDir,TEMP);

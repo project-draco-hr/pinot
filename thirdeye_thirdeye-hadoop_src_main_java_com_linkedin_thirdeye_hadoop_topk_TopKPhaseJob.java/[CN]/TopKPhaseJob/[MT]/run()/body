@@ -4,9 +4,10 @@
   job.setJarByClass(TopKPhaseJob.class);
   Configuration configuration=job.getConfiguration();
   FileSystem fs=FileSystem.get(configuration);
+  LOGGER.info("Properties {}",props);
   String inputPathDir=getAndSetConfiguration(configuration,TOPK_PHASE_INPUT_PATH);
   LOGGER.info("Input path dir: " + inputPathDir);
-  for (  String inputPath : inputPathDir.split(",")) {
+  for (  String inputPath : inputPathDir.split(ThirdEyeConstants.FIELD_SEPARATOR)) {
     LOGGER.info("Adding input:" + inputPath);
     Path input=new Path(inputPath);
     FileInputFormat.addInputPath(job,input);
@@ -17,6 +18,10 @@
     fs.delete(outputPath,true);
   }
   FileOutputFormat.setOutputPath(job,outputPath);
+  Schema avroSchema=ThirdeyeAvroUtils.getSchema(inputPathDir);
+  LOGGER.info("Schema : {}",avroSchema.toString(true));
+  String metricTypesProperty=ThirdeyeAvroUtils.getMetricTypesProperty(props.getProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_NAMES.toString()),avroSchema);
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_TYPES.toString(),metricTypesProperty);
   ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
   LOGGER.info("Thirdeye Config {}",thirdeyeConfig.encode());
   job.getConfiguration().set(TOPK_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
