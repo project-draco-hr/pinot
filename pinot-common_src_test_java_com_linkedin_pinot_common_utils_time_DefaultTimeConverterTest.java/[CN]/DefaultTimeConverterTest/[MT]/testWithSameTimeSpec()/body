@@ -1,0 +1,15 @@
+{
+  TimeGranularitySpec spec=new TimeGranularitySpec(DataType.LONG,1,TimeUnit.DAYS,"1day");
+  DefaultTimeConverter timeConverter=new DefaultTimeConverter();
+  timeConverter.init(spec,spec);
+  for (int i=0; i < 1000; ++i) {
+    Object convertedValue=timeConverter.convert(i);
+    Assert.assertTrue(convertedValue instanceof Long,"Converted value data type should be Long");
+    Assert.assertEquals(((Long)convertedValue).intValue(),i);
+  }
+  for (long i=0; i < 1000; ++i) {
+    Object convertedValue=timeConverter.convert(i);
+    Assert.assertTrue(convertedValue instanceof Long,"Converted value data type should be Long");
+    Assert.assertEquals(((Long)convertedValue).longValue(),i);
+  }
+}

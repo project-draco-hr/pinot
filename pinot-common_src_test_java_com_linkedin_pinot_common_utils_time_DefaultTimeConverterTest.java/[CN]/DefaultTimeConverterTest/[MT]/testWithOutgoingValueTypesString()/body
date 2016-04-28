@@ -1,0 +1,22 @@
+{
+  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.LONG,2,TimeUnit.DAYS,"2days");
+  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.STRING,24,TimeUnit.HOURS,"24hours");
+  DefaultTimeConverter timeConverter=new DefaultTimeConverter();
+  timeConverter.init(incoming,outgoing);
+  Object convertedValue=timeConverter.convert("1");
+  Assert.assertTrue(convertedValue instanceof String,"Converted value data type should be STRING");
+  Assert.assertEquals(Integer.parseInt(convertedValue.toString()),2);
+  Assert.assertEquals(convertedValue,"2");
+  convertedValue=timeConverter.convert(1);
+  Assert.assertTrue(convertedValue instanceof String,"Converted value data type should be STRING");
+  Assert.assertEquals(Integer.parseInt(convertedValue.toString()),2);
+  Assert.assertEquals(convertedValue,"2");
+  convertedValue=timeConverter.convert((long)1);
+  Assert.assertTrue(convertedValue instanceof String,"Converted value data type should be STRING");
+  Assert.assertEquals(Integer.parseInt(convertedValue.toString()),2);
+  Assert.assertEquals(convertedValue,"2");
+  convertedValue=timeConverter.convert((short)1);
+  Assert.assertTrue(convertedValue instanceof String,"Converted value data type should be STRING");
+  Assert.assertEquals(Integer.parseInt(convertedValue.toString()),2);
+  Assert.assertEquals(convertedValue,"2");
+}

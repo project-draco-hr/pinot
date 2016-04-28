@@ -5,7 +5,6 @@
   dataSchema=schema;
   dictionaryMap=new HashMap<String,MutableDictionaryReader>();
   maxNumberOfMultivaluesMap=new HashMap<String,Integer>();
-  incomingTimeColumnName=dataSchema.getTimeFieldSpec().getIncomingTimeColumnName();
   outgoingTimeColumnName=dataSchema.getTimeFieldSpec().getOutGoingTimeColumnName();
   this.capacity=capacity;
   for (  FieldSpec col : dataSchema.getAllFieldSpecs()) {
@@ -19,7 +18,9 @@
     dictionaryMap.put(metric,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(metric)));
   }
   docIdGenerator=new AtomicInteger(-1);
-  timeConverter=TimeConverterProvider.getTimeConverterFromGranularitySpecs(schema);
+  incomingGranularitySpec=schema.getTimeFieldSpec().getIncomingGranularitySpec();
+  outgoingGranularitySpec=schema.getTimeFieldSpec().getOutgoingGranularitySpec();
+  timeConverter=TimeConverterProvider.getTimeConverter(incomingGranularitySpec,outgoingGranularitySpec);
   columnIndexReaderWriterMap=new HashMap<String,DataFileReader>();
   invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
   for (  String dimension : schema.getDimensionNames()) {

@@ -1,0 +1,16 @@
+{
+  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.LONG,2,TimeUnit.DAYS,"2days");
+  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,24,TimeUnit.HOURS,"24hours");
+  DefaultTimeConverter timeConverter=new DefaultTimeConverter();
+  timeConverter.init(incoming,outgoing);
+  for (int i=0; i < 1000; ++i) {
+    Object convertedValue=timeConverter.convert(i);
+    Assert.assertTrue(convertedValue instanceof Long,"Converted value data type should be Long");
+    Assert.assertEquals(((Long)convertedValue).intValue(),i * 2);
+  }
+  for (long i=0; i < 1000; ++i) {
+    Object convertedValue=timeConverter.convert(i);
+    Assert.assertTrue(convertedValue instanceof Long,"Converted value data type should be Long");
+    Assert.assertEquals(((Long)convertedValue).longValue(),i * 2);
+  }
+}

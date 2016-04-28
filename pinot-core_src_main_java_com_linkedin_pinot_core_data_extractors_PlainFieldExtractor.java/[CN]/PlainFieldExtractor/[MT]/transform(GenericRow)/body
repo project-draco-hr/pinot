@@ -5,7 +5,22 @@
     boolean hasNull=false;
     boolean hasConversion=false;
     for (    String column : _schema.getColumnNames()) {
-      Object value=row.getValue(column);
+      Object value;
+      if (column.equals(_schema.getTimeColumnName())) {
+        value=row.getValue(_incomingTimeColumnName);
+        if (value != null) {
+          try {
+            value=_timeConverter.convert(value);
+          }
+ catch (          Exception e) {
+            LOGGER.error("Got exception during converter incoming time value: " + value,e);
+            value=null;
+          }
+        }
+      }
+ else {
+        value=row.getValue(column);
+      }
       FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
       PinotDataType dest=_columnType.get(column);
       PinotDataType source;

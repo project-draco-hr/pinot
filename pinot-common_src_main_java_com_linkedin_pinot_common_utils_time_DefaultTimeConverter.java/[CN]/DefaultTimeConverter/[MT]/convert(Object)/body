@@ -1,0 +1,14 @@
+{
+  if (incomingTimeValue == null) {
+    return null;
+  }
+  long duration;
+  if (incomingTimeValue instanceof Number) {
+    duration=((Number)incomingTimeValue).longValue();
+  }
+ else {
+    duration=Long.parseLong(incomingTimeValue.toString());
+  }
+  long outgoingTime=outgoing.getTimeType().convert(duration * incoming.getTimeunitSize(),incoming.getTimeType());
+  return convertToOutgoingDataType(outgoingTime / outgoing.getTimeunitSize());
+}

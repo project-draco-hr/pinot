@@ -23,13 +23,13 @@
     }
   }
 {
-    Object value=row.getValue(incomingTimeColumnName);
+    Object value=row.getValue(outgoingTimeColumnName);
     if (value == null) {
       if (invalidColumns == null) {
-        invalidColumns=new StringBuilder(incomingTimeColumnName);
+        invalidColumns=new StringBuilder(outgoingTimeColumnName);
       }
  else {
-        invalidColumns.append(", ").append(incomingTimeColumnName);
+        invalidColumns.append(", ").append(outgoingTimeColumnName);
       }
     }
   }
@@ -50,13 +50,13 @@
   for (  String metric : dataSchema.getMetricNames()) {
     dictionaryMap.get(metric).index(row.getValue(metric));
   }
-  Object timeValueObj=timeConverter.convert(row.getValue(incomingTimeColumnName));
+  Object timeValueObj=row.getValue(outgoingTimeColumnName);
   long timeValue=-1;
-  if (timeValueObj instanceof Integer) {
-    timeValue=((Integer)timeValueObj).longValue();
+  if (timeValueObj instanceof Number) {
+    timeValue=((Number)timeValueObj).longValue();
   }
  else {
-    timeValue=(Long)timeValueObj;
+    timeValue=Long.valueOf(timeValueObj.toString());
   }
   dictionaryMap.get(outgoingTimeColumnName).index(timeValueObj);
   minTimeVal=Math.min(minTimeVal,timeValue);

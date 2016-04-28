@@ -1,5 +1,11 @@
 {
-  Schema schema=new SchemaBuilder().addSingleValueDimension("svDimensionInt",DataType.INT).addSingleValueDimension("svDimensionDouble",DataType.DOUBLE).addMultiValueDimension("mvDimension",DataType.STRING,",").addMetric("metric",DataType.INT).addTime("incomingTime",TimeUnit.DAYS,DataType.LONG).build();
+  Schema schema=new SchemaBuilder().addSingleValueDimension("svDimensionInt",DataType.INT).addSingleValueDimension("svDimensionDouble",DataType.DOUBLE).addMultiValueDimension("mvDimension",DataType.STRING,",").addMetric("metric",DataType.INT).build();
+  TimeFieldSpec timeSpec=new TimeFieldSpec();
+  TimeGranularitySpec incomingTimeGranularitySpec=new TimeGranularitySpec(DataType.LONG,TimeUnit.DAYS,"incoming");
+  TimeGranularitySpec outgoingTimeGranularitySpec=new TimeGranularitySpec(DataType.LONG,TimeUnit.HOURS,"outgoing");
+  timeSpec.setIncomingGranularitySpec(incomingTimeGranularitySpec);
+  timeSpec.setOutgoingGranularitySpec(outgoingTimeGranularitySpec);
+  schema.setTimeFieldSpec(timeSpec);
   PlainFieldExtractor extractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
   GenericRow row=new GenericRow();
   Map<String,Object> fieldMap=new HashMap<String,Object>();
@@ -10,7 +16,7 @@
   Double doubleObj=new Double((double)34.5);
   fieldMap.put("metric",doubleObj);
   long currentDaysSinceEpoch=System.currentTimeMillis() / 1000 / 60/ 60/ 24;
-  fieldMap.put("incomingTime",currentDaysSinceEpoch);
+  fieldMap.put("incoming",currentDaysSinceEpoch);
   row.init(fieldMap);
   extractor.transform(row);
   Assert.assertTrue(row.getValue("svDimensionInt") instanceof Integer);
@@ -18,5 +24,6 @@
   Assert.assertTrue(row.getValue("mvDimension") != null);
   Assert.assertTrue(row.getValue("metric") instanceof Integer);
   Assert.assertTrue((Integer)row.getValue("metric") == 34);
-  Assert.assertTrue((Long)row.getValue("incomingTime") == currentDaysSinceEpoch);
+  Assert.assertTrue(row.getValue("incoming") == null);
+  Assert.assertEquals(((Long)row.getValue("outgoing")).longValue(),currentDaysSinceEpoch * 24);
 }
