@@ -1,0 +1,23 @@
+{
+  List<String> metricTypesFromSchema=new ArrayList<>();
+  List<String> metricNamesFromConfig=Lists.newArrayList(metricNamesProperty.split(ThirdEyeConstants.FIELD_SEPARATOR));
+  for (  String metricName : metricNamesFromConfig) {
+    metricTypesFromSchema.add(ThirdeyeAvroUtils.getDataTypeForField(metricName,avroSchema));
+  }
+  String validatedMetricTypesProperty=Joiner.on(ThirdEyeConstants.FIELD_SEPARATOR).join(metricTypesFromSchema);
+  if (metricTypesProperty != null) {
+    List<String> metricTypesFromConfig=Lists.newArrayList(metricTypesProperty.split(ThirdEyeConstants.FIELD_SEPARATOR));
+    if (metricTypesFromConfig.size() == metricTypesFromSchema.size()) {
+      for (int i=0; i < metricNamesFromConfig.size(); i++) {
+        String metricName=metricNamesFromConfig.get(i);
+        String metricTypeFromConfig=metricTypesFromConfig.get(i);
+        String metricTypeFromSchema=metricTypesFromSchema.get(i);
+        if (!metricTypeFromConfig.equals(metricTypeFromSchema)) {
+          LOGGER.warn("MetricType {} defined in config for metric {}, does not match dataType {} from avro schema",metricTypeFromConfig,metricName,metricTypeFromSchema);
+        }
+      }
+      validatedMetricTypesProperty=metricTypesProperty;
+    }
+  }
+  return validatedMetricTypesProperty;
+}
