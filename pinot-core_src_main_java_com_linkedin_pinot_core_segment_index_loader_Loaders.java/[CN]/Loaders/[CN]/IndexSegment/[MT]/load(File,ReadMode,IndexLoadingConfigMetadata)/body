@@ -14,9 +14,10 @@
   }
   File segmentDirectoryPath=SegmentDirectoryPaths.segmentDirectoryFor(indexDir,configuredVersionToLoad);
   metadata=new SegmentMetadataImpl(segmentDirectoryPath);
-  SegmentPreProcessor preProcessor=new SegmentPreProcessor(segmentDirectoryPath,metadata,indexLoadingConfigMetadata);
-  preProcessor.process();
-  SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryPath,metadata,readMode);
+  try (SegmentPreProcessor preProcessor=new SegmentPreProcessor(segmentDirectoryPath,metadata,indexLoadingConfigMetadata)){
+    preProcessor.process();
+  }
+   SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryPath,metadata,readMode);
   Map<String,ColumnIndexContainer> indexContainerMap=new HashMap<String,ColumnIndexContainer>();
   for (  String column : metadata.getColumnMetadataMap().keySet()) {
     indexContainerMap.put(column,ColumnIndexContainer.init(segmentDirectory.createReader(),metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata));
