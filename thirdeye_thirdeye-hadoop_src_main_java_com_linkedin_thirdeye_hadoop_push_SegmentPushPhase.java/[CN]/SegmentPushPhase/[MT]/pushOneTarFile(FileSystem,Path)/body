@@ -12,7 +12,7 @@
       if (fileName.lastIndexOf(ThirdEyeConstants.SEGMENT_JOINER) != -1) {
         segmentName=fileName.substring(0,fileName.lastIndexOf(ThirdEyeConstants.SEGMENT_JOINER));
       }
-      LOGGER.info("******** Upoading file: {} to Host: {} and Port: {} *******",fileName,host,port);
+      LOGGER.info("******** Uploading file: {} to Host: {} and Port: {} *******",fileName,host,port);
       try {
         int responseCode=FileUploadUtils.sendSegmentFile(host,port,fileName,inputStream,length);
         LOGGER.info("Response code: {}",responseCode);
@@ -21,7 +21,7 @@
         }
       }
  catch (      Exception e) {
-        LOGGER.error("******** Error Upoading file: {} to Host: {} and Port: {}  *******",fileName,host,port);
+        LOGGER.error("******** Error Uploading file: {} to Host: {} and Port: {}  *******",fileName,host,port);
         LOGGER.error("Caught exception during upload",e);
         throw new RuntimeException("Got Error during send tar files to push hosts!");
       }

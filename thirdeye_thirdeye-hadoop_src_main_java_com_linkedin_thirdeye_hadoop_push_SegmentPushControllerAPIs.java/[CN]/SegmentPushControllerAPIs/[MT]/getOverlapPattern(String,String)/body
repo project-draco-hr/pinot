@@ -1,9 +1,13 @@
 {
   String pattern=null;
   String[] tokens=segmentName.split(ThirdEyeConstants.SEGMENT_JOINER);
-  if (tokens.length > 2 && tokens[2].lastIndexOf("-") != -1) {
-    String datePrefix=tokens[2].substring(0,tokens[2].lastIndexOf("-"));
-    pattern=Joiner.on(ThirdEyeConstants.SEGMENT_JOINER).join(tablename,HOURLY_SCHEDULE,datePrefix);
+  int size=tokens.length;
+  if (size > 3) {
+    String startDateToken=tokens[size - 2];
+    if (startDateToken.lastIndexOf(DATE_JOINER) != -1) {
+      String datePrefix=startDateToken.substring(0,startDateToken.lastIndexOf(DATE_JOINER));
+      pattern=Joiner.on(ThirdEyeConstants.SEGMENT_JOINER).join(tablename,HOURLY_SCHEDULE,datePrefix);
+    }
   }
   return pattern;
 }

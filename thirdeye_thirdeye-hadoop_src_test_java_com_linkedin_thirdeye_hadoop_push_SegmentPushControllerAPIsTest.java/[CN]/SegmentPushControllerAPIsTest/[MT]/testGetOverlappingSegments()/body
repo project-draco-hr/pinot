@@ -1,0 +1,7 @@
+{
+  List<String> allSegments=Lists.newArrayList("test_HOURLY_2016-04-28-000000_2016-04-28-010000","test_HOURLY_2016-04-28-230000_2016-04-29-000000","test_DAILY_2016-04-28-000000_2016-04-29-000000");
+  String pattern="test_HOURLY_2016-04-28";
+  List<String> overlappingSegments=segmentPushControllerAPIs.getOverlappingSegments(allSegments,pattern);
+  allSegments.remove(2);
+  Assert.assertEquals(overlappingSegments,allSegments,"Incorrect overlapping segments returned");
+}
