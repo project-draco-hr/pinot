@@ -5,7 +5,8 @@
     AggregationFunctionContext aggregationFunctionContext=_aggrFuncContextList.get(i);
     for (    String column : aggregationFunctionContext.getAggregationColumns()) {
       double[] valuesToAggregate=_columnToValueArrayMap.get(column);
-      aggregationFunctionContext.aggregate(length,_resultHolderArray[i],valuesToAggregate);
+      AggregationFunction function=aggregationFunctionContext.getAggregationFunction();
+      function.aggregate(length,_resultHolderArray[i],valuesToAggregate);
     }
   }
 }

@@ -21,11 +21,11 @@
   }
   _hasMultiValuedColumns=hasMultiValueGroupByColumns(_indexSegment,_groupByColumns);
   _groupKeyGenerator=new DefaultGroupKeyGenerator(_indexSegment,_groupByColumns,_maxNumGroupKeys);
-  _resultHolderArray=new ResultHolder[_aggrFuncContextList.size()];
+  _resultHolderArray=new GroupByResultHolder[_aggrFuncContextList.size()];
   for (int i=0; i < _aggrFuncContextList.size(); i++) {
     AggregationFunctionContext aggregationFunctionContext=_aggrFuncContextList.get(i);
     AggregationFunction aggregationFunction=aggregationFunctionContext.getAggregationFunction();
-    _resultHolderArray[i]=ResultHolderFactory.getResultHolder(aggregationFunction,_maxNumGroupKeys);
+    _resultHolderArray[i]=ResultHolderFactory.getGroupByResultHolder(aggregationFunction,_maxNumGroupKeys);
   }
   if (_hasMultiValuedColumns) {
     _docIdToMVGroupKey=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL][];

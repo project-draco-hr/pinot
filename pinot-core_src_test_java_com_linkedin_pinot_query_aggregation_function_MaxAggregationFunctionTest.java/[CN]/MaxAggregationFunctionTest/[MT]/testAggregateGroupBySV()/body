@@ -14,7 +14,7 @@
     expectedGroupByResultMap.put(key,newValue);
   }
   MaxAggregationFunction maxAggregationFunction=new MaxAggregationFunction();
-  ResultHolder resultHolder=ResultHolderFactory.getResultHolder(maxAggregationFunction,MAX_NUM_GROUP_KEYS);
+  GroupByResultHolder resultHolder=ResultHolderFactory.getGroupByResultHolder(maxAggregationFunction,MAX_NUM_GROUP_KEYS);
   maxAggregationFunction.aggregateGroupBySV(NUM_VALUES_TO_AGGREGATE,groupKeysForValues,resultHolder,valuesToAggregate);
   for (  Map.Entry<Integer,Double> entry : expectedGroupByResultMap.entrySet()) {
     int key=entry.getKey();

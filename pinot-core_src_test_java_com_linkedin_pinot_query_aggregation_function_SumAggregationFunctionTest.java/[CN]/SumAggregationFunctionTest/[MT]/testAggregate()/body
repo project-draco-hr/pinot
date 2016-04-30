@@ -6,7 +6,7 @@
     expected+=valuesToAggregate[i];
   }
   SumAggregationFunction sumAggregationFunction=new SumAggregationFunction();
-  ResultHolder resultHolder=ResultHolderFactory.getResultHolder(sumAggregationFunction,1);
+  AggregationResultHolder resultHolder=ResultHolderFactory.getAggregationResultHolder(sumAggregationFunction);
   sumAggregationFunction.aggregate(NUM_VALUES_TO_AGGREGATE,resultHolder,valuesToAggregate);
   double actual=resultHolder.getDoubleResult();
   Assert.assertEquals(actual,expected,"Sum Aggregation test failed Expected: " + expected + " Actual: "+ actual);

@@ -13,11 +13,11 @@
     AggregationFunctionContext aggregationFunctionContext=new AggregationFunctionContext(_indexSegment,aggregationInfo.getAggregationType(),columns);
     _aggrFuncContextList.add(aggregationFunctionContext);
   }
-  _resultHolderArray=new ResultHolder[_aggrFuncContextList.size()];
+  _resultHolderArray=new AggregationResultHolder[_aggrFuncContextList.size()];
   for (int i=0; i < _aggrFuncContextList.size(); i++) {
     AggregationFunctionContext aggregationFunctionContext=_aggrFuncContextList.get(i);
     AggregationFunction aggregationFunction=aggregationFunctionContext.getAggregationFunction();
-    _resultHolderArray[i]=ResultHolderFactory.getResultHolder(aggregationFunction,1);
+    _resultHolderArray[i]=ResultHolderFactory.getAggregationResultHolder(aggregationFunction);
   }
   _inited=true;
 }

@@ -1,0 +1,12 @@
+{
+  String functionName=function.getName();
+switch (functionName.toLowerCase()) {
+case AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION:
+case AggregationFunctionFactory.MAX_AGGREGATION_FUNCTION:
+case AggregationFunctionFactory.MIN_AGGREGATION_FUNCTION:
+case AggregationFunctionFactory.SUM_AGGREGATION_FUNCTION:
+    return new DoubleAggregationResultHolder(function.getDefaultValue());
+default :
+  return new ObjectAggregationResultHolder();
+}
+}

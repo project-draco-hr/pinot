@@ -1,0 +1,9 @@
+{
+  AggregationResultHolder resultHolder=new DoubleAggregationResultHolder(DEFAULT_VALUE);
+  for (int i=0; i < 1000; i++) {
+    double expected=_random.nextDouble();
+    resultHolder.setValue(expected);
+    double actual=resultHolder.getDoubleResult();
+    Assert.assertEquals(actual,expected,"Mis-match: Actual: " + actual + " Expected: "+ expected+ " Random seed: "+ RANDOM_SEED);
+  }
+}

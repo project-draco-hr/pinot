@@ -14,7 +14,7 @@
     expectedGroupByResultMap.put(key,newValue);
   }
   MinAggregationFunction minAggregationFunction=new MinAggregationFunction();
-  ResultHolder resultHolder=ResultHolderFactory.getResultHolder(minAggregationFunction,MAX_NUM_GROUP_KEYS);
+  GroupByResultHolder resultHolder=ResultHolderFactory.getGroupByResultHolder(minAggregationFunction,MAX_NUM_GROUP_KEYS);
   minAggregationFunction.aggregateGroupBySV(NUM_VALUES_TO_AGGREGATE,groupKeysForValues,resultHolder,valuesToAggregate);
   for (  Map.Entry<Integer,Double> entry : expectedGroupByResultMap.entrySet()) {
     int key=entry.getKey();

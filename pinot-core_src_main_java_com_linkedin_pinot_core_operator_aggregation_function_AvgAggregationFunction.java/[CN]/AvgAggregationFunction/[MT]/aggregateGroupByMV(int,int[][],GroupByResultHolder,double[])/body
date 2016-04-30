@@ -1,0 +1,18 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkState(length <= valueArray[0].length);
+  for (int i=0; i < length; ++i) {
+    double value=valueArray[0][i];
+    for (    int groupKey : docIdToGroupKeys[i]) {
+      Pair<Double,Long> avgValue=(Pair<Double,Long>)resultHolder.getResult(groupKey);
+      if (avgValue == null) {
+        avgValue=new Pair<>(value,1L);
+        resultHolder.setValueForKey(groupKey,avgValue);
+      }
+ else {
+        avgValue.setFirst(avgValue.getFirst() + valueArray[0][i]);
+        avgValue.setSecond(avgValue.getSecond() + 1);
+      }
+    }
+  }
+}

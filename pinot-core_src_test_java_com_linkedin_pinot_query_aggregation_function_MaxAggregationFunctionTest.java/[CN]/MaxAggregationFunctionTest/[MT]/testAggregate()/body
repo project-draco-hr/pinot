@@ -6,7 +6,7 @@
     expected=Math.max(expected,valuesToAggregate[i]);
   }
   MaxAggregationFunction maxAggregationFunction=new MaxAggregationFunction();
-  ResultHolder resultHolder=ResultHolderFactory.getResultHolder(maxAggregationFunction,1);
+  AggregationResultHolder resultHolder=ResultHolderFactory.getAggregationResultHolder(maxAggregationFunction);
   maxAggregationFunction.aggregate(NUM_VALUES_TO_AGGREGATE,resultHolder,valuesToAggregate);
   double actual=resultHolder.getDoubleResult();
   Assert.assertEquals(actual,expected,"Max Aggregation test failed Expected: " + expected + " Actual: "+ actual);
