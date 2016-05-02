@@ -1,7 +1,7 @@
 {
   if (brokerRequest.isSetAggregationsInfo()) {
     if (!brokerRequest.isSetGroupBy()) {
-      if (useNewAggregationOperator(brokerRequest)) {
+      if (_enableNewAggreagationGroupBy) {
         return new AggregationPlanNode(indexSegment,brokerRequest);
       }
  else {
@@ -11,16 +11,16 @@
  else {
       PlanNode aggregationGroupByPlanNode;
       if (indexSegment instanceof IndexSegmentImpl) {
-        if (_enableNewAggreagationGroupBy) {
-          aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
-        }
+        if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
+          if (_enableNewAggreagationGroupBy) {
+            aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest);
+          }
  else {
-          if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
             aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
           }
+        }
  else {
-            aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
-          }
+          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
         }
       }
  else {

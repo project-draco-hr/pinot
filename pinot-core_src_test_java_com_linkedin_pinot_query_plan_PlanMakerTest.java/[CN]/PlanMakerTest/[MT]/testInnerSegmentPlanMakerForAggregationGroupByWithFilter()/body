@@ -6,16 +6,15 @@
   PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
   PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
-  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
-  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
-  System.out.println("TotalDocs : " + resultBlock.getTotalRawDocs());
+  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)rootPlanNode.run().nextBlock();
+  LOGGER.debug("RunningTime: {}",resultBlock.getTimeUsedMs());
+  LOGGER.debug("NumDocsScanned: {}",resultBlock.getNumDocsScanned());
+  LOGGER.debug("TotalDocs: {}",resultBlock.getTotalRawDocs());
   List<Map<String,Serializable>> combinedGroupByResult=resultBlock.getAggregationGroupByOperatorResult();
   for (int i=0; i < combinedGroupByResult.size(); ++i) {
-    System.out.println("function : " + brokerRequest.getAggregationsInfo().get(i));
+    LOGGER.debug("function: {}",brokerRequest.getAggregationsInfo().get(i));
     for (    String keyString : combinedGroupByResult.get(i).keySet()) {
-      System.out.println("grouped key : " + keyString + ", value : "+ combinedGroupByResult.get(i).get(keyString));
+      LOGGER.debug("grouped key: {}, value: {}",keyString,combinedGroupByResult.get(i).get(keyString));
     }
   }
 }

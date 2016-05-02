@@ -1,22 +1,58 @@
 {
-  Serializable result;
 switch (resultDataType) {
 case LONG:
-    result=new MutableLongValue((long)resultHolder.getDoubleResult());
-  break;
+    return new MutableLongValue((long)resultHolder.getDoubleResult());
 case DOUBLE:
-result=resultHolder.getDoubleResult();
-break;
+  return resultHolder.getDoubleResult();
 case AVERAGE_PAIR:
 Pair<Double,Long> doubleLongPair=(Pair<Double,Long>)resultHolder.getResult();
-result=new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
-break;
+if (doubleLongPair == null) {
+return new AvgAggregationFunction.AvgPair(0.0,0L);
+}
+ else {
+return new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
+}
 case MINMAXRANGE_PAIR:
 Pair<Double,Double> doubleDoublePair=(Pair<Double,Double>)resultHolder.getResult();
-result=new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
-break;
+if (doubleDoublePair == null) {
+return new MinMaxRangeAggregationFunction.MinMaxRangePair(Double.POSITIVE_INFINITY,Double.NEGATIVE_INFINITY);
+}
+ else {
+return new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
+}
+case DISTINCTCOUNT_SET:
+IntOpenHashSet intOpenHashSet=(IntOpenHashSet)resultHolder.getResult();
+if (intOpenHashSet == null) {
+return new IntOpenHashSet();
+}
+ else {
+return intOpenHashSet;
+}
+case DISTINCTCOUNTHLL_HYPERLOGLOG:
+HyperLogLog hyperLogLog=(HyperLogLog)resultHolder.getResult();
+if (hyperLogLog == null) {
+return new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
+}
+ else {
+return hyperLogLog;
+}
+case PERCENTILE_LIST:
+DoubleArrayList doubleArrayList=(DoubleArrayList)resultHolder.getResult();
+if (doubleArrayList == null) {
+return new DoubleArrayList();
+}
+ else {
+return doubleArrayList;
+}
+case PERCENTILEEST_QUANTILEDIGEST:
+QuantileDigest quantileDigest=(QuantileDigest)resultHolder.getResult();
+if (quantileDigest == null) {
+return new QuantileDigest(PercentileestAggregationFunction.DEFAULT_MAX_ERROR);
+}
+ else {
+return quantileDigest;
+}
 default :
 throw new RuntimeException("Unsupported result data type " + resultDataType + " in class "+ getClass().getName());
 }
-return result;
 }

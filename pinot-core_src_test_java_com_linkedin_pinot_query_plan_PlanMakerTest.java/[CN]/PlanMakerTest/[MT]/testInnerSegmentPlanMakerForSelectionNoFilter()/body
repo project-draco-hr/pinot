@@ -3,13 +3,12 @@
   PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
   PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  MSelectionOrderByOperator operator=(MSelectionOrderByOperator)rootPlanNode.run();
-  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)rootPlanNode.run().nextBlock();
   PriorityQueue<Serializable[]> retPriorityQueue=(PriorityQueue<Serializable[]>)resultBlock.getSelectionResult();
   while (!retPriorityQueue.isEmpty()) {
     Serializable[] row=retPriorityQueue.poll();
-    System.out.println(Arrays.toString(row));
-    Assert.assertEquals(row[0],9);
-    Assert.assertEquals(row[1],99);
+    LOGGER.debug(Arrays.toString(row));
+    assertEquals(row[0],9);
+    assertEquals(row[1],99);
   }
 }

@@ -1,5 +1,5 @@
 {
-  Set<String> aggregationGroupByRelatedColumns=new HashSet<String>();
+  Set<String> aggregationGroupByRelatedColumns=new HashSet<>();
   for (  AggregationInfo aggregationInfo : _brokerRequest.getAggregationsInfo()) {
     if (aggregationInfo.getAggregationType().equalsIgnoreCase("count")) {
       continue;
@@ -8,5 +8,5 @@
     aggregationGroupByRelatedColumns.addAll(Arrays.asList(columns.split(",")));
   }
   aggregationGroupByRelatedColumns.addAll(_brokerRequest.getGroupBy().getColumns());
-  return aggregationGroupByRelatedColumns.toArray(new String[0]);
+  return aggregationGroupByRelatedColumns.toArray(new String[aggregationGroupByRelatedColumns.size()]);
 }

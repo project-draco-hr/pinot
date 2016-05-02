@@ -9,7 +9,6 @@
   ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
   Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(makeSegMgrList(_indexSegmentList),brokerRequest,executorService,150000);
   globalPlan.print();
-  System.out.println("/////////////////////////////////////////////////////////////////////////////");
   brokerRequest=setFilterQuery(brokerRequest);
   globalPlan=instancePlanMaker.makeInterSegmentPlan(makeSegMgrList(_indexSegmentList),brokerRequest,executorService,150000);
   globalPlan.print();
@@ -20,14 +19,14 @@
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse);
   BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  System.out.println(brokerResponse.getSelectionResults());
-  System.out.println("TimeUsedMs : " + brokerResponse.getTimeUsedMs());
-  System.out.println(brokerResponse);
+  LOGGER.debug(brokerResponse.getSelectionResults().toString());
+  LOGGER.debug("Time used: {}",brokerResponse.getTimeUsedMs());
+  LOGGER.debug(brokerResponse.toString());
   JSONArray selectionResultsArray=brokerResponse.getSelectionResults().getJSONArray("results");
   for (int j=0; j < selectionResultsArray.length(); ++j) {
-    System.out.println(selectionResultsArray.getJSONArray(j));
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(0),1);
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(1),91);
-    Assert.assertEquals(selectionResultsArray.getJSONArray(j).getInt(2) % 100,91);
+    LOGGER.debug(selectionResultsArray.getJSONArray(j).toString());
+    assertEquals(selectionResultsArray.getJSONArray(j).getInt(0),1);
+    assertEquals(selectionResultsArray.getJSONArray(j).getInt(1),91);
+    assertEquals(selectionResultsArray.getJSONArray(j).getInt(2) % 100,91);
   }
 }

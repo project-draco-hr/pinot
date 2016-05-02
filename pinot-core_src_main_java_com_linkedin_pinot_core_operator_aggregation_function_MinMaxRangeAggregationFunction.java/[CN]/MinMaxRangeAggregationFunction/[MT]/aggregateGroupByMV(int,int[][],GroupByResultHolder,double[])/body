@@ -5,13 +5,18 @@
     double value=valueArray[0][i];
     for (    int groupKey : docIdToGroupKeys[i]) {
       Pair<Double,Double> rangeValue=(Pair<Double,Double>)resultHolder.getResult(groupKey);
-      if (value < rangeValue.getFirst()) {
-        rangeValue.setFirst(value);
+      if (rangeValue == null) {
+        rangeValue=new Pair<>(value,value);
+        resultHolder.setValueForKey(groupKey,rangeValue);
       }
-      if (value > rangeValue.getSecond()) {
-        rangeValue.setSecond(value);
+ else {
+        if (value < rangeValue.getFirst()) {
+          rangeValue.setFirst(value);
+        }
+        if (value > rangeValue.getSecond()) {
+          rangeValue.setSecond(value);
+        }
       }
-      resultHolder.setValueForKey(groupKey,rangeValue);
     }
   }
 }

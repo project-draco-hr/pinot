@@ -3,8 +3,7 @@
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
   final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  final MAggregationGroupByOperator operator=(MAggregationGroupByOperator)rootPlanNode.run();
-  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
+  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)rootPlanNode.run().nextBlock();
   LOGGER.info("RunningTime : {}",resultBlock.getTimeUsedMs());
   LOGGER.info("NumDocsScanned : {}",resultBlock.getNumDocsScanned());
   LOGGER.info("TotalDocs : {}",resultBlock.getTotalRawDocs());

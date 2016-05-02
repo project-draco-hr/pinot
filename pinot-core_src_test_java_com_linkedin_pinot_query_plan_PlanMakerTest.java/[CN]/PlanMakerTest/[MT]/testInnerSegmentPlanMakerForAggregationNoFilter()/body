@@ -3,20 +3,15 @@
   PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
   PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
   rootPlanNode.showTree("");
-  MAggregationOperator operator=(MAggregationOperator)rootPlanNode.run();
-  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  System.out.println(resultBlock.getAggregationResult().get(0));
-  System.out.println(resultBlock.getAggregationResult().get(1));
-  System.out.println(resultBlock.getAggregationResult().get(2));
-  System.out.println(resultBlock.getAggregationResult().get(3));
-  System.out.println(resultBlock.getAggregationResult().get(4));
-  System.out.println(resultBlock.getAggregationResult().get(5));
-  System.out.println(resultBlock.getAggregationResult().get(6));
-  Assert.assertEquals(((Number)resultBlock.getAggregationResult().get(0)).longValue(),2000001L);
-  Assert.assertEquals(resultBlock.getAggregationResult().get(1),2000001000000.0);
-  Assert.assertEquals(resultBlock.getAggregationResult().get(2),2000000.0);
-  Assert.assertEquals(resultBlock.getAggregationResult().get(3),0.0);
-  Assert.assertEquals(Double.parseDouble(resultBlock.getAggregationResult().get(4).toString()),1000000.0);
-  Assert.assertEquals(((IntOpenHashSet)resultBlock.getAggregationResult().get(5)).size(),10);
-  Assert.assertEquals(((IntOpenHashSet)resultBlock.getAggregationResult().get(6)).size(),100);
+  IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)rootPlanNode.run().nextBlock();
+  for (int i=0; i < 7; i++) {
+    LOGGER.debug(resultBlock.getAggregationResult().get(i).toString());
+  }
+  assertEquals(((Number)resultBlock.getAggregationResult().get(0)).longValue(),2000001L);
+  assertEquals(resultBlock.getAggregationResult().get(1),2000001000000.0);
+  assertEquals(resultBlock.getAggregationResult().get(2),2000000.0);
+  assertEquals(resultBlock.getAggregationResult().get(3),0.0);
+  assertEquals(Double.parseDouble(resultBlock.getAggregationResult().get(4).toString()),1000000.0);
+  assertEquals(((IntOpenHashSet)resultBlock.getAggregationResult().get(5)).size(),10);
+  assertEquals(((IntOpenHashSet)resultBlock.getAggregationResult().get(6)).size(),100);
 }

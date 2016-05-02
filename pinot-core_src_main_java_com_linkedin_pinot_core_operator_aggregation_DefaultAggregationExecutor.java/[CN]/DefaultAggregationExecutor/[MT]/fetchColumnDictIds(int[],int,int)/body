@@ -1,18 +1,16 @@
 {
-  Set<String> columnsLoaded=new HashSet();
+  _columnsLoaded.clear();
   for (  AggregationFunctionContext aggrFuncContext : _aggrFuncContextList) {
-    if (!aggrFuncContext.getFunctionName().equalsIgnoreCase(AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION)) {
+    String aggrFuncName=aggrFuncContext.getFunctionName();
+    if (!aggrFuncName.equals(AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION)) {
       String[] aggrColumns=aggrFuncContext.getAggregationColumns();
       for (int i=0; i < aggrColumns.length; i++) {
         String aggrColumn=aggrColumns[i];
-        if (!columnsLoaded.contains(aggrColumn)) {
+        if (!_columnsLoaded.contains(aggrColumn)) {
           int[] dictIdArray=_columnToDictArrayMap.get(aggrColumn);
           BlockValSet blockValSet=aggrFuncContext.getBlockValSet(i);
           blockValSet.readIntValues(docIdSet,startIndex,length,dictIdArray,startIndex);
-          columnsLoaded.add(aggrColumn);
-          Dictionary dictionary=aggrFuncContext.getDictionary(i);
-          double[] valueArray=_columnToValueArrayMap.get(aggrColumn);
-          dictionary.readDoubleValues(dictIdArray,startIndex,length,valueArray,startIndex);
+          _columnsLoaded.add(aggrColumn);
         }
       }
     }

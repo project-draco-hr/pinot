@@ -1,0 +1,19 @@
+{
+  AggregationFunction function=aggrFuncContext.getAggregationFunction();
+  String aggrFuncName=aggrFuncContext.getFunctionName();
+  String[] aggrColumns=aggrFuncContext.getAggregationColumns();
+  Preconditions.checkState(aggrColumns.length == 1);
+  String aggrColumn=aggrColumns[0];
+switch (aggrFuncName) {
+case AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION:
+    function.aggregate(length,resultHolder);
+  return;
+case AggregationFunctionFactory.DISTINCTCOUNT_AGGREGATION_FUNCTION:
+case AggregationFunctionFactory.DISTINCTCOUNTHLL_AGGREGATION_FUNCTION:
+fetchColumnValueHashCodes(aggrColumn,aggrFuncContext.getDictionary(0),length);
+function.aggregate(length,resultHolder,_hashCodeArray);
+return;
+default :
+function.aggregate(length,resultHolder,_columnToValueArrayMap.get(aggrColumn));
+}
+}

@@ -3,14 +3,19 @@
   Preconditions.checkState(length <= valueArray[0].length);
   for (int i=0; i < length; i++) {
     int groupKey=groupKeys[i];
-    Pair<Double,Double> rangeValue=(Pair<Double,Double>)resultHolder.getResult(groupKey);
     double value=valueArray[0][i];
-    if (value < rangeValue.getFirst()) {
-      rangeValue.setFirst(value);
+    Pair<Double,Double> rangeValue=(Pair<Double,Double>)resultHolder.getResult(groupKey);
+    if (rangeValue == null) {
+      rangeValue=new Pair<>(value,value);
+      resultHolder.setValueForKey(groupKey,rangeValue);
     }
-    if (value > rangeValue.getSecond()) {
-      rangeValue.setSecond(value);
+ else {
+      if (value < rangeValue.getFirst()) {
+        rangeValue.setFirst(value);
+      }
+      if (value > rangeValue.getSecond()) {
+        rangeValue.setSecond(value);
+      }
     }
-    resultHolder.setValueForKey(groupKey,rangeValue);
   }
 }

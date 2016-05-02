@@ -6,97 +6,90 @@
   globalPlan.print();
   globalPlan.execute();
   DataTable instanceResponse=globalPlan.getInstanceResponse();
-  System.out.println(instanceResponse);
+  LOGGER.debug(instanceResponse.toString());
   List<DataTable> instanceResponseList=new ArrayList<DataTable>();
   instanceResponseList.add(instanceResponse);
   List<Map<String,Serializable>> combinedGroupByResult=AggregationGroupByOperatorService.transformDataTableToGroupByResult(instanceResponse);
-  int i=0;
-  Map<String,Serializable> singleGroupByResult=combinedGroupByResult.get(i);
+  Map<String,Serializable> singleGroupByResult=combinedGroupByResult.get(COUNT_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       assertEquals(400020,((Number)resultList).longValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       assertEquals(400000,((Number)resultList).longValue());
     }
   }
-  i=1;
-  singleGroupByResult=combinedGroupByResult.get(i);
+  singleGroupByResult=combinedGroupByResult.get(SUM_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       double expectedSumValue=(((Double.parseDouble(keyString) + 200000 + Double.parseDouble(keyString)) * 20001) / 2) * 20;
       assertEquals(expectedSumValue,((Double)resultList).doubleValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       double expectedSumValue=(((Double.parseDouble(keyString) + 200000) - 10) + Double.parseDouble(keyString)) * 10000 * 20;
       assertEquals(expectedSumValue,((Double)resultList).doubleValue());
     }
   }
-  i=2;
-  singleGroupByResult=combinedGroupByResult.get(i);
+  singleGroupByResult=combinedGroupByResult.get(MAX_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       assertEquals(200000 + Double.parseDouble(keyString),((Double)resultList).doubleValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       assertEquals((200000 - 10) + Double.parseDouble(keyString),((Double)resultList).doubleValue());
     }
   }
-  i=3;
-  singleGroupByResult=combinedGroupByResult.get(i);
+  singleGroupByResult=combinedGroupByResult.get(MIN_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       assertEquals(Double.parseDouble(keyString),((Double)resultList).doubleValue());
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       assertEquals(Double.parseDouble(keyString),((Double)resultList).doubleValue());
     }
   }
-  i=4;
-  singleGroupByResult=combinedGroupByResult.get(i);
+  singleGroupByResult=combinedGroupByResult.get(AVG_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     if (keyString.equals("0")) {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       double expectedAvgValue=((((Double.parseDouble(keyString) + 200000 + Double.parseDouble(keyString)) * 20001) / 2) * 20) / 400020;
       assertEquals(expectedAvgValue,Double.parseDouble((resultList.toString())));
     }
  else {
       Serializable resultList=singleGroupByResult.get(keyString);
-      System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+      LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
       double expectedAvgValue=((((Double.parseDouble(keyString) + 200000) - 10) + Double.parseDouble(keyString)) * 10000 * 20) / 400000;
       assertEquals(expectedAvgValue,Double.parseDouble((resultList.toString())));
     }
   }
-  i=5;
-  singleGroupByResult=combinedGroupByResult.get(i);
+  singleGroupByResult=combinedGroupByResult.get(DISTINCT_DIM0_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     Serializable resultList=singleGroupByResult.get(keyString);
-    System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+    LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
     int expectedAvgValue=1;
     assertEquals(expectedAvgValue,((IntOpenHashSet)resultList).size());
   }
-  i=6;
-  singleGroupByResult=combinedGroupByResult.get(i);
+  singleGroupByResult=combinedGroupByResult.get(DISTINCT_DIM1_AGGREGATION_INDEX);
   for (  String keyString : singleGroupByResult.keySet()) {
     Serializable resultList=singleGroupByResult.get(keyString);
-    System.out.println("grouped key : " + keyString + ", value : "+ resultList);
+    LOGGER.debug("grouped key: {}, value: {}",keyString,resultList);
     int expectedAvgValue=10;
     assertEquals(expectedAvgValue,((IntOpenHashSet)resultList).size());
   }
@@ -104,6 +97,6 @@
   Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  System.out.println(new JSONArray(brokerResponse.getAggregationResults()));
-  System.out.println("Time used : " + brokerResponse.getTimeUsedMs());
+  LOGGER.debug(new JSONArray(brokerResponse.getAggregationResults()).toString());
+  LOGGER.debug("Time used: {}",brokerResponse.getTimeUsedMs());
 }

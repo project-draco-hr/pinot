@@ -7,7 +7,7 @@
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   driver.init(config);
   driver.build();
-  System.out.println("built at : " + INDEX_DIR.getAbsolutePath());
+  LOGGER.debug("built at: {}",INDEX_DIR.getAbsolutePath());
   final File indexSegmentDir=new File(INDEX_DIR,driver.getSegmentName());
   _indexSegment=ColumnarSegmentLoader.load(indexSegmentDir,ReadMode.mmap);
 }
