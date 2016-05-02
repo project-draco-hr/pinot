@@ -24,7 +24,11 @@
     starTreeIndexSpec.setMaxLeafRecords(thirdeyeConfig.getSplit().getThreshold());
     starTreeIndexSpec.setDimensionsSplitOrder(thirdeyeConfig.getSplit().getOrder());
   }
-  starTreeIndexSpec.setSkipMaterializationForDimensions(thirdeyeConfig.getTransformDimensions());
+  Set<String> skipMaterializationForDimensions=new HashSet<>();
+  for (  String transformDimension : thirdeyeConfig.getTransformDimensions()) {
+    skipMaterializationForDimensions.add(transformDimension + ThirdEyeConstants.RAW_DIMENSION_SUFFIX);
+  }
+  starTreeIndexSpec.setSkipMaterializationForDimensions(skipMaterializationForDimensions);
   segmentGeneratorConfig.setStarTreeIndexSpec(starTreeIndexSpec);
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   driver.init(segmentGeneratorConfig);
