@@ -1,0 +1,18 @@
+{
+  List<String> metricNames=new ArrayList<String>(config.getMetrics().size());
+  List<MetricType> metricTypes=new ArrayList<MetricType>(config.getMetrics().size());
+  for (  MetricSpec spec : config.getMetrics()) {
+    metricNames.add(spec.getName());
+    metricTypes.add(spec.getType());
+  }
+  List<String> dimensionNames=new ArrayList<String>(config.getDimensions().size());
+  for (  DimensionSpec dimensionSpec : config.getDimensions()) {
+    dimensionNames.add(dimensionSpec.getName());
+  }
+  TimeSpec time=config.getTime();
+  TimeSpec inputTime=config.getInputTime();
+  if (inputTime == null) {
+    throw new IllegalStateException("Must provide input time configs for aggregation job");
+  }
+  return new AggregationPhaseConfig(dimensionNames,metricNames,metricTypes,time,inputTime);
+}

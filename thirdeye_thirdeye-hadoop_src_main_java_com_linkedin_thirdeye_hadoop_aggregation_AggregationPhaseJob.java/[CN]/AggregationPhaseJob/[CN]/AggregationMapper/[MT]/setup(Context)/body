@@ -1,0 +1,16 @@
+{
+  LOGGER.info("AggregationPhaseJob.AggregationPhaseMapper.setup()");
+  Configuration configuration=context.getConfiguration();
+  thirdeyeConfig=OBJECT_MAPPER.readValue(configuration.get(AGG_PHASE_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
+  config=AggregationPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
+  dimensionsNames=config.getDimensionNames();
+  metricNames=config.getMetricNames();
+  numMetrics=metricNames.size();
+  metricTypes=config.getMetricTypes();
+  timeColumnName=config.getTime().getColumnName();
+  inputGranularity=config.getInputTime().getTimeGranularity();
+  aggregateGranularity=config.getTime().getTimeGranularity();
+  keyWritable=new BytesWritable();
+  valWritable=new BytesWritable();
+  numRecords=0;
+}

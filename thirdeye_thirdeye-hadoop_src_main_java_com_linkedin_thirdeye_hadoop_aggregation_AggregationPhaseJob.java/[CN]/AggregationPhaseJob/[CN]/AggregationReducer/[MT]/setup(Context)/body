@@ -1,0 +1,15 @@
+{
+  LOGGER.info("AggregationPhaseJob.AggregationPhaseReducer.setup()");
+  Configuration configuration=context.getConfiguration();
+  thirdeyeConfig=OBJECT_MAPPER.readValue(configuration.get(AGG_PHASE_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
+  config=AggregationPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
+  dimensionsNames=config.getDimensionNames();
+  metricNames=config.getMetricNames();
+  numMetrics=metricNames.size();
+  metricTypes=config.getMetricTypes();
+  time=config.getTime();
+  avroSchema=new Schema.Parser().parse(configuration.get(AGG_PHASE_AVRO_SCHEMA.toString()));
+  numRecords=0;
+  metricSums=new Number[numMetrics];
+  Arrays.fill(metricSums,0);
+}

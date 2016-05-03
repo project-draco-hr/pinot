@@ -1,0 +1,38 @@
+{
+  int recordCount=0;
+  List<GenericRecord> inputRecords=generateTestMapperData();
+  for (  GenericRecord record : inputRecords) {
+    AvroKey<GenericRecord> inKey=new AvroKey<GenericRecord>();
+    inKey.datum(record);
+    mapDriver.addInput(new Pair<AvroKey<GenericRecord>,NullWritable>(inKey,NullWritable.get()));
+    recordCount++;
+  }
+  List<Pair<BytesWritable,BytesWritable>> mapResult=mapDriver.run();
+  Assert.assertEquals("Incorrect number of records emitted by mapper",recordCount,mapResult.size());
+  AggregationPhaseMapOutputKey keyWrapper=AggregationPhaseMapOutputKey.fromBytes(mapResult.get(0).getFirst().getBytes());
+  Assert.assertEquals(406058,keyWrapper.getTime());
+  keyWrapper=AggregationPhaseMapOutputKey.fromBytes(mapResult.get(1).getFirst().getBytes());
+  Assert.assertEquals(406058,keyWrapper.getTime());
+  keyWrapper=AggregationPhaseMapOutputKey.fromBytes(mapResult.get(2).getFirst().getBytes());
+  Assert.assertEquals(406059,keyWrapper.getTime());
+  List<Pair<BytesWritable,List<BytesWritable>>> reduceInput=generateTestReduceData(mapResult);
+  reduceDriver.addAll(reduceInput);
+  List<Pair<AvroKey<GenericRecord>,NullWritable>> reduceResult=reduceDriver.run();
+  Assert.assertEquals("Incorrect number of records returned by aggregation reducer",2,reduceResult.size());
+  GenericRecord record=reduceResult.get(0).getFirst().datum();
+  List<String> dimensionsExpected=Lists.newArrayList("abc1","pqr1","xyz1");
+  List<String> dimensionsActual=getDimensionsFromRecord(record);
+  Assert.assertEquals(dimensionsExpected,dimensionsActual);
+  List<Integer> metricsExpected=Lists.newArrayList(200,40);
+  List<Integer> metricsActual=getMetricsFromRecord(record);
+  Assert.assertEquals(metricsExpected,metricsActual);
+  Assert.assertEquals(406058,(long)record.get("hoursSinceEpoch"));
+  record=reduceResult.get(1).getFirst().datum();
+  dimensionsExpected=Lists.newArrayList("abc2","pqr2","xyz2");
+  dimensionsActual=getDimensionsFromRecord(record);
+  Assert.assertEquals(dimensionsExpected,dimensionsActual);
+  metricsExpected=Lists.newArrayList(10,2);
+  metricsActual=getMetricsFromRecord(record);
+  Assert.assertEquals(metricsExpected,metricsActual);
+  Assert.assertEquals(406059,(long)record.get("hoursSinceEpoch"));
+}

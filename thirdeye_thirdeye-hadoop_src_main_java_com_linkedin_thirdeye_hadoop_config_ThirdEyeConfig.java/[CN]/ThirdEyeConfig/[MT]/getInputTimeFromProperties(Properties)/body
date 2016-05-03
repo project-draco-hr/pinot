@@ -1,0 +1,11 @@
+{
+  TimeSpec inputTime=null;
+  String timeColumnName=getAndCheck(props,ThirdEyeConfigProperties.THIRDEYE_TIMECOLUMN_NAME.toString());
+  String timeColumnType=getAndCheck(props,ThirdEyeConfigProperties.THIRDEYE_INPUT_TIMECOLUMN_TYPE.toString(),null);
+  String timeColumnSize=getAndCheck(props,ThirdEyeConfigProperties.THIRDEYE_INPUT_TIMECOLUMN_SIZE.toString(),null);
+  if (timeColumnType != null && timeColumnSize != null) {
+    TimeGranularity timeGranularity=new TimeGranularity(Integer.parseInt(timeColumnSize),TimeUnit.valueOf(timeColumnType));
+    inputTime=new TimeSpec(timeColumnName,timeGranularity);
+  }
+  return inputTime;
+}

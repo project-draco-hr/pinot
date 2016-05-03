@@ -1,0 +1,51 @@
+{
+  Job job=Job.getInstance(getConf());
+  job.setJobName(name);
+  job.setJarByClass(AggregationPhaseJob.class);
+  FileSystem fs=FileSystem.get(getConf());
+  Configuration configuration=job.getConfiguration();
+  LOGGER.info("Properties {}",props);
+  String inputPathDir=getAndSetConfiguration(configuration,AGG_PHASE_INPUT_PATH);
+  LOGGER.info("Input path dir: " + inputPathDir);
+  for (  String inputPath : inputPathDir.split(ThirdEyeConstants.FIELD_SEPARATOR)) {
+    LOGGER.info("Adding input:" + inputPath);
+    Path input=new Path(inputPath);
+    FileInputFormat.addInputPath(job,input);
+  }
+  Path outputPath=new Path(getAndSetConfiguration(configuration,AGG_PHASE_OUTPUT_PATH));
+  LOGGER.info("Output path dir: " + outputPath.toString());
+  if (fs.exists(outputPath)) {
+    fs.delete(outputPath,true);
+  }
+  FileOutputFormat.setOutputPath(job,outputPath);
+  Schema avroSchema=ThirdeyeAvroUtils.getSchema(inputPathDir);
+  LOGGER.info("Schema : {}",avroSchema.toString(true));
+  job.getConfiguration().set(AGG_PHASE_AVRO_SCHEMA.toString(),avroSchema.toString());
+  String metricTypesProperty=ThirdeyeAvroUtils.getMetricTypesProperty(props.getProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_NAMES.toString()),props.getProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_TYPES.toString()),avroSchema);
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_TYPES.toString(),metricTypesProperty);
+  ThirdEyeConfig thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
+  LOGGER.info("Thirdeye Config {}",thirdeyeConfig.encode());
+  job.getConfiguration().set(AGG_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
+  job.setMapperClass(AggregationMapper.class);
+  job.setInputFormatClass(AvroKeyInputFormat.class);
+  job.setMapOutputKeyClass(BytesWritable.class);
+  job.setMapOutputValueClass(BytesWritable.class);
+  job.setReducerClass(AggregationReducer.class);
+  job.setOutputKeyClass(AvroKey.class);
+  job.setOutputValueClass(NullWritable.class);
+  AvroJob.setOutputKeySchema(job,avroSchema);
+  job.setOutputFormatClass(AvroKeyOutputFormat.class);
+  job.waitForCompletion(true);
+  Counter counter=job.getCounters().findCounter(AggregationCounter.NUMBER_OF_RECORDS);
+  LOGGER.info(counter.getDisplayName() + " : " + counter.getValue());
+  if (counter.getValue() == 0) {
+    throw new IllegalStateException("No input records in " + inputPathDir);
+  }
+  counter=job.getCounters().findCounter(AggregationCounter.NUMBER_OF_RECORDS_FLATTENED);
+  LOGGER.info(counter.getDisplayName() + " : " + counter.getValue());
+  for (  String metric : thirdeyeConfig.getMetricNames()) {
+    counter=job.getCounters().findCounter(thirdeyeConfig.getCollection(),metric);
+    LOGGER.info(counter.getDisplayName() + " : " + counter.getValue());
+  }
+  return job;
+}

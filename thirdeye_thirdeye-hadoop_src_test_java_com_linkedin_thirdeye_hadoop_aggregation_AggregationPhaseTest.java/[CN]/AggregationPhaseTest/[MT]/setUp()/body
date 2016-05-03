@@ -1,0 +1,30 @@
+{
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_TABLE_NAME.toString(),"collection");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_DIMENSION_NAMES.toString(),"d1,d2,d3");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_NAMES.toString(),"m1,m2");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_METRIC_TYPES.toString(),"INT,INT");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_TIMECOLUMN_NAME.toString(),"hoursSinceEpoch");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_INPUT_TIMECOLUMN_SIZE.toString(),"1");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_INPUT_TIMECOLUMN_TYPE.toString(),TimeUnit.HOURS.toString());
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_INPUT_TIMECOLUMN_SIZE.toString(),"1");
+  props.setProperty(ThirdEyeConfigProperties.THIRDEYE_INPUT_TIMECOLUMN_TYPE.toString(),TimeUnit.MILLISECONDS.toString());
+  thirdeyeConfig=ThirdEyeConfig.fromProperties(props);
+  AggregationMapper mapper=new AggregationMapper();
+  mapDriver=MapDriver.newMapDriver(mapper);
+  Configuration configuration=mapDriver.getConfiguration();
+  configuration.set("io.serializations","org.apache.hadoop.io.serializer.JavaSerialization," + "org.apache.hadoop.io.serializer.WritableSerialization");
+  configuration.set(AggregationPhaseConstants.AGG_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
+  inputSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(AVRO_SCHEMA));
+  setUpAvroSerialization(mapDriver.getConfiguration(),inputSchema);
+  AggregationReducer reducer=new AggregationReducer();
+  reduceDriver=ReduceDriver.newReduceDriver(reducer);
+  configuration=reduceDriver.getConfiguration();
+  configuration.set("io.serializations","org.apache.hadoop.io.serializer.JavaSerialization," + "org.apache.hadoop.io.serializer.WritableSerialization");
+  Schema avroSchema=new Schema.Parser().parse(ClassLoader.getSystemResourceAsStream(AVRO_SCHEMA));
+  configuration.set(AggregationPhaseConstants.AGG_PHASE_AVRO_SCHEMA.toString(),avroSchema.toString());
+  configuration.set(AggregationPhaseConstants.AGG_PHASE_THIRDEYE_CONFIG.toString(),OBJECT_MAPPER.writeValueAsString(thirdeyeConfig));
+  TemporaryPath tmpPath=new TemporaryPath();
+  outputPath=tmpPath.toString();
+  configuration.set(AggregationPhaseConstants.AGG_PHASE_OUTPUT_PATH.toString(),outputPath);
+  setUpAvroSerialization(reduceDriver.getConfiguration(),inputSchema);
+}

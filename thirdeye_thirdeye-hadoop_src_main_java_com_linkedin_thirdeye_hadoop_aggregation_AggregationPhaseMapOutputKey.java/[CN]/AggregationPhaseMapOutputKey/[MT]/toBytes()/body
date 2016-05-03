@@ -1,0 +1,15 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(baos);
+  byte[] bytes;
+  dos.writeLong(time);
+  dos.writeInt(dimensions.size());
+  for (  String dimension : dimensions) {
+    bytes=dimension.getBytes();
+    dos.writeInt(bytes.length);
+    dos.write(bytes);
+  }
+  baos.close();
+  dos.close();
+  return baos.toByteArray();
+}

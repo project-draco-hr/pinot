@@ -1,0 +1,29 @@
+{
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  DataOutputStream dos=new DataOutputStream(baos);
+  dos.writeInt(metricValues.length);
+  for (int i=0; i < metricValues.length; i++) {
+    Number number=metricValues[i];
+    MetricType metricType=metricTypes.get(i);
+switch (metricType) {
+case SHORT:
+      dos.writeShort(number.intValue());
+    break;
+case LONG:
+  dos.writeLong(number.longValue());
+break;
+case INT:
+dos.writeInt(number.intValue());
+break;
+case FLOAT:
+dos.writeFloat(number.floatValue());
+break;
+case DOUBLE:
+dos.writeDouble(number.doubleValue());
+break;
+}
+}
+baos.close();
+dos.close();
+return baos.toByteArray();
+}

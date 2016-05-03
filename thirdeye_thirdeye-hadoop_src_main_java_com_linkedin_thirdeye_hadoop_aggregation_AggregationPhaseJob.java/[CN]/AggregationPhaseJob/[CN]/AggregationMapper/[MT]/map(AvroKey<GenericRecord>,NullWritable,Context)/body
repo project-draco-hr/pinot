@@ -1,0 +1,24 @@
+{
+  GenericRecord inputRecord=record.datum();
+  List<String> dimensions=new ArrayList<>();
+  for (  String dimension : dimensionsNames) {
+    String dimensionValue=ThirdeyeAvroUtils.getDimensionFromRecord(inputRecord,dimension);
+    dimensions.add(dimensionValue);
+  }
+  Number[] metrics=new Number[numMetrics];
+  for (int i=0; i < numMetrics; i++) {
+    Number metricValue=ThirdeyeAvroUtils.getMetricFromRecord(inputRecord,metricNames.get(i));
+    metrics[i]=metricValue;
+  }
+  long timeValue=ThirdeyeAvroUtils.getMetricFromRecord(inputRecord,timeColumnName).longValue();
+  long inputTimeMillis=inputGranularity.toMillis(timeValue);
+  long bucketTime=aggregateGranularity.convertToUnit(inputTimeMillis);
+  AggregationPhaseMapOutputKey keyWrapper=new AggregationPhaseMapOutputKey(bucketTime,dimensions);
+  byte[] keyBytes=keyWrapper.toBytes();
+  keyWritable.set(keyBytes,0,keyBytes.length);
+  AggregationPhaseMapOutputValue valWrapper=new AggregationPhaseMapOutputValue(metrics,metricTypes);
+  byte[] valBytes=valWrapper.toBytes();
+  valWritable.set(valBytes,0,valBytes.length);
+  numRecords++;
+  context.write(keyWritable,valWritable);
+}
