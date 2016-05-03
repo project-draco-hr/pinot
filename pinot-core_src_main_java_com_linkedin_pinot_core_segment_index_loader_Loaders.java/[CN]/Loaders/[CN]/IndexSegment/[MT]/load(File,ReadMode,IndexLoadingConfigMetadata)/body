@@ -19,14 +19,14 @@
   }
    SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryPath,metadata,readMode);
   Map<String,ColumnIndexContainer> indexContainerMap=new HashMap<String,ColumnIndexContainer>();
+  SegmentDirectory.Reader segmentReader=segmentDirectory.createReader();
   for (  String column : metadata.getColumnMetadataMap().keySet()) {
-    indexContainerMap.put(column,ColumnIndexContainer.init(segmentDirectory.createReader(),metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata));
+    indexContainerMap.put(column,ColumnIndexContainer.init(segmentReader,metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata));
   }
   StarTree starTree=null;
-  if (metadata.hasStarTree()) {
-    File starTreeFile=new File(indexDir,V1Constants.STAR_TREE_INDEX_FILE);
-    LOGGER.debug("Loading star tree index file {}",starTreeFile);
-    starTree=StarTree.fromBytes(new FileInputStream(starTreeFile));
+  if (segmentReader.hasStarTree()) {
+    LOGGER.debug("Loading star tree for segment: {}",segmentDirectory);
+    starTree=StarTree.fromBytes(segmentReader.getStarTreeStream());
   }
   return new IndexSegmentImpl(segmentDirectory,metadata,indexContainerMap,starTree);
 }

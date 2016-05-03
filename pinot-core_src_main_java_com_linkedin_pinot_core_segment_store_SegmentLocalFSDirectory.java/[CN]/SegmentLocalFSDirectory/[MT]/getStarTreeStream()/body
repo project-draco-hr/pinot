@@ -1,0 +1,12 @@
+{
+  File starTreeFile=starTreeIndexFile();
+  Preconditions.checkState(starTreeFile.exists(),"Star tree file for segment: {} does not exist");
+  Preconditions.checkState(starTreeFile.isFile(),"Star tree file: {} for segment: {} is not a regular file");
+  try {
+    return new FileInputStream(starTreeFile);
+  }
+ catch (  FileNotFoundException e) {
+    LOGGER.error("Star tree file for segment: {} is not found",segmentDirectory,e);
+    throw new IllegalStateException("Star tree file for segment: " + segmentDirectory + " is not found",e);
+  }
+}

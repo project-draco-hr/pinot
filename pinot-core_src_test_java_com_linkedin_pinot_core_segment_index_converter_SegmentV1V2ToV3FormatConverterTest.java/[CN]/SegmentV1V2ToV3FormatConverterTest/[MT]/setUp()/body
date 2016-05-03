@@ -8,6 +8,9 @@
   driver.init(config);
   driver.build();
   segmentDirectory=new File(INDEX_DIR,driver.getSegmentName());
+  File starTreeFile=new File(segmentDirectory,V1Constants.STAR_TREE_INDEX_FILE);
+  FileUtils.touch(starTreeFile);
+  FileUtils.writeStringToFile(starTreeFile,"This is a star tree index");
   Configuration tableConfig=new PropertiesConfiguration();
   tableConfig.addProperty(IndexLoadingConfigMetadata.KEY_OF_SEGMENT_FORMAT_VERSION,"v1");
   v1LoadingConfig=new IndexLoadingConfigMetadata(tableConfig);

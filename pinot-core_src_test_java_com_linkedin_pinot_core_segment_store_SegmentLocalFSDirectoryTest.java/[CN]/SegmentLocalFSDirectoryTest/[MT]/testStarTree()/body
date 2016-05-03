@@ -1,0 +1,18 @@
+{
+  Assert.assertFalse(segmentDirectory.hasStarTree());
+  FileUtils.touch(new File(segmentDirectory.getPath().toFile(),V1Constants.STAR_TREE_INDEX_FILE));
+  String data="This is star tree";
+  try (SegmentDirectory.Writer writer=segmentDirectory.createWriter();OutputStream starTreeOstream=writer.starTreeOutputStream()){
+    starTreeOstream.write(data.getBytes());
+  }
+   try (SegmentDirectory.Reader reader=segmentDirectory.createReader();InputStream starTreeIstream=reader.getStarTreeStream()){
+    byte[] fileDataBytes=new byte[data.length()];
+    starTreeIstream.read(fileDataBytes,0,fileDataBytes.length);
+    String fileData=new String(fileDataBytes);
+    Assert.assertEquals(fileData,data);
+  }
+   try (SegmentDirectory.Writer writer=segmentDirectory.createWriter()){
+    writer.removeStarTree();
+    Assert.assertFalse(segmentDirectory.hasStarTree());
+  }
+ }

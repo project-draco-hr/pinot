@@ -1,11 +1,13 @@
 {
-  SegmentLocalFSDirectory.Writer writer=segmentDirectory.createWriter();
-  Assert.assertNotNull(writer);
-  PinotDataBuffer buffer=writer.newIndexFor("newColumn",ColumnIndexType.FORWARD_INDEX,1024);
-  loadData(buffer);
-  writer.saveAndClose();
-  SegmentDirectory.Reader reader=segmentDirectory.createReader();
-  Assert.assertNotNull(reader);
-  PinotDataBuffer newDataBuffer=reader.getIndexFor("newColumn",ColumnIndexType.FORWARD_INDEX);
-  verifyData(newDataBuffer);
-}
+  try (SegmentLocalFSDirectory.Writer writer=segmentDirectory.createWriter()){
+    Assert.assertNotNull(writer);
+    PinotDataBuffer buffer=writer.newIndexFor("newColumn",ColumnIndexType.FORWARD_INDEX,1024);
+    loadData(buffer);
+    writer.saveAndClose();
+  }
+   try (SegmentDirectory.Reader reader=segmentDirectory.createReader()){
+    Assert.assertNotNull(reader);
+    PinotDataBuffer newDataBuffer=reader.getIndexFor("newColumn",ColumnIndexType.FORWARD_INDEX);
+    verifyData(newDataBuffer);
+  }
+ }
