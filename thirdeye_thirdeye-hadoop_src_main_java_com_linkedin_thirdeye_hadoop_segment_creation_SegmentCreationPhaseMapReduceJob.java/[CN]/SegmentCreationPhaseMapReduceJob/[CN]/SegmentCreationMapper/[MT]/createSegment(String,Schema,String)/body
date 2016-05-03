@@ -9,27 +9,45 @@
   final Path localFilePath=new Path(dataPath + "/" + hdfsDataPath.getName());
   fs.copyToLocalFile(hdfsDataPath,localFilePath);
   LOGGER.info("Data schema is : {}",schema);
+  LOGGER.info("*********************************************************************");
   SegmentGeneratorConfig segmentGeneratorConfig=new SegmentGeneratorConfig(schema);
   segmentGeneratorConfig.setTableName(tableName);
   segmentGeneratorConfig.setInputFilePath(new File(dataPath,hdfsDataPath.getName()).getAbsolutePath());
+  LOGGER.info("Setting input path {}",segmentGeneratorConfig.getInputFilePath());
   segmentGeneratorConfig.setFormat(FileFormat.AVRO);
   segmentGeneratorConfig.setSegmentNamePostfix(seqId);
   segmentGeneratorConfig.setOutDir(localDiskSegmentDirectory);
   segmentGeneratorConfig.setEnableStarTreeIndex(true);
+  LOGGER.info("Setting enableStarTreeIndex");
   String minTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockStartTime);
   String maxTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockEndTime);
+  LOGGER.info("Wall clock time : min {} max {}",minTime,maxTime);
   segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + ThirdEyeConstants.SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
+  LOGGER.info("Setting segment name {}",segmentGeneratorConfig.getSegmentName());
   StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
-  if (thirdeyeConfig.getSplit() != null) {
-    starTreeIndexSpec.setMaxLeafRecords(thirdeyeConfig.getSplit().getThreshold());
-    starTreeIndexSpec.setDimensionsSplitOrder(thirdeyeConfig.getSplit().getOrder());
-  }
   Set<String> skipMaterializationForDimensions=new HashSet<>();
-  for (  String transformDimension : thirdeyeConfig.getTransformDimensions()) {
-    skipMaterializationForDimensions.add(transformDimension + ThirdEyeConstants.RAW_DIMENSION_SUFFIX);
+  Set<String> transformDimensionsSet=thirdeyeConfig.getTransformDimensions();
+  LOGGER.info("Dimensions with _raw column {}",transformDimensionsSet);
+  for (  String transformDimension : transformDimensionsSet) {
+    String rawDimension=transformDimension + ThirdEyeConstants.RAW_DIMENSION_SUFFIX;
+    skipMaterializationForDimensions.add(rawDimension);
+    LOGGER.info("Adding {} to skipMaterialization set",rawDimension);
   }
   starTreeIndexSpec.setSkipMaterializationForDimensions(skipMaterializationForDimensions);
+  LOGGER.info("Setting skipMaterializationForDimensions {}",skipMaterializationForDimensions);
+  if (thirdeyeConfig.getSplit() != null) {
+    starTreeIndexSpec.setMaxLeafRecords(thirdeyeConfig.getSplit().getThreshold());
+    LOGGER.info("Setting split threshold to {}",starTreeIndexSpec.getMaxLeafRecords());
+    List<String> splitOrder=thirdeyeConfig.getSplit().getOrder();
+    if (splitOrder != null) {
+      LOGGER.info("Removing from splitOrder, any dimensions which are also in skipMaterializationForDimensions");
+      splitOrder.removeAll(skipMaterializationForDimensions);
+      starTreeIndexSpec.setDimensionsSplitOrder(splitOrder);
+    }
+    LOGGER.info("Setting splitOrder {}",splitOrder);
+  }
   segmentGeneratorConfig.setStarTreeIndexSpec(starTreeIndexSpec);
+  LOGGER.info("*********************************************************************");
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   driver.init(segmentGeneratorConfig);
   driver.build();
