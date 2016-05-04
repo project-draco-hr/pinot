@@ -1,0 +1,18 @@
+{
+  this.collectionName=that.collectionName;
+  this.filterClause=that.filterClause;
+  this.baselineStart=that.baselineStart;
+  this.baselineEnd=that.baselineEnd;
+  this.currentStart=that.currentStart;
+  this.currentEnd=that.currentEnd;
+  if (that.groupByDimensions != null) {
+    this.groupByDimensions=new ArrayList<>(that.groupByDimensions);
+  }
+  if (that.filterSet != null) {
+    this.filterSet=ArrayListMultimap.create(that.filterSet);
+  }
+  if (that.aggregationTimeGranularity != null) {
+    this.aggregationTimeGranularity=new TimeGranularity(that.aggregationTimeGranularity.getSize(),that.aggregationTimeGranularity.getUnit());
+  }
+  this.metricFunctions=new ArrayList<>(that.metricFunctions);
+}

@@ -1,0 +1,14 @@
+{
+  Marker anomalyMarker;
+  if (intervalEnd == null || intervalStart.equals(intervalEnd)) {
+    anomalyMarker=new ValueMarker(intervalStart);
+    anomalyMarker.setPaint(Color.LIGHT_GRAY);
+  }
+ else {
+    anomalyMarker=new IntervalMarker(intervalStart,intervalEnd);
+    anomalyMarker.setPaint(TRANSPARENT_GRAY);
+  }
+  anomalyMarker.setLabel(label);
+  LOG.info("Anomaly marker generated for: {}, {}",intervalStart,intervalEnd);
+  return anomalyMarker;
+}

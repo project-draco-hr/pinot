@@ -1,0 +1,27 @@
+{
+  if (finished) {
+    throw new RuntimeException("Cannot add more entries since the view is already created");
+  }
+  DescriptiveStatistics baselineStats;
+  DescriptiveStatistics cumulativeCurrentStats;
+  DescriptiveStatistics currentStats;
+  DescriptiveStatistics cumulativeBaselineStats;
+  timeBuckets.add(timeBucket);
+  dimensionValueSet.add(dimensionValue);
+  baselineStats=getStats(baselineStatsMap,timeBucket);
+  currentStats=getStats(currentStatsMap,timeBucket);
+  cumulativeBaselineStats=getStats(cumulativeBaselineStatsMap,timeBucket);
+  cumulativeCurrentStats=getStats(cumulativeCurrentStatsMap,timeBucket);
+  baselineStats.addValue(baselineValue);
+  currentStats.addValue(currentValue);
+  cumulativeBaselineStats.addValue(cumulativeBaselineValue);
+  cumulativeCurrentStats.addValue(cumulativeCurrentValue);
+  ContributionCell contributionCell=new ContributionCell(dimensionValue,timeBucket,baselineValue,currentValue,cumulativeBaselineValue,cumulativeCurrentValue);
+  cells.add(contributionCell);
+  Map<String,ContributionCell> map=timeBucketToDimensionValuesMap.get(timeBucket);
+  if (map == null) {
+    map=new HashMap<>();
+    timeBucketToDimensionValuesMap.put(timeBucket,map);
+  }
+  map.put(dimensionValue,contributionCell);
+}

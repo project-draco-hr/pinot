@@ -1,0 +1,15 @@
+{
+  PinotThirdEyeClient pinotThirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
+  QueryCache queryCache=new QueryCache(pinotThirdEyeClient,Executors.newFixedThreadPool(10));
+  TimeOnTimeComparisonRequest comparisonRequest;
+  comparisonRequest=generateGroupByTimeAndDimension();
+  TimeOnTimeComparisonHandler handler=new TimeOnTimeComparisonHandler(queryCache);
+  long start=System.currentTimeMillis();
+  TimeOnTimeComparisonResponse response=handler.handle(comparisonRequest);
+  long end=System.currentTimeMillis();
+  System.out.println("Time taken:" + (end - start));
+  for (int i=0; i < response.getNumRows(); i++) {
+    System.out.println(response.getRow(i));
+  }
+  System.exit(0);
+}

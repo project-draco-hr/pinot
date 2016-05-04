@@ -1,0 +1,13 @@
+{
+  String jsonMetrics=null;
+  try {
+    CollectionSchema schema=queryCache.getClient().getCollectionSchema(collection);
+    List<String> metrics=schema.getMetricNames();
+    Collections.sort(metrics);
+    jsonMetrics=OBJECT_MAPPER.writeValueAsString(metrics);
+  }
+ catch (  Exception e) {
+    LOG.error("Error while fetching metrics",e);
+  }
+  return jsonMetrics;
+}

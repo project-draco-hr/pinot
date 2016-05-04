@@ -1,0 +1,11 @@
+{
+  String jsonCollections=null;
+  try {
+    List<String> collections=queryCache.getClient().getCollections();
+    jsonCollections=OBJECT_MAPPER.writeValueAsString(collections);
+  }
+ catch (  Exception e) {
+    LOG.error("Error while fetching datasets",e);
+  }
+  return jsonCollections;
+}

@@ -1,0 +1,10 @@
+{
+  List<ThirdEyeRequest> requests=new ArrayList<>();
+  ThirdEyeRequest allRequest=generateRequest(ALL,timeSeriesRequest,timeSeriesRequest.getStart(),timeSeriesRequest.getEnd(),null,null);
+  requests.add(allRequest);
+  for (  String dimension : timeSeriesRequest.getGroupByDimensions()) {
+    ThirdEyeRequest dimensionRequest=generateRequest(dimension,timeSeriesRequest,timeSeriesRequest.getStart(),timeSeriesRequest.getEnd(),dimension,null);
+    requests.add(dimensionRequest);
+  }
+  return requests;
+}

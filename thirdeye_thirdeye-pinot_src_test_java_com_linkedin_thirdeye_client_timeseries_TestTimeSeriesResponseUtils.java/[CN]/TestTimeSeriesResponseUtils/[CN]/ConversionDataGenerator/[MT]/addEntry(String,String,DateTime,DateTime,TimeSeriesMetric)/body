@@ -1,0 +1,14 @@
+{
+  validateArgs(dimensionName,dimensionValue,start,end,timeSeriesMetrics);
+  timeSeriesRows.add(createRow(dimensionName,dimensionValue,start,end,timeSeriesMetrics));
+  String[] dimensionKeyArr=new String[dimensions.size()];
+  Arrays.fill(dimensionKeyArr,"*");
+  if (dimensionName != null) {
+    dimensionKeyArr[dimensions.indexOf(dimensionName)]=dimensionValue;
+  }
+  DimensionKey dimensionKey=new DimensionKey(dimensionKeyArr);
+  if (!map.containsKey(dimensionKey)) {
+    map.put(dimensionKey,new MetricTimeSeries(metricSchema));
+  }
+  incrementMetricData(map.get(dimensionKey),start,end,timeSeriesMetrics);
+}

@@ -1,0 +1,13 @@
+{
+  String collectionInfo=null;
+  try {
+    HashMap<String,String> map=new HashMap<>();
+    long maxDataTime=queryCache.getClient().getMaxDataTime(collection);
+    map.put("maxTime","" + maxDataTime);
+    collectionInfo=OBJECT_MAPPER.writeValueAsString(map);
+  }
+ catch (  Exception e) {
+    LOG.error("Error while fetching info for collection: " + collection,e);
+  }
+  return collectionInfo;
+}

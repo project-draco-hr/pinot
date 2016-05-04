@@ -1,0 +1,16 @@
+{
+  final List<AnomalyResult> results;
+  try {
+    results=new HibernateSessionWrapper<List<AnomalyResult>>(sessionFactory).execute(new Callable<List<AnomalyResult>>(){
+      @Override public List<AnomalyResult> call() throws Exception {
+        AnomalyResultDAO resultDAO=(AnomalyResultDAO)context.getJobDetail().getJobDataMap().get(RESULT_DAO);
+        return resultDAO.findAllByCollectionTimeMetricAndFilters(config.getCollection(),config.getMetric(),end,start,config.getFilters());
+      }
+    }
+);
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  return results;
+}

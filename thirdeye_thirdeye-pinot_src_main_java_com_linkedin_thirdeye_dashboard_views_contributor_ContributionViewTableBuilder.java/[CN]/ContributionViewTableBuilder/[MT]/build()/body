@@ -1,0 +1,25 @@
+{
+  finished=true;
+  for (  String dimensionValue : dimensionValueSet) {
+    ContributionCell prevCell=null;
+    for (    TimeBucket timeBucket : timeBuckets) {
+      double baselineTotal=baselineStatsMap.get(timeBucket).getSum();
+      double currentTotal=currentStatsMap.get(timeBucket).getSum();
+      double cumulativeBaselineTotal=cumulativeBaselineStatsMap.get(timeBucket).getSum();
+      double cumulativeCurrentTotal=cumulativeCurrentStatsMap.get(timeBucket).getSum();
+      ContributionCell cell=timeBucketToDimensionValuesMap.get(timeBucket).get(dimensionValue);
+      if (cell == null) {
+        double cumulativeBaselineValue=0;
+        double cumulativeCurrentValue=0;
+        if (prevCell != null) {
+          cumulativeBaselineValue=prevCell.getCumulativeBaselineValue();
+          cumulativeCurrentValue=prevCell.getCumulativeCurrentValue();
+        }
+        cell=new ContributionCell(dimensionValue,timeBucket,0,0,cumulativeBaselineValue,cumulativeCurrentValue);
+        cells.add(cell);
+      }
+      cell.updateContributionStats(baselineTotal,currentTotal,cumulativeBaselineTotal,cumulativeCurrentTotal);
+    }
+  }
+  return new ContributionViewTable(metricName,dimensionName,cells);
+}

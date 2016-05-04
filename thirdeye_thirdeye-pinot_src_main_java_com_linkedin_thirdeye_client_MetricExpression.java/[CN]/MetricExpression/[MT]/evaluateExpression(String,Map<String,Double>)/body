@@ -1,0 +1,12 @@
+{
+  Scope scope=Scope.create();
+  Expression expression=Parser.parse(expressionString,scope);
+  for (  String metricName : metricValueContext.keySet()) {
+    Variable variable=scope.create(metricName);
+    if (!metricValueContext.containsKey(metricName)) {
+      throw new Exception("No value set for metric:" + metricName + "  in the context:"+ metricValueContext);
+    }
+    variable.setValue(metricValueContext.get(metricName));
+  }
+  return expression.evaluate();
+}

@@ -1,0 +1,14 @@
+{
+  if (!map.containsKey(metricName)) {
+    map.put(metricName,new HashMap<String,Map<String,Double>>());
+  }
+  if (!map.get(metricName).containsKey(dimName)) {
+    map.get(metricName).put(dimName,new HashMap<String,Double>());
+  }
+  if (!map.get(metricName).get(dimName).containsKey(dimValue)) {
+    map.get(metricName).get(dimName).put(dimValue,0d);
+    ;
+  }
+  double currentSum=map.get(metricName).get(dimName).get(dimValue);
+  map.get(metricName).get(dimName).put(dimValue,currentSum + value);
+}

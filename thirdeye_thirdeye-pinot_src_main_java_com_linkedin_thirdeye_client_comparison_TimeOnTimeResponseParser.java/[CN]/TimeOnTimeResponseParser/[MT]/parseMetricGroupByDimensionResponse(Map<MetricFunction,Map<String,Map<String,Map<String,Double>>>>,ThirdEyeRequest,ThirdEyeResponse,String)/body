@@ -1,0 +1,29 @@
+{
+  List<MetricFunction> metricFunctions=thirdEyeResponse.getMetricFunctions();
+  for (  MetricFunction metricFunction : metricFunctions) {
+    Map<String,Map<String,Map<String,Double>>> dimensionNameMap=dimensionData.get(metricFunction);
+    if (dimensionNameMap == null) {
+      dimensionNameMap=new TreeMap<>();
+      dimensionData.put(metricFunction,dimensionNameMap);
+    }
+    String dimensionName=thirdEyeRequest.getGroupBy().get(0);
+    Map<String,Map<String,Double>> dimensionValueMap=dimensionNameMap.get(dimensionName);
+    if (dimensionValueMap == null) {
+      dimensionValueMap=new TreeMap<>();
+      dimensionData.get(metricFunction).put(dimensionName,dimensionValueMap);
+    }
+    int rows=thirdEyeResponse.getNumRowsFor(metricFunction);
+    for (int i=0; i < rows; i++) {
+      Map<String,String> row=thirdEyeResponse.getRow(metricFunction,i);
+      String dimensionValue=row.get(dimensionName);
+      if (!dimensionValueMap.containsKey(dimensionValue)) {
+        Map<String,Double> value=new TreeMap<>();
+        dimensionValueMap.put(dimensionValue,value);
+        dimensionValueMap.get(dimensionValue).put(BASELINE_VALUE,0d);
+        dimensionValueMap.get(dimensionValue).put(CURRENT_VALUE,0d);
+      }
+      Double metricValue=Double.parseDouble(row.get(metricFunction.toString()));
+      dimensionValueMap.get(dimensionValue).put(BASELINE_OR_CURRENT,metricValue);
+    }
+  }
+}

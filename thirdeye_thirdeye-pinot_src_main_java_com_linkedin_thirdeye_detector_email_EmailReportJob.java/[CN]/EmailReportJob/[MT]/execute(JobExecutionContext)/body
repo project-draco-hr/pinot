@@ -1,0 +1,108 @@
+{
+  final EmailConfiguration config=(EmailConfiguration)context.getJobDetail().getJobDataMap().get(CONFIG);
+  SessionFactory sessionFactory=(SessionFactory)context.getJobDetail().getJobDataMap().get(SESSION_FACTORY);
+  int applicationPort=context.getJobDetail().getJobDataMap().getInt(APPLICATION_PORT);
+  TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=(TimeOnTimeComparisonHandler)context.getJobDetail().getJobDataMap().get(TIME_ON_TIME_COMPARISON_HANDLER);
+  ThirdEyeClient client=timeOnTimeComparisonHandler.getClient();
+  Date scheduledFireTime=context.getScheduledFireTime();
+  long deltaMillis=TimeUnit.MILLISECONDS.convert(config.getWindowSize(),config.getWindowUnit());
+  final DateTime now=new DateTime(scheduledFireTime,DateTimeZone.UTC);
+  final DateTime then=now.minus(deltaMillis);
+  final String collection=config.getCollection();
+  final List<AnomalyResult> results=getAnomalyResults(context,config,sessionFactory,now,then);
+  if (results.isEmpty() && !config.getSendZeroAnomalyEmail()) {
+    LOG.info("Zero anomalies found, skipping sending email");
+    return;
+  }
+  Map<String,List<AnomalyResult>> groupedResults=new TreeMap<>();
+  for (  AnomalyResult result : results) {
+    String dimensions=result.getDimensions();
+    if (!groupedResults.containsKey(dimensions)) {
+      groupedResults.put(dimensions,new ArrayList<AnomalyResult>());
+    }
+    groupedResults.get(dimensions).add(result);
+  }
+  Map<AnomalyResult,String> anomaliesWithLabels=new LinkedHashMap<AnomalyResult,String>();
+  int counter=1;
+  for (  List<AnomalyResult> resultsByDimensionKey : groupedResults.values()) {
+    Collections.sort(resultsByDimensionKey);
+    for (    AnomalyResult result : resultsByDimensionKey) {
+      anomaliesWithLabels.put(result,String.valueOf(counter));
+      counter++;
+    }
+  }
+  String chartFilePath=writeTimeSeriesChart(config,timeOnTimeComparisonHandler,now,then,collection,anomaliesWithLabels);
+  List<String> dimensionNames;
+  try {
+    dimensionNames=client.getCollectionSchema(collection).getDimensionNames();
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  String anomalyEndpoint;
+  String functionEndpoint;
+  try {
+    anomalyEndpoint=String.format("http://%s:%d/anomaly-results/",InetAddress.getLocalHost().getCanonicalHostName(),applicationPort);
+    functionEndpoint=String.format("http://%s:%d/anomaly-functions/",InetAddress.getLocalHost().getCanonicalHostName(),applicationPort);
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  DateTimeZone timeZone=DateTimeZone.forID("America/Los_Angeles");
+  DateFormatMethod dateFormatMethod=new DateFormatMethod(timeZone);
+  HtmlEmail email=new HtmlEmail();
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  File chartFile=null;
+  try (Writer out=new OutputStreamWriter(baos,CHARSET)){
+    Configuration freemarkerConfig=new Configuration(Configuration.VERSION_2_3_21);
+    freemarkerConfig.setClassForTemplateLoading(getClass(),"/com/linkedin/thirdeye/detector/");
+    freemarkerConfig.setDefaultEncoding(CHARSET);
+    freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+    Map<String,Object> templateData=new HashMap<>();
+    templateData.put("dataset",collection + ":" + config.getMetric());
+    templateData.put("groupedAnomalyResults",groupedResults);
+    templateData.put("anomalyCount",results.size());
+    templateData.put("startTime",then.getMillis());
+    templateData.put("endTime",now.getMillis());
+    templateData.put("anomalyEndpoint",anomalyEndpoint);
+    templateData.put("functionEndpoint",functionEndpoint);
+    templateData.put("reportGenerationTimeMillis",scheduledFireTime.getTime());
+    templateData.put("assignedDimensions",new AssignedDimensionsMethod(dimensionNames));
+    templateData.put("dateFormat",dateFormatMethod);
+    templateData.put("timeZone",timeZone);
+    chartFile=new File(chartFilePath);
+    templateData.put("embeddedChart",email.embed(chartFile));
+    File logo=new File(getClass().getResource(THIRDEYE_LOGO_PATH).getFile());
+    templateData.put("logo",email.embed(logo));
+    Template template=freemarkerConfig.getTemplate("simple-anomaly-report.ftl");
+    template.process(templateData,out);
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  try {
+    email.setHostName(config.getSmtpHost());
+    email.setSmtpPort(config.getSmtpPort());
+    if (config.getSmtpUser() != null && config.getSmtpPassword() != null) {
+      email.setAuthenticator(new DefaultAuthenticator(config.getSmtpUser(),config.getSmtpPassword()));
+      email.setSSLOnConnect(true);
+    }
+    email.setFrom(config.getFromAddress());
+    for (    String toAddress : config.getToAddresses().split(",")) {
+      email.addTo(toAddress);
+    }
+    email.setSubject(String.format("Anomaly Alert!: %d anomalies detected for %s:%s",results.size(),config.getCollection(),config.getMetric()));
+    final String html=new String(baos.toByteArray(),CHARSET);
+    email.setHtmlMsg(html);
+    email.send();
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+ finally {
+    if (!FileUtils.deleteQuietly(chartFile)) {
+      LOG.error("Unable to delete chart {}",chartFilePath);
+    }
+  }
+  LOG.info("Sent email with {} anomalies! {}",results.size(),config);
+}

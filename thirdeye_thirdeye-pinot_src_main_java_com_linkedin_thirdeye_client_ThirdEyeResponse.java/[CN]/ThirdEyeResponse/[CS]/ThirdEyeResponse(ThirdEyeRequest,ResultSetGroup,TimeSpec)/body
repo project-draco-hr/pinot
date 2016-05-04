@@ -1,0 +1,14 @@
+{
+  this.request=request;
+  this.resultSetGroup=resultSetGroup;
+  this.dataTimeSpec=dataTimeSpec;
+  metricFunctions=request.getMetricFunctions();
+  for (int i=0; i < metricFunctions.size(); i++) {
+    metricFuncToIdMapping.put(metricFunctions.get(i),i);
+  }
+  groupKeyColumns=new ArrayList<>();
+  if (request.getGroupByTimeGranularity() != null) {
+    groupKeyColumns.add(dataTimeSpec.getColumnName());
+  }
+  groupKeyColumns.addAll(request.getGroupBy());
+}

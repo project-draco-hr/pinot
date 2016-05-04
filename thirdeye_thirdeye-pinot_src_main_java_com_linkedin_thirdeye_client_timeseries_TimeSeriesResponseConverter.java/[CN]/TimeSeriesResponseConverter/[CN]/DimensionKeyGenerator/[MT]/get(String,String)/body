@@ -1,0 +1,13 @@
+{
+  if (dimensionName == null || !dimensionIndexMap.containsKey(dimensionName)) {
+    return baseDimensionKey;
+  }
+  if (!dimensionKeyCache.containsKey(dimensionName,dimensionValue)) {
+    String[] key=Arrays.copyOf(this.baseKey,this.baseKey.length);
+    int i=this.dimensionIndexMap.get(dimensionName);
+    key[i]=dimensionValue;
+    DimensionKey dimensionKey=new DimensionKey(key);
+    dimensionKeyCache.put(dimensionName,dimensionValue,dimensionKey);
+  }
+  return (DimensionKey)dimensionKeyCache.get(dimensionName,dimensionValue);
+}

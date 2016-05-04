@@ -1,0 +1,21 @@
+{
+  try {
+    Scope scope=Scope.create();
+    Set<String> metricNames=new TreeSet<>();
+    if (expression.equals("__COUNT")) {
+      metricNames.add("__COUNT");
+    }
+ else {
+      Parser.parse(expression,scope);
+      metricNames=scope.getLocalNames();
+    }
+    ArrayList<MetricFunction> metricFunctions=new ArrayList<>();
+    for (    String metricName : metricNames) {
+      metricFunctions.add(MetricFunction.from(MetricFunction.SUM,metricName));
+    }
+    return metricFunctions;
+  }
+ catch (  ParseException e) {
+    throw new RuntimeException("Exception parsing expressionString:" + expression,e);
+  }
+}

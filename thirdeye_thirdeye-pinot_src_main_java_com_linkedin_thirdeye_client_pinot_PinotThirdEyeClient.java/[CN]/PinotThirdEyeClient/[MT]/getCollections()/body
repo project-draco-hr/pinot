@@ -1,0 +1,47 @@
+{
+  if (this.fixedCollections != null) {
+    return fixedCollections;
+  }
+  HttpGet req=new HttpGet(TABLES_ENDPOINT);
+  LOG.info("Retrieving collections: {}",req);
+  CloseableHttpResponse res=controllerClient.execute(controllerHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    JsonNode tables=new ObjectMapper().readTree(content).get("tables");
+    ArrayList<String> collections=new ArrayList<>(tables.size());
+    ArrayList<String> skippedCollections=new ArrayList<>();
+    for (    JsonNode table : tables) {
+      String collection=table.asText();
+      if (!collection.startsWith("thirdeye")) {
+        continue;
+      }
+      try {
+        Schema schema=getSchema(collection);
+        if (schema == null) {
+          LOG.debug("Skipping collection {} due to null schema",collection);
+          skippedCollections.add(collection);
+          continue;
+        }
+      }
+ catch (      Exception e) {
+        LOG.debug("Skipping collection {} due to schema retrieval exception",collection,e);
+        skippedCollections.add(collection);
+        continue;
+      }
+      collections.add(collection);
+    }
+    if (!skippedCollections.isEmpty()) {
+      LOG.info("{} collections were not included because their schemas could not be retrieved: {}",skippedCollections.size(),skippedCollections);
+    }
+    return collections;
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+    res.close();
+  }
+}

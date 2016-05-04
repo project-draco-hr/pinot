@@ -1,0 +1,13 @@
+{
+  Map<ThirdEyeRequest,ThirdEyeResponse> responseMap=new LinkedHashMap<>();
+  for (  final ThirdEyeRequest request : requests) {
+    Future<ThirdEyeResponse> responseFuture=executorService.submit(new Callable<ThirdEyeResponse>(){
+      @Override public ThirdEyeResponse call() throws Exception {
+        return getQueryResult(request);
+      }
+    }
+);
+    responseMap.put(request,responseFuture.get(timeoutSeconds,TimeUnit.SECONDS));
+  }
+  return responseMap;
+}

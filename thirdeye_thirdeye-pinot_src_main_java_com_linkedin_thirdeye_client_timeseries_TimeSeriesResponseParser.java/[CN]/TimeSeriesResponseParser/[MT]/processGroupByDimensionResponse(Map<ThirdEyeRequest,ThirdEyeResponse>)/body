@@ -1,0 +1,11 @@
+{
+  TripleKeyMap<MetricFunction,String,String,Double> metricGroupByDimensionData=new TripleKeyMap<>(false,true,true);
+  for (  Entry<ThirdEyeRequest,ThirdEyeResponse> entry : queryResultMap.entrySet()) {
+    ThirdEyeRequest thirdEyeRequest=entry.getKey();
+    ThirdEyeResponse thirdEyeResponse=entry.getValue();
+    if (CollectionUtils.isNotEmpty(thirdEyeRequest.getGroupBy())) {
+      extractMetricGroupByDimensionResponse(metricGroupByDimensionData,thirdEyeRequest,thirdEyeResponse);
+    }
+  }
+  return metricGroupByDimensionData.toMap();
+}

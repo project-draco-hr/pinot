@@ -1,0 +1,15 @@
+{
+synchronized (sync) {
+    File file=new File(filePath);
+    if (!file.exists() || file.isDirectory()) {
+      throw new IllegalArgumentException("File does not exist or is a directory: " + file);
+    }
+    AnomalyFunctionSpec spec=reader.readValue(file,AnomalyFunctionSpec.class);
+    spec.setId(existingFunctionId);
+    AnomalyFunction anomalyFunction=anomalyFunctionFactory.fromSpec(spec);
+    String triggerKey=String.format("file-based_anomaly_function_trigger_%s",filePath);
+    Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
+    String jobKey=String.format("file-based_anomaly_function_job_%s",filePath);
+    buildAndScheduleJob(jobKey,trigger,anomalyFunction,spec,windowStartIsoString,windowEndIsoString);
+  }
+}

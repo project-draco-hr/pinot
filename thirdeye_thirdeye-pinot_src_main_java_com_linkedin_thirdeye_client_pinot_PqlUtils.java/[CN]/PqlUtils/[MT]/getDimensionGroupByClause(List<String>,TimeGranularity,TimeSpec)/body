@@ -1,0 +1,14 @@
+{
+  String timeColumnName=timeSpec.getColumnName();
+  List<String> groups=new LinkedList<String>();
+  if (aggregationGranulity != null && !groups.contains(timeColumnName)) {
+    groups.add(timeColumnName);
+  }
+  if (groupBy != null) {
+    groups.addAll(groupBy);
+  }
+  if (groups.isEmpty()) {
+    return "";
+  }
+  return String.format("GROUP BY %s",COMMA.join(groups));
+}

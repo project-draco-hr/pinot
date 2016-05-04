@@ -1,0 +1,26 @@
+{
+  TimeOnTimeComparisonRequest comparisonRequest=new TimeOnTimeComparisonRequest();
+  String collection=request.getCollection();
+  DateTime baselineStart=request.getBaselineStart();
+  DateTime baselineEnd=request.getBaselineEnd();
+  DateTime currentStart=request.getCurrentStart();
+  DateTime currentEnd=request.getCurrentEnd();
+  Multimap<String,String> filters=request.getFilters();
+  List<String> dimensionsToGroupBy=request.getGroupByDimensions();
+  if (dimensionsToGroupBy == null || dimensionsToGroupBy.isEmpty()) {
+    List<String> allDimensions=Utils.getDimensionsToGroupBy(queryCache,collection,filters);
+    dimensionsToGroupBy=Lists.newArrayList(allDimensions.get(0));
+  }
+  List<MetricExpression> metricExpressions=request.getMetricExpressions();
+  List<MetricFunction> metricFunctions=Utils.computeMetricFunctionsFromExpressions(metricExpressions);
+  comparisonRequest.setCollectionName(collection);
+  comparisonRequest.setBaselineStart(baselineStart);
+  comparisonRequest.setBaselineEnd(baselineEnd);
+  comparisonRequest.setCurrentStart(currentStart);
+  comparisonRequest.setCurrentEnd(currentEnd);
+  comparisonRequest.setFilterSet(filters);
+  comparisonRequest.setMetricFunctions(metricFunctions);
+  comparisonRequest.setAggregationTimeGranularity(request.getTimeGranularity());
+  comparisonRequest.setGroupByDimensions(dimensionsToGroupBy);
+  return comparisonRequest;
+}

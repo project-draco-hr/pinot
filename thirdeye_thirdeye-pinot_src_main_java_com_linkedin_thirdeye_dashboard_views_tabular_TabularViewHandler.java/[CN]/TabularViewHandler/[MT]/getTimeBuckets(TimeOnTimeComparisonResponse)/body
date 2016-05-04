@@ -1,0 +1,11 @@
+{
+  List<TimeBucket> timeBuckets=new ArrayList<>();
+  int numRows=response.getNumRows();
+  for (int i=0; i < numRows; i++) {
+    Row row=response.getRow(i);
+    TimeBucket bucket=TimeBucket.fromRow(row);
+    timeBuckets.add(bucket);
+  }
+  Collections.sort(timeBuckets);
+  return timeBuckets;
+}

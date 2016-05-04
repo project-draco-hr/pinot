@@ -1,0 +1,11 @@
+{
+  TimeGranularity timeGranularity;
+  if (aggTimeGranularity.indexOf("_") > -1) {
+    String[] split=aggTimeGranularity.split("_");
+    timeGranularity=new TimeGranularity(Integer.parseInt(split[0]),TimeUnit.valueOf(split[1]));
+  }
+ else {
+    timeGranularity=new TimeGranularity(1,TimeUnit.valueOf(aggTimeGranularity));
+  }
+  return timeGranularity;
+}

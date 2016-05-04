@@ -1,0 +1,29 @@
+{
+  ClassLoader classLoader=Thread.currentThread().getContextClassLoader();
+  String response=null;
+  String file=null;
+  if (type.equals("dataset")) {
+    List<String> collections=queryCache.getClient().getCollections();
+    JSONArray array=new JSONArray(collections);
+    response=array.toString();
+  }
+ else   if (type.equals("metrics")) {
+    file="assets/data/getmetrics.json";
+  }
+ else   if (type.equals("treemaps")) {
+    file="assets/data/gettreemaps.json";
+  }
+ else {
+    throw new Exception("Invalid param!!");
+  }
+  if (response == null) {
+    InputStream inputStream=classLoader.getResourceAsStream(file);
+    try {
+      response=IOUtils.toString(inputStream);
+    }
+ catch (    IOException e) {
+      response=e.toString();
+    }
+  }
+  return response;
+}

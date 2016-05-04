@@ -1,0 +1,15 @@
+{
+  List<Range<DateTime>> timeranges=new ArrayList<>();
+  if (granularity == null) {
+    timeranges.add(Range.closedOpen(start,end));
+    return timeranges;
+  }
+  DateTime current=start;
+  while (current.isBefore(end)) {
+    DateTime newCurrent=null;
+    newCurrent=current.plus(granularity.toMillis());
+    timeranges.add(Range.closedOpen(current,newCurrent));
+    current=newCurrent;
+  }
+  return timeranges;
+}

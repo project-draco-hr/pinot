@@ -1,0 +1,12 @@
+{
+  File[] listFiles=getDir(collectionName).listFiles();
+  if (listFiles == null || listFiles.length == 0) {
+    return Collections.emptyList();
+  }
+  List<AbstractConfig> list=new ArrayList<>();
+  for (  File file : listFiles) {
+    AbstractConfig instance=parseFile(file);
+    list.add(instance);
+  }
+  return list;
+}

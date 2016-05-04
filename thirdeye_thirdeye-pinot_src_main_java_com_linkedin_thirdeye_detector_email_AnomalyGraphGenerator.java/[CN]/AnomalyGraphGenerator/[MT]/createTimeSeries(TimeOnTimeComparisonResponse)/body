@@ -1,0 +1,17 @@
+{
+  final TimeSeries baseline=new TimeSeries(BASELINE_LABEL);
+  final TimeSeries current=new TimeSeries(CURRENT_LABEL);
+  for (int i=0; i < data.getNumRows(); i++) {
+    Row row=data.getRow(i);
+    long currentStart=row.getCurrentStart().getMillis();
+    Date date=new Date(currentStart);
+    RegularTimePeriod timePeriod=new Millisecond(date);
+    Metric metric=row.getMetrics().get(0);
+    baseline.add(timePeriod,metric.getBaselineValue());
+    current.add(timePeriod,metric.getCurrentValue());
+  }
+  final TimeSeriesCollection dataset=new TimeSeriesCollection();
+  dataset.addSeries(current);
+  dataset.addSeries(baseline);
+  return dataset;
+}

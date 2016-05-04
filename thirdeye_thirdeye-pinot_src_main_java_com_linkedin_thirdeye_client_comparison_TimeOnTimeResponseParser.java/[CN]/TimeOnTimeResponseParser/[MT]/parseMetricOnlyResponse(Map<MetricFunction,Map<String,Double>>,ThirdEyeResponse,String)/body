@@ -1,0 +1,11 @@
+{
+  List<MetricFunction> metricFunctions=thirdEyeResponse.getMetricFunctions();
+  for (  MetricFunction metricFunction : metricFunctions) {
+    Map<String,String> row=thirdEyeResponse.getRow(metricFunction,0);
+    String baselineValue=row.values().iterator().next();
+    if (!aggregateData.containsKey(metricFunction)) {
+      aggregateData.put(metricFunction,new HashMap<String,Double>());
+    }
+    aggregateData.get(metricFunction).put(baselineOrCurrent,Double.parseDouble(baselineValue));
+  }
+}

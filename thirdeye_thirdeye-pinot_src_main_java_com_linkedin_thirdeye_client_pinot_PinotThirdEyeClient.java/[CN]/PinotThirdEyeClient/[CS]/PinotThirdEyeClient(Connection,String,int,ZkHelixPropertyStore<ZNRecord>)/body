@@ -1,0 +1,11 @@
+{
+  this.connection=connection;
+  this.propertyStore=propertyStore;
+  this.resultSetGroupCache=CacheBuilder.newBuilder().expireAfterAccess(5,TimeUnit.MINUTES).build(new ResultSetGroupCacheLoader());
+  this.schemaCache=CacheBuilder.newBuilder().build(new SchemaCacheLoader());
+  this.collectionSchemaCache=CacheBuilder.newBuilder().build(new CollectionSchemaCacheLoader());
+  this.collectionMaxDataTimeCache=CacheBuilder.newBuilder().expireAfterAccess(5,TimeUnit.MINUTES).build(new CollectionMaxDataTimeCacheLoader());
+  this.controllerHost=new HttpHost(controllerHostName,controllerPort);
+  this.controllerClient=HttpClients.createDefault();
+  LOG.info("Created PinotThirdEyeClient to {} with controller {}",connection,controllerHost);
+}

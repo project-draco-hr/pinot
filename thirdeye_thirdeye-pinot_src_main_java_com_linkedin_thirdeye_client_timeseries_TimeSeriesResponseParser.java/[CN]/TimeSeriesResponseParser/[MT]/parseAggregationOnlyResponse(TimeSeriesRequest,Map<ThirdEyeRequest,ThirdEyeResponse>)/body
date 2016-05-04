@@ -1,0 +1,8 @@
+{
+  Map<MetricFunction,Double> metricData=processAggregateResponse(queryResultMap);
+  Builder rowBuilder=new TimeSeriesRow.Builder();
+  rowBuilder.setStart(request.getStart());
+  rowBuilder.setEnd(request.getEnd());
+  addMetricsToRow(metricData,rowBuilder);
+  return rowBuilder.build();
+}

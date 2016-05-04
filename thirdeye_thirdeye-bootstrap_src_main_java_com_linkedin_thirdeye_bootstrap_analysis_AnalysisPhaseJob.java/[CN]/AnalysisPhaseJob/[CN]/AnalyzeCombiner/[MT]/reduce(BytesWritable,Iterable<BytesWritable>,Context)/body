@@ -1,8 +1,0 @@
-{
-  AnalysisPhaseStats aggregatedStats=new AnalysisPhaseStats();
-  for (  BytesWritable value : values) {
-    AnalysisPhaseStats stats=AnalysisPhaseStats.fromBytes(value.copyBytes());
-    aggregatedStats.update(stats);
-  }
-  context.write(key,new BytesWritable(aggregatedStats.toBytes()));
-}

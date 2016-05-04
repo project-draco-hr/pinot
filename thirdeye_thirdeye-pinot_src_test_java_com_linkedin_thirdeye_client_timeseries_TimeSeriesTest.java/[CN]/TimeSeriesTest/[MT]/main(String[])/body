@@ -1,0 +1,28 @@
+{
+  URL resource=null;
+  if (resource == null) {
+    resource=TimeSeriesHandler.class.getClassLoader().getResource("logback.x");
+  }
+  PinotThirdEyeClient pinotThirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
+  QueryCache queryCache=new QueryCache(pinotThirdEyeClient,Executors.newFixedThreadPool(10));
+  for (  TimeSeriesRequest timeSeriesRequest : new TimeSeriesRequest[]{generateGroupByTimeRequest(),generateGroupByDimensionRequest(),generateGroupByTimeAndDimension()}) {
+    try {
+      TimeSeriesHandler handler=new TimeSeriesHandler(queryCache);
+      long start=System.currentTimeMillis();
+      TimeSeriesResponse response=handler.handle(timeSeriesRequest);
+      long end=System.currentTimeMillis();
+      System.out.println("Time taken:" + (end - start));
+      System.out.println("Time taken:" + (end - start));
+      for (int i=0; i < response.getNumRows(); i++) {
+        System.out.println(response.getRow(i));
+      }
+    }
+ catch (    Exception e) {
+      System.out.println("Request failed: " + timeSeriesRequest);
+      e.printStackTrace();
+      System.exit(-1);
+    }
+  }
+  System.out.println("No exceptions encountered during testing... but you still need to check for data quality!");
+  System.exit(0);
+}

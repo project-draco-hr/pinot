@@ -1,0 +1,70 @@
+{
+  TimeOnTimeComparisonRequest comparisonRequest=generateTimeOnTimeComparisonRequest(request);
+  TimeOnTimeComparisonHandler handler=new TimeOnTimeComparisonHandler(queryCache);
+  TimeOnTimeComparisonResponse response=handler.handle(comparisonRequest);
+  Set<String> dimensions=response.getDimensions();
+  Set<String> metrics=response.getMetrics();
+  int numRows=response.getNumRows();
+  Map<String,HeatMap.Builder> data=new HashMap<>();
+  Map<String,Double> baselineTotalPerDimension=new HashMap<>();
+  Map<String,Double> currentTotalPerDimension=new HashMap<>();
+  for (  String dimension : dimensions) {
+    baselineTotalPerDimension.put(dimension,0d);
+    currentTotalPerDimension.put(dimension,0d);
+  }
+  for (int i=0; i < numRows; i++) {
+    Row row=response.getRow(i);
+    String dimension=row.getDimensionName();
+    String dimensionValue=row.getDimensionValue();
+    for (    Metric metric : row.getMetrics()) {
+      String metricName=metric.getMetricName();
+      String dataKey=metricName + "." + dimension;
+      HeatMap.Builder heatMapBuilder=data.get(dataKey);
+      if (heatMapBuilder == null) {
+        heatMapBuilder=new HeatMap.Builder(dimension);
+        data.put(dataKey,heatMapBuilder);
+      }
+      heatMapBuilder.addCell(dimensionValue,metric.getBaselineValue(),metric.getCurrentValue());
+      baselineTotalPerDimension.put(dimension,baselineTotalPerDimension.get(dimension) + metric.getBaselineValue());
+      currentTotalPerDimension.put(dimension,currentTotalPerDimension.get(dimension) + metric.getCurrentValue());
+    }
+  }
+  ResponseSchema schema=new ResponseSchema();
+  String[] columns=HeatMapCell.columns();
+  for (int i=0; i < columns.length; i++) {
+    String column=columns[i];
+    schema.add(column,i);
+  }
+  Map<String,GenericResponse> heatMapViewResponseData=new HashMap<>();
+  Info summary=new Info();
+  summary.addSimpleField("baselineStart",comparisonRequest.getBaselineStart().toString());
+  summary.addSimpleField("baselineEnd",comparisonRequest.getBaselineEnd().toString());
+  summary.addSimpleField("currentStart",comparisonRequest.getCurrentStart().toString());
+  summary.addSimpleField("currentEnd",comparisonRequest.getCurrentEnd().toString());
+  Double baselineTotal=baselineTotalPerDimension.values().iterator().next();
+  Double currentTotal=currentTotalPerDimension.values().iterator().next();
+  summary.addSimpleField("baselineTotal",HeatMapCell.format(baselineTotal));
+  summary.addSimpleField("currentTotal",HeatMapCell.format(currentTotal));
+  summary.addSimpleField("deltaChange",HeatMapCell.format(currentTotal - baselineTotal));
+  summary.addSimpleField("deltaPercentage",HeatMapCell.format((currentTotal - baselineTotal) * 100.0 / baselineTotal));
+  for (  Entry<String,HeatMap.Builder> entry : data.entrySet()) {
+    String dataKey=entry.getKey();
+    GenericResponse heatMapResponse=new GenericResponse();
+    List<String[]> heatMapResponseData=new ArrayList<>();
+    HeatMap.Builder builder=entry.getValue();
+    HeatMap heatMap=builder.build();
+    for (    HeatMapCell cell : heatMap.heatMapCells) {
+      String[] newRowData=cell.toArray();
+      heatMapResponseData.add(newRowData);
+    }
+    heatMapResponse.setSchema(schema);
+    heatMapResponse.setResponseData(heatMapResponseData);
+    heatMapViewResponseData.put(dataKey,heatMapResponse);
+  }
+  HeatMapViewResponse heatMapViewResponse=new HeatMapViewResponse();
+  heatMapViewResponse.setMetrics(new ArrayList<String>(metrics));
+  heatMapViewResponse.setDimensions(new ArrayList<String>(dimensions));
+  heatMapViewResponse.setSummary(summary);
+  heatMapViewResponse.setData(heatMapViewResponseData);
+  return heatMapViewResponse;
+}

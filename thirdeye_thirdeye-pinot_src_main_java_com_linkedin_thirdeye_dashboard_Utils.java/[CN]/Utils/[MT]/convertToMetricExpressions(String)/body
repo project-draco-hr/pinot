@@ -1,0 +1,25 @@
+{
+  List<MetricExpression> metricExpressions=new ArrayList<>();
+  if (metricsJson == null) {
+    return metricExpressions;
+  }
+  ArrayList<String> metricExpressionStrings;
+  try {
+    TypeReference<ArrayList<String>> valueTypeRef=new TypeReference<ArrayList<String>>(){
+    }
+;
+    metricExpressionStrings=OBJECT_MAPPER.readValue(metricsJson,valueTypeRef);
+  }
+ catch (  Exception e) {
+    LOG.error("Error parsing metrics json: {} errorMessage:{}",metricsJson,e.getMessage());
+    metricExpressionStrings=new ArrayList<>();
+    String[] metrics=metricsJson.split(",");
+    for (    String metric : metrics) {
+      metricExpressionStrings.add(metric);
+    }
+  }
+  for (  String metricExpressionString : metricExpressionStrings) {
+    metricExpressions.add(new MetricExpression(metricExpressionString));
+  }
+  return metricExpressions;
+}

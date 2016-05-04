@@ -1,0 +1,14 @@
+{
+  Multimap<String,String> filterSet=ArrayListMultimap.create();
+  if (StringUtils.isNotBlank(filters)) {
+    String[] filterClauses=filters.split(FILTER_CLAUSE_SEPARATOR);
+    for (    String filterClause : filterClauses) {
+      String[] values=filterClause.split(FILTER_VALUE_ASSIGNMENT_SEPARATOR,2);
+      if (values.length != 2) {
+        throw new IllegalArgumentException("Filter values assigments should in pairs: " + filters);
+      }
+      filterSet.put(values[0],values[1]);
+    }
+  }
+  return filterSet;
+}

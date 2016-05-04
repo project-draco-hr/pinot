@@ -1,0 +1,25 @@
+{
+  long windowBuckets=timeGranularity.convertToUnit(windowMillis);
+  int tickSize=(int)Math.ceil(windowBuckets / (double)NUM_X_TICKS);
+  DateTickUnitType unitType;
+switch (timeGranularity.getUnit()) {
+case DAYS:
+    unitType=DateTickUnitType.DAY;
+  break;
+case HOURS:
+unitType=DateTickUnitType.HOUR;
+break;
+case MILLISECONDS:
+unitType=DateTickUnitType.MILLISECOND;
+break;
+case MINUTES:
+unitType=DateTickUnitType.MINUTE;
+break;
+case SECONDS:
+unitType=DateTickUnitType.SECOND;
+break;
+default :
+throw new IllegalArgumentException("Unsupported time unit granularity: " + timeGranularity.getUnit());
+}
+return new DateTickUnit(unitType,tickSize);
+}

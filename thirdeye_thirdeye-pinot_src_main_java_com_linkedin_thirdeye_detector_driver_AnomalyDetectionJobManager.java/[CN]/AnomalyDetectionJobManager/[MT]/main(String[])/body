@@ -1,0 +1,20 @@
+{
+  if (args.length != 2 && args.length != 4) {
+    System.err.println("Arguments must be configYml functionSpecPath [startISO endISO, both hour aligned]");
+    System.exit(1);
+  }
+  String configPath=args[0];
+  String filePath=args[1];
+  String startISO=null;
+  String endISO=null;
+  if (args.length == 4) {
+    startISO=args[2];
+    endISO=args[3];
+  }
+ else {
+    DateTime now=DateTime.now().minusHours(3);
+    startISO=now.minusDays(7).minusHours(4).toString();
+    endISO=now.toString();
+  }
+  new TestAnomalyApplication(filePath,startISO,endISO,TestType.FUNCTION).run(new String[]{"server",configPath});
+}

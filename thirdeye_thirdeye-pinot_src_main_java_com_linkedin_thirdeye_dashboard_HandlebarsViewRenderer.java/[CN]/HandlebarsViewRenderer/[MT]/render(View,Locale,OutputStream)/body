@@ -1,0 +1,8 @@
+{
+  try (Writer writer=new OutputStreamWriter(output,view.getCharset().or(Charsets.UTF_8))){
+    compilationCache.get(view.getTemplateName()).apply(view,writer);
+  }
+ catch (  FileNotFoundException|ExecutionException e) {
+    throw new FileNotFoundException("Template " + view.getTemplateName() + " not found.");
+  }
+}

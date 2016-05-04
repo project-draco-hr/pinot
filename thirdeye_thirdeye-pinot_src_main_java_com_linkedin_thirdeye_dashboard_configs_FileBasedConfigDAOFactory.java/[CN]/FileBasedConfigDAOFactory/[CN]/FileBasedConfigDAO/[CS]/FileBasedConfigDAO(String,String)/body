@@ -1,0 +1,21 @@
+{
+  this.rootDir=new File(rootDir);
+  this.configType=configType;
+  if (configType.equalsIgnoreCase("collectionConfig")) {
+    configTypeClass=CollectionConfig.class;
+  }
+ else   if (configType.equalsIgnoreCase("dashboardConfig")) {
+    configTypeClass=DashboardConfig.class;
+  }
+ else   if (configType.equalsIgnoreCase("widgetConfig")) {
+    configTypeClass=WidgetConfig.class;
+  }
+ else {
+    throw new IllegalArgumentException("Unknown configType:" + configType);
+  }
+  try {
+  }
+ catch (  Exception e) {
+    throw new IllegalArgumentException("Error getting constructor for class :" + configTypeClass,e);
+  }
+}

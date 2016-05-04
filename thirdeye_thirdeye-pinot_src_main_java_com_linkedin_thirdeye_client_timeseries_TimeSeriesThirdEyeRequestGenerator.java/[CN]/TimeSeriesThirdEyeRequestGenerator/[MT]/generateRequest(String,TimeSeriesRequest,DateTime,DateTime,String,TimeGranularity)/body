@@ -1,0 +1,17 @@
+{
+  ThirdEyeRequestBuilder requestBuilder=new ThirdEyeRequestBuilder();
+  requestBuilder.setCollection(timeSeriesRequest.getCollectionName());
+  requestBuilder.setFilterSet(timeSeriesRequest.getFilterSet());
+  requestBuilder.setFilterClause(timeSeriesRequest.getFilterClause());
+  requestBuilder.setMetricFunctions(timeSeriesRequest.getMetricFunctions());
+  requestBuilder.setStartTimeInclusive(start);
+  requestBuilder.setEndTimeExclusive(end);
+  if (groupByDimension != null) {
+    requestBuilder.setGroupBy(groupByDimension);
+  }
+  if (aggTimeGranularity != null) {
+    requestBuilder.setGroupByTimeGranularity(aggTimeGranularity);
+  }
+  ThirdEyeRequest request=requestBuilder.build(name);
+  return request;
+}

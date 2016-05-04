@@ -1,0 +1,21 @@
+{
+  for (int groupIdx=0; groupIdx < result.getResultSetCount(); groupIdx++) {
+    ResultSet resultSet=result.getResultSet(groupIdx);
+    for (int row=0; row < resultSet.getRowCount(); row++) {
+      StringBuilder sb=new StringBuilder();
+      String delim="";
+      if (resultSet.getGroupKeyLength() > 0) {
+        for (int groupKey=0; groupKey < resultSet.getGroupKeyLength(); groupKey++) {
+          sb.append(delim).append(resultSet.getGroupKeyString(row,groupKey));
+          delim=",";
+        }
+      }
+      int columnCount=resultSet.getColumnCount();
+      for (int col=0; col < columnCount; col++) {
+        String colValStr=resultSet.getString(row,col);
+        sb.append(delim).append(colValStr);
+        delim=",";
+      }
+    }
+  }
+}

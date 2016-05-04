@@ -1,0 +1,7 @@
+{
+  Set<String> metrics=data.getMetrics();
+  String metric=metrics.iterator().next();
+  LOG.info("Creating time series collections for {}",metric);
+  final TimeSeriesCollection dataset=createTimeSeries(data);
+  return createChart(dataset,metric,timeGranularity,windowMillis,anomaliesWithLabels);
+}

@@ -1,8 +1,0 @@
-{
-  TimeSpec timeSpec=getStarTreeConfig(collection).getTime();
-  long bucketMillis=timeSpec.getBucket().toMillis();
-  long currentMillis=DateTime.now(DateTimeZone.UTC).getMillis();
-  currentMillis=currentMillis / bucketMillis * bucketMillis;
-  SegmentDescriptor singletonDescriptor=new SegmentDescriptor(null,null,null,new DateTime(0,DateTimeZone.UTC),new DateTime(currentMillis,DateTimeZone.UTC));
-  return Collections.singletonList(singletonDescriptor);
-}

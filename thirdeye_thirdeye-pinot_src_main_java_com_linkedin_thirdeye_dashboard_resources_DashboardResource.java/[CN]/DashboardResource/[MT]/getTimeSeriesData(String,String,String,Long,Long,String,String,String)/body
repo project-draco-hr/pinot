@@ -1,0 +1,58 @@
+{
+  TimeSeriesRequest request=new TimeSeriesRequest();
+  request.setCollectionName(collection);
+  request.setStart(new DateTime(start,DateTimeZone.forID(timeZone)));
+  request.setEnd(new DateTime(end,DateTimeZone.forID(timeZone)));
+  if (groupByDimensions != null && !groupByDimensions.isEmpty()) {
+    request.setGroupByDimensions(Arrays.asList(groupByDimensions.trim().split(",")));
+  }
+  if (filterJson != null && !filterJson.isEmpty()) {
+    filterJson=URLDecoder.decode(filterJson,"UTF-8");
+    request.setFilterSet(Utils.convertToMultiMap(filterJson));
+  }
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson);
+  request.setMetricExpressions(metricExpressions);
+  request.setAggregationTimeGranularity(Utils.getAggregationTimeGranularity(aggTimeGranularity));
+  TimeSeriesHandler handler=new TimeSeriesHandler(queryCache);
+  String jsonResponse="";
+  try {
+    TimeSeriesResponse response=handler.handle(request);
+    JSONObject timeseriesMap=new JSONObject();
+    JSONArray timeValueArray=new JSONArray();
+    TreeSet<Long> times=new TreeSet<>();
+    for (int i=0; i < response.getNumRows(); i++) {
+      TimeSeriesRow timeSeriesRow=response.getRow(i);
+      times.add(timeSeriesRow.getStart());
+    }
+    for (    Long time : times) {
+      timeValueArray.put(time);
+    }
+    timeseriesMap.put("time",timeValueArray);
+    for (int i=0; i < response.getNumRows(); i++) {
+      TimeSeriesRow timeSeriesRow=response.getRow(i);
+      for (      TimeSeriesMetric metricTimeSeries : timeSeriesRow.getMetrics()) {
+        String key=metricTimeSeries.getMetricFunction().getMetricName();
+        if (timeSeriesRow.getDimensionName() != null && timeSeriesRow.getDimensionName().trim().length() > 0) {
+          key=key + "|" + timeSeriesRow.getDimensionName()+ "|"+ timeSeriesRow.getDimensionValue();
+        }
+        JSONArray valueArray;
+        if (!timeseriesMap.has(key)) {
+          valueArray=new JSONArray();
+          timeseriesMap.put(key,valueArray);
+        }
+ else {
+          valueArray=timeseriesMap.getJSONArray(key);
+        }
+        valueArray.put(metricTimeSeries.getValue());
+      }
+    }
+    JSONObject jsonResponseObject=new JSONObject();
+    jsonResponseObject.put("timeSeriesData",timeseriesMap);
+    jsonResponse=jsonResponseObject.toString();
+  }
+ catch (  Exception e) {
+    throw e;
+  }
+  LOG.info("Response:{}",jsonResponse);
+  return jsonResponse;
+}

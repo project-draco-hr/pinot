@@ -1,0 +1,12 @@
+{
+  if (bucketSize == null) {
+    CollectionSchema collectionSchema=timeOnTimeComparisonHandler.getClient().getCollectionSchema(collection);
+    return collectionSchema.getTime().getBucket();
+  }
+ else {
+    String[] split=bucketSize.split("_");
+    String sizeStr=split[0];
+    String unitStr=split[1].toUpperCase();
+    return new TimeGranularity(Integer.parseInt(sizeStr),TimeUnit.valueOf(unitStr));
+  }
+}

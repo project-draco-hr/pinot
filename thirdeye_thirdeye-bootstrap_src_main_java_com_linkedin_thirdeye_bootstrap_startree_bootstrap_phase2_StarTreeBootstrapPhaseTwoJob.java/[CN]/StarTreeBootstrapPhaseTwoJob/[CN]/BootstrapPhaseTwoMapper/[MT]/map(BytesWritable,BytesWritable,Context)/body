@@ -1,9 +1,0 @@
-{
-  BootstrapPhaseMapOutputKey key;
-  key=BootstrapPhaseMapOutputKey.fromBytes(keyWritable.copyBytes());
-  BootstrapPhaseMapOutputValue value;
-  value=BootstrapPhaseMapOutputValue.fromBytes(valueWritable.copyBytes(),metricSchema);
-  UUID nodeId=key.getNodeId();
-  leafNodesMap.remove(nodeId);
-  context.write(new BytesWritable(nodeId.toString().getBytes()),valueWritable);
-}

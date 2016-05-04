@@ -1,0 +1,23 @@
+{
+  int startDiff=ObjectUtils.compare(this.start,o.start);
+  if (startDiff != 0)   return startDiff;
+  int dimensionNameDiff=ObjectUtils.compare(this.dimensionName,o.dimensionName);
+  if (dimensionNameDiff != 0)   return dimensionNameDiff;
+  int dimensionValueDiff=ObjectUtils.compare(this.dimensionValue,o.dimensionValue);
+  if (dimensionValueDiff != 0)   return dimensionValueDiff;
+  List<TimeSeriesMetric> thisMetrics=this.metrics;
+  List<TimeSeriesMetric> otherMetrics=o.metrics;
+  int thisMetricsSize=thisMetrics.size();
+  int otherMetricsSize=otherMetrics.size();
+  int metricSizeDiff=ObjectUtils.compare(thisMetricsSize,otherMetricsSize);
+  if (metricSizeDiff != 0)   return metricSizeDiff;
+  for (int i=0; i < thisMetricsSize; i++) {
+    TimeSeriesMetric thisMetric=thisMetrics.get(i);
+    TimeSeriesMetric otherMetric=otherMetrics.get(i);
+    int metricDiff=ObjectUtils.compare(thisMetric,otherMetric);
+    if (metricDiff != 0) {
+      return metricDiff;
+    }
+  }
+  return 0;
+}

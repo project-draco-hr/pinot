@@ -1,9 +1,0 @@
-{
-  MetricTimeSeries timeSeries=new MetricTimeSeries(metricSchema);
-  timeSeries.set(0,"M",1);
-  StarTreeRecord record=new StarTreeRecordImpl.Builder().setDimensionKey(getDimensionKey("AX","B0","C0")).setMetricTimeSeries(timeSeries).build(starTreeConfig);
-  recordStore.update(record);
-  StarTreeQuery query=new StarTreeQueryImpl.Builder().setDimensionKey(getDimensionKey(StarTreeConstants.OTHER,StarTreeConstants.OTHER,StarTreeConstants.OTHER)).build(starTreeConfig);
-  Number[] sums=recordStore.getMetricSums(query);
-  Assert.assertEquals(sums[0],1);
-}

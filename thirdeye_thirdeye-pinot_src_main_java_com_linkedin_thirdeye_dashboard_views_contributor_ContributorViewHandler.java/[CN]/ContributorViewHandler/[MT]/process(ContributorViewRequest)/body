@@ -1,0 +1,94 @@
+{
+  TimeOnTimeComparisonRequest comparisonRequest=generateTimeOnTimeComparisonRequest(request);
+  TimeOnTimeComparisonHandler handler=new TimeOnTimeComparisonHandler(queryCache);
+  TimeOnTimeComparisonResponse response=handler.handle(comparisonRequest);
+  List<String> metricNames=new ArrayList<>(response.getMetrics());
+  List<String> dimensions=new ArrayList<>(response.getDimensions());
+  List<TimeBucket> timeBuckets=getTimeBuckets(response);
+  Map<String,SortedSet<Row>> rows=getRowsSortedByTime(response);
+  ContributorViewResponse contributorViewResponse=new ContributorViewResponse();
+  contributorViewResponse.setMetrics(metricNames);
+  contributorViewResponse.setDimensions(dimensions);
+  contributorViewResponse.setTimeBuckets(timeBuckets);
+  GenericResponse genericResponse=new GenericResponse();
+  Map<String,Double[]> runningTotalMap=new HashMap<>();
+  Map<String,ContributionViewTableBuilder> contributionViewTableMap=new LinkedHashMap<>();
+  Map<String,List<String>> dimensionValuesMap=new HashMap<>();
+  for (  Map.Entry<String,SortedSet<Row>> entry : rows.entrySet()) {
+    for (    Row row : entry.getValue()) {
+      String dimensionName=row.getDimensionName();
+      String dimensionValue=row.getDimensionValue();
+      for (      Metric metric : row.getMetrics()) {
+        String metricName=metric.getMetricName();
+        Double baselineValue=metric.getBaselineValue();
+        Double currentValue=metric.getCurrentValue();
+        Double cumulativeBaselineValue;
+        Double cumulativeCurrentValue;
+        String metricDimensionNameString=metricName + "." + dimensionName;
+        ContributionViewTableBuilder contributionViewTable=contributionViewTableMap.get(metricDimensionNameString);
+        if (contributionViewTable == null) {
+          contributionViewTable=new ContributionViewTableBuilder(metricName,dimensionName);
+          contributionViewTableMap.put(metricDimensionNameString,contributionViewTable);
+        }
+        String rowKey=metricName + "." + dimensionName+ "."+ dimensionValue;
+        if (runningTotalMap.containsKey(rowKey)) {
+          Double[] totalValues=runningTotalMap.get(rowKey);
+          cumulativeBaselineValue=totalValues[0] + baselineValue;
+          cumulativeCurrentValue=totalValues[1] + currentValue;
+        }
+ else {
+          cumulativeBaselineValue=baselineValue;
+          cumulativeCurrentValue=currentValue;
+        }
+        TimeBucket timeBucket=TimeBucket.fromRow(row);
+        contributionViewTable.addEntry(dimensionValue,timeBucket,baselineValue,currentValue,cumulativeBaselineValue,cumulativeCurrentValue);
+        List<String> dimensionValues=dimensionValuesMap.get(dimensionName);
+        if (dimensionValues == null) {
+          dimensionValues=new ArrayList<>();
+          dimensionValuesMap.put(dimensionName,dimensionValues);
+        }
+        if (!dimensionValues.contains(dimensionValue)) {
+          dimensionValues.add(dimensionValue);
+        }
+        Double[] runningTotalPerMetric=new Double[]{cumulativeBaselineValue,cumulativeCurrentValue};
+        runningTotalMap.put(rowKey,runningTotalPerMetric);
+      }
+    }
+  }
+  Map<String,List<Integer>> keyToRowIdListMapping=new TreeMap<>();
+  List<String[]> rowData=new ArrayList<>();
+  Map<String,Map<String,Map<String,Double>>> baselineTotalMapPerDimensionValue=new HashMap<>();
+  Map<String,Map<String,Map<String,Double>>> currentTotalMapPerDimensionValue=new HashMap<>();
+  for (  String metricDimensionNameString : contributionViewTableMap.keySet()) {
+    ContributionViewTableBuilder contributionViewTable=contributionViewTableMap.get(metricDimensionNameString);
+    ContributionViewTable table=contributionViewTable.build();
+    List<ContributionCell> cells=table.getCells();
+    for (    ContributionCell cell : cells) {
+      String metricName=table.getMetricName();
+      String dimName=table.getDimensionName();
+      String dimValue=cell.getDimensionValue();
+      String key=metricName + "|" + dimName+ "|"+ dimValue;
+      List<Integer> rowIdList=keyToRowIdListMapping.get(key);
+      if (rowIdList == null) {
+        rowIdList=new ArrayList<>();
+        keyToRowIdListMapping.put(key,rowIdList);
+      }
+      rowIdList.add(rowData.size());
+      rowData.add(cell.toArray());
+      updateTotalForDimensionValue(baselineTotalMapPerDimensionValue,metricName,dimName,dimValue,cell.getBaselineValue());
+      updateTotalForDimensionValue(currentTotalMapPerDimensionValue,metricName,dimName,dimValue,cell.getCurrentValue());
+    }
+  }
+  genericResponse.setResponseData(rowData);
+  genericResponse.setSchema(new ResponseSchema(ContributionCell.columns()));
+  genericResponse.setKeyToRowIdMapping(keyToRowIdListMapping);
+  Info summary=new Info();
+  genericResponse.setSummary(summary);
+  for (  String dimensionName : dimensionValuesMap.keySet()) {
+    List<String> dimensionValues=dimensionValuesMap.get(dimensionName);
+    sort(metricNames,dimensionName,dimensionValues,baselineTotalMapPerDimensionValue,currentTotalMapPerDimensionValue);
+  }
+  contributorViewResponse.setDimensionValuesMap(dimensionValuesMap);
+  contributorViewResponse.setResponseData(genericResponse);
+  return contributorViewResponse;
+}

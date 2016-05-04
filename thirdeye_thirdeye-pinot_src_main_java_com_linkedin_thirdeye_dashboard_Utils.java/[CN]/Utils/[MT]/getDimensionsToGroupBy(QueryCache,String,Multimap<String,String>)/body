@@ -1,0 +1,16 @@
+{
+  List<String> dimensions=Utils.getDimensions(queryCache,collection);
+  List<String> dimensionsToGroupBy=new ArrayList<>();
+  if (filters != null) {
+    Set<String> filterDimenions=filters.keySet();
+    for (    String dimension : dimensions) {
+      if (!filterDimenions.contains(dimension)) {
+        dimensionsToGroupBy.add(dimension);
+      }
+    }
+  }
+ else {
+    return dimensions;
+  }
+  return dimensionsToGroupBy;
+}

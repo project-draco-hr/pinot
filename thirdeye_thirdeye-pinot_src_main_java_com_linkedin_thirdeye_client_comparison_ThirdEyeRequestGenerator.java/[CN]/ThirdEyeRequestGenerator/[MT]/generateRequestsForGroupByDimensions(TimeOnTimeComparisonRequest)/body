@@ -1,0 +1,14 @@
+{
+  List<ThirdEyeRequest> requests=new ArrayList<>();
+  ThirdEyeRequest baselineALLRequest=generateRequest(ALL_BASELINE,comparisonRequest,comparisonRequest.getBaselineStart(),comparisonRequest.getBaselineEnd(),null,null);
+  requests.add(baselineALLRequest);
+  ThirdEyeRequest currentALLRequest=generateRequest(ALL_CURRENT,comparisonRequest,comparisonRequest.getCurrentStart(),comparisonRequest.getCurrentEnd(),null,null);
+  requests.add(currentALLRequest);
+  for (  String dimension : comparisonRequest.getGroupByDimensions()) {
+    ThirdEyeRequest baselineDimensionRequest=generateRequest(DIMENSION_BASELINE + dimension,comparisonRequest,comparisonRequest.getBaselineStart(),comparisonRequest.getBaselineEnd(),dimension,null);
+    requests.add(baselineDimensionRequest);
+    ThirdEyeRequest currentDimensionRequest=generateRequest(DIMENSION_CURRENT + dimension,comparisonRequest,comparisonRequest.getCurrentStart(),comparisonRequest.getCurrentEnd(),dimension,null);
+    requests.add(currentDimensionRequest);
+  }
+  return requests;
+}

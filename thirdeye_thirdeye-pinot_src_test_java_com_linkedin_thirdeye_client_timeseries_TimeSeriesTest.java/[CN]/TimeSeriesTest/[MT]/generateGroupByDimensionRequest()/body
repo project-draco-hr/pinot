@@ -1,0 +1,12 @@
+{
+  TimeSeriesRequest timeSeriesRequest=new TimeSeriesRequest();
+  timeSeriesRequest.setCollectionName(THIRDEYE_ABOOK_OFFLINE);
+  timeSeriesRequest.setStart(START);
+  timeSeriesRequest.setEnd(START.plusHours(3));
+  timeSeriesRequest.setGroupByDimensions(ABOOK_DIMENSIONS);
+  List<MetricFunction> metricFunctions=new ArrayList<>();
+  metricFunctions.add(DEFAULT_METRIC_FUNCTION);
+  timeSeriesRequest.setMetricFunctions(metricFunctions);
+  timeSeriesRequest.setAggregationTimeGranularity(null);
+  return timeSeriesRequest;
+}

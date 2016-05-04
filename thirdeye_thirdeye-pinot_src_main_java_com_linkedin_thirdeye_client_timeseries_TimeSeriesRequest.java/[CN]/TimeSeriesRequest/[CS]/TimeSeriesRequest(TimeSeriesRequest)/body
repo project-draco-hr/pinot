@@ -1,0 +1,18 @@
+{
+  this.collectionName=timeSeriesRequest.collectionName;
+  if (timeSeriesRequest.metricFunctions != null) {
+    this.metricFunctions=new ArrayList<>(timeSeriesRequest.metricFunctions);
+  }
+  if (timeSeriesRequest.groupByDimensions != null) {
+    this.groupByDimensions=new ArrayList<>(timeSeriesRequest.groupByDimensions);
+  }
+  if (timeSeriesRequest.filterSet != null) {
+    this.filterSet=ArrayListMultimap.create(timeSeriesRequest.filterSet);
+  }
+  this.filterClause=timeSeriesRequest.filterClause;
+  this.start=timeSeriesRequest.start;
+  this.end=timeSeriesRequest.end;
+  if (timeSeriesRequest.aggregationTimeGranularity != null) {
+    this.aggregationTimeGranularity=new TimeGranularity(timeSeriesRequest.aggregationTimeGranularity.getSize(),timeSeriesRequest.aggregationTimeGranularity.getUnit());
+  }
+}

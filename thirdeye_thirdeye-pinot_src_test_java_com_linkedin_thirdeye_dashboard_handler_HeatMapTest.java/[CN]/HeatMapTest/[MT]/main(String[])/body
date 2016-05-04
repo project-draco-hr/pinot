@@ -1,0 +1,21 @@
+{
+  HeatMapViewRequest request=new HeatMapViewRequest();
+  String collection="thirdeyeAbook";
+  DateTime baselineStart=new DateTime(2016,3,23,00,00);
+  List<MetricExpression> metricExpressions=new ArrayList<>();
+  metricExpressions.add(new MetricExpression("__COUNT","__COUNT"));
+  request.setCollection(collection);
+  request.setBaselineStart(baselineStart);
+  request.setBaselineEnd(baselineStart.plusHours(1));
+  request.setCurrentStart(baselineStart.plusDays(7));
+  request.setCurrentEnd(baselineStart.plusDays(7).plusHours(1));
+  request.setTimeGranularity(new TimeGranularity(1,TimeUnit.HOURS));
+  request.setMetricExpressions(metricExpressions);
+  PinotThirdEyeClient pinotThirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
+  QueryCache queryCache=new QueryCache(pinotThirdEyeClient,Executors.newFixedThreadPool(10));
+  HeatMapViewHandler handler=new HeatMapViewHandler(queryCache);
+  HeatMapViewResponse response=handler.process(request);
+  ObjectMapper mapper=new ObjectMapper();
+  String jsonResponse=mapper.writeValueAsString(response);
+  System.out.println(jsonResponse);
+}

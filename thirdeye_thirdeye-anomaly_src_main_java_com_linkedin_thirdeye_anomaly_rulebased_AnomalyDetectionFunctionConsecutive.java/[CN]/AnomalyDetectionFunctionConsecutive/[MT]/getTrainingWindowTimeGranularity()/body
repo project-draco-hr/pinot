@@ -1,7 +1,0 @@
-{
-  TimeGranularity aggregateGranularity=childFunc.getAggregationTimeGranularity();
-  TimeGranularity childGranularity=childFunc.getTrainingWindowTimeGranularity();
-  long newGranularity=TimeGranularityUtils.toMillis(childGranularity) + length * TimeGranularityUtils.toMillis(aggregateGranularity);
-  int size=(int)aggregateGranularity.getUnit().convert(newGranularity,TimeUnit.MILLISECONDS);
-  return new TimeGranularity(size,aggregateGranularity.getUnit());
-}

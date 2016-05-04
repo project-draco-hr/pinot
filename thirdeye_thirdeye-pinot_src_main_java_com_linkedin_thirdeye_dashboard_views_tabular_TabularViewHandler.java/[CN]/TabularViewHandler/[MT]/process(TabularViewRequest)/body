@@ -1,0 +1,66 @@
+{
+  TimeOnTimeComparisonRequest comparisonRequest=generateTimeOnTimeComparisonRequest(request);
+  TimeOnTimeComparisonHandler handler=new TimeOnTimeComparisonHandler(queryCache);
+  TimeOnTimeComparisonResponse response=handler.handle(comparisonRequest);
+  List<String> metricNames=new ArrayList<>(response.getMetrics());
+  List<TimeBucket> timeBuckets=getTimeBuckets(response);
+  List<Row> rows=getRowsSortedByTime(response);
+  TabularViewResponse tabularViewResponse=new TabularViewResponse();
+  Map<String,String> summary=new HashMap<>();
+  summary.put("baselineStart",comparisonRequest.getBaselineStart().toString());
+  summary.put("baselineEnd",comparisonRequest.getBaselineEnd().toString());
+  summary.put("currentStart",comparisonRequest.getCurrentStart().toString());
+  summary.put("currentEnd",comparisonRequest.getCurrentEnd().toString());
+  tabularViewResponse.setSummary(summary);
+  tabularViewResponse.setMetrics(metricNames);
+  tabularViewResponse.setTimeBuckets(timeBuckets);
+  String[] columns=new String[]{"baselineValue","currentValue","ratio","cumulativeBaselineValue","cumulativeCurrentValue","cumulativeRatio"};
+  Map<String,GenericResponse> data=new LinkedHashMap<>();
+  for (  String metric : metricNames) {
+    ResponseSchema schema=new ResponseSchema();
+    for (int i=0; i < columns.length; i++) {
+      String column=columns[i];
+      schema.add(column,i);
+    }
+    GenericResponse rowData=new GenericResponse();
+    rowData.setSchema(schema);
+    List<String[]> genericResponseData=new ArrayList<>();
+    rowData.setResponseData(genericResponseData);
+    data.put(metric,rowData);
+  }
+  tabularViewResponse.setData(data);
+  Map<String,Double[]> runningTotalMap=new HashMap<>();
+  for (  Row row : rows) {
+    for (    Metric metric : row.getMetrics()) {
+      String metricName=metric.getMetricName();
+      Double baselineValue=metric.getBaselineValue();
+      Double currentValue=metric.getCurrentValue();
+      String baselineValueStr=HeatMapCell.format(baselineValue);
+      String currentValueStr=HeatMapCell.format(currentValue);
+      String ratioStr=HeatMapCell.format((currentValue - baselineValue) / baselineValue);
+      Double cumulativeBaselineValue;
+      Double cumulativeCurrentValue;
+      if (runningTotalMap.containsKey(metricName)) {
+        Double[] totalValues=runningTotalMap.get(metricName);
+        cumulativeBaselineValue=totalValues[0] + baselineValue;
+        cumulativeCurrentValue=totalValues[1] + currentValue;
+      }
+ else {
+        cumulativeBaselineValue=baselineValue;
+        cumulativeCurrentValue=currentValue;
+      }
+      Double[] runningTotalPerMetric=new Double[]{cumulativeBaselineValue,cumulativeCurrentValue};
+      runningTotalMap.put(metricName,runningTotalPerMetric);
+      String cumulativeBaselineValueStr=HeatMapCell.format(cumulativeBaselineValue);
+      String cumulativeCurrentValueStr=HeatMapCell.format(cumulativeCurrentValue);
+      String cumulativeRatioStr=HeatMapCell.format((cumulativeCurrentValue - cumulativeBaselineValue) / cumulativeBaselineValue);
+      String[] columnData={baselineValueStr,currentValueStr,ratioStr,cumulativeBaselineValueStr,cumulativeCurrentValueStr,cumulativeRatioStr};
+      GenericResponse rowData=data.get(metric.getMetricName());
+      if (rowData == null) {
+        System.out.println("NULL for metric:" + metric + " metricNames:"+ metricNames);
+      }
+      rowData.getResponseData().add(columnData);
+    }
+  }
+  return tabularViewResponse;
+}

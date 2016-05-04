@@ -1,9 +1,0 @@
-{
-  if (collection == null) {
-    return null;
-  }
-  JSONObject ret=new JSONObject(new ObjectMapper().writeValueAsString(funnelResource.getFunnelSpecFor(collection)));
-  JSONObject dimGroups=new JSONObject(new ObjectMapper().writeValueAsString(configCache.getDimensionGroupSpec(collection)));
-  ret.put("dimension_groups",dimGroups.get("groups"));
-  return ret.toString();
-}

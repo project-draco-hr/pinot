@@ -1,0 +1,17 @@
+{
+  ThirdEyeRequestBuilder requestBuilder=new ThirdEyeRequestBuilder();
+  requestBuilder.setCollection(comparisonRequest.getCollectionName());
+  requestBuilder.setFilterSet(comparisonRequest.getFilterSet());
+  requestBuilder.setFilterClause(comparisonRequest.getFilterClause());
+  requestBuilder.setMetricFunctions(comparisonRequest.getMetricFunctions());
+  requestBuilder.setStartTimeInclusive(start);
+  requestBuilder.setEndTimeExclusive(end);
+  if (groupByDimension != null) {
+    requestBuilder.setGroupBy(groupByDimension);
+  }
+  if (aggTimeGranularity != null) {
+    requestBuilder.setGroupByTimeGranularity(aggTimeGranularity);
+  }
+  ThirdEyeRequest request=requestBuilder.build(name);
+  return request;
+}

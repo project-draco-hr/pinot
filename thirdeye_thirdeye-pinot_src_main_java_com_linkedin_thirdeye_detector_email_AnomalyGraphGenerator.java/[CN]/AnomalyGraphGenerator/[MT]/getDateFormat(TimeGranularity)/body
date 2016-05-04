@@ -1,0 +1,23 @@
+{
+  String format;
+switch (timeGranularity.getUnit()) {
+case DAYS:
+    format="MM/dd";
+  break;
+case HOURS:
+format="MM/dd-HH'H'";
+break;
+case MILLISECONDS:
+format="HH:mm:ss:SSS";
+break;
+case MINUTES:
+format="HH:mm";
+break;
+case SECONDS:
+format="HH:mm:ss";
+break;
+default :
+throw new IllegalArgumentException("Unsupported time unit granularity: " + timeGranularity.getUnit());
+}
+return new SimpleDateFormat(format);
+}

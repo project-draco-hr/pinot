@@ -1,0 +1,25 @@
+{
+  long maxTime=0;
+  if (propertyStore != null) {
+    List<Stat> stats=new ArrayList<>();
+    int options=AccessOption.PERSISTENT;
+    List<ZNRecord> zkSegmentDataList=propertyStore.getChildren("/SEGMENTS/" + collection + "_OFFLINE",stats,options);
+    for (    ZNRecord record : zkSegmentDataList) {
+      try {
+        long endTime=Long.parseLong(record.getSimpleField("segment.end.time"));
+        TimeUnit timeUnit=TimeUnit.valueOf(record.getSimpleField("segment.time.unit"));
+        long endTimeMillis=timeUnit.toMillis(endTime);
+        if (endTimeMillis > maxTime) {
+          maxTime=endTimeMillis;
+        }
+      }
+ catch (      Exception e) {
+        LOG.warn("Exception parsing metadata:{}",record,e);
+      }
+    }
+  }
+ else {
+    maxTime=System.currentTimeMillis();
+  }
+  return maxTime;
+}

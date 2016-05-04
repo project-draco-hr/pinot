@@ -1,0 +1,39 @@
+{
+  JSONObject json=new JSONObject();
+  int numMetrics=1;
+  int numDimensions=2;
+  JSONArray metricArrayJson=new JSONArray();
+  for (int m=0; m < numMetrics; m++) {
+    JSONObject metricJson=new JSONObject();
+    metricJson.put("metricName","M" + m);
+    JSONArray dimensionArrayJson=new JSONArray();
+    for (int d=0; d < numDimensions; d++) {
+      JSONObject dimensionJson=new JSONObject();
+      dimensionJson.put("dimensionName","D" + d);
+      JSONObject schema=new JSONObject();
+      schema.put("dimValue",0);
+      schema.put("currentValue",1);
+      schema.put("baselineValue",2);
+      dimensionJson.put("schema",schema);
+      JSONArray dimensionData=new JSONArray();
+      for (int i=0; i < 10; i++) {
+        JSONArray entry=new JSONArray();
+        entry.put("d" + i);
+        entry.put(100);
+        entry.put(90);
+        dimensionData.put(entry);
+      }
+      dimensionJson.put("data",dimensionData);
+      dimensionArrayJson.put(dimensionJson);
+    }
+    metricJson.put("dimensionDataArray",dimensionArrayJson);
+    metricArrayJson.put(metricJson);
+  }
+  json.put("metricDataArray",metricArrayJson);
+  JSONObject summary=new JSONObject();
+  summary.put("baselineRange","2016-01-01 To 2016-01-07");
+  summary.put("currentRange","2016-01-08 To 2016-01-15");
+  json.put("summary",summary);
+  json.put("type","object");
+  System.out.println(json.toString(1));
+}

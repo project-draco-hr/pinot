@@ -1,0 +1,19 @@
+{
+  Map<String,String> summary=new HashMap<>();
+  Map<String,Integer> columnsToIndexMapping=genericResponse.getSchema().getColumnsToIndexMapping();
+  Double totalBaselineValue=0d;
+  Double totalCurrentValue=0d;
+  Map<String,String> simpleFields=genericResponse.getSummary().getSimpleFields();
+  for (  String[] rowData : genericResponse.getResponseData()) {
+    int i=columnsToIndexMapping.get("baselineValue");
+    String baselineValue=rowData[i];
+    totalBaselineValue=totalBaselineValue + Double.valueOf(baselineValue);
+    int j=columnsToIndexMapping.get("currentValue");
+    String currentValue=rowData[j];
+    totalCurrentValue=totalCurrentValue + Double.valueOf(currentValue);
+  }
+  summary.put("totalBaselineValue",String.valueOf(totalBaselineValue));
+  summary.put("totalBaselineValue",String.valueOf(totalBaselineValue));
+  summary.putAll(simpleFields);
+  return summary;
+}

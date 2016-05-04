@@ -1,0 +1,21 @@
+{
+  try {
+    TimeOnTimeComparisonRequest comparisonRequest=new TimeOnTimeComparisonRequest();
+    comparisonRequest.setCollectionName(config.getCollection());
+    comparisonRequest.setBaselineStart(start.minus(baselinePeriodMillis));
+    comparisonRequest.setBaselineEnd(end.minus(baselinePeriodMillis));
+    comparisonRequest.setCurrentStart(start);
+    comparisonRequest.setCurrentEnd(end);
+    List<MetricFunction> metricFunctions=new ArrayList<>();
+    metricFunctions.add(new MetricFunction(MetricFunction.SUM,config.getMetric()));
+    comparisonRequest.setMetricFunctions(metricFunctions);
+    comparisonRequest.setAggregationTimeGranularity(bucketGranularity);
+    System.out.println("Starting...");
+    TimeOnTimeComparisonResponse response=timeOnTimeComparisonHandler.handle(comparisonRequest);
+    System.out.println("Done!");
+    return response;
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+}

@@ -1,0 +1,33 @@
+{
+  List<String> groupByDimensions=timeSeriesRequest.getGroupByDimensions();
+  boolean hasGroupByDimensions=CollectionUtils.isNotEmpty(groupByDimensions);
+  List<Range<DateTime>> timeRanges=timeSeriesRequest.getTimeRanges();
+  Map<TimeSeriesRequest,Map<ThirdEyeRequest,Future<ThirdEyeResponse>>> subRequestQueryResponseMap=new HashMap<>();
+  for (  Range<DateTime> range : timeRanges) {
+    TimeSeriesRequest subTimeSeriesRequest=new TimeSeriesRequest(timeSeriesRequest);
+    subTimeSeriesRequest.setStart(range.lowerEndpoint());
+    subTimeSeriesRequest.setEnd(range.upperEndpoint());
+    List<ThirdEyeRequest> subRequests;
+    if (hasGroupByDimensions) {
+      subRequests=requestGenerator.generateRequestsForGroupByDimensions(subTimeSeriesRequest);
+    }
+ else {
+      subRequests=Collections.singletonList(requestGenerator.generateRequestsForAggregation(subTimeSeriesRequest));
+    }
+    Map<ThirdEyeRequest,Future<ThirdEyeResponse>> queryResponseFutureMap=queryCache.getQueryResultsAsync(subRequests);
+    subRequestQueryResponseMap.put(subTimeSeriesRequest,queryResponseFutureMap);
+  }
+  List<TimeSeriesRow> rows=new ArrayList<>();
+  for (  Entry<TimeSeriesRequest,Map<ThirdEyeRequest,Future<ThirdEyeResponse>>> entry : subRequestQueryResponseMap.entrySet()) {
+    TimeSeriesRequest subTimeSeriesRequest=entry.getKey();
+    Map<ThirdEyeRequest,ThirdEyeResponse> queryResponseMap=waitForFutures(entry.getValue());
+    if (hasGroupByDimensions) {
+      rows.addAll(responseParser.parseGroupByDimensionResponse(subTimeSeriesRequest,queryResponseMap));
+    }
+ else {
+      rows.add(responseParser.parseAggregationOnlyResponse(subTimeSeriesRequest,queryResponseMap));
+    }
+  }
+  List<MetricFunction> metricFunctions=timeSeriesRequest.getMetricFunctions();
+  return new TimeSeriesResponse(metricFunctions,groupByDimensions,rows);
+}

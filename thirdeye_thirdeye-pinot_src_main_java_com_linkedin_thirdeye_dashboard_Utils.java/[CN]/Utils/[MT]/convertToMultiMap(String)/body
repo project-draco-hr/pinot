@@ -1,0 +1,21 @@
+{
+  ArrayListMultimap<String,String> multimap=ArrayListMultimap.create();
+  if (filterJson == null) {
+    return multimap;
+  }
+  try {
+    TypeReference<Map<String,ArrayList<String>>> valueTypeRef=new TypeReference<Map<String,ArrayList<String>>>(){
+    }
+;
+    Map<String,ArrayList<String>> map;
+    map=OBJECT_MAPPER.readValue(filterJson,valueTypeRef);
+    for (    Map.Entry<String,ArrayList<String>> entry : map.entrySet()) {
+      multimap.putAll(entry.getKey(),entry.getValue());
+    }
+    return multimap;
+  }
+ catch (  IOException e) {
+    LOG.error("Error parsing filter json:{} message:{}",filterJson,e.getMessage());
+  }
+  return multimap;
+}

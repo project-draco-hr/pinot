@@ -1,0 +1,16 @@
+{
+  List<DashboardConfig> dashboardConfigs=configDAO.findAll(collection);
+  List<String> dashboards=new ArrayList<>();
+  for (  DashboardConfig dashboardConfig : dashboardConfigs) {
+    if (dashboardConfig == null) {
+      continue;
+    }
+ else {
+      dashboards.add(dashboardConfig.getDashboardName());
+    }
+  }
+  if (dashboards == null || dashboards.isEmpty()) {
+    dashboards.add("Default_All_Metrics_Dashboard");
+  }
+  return dashboards;
+}

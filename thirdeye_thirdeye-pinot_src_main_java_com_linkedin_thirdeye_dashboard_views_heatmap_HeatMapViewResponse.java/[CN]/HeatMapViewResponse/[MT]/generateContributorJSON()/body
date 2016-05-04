@@ -1,0 +1,32 @@
+{
+  JSONObject json=new JSONObject();
+  int numTimeBuckets=24;
+  int numMetrics=1;
+  int numDimensions=2;
+  JSONObject metricNames=new JSONObject();
+  JSONObject timeBuckets=new JSONObject();
+  JSONArray metricArrayJson=new JSONArray();
+  for (int m=0; m < numMetrics; m++) {
+    JSONObject metricJson=new JSONObject();
+    metricJson.put("metricName","M" + m);
+    JSONArray dimensionArray=new JSONArray();
+    for (int d=0; d < numDimensions; d++) {
+      JSONObject dimensionJson=new JSONObject();
+      dimensionJson.put("dimensionName","D" + d);
+      JSONArray dataArrayJson=new JSONArray();
+      for (int t=0; t < numTimeBuckets; t++) {
+        JSONArray entry=new JSONArray();
+        entry.put(100);
+        entry.put(90);
+        dataArrayJson.put(entry);
+      }
+      dimensionJson.put("data",dataArrayJson);
+    }
+    metricJson.put("dimensionData",dimensionArray);
+    metricArrayJson.put(metricJson);
+  }
+  json.put("metricNames",metricNames);
+  json.put("timeBuckets",timeBuckets);
+  json.put("metricDataArray",metricArrayJson);
+  System.out.println(json.toString(1));
+}

@@ -1,0 +1,14 @@
+{
+  int metricFunctionIndex=metricFuncToIdMapping.get(metricFunction);
+  ResultSet resultSet=resultSetGroup.getResultSet(metricFunctionIndex);
+  Map<String,String> ret=new HashMap<>();
+  for (int groupColId=0; groupColId < resultSet.getGroupKeyLength(); groupColId++) {
+    String groupKeyVal=resultSet.getGroupKeyString(rowId,groupColId);
+    ret.put(groupKeyColumns.get(groupColId),groupKeyVal);
+  }
+  for (int colId=0; colId < resultSet.getColumnCount(); colId++) {
+    String colVal=resultSet.getString(rowId,colId);
+    ret.put(resultSet.getColumnName(colId),colVal);
+  }
+  return ret;
+}

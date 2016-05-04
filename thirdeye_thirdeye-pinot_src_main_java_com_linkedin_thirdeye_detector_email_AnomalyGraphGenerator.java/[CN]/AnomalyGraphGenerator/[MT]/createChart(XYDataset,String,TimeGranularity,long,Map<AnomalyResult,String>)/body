@@ -1,0 +1,25 @@
+{
+  final JFreeChart chart=ChartFactory.createTimeSeriesChart(null,"Date",metric,dataset,true,false,false);
+  final XYPlot plot=chart.getXYPlot();
+  plot.setBackgroundPaint(Color.white);
+  plot.setDomainGridlinesVisible(false);
+  plot.setRangeGridlinesVisible(false);
+  final XYLineAndShapeRenderer renderer=new XYLineAndShapeRenderer();
+  renderer.setSeriesShapesVisible(0,false);
+  renderer.setSeriesShapesVisible(1,false);
+  renderer.setSeriesPaint(0,Color.BLUE);
+  renderer.setSeriesPaint(1,Color.BLUE);
+  renderer.setSeriesStroke(1,new BasicStroke(2.0f,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND,1.0f,new float[]{2.0f,6.0f},0.0f));
+  plot.setRenderer(renderer);
+  DateAxis axis=(DateAxis)plot.getDomainAxis();
+  DateTickUnit dateTickUnit=getDateTickUnit(timeGranularity,windowMillis);
+  SimpleDateFormat dateFormat=getDateFormat(timeGranularity);
+  axis.setDateFormatOverride(dateFormat);
+  axis.setTickUnit(dateTickUnit);
+  axis.setVerticalTickLabels(true);
+  List<Marker> anomalyIntervals=getAnomalyIntervals(anomaliesWithLabels);
+  for (  Marker marker : anomalyIntervals) {
+    plot.addDomainMarker(marker);
+  }
+  return chart;
+}

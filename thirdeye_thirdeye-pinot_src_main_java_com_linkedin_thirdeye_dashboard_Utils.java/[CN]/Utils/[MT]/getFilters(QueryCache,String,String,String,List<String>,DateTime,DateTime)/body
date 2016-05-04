@@ -1,0 +1,20 @@
+{
+  MetricFunction metricFunction=new MetricFunction(MetricFunction.SUM,"__COUNT");
+  List<ThirdEyeRequest> requests=generateRequests(collection,requestReference,metricFunction,dimensions,start,end);
+  Map<ThirdEyeRequest,Future<ThirdEyeResponse>> queryResultMap=queryCache.getQueryResultsAsync(requests);
+  Map<String,List<String>> result=new HashMap<>();
+  for (  Map.Entry<ThirdEyeRequest,Future<ThirdEyeResponse>> entry : queryResultMap.entrySet()) {
+    ThirdEyeRequest request=entry.getKey();
+    String dimension=request.getGroupBy().get(0);
+    ThirdEyeResponse thirdEyeResponse=entry.getValue().get();
+    int n=thirdEyeResponse.getNumRowsFor(metricFunction);
+    List<String> values=new ArrayList<>();
+    for (int i=0; i < n; i++) {
+      Map<String,String> row=thirdEyeResponse.getRow(metricFunction,i);
+      String dimensionValue=row.get(dimension);
+      values.add(dimensionValue);
+    }
+    result.put(dimension,values);
+  }
+  return result;
+}

@@ -1,9 +1,0 @@
-{
-  File collectionDir=new File(rootDir,collection);
-  File kafkaFile=new File(collectionDir,StarTreeConstants.KAFKA_CONFIG_FILE_NAME);
-  ThirdEyeKafkaConfig kafkaConfig=OBJECT_MAPPER.readValue(kafkaFile,ThirdEyeKafkaConfig.class);
-  ThirdEyeKafkaConsumer consumer=new ThirdEyeKafkaConsumer(starTreeManager.getMutableStarTree(collection),kafkaConfig,Executors.newSingleThreadExecutor(),Executors.newSingleThreadScheduledExecutor(),dataUpdateManager,metricRegistry);
-  consumers.put(collection,consumer);
-  consumer.start();
-  LOG.info("Started Kafka consumer for {}",collection);
-}

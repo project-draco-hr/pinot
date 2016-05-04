@@ -1,8 +1,0 @@
-{
-  Connection connection=ConnectionFactory.fromProperties(properties);
-  LOG.info("Created PinotThirdEyeClient from properties {}",properties);
-  if (!properties.containsKey(CONTROLLER_HOST_PROPERTY_KEY) || !properties.containsKey(CONTROLLER_PORT_PROPERTY_KEY)) {
-    throw new IllegalArgumentException("Properties file must contain controller mappings for " + CONTROLLER_HOST_PROPERTY_KEY + " and "+ CONTROLLER_PORT_PROPERTY_KEY);
-  }
-  return new PinotThirdEyeClient(connection,properties.getProperty(CONTROLLER_HOST_PROPERTY_KEY),Integer.valueOf(properties.getProperty(CONTROLLER_PORT_PROPERTY_KEY)));
-}

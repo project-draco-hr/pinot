@@ -1,0 +1,23 @@
+{
+  ZkClient zkClient=new ZkClient(zkUrl);
+  zkClient.setZkSerializer(new ZNRecordSerializer());
+  zkClient.waitUntilConnected();
+  ZKHelixAdmin helixAdmin=new ZKHelixAdmin(zkClient);
+  List<String> thirdeyeBrokerList=helixAdmin.getInstancesInClusterWithTag(clusterName,tag);
+  if (thirdeyeBrokerList.size() == 0) {
+    throw new RuntimeException("No brokers available with tag:" + tag);
+  }
+  String[] thirdeyeBrokers=new String[thirdeyeBrokerList.size()];
+  for (int i=0; i < thirdeyeBrokerList.size(); i++) {
+    String instanceName=thirdeyeBrokerList.get(i);
+    InstanceConfig instanceConfig=helixAdmin.getInstanceConfig(clusterName,instanceName);
+    thirdeyeBrokers[i]=instanceConfig.getHostName().replaceAll(BROKER_PREFIX,"") + ":" + instanceConfig.getPort();
+  }
+  Connection connection=ConnectionFactory.fromHostList(thirdeyeBrokers);
+  LOG.info("Created PinotThirdEyeClient to zookeeper: {}",zkUrl);
+  ZkBaseDataAccessor<ZNRecord> baseAccessor=new ZkBaseDataAccessor<>(zkClient);
+  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,clusterName);
+  List<String> watchList=null;
+  ZkHelixPropertyStore<ZNRecord> propertyStore=new ZkHelixPropertyStore<ZNRecord>(baseAccessor,propertyStorePath,watchList);
+  return new PinotThirdEyeClient(connection,controllerHost,controllerPort,propertyStore);
+}

@@ -1,0 +1,14 @@
+{
+  for (  Map.Entry<String,GenericResponse> entry : data.entrySet()) {
+    GenericResponse genericResponse=entry.getValue();
+    Map<String,Integer> columnsToIndexMapping=genericResponse.getSchema().getColumnsToIndexMapping();
+    int i=columnsToIndexMapping.get("baselineValue");
+    int j=columnsToIndexMapping.get("currentValue");
+    for (    String[] rowData : genericResponse.getResponseData()) {
+      Double baselineValue=Double.valueOf(rowData[i]);
+      Double currentValue=Double.valueOf(rowData[j]);
+      DescriptiveStatistics baselineStats=new DescriptiveStatistics();
+      DescriptiveStatistics currentStats=new DescriptiveStatistics();
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  List<ThirdEyeRequest> requests=new ArrayList<>();
+  for (  String dimension : dimensions) {
+    ThirdEyeRequestBuilder requestBuilder=new ThirdEyeRequestBuilder();
+    requestBuilder.setCollection(collection);
+    List<MetricFunction> metricFunctions=Arrays.asList(metricFunction);
+    requestBuilder.setMetricFunctions(metricFunctions);
+    requestBuilder.setStartTimeInclusive(start);
+    requestBuilder.setEndTimeExclusive(end);
+    requestBuilder.setGroupBy(dimension);
+    ThirdEyeRequest request=requestBuilder.build(requestReference);
+    requests.add(request);
+  }
+  return requests;
+}
