@@ -1,0 +1,30 @@
+{
+  Schema schema=new Schema();
+  schema.setSchemaName(segmentMetadata.getName());
+  for (  String column : columns) {
+    ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(column);
+    String columnName=columnMetadata.getColumnName();
+    DataType dataType=columnMetadata.getDataType();
+    FieldType fieldType=columnMetadata.getFieldType();
+    FieldSpec fieldSpec=null;
+switch (fieldType) {
+case DIMENSION:
+      boolean isSingleValue=columnMetadata.isSingleValue();
+    fieldSpec=new DimensionFieldSpec(columnName,dataType,isSingleValue);
+  break;
+case METRIC:
+fieldSpec=new MetricFieldSpec(columnName,dataType);
+break;
+case TIME:
+TimeUnit timeType=columnMetadata.getTimeunit();
+TimeGranularitySpec incominGranularitySpec=new TimeGranularitySpec(dataType,timeType,columnName);
+fieldSpec=new TimeFieldSpec(incominGranularitySpec);
+break;
+case UNKNOWN:
+default :
+break;
+}
+schema.addField(columnName,fieldSpec);
+}
+return schema;
+}

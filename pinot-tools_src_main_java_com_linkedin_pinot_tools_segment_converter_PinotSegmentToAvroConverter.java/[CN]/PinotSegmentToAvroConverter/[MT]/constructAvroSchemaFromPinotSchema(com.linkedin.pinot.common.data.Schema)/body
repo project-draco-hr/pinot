@@ -1,0 +1,35 @@
+{
+  Schema avroSchema=null;
+  RecordBuilder<Schema> recordBuilder=SchemaBuilder.record("record");
+  FieldAssembler<Schema> fieldAssembler=recordBuilder.fields();
+  for (  FieldSpec fieldSpec : schema.getAllFieldSpecs()) {
+    String fieldName=fieldSpec.getName();
+    DataType dataType=fieldSpec.getDataType();
+    BaseFieldTypeBuilder<Schema> baseFieldTypeBuilder=fieldAssembler.name(fieldName).type().nullable();
+switch (dataType) {
+case BOOLEAN:
+      fieldAssembler=baseFieldTypeBuilder.booleanType().noDefault();
+    break;
+case DOUBLE:
+  fieldAssembler=baseFieldTypeBuilder.doubleType().noDefault();
+break;
+case FLOAT:
+fieldAssembler=baseFieldTypeBuilder.floatType().noDefault();
+break;
+case INT:
+fieldAssembler=baseFieldTypeBuilder.intType().noDefault();
+break;
+case LONG:
+fieldAssembler=baseFieldTypeBuilder.longType().noDefault();
+break;
+case STRING:
+fieldAssembler=baseFieldTypeBuilder.stringType().noDefault();
+break;
+default :
+break;
+}
+}
+avroSchema=fieldAssembler.endRecord();
+LOGGER.info("Avro Schema {}",avroSchema.toString(true));
+return avroSchema;
+}

@@ -1,0 +1,22 @@
+{
+  LOGGER.info("Reading segment dir {}",segmentIndexDir);
+  PinotSegmentRecordReader pinotSegmentRecordReader=new PinotSegmentRecordReader(new File(segmentIndexDir));
+  Schema avroSchema=constructAvroSchemaFromPinotSchema(pinotSegmentRecordReader.getSchema());
+  final GenericDatumWriter<GenericData.Record> datum=new GenericDatumWriter<GenericData.Record>(avroSchema);
+  DataFileWriter<GenericData.Record> recordWriter=new DataFileWriter<GenericData.Record>(datum);
+  recordWriter.create(avroSchema,new File(outputDir,AVRO_FILE));
+  GenericData.Record outputRecord;
+  GenericRow row;
+  pinotSegmentRecordReader.init();
+  while (pinotSegmentRecordReader.hasNext()) {
+    outputRecord=new GenericData.Record(avroSchema);
+    row=pinotSegmentRecordReader.next();
+    for (    String fieldName : row.getFieldNames()) {
+      outputRecord.put(fieldName,row.getValue(fieldName));
+    }
+    recordWriter.append(outputRecord);
+  }
+  LOGGER.info("Writing to avro file at {}",outputDir);
+  pinotSegmentRecordReader.close();
+  recordWriter.close();
+}
