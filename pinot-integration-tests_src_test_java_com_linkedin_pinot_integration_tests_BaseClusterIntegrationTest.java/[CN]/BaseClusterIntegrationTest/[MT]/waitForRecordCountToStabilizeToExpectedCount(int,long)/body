@@ -17,7 +17,9 @@
     }
     if (expectedRecordCount > pinotRecordCount) {
       final long now=System.currentTimeMillis();
-      Assert.assertTrue(now < deadlineMs,"Failed to read " + expectedRecordCount + " records within the deadline (deadline="+ deadlineMs+ "ms,now="+ now+ "ms,NumRecordsRead="+ pinotRecordCount+ ")");
+      if (now > deadlineMs) {
+        Assert.fail("Failed to read " + expectedRecordCount + " records within the deadline (deadline="+ deadlineMs+ "ms,now="+ now+ "ms,NumRecordsRead="+ pinotRecordCount+ ")");
+      }
     }
   }
  while (pinotRecordCount < expectedRecordCount);

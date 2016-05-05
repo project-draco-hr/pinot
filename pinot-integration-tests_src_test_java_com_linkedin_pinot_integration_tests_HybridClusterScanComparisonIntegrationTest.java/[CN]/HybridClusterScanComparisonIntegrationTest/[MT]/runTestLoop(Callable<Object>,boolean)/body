@@ -12,19 +12,35 @@
     if (useMultipleThreads) {
       _queryExecutor=new ThreadPoolExecutor(4,4,5,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(50),new ThreadPoolExecutor.CallerRunsPolicy());
     }
-    LOGGER.info("Pushing Avro file {}",avroFile);
+    LOGGER.info("Pushing Avro file {} into Kafka",avroFile);
     pushAvroIntoKafka(Collections.singletonList(avroFile),KafkaStarterUtils.DEFAULT_KAFKA_BROKER,KAFKA_TOPIC);
     configureScanBasedComparator(enabledRealtimeSegments);
     QueryResponse queryResponse=_scanBasedQueryProcessor.processQuery("select count(*) from mytable");
     int expectedRecordCount=queryResponse.getNumDocsScanned();
-    waitForRecordCountToStabilizeToExpectedCount(expectedRecordCount,System.currentTimeMillis() + 120000L);
+    waitForRecordCountToStabilizeToExpectedCount(expectedRecordCount,System.currentTimeMillis() + getStabilizationTimeMs());
+    LOGGER.info("Running queries");
     testMethod.call();
     if (useMultipleThreads) {
-      _queryExecutor.shutdown();
-      _queryExecutor.awaitTermination(5,TimeUnit.MINUTES);
-      int totalQueries=_failedQueries.get() + _successfulQueries.get();
-      doDisplayStatus(totalQueries);
+      if (_nQueriesRead == -1) {
+        _queryExecutor.shutdown();
+        _queryExecutor.awaitTermination(5,TimeUnit.MINUTES);
+      }
+ else {
+        int totalQueries=_failedQueries.get() + _successfulQueries.get();
+        while (totalQueries < _nQueriesRead) {
+          LOGGER.info("Completed " + totalQueries + " out of "+ _nQueriesRead+ " - waiting");
+          Uninterruptibles.sleepUninterruptibly(20,TimeUnit.SECONDS);
+          totalQueries=_failedQueries.get() + _successfulQueries.get();
+        }
+        if (totalQueries > _nQueriesRead) {
+          throw new RuntimeException("Executed " + totalQueries + " more than "+ _nQueriesRead);
+        }
+        _queryExecutor.shutdown();
+      }
     }
+    int totalQueries=_failedQueries.get() + _successfulQueries.get();
+    doDisplayStatus(totalQueries);
     _scanBasedQueryProcessor.close();
+    _fileWriter.write("Status after push of " + avroFile + ":"+ System.currentTimeMillis()+ ":Executed "+ _nQueriesRead+ " queries, "+ _failedQueries+ " failures,"+ _emptyResults.get()+ " empty results");
   }
 }

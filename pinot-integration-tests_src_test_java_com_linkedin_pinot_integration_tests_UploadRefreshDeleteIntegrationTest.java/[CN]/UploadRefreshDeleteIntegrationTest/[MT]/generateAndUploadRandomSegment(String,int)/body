@@ -15,7 +15,7 @@
   File segmentTarDir=new File(_tarsDir,segmentName);
   ensureDirectoryExistsAndIsEmpty(segmentTarDir);
   ExecutorService executor=MoreExecutors.sameThreadExecutor();
-  buildSegmentsFromAvro(Collections.singletonList(avroFile),executor,segmentIndex,new File(_segmentsDir,segmentName),segmentTarDir,"mytable",false);
+  buildSegmentsFromAvro(Collections.singletonList(avroFile),executor,segmentIndex,new File(_segmentsDir,segmentName),segmentTarDir,"mytable",false,null);
   executor.shutdown();
   executor.awaitTermination(1L,TimeUnit.MINUTES);
   for (  String segmentFileName : segmentTarDir.list()) {

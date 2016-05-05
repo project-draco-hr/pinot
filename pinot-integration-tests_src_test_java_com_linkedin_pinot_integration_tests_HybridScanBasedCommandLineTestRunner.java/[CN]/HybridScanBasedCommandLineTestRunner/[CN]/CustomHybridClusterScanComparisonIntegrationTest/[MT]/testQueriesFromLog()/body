@@ -1,0 +1,27 @@
+{
+  if (!_inCmdLine) {
+    return;
+  }
+  runTestLoop(new Callable<Object>(){
+    @Override public Object call() throws Exception {
+      LineNumberReader lineNumberReader=new LineNumberReader(getQueryFile());
+      String line=lineNumberReader.readLine();
+      while (line != null) {
+        final String query=replaceTableName(line);
+        _nQueriesRead++;
+        if (multiThreaded) {
+          runQueryAsync(query);
+        }
+ else {
+          runQuery(query,_scanBasedQueryProcessor,false);
+        }
+        line=lineNumberReader.readLine();
+      }
+      lineNumberReader.close();
+      return null;
+    }
+  }
+,multiThreaded);
+  System.out.println(getNumSuccesfulQueries() + " Passed, " + getNumFailedQueries()+ " Failed, "+ getNumEmptyResults()+ " empty results");
+  Assert.assertEquals(0,getNumFailedQueries(),"There were query failures. See " + _logFileName);
+}

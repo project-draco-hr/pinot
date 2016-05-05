@@ -1,0 +1,29 @@
+{
+  if (args.length != 7) {
+    System.err.println("Usage: pinot-hybrid-cluster.sh tableName schemaFilePath segQueryDirPath timeColName timeColType invIndexCols sortedCol");
+    System.exit(1);
+  }
+  final String tableName=args[0];
+  final String schemaFilePath=args[1];
+  final String segQueryDirPath=args[2];
+  final String timeColName=args[3];
+  final String timeColType=args[4];
+  final String invIndexCols=args[5];
+  final String sortedCol=args[6];
+  CustomHybridClusterScanComparisonIntegrationTest.setParams(tableName,schemaFilePath,segQueryDirPath,timeColName,timeColType,invIndexCols,sortedCol);
+  TestListenerAdapter tla=new TestListenerAdapter();
+  TestNG testng=new TestNG();
+  testng.setTestClasses(new Class[]{CustomHybridClusterScanComparisonIntegrationTest.class});
+  testng.addListener(tla);
+  testng.run();
+  System.out.println("Passed tests: " + tla.getPassedTests());
+  if (!tla.getSkippedTests().isEmpty()) {
+    System.out.println("Skipped tests: " + tla.getSkippedTests());
+  }
+  System.out.println(tla.toString());
+  if (!tla.getFailedTests().isEmpty()) {
+    System.err.println("Failed tests:" + tla.getFailedTests());
+    System.exit(1);
+  }
+  System.exit(0);
+}

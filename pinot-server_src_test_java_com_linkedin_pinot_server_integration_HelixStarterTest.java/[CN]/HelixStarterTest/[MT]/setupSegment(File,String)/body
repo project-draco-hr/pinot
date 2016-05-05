@@ -4,7 +4,7 @@
   if (segmentDir.exists()) {
     FileUtils.deleteQuietly(segmentDir);
   }
-  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,TimeUnit.DAYS,tableName);
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,TimeUnit.DAYS,tableName,null);
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   driver.init(config);
   driver.build();

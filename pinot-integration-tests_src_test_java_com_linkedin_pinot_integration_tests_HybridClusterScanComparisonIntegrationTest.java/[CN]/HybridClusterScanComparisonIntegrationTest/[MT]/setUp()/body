@@ -19,9 +19,15 @@
   setUpTable("mytable",getTimeColumnName(),getTimeColumnType(),KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,_schemaFile,avroFiles.get(0),getSortedColumn(),invertedIndexColumns);
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
-  ExecutorService executor=Executors.newSingleThreadExecutor();
-  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_offlineSegmentDir,_offlineTarDir,"mytable",false);
-  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_realtimeSegmentDir,_realtimeTarDir,"mytable",false);
+  ExecutorService executor;
+  if (_createSegmentsInParallel) {
+    executor=Executors.newCachedThreadPool();
+  }
+ else {
+    executor=Executors.newSingleThreadExecutor();
+  }
+  Future<Map<File,File>> offlineAvroToSegmentMapFuture=buildSegmentsFromAvro(offlineAvroFiles,executor,0,_offlineSegmentDir,_offlineTarDir,"mytable",false,_schema);
+  Future<Map<File,File>> realtimeAvroToSegmentMapFuture=buildSegmentsFromAvro(realtimeAvroFiles,executor,0,_realtimeSegmentDir,_realtimeTarDir,"mytable",false,_schema);
   setupQueryGenerator(avroFiles,executor);
   _offlineAvroToSegmentMap=offlineAvroToSegmentMapFuture.get();
   _realtimeAvroToSegmentMap=realtimeAvroToSegmentMapFuture.get();

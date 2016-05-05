@@ -11,14 +11,14 @@
   addSchema(schemaFile,schema.getSchemaName());
   final List<String> invertedIndexColumns=makeInvertedIndexColumns();
   final String sortedColumn=makeSortedColumn();
-  addHybridTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schema.getSchemaName(),TENANT_NAME,TENANT_NAME,avroFiles.get(0),sortedColumn,invertedIndexColumns);
+  addHybridTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schema.getSchemaName(),TENANT_NAME,TENANT_NAME,avroFiles.get(0),sortedColumn,invertedIndexColumns,null);
   LOGGER.info("Running with Sorted column=" + sortedColumn + " and inverted index columns = "+ invertedIndexColumns);
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
   ExecutorService executor=Executors.newCachedThreadPool();
   setupH2AndInsertAvro(avroFiles,executor);
   LOGGER.info("Creating offline segments from avro files " + offlineAvroFiles);
-  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"mytable",false);
+  buildSegmentsFromAvro(offlineAvroFiles,executor,0,_segmentDir,_tarDir,"mytable",false,null);
   setupQueryGenerator(avroFiles,executor);
   executor.shutdown();
   executor.awaitTermination(10,TimeUnit.MINUTES);

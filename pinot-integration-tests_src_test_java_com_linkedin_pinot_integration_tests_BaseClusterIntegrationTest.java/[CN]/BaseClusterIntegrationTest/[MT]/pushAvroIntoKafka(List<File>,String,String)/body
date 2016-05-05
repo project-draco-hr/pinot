@@ -24,7 +24,7 @@
           messagesToWrite.add(data);
           messagesInThisBatch++;
           if (MAX_MESSAGES_PER_BATCH <= messagesInThisBatch) {
-            LOGGER.info("Sending a batch of {} records to Kafka",messagesInThisBatch);
+            LOGGER.debug("Sending a batch of {} records to Kafka",messagesInThisBatch);
             messagesInThisBatch=0;
             producer.send(messagesToWrite);
             messagesToWrite.clear();

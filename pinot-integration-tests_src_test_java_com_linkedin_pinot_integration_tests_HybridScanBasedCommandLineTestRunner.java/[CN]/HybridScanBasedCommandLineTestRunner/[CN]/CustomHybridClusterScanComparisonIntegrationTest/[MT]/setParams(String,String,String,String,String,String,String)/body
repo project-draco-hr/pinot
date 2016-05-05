@@ -1,0 +1,23 @@
+{
+  _timeColName=timeColName;
+  _timeColType=timeColType;
+  _tableName=tableName;
+  _queryFilePath=segsQueryDir + "/" + QUERY_FILE_NAME;
+  _sortedColumn=sortedCol;
+  File avroDir=new File(segsQueryDir + "/" + AVRO_DIR);
+  File[] avroFiles=avroDir.listFiles();
+  for (  File file : avroFiles) {
+    if (!file.getName().matches("[0-9].*")) {
+      throw new RuntimeException("Avro file names must start with a digit that indicates starting time/day of avro events in the file");
+    }
+    _avroFiles.add(file);
+  }
+  Collections.sort(_avroFiles);
+  String[] colNames=invIndexCols.split(",");
+  for (  String colName : colNames) {
+    _invIndexCols.add(colName);
+  }
+  _schemaFile=new File(schemaFileName);
+  _logFileName=_tableName + "-" + System.currentTimeMillis()+ "-"+ _logFileSuffix;
+  _inCmdLine=true;
+}
