@@ -1,2 +1,27 @@
 {
+  for (  Entry<String,Dictionary> entry : pinotDictionaryBufferMap.entrySet()) {
+    ImmutableDictionaryReader dictionary=(ImmutableDictionaryReader)entry.getValue();
+    if (dictionary != null) {
+      dictionary.close();
+    }
+  }
+  for (  Entry<String,SingleColumnSingleValueReader> entry : singleValueReaderMap.entrySet()) {
+    SingleColumnSingleValueReader reader=entry.getValue();
+    if (reader != null) {
+      reader.close();
+    }
+  }
+  for (  Entry<String,SortedForwardIndexReader> entry : singleValueSortedReaderMap.entrySet()) {
+    SortedForwardIndexReader reader=entry.getValue();
+    if (reader != null) {
+      reader.close();
+    }
+  }
+  for (  Entry<String,SingleColumnMultiValueReader> entry : multiValueReaderMap.entrySet()) {
+    SingleColumnMultiValueReader reader=entry.getValue();
+    if (reader != null) {
+      reader.close();
+    }
+  }
+  segmentMetadata.close();
 }

@@ -2,7 +2,7 @@
   Map<String,Object> fields=new HashMap<>();
   for (  String column : columns) {
     if (isSingleValueMap.get(column)) {
-      Dictionary dictionary;
+      Dictionary dictionary=null;
       int dictionaryId;
       if (!isSortedMap.get(column)) {
         SingleColumnSingleValueReader singleValueReader=singleValueReaderMap.get(column);
@@ -14,55 +14,25 @@
         dictionary=pinotDictionaryBufferMap.get(column);
         dictionaryId=svSortedReader.getInt(docNumber);
       }
-switch (columnDataTypeMap.get(column)) {
-case BOOLEAN:
-        fields.put(column,dictionary.get(dictionaryId));
-      break;
-case DOUBLE:
-    fields.put(column,dictionary.get(dictionaryId));
-  break;
-case FLOAT:
-fields.put(column,dictionary.get(dictionaryId));
-break;
-case INT:
-fields.put(column,dictionary.get(dictionaryId));
-break;
-case LONG:
-fields.put(column,dictionary.get(dictionaryId));
-break;
-case STRING:
-fields.put(column,dictionary.get(dictionaryId));
-break;
-case BYTE:
-case BYTE_ARRAY:
-case CHAR:
-case CHAR_ARRAY:
-case DOUBLE_ARRAY:
-case FLOAT_ARRAY:
-case INT_ARRAY:
-case LONG_ARRAY:
-case OBJECT:
-case SHORT:
-case SHORT_ARRAY:
-case STRING_ARRAY:
-default :
-break;
-}
-}
+      if (dictionary == null) {
+        throw new IllegalStateException("Dictionary no found for " + column);
+      }
+      fields.put(column,dictionary.get(dictionaryId));
+    }
  else {
-SingleColumnMultiValueReader mvReader=multiValueReaderMap.get(column);
-int[] dictionaryIdArray=(int[])multiValueArrayMap.get(column);
-mvReader.getIntArray(docNumber,dictionaryIdArray);
-Dictionary dictionary=pinotDictionaryBufferMap.get(column);
-Object[] objectArray=new Object[dictionaryIdArray.length];
-for (int i=0; i < dictionaryIdArray.length; i++) {
-objectArray[i]=dictionary.get(dictionaryIdArray[i]);
-}
-fields.put(column,objectArray);
-}
-}
-GenericRow row=new GenericRow();
-row.init(fields);
-docNumber++;
-return row;
+      SingleColumnMultiValueReader mvReader=multiValueReaderMap.get(column);
+      int[] dictionaryIdArray=(int[])multiValueArrayMap.get(column);
+      mvReader.getIntArray(docNumber,dictionaryIdArray);
+      Dictionary dictionary=pinotDictionaryBufferMap.get(column);
+      Object[] objectArray=new Object[dictionaryIdArray.length];
+      for (int i=0; i < dictionaryIdArray.length; i++) {
+        objectArray[i]=dictionary.get(dictionaryIdArray[i]);
+      }
+      fields.put(column,objectArray);
+    }
+  }
+  GenericRow row=new GenericRow();
+  row.init(fields);
+  docNumber++;
+  return row;
 }
