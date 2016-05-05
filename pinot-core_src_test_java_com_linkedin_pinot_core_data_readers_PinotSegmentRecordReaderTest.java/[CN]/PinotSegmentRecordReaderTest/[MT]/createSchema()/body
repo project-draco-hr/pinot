@@ -1,0 +1,16 @@
+{
+  Schema testSchema=new Schema();
+  testSchema.setSchemaName("schema");
+  FieldSpec spec;
+  spec=new DimensionFieldSpec("d1",DataType.STRING,true);
+  testSchema.addField("d1",spec);
+  spec=new DimensionFieldSpec("d2",DataType.STRING,false,",");
+  testSchema.addField("d2",spec);
+  spec=new MetricFieldSpec("m1",DataType.INT);
+  testSchema.addField("m1",spec);
+  spec=new MetricFieldSpec("m2",DataType.FLOAT);
+  testSchema.addField("m2",spec);
+  spec=new TimeFieldSpec(new TimeGranularitySpec(DataType.LONG,TimeUnit.HOURS,"t"));
+  testSchema.addField("t",spec);
+  return testSchema;
+}

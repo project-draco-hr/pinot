@@ -54,9 +54,6 @@ case STRING:
 pinotDictionaryBufferMap.put(column,new StringDictionary(dictionaryBuffer,columnMetadataFor));
 break;
 case INT_ARRAY:
-int[] intArray=new int[columnMetadataFor.getMaxNumberOfMultiValues()];
-multiValueArrayMap.put(column,intArray);
-break;
 case BYTE:
 case BYTE_ARRAY:
 case CHAR:
@@ -71,6 +68,10 @@ case STRING_ARRAY:
 default :
 LOGGER.error("Unsupported data type {}",dataType);
 break;
+}
+if (!isSingleValueMap.get(column)) {
+int[] intArray=new int[columnMetadataFor.getMaxNumberOfMultiValues()];
+multiValueArrayMap.put(column,intArray);
 }
 columnDataTypeMap.put(column,dataType);
 }

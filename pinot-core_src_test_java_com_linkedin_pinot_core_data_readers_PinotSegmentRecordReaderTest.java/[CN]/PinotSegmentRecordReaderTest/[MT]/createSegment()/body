@@ -1,0 +1,12 @@
+{
+  SegmentGeneratorConfig segmentGeneratorConfig=new SegmentGeneratorConfig(schema);
+  segmentGeneratorConfig.setTableName(segmentName);
+  segmentGeneratorConfig.setOutDir(segmentOutputDir);
+  segmentGeneratorConfig.setSegmentName(segmentName);
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  driver.init(segmentGeneratorConfig,recordReader);
+  driver.build();
+  if (!segmentIndexDir.exists()) {
+    throw new IllegalStateException("Segment generation failed");
+  }
+}
