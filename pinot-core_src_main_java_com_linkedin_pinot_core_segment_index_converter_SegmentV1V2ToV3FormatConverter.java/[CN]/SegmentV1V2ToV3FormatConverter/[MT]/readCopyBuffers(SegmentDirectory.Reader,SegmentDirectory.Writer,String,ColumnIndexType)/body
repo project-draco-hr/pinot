@@ -1,6 +1,6 @@
 {
   PinotDataBuffer oldBuffer=reader.getIndexFor(column,indexType);
-  Preconditions.checkState(oldBuffer.size() > 0 && oldBuffer.size() < Integer.MAX_VALUE,"Buffer sizes of greater than 2GB is not supported. segment: " + reader.toString() + ", column: "+ column);
+  Preconditions.checkState(oldBuffer.size() >= 0 && oldBuffer.size() < Integer.MAX_VALUE,"Buffer sizes of greater than 2GB is not supported. segment: " + reader.toString() + ", column: "+ column);
   PinotDataBuffer newDictBuffer=writer.newIndexFor(column,indexType,(int)oldBuffer.size());
   ByteBuffer bb=oldBuffer.toDirectByteBuffer(0,(int)oldBuffer.size());
   newDictBuffer.readFrom(bb,0,0,bb.limit());
