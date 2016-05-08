@@ -21,5 +21,5 @@
   }
   outputRecord.put(timeColumnName,ThirdeyeAvroUtils.getMetricFromRecord(inputRecord,timeColumnName));
   AvroKey<GenericRecord> outputKey=new AvroKey<GenericRecord>(outputRecord);
-  context.write(outputKey,NullWritable.get());
+  avroMultipleOutputs.write(outputKey,NullWritable.get(),inputFileName);
 }

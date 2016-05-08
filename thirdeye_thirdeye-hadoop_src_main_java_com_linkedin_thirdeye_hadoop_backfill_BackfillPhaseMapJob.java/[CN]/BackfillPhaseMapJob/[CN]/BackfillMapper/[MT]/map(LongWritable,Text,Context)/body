@@ -1,0 +1,25 @@
+{
+  String line=value.toString();
+  String[] lineSplits=line.split(" ");
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("mapper input : {}",value);
+  LOGGER.info("Path to output : {}",outputPath);
+  LOGGER.info("num lines : {}",lineSplits.length);
+  for (  String split : lineSplits) {
+    LOGGER.info("Command line : {}",split);
+  }
+  if (lineSplits.length != 3) {
+    throw new RuntimeException("Input to the mapper is malformed");
+  }
+  inputPath=lineSplits[1].trim();
+  LOGGER.info("input data file path : {}",inputPath);
+  LOGGER.info("*********************************************************************");
+  try {
+    createAvro(inputPath);
+    LOGGER.info("Finished avro creation job successfully");
+  }
+ catch (  Exception e) {
+    LOGGER.error("Got exceptions during creating avro!",e);
+  }
+  LOGGER.info("Finished the job successfully!");
+}

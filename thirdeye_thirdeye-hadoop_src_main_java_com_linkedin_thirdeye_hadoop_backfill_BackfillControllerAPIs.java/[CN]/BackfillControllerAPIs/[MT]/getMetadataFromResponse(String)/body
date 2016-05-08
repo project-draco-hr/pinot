@@ -1,0 +1,10 @@
+{
+  Map<String,String> metadata=new HashMap<>();
+  String cleanUpResponse=response.replaceAll("\\[|\\]|\"|\\{|\\}|\\\\","");
+  String[] allProperties=cleanUpResponse.replace("state:","").split(",");
+  for (  String property : allProperties) {
+    String[] tokens=property.split(":",2);
+    metadata.put(tokens[0],tokens[1]);
+  }
+  return metadata;
+}

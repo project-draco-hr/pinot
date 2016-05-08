@@ -33,7 +33,8 @@
   job.setMapOutputKeyClass(AvroKey.class);
   job.setMapOutputValueClass(NullWritable.class);
   AvroJob.setOutputKeySchema(job,outputSchema);
-  job.setOutputFormatClass(AvroKeyOutputFormat.class);
+  LazyOutputFormat.setOutputFormatClass(job,AvroKeyOutputFormat.class);
+  AvroMultipleOutputs.addNamedOutput(job,"avro",AvroKeyOutputFormat.class,outputSchema);
   job.setNumReduceTasks(0);
   job.waitForCompletion(true);
   return job;

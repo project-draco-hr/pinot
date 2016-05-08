@@ -1,0 +1,14 @@
+{
+  List<String> segmentsInRange=new ArrayList<>();
+  for (  String segmentName : allSegments) {
+    Map<String,String> metadata=getSegmentMetadata(tableName,segmentName);
+    long segmentStartTime=Long.valueOf(metadata.get(SEGMENT_START_TIME));
+    long segmentEndTime=Long.valueOf(metadata.get(SEGMENT_END_TIME));
+    String segmentTableName=metadata.get(SEGMENT_TABLE_NAME);
+    if (segmentTableName.equals(tableName) && ((segmentStartTime >= startTime && segmentStartTime <= endTime) || (segmentEndTime >= startTime && segmentEndTime <= endTime))) {
+      LOGGER.info("Segment name : {}, Segment start : {}, Segment end : {}, Segment table : {}",segmentName,segmentStartTime,segmentEndTime,segmentTableName);
+      segmentsInRange.add(segmentName);
+    }
+  }
+  return segmentsInRange;
+}

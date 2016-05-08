@@ -1,0 +1,11 @@
+{
+  currentDiskWorkDir="pinot_hadoop_tmp";
+  new File(currentDiskWorkDir).mkdir();
+  LOGGER.info("*********************************************************************");
+  LOGGER.info("Configurations : {}",context.getConfiguration().toString());
+  LOGGER.info("Current DISK working dir : {}",new File(currentDiskWorkDir).getAbsolutePath());
+  LOGGER.info("*********************************************************************");
+  properties=context.getConfiguration();
+  fs=FileSystem.get(new Configuration());
+  outputPath=properties.get(BACKFILL_PHASE_OUTPUT_PATH.toString());
+}

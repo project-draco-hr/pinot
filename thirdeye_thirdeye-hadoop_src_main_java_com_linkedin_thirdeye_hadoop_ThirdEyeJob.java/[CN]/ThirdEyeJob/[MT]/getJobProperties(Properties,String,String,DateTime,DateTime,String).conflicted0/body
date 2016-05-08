@@ -5,7 +5,9 @@
   if (fs.exists(aggOutputPath)) {
     inputPaths=aggOutputPath.toString();
   }
-  config.setProperty(TopKPhaseConstants.TOPK_PHASE_INPUT_PATH.toString(),inputPaths);
-  config.setProperty(TopKPhaseConstants.TOPK_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + TOPK.getName());
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_INPUT_PATH.toString(),inputPaths);
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA.toString(),getIndexDir(root,collection,minTime,maxTime));
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + DERIVED_COLUMN_TRANSFORMATION.getName());
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + TOPK.getName());
   return config;
 }

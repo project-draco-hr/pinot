@@ -22,7 +22,14 @@
   String minTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockStartTime);
   String maxTime=ThirdEyeConstants.DATE_TIME_FORMATTER.print(segmentWallClockEndTime);
   LOGGER.info("Wall clock time : min {} max {}",minTime,maxTime);
-  segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + ThirdEyeConstants.SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
+  LOGGER.info("isBackfill : {}",isBackfill);
+  if (isBackfill) {
+    String segmentName=hdfsDataPath.getName().split("-(m|r)-[0-9]{5}")[0];
+    segmentGeneratorConfig.setSegmentName(segmentName);
+  }
+ else {
+    segmentGeneratorConfig.setSegmentName(SegmentNameBuilder.buildBasic(tableName + ThirdEyeConstants.SEGMENT_JOINER + segmentSchedule,minTime,maxTime,seqId));
+  }
   LOGGER.info("Setting segment name {}",segmentGeneratorConfig.getSegmentName());
   StarTreeIndexSpec starTreeIndexSpec=new StarTreeIndexSpec();
   Set<String> skipMaterializationForDimensions=new HashSet<>();

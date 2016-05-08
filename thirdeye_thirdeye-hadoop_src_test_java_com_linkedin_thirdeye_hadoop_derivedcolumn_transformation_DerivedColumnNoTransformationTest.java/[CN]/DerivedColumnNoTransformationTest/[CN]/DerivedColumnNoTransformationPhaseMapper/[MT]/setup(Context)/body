@@ -1,0 +1,18 @@
+{
+  Configuration configuration=context.getConfiguration();
+  FileSystem fs=FileSystem.get(configuration);
+  thirdeyeConfig=OBJECT_MAPPER.readValue(configuration.get(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
+  config=DerivedColumnTransformationPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
+  dimensionsNames=config.getDimensionNames();
+  metricNames=config.getMetricNames();
+  timeColumnName=config.getTimeColumnName();
+  outputSchema=new Schema.Parser().parse(configuration.get(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA.toString()));
+  Path topKPath=new Path(configuration.get(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString()) + File.separator + ThirdEyeConstants.TOPK_VALUES_FILE);
+  topKDimensionValues=new TopKDimensionValues();
+  if (fs.exists(topKPath)) {
+    FSDataInputStream topkValuesStream=fs.open(topKPath);
+    topKDimensionValues=OBJECT_MAPPER.readValue(topkValuesStream,TopKDimensionValues.class);
+    topkValuesStream.close();
+  }
+  topKDimensionsMap=topKDimensionValues.getTopKDimensions();
+}

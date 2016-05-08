@@ -22,6 +22,9 @@
   LOGGER.info("Segment wallclock end time : {}",segmentWallClockEnd);
   String schedule=getAndSetConfiguration(configuration,SEGMENT_CREATION_SCHEDULE);
   LOGGER.info("Segment schedule : {}",schedule);
+  String isBackfill=props.getProperty(SEGMENT_CREATION_BACKFILL.toString(),DEFAULT_BACKFILL);
+  configuration.set(SEGMENT_CREATION_BACKFILL.toString(),isBackfill);
+  LOGGER.info("Is Backfill : {}",configuration.get(SEGMENT_CREATION_BACKFILL.toString()));
   if (fs.exists(stagingDir)) {
     LOGGER.warn("Found the temp folder, deleting it");
     fs.delete(stagingDir,true);

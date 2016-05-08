@@ -1,0 +1,41 @@
+{
+  FileSystem fs=FileSystem.get(new Configuration());
+  HttpClient controllerClient=new DefaultHttpClient();
+  HttpGet req=new HttpGet(SEGMENTS_ENDPOINT + URLEncoder.encode(tableName,UTF_8) + "/"+ URLEncoder.encode(segmentName,UTF_8));
+  HttpResponse res=controllerClient.execute(controllerHttpHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    LOGGER.info("Fetching segment {}",segmentName);
+    InputStream content=res.getEntity().getContent();
+    File tempDir=new File(Files.createTempDir(),"thirdeye_temp");
+    tempDir.mkdir();
+    LOGGER.info("Creating temporary dir for staging segments {}",tempDir);
+    File tempSegmentDir=new File(tempDir,segmentName);
+    File tempSegmentTar=new File(tempDir,segmentName + ThirdEyeConstants.TAR_SUFFIX);
+    LOGGER.info("Downloading {} to {}",segmentName,tempSegmentTar);
+    OutputStream out=new FileOutputStream(tempSegmentTar);
+    IOUtils.copy(content,out);
+    if (!tempSegmentTar.exists()) {
+      throw new IllegalStateException("Download of " + segmentName + " unsuccessful");
+    }
+    LOGGER.info("Extracting segment {} to {}",tempSegmentTar,tempDir);
+    TarGzCompressionUtils.unTar(tempSegmentTar,tempDir);
+    if (!tempSegmentDir.exists()) {
+      throw new IllegalStateException("Failed to extract " + tempSegmentTar + " to "+ tempDir);
+    }
+    LOGGER.info("Copying segment from {} to hdfs {}",tempSegmentDir,hdfsSegmentPath);
+    fs.copyFromLocalFile(new Path(tempSegmentDir.toString()),hdfsSegmentPath);
+    Path hdfsSegmentDir=new Path(hdfsSegmentPath,segmentName);
+    if (!fs.exists(hdfsSegmentDir)) {
+      throw new IllegalStateException("Failed to copy segment " + segmentName + " from local path "+ tempSegmentDir+ " to hdfs path "+ hdfsSegmentPath);
+    }
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+  }
+  LOGGER.info("Successfully downloaded segment {} to {}",segmentName,hdfsSegmentPath);
+}

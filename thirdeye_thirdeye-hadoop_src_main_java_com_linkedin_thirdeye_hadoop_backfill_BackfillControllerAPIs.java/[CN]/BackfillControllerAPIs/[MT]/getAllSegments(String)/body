@@ -1,0 +1,24 @@
+{
+  List<String> allSegments=new ArrayList<>();
+  HttpClient controllerClient=new DefaultHttpClient();
+  HttpGet req=new HttpGet(SEGMENTS_ENDPOINT + URLEncoder.encode(tableName,UTF_8));
+  HttpResponse res=controllerClient.execute(controllerHttpHost,req);
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    String response=IOUtils.toString(content);
+    List<String> allSegmentsPaths=getSegmentsFromResponse(response);
+    for (    String segment : allSegmentsPaths) {
+      allSegments.add(segment.substring(segment.lastIndexOf("/") + 1));
+    }
+    LOGGER.info("All segments : {}",allSegments);
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+  }
+  return allSegments;
+}

@@ -1,0 +1,17 @@
+{
+  com.linkedin.pinot.common.data.Schema pinotSchema=new com.linkedin.pinot.common.data.Schema();
+  pinotSchema.setSchemaName("test");
+  FieldSpec spec=new DimensionFieldSpec("d1",DataType.STRING,true);
+  pinotSchema.addField("d1",spec);
+  spec=new MetricFieldSpec("m1",DataType.DOUBLE);
+  pinotSchema.addField("m1",spec);
+  spec=new TimeFieldSpec(new TimeGranularitySpec(DataType.LONG,TimeUnit.HOURS,"t"));
+  pinotSchema.addField("t",spec);
+  Schema avroSchema=ThirdeyeAvroUtils.constructAvroSchemaFromPinotSchema(pinotSchema);
+  String dType=ThirdeyeAvroUtils.getDataTypeForField("d1",avroSchema);
+  Assert.assertEquals(dType,"STRING","Avro schema constructed incorrectly");
+  dType=ThirdeyeAvroUtils.getDataTypeForField("m1",avroSchema);
+  Assert.assertEquals(dType,"DOUBLE","Avro schema constructed incorrectly");
+  dType=ThirdeyeAvroUtils.getDataTypeForField("t",avroSchema);
+  Assert.assertEquals(dType,"LONG","Avro schema constructed incorrectly");
+}

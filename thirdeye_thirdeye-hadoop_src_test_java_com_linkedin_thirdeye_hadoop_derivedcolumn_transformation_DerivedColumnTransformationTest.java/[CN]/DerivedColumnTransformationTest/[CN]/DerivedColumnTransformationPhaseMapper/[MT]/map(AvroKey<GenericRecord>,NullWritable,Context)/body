@@ -1,0 +1,25 @@
+{
+  GenericRecord inputRecord=key.datum();
+  GenericRecord outputRecord=new Record(outputSchema);
+  for (  String dimension : dimensionsNames) {
+    String dimensionName=dimension;
+    String dimensionValue=ThirdeyeAvroUtils.getDimensionFromRecord(inputRecord,dimension);
+    if (topKDimensionsMap.containsKey(dimensionName)) {
+      Set<String> topKDimensionValues=topKDimensionsMap.get(dimensionName);
+      if (topKDimensionValues != null && topKDimensionValues.contains(dimensionValue)) {
+        outputRecord.put(dimensionName,dimensionValue);
+      }
+ else {
+        outputRecord.put(dimensionName,ThirdEyeConstants.OTHER);
+      }
+      dimensionName=dimension + ThirdEyeConstants.RAW_DIMENSION_SUFFIX;
+    }
+    outputRecord.put(dimensionName,dimensionValue);
+  }
+  for (  String metric : metricNames) {
+    outputRecord.put(metric,ThirdeyeAvroUtils.getMetricFromRecord(inputRecord,metric));
+  }
+  outputRecord.put(timeColumnName,ThirdeyeAvroUtils.getMetricFromRecord(inputRecord,timeColumnName));
+  AvroKey<GenericRecord> outputKey=new AvroKey<GenericRecord>(outputRecord);
+  context.write(outputKey,NullWritable.get());
+}

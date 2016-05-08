@@ -2,6 +2,10 @@
   LOGGER.info("DerivedColumnTransformationPhaseJob.DerivedColumnTransformationPhaseMapper.setup()");
   Configuration configuration=context.getConfiguration();
   FileSystem fs=FileSystem.get(configuration);
+  FileSplit fileSplit=(FileSplit)context.getInputSplit();
+  inputFileName=fileSplit.getPath().getName();
+  inputFileName=inputFileName.substring(0,inputFileName.lastIndexOf(ThirdEyeConstants.AVRO_SUFFIX));
+  LOGGER.info("split name:" + inputFileName);
   thirdeyeConfig=OBJECT_MAPPER.readValue(configuration.get(DERIVED_COLUMN_TRANSFORMATION_PHASE_THIRDEYE_CONFIG.toString()),ThirdEyeConfig.class);
   config=DerivedColumnTransformationPhaseConfig.fromThirdEyeConfig(thirdeyeConfig);
   dimensionsNames=config.getDimensionNames();
@@ -16,4 +20,5 @@
     topkValuesStream.close();
   }
   topKDimensionsMap=topKDimensionValues.getTopKDimensions();
+  avroMultipleOutputs=new AvroMultipleOutputs(context);
 }

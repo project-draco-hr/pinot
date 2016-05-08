@@ -1,0 +1,53 @@
+{
+  Path hdfsDataPath=new Path(dataFilePath);
+  File dataPath=new File(currentDiskWorkDir,"data");
+  if (dataPath.exists()) {
+    dataPath.delete();
+  }
+  dataPath.mkdir();
+  LOGGER.info("Creating temporary data dir {}",dataPath);
+  final File avroPath=new File(currentDiskWorkDir,"avro");
+  if (avroPath.exists()) {
+    avroPath.delete();
+  }
+  avroPath.mkdir();
+  LOGGER.info("Creating temporary avro dir {}",avroPath);
+  String segmentName=hdfsDataPath.getName();
+  final Path localFilePath=new Path(dataPath + "/" + segmentName);
+  fs.copyToLocalFile(hdfsDataPath,localFilePath);
+  LOGGER.info("Copying segment {} from {} to local {}",segmentName,hdfsDataPath,localFilePath);
+  File segmentIndexDir=new File(localFilePath.toString());
+  if (!segmentIndexDir.exists()) {
+    throw new IllegalStateException("Failed to copy " + hdfsDataPath + " to "+ localFilePath);
+  }
+  LOGGER.info("Initializing PinotSegmentRecordReader with segment index dir {}",segmentIndexDir);
+  PinotSegmentRecordReader pinotSegmentRecordReader=new PinotSegmentRecordReader(segmentIndexDir);
+  LOGGER.info("Schema {}",pinotSegmentRecordReader.getSchema());
+  Schema avroSchema=ThirdeyeAvroUtils.constructAvroSchemaFromPinotSchema(pinotSegmentRecordReader.getSchema());
+  GenericDatumWriter<GenericRecord> datum=new GenericDatumWriter<GenericRecord>(avroSchema);
+  DataFileWriter<GenericRecord> recordWriter=new DataFileWriter<GenericRecord>(datum);
+  File localAvroFile=new File(avroPath,segmentName + ThirdEyeConstants.AVRO_SUFFIX);
+  recordWriter.create(avroSchema,localAvroFile);
+  LOGGER.info("Converting pinot segment to avro at {}",localAvroFile);
+  pinotSegmentRecordReader.init();
+  while (pinotSegmentRecordReader.hasNext()) {
+    GenericRecord outputRecord=new Record(avroSchema);
+    GenericRow row=pinotSegmentRecordReader.next();
+    for (    String fieldName : row.getFieldNames()) {
+      outputRecord.put(fieldName,row.getValue(fieldName));
+    }
+    recordWriter.append(outputRecord);
+  }
+  LOGGER.info("Writing to avro file at {}",localAvroFile);
+  recordWriter.close();
+  if (!localAvroFile.exists()) {
+    LOGGER.info("Failed to write avro file to {}",localAvroFile);
+  }
+  pinotSegmentRecordReader.close();
+  LOGGER.info("Coping avro file from {} to hdfs at {}",localAvroFile,outputPath);
+  fs.copyFromLocalFile(true,true,new Path(localAvroFile.toString()),new Path(outputPath));
+  if (!fs.exists(new Path(outputPath))) {
+    throw new IllegalStateException("Failed to copy avro file to hdfs at " + outputPath);
+  }
+  LOGGER.info("Successfully copied {} to {}",localAvroFile,outputPath);
+}

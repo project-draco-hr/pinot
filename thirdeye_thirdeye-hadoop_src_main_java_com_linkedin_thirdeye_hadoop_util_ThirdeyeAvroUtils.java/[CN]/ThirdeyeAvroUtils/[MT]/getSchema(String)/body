@@ -4,7 +4,7 @@
   for (  String input : inputPathDir.split(ThirdEyeConstants.FIELD_SEPARATOR)) {
     Path inputPath=new Path(input);
     for (    FileStatus fileStatus : fs.listStatus(inputPath)) {
-      if (fileStatus.isFile() && fileStatus.getPath().getName().endsWith(AVRO_SUFFIX)) {
+      if (fileStatus.isFile() && fileStatus.getPath().getName().endsWith(ThirdEyeConstants.AVRO_SUFFIX)) {
         LOGGER.info("Extracting schema from {}",fileStatus.getPath());
         avroSchema=extractSchemaFromAvro(fileStatus.getPath());
         break;
