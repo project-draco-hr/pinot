@@ -1,0 +1,7 @@
+{
+  ThirdEyeClient thirdEyeClient=PinotThirdEyeClientFactory.createThirdEyeClient(config);
+  ExecutorService queryExecutor=env.lifecycle().executorService("query_executor").build();
+  QueryCache queryCache=createQueryCache(thirdEyeClient,queryExecutor);
+  AbstractConfigDAO<DashboardConfig> configDAO=getDashboardConfig(config);
+  env.jersey().register(new DashboardResource(queryCache,configDAO));
+}

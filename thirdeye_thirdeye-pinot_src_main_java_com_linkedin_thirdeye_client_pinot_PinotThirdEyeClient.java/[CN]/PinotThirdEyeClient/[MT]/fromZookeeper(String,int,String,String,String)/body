@@ -4,6 +4,7 @@
   zkClient.waitUntilConnected();
   ZKHelixAdmin helixAdmin=new ZKHelixAdmin(zkClient);
   List<String> thirdeyeBrokerList=helixAdmin.getInstancesInClusterWithTag(clusterName,tag);
+  LOG.info("Found brokers:{} with tag:{}",thirdeyeBrokerList,tag);
   if (thirdeyeBrokerList.size() == 0) {
     throw new RuntimeException("No brokers available with tag:" + tag);
   }

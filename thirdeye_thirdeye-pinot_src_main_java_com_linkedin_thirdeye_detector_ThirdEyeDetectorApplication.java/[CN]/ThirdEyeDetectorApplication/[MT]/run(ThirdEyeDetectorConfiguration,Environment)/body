@@ -4,8 +4,8 @@
   final ContextualEventDAO contextualEventDAO=new ContextualEventDAO(hibernate.getSessionFactory());
   final EmailConfigurationDAO emailConfigurationDAO=new EmailConfigurationDAO(hibernate.getSessionFactory());
   final AnomalyFunctionRelationDAO anomalyFunctionRelationDAO=new AnomalyFunctionRelationDAO(hibernate.getSessionFactory());
-  LOG.info("Loading client configs from: {}",config.getClientConfigRoot());
-  final ThirdEyeClient thirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
+  LOG.info("Loading configs from: {}",config.getRootDir());
+  final ThirdEyeClient thirdEyeClient=PinotThirdEyeClientFactory.createThirdEyeClient(config);
   QueryCache queryCache=new QueryCache(thirdEyeClient,Executors.newFixedThreadPool(10));
   final TimeSeriesHandler timeSeriesHandler=new TimeSeriesHandler(queryCache);
   TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);
