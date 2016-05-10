@@ -41,13 +41,38 @@
       responseMap.put(entry.getKey(),entry.getValue().get(60,TimeUnit.SECONDS));
     }
     if (hasGroupByDimensions) {
-      rows.addAll(TimeOnTimeResponseParser.parseGroupByDimensionResponse(comparisonRequests.get(i),responseMap));
+      List<Row> rowList=TimeOnTimeResponseParser.parseGroupByDimensionResponse(comparisonRequests.get(i),responseMap);
+      rows.addAll(rowList);
     }
  else {
-      rows.add(TimeOnTimeResponseParser.parseAggregationOnlyResponse(comparisonRequests.get(i),responseMap));
+      Row row=TimeOnTimeResponseParser.parseAggregationOnlyResponse(comparisonRequests.get(i),responseMap);
+      rows.add(row);
     }
   }
-  for (  Row row : rows) {
+  List<MetricExpression> derivedMetricExpressions=new ArrayList<>();
+  for (  MetricExpression expression : comparisonRequest.getMetricExpressions()) {
+    if (expression.computeMetricFunctions().size() > 1) {
+      derivedMetricExpressions.add(expression);
+    }
+  }
+  if (derivedMetricExpressions.size() > 0) {
+    Map<String,Double> baselineValueContext=new HashMap<>();
+    Map<String,Double> currentValueContext=new HashMap<>();
+    for (    Row row : rows) {
+      baselineValueContext.clear();
+      currentValueContext.clear();
+      List<Metric> metrics=row.getMetrics();
+      for (      Metric metric : metrics) {
+        baselineValueContext.put(metric.getMetricName(),metric.getBaselineValue());
+        currentValueContext.put(metric.getMetricName(),metric.getCurrentValue());
+      }
+      for (      MetricExpression expression : derivedMetricExpressions) {
+        String derivedMetricExpression=expression.getExpression();
+        double derivedMetricBaselineValue=MetricExpression.evaluateExpression(derivedMetricExpression,baselineValueContext);
+        double currentMetricBaselineValue=MetricExpression.evaluateExpression(derivedMetricExpression,baselineValueContext);
+        row.getMetrics().add(new Metric(expression.getEspressionName(),derivedMetricBaselineValue,currentMetricBaselineValue));
+      }
+    }
   }
   return new TimeOnTimeComparisonResponse(rows);
 }

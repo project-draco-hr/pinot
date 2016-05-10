@@ -3,7 +3,8 @@
   requestBuilder.setCollection(comparisonRequest.getCollectionName());
   requestBuilder.setFilterSet(comparisonRequest.getFilterSet());
   requestBuilder.setFilterClause(comparisonRequest.getFilterClause());
-  requestBuilder.setMetricFunctions(comparisonRequest.getMetricFunctions());
+  List<MetricFunction> metricFunctionsFromExpressions=Utils.computeMetricFunctionsFromExpressions(comparisonRequest.getMetricExpressions());
+  requestBuilder.setMetricFunctions(metricFunctionsFromExpressions);
   requestBuilder.setStartTimeInclusive(start);
   requestBuilder.setEndTimeExclusive(end);
   if (groupByDimension != null) {

@@ -6,13 +6,14 @@
     comparisonRequest.setBaselineEnd(end.minus(baselinePeriodMillis));
     comparisonRequest.setCurrentStart(start);
     comparisonRequest.setCurrentEnd(end);
-    List<MetricFunction> metricFunctions=new ArrayList<>();
-    metricFunctions.add(new MetricFunction(MetricFunction.SUM,config.getMetric()));
-    comparisonRequest.setMetricFunctions(metricFunctions);
+    List<MetricExpression> metricExpressions=new ArrayList<>();
+    MetricExpression expression=new MetricExpression(config.getMetric());
+    metricExpressions.add(expression);
+    comparisonRequest.setMetricExpressions(metricExpressions);
     comparisonRequest.setAggregationTimeGranularity(bucketGranularity);
-    System.out.println("Starting...");
+    LOG.info("Starting...");
     TimeOnTimeComparisonResponse response=timeOnTimeComparisonHandler.handle(comparisonRequest);
-    System.out.println("Done!");
+    LOG.info("Done!");
     return response;
   }
  catch (  Exception e) {

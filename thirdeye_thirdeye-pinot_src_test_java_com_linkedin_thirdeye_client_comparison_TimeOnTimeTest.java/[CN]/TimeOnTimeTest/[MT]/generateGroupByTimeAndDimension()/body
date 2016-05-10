@@ -2,15 +2,15 @@
   TimeOnTimeComparisonRequest comparisonRequest=new TimeOnTimeComparisonRequest();
   String collection="thirdeyeAbook_OFFLINE";
   comparisonRequest.setCollectionName(collection);
-  comparisonRequest.setBaselineStart(new DateTime(2016,1,1,00,00));
-  comparisonRequest.setBaselineEnd(new DateTime(2016,1,2,00,00));
-  comparisonRequest.setCurrentStart(new DateTime(2016,1,8,00,00));
-  comparisonRequest.setCurrentEnd(new DateTime(2016,1,9,00,00));
+  comparisonRequest.setBaselineStart(new DateTime(2016,4,1,00,00));
+  comparisonRequest.setBaselineEnd(new DateTime(2016,4,2,00,00));
+  comparisonRequest.setCurrentStart(new DateTime(2016,4,8,00,00));
+  comparisonRequest.setCurrentEnd(new DateTime(2016,4,9,00,00));
   comparisonRequest.setGroupByDimensions(Lists.newArrayList("browserName","contactsOrigin","deviceName","continent","countryCode","environment","locale","osName","pageKey","source","sourceApp"));
   comparisonRequest.setGroupByDimensions(Lists.newArrayList("environment"));
   List<MetricFunction> metricFunctions=new ArrayList<>();
   metricFunctions.add(new MetricFunction(MetricFunction.SUM,"__COUNT"));
-  comparisonRequest.setMetricFunctions(metricFunctions);
+  comparisonRequest.setMetricExpressions(Utils.convertToMetricExpressions(metricFunctions));
   comparisonRequest.setAggregationTimeGranularity(new TimeGranularity(1,TimeUnit.HOURS));
   return comparisonRequest;
 }
