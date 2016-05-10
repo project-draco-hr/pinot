@@ -1,6 +1,6 @@
 {
   final InstanceResponsePlanNode rootNode=new InstanceResponsePlanNode();
-  final CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,timeOutMs);
+  final CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,timeOutMs,_enableNewAggregationGroupBy);
   rootNode.setPlanNode(combinePlanNode);
   for (  final SegmentDataManager segmentDataManager : segmentDataManagers) {
     combinePlanNode.addPlanNode(makeInnerSegmentPlan(segmentDataManager.getSegment(),brokerRequest));

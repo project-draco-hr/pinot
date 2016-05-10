@@ -1,0 +1,25 @@
+{
+  int groupId=groupKey.getFirst();
+switch (_resultDataType[index]) {
+case LONG:
+    return new MutableLongValue((long)_resultHolder[index].getDoubleResult(groupId));
+case DOUBLE:
+  return _resultHolder[index].getDoubleResult(groupId);
+case AVERAGE_PAIR:
+Pair<Double,Long> doubleLongPair=(Pair<Double,Long>)_resultHolder[index].getResult(groupId);
+return new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
+case MINMAXRANGE_PAIR:
+Pair<Double,Double> doubleDoublePair=(Pair<Double,Double>)_resultHolder[index].getResult(groupId);
+return new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
+case DISTINCTCOUNT_SET:
+return (IntOpenHashSet)_resultHolder[index].getResult(groupId);
+case DISTINCTCOUNTHLL_HYPERLOGLOG:
+return (HyperLogLog)_resultHolder[index].getResult(groupId);
+case PERCENTILE_LIST:
+return (DoubleArrayList)_resultHolder[index].getResult(groupId);
+case PERCENTILEEST_QUANTILEDIGEST:
+return (QuantileDigest)_resultHolder[index].getResult(groupId);
+default :
+throw new RuntimeException("Unsupported result data type " + _resultDataType + " in class "+ getClass().getName());
+}
+}

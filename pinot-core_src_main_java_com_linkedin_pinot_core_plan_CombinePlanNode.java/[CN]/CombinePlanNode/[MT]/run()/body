@@ -35,7 +35,7 @@
       throw new RuntimeException(QueryException.COMBINE_SEGMENT_PLAN_TIMEOUT_ERROR);
     }
   }
-  MCombineOperator mCombineOperator=new MCombineOperator(retOperators,_executorService,_timeOutMs,_brokerRequest);
+  Operator mCombineOperator=getCombineOperator(retOperators);
   long end=System.currentTimeMillis();
   LOGGER.debug("CombinePlanNode.run took: " + (end - start));
   return mCombineOperator;

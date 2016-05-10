@@ -11,8 +11,8 @@
     numDocsScanned=processBlock(numDocsScanned,currentBlock,block);
   }
   _groupByExecutor.finish();
-  List<Map<String,Serializable>> aggregationGroupByResults=_groupByExecutor.getResult();
-  final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(AggregationFunctionFactory.getAggregationFunction(_aggregationInfoList),aggregationGroupByResults,true);
+  AggregationGroupByResult aggregationGroupByResult=_groupByExecutor.getResult();
+  final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(AggregationFunctionFactory.getAggregationFunction(_aggregationInfoList),aggregationGroupByResult);
   resultBlock.setNumDocsScanned(numDocsScanned);
   resultBlock.setTotalRawDocs(_indexSegment.getSegmentMetadata().getTotalRawDocs());
   resultBlock.setTimeUsedMs(System.currentTimeMillis() - startTimeMillis);

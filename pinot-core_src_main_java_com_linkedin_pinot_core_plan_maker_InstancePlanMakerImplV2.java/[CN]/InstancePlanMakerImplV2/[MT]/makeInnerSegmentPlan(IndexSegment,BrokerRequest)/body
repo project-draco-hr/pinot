@@ -1,7 +1,7 @@
 {
   if (brokerRequest.isSetAggregationsInfo()) {
     if (!brokerRequest.isSetGroupBy()) {
-      if (_enableNewAggreagationGroupBy) {
+      if (_enableNewAggregationGroupBy) {
         return new AggregationPlanNode(indexSegment,brokerRequest);
       }
  else {
@@ -12,7 +12,7 @@
       PlanNode aggregationGroupByPlanNode;
       if (indexSegment instanceof IndexSegmentImpl) {
         if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
-          if (_enableNewAggreagationGroupBy) {
+          if (_enableNewAggregationGroupBy) {
             aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest);
           }
  else {

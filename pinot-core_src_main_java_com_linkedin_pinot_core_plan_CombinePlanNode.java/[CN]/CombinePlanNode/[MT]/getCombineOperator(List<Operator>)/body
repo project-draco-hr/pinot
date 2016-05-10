@@ -1,0 +1,6 @@
+{
+  if (_enableNewAggreagationGroupBy && _brokerRequest.isSetAggregationsInfo() && _brokerRequest.getGroupBy() != null) {
+    return new MCombineGroupByOperator(retOperators,_executorService,_timeOutMs,_brokerRequest);
+  }
+  return new MCombineOperator(retOperators,_executorService,_timeOutMs,_brokerRequest);
+}
