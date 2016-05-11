@@ -3,8 +3,13 @@
     JSONObject ret=new JSONObject();
     for (    ServerInstance i : _routingTable.keySet()) {
       JSONArray serverInstanceSegmentList=new JSONArray();
+      List<String> sortedSegmentIds=new ArrayList<>();
       for (      SegmentId segmentId : _routingTable.get(i).getSegments()) {
-        serverInstanceSegmentList.put(segmentId.getSegmentId());
+        sortedSegmentIds.add(segmentId.getSegmentId());
+      }
+      Collections.sort(sortedSegmentIds);
+      for (      String sortedSegmentId : sortedSegmentIds) {
+        serverInstanceSegmentList.put(sortedSegmentId);
       }
       ret.put(i.toString(),serverInstanceSegmentList);
     }
