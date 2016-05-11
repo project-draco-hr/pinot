@@ -1,7 +1,0 @@
-@MultipleInps
-@Request
-def execute_email_report_from_file(file_path):
-    print ('Submitting adhoc email report from file_path %s' % file_path)
-    with open(file_path, 'r') as f:
-        data = f.read()
-    return ('POST', ((EMAIL_REPORTS_ENDPOINT + 'from-file?') + urllib.urlencode({'name': file_path, })), {'data': data, 'print_result': True, })

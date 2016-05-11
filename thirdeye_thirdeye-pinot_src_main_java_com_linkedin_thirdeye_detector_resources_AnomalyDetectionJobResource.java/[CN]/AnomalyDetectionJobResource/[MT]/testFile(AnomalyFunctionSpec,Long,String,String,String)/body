@@ -1,0 +1,8 @@
+{
+  if (existingFunctionId == null || specDAO.findById(existingFunctionId) == null) {
+    throw new NotFoundException();
+  }
+  spec.setId(existingFunctionId);
+  manager.runAdhocConfig(spec,start,end,name);
+  return Response.ok(name).build();
+}

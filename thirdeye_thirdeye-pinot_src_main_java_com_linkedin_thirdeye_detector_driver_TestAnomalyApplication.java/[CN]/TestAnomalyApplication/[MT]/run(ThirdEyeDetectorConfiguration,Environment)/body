@@ -14,13 +14,14 @@
   }
 );
   if (testType == TestType.FUNCTION) {
+    int existingFunctionId=this.impersonatedId;
     final AnomalyFunctionSpecDAO anomalyFunctionSpecDAO=new AnomalyFunctionSpecDAO(hibernate.getSessionFactory());
     final AnomalyFunctionRelationDAO anomalyFunctionRelationDAO=new AnomalyFunctionRelationDAO(hibernate.getSessionFactory());
     final TimeSeriesHandler timeSeriesHandler=new TimeSeriesHandler(queryCache);
     TimeSeriesResponseConverter timeSeriesResponseConverter=TimeSeriesResponseConverter.getInstance();
     final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
     final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,timeSeriesHandler,timeSeriesResponseConverter,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics(),anomalyFunctionFactory);
-    jobManager.runAdhocFile(filePath,1,startISO,endISO);
+    jobManager.runAdhocFile(filePath,existingFunctionId,startISO,endISO);
   }
  else   if (testType == TestType.EMAIL) {
     final TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);

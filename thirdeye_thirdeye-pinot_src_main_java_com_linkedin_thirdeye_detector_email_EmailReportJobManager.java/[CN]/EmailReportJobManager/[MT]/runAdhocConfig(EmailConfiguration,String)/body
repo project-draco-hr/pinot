@@ -1,6 +1,8 @@
 {
-  String triggerKey=String.format("adhoc_config-based_email_trigger_%s",executionName);
-  Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
-  String jobKey=String.format("adhoc_config-based_email_job_%s",executionName);
-  buildAndScheduleJob(emailConfig,trigger,jobKey);
+synchronized (sync) {
+    String triggerKey=String.format("adhoc_config-based_email_trigger_%s",executionName);
+    Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
+    String jobKey=String.format("adhoc_config-based_email_job_%s",executionName);
+    buildAndScheduleJob(emailConfig,trigger,jobKey);
+  }
 }

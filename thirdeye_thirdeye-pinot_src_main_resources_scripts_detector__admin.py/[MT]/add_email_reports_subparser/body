@@ -17,7 +17,7 @@ def add_email_reports_subparser(subparsers):
     adhoc_parser.set_defaults(func=adhoc_email_report)
     from_file_parser = email_reports_subparser.add_parser('from_file', help='send adhoc email report from a file configuration')
     from_file_parser.add_argument('inps', nargs='+', help='JSON files specifying email reports to be created', metavar='file_paths')
-    from_file_parser.set_defaults(func=execute_email_report_from_file)
+    from_file_parser.set_defaults(func=test_email_config_from_file)
     delete_parser = email_reports_subparser.add_parser('delete', help='delete an email report')
     delete_parser.add_argument('inps', type=int, nargs='+', help='email_report ids', metavar='ids')
     delete_parser.set_defaults(func=delete_email_report)

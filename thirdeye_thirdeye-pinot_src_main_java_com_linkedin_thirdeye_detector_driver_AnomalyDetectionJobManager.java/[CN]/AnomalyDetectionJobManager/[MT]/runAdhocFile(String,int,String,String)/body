@@ -6,10 +6,6 @@ synchronized (sync) {
     }
     AnomalyFunctionSpec spec=reader.readValue(file,AnomalyFunctionSpec.class);
     spec.setId(existingFunctionId);
-    AnomalyFunction anomalyFunction=anomalyFunctionFactory.fromSpec(spec);
-    String triggerKey=String.format("file-based_anomaly_function_trigger_%s",filePath);
-    Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
-    String jobKey=String.format("file-based_anomaly_function_job_%s",filePath);
-    buildAndScheduleJob(jobKey,trigger,anomalyFunction,spec,windowStartIsoString,windowEndIsoString);
+    runAdhocConfig(spec,windowStartIsoString,windowEndIsoString,filePath);
   }
 }

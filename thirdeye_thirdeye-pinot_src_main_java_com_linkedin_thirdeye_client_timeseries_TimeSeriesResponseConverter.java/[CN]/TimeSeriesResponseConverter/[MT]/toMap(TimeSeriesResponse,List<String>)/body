@@ -1,6 +1,7 @@
 {
   DimensionKeyGenerator dimensionKeyGenerator=new DimensionKeyGenerator(schemaDimensions);
   List<String> metrics=new ArrayList<>(response.getMetrics());
+  Set<String> metricSet=new HashSet<>(metrics);
   List<MetricType> types=Collections.nCopies(metrics.size(),MetricType.DOUBLE);
   MetricSchema metricSchema=new MetricSchema(metrics,types);
   Multimap<DimensionKey,TimeSeriesRow> dimensionKeyToRows=ArrayListMultimap.create();
@@ -18,8 +19,10 @@
       long timestamp=timeSeriesRow.getStart();
       for (      TimeSeriesMetric metric : timeSeriesRow.getMetrics()) {
         String metricName=metric.getMetricName();
-        Double value=metric.getValue();
-        metricTimeSeries.increment(timestamp,metricName,value);
+        if (metricSet.contains(metricName)) {
+          Double value=metric.getValue();
+          metricTimeSeries.increment(timestamp,metricName,value);
+        }
       }
     }
   }

@@ -5,14 +5,18 @@
   }
   PinotThirdEyeClient pinotThirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
   QueryCache queryCache=new QueryCache(pinotThirdEyeClient,Executors.newFixedThreadPool(10));
-  for (  TimeSeriesRequest timeSeriesRequest : new TimeSeriesRequest[]{generateGroupByTimeRequest(),generateGroupByDimensionRequest(),generateGroupByTimeAndDimension()}) {
+  TimeSeriesRequest[] requests=new TimeSeriesRequest[]{generateGroupByTimeRequest()};
+  for (  TimeSeriesRequest timeSeriesRequest : requests) {
     try {
       TimeSeriesHandler handler=new TimeSeriesHandler(queryCache);
       long start=System.currentTimeMillis();
       TimeSeriesResponse response=handler.handle(timeSeriesRequest);
       long end=System.currentTimeMillis();
       System.out.println("Time taken:" + (end - start));
-      System.out.println("Time taken:" + (end - start));
+      for (      TimeSeriesMetric metric : response.getRow(0).getMetrics()) {
+        System.out.print(metric.getMetricName() + "\t\t");
+      }
+      System.out.println();
       for (int i=0; i < response.getNumRows(); i++) {
         System.out.println(response.getRow(i));
       }

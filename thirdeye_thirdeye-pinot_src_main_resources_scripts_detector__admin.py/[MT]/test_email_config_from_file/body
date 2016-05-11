@@ -1,0 +1,7 @@
+@MultipleInps
+@Request
+def test_email_config_from_file(file_path):
+    print ('Testing adhoc email report from file_path %s' % file_path)
+    with open(file_path, 'r') as f:
+        data = f.read()
+    return ('POST', ((EMAIL_REPORTS_ENDPOINT + 'from-file?') + urllib.urlencode({'name': file_path, })), {'data': data, 'print_result': submit_msg_success('adhoc email report'), })

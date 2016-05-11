@@ -1,0 +1,15 @@
+@MultipleInps
+@Request
+def test_function_spec_from_file(file_path, id, start=None, end=None):
+    with open(file_path, 'r') as f:
+        data = f.read()
+    params = {'name': file_path, 'id': id, }
+    if (start and end):
+        start = convert_to_iso(start)
+        end = convert_to_iso(end)
+        params['start'] = start
+        params['end'] = end
+        print ('Testing adhoc function_spec from file_path %s on window %s to %s' % (file_path, start, end))
+    else:
+        print ('Testing adhoc function_spec from file_path %s' % file_path)
+    return ('POST', ((JOBS_ENDPOINT + 'from-file?') + urllib.urlencode(params)), {'data': data, 'print_result': submit_msg_success('adhoc function spec'), })
