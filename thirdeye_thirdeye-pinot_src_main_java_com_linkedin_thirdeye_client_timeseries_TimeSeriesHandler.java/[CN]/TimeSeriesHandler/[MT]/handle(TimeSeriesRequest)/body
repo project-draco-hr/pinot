@@ -28,6 +28,27 @@
       rows.add(responseParser.parseAggregationOnlyResponse(subTimeSeriesRequest,queryResponseMap));
     }
   }
-  List<MetricFunction> metricFunctions=timeSeriesRequest.getMetricFunctions();
-  return new TimeSeriesResponse(metricFunctions,groupByDimensions,rows);
+  List<MetricExpression> metricExpressions=timeSeriesRequest.getMetricExpressions();
+  List<MetricExpression> derivedMetricExpressions=new ArrayList<>();
+  for (  MetricExpression expression : metricExpressions) {
+    if (expression.computeMetricFunctions().size() > 1) {
+      derivedMetricExpressions.add(expression);
+    }
+  }
+  if (derivedMetricExpressions.size() > 0) {
+    Map<String,Double> metricValueContext=new HashMap<>();
+    for (    TimeSeriesRow row : rows) {
+      metricValueContext.clear();
+      List<TimeSeriesMetric> metrics=row.getMetrics();
+      for (      TimeSeriesMetric metric : metrics) {
+        metricValueContext.put(metric.getMetricName(),metric.getValue());
+      }
+      for (      MetricExpression expression : derivedMetricExpressions) {
+        String derivedMetricExpression=expression.getExpression();
+        double derivedMetricValue=MetricExpression.evaluateExpression(derivedMetricExpression,metricValueContext);
+        row.getMetrics().add(new TimeSeriesMetric(expression.getEspressionName(),derivedMetricValue));
+      }
+    }
+  }
+  return new TimeSeriesResponse(metricExpressions,groupByDimensions,rows);
 }

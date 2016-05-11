@@ -5,7 +5,8 @@
   timeSeriesRequest.setEnd(START.plusDays(1));
   List<MetricFunction> metricFunctions=new ArrayList<>();
   metricFunctions.add(DEFAULT_METRIC_FUNCTION);
-  timeSeriesRequest.setMetricFunctions(metricFunctions);
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunctions);
+  timeSeriesRequest.setMetricExpressions(metricExpressions);
   timeSeriesRequest.setAggregationTimeGranularity(new TimeGranularity(1,TimeUnit.HOURS));
   return timeSeriesRequest;
 }

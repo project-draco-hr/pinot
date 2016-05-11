@@ -3,7 +3,9 @@
   requestBuilder.setCollection(timeSeriesRequest.getCollectionName());
   requestBuilder.setFilterSet(timeSeriesRequest.getFilterSet());
   requestBuilder.setFilterClause(timeSeriesRequest.getFilterClause());
-  requestBuilder.setMetricFunctions(timeSeriesRequest.getMetricFunctions());
+  List<MetricExpression> metricExpressions=timeSeriesRequest.getMetricExpressions();
+  List<MetricFunction> metricFunctionsFromExpressions=Utils.computeMetricFunctionsFromExpressions(metricExpressions);
+  requestBuilder.setMetricFunctions(metricFunctionsFromExpressions);
   requestBuilder.setStartTimeInclusive(start);
   requestBuilder.setEndTimeExclusive(end);
   if (groupByDimension != null) {

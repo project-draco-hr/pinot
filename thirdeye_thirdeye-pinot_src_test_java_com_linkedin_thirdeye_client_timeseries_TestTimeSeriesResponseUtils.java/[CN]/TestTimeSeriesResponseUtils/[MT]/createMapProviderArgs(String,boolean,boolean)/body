@@ -18,7 +18,7 @@
         List<TimeSeriesMetric> timeSeriesMetrics=new ArrayList<>();
         for (        MetricFunction metricFunction : metricFunctions) {
           Double value=(double)(Objects.hash(start,end,dimension,dimensionValue,metricFunction.toString()) % 1000);
-          TimeSeriesMetric timeSeriesMetric=new TimeSeriesMetric(metricFunction,value);
+          TimeSeriesMetric timeSeriesMetric=new TimeSeriesMetric(metricFunction.getMetricName(),value);
           timeSeriesMetrics.add(timeSeriesMetric);
         }
         if (groupTimeSeriesMetricsIntoRow) {

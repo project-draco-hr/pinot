@@ -12,7 +12,7 @@
       for (      String dimensionValue : map.keySet()) {
         Double value=map.get(dimensionValue);
         TimeSeriesRow.Builder rowBuilder=rowBuilderCache.get(dimensionName,dimensionValue);
-        rowBuilder.addMetric(metricFunction,value);
+        rowBuilder.addMetric(metricFunction.getMetricName(),value);
       }
       metricSumFromGroupByResponse.put(metricFunction,dimensionName,dimensionSum);
     }

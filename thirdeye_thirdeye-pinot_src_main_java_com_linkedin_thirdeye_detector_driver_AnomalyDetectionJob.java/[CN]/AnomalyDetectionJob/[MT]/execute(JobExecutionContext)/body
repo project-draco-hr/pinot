@@ -46,7 +46,9 @@
   Queue<TimeSeriesRequest> timeSeriesRequestQueue=new LinkedList<>();
   TimeSeriesRequest topLevelRequest=new TimeSeriesRequest();
   topLevelRequest.setCollectionName(collection);
-  topLevelRequest.setMetricFunctions(Collections.singletonList(metricFunction));
+  List<MetricFunction> metricFunctions=Collections.singletonList(metricFunction);
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunctions);
+  topLevelRequest.setMetricExpressions(metricExpressions);
   topLevelRequest.setAggregationTimeGranularity(timeGranularity);
   topLevelRequest.setStart(windowStart);
   topLevelRequest.setEnd(windowEnd);
