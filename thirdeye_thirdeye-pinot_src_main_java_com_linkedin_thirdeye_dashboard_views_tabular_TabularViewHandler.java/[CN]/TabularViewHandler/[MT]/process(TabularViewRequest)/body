@@ -37,7 +37,7 @@
       Double currentValue=metric.getCurrentValue();
       String baselineValueStr=HeatMapCell.format(baselineValue);
       String currentValueStr=HeatMapCell.format(currentValue);
-      String ratioStr=HeatMapCell.format((currentValue - baselineValue) / baselineValue);
+      String ratioStr=HeatMapCell.format(((currentValue - baselineValue) * 100) / baselineValue);
       Double cumulativeBaselineValue;
       Double cumulativeCurrentValue;
       if (runningTotalMap.containsKey(metricName)) {
@@ -53,7 +53,7 @@
       runningTotalMap.put(metricName,runningTotalPerMetric);
       String cumulativeBaselineValueStr=HeatMapCell.format(cumulativeBaselineValue);
       String cumulativeCurrentValueStr=HeatMapCell.format(cumulativeCurrentValue);
-      String cumulativeRatioStr=HeatMapCell.format((cumulativeCurrentValue - cumulativeBaselineValue) / cumulativeBaselineValue);
+      String cumulativeRatioStr=HeatMapCell.format(((cumulativeCurrentValue - cumulativeBaselineValue) * 100) / cumulativeBaselineValue);
       String[] columnData={baselineValueStr,currentValueStr,ratioStr,cumulativeBaselineValueStr,cumulativeCurrentValueStr,cumulativeRatioStr};
       GenericResponse rowData=data.get(metric.getMetricName());
       if (rowData == null) {
