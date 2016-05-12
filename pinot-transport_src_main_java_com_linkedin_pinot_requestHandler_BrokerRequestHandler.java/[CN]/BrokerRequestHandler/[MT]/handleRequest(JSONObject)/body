@@ -1,15 +1,15 @@
 {
   final String pql=request.getString("pql");
   final long requestId=_requestIdGenerator.incrementAndGet();
-  LOGGER.info("Query string for requestId {}: {}",requestId,pql);
+  LOGGER.debug("Query string for requestId {}: {}",requestId,pql);
   boolean isTraceEnabled=false;
   if (request.has("trace")) {
     try {
       isTraceEnabled=Boolean.parseBoolean(request.getString("trace"));
-      LOGGER.info("Trace is set to: {}",isTraceEnabled);
+      LOGGER.info("Trace is set to: {} for query {}",isTraceEnabled,pql);
     }
  catch (    Exception e) {
-      LOGGER.warn("Invalid trace value: {}",request.getString("trace"),e);
+      LOGGER.warn("Invalid trace value: {} for query {}",request.getString("trace"),pql,e);
     }
   }
  else {
@@ -27,6 +27,7 @@
     BrokerResponse brokerResponse=new BrokerResponseNative();
     brokerResponse.setExceptions(Arrays.asList(QueryException.getException(QueryException.PQL_PARSING_ERROR,e)));
     _brokerMetrics.addMeteredGlobalValue(BrokerMeter.REQUEST_COMPILATION_EXCEPTIONS,1);
+    LOGGER.info("Parsing error on query:{}",pql,e);
     return brokerResponse;
   }
   _brokerMetrics.addMeteredQueryValue(brokerRequest,BrokerMeter.QUERIES,1);
@@ -44,6 +45,6 @@
   long queryProcessingTimeInMillis=TimeUnit.MILLISECONDS.convert(queryProcessingTimeInNanos,TimeUnit.NANOSECONDS);
   resp.setTimeUsedMs(queryProcessingTimeInMillis);
   LOGGER.debug("Broker Response : {}",resp);
-  LOGGER.info("ResponseTimes for requestId:{}, total time:{} scatterGatherStats: {}",requestId,queryProcessingTimeInMillis,scatterGatherStats);
+  LOGGER.info("ResponseTimes for requestId:{}, total time:{} scatterGatherStats: {}, query:{}",requestId,queryProcessingTimeInMillis,scatterGatherStats,pql);
   return resp;
 }
