@@ -1,4 +1,4 @@
 {
-  final Future<BrokerResponse> responseFuture=_transport.executeQueryAsync(pickRandomBroker(),statement);
+  final Future<BrokerResponse> responseFuture=_transport.executeQueryAsync(_brokerSelector.selectBroker(null),statement);
   return new ResultSetGroupFuture(responseFuture);
 }

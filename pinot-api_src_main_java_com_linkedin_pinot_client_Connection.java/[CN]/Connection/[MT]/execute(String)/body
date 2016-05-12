@@ -1,7 +1,3 @@
 {
-  BrokerResponse response=_transport.executeQuery(pickRandomBroker(),statement);
-  if (response.hasExceptions()) {
-    throw new PinotClientException("Query had processing exceptions: \n" + response.getExceptions());
-  }
-  return new ResultSetGroup(response);
+  return execute(null,statement);
 }

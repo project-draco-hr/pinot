@@ -1,0 +1,8 @@
+{
+  String brokerHostPort=_brokerSelector.selectBroker(tableName);
+  BrokerResponse response=_transport.executeQuery(brokerHostPort,statement);
+  if (response.hasExceptions()) {
+    throw new PinotClientException("Query had processing exceptions: \n" + response.getExceptions());
+  }
+  return new ResultSetGroup(response);
+}

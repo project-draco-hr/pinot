@@ -1,0 +1,25 @@
+{
+  List<String> brokerUrls=new ArrayList<String>();
+  try {
+    byte[] brokerResourceNodeData=zkClient.readData("/EXTERNALVIEW/brokerResource",true);
+    JSONObject jsonObject=new JSONObject(new String(brokerResourceNodeData));
+    JSONObject brokerResourceNode=jsonObject.getJSONObject("mapFields");
+    Iterator<String> resourceNames=brokerResourceNode.keys();
+    while (resourceNames.hasNext()) {
+      String resourceName=resourceNames.next();
+      JSONObject resource=brokerResourceNode.getJSONObject(resourceName);
+      Iterator<String> brokerNames=resource.keys();
+      while (brokerNames.hasNext()) {
+        String brokerName=brokerNames.next();
+        if (brokerName.startsWith("Broker_") && "ONLINE".equals(resource.getString(brokerName))) {
+          String brokerHostPort=brokerName.replace("Broker_","").replace("_",":");
+          brokerUrls.add(brokerHostPort);
+        }
+      }
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.warn("Exception while reading External view from zookeeper",e);
+  }
+  return brokerUrls;
+}
