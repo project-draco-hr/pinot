@@ -1,9 +1,16 @@
 {
   final InstanceResponsePlanNode rootNode=new InstanceResponsePlanNode();
-  final CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,timeOutMs,_enableNewAggregationGroupBy);
+  boolean enableNewAggregationGroupBy=_enableNewAggregationGroupByCfg;
+  List<IndexSegment> segments=new ArrayList<>();
+  for (  SegmentDataManager segmentDataManager : segmentDataManagers) {
+    IndexSegment segment=segmentDataManager.getSegment();
+    enableNewAggregationGroupBy&=isSegmentFitForNewAggregationGroupBy(segment,brokerRequest);
+    segments.add(segment);
+  }
+  final CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,timeOutMs,enableNewAggregationGroupBy);
   rootNode.setPlanNode(combinePlanNode);
-  for (  final SegmentDataManager segmentDataManager : segmentDataManagers) {
-    combinePlanNode.addPlanNode(makeInnerSegmentPlan(segmentDataManager.getSegment(),brokerRequest));
+  for (  IndexSegment segment : segments) {
+    combinePlanNode.addPlanNode(makeInnerSegmentPlan(segment,brokerRequest,enableNewAggregationGroupBy));
   }
   return new GlobalPlanImplV0(rootNode);
 }

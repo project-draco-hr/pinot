@@ -1,37 +1,3 @@
 {
-  if (brokerRequest.isSetAggregationsInfo()) {
-    if (!brokerRequest.isSetGroupBy()) {
-      if (_enableNewAggregationGroupBy) {
-        return new AggregationPlanNode(indexSegment,brokerRequest);
-      }
- else {
-        return new AggregationOperatorPlanNode(indexSegment,brokerRequest);
-      }
-    }
- else {
-      PlanNode aggregationGroupByPlanNode;
-      if (indexSegment instanceof IndexSegmentImpl) {
-        if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
-          if (_enableNewAggregationGroupBy) {
-            aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest);
-          }
- else {
-            aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
-          }
-        }
- else {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
-        }
-      }
- else {
-        aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.NoDictionary);
-      }
-      return aggregationGroupByPlanNode;
-    }
-  }
-  if (brokerRequest.isSetSelections()) {
-    final PlanNode selectionPlanNode=new SelectionPlanNode(indexSegment,brokerRequest);
-    return selectionPlanNode;
-  }
-  throw new UnsupportedOperationException("The query contains no aggregation or selection!");
+  return makeInnerSegmentPlan(indexSegment,brokerRequest,false);
 }

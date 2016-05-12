@@ -1,0 +1,9 @@
+{
+  if (!brokerRequest.isSetGroupBy()) {
+    return true;
+  }
+  if (!(segment instanceof IndexSegmentImpl)) {
+    return false;
+  }
+  return isGroupKeyFitForLong(segment,brokerRequest);
+}
