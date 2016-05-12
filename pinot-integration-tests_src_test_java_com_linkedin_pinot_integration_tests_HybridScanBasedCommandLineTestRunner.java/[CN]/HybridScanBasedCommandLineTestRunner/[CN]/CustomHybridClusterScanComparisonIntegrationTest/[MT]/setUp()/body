@@ -4,6 +4,23 @@
   }
   _nQueriesRead=0;
   _createSegmentsInParallel=true;
+  File scanRspFile=new File(_scanRspFilePath);
+  if (_recordScanResponses) {
+    _compareWithRspFile=false;
+    if (scanRspFile.exists()) {
+      throw new RuntimeException(_scanRspFilePath + " already exists");
+    }
+    _scanRspFileWriter=new FileWriter(scanRspFile);
+    _multiThreaded=false;
+  }
+ else {
+    if (scanRspFile.exists()) {
+      _scanRspFileReader=new LineNumberReader(new FileReader(scanRspFile));
+    }
+ else {
+      _compareWithRspFile=false;
+    }
+  }
   for (  String col : _invIndexCols) {
     invertedIndexColumns.add(col);
   }

@@ -1,0 +1,45 @@
+{
+  JSONObject scanJson;
+  if (scanResult == null) {
+    QueryResponse scanResponse=scanBasedQueryProcessor.processQuery(pqlQuery);
+    String scanRspStr=new ObjectMapper().writeValueAsString(scanResponse);
+    if (_scanRspFileWriter != null) {
+      if (scanRspStr.contains("\n")) {
+        throw new RuntimeException("We don't handle new lines in json responses yet. The reader will parse newline as separator between query responses");
+      }
+      _scanRspFileWriter.write(scanRspStr + "\n");
+    }
+    scanJson=new JSONObject(scanRspStr);
+  }
+ else {
+    scanJson=new JSONObject(scanResult);
+  }
+  JSONObject pinotJson=postQuery(pqlQuery);
+  QueryComparison.setCompareNumDocs(false);
+  try {
+    QueryComparison.ComparisonStatus comparisonStatus=QueryComparison.compareWithEmpty(pinotJson,scanJson);
+    if (comparisonStatus.equals(QueryComparison.ComparisonStatus.FAILED)) {
+      _compareStatusFileWriter.write("\nQuery comparison failed for query " + _nQueriesRead + ":"+ pqlQuery+ "\n"+ "Scan json: "+ scanJson+ "\n"+ "Pinot json: "+ pinotJson+ "\n");
+      _failedQueries.getAndIncrement();
+    }
+ else {
+      _successfulQueries.getAndIncrement();
+      if (comparisonStatus.equals(QueryComparison.ComparisonStatus.EMPTY)) {
+        _emptyResults.getAndIncrement();
+      }
+ else       if (_logMatchingResults) {
+        _compareStatusFileWriter.write("\nMatched for query:" + pqlQuery + "\n"+ scanJson+ "\n");
+      }
+    }
+    _compareStatusFileWriter.flush();
+  }
+ catch (  Exception e) {
+    _compareStatusFileWriter.write("Caught exception while running query comparison, failed for query " + pqlQuery + "\n"+ "Scan json: "+ scanJson+ "\n"+ "Pinot json: "+ pinotJson+ "\n");
+    _failedQueries.getAndIncrement();
+    _compareStatusFileWriter.flush();
+  }
+  int totalQueries=_successfulQueries.get() + _failedQueries.get();
+  if (displayStatus || totalQueries % 5000 == 0) {
+    doDisplayStatus(totalQueries);
+  }
+}

@@ -4,24 +4,34 @@
   }
   runTestLoop(new Callable<Object>(){
     @Override public Object call() throws Exception {
-      LineNumberReader lineNumberReader=new LineNumberReader(getQueryFile());
-      String line=lineNumberReader.readLine();
-      while (line != null) {
-        final String query=replaceTableName(line);
+      LineNumberReader queryReader=new LineNumberReader(getQueryFile());
+      for (; ; ) {
+        String line=queryReader.readLine();
+        if (line == null) {
+          break;
+        }
         _nQueriesRead++;
-        if (multiThreaded) {
-          runQueryAsync(query);
+        final String query=replaceTableName(line);
+        String compareStr=null;
+        if (_compareWithRspFile) {
+          compareStr=_scanRspFileReader.readLine();
+          if (compareStr == null) {
+            Assert.fail("Not enough lines in " + _scanRspFilePath);
+          }
+        }
+        final String scanRsp=compareStr;
+        if (_multiThreaded) {
+          runQueryAsync(query,scanRsp);
         }
  else {
-          runQuery(query,_scanBasedQueryProcessor,false);
+          runQuery(query,_scanBasedQueryProcessor,false,scanRsp);
         }
-        line=lineNumberReader.readLine();
       }
-      lineNumberReader.close();
+      queryReader.close();
       return null;
     }
   }
-,multiThreaded);
+,_multiThreaded);
   System.out.println(getNumSuccesfulQueries() + " Passed, " + getNumFailedQueries()+ " Failed, "+ getNumEmptyResults()+ " empty results");
   Assert.assertEquals(0,getNumFailedQueries(),"There were query failures. See " + _logFileName);
 }

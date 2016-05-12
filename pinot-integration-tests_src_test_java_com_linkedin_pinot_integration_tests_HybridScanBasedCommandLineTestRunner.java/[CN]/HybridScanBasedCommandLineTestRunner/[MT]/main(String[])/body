@@ -1,15 +1,29 @@
 {
-  if (args.length != 7) {
-    System.err.println("Usage: pinot-hybrid-cluster.sh tableName schemaFilePath segQueryDirPath timeColName timeColType invIndexCols sortedCol");
-    System.exit(1);
+  if (args.length == 0) {
+    usage();
   }
-  final String tableName=args[0];
-  final String schemaFilePath=args[1];
-  final String segQueryDirPath=args[2];
-  final String timeColName=args[3];
-  final String timeColType=args[4];
-  final String invIndexCols=args[5];
-  final String sortedCol=args[6];
+  int expectedArgsLen=7;
+  int ix=0;
+  if (args[0].startsWith("-")) {
+    if (args[0].equals("--record")) {
+      ix++;
+      expectedArgsLen++;
+      CustomHybridClusterScanComparisonIntegrationTest._recordScanResponses=true;
+    }
+ else {
+      usage();
+    }
+  }
+  if (args.length != expectedArgsLen) {
+    usage();
+  }
+  final String tableName=args[ix++];
+  final String schemaFilePath=args[ix++];
+  final String segQueryDirPath=args[ix++];
+  final String timeColName=args[ix++];
+  final String timeColType=args[ix++];
+  final String invIndexCols=args[ix++];
+  final String sortedCol=args[ix++];
   CustomHybridClusterScanComparisonIntegrationTest.setParams(tableName,schemaFilePath,segQueryDirPath,timeColName,timeColType,invIndexCols,sortedCol);
   TestListenerAdapter tla=new TestListenerAdapter();
   TestNG testng=new TestNG();

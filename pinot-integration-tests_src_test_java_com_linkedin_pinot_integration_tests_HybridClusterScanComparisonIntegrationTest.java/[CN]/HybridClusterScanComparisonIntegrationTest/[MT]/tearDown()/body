@@ -1,8 +1,8 @@
 {
   super.tearDown();
-  _fileWriter.write("\nSuccessful queries: " + _successfulQueries.get() + "\n"+ "Failed queries: "+ _failedQueries.get()+ "\n"+ "Empty results: "+ _emptyResults.get()+ "\n");
-  _fileWriter.write("Finish time:" + System.currentTimeMillis() + "\n");
-  _fileWriter.close();
+  _compareStatusFileWriter.write("\nSuccessful queries: " + _successfulQueries.get() + "\n"+ "Failed queries: "+ _failedQueries.get()+ "\n"+ "Empty results: "+ _emptyResults.get()+ "\n");
+  _compareStatusFileWriter.write("Finish time:" + System.currentTimeMillis() + "\n");
+  _compareStatusFileWriter.close();
   if (_failedQueries.get() != 0) {
     Assert.fail("More than one query failed to compare properly, see the log file.");
   }
