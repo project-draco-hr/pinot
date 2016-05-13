@@ -1,11 +1,17 @@
 {
   super.initDetectorRelatedDAO();
   PinotThirdEyeClientConfig pinotThirdeyeClientConfig=PinotThirdEyeClientConfig.createThirdEyeClientConfig(config);
-  ThirdEyeClient thirdEyeClient=PinotThirdEyeClient.fromClientConfig(pinotThirdeyeClientConfig);
+  PinotThirdEyeClient thirdEyeClient=(PinotThirdEyeClient)PinotThirdEyeClient.fromClientConfig(pinotThirdeyeClientConfig);
   AbstractConfigDAO<DashboardConfig> dashbaordConfigDAO=getDashboardConfigDAO(config);
   AbstractConfigDAO<CollectionConfig> collectionConfigDAO=getCollectionConfigDAO(config);
   AbstractConfigDAO<CollectionSchema> collectionSchemaDAO=getCollectionSchemaDAO(config);
   initCacheLoaders(pinotThirdeyeClientConfig,collectionConfigDAO,collectionSchemaDAO);
+  try {
+    thirdEyeClient.loadCollections();
+  }
+ catch (  Exception e) {
+    LOG.info("Exception while loading collections");
+  }
   ExecutorService queryExecutor=env.lifecycle().executorService("query_executor").build();
   QueryCache queryCache=createQueryCache(thirdEyeClient,queryExecutor);
   env.jersey().register(new DashboardResource(queryCache,dashbaordConfigDAO));
