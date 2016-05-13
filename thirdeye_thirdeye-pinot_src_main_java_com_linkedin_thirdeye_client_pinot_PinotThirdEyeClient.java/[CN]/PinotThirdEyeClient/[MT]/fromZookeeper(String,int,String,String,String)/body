@@ -14,11 +14,6 @@
     InstanceConfig instanceConfig=helixAdmin.getInstanceConfig(clusterName,instanceName);
     thirdeyeBrokers[i]=instanceConfig.getHostName().replaceAll(BROKER_PREFIX,"") + ":" + instanceConfig.getPort();
   }
-  Connection connection=ConnectionFactory.fromHostList(thirdeyeBrokers);
   LOG.info("Created PinotThirdEyeClient to zookeeper: {}",zkUrl);
-  ZkBaseDataAccessor<ZNRecord> baseAccessor=new ZkBaseDataAccessor<>(zkClient);
-  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,clusterName);
-  List<String> watchList=null;
-  ZkHelixPropertyStore<ZNRecord> propertyStore=new ZkHelixPropertyStore<ZNRecord>(baseAccessor,propertyStorePath,watchList);
-  return new PinotThirdEyeClient(connection,controllerHost,controllerPort,propertyStore);
+  return new PinotThirdEyeClient(controllerHost,controllerPort);
 }

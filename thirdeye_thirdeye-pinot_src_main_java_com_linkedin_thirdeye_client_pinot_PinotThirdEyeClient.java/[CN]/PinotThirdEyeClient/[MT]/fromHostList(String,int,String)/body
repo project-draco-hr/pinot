@@ -2,7 +2,6 @@
   if (brokers == null || brokers.length == 0) {
     throw new IllegalArgumentException("Please specify at least one broker.");
   }
-  Connection connection=ConnectionFactory.fromHostList(brokers);
   LOG.info("Created PinotThirdEyeClient to hosts: {}",(Object[])brokers);
-  return new PinotThirdEyeClient(connection,controllerHost,controllerPort,null);
+  return new PinotThirdEyeClient(controllerHost,controllerPort);
 }

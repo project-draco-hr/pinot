@@ -1,0 +1,10 @@
+{
+  zkUrl=pinotThirdEyeClientConfig.getZookeeperUrl();
+  clusterName=pinotThirdEyeClientConfig.getClusterName();
+  ZkClient zkClient=new ZkClient(zkUrl);
+  zkClient.setZkSerializer(new ZNRecordSerializer());
+  zkClient.waitUntilConnected();
+  ZkBaseDataAccessor<ZNRecord> baseAccessor=new ZkBaseDataAccessor<>(zkClient);
+  String propertyStorePath=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,clusterName);
+  propertyStore=new ZkHelixPropertyStore<ZNRecord>(baseAccessor,propertyStorePath,null);
+}

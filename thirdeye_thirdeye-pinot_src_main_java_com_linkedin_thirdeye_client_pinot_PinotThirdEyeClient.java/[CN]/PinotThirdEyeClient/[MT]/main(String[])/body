@@ -1,16 +1,13 @@
 {
   PinotThirdEyeClient pinotThirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
   ThirdEyeRequestBuilder builder=new ThirdEyeRequestBuilder();
-  builder.setCollection("thirdeyeAbook_OFFLINE");
-  builder.setStartTimeInclusive(new DateTime(2016,1,1,00,00));
-  builder.setEndTimeExclusive(new DateTime(2016,1,2,00,00));
-  builder.setGroupByTimeGranularity(new TimeGranularity(1,TimeUnit.HOURS));
-  builder.setGroupBy("browserName");
-  List<String> metrics=Lists.newArrayList("__COUNT","totalFlows","suggestedMemberInvitations");
-  for (  String metric : metrics) {
-    MetricFunction metricFunction=new MetricFunction(MetricFunction.SUM,metric);
-    builder.addMetricFunction(metricFunction);
-  }
+  builder.setCollection("feed_sessions_additive");
+  builder.setStartTimeInclusive(new DateTime(2016,5,4,00,00));
+  builder.setEndTimeExclusive(new DateTime(2016,5,4,00,00));
+  builder.setGroupByTimeGranularity(new TimeGranularity(1,TimeUnit.DAYS));
+  MetricFunction metricFunction=new MetricFunction("count","*");
+  builder.addMetricFunction(metricFunction);
   ThirdEyeResponse result=pinotThirdEyeClient.execute(builder.build("test"));
+  System.out.println(result);
   System.exit(1);
 }

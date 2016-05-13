@@ -1,0 +1,24 @@
+{
+  CollectionSchema collectionSchema=null;
+  List<CollectionSchema> collectionSchemas=collectionSchemaDAO.findAll(collection);
+  if (collectionSchemas.isEmpty()) {
+    LOGGER.info("Collection schema from url");
+    Schema schema=ThirdeyeCacheRegistry.getInstance().getSchemaCache().get(collection);
+    List<DimensionSpec> dimSpecs=fromDimensionFieldSpecs(schema.getDimensionFieldSpecs());
+    List<MetricSpec> metricSpecs=fromMetricFieldSpecs(schema.getMetricFieldSpecs());
+    TimeSpec timeSpec;
+    if (collection.equals("feed_sessions_addtive")) {
+      timeSpec=fromTimeFieldSpec(schema.getTimeFieldSpec(),null);
+    }
+ else {
+      timeSpec=fromTimeFieldSpec(schema.getTimeFieldSpec(),"yyyyMMdd");
+    }
+    CollectionSchema config=new CollectionSchema.Builder().setCollection(collection).setDimensions(dimSpecs).setMetrics(metricSpecs).setTime(timeSpec).build();
+    return config;
+  }
+ else {
+    LOGGER.info("Collection schema from file");
+    collectionSchema=collectionSchemas.get(0);
+  }
+  return collectionSchema;
+}

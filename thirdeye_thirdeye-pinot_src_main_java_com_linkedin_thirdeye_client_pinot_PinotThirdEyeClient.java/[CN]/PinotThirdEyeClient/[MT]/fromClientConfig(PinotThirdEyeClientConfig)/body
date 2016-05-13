@@ -1,3 +1,6 @@
 {
+  if (config.getBrokerUrl() != null || config.getBrokerUrl().trim().length() > 0) {
+    return fromHostList(config.getControllerHost(),config.getControllerPort(),config.brokerUrl);
+  }
   return fromZookeeper(config.getControllerHost(),config.getControllerPort(),config.getZookeeperUrl(),config.getClusterName(),config.getTag());
 }
