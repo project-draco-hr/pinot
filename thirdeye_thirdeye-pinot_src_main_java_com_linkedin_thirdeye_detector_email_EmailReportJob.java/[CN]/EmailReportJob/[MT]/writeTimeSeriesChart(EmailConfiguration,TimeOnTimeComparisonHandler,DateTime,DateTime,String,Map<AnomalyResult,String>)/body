@@ -4,10 +4,10 @@
     TimeUnit windowUnit=config.getWindowUnit();
     long windowMillis=windowUnit.toMillis(windowSize);
     ThirdEyeClient client=timeOnTimeComparisonHandler.getClient();
-    TimeGranularity bucketGranularity=client.getCollectionSchema(collection).getTime().getBucket();
-    TimeOnTimeComparisonResponse chartData=getData(timeOnTimeComparisonHandler,config,then,now,WEEK_MILLIS,bucketGranularity);
+    TimeGranularity dataGranularity=client.getCollectionSchema(collection).getTime().getDataGranularity();
+    TimeOnTimeComparisonResponse chartData=getData(timeOnTimeComparisonHandler,config,then,now,WEEK_MILLIS,dataGranularity);
     AnomalyGraphGenerator anomalyGraphGenerator=AnomalyGraphGenerator.getInstance();
-    JFreeChart chart=anomalyGraphGenerator.createChart(chartData,bucketGranularity,windowMillis,anomaliesWithLabels);
+    JFreeChart chart=anomalyGraphGenerator.createChart(chartData,dataGranularity,windowMillis,anomaliesWithLabels);
     String chartFilePath=EMAIL_REPORT_CHART_PREFIX + config.getId() + PNG;
     LOG.info("Writing chart to {}",chartFilePath);
     anomalyGraphGenerator.writeChartToFile(chart,chartFilePath);

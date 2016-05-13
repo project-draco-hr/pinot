@@ -1,21 +1,21 @@
 {
   return new AbstractConfigDAO<T>(){
-    @Override public boolean update(    String collectionName,    String id,    T config) throws Exception {
-      return fileBasedConfigDAO.update(collectionName,id,config);
+    @Override public boolean update(    String id,    T config) throws Exception {
+      return fileBasedConfigDAO.update(id,config);
     }
-    @Override public T findById(    String collectionName,    String id){
-      return fileBasedConfigDAO.findById(collectionName,id);
+    @Override public T findById(    String id){
+      return fileBasedConfigDAO.findById(id);
     }
-    @SuppressWarnings("unchecked") @Override public List<T> findAll(    String collectionName){
-      List<AbstractConfig> list=fileBasedConfigDAO.findAll(collectionName);
+    @SuppressWarnings("unchecked") @Override public List<T> findAll(){
+      List<AbstractConfig> list=fileBasedConfigDAO.findAll();
       List<T> ret=new ArrayList<>();
       for (      AbstractConfig config : list) {
         ret.add((T)config);
       }
       return ret;
     }
-    @Override public boolean create(    String collectionName,    String id,    T config) throws Exception {
-      return fileBasedConfigDAO.create(collectionName,id,config);
+    @Override public boolean create(    String id,    T config) throws Exception {
+      return fileBasedConfigDAO.create(id,config);
     }
   }
 ;

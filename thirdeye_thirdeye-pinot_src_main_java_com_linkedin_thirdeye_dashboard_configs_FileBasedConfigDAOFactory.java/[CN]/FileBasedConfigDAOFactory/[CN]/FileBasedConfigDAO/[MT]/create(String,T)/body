@@ -1,0 +1,10 @@
+{
+  File file=getFile(id);
+  file.getParentFile().mkdirs();
+  System.out.println("Writing " + config.toJSON() + " at "+ file.getAbsolutePath());
+  FileWriter fileWriter=new FileWriter(file);
+  IOUtils.write(config.toJSON(),fileWriter);
+  fileWriter.flush();
+  fileWriter.close();
+  return true;
+}
