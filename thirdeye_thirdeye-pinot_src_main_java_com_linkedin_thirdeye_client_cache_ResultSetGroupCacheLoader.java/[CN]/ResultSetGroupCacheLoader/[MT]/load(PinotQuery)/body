@@ -1,0 +1,9 @@
+{
+  try {
+    ResultSetGroup resultSetGroup=connection.execute(pinotQuery.getTableName(),pinotQuery.getPql());
+    return resultSetGroup;
+  }
+ catch (  PinotClientException cause) {
+    throw new PinotClientException("Error when running pql:" + pinotQuery.getPql(),cause);
+  }
+}

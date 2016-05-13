@@ -1,3 +1,10 @@
 {
-  return ThirdeyeCacheRegistry.getInstance().getSchemaCache().get(collection);
+  Schema schema=null;
+  try {
+    schema=CACHE_INSTANCE.getSchemaCache().get(collection);
+  }
+ catch (  Exception e) {
+    LOG.info("Exception while retrieving {} from schema cache",e);
+  }
+  return schema;
 }

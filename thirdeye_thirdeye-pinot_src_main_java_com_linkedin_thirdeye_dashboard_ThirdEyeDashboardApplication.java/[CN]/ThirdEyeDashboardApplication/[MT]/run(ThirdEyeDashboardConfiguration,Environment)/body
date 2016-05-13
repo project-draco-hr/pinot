@@ -5,15 +5,7 @@
   AbstractConfigDAO<DashboardConfig> dashbaordConfigDAO=getDashboardConfigDAO(config);
   AbstractConfigDAO<CollectionConfig> collectionConfigDAO=getCollectionConfigDAO(config);
   AbstractConfigDAO<CollectionSchema> collectionSchemaDAO=getCollectionSchemaDAO(config);
-  cacheRegistry=ThirdeyeCacheRegistry.getInstance();
-  resultSetGroupCache=CacheBuilder.newBuilder().expireAfterAccess(5,TimeUnit.MINUTES).build(new ResultSetGroupCacheLoader(pinotThirdeyeClientConfig));
-  cacheRegistry.registerResultSetGroupCache(resultSetGroupCache);
-  schemaCache=CacheBuilder.newBuilder().build(new SchemaCacheLoader(pinotThirdeyeClientConfig));
-  cacheRegistry.registerSchemaCache(schemaCache);
-  collectionSchemaCache=CacheBuilder.newBuilder().expireAfterWrite(1,TimeUnit.HOURS).build(new CollectionSchemaCacheLoader(pinotThirdeyeClientConfig,collectionConfigDAO,collectionSchemaDAO));
-  cacheRegistry.registerCollectionSchemaCache(collectionSchemaCache);
-  collectionMaxDataTimeCache=CacheBuilder.newBuilder().expireAfterAccess(5,TimeUnit.MINUTES).build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig));
-  cacheRegistry.registerCollectionMaxDataTimeCache(collectionMaxDataTimeCache);
+  initCacheLoaders(pinotThirdeyeClientConfig,collectionConfigDAO,collectionSchemaDAO);
   ExecutorService queryExecutor=env.lifecycle().executorService("query_executor").build();
   QueryCache queryCache=createQueryCache(thirdEyeClient,queryExecutor);
   env.jersey().register(new DashboardResource(queryCache,dashbaordConfigDAO));
