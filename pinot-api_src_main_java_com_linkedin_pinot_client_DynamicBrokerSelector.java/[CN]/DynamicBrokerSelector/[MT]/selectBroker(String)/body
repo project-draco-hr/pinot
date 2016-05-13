@@ -1,5 +1,9 @@
 {
-  List<String> list=tableToBrokerListMap.get(table);
+  if (table == null) {
+    List<String> list=allBrokerListRef.get();
+    return list.get(_random.nextInt(list.size()));
+  }
+  List<String> list=tableToBrokerListMapRef.get().get(table);
   if (list != null && !list.isEmpty()) {
     return list.get(_random.nextInt(list.size()));
   }

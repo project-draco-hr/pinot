@@ -1,7 +1,8 @@
 {
   ZkClient zkClient=new ZkClient(zkServers);
   zkClient.setZkSerializer(new BytesPushThroughSerializer());
-  ExternalViewReader evReader=new ExternalViewReader(zkClient);
-  tableToBrokerListMap=evReader.getTableToBrokersMap();
-  System.out.println(tableToBrokerListMap);
+  zkClient.waitUntilConnected(60,TimeUnit.SECONDS);
+  zkClient.subscribeDataChanges(ExternalViewReader.BROKER_EXTERNAL_VIEW_PATH,this);
+  evReader=new ExternalViewReader(zkClient);
+  refresh();
 }
