@@ -3,21 +3,21 @@
     String dimName=dimensionNameToIndexMap.inverse().get(node.getDimensionName());
     int dimensionValue=node.getDimensionValue();
     if (dimensionValue != StarTreeIndexNode.all()) {
-      Object[] objectArray=convertToObjectArray(indexCreationInfoMap.get(dimName).getSortedUniqueElementsArray());
-      int mappedDimValue=Arrays.binarySearch(objectArray,dictionaryMap.get(dimName).inverse().get(dimensionValue));
-      node.setDimensionValue(mappedDimValue);
+      Object sortedValuesForDim=indexCreationInfoMap.get(dimName).getSortedUniqueElementsArray();
+      int indexForDimValue=searchValueInArray(sortedValuesForDim,dictionaryMap.get(dimName).inverse().get(dimensionValue));
+      node.setDimensionValue(indexForDimValue);
     }
   }
   Map<Integer,StarTreeIndexNode> children=node.getChildren();
   Map<Integer,StarTreeIndexNode> newChildren=new HashMap<>();
   if (children != null && !children.isEmpty()) {
     String childDimName=dimensionNameToIndexMap.inverse().get(node.getChildDimensionName());
-    Object[] sortedUniqueElementsArray=convertToObjectArray(indexCreationInfoMap.get(childDimName).getSortedUniqueElementsArray());
+    Object sortedValuesForDim=indexCreationInfoMap.get(childDimName).getSortedUniqueElementsArray();
     for (    Entry<Integer,StarTreeIndexNode> entry : children.entrySet()) {
       int childDimValue=entry.getKey();
       int childMappedDimValue=StarTreeIndexNode.all();
       if (childDimValue != StarTreeIndexNode.all()) {
-        childMappedDimValue=Arrays.binarySearch(sortedUniqueElementsArray,dictionaryMap.get(childDimName).inverse().get(childDimValue));
+        childMappedDimValue=searchValueInArray(sortedValuesForDim,dictionaryMap.get(childDimName).inverse().get(childDimValue));
       }
       newChildren.put(childMappedDimValue,entry.getValue());
       updateTree(entry.getValue(),dictionaryMap,dimensionNameToIndexMap);
