@@ -27,22 +27,19 @@
     Utils.rethrowException(e);
     throw new AssertionError("Should not reach this");
   }
-  MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));
-  MetricsHelper.registerMetricsRegistry(_metricsRegistry);
-  final ControllerMetrics controllerMetrics=new ControllerMetrics(_metricsRegistry);
   try {
-    helixResourceManager.getHelixZkManager().addExternalViewChangeListener(new ControllerExternalViewChangeListener(controllerMetrics));
+    helixResourceManager.getHelixZkManager().addExternalViewChangeListener(new ControllerExternalViewChangeListener(_controllerMetrics));
   }
  catch (  Exception e) {
     LOGGER.error("Caught exception while adding external view change listener",e);
   }
-  controllerMetrics.addCallbackGauge("helix.connected",new Callable<Long>(){
+  _controllerMetrics.addCallbackGauge("helix.connected",new Callable<Long>(){
     @Override public Long call() throws Exception {
       return helixResourceManager.getHelixZkManager().isConnected() ? 1L : 0L;
     }
   }
 );
-  controllerMetrics.addCallbackGauge("helix.leader",new Callable<Long>(){
+  _controllerMetrics.addCallbackGauge("helix.leader",new Callable<Long>(){
     @Override public Long call() throws Exception {
       return helixResourceManager.getHelixZkManager().isLeader() ? 1L : 0L;
     }
@@ -50,10 +47,9 @@
 );
   helixResourceManager.getHelixZkManager().addPreConnectCallback(new PreConnectCallback(){
     @Override public void onPreConnect(){
-      controllerMetrics.addMeteredGlobalValue(ControllerMeter.HELIX_ZOOKEEPER_RECONNECTS,1L);
+      _controllerMetrics.addMeteredGlobalValue(ControllerMeter.HELIX_ZOOKEEPER_RECONNECTS,1L);
     }
   }
 );
-  controllerMetrics.initializeGlobalMeters();
-  ControllerRestApplication.setControllerMetrics(controllerMetrics);
+  ControllerRestApplication.setControllerMetrics(_controllerMetrics);
 }

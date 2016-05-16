@@ -7,5 +7,9 @@
   _metricsRegistry=new MetricsRegistry();
   ValidationMetrics validationMetrics=new ValidationMetrics(_metricsRegistry);
   validationManager=new ValidationManager(validationMetrics,helixResourceManager,config);
-  realtimeSegmentsManager=new PinotRealtimeSegmentManager(helixResourceManager);
+  MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));
+  MetricsHelper.registerMetricsRegistry(_metricsRegistry);
+  _controllerMetrics=new ControllerMetrics(_metricsRegistry);
+  _controllerMetrics.initializeGlobalMeters();
+  realtimeSegmentsManager=new PinotRealtimeSegmentManager(helixResourceManager,_controllerMetrics);
 }
