@@ -1,5 +1,5 @@
 {
-  if (pinotThirdEyeClientConfig.getBrokerUrl() != null || pinotThirdEyeClientConfig.getBrokerUrl().trim().length() > 0) {
+  if (pinotThirdEyeClientConfig.getBrokerUrl() != null && pinotThirdEyeClientConfig.getBrokerUrl().trim().length() > 0) {
     ZkClient zkClient=new ZkClient(pinotThirdEyeClientConfig.getZookeeperUrl());
     zkClient.setZkSerializer(new ZNRecordSerializer());
     zkClient.waitUntilConnected();
@@ -14,6 +14,6 @@
     this.connection=ConnectionFactory.fromHostList(thirdeyeBrokers);
   }
  else {
-    this.connection=ConnectionFactory.fromZookeeper(pinotThirdEyeClientConfig.getZookeeperUrl());
+    this.connection=ConnectionFactory.fromZookeeper(pinotThirdEyeClientConfig.getZookeeperUrl() + "/" + pinotThirdEyeClientConfig.getClusterName());
   }
 }

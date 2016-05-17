@@ -1,13 +1,18 @@
 {
-  PinotThirdEyeClient pinotThirdEyeClient=PinotThirdEyeClient.getDefaultTestClient();
+  String controllerHost="lva1-app0086.corp.linkedin.com";
+  int controllerPort=11984;
+  String zkUrl="zk-lva1-pinot.corp.linkedin.com:12913/pinot-cluster";
+  String clusterName="mpSprintDemoCluster";
+  Connection connection=ConnectionFactory.fromZookeeper(zkUrl + "/" + clusterName);
+  String statement="SELECT sum(engaged_feed_session_count) FROM feed_sessions_additive WHERE  Date = 20160514";
+  ResultSetGroup resultSetGroup=connection.execute("feed_sessions_additive_OFFLINE",statement);
+  System.out.println(format(resultSetGroup));
+  ResultSetGroupCacheLoader resultSetGroupCacheLoader=new ResultSetGroupCacheLoader(connection);
+  PinotThirdEyeClient thirdEyeClient=PinotThirdEyeClient.fromZookeeper(controllerHost,controllerPort,zkUrl,clusterName);
   ThirdEyeRequestBuilder builder=new ThirdEyeRequestBuilder();
   builder.setCollection("feed_sessions_additive");
-  builder.setStartTimeInclusive(new DateTime(2016,5,4,00,00));
-  builder.setEndTimeExclusive(new DateTime(2016,5,4,00,00));
-  builder.setGroupByTimeGranularity(new TimeGranularity(1,TimeUnit.DAYS));
-  MetricFunction metricFunction=new MetricFunction("count","*");
-  builder.addMetricFunction(metricFunction);
-  ThirdEyeResponse result=pinotThirdEyeClient.execute(builder.build("test"));
-  System.out.println(result);
-  System.exit(1);
+  builder.setStartTimeInclusive(DateTime.parse("2016-05-11"));
+  builder.setEndTimeExclusive(DateTime.parse("2016-05-11"));
+  builder.setMetricFunctions(Lists.newArrayList(new MetricFunction("SUM","sum_engaged_feed_session_count")));
+  ThirdEyeRequest thirdEyeRequest=builder.build("asd");
 }

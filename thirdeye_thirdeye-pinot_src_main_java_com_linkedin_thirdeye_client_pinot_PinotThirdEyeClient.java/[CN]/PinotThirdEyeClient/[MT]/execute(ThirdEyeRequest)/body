@@ -4,8 +4,11 @@
   List<MetricFunction> metricFunctions=request.getMetricFunctions();
   List<String> dimensionNames=collectionSchema.getDimensionNames();
   String sql=PqlUtils.getPql(request,dataTimeSpec);
-  LOG.info("Executing: {}",sql);
-  ResultSetGroup result=CACHE_INSTANCE.getResultSetGroupCache().get(new PinotQuery(sql,request.getCollection()));
+  LOG.debug("Executing: {}",sql);
+  ResultSetGroup result=CACHE_INSTANCE.getResultSetGroupCache().get(new PinotQuery(sql,request.getCollection() + "_OFFLINE"));
+  if (LOG.isDebugEnabled()) {
+    LOG.debug("Result for: {} {}",sql,format(result));
+  }
   parseResultSetGroup(request,result,metricFunctions,collectionSchema,dimensionNames);
   ThirdEyeResponse resp=new ThirdEyeResponse(request,result,dataTimeSpec);
   return resp;

@@ -1,9 +1,15 @@
 {
   try {
-    ResultSetGroup resultSetGroup=connection.execute(pinotQuery.getTableName(),pinotQuery.getPql());
-    return resultSetGroup;
+synchronized (this) {
+      ResultSetGroup resultSetGroup=connection.execute(pinotQuery.getTableName(),pinotQuery.getPql());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Query:{}  response:{}",pinotQuery.getPql(),format(resultSetGroup));
+      }
+      return resultSetGroup;
+    }
   }
  catch (  PinotClientException cause) {
+    LOG.error("Error when running pql:" + pinotQuery.getPql(),cause);
     throw new PinotClientException("Error when running pql:" + pinotQuery.getPql(),cause);
   }
 }

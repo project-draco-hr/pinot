@@ -1,0 +1,8 @@
+{
+  ZkClient zkClient=new ZkClient(zkUrl);
+  zkClient.setZkSerializer(new ZNRecordSerializer());
+  zkClient.waitUntilConnected();
+  PinotThirdEyeClient pinotThirdEyeClient=new PinotThirdEyeClient(controllerHost,controllerPort);
+  LOG.info("Created PinotThirdEyeClient to zookeeper: {} controller: {}:{}",zkUrl,controllerHost,controllerPort);
+  return pinotThirdEyeClient;
+}
