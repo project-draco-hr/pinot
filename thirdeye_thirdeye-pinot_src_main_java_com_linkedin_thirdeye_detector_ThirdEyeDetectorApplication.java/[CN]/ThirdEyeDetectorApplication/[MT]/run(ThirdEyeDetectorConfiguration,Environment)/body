@@ -1,7 +1,15 @@
 {
   super.initDetectorRelatedDAO();
   LOG.info("Loading configs from: {}",config.getRootDir());
-  final ThirdEyeClient thirdEyeClient=PinotThirdEyeClientFactory.createThirdEyeClient(config);
+  PinotThirdEyeClientConfig pinotThirdeyeClientConfig=PinotThirdEyeClientConfig.createThirdEyeClientConfig(config);
+  final ThirdEyeClient thirdEyeClient=PinotThirdEyeClient.fromClientConfig(pinotThirdeyeClientConfig);
+  AbstractConfigDAO<CollectionSchema> collectionSchemaDAO=getCollectionSchemaDAO(config);
+  try {
+    super.initCacheLoaders(pinotThirdeyeClientConfig,collectionSchemaDAO);
+  }
+ catch (  Exception e) {
+    LOG.error("Exception while loading caches",e);
+  }
   QueryCache queryCache=new QueryCache(thirdEyeClient,Executors.newFixedThreadPool(10));
   final TimeSeriesHandler timeSeriesHandler=new TimeSeriesHandler(queryCache);
   TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);

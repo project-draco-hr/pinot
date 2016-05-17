@@ -1,0 +1,11 @@
+{
+  ThirdeyeCacheRegistry cacheRegistry=ThirdeyeCacheRegistry.getInstance();
+  LoadingCache<PinotQuery,ResultSetGroup> resultSetGroupCache=CacheBuilder.newBuilder().expireAfterAccess(1,TimeUnit.HOURS).build(new ResultSetGroupCacheLoader(pinotThirdeyeClientConfig));
+  cacheRegistry.registerResultSetGroupCache(resultSetGroupCache);
+  LoadingCache<String,Schema> schemaCache=CacheBuilder.newBuilder().build(new SchemaCacheLoader(pinotThirdeyeClientConfig));
+  cacheRegistry.registerSchemaCache(schemaCache);
+  LoadingCache<String,CollectionSchema> collectionSchemaCache=CacheBuilder.newBuilder().build(new CollectionSchemaCacheLoader(pinotThirdeyeClientConfig,collectionSchemaDAO));
+  cacheRegistry.registerCollectionSchemaCache(collectionSchemaCache);
+  LoadingCache<String,Long> collectionMaxDataTimeCache=CacheBuilder.newBuilder().build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig));
+  cacheRegistry.registerCollectionMaxDataTimeCache(collectionMaxDataTimeCache);
+}
