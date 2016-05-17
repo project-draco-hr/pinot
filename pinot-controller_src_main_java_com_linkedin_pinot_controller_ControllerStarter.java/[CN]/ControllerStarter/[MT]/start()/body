@@ -10,6 +10,9 @@
   applicationContext.getAttributes().put(PinotHelixResourceManager.class.toString(),helixResourceManager);
   controllerRestApp.setContext(applicationContext);
   component.getDefaultHost().attach(controllerRestApp);
+  MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));
+  MetricsHelper.registerMetricsRegistry(_metricsRegistry);
+  final ControllerMetrics controllerMetrics=new ControllerMetrics(_metricsRegistry);
   try {
     LOGGER.info("starting pinot helix resource manager");
     helixResourceManager.start();
@@ -20,7 +23,7 @@
     LOGGER.info("starting validation manager");
     validationManager.start();
     LOGGER.info("starting realtime segments manager");
-    realtimeSegmentsManager.start();
+    realtimeSegmentsManager.start(controllerMetrics);
   }
  catch (  final Exception e) {
     LOGGER.error("Caught exception while starting controller",e);
@@ -28,18 +31,18 @@
     throw new AssertionError("Should not reach this");
   }
   try {
-    helixResourceManager.getHelixZkManager().addExternalViewChangeListener(new ControllerExternalViewChangeListener(_controllerMetrics));
+    helixResourceManager.getHelixZkManager().addExternalViewChangeListener(new ControllerExternalViewChangeListener(controllerMetrics));
   }
  catch (  Exception e) {
     LOGGER.error("Caught exception while adding external view change listener",e);
   }
-  _controllerMetrics.addCallbackGauge("helix.connected",new Callable<Long>(){
+  controllerMetrics.addCallbackGauge("helix.connected",new Callable<Long>(){
     @Override public Long call() throws Exception {
       return helixResourceManager.getHelixZkManager().isConnected() ? 1L : 0L;
     }
   }
 );
-  _controllerMetrics.addCallbackGauge("helix.leader",new Callable<Long>(){
+  controllerMetrics.addCallbackGauge("helix.leader",new Callable<Long>(){
     @Override public Long call() throws Exception {
       return helixResourceManager.getHelixZkManager().isLeader() ? 1L : 0L;
     }
@@ -47,9 +50,10 @@
 );
   helixResourceManager.getHelixZkManager().addPreConnectCallback(new PreConnectCallback(){
     @Override public void onPreConnect(){
-      _controllerMetrics.addMeteredGlobalValue(ControllerMeter.HELIX_ZOOKEEPER_RECONNECTS,1L);
+      controllerMetrics.addMeteredGlobalValue(ControllerMeter.HELIX_ZOOKEEPER_RECONNECTS,1L);
     }
   }
 );
-  ControllerRestApplication.setControllerMetrics(_controllerMetrics);
+  controllerMetrics.initializeGlobalMeters();
+  ControllerRestApplication.setControllerMetrics(controllerMetrics);
 }
