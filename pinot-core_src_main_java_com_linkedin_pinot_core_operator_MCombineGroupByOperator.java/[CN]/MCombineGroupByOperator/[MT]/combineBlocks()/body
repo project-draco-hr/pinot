@@ -1,25 +1,26 @@
 {
-  List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
-  final List<AggregationFunction> aggregationFunctions=AggregationFunctionFactory.getAggregationFunction(brokerRequest);
-  final int numAggrFunctions=aggregationsInfo.size();
-  final int numOperators=operators.size();
-  final Map<String,Serializable[]> resultsMap=new ConcurrentHashMap<>();
+  final int numOperators=_operators.size();
+  final IntermediateResultsBlock[] blocks=new IntermediateResultsBlock[numOperators];
   final CountDownLatch operatorLatch=new CountDownLatch(numOperators);
+  final List<AggregationInfo> aggregationsInfo=_brokerRequest.getAggregationsInfo();
+  final int numAggrFunctions=aggregationsInfo.size();
+  final List<AggregationFunction> aggregationFunctions=AggregationFunctionFactory.getAggregationFunction(_brokerRequest);
+  final Map<String,Serializable[]> resultsMap=new ConcurrentHashMap<>();
   for (int i=0; i < numOperators; i++) {
     final int index=i;
-    executorService.execute(new TraceRunnable(){
+    _executorService.execute(new TraceRunnable(){
       @Override public void runJob(){
         AggregationGroupByResult groupByResult;
-        blocks[index]=(IntermediateResultsBlock)operators.get(index).nextBlock();
+        blocks[index]=(IntermediateResultsBlock)_operators.get(index).nextBlock();
         if (blocks[index] != null) {
           groupByResult=blocks[index].getAggregationGroupByResult();
           if (groupByResult != null) {
-            final Iterator<GroupKeyGenerator.GroupKey> groupKeyIterator=groupByResult.getGroupKeyIterator();
+            Iterator<GroupKeyGenerator.GroupKey> groupKeyIterator=groupByResult.getGroupKeyIterator();
             while (groupKeyIterator.hasNext()) {
               GroupKeyGenerator.GroupKey groupKey=groupKeyIterator.next();
               String groupKeyString=groupKey.getStringKey();
               int lockIndex=(groupKeyString.hashCode() & Integer.MAX_VALUE) % NUM_LOCKS;
-synchronized (_locks[(lockIndex)]) {
+synchronized (LOCKS[lockIndex]) {
                 Serializable[] results=resultsMap.get(groupKeyString);
                 if (results == null) {
                   results=new Serializable[numAggrFunctions];

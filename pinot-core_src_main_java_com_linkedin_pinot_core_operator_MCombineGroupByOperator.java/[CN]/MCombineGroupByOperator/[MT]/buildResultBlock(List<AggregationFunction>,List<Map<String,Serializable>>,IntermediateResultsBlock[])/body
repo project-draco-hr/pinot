@@ -3,10 +3,10 @@
   List<ProcessingException> exceptions=null;
   long numDocsScanned=0;
   long totalRawDocs=0;
-  for (int i=0; i < blocks.length; i++) {
-    numDocsScanned+=blocks[i].getNumDocsScanned();
-    totalRawDocs+=blocks[i].getTotalRawDocs();
-    List<ProcessingException> blockExceptions=blocks[i].getExceptions();
+  for (  IntermediateResultsBlock block : blocks) {
+    numDocsScanned+=block.getNumDocsScanned();
+    totalRawDocs+=block.getTotalRawDocs();
+    List<ProcessingException> blockExceptions=block.getExceptions();
     if (blockExceptions != null) {
       if (exceptions == null) {
         exceptions=blockExceptions;

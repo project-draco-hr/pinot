@@ -1,20 +1,9 @@
 {
-  final IntermediateResultsBlock blocks[]=new IntermediateResultsBlock[_operators.size()];
-  IntermediateResultsBlock mergedBlock=null;
   try {
-    mergedBlock=combineBlocks(_brokerRequest,_operators,_executorService,blocks);
+    return combineBlocks();
   }
  catch (  InterruptedException e) {
     LOGGER.error("InterruptedException caught while executing CombineGroupBy",e);
-    if (mergedBlock == null) {
-      mergedBlock=new IntermediateResultsBlock(e);
-    }
-    List<ProcessingException> exceptions=mergedBlock.getExceptions();
-    if (exceptions == null) {
-      exceptions=new ArrayList<ProcessingException>();
-    }
-    exceptions.add(QueryException.getException(QueryException.COMBINE_GROUP_BY_EXCEPTION_ERROR,e));
-    mergedBlock.setExceptionsList(exceptions);
+    return new IntermediateResultsBlock(QueryException.COMBINE_GROUP_BY_EXCEPTION_ERROR,e);
   }
-  return mergedBlock;
 }
