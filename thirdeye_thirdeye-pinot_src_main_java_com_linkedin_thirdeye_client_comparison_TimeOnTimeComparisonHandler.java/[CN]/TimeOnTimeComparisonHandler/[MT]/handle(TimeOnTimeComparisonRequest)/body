@@ -49,9 +49,14 @@
       rows.add(row);
     }
   }
+  List<MetricFunction> metricFunctionsFromExpressions=Utils.computeMetricFunctionsFromExpressions(comparisonRequest.getMetricExpressions());
+  Set<String> metricNameSet=new HashSet<>();
+  for (  MetricFunction function : metricFunctionsFromExpressions) {
+    metricNameSet.add(function.getMetricName());
+  }
   List<MetricExpression> derivedMetricExpressions=new ArrayList<>();
   for (  MetricExpression expression : comparisonRequest.getMetricExpressions()) {
-    if (expression.computeMetricFunctions().size() > 1) {
+    if (!metricNameSet.contains(expression.getExpressionName())) {
       derivedMetricExpressions.add(expression);
     }
   }
@@ -69,7 +74,13 @@
       for (      MetricExpression expression : derivedMetricExpressions) {
         String derivedMetricExpression=expression.getExpression();
         double derivedMetricBaselineValue=MetricExpression.evaluateExpression(derivedMetricExpression,baselineValueContext);
-        double currentMetricBaselineValue=MetricExpression.evaluateExpression(derivedMetricExpression,baselineValueContext);
+        if (Double.isInfinite(derivedMetricBaselineValue) || Double.isNaN(derivedMetricBaselineValue)) {
+          derivedMetricBaselineValue=0;
+        }
+        double currentMetricBaselineValue=MetricExpression.evaluateExpression(derivedMetricExpression,currentValueContext);
+        if (Double.isInfinite(currentMetricBaselineValue) || Double.isNaN(currentMetricBaselineValue)) {
+          currentMetricBaselineValue=0;
+        }
         row.getMetrics().add(new Metric(expression.getExpressionName(),derivedMetricBaselineValue,currentMetricBaselineValue));
       }
     }
