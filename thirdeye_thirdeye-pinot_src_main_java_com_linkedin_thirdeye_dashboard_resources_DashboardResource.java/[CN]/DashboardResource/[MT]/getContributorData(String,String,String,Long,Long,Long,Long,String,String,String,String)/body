@@ -1,7 +1,7 @@
 {
   ContributorViewRequest request=new ContributorViewRequest();
   request.setCollection(collection);
-  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson);
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson,collection);
   request.setMetricExpressions(metricExpressions);
   long maxDataTime=queryCache.getClient().getMaxDataTime(collection);
   if (currentEnd > maxDataTime) {

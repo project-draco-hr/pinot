@@ -2,15 +2,14 @@
   try {
     Scope scope=Scope.create();
     Set<String> metricNames=new TreeSet<>();
-    if (expression.equals("__COUNT")) {
-      metricNames.add("__COUNT");
-    }
- else {
-      Parser.parse(expression,scope);
-      metricNames=scope.getLocalNames();
-    }
+    String modifiedExpressions=expression.replace(COUNT_METRIC,COUNT_METRIC_ESCAPED);
+    Parser.parse(modifiedExpressions,scope);
+    metricNames=scope.getLocalNames();
     ArrayList<MetricFunction> metricFunctions=new ArrayList<>();
     for (    String metricName : metricNames) {
+      if (metricName.equals(COUNT_METRIC_ESCAPED)) {
+        metricName=COUNT_METRIC;
+      }
       metricFunctions.add(MetricFunction.from(MetricFunction.SUM,metricName));
     }
     return metricFunctions;

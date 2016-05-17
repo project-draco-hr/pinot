@@ -3,6 +3,16 @@
   try {
     CollectionSchema schema=queryCache.getClient().getCollectionSchema(collection);
     List<String> metrics=schema.getMetricNames();
+    CollectionConfig collectionConfig=null;
+    try {
+      collectionConfig=queryCache.getClient().getCollectionConfig(collection);
+    }
+ catch (    InvalidCacheLoadException e) {
+      LOG.debug("No collection configs for collection {}",collection);
+    }
+    if (collectionConfig != null && collectionConfig.getDerivedMetrics() != null) {
+      metrics.addAll(collectionConfig.getDerivedMetrics().keySet());
+    }
     Collections.sort(metrics);
     jsonMetrics=OBJECT_MAPPER.writeValueAsString(metrics);
   }

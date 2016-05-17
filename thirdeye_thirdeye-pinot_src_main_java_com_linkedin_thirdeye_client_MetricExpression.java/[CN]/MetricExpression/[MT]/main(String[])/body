@@ -1,10 +1,9 @@
 {
-  Scope s=Scope.create();
-  Expression expression=Parser.parse("sqrt(a)/b",s);
-  System.out.println(s.getLocalNames());
-  Variable a=s.create("a");
-  Variable b=s.create("b");
-  a.setValue(10);
-  b.setValue(5);
-  System.out.println(expression.evaluate());
+  String expressionString="(successCount)/(__COUNT)";
+  MetricExpression expression=new MetricExpression("Approval_Rate",expressionString);
+  Map<String,Double> metricValueContext=new HashMap<>();
+  metricValueContext.put("__COUNT",10d);
+  metricValueContext.put("successCount",10d);
+  double result=MetricExpression.evaluateExpression(expressionString,metricValueContext);
+  System.out.println(result);
 }

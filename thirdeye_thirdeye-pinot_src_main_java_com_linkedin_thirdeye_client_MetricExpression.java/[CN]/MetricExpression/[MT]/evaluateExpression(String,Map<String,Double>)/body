@@ -1,5 +1,11 @@
 {
   Scope scope=Scope.create();
+  expressionString=expressionString.replace(COUNT_METRIC,COUNT_METRIC_ESCAPED);
+  Map<String,Double> metricValueContext=context;
+  if (context.containsKey(COUNT_METRIC)) {
+    metricValueContext=new HashMap<>(context);
+    metricValueContext.put(COUNT_METRIC_ESCAPED,context.get(COUNT_METRIC));
+  }
   Expression expression=Parser.parse(expressionString,scope);
   for (  String metricName : metricValueContext.keySet()) {
     Variable variable=scope.create(metricName);

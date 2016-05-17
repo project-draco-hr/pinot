@@ -4,7 +4,7 @@
     request.setCollection(collection);
     DashboardConfig dashboardConfig;
     List<MetricExpression> metricExpressions;
-    if (dashboardName == null || "Default_All_Metrics_Dashboard".equals(dashboardName)) {
+    if (dashboardName == null || DEFAULT_DASHBOARD.equals(dashboardName)) {
       CollectionSchema collectionSchema=queryCache.getClient().getCollectionSchema(collection);
       metricExpressions=new ArrayList<>();
       List<String> metricNames=collectionSchema.getMetricNames();
@@ -15,7 +15,7 @@
       }
     }
  else {
-      dashboardConfig=dashboardConfigDAO.findById(collection + "_ " + dashboardName);
+      dashboardConfig=dashboardConfigDAO.findById(collection + "_" + dashboardName);
       metricExpressions=dashboardConfig.getMetricExpressions();
     }
     request.setMetricExpressions(metricExpressions);

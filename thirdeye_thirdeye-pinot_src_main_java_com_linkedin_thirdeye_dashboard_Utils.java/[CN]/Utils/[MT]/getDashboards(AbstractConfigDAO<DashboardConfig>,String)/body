@@ -2,15 +2,13 @@
   List<DashboardConfig> dashboardConfigs=configDAO.findAll();
   List<String> dashboards=new ArrayList<>();
   for (  DashboardConfig dashboardConfig : dashboardConfigs) {
-    if (dashboardConfig == null) {
+    if (dashboardConfig == null || !collection.equalsIgnoreCase(dashboardConfig.getCollectionName())) {
       continue;
     }
  else {
       dashboards.add(dashboardConfig.getDashboardName());
     }
   }
-  if (dashboards == null || dashboards.isEmpty()) {
-    dashboards.add("Default_All_Metrics_Dashboard");
-  }
+  dashboards.add(DEFAULT_DASHBOARD);
   return dashboards;
 }
