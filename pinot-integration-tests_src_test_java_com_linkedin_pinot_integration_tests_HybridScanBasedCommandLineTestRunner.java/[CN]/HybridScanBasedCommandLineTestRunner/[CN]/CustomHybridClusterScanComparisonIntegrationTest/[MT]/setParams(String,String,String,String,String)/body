@@ -1,6 +1,4 @@
 {
-  _timeColName=timeColName;
-  _timeColType=timeColType;
   _tableName=tableName;
   _queryFilePath=segsQueryDir + "/" + QUERY_FILE_NAME;
   _scanRspFilePath=segsQueryDir + "/" + SCAN_RSP_FILE_NAME;
@@ -20,6 +18,9 @@
     _invIndexCols.add(colName);
   }
   _schemaFile=new File(schemaFileName);
+  Schema schema=Schema.fromFile(_schemaFile);
+  _timeColName=schema.getTimeColumnName();
+  _timeColType=schema.getIncomingTimeUnit().toString();
   _logFileName=_tableName + "-" + System.currentTimeMillis()+ "-"+ _logFileSuffix;
   _inCmdLine=true;
 }

@@ -2,7 +2,7 @@
   if (args.length == 0) {
     usage();
   }
-  int expectedArgsLen=7;
+  int expectedArgsLen=5;
   int ix=0;
   if (args[0].startsWith("-")) {
     if (args[0].equals("--record")) {
@@ -20,11 +20,9 @@
   final String tableName=args[ix++];
   final String schemaFilePath=args[ix++];
   final String segQueryDirPath=args[ix++];
-  final String timeColName=args[ix++];
-  final String timeColType=args[ix++];
   final String invIndexCols=args[ix++];
   final String sortedCol=args[ix++];
-  CustomHybridClusterScanComparisonIntegrationTest.setParams(tableName,schemaFilePath,segQueryDirPath,timeColName,timeColType,invIndexCols,sortedCol);
+  CustomHybridClusterScanComparisonIntegrationTest.setParams(tableName,schemaFilePath,segQueryDirPath,invIndexCols,sortedCol);
   TestListenerAdapter tla=new TestListenerAdapter();
   TestNG testng=new TestNG();
   testng.setTestClasses(new Class[]{CustomHybridClusterScanComparisonIntegrationTest.class});
