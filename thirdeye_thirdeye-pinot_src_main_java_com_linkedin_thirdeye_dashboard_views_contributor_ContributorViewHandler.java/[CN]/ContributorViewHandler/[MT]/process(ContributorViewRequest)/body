@@ -3,11 +3,15 @@
   TimeOnTimeComparisonHandler handler=new TimeOnTimeComparisonHandler(queryCache);
   TimeOnTimeComparisonResponse response=handler.handle(comparisonRequest);
   List<String> metricNames=new ArrayList<>(response.getMetrics());
+  List<String> expressionNames=new ArrayList<>();
+  for (  MetricExpression expression : request.getMetricExpressions()) {
+    expressionNames.add(expression.getExpressionName());
+  }
   List<String> dimensions=new ArrayList<>(response.getDimensions());
   List<TimeBucket> timeBuckets=getTimeBuckets(response);
   Map<String,SortedSet<Row>> rows=getRowsSortedByTime(response);
   ContributorViewResponse contributorViewResponse=new ContributorViewResponse();
-  contributorViewResponse.setMetrics(metricNames);
+  contributorViewResponse.setMetrics(expressionNames);
   contributorViewResponse.setDimensions(dimensions);
   contributorViewResponse.setTimeBuckets(timeBuckets);
   GenericResponse genericResponse=new GenericResponse();
@@ -20,6 +24,9 @@
       String dimensionValue=row.getDimensionValue();
       for (      Metric metric : row.getMetrics()) {
         String metricName=metric.getMetricName();
+        if (!expressionNames.contains(metricName)) {
+          continue;
+        }
         Double baselineValue=metric.getBaselineValue();
         Double currentValue=metric.getCurrentValue();
         Double cumulativeBaselineValue;
