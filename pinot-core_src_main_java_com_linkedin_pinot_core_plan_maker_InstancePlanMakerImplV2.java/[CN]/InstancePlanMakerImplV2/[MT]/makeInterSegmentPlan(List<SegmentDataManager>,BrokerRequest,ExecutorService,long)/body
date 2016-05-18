@@ -1,10 +1,13 @@
 {
   final InstanceResponsePlanNode rootNode=new InstanceResponsePlanNode();
-  boolean enableNewAggregationGroupBy=_enableNewAggregationGroupByCfg;
   List<IndexSegment> segments=new ArrayList<>();
+  boolean enableNewAggregationGroupBy=_enableNewAggregationGroupByCfg;
+  boolean isGroupByQuery=(brokerRequest.getAggregationsInfo() != null) && brokerRequest.isSetGroupBy();
   for (  SegmentDataManager segmentDataManager : segmentDataManagers) {
     IndexSegment segment=segmentDataManager.getSegment();
-    enableNewAggregationGroupBy&=isSegmentFitForNewAggregationGroupBy(segment,brokerRequest);
+    if (isGroupByQuery && !isGroupKeyFitForLong(segment,brokerRequest)) {
+      enableNewAggregationGroupBy=false;
+    }
     segments.add(segment);
   }
   final CombinePlanNode combinePlanNode=new CombinePlanNode(brokerRequest,executorService,timeOutMs,enableNewAggregationGroupBy);

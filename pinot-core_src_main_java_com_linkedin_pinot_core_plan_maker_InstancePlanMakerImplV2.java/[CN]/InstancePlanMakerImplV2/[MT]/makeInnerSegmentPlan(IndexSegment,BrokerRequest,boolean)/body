@@ -10,21 +10,16 @@
     }
  else {
       PlanNode aggregationGroupByPlanNode;
-      if (indexSegment instanceof IndexSegmentImpl) {
-        if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
-          if (enableNewAggregationGroupBy) {
-            aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest);
-          }
- else {
-            aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
-          }
+      if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
+        if (enableNewAggregationGroupBy) {
+          aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest);
         }
  else {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
         }
       }
  else {
-        aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.NoDictionary);
+        aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
       }
       return aggregationGroupByPlanNode;
     }
