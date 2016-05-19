@@ -6,7 +6,7 @@
   AbstractConfigDAO<CollectionSchema> collectionSchemaDAO=getCollectionSchemaDAO(config);
   AbstractConfigDAO<CollectionConfig> collectionConfigDAO=getCollectionConfigDAO(config);
   try {
-    initCacheLoaders(pinotThirdeyeClientConfig,collectionSchemaDAO,collectionConfigDAO,config);
+    ThirdeyeCacheRegistry.initializeWebappCaches(pinotThirdeyeClientConfig,collectionSchemaDAO,collectionConfigDAO,config);
   }
  catch (  Exception e) {
     LOG.error("Exception while loading caches",e);
