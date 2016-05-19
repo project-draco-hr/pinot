@@ -1,6 +1,13 @@
 {
   Properties config=new Properties();
-  config.setProperty(AggregationPhaseConstants.AGG_PHASE_INPUT_PATH.toString(),inputPaths);
-  config.setProperty(AggregationPhaseConstants.AGG_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + AGGREGATION.getName());
+  Path aggOutputPath=new Path(getIndexDir(root,collection,minTime,maxTime) + File.separator + AGGREGATION.getName());
+  FileSystem fs=FileSystem.get(new Configuration());
+  if (fs.exists(aggOutputPath)) {
+    inputPaths=aggOutputPath.toString();
+  }
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_INPUT_PATH.toString(),inputPaths);
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA.toString(),getIndexDir(root,collection,minTime,maxTime));
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + DERIVED_COLUMN_TRANSFORMATION.getName());
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + TOPK.getName());
   return config;
 }
