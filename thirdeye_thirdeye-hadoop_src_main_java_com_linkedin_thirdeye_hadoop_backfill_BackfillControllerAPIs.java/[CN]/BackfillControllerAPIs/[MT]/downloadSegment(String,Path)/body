@@ -22,8 +22,21 @@
     }
     LOGGER.info("Extracting segment {} to {}",tempSegmentTar,tempDir);
     TarGzCompressionUtils.unTar(tempSegmentTar,tempDir);
-    if (!tempSegmentDir.exists()) {
+    File[] files=tempDir.listFiles(new FilenameFilter(){
+      @Override public boolean accept(      File dir,      String name){
+        return !name.endsWith(ThirdEyeConstants.TAR_SUFFIX) && new File(dir,name).isDirectory();
+      }
+    }
+);
+    if (files.length == 0) {
       throw new IllegalStateException("Failed to extract " + tempSegmentTar + " to "+ tempDir);
+    }
+ else     if (!files[0].getName().equals(tempSegmentDir.getName())) {
+      LOGGER.info("Moving extracted segment to the segment dir {}",tempSegmentDir);
+      FileUtils.moveDirectory(files[0],tempSegmentDir);
+    }
+    if (!tempSegmentDir.exists()) {
+      throw new IllegalStateException("Failed to move " + files[0] + " to "+ tempSegmentDir);
     }
     LOGGER.info("Copying segment from {} to hdfs {}",tempSegmentDir,hdfsSegmentPath);
     fs.copyFromLocalFile(new Path(tempSegmentDir.toString()),hdfsSegmentPath);

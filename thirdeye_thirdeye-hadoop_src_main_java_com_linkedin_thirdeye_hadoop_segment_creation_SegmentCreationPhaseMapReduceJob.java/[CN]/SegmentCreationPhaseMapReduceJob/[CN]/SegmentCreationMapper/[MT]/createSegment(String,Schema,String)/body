@@ -25,6 +25,7 @@
   LOGGER.info("isBackfill : {}",isBackfill);
   if (isBackfill) {
     String segmentName=hdfsDataPath.getName().split("-(m|r)-[0-9]{5}")[0];
+    segmentName=segmentName.split(ThirdEyeConstants.AVRO_SUFFIX)[0];
     segmentGeneratorConfig.setSegmentName(segmentName);
   }
  else {
