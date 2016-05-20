@@ -1,0 +1,21 @@
+{
+  JSONObject json=new JSONObject();
+  json.put("invertedIndexColumns",Arrays.asList("a","b","c"));
+  json.put("sortedColumn",Arrays.asList("d","e","f"));
+  json.put("loadMode","MMAP");
+  json.put("keyThatIsUnknown","randomValue");
+  ObjectMapper mapper=new ObjectMapper();
+  JsonNode jsonNode=mapper.readTree(json.toString());
+  IndexingConfig indexingConfig=mapper.readValue(jsonNode,IndexingConfig.class);
+  Assert.assertEquals("MMAP",indexingConfig.getLoadMode());
+  List<String> invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
+  Assert.assertEquals(3,invertedIndexColumns.size());
+  Assert.assertEquals("a",invertedIndexColumns.get(0));
+  Assert.assertEquals("b",invertedIndexColumns.get(1));
+  Assert.assertEquals("c",invertedIndexColumns.get(2));
+  List<String> sortedIndexColumns=indexingConfig.getSortedColumn();
+  Assert.assertEquals(3,sortedIndexColumns.size());
+  Assert.assertEquals("d",sortedIndexColumns.get(0));
+  Assert.assertEquals("e",sortedIndexColumns.get(1));
+  Assert.assertEquals("f",sortedIndexColumns.get(2));
+}
