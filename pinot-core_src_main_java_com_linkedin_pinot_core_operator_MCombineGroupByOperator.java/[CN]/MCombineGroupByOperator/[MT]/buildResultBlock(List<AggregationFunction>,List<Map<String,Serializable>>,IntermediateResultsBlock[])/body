@@ -1,5 +1,5 @@
 {
-  IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(aggregationFunctions,mergedResults,true);
+  IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(aggregationFunctions,trimmedResults,true);
   List<ProcessingException> exceptions=null;
   long numDocsScanned=0;
   long totalRawDocs=0;
@@ -19,6 +19,5 @@
   resultBlock.setNumDocsScanned(numDocsScanned);
   resultBlock.setTotalRawDocs(totalRawDocs);
   resultBlock.setExceptionsList(exceptions);
-  trimToSize(_brokerRequest,resultBlock);
   return resultBlock;
 }

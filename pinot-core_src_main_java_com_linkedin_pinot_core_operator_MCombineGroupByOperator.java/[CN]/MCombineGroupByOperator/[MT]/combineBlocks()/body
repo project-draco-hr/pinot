@@ -44,6 +44,7 @@ synchronized (LOCKS[lockIndex]) {
 );
   }
   operatorLatch.await(_timeOutMs,TimeUnit.SECONDS);
-  List<Map<String,Serializable>> untrimmedResults=buildMergedResults(resultsMap,numAggrFunctions);
-  return buildResultBlock(aggregationFunctions,untrimmedResults,blocks);
+  AggregationGroupByOperatorService aggregationGroupByOperatorService=new AggregationGroupByOperatorService(_brokerRequest.getAggregationsInfo(),_brokerRequest.getGroupBy());
+  List<Map<String,Serializable>> trimmedResults=aggregationGroupByOperatorService.trimToSize(resultsMap,numAggrFunctions);
+  return buildResultBlock(aggregationFunctions,trimmedResults,blocks);
 }

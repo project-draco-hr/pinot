@@ -1,0 +1,14 @@
+{
+  Preconditions.checkNotNull(aggrGroupByResults);
+  List<Map<String,Serializable>> trimmedResults=new ArrayList<>(numAggrFunctions);
+  for (int i=0; i < numAggrFunctions; i++) {
+    trimmedResults.add(new HashMap<String,Serializable>());
+  }
+  if (aggrGroupByResults.size() > _trimThreshold) {
+    trimToSize(_aggregationFunctionList,aggrGroupByResults,trimmedResults,numAggrFunctions,_trimSize);
+  }
+ else {
+    convertGroupByResultsFromMapToList(aggrGroupByResults,trimmedResults,numAggrFunctions);
+  }
+  return trimmedResults;
+}
