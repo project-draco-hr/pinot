@@ -26,7 +26,7 @@
  else   if (testType == TestType.EMAIL) {
     final TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);
     final EmailConfigurationDAO emailConfigurationDAO=new EmailConfigurationDAO(hibernate.getSessionFactory());
-    final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernate.getSessionFactory(),new AtomicInteger(-1),timeOnTimeComparisonHandler);
+    final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernate.getSessionFactory(),new AtomicInteger(-1),timeOnTimeComparisonHandler,config.getDashboardHost());
     emailReportJobManager.runAdhocFile(filePath);
   }
  else {

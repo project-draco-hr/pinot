@@ -75,7 +75,7 @@
   if (dropwizardConfigPort > 0) {
     applicationPort.set(dropwizardConfigPort);
   }
-  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),applicationPort,timeOnTimeComparisonHandler);
+  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),applicationPort,timeOnTimeComparisonHandler,config.getDashboardHost());
   environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener(){
     @Override public void serverStarted(    Server server){
       LOG.info("{} server connectors found",server.getConnectors().length);

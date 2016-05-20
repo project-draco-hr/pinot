@@ -1,6 +1,6 @@
 {
   ArrayListMultimap<String,String> multimap=ArrayListMultimap.create();
-  if (filterJson == null) {
+  if (json == null) {
     return multimap;
   }
   try {
@@ -8,7 +8,7 @@
     }
 ;
     Map<String,ArrayList<String>> map;
-    map=OBJECT_MAPPER.readValue(filterJson,valueTypeRef);
+    map=OBJECT_MAPPER.readValue(json,valueTypeRef);
     for (    Map.Entry<String,ArrayList<String>> entry : map.entrySet()) {
       ArrayList<String> valueList=entry.getValue();
       ArrayList<String> trimmedList=new ArrayList<>();
@@ -20,7 +20,7 @@
     return multimap;
   }
  catch (  IOException e) {
-    LOG.error("Error parsing filter json:{} message:{}",filterJson,e.getMessage());
+    LOG.error("Error parsing json:{} message:{}",json,e.getMessage());
   }
   return multimap;
 }

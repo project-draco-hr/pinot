@@ -1,0 +1,17 @@
+{
+  Set<String> filterKeySet=filterMultiMap.keySet();
+  ArrayList<String> filterKeyList=new ArrayList<String>(filterKeySet);
+  Collections.sort(filterKeyList);
+  StringBuilder sb=new StringBuilder();
+  for (  String filterKey : filterKeyList) {
+    ArrayList<String> values=new ArrayList<String>(filterMultiMap.get(filterKey));
+    Collections.sort(values);
+    for (    String value : values) {
+      sb.append(filterKey);
+      sb.append(FILTER_VALUE_ASSIGNMENT_SEPARATOR);
+      sb.append(value);
+      sb.append(FILTER_CLAUSE_SEPARATOR);
+    }
+  }
+  return StringUtils.chop(sb.toString());
+}
