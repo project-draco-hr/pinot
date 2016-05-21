@@ -25,6 +25,8 @@
       return false;
     }
   }
+  Set<String> metricColumnSet=new HashSet<String>();
+  metricColumnSet.addAll(segmentMetadata.getSchema().getMetricNames());
   if (filterTree != null && filterTree.getChildren() != null && !filterTree.getChildren().isEmpty()) {
     if (filterTree.getOperator() != FilterOperator.AND) {
       return false;
@@ -41,12 +43,18 @@
       if ((skipMaterializationSet != null) && skipMaterializationSet.contains(column)) {
         return false;
       }
-      predicateColumns.add(child.getColumn());
+      if (metricColumnSet.contains(column)) {
+        return false;
+      }
+      predicateColumns.add(column);
     }
   }
  else   if (filterTree != null) {
     String rootColumn=filterTree.getColumn();
     if (skipMaterializationSet != null && skipMaterializationSet.contains(rootColumn)) {
+      return false;
+    }
+    if (metricColumnSet.contains(rootColumn)) {
       return false;
     }
   }
