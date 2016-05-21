@@ -1,0 +1,10 @@
+{
+  this.request=request;
+  this.dataTimeSpec=dataTimeSpec;
+  this.metricFunctions=request.getMetricFunctions();
+  this.groupKeyColumns=new ArrayList<>();
+  if (request.getGroupByTimeGranularity() != null) {
+    groupKeyColumns.add(dataTimeSpec.getColumnName());
+  }
+  groupKeyColumns.addAll(request.getGroupBy());
+}

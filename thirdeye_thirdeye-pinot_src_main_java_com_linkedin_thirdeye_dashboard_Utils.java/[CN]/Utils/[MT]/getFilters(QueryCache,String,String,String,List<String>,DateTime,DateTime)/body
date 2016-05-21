@@ -1,9 +1,9 @@
 {
   MetricFunction metricFunction=new MetricFunction("COUNT","*");
   List<ThirdEyeRequest> requests=generateRequests(collection,requestReference,metricFunction,dimensions,start,end);
-  Map<ThirdEyeRequest,Future<ThirdEyeResponse>> queryResultMap=queryCache.getQueryResultsAsync(requests);
+  Map<ThirdEyeRequest,Future<PinotThirdEyeResponse>> queryResultMap=queryCache.getQueryResultsAsync(requests);
   Map<String,List<String>> result=new HashMap<>();
-  for (  Map.Entry<ThirdEyeRequest,Future<ThirdEyeResponse>> entry : queryResultMap.entrySet()) {
+  for (  Map.Entry<ThirdEyeRequest,Future<PinotThirdEyeResponse>> entry : queryResultMap.entrySet()) {
     ThirdEyeRequest request=entry.getKey();
     String dimension=request.getGroupBy().get(0);
     ThirdEyeResponse thirdEyeResponse=entry.getValue().get();

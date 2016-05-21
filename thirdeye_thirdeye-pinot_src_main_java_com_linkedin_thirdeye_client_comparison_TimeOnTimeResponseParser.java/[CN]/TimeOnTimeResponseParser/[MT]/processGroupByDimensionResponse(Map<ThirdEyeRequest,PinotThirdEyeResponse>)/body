@@ -1,0 +1,15 @@
+{
+  Map<MetricFunction,Map<String,Map<String,Map<String,Double>>>> metricGroupByDimensionData=new HashMap<>();
+  for (  Entry<ThirdEyeRequest,PinotThirdEyeResponse> entry : queryResultMap.entrySet()) {
+    ThirdEyeRequest thirdEyeRequest=entry.getKey();
+    ThirdEyeResponse thirdEyeResponse=entry.getValue();
+    String requestReference=thirdEyeRequest.getRequestReference();
+    if (requestReference.startsWith(DIMENSION_BASELINE)) {
+      parseMetricGroupByDimensionResponse(metricGroupByDimensionData,thirdEyeRequest,thirdEyeResponse,BASELINE_VALUE);
+    }
+    if (requestReference.startsWith(DIMENSION_CURRENT)) {
+      parseMetricGroupByDimensionResponse(metricGroupByDimensionData,thirdEyeRequest,thirdEyeResponse,CURRENT_VALUE);
+    }
+  }
+  return metricGroupByDimensionData;
+}

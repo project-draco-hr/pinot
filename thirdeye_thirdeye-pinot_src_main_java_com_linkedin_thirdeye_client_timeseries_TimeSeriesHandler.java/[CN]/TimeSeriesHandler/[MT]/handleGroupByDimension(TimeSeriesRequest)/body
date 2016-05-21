@@ -1,6 +1,6 @@
 {
   List<ThirdEyeRequest> requests=requestGenerator.generateRequestsForGroupByDimensions(timeSeriesRequest);
-  Map<ThirdEyeRequest,ThirdEyeResponse> queryResultMap=queryCache.getQueryResultsAsyncAndWait(requests,DEFAULT_QUERY_TIMEOUT);
+  Map<ThirdEyeRequest,PinotThirdEyeResponse> queryResultMap=queryCache.getQueryResultsAsyncAndWait(requests,DEFAULT_QUERY_TIMEOUT);
   List<TimeSeriesRow> rows=responseParser.parseGroupByDimensionResponse(timeSeriesRequest,queryResultMap);
   return rows;
 }

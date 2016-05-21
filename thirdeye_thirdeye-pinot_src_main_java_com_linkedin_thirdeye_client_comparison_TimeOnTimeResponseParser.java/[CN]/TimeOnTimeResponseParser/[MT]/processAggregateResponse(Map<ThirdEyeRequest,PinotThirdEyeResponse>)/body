@@ -1,0 +1,15 @@
+{
+  Map<MetricFunction,Map<String,Double>> metricOnlyData=new HashMap<>();
+  for (  Entry<ThirdEyeRequest,PinotThirdEyeResponse> entry : queryResultMap.entrySet()) {
+    ThirdEyeRequest thirdEyeRequest=entry.getKey();
+    ThirdEyeResponse thirdEyeResponse=entry.getValue();
+    String requestReference=thirdEyeRequest.getRequestReference();
+    if (ALL_BASELINE.equals(requestReference)) {
+      parseMetricOnlyResponse(metricOnlyData,thirdEyeResponse,BASELINE_VALUE);
+    }
+    if (ALL_CURRENT.equals(requestReference)) {
+      parseMetricOnlyResponse(metricOnlyData,thirdEyeResponse,CURRENT_VALUE);
+    }
+  }
+  return metricOnlyData;
+}

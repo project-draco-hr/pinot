@@ -2,7 +2,7 @@
   List<String> groupByDimensions=timeSeriesRequest.getGroupByDimensions();
   boolean hasGroupByDimensions=CollectionUtils.isNotEmpty(groupByDimensions);
   List<Range<DateTime>> timeRanges=timeSeriesRequest.getTimeRanges();
-  Map<TimeSeriesRequest,Map<ThirdEyeRequest,Future<ThirdEyeResponse>>> subRequestQueryResponseMap=new HashMap<>();
+  Map<TimeSeriesRequest,Map<ThirdEyeRequest,Future<PinotThirdEyeResponse>>> subRequestQueryResponseMap=new HashMap<>();
   for (  Range<DateTime> range : timeRanges) {
     TimeSeriesRequest subTimeSeriesRequest=new TimeSeriesRequest(timeSeriesRequest);
     subTimeSeriesRequest.setStart(range.lowerEndpoint());
@@ -14,13 +14,13 @@
  else {
       subRequests=Collections.singletonList(requestGenerator.generateRequestsForAggregation(subTimeSeriesRequest));
     }
-    Map<ThirdEyeRequest,Future<ThirdEyeResponse>> queryResponseFutureMap=queryCache.getQueryResultsAsync(subRequests);
+    Map<ThirdEyeRequest,Future<PinotThirdEyeResponse>> queryResponseFutureMap=queryCache.getQueryResultsAsync(subRequests);
     subRequestQueryResponseMap.put(subTimeSeriesRequest,queryResponseFutureMap);
   }
   List<TimeSeriesRow> rows=new ArrayList<>();
-  for (  Entry<TimeSeriesRequest,Map<ThirdEyeRequest,Future<ThirdEyeResponse>>> entry : subRequestQueryResponseMap.entrySet()) {
+  for (  Entry<TimeSeriesRequest,Map<ThirdEyeRequest,Future<PinotThirdEyeResponse>>> entry : subRequestQueryResponseMap.entrySet()) {
     TimeSeriesRequest subTimeSeriesRequest=entry.getKey();
-    Map<ThirdEyeRequest,ThirdEyeResponse> queryResponseMap=waitForFutures(entry.getValue());
+    Map<ThirdEyeRequest,PinotThirdEyeResponse> queryResponseMap=waitForFutures(entry.getValue());
     if (hasGroupByDimensions) {
       rows.addAll(responseParser.parseGroupByDimensionResponse(subTimeSeriesRequest,queryResponseMap));
     }

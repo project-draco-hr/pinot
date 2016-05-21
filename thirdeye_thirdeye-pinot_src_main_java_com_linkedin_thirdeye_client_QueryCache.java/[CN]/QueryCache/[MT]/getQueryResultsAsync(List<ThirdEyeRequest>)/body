@@ -1,8 +1,8 @@
 {
-  Map<ThirdEyeRequest,Future<ThirdEyeResponse>> responseFuturesMap=new LinkedHashMap<>();
+  Map<ThirdEyeRequest,Future<PinotThirdEyeResponse>> responseFuturesMap=new LinkedHashMap<>();
   for (  final ThirdEyeRequest request : requests) {
-    Future<ThirdEyeResponse> responseFuture=executorService.submit(new Callable<ThirdEyeResponse>(){
-      @Override public ThirdEyeResponse call() throws Exception {
+    Future<PinotThirdEyeResponse> responseFuture=executorService.submit(new Callable<PinotThirdEyeResponse>(){
+      @Override public PinotThirdEyeResponse call() throws Exception {
         return getQueryResult(request);
       }
     }
