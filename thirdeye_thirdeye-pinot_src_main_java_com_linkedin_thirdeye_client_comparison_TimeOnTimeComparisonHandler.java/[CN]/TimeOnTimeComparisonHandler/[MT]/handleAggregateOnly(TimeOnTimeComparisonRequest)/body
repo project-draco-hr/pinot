@@ -1,6 +1,6 @@
 {
   List<ThirdEyeRequest> requests=ThirdEyeRequestGenerator.generateRequestsForAggregation(comparisonRequest);
-  Map<ThirdEyeRequest,PinotThirdEyeResponse> queryResultMap=queryCache.getQueryResultsAsyncAndWait(requests);
+  Map<ThirdEyeRequest,ThirdEyeResponse> queryResultMap=queryCache.getQueryResultsAsyncAndWait(requests);
   Row row=TimeOnTimeResponseParser.parseAggregationOnlyResponse(comparisonRequest,queryResultMap);
   return row;
 }

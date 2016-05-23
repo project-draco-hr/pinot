@@ -1,5 +1,5 @@
 {
   List<ThirdEyeRequest> requests=ThirdEyeRequestGenerator.generateRequestsForGroupByDimensions(comparisonRequest);
-  Map<ThirdEyeRequest,PinotThirdEyeResponse> queryResultMap=queryCache.getQueryResultsAsyncAndWait(requests);
+  Map<ThirdEyeRequest,ThirdEyeResponse> queryResultMap=queryCache.getQueryResultsAsyncAndWait(requests);
   return TimeOnTimeResponseParser.parseGroupByDimensionResponse(comparisonRequest,queryResultMap);
 }
