@@ -1,5 +1,5 @@
 {
-  ThirdeyeCacheRegistry cacheRegistry=ThirdeyeCacheRegistry.getInstance();
+  ThirdEyeCacheRegistry cacheRegistry=ThirdEyeCacheRegistry.getInstance();
   LoadingCache<PinotQuery,ResultSetGroup> resultSetGroupCache=CacheBuilder.newBuilder().expireAfterAccess(1,TimeUnit.HOURS).build(new ResultSetGroupCacheLoader(pinotThirdeyeClientConfig));
   cacheRegistry.registerResultSetGroupCache(resultSetGroupCache);
   LoadingCache<String,Schema> schemaCache=CacheBuilder.newBuilder().build(new SchemaCacheLoader(pinotThirdeyeClientConfig));
