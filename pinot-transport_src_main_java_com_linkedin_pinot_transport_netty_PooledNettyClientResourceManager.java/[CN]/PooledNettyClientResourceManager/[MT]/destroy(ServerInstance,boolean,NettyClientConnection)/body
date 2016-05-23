@@ -1,12 +1,12 @@
 {
-  LOGGER.info("Destroying client connection to server :" + key + " isBad:"+ isBad);
+  LOGGER.info("Destroying client connection {}, isBad: {}",resource,isBad);
   boolean closed=false;
   try {
     resource.close();
     closed=true;
   }
  catch (  InterruptedException e) {
-    LOGGER.error("Got interrupted exception when closing resource",e);
+    LOGGER.error("Got interrupted exception when closing resource {}",resource,e);
   }
   return closed;
 }

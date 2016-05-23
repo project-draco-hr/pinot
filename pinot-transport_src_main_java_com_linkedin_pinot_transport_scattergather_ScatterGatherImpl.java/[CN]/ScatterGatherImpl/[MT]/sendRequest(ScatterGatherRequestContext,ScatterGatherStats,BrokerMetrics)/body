@@ -29,7 +29,7 @@
     LOGGER.error("Request (" + ctxt.getRequest().getRequestId() + ") not sent completely within time ("+ timeRemaining+ " ms) !! Cancelling !!. NumSentFailed:"+ requestDispatchLatch.getCount());
     response.start(null);
     for (    SingleRequestHandler h : handlers) {
-      LOGGER.info("Request to {} was sent successfully:{}",h.getServer(),h.isSent());
+      LOGGER.info("Request to {} was sent successfully:{}, cancelling.",h.getServer(),h.isSent());
       h.cancel();
     }
   }

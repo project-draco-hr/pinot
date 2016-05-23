@@ -1,9 +1,10 @@
 {
   if (isSelfClose()) {
-    LOGGER.info("Got notified on self-close to {}",_server);
+    LOGGER.info("Got notified on self-close to {} connId {}",_server,getConnId());
   }
- else {
-    LOGGER.error("Destroying connection {} due to error",_server,arg0);
+  if (!_destroyed) {
+    LOGGER.error("Destroying connection {} due to error connId {}",_server,getConnId(),arg0);
+    _pool.destroyObject(getServer(),this);
+    _destroyed=true;
   }
-  _pool.destroyObject(getServer(),this);
 }

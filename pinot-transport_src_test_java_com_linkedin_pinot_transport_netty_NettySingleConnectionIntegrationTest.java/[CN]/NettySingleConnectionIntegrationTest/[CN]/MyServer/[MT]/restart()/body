@@ -1,0 +1,8 @@
+{
+  _handler=new MyRequestHandler(_responseStr,null);
+  MyRequestHandlerFactory handlerFactory=new MyRequestHandlerFactory(_handler);
+  _serverConn=new NettyTCPServer(_port,handlerFactory,null);
+  Thread serverThread=new Thread(_serverConn,"ServerMain");
+  serverThread.start();
+  _hasShutDown=false;
+}

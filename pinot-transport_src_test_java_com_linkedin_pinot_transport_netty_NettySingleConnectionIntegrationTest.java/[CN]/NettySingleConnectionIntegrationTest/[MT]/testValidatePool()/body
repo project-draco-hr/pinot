@@ -41,7 +41,7 @@
     Assert.assertEquals(2,stats.getPoolSize());
     Assert.assertEquals(0,stats.getTotalBadDestroyed());
     Assert.assertEquals(1,stats.getCheckedOut());
-    server.getServerConn().shutdownGracefully();
+    server.shutdown();
     serverShutdown=true;
     ;
     Thread.sleep(2000);
@@ -54,9 +54,7 @@
     Assert.assertEquals(1,stats.getCheckedOut());
   }
   finally {
-    if (!serverShutdown) {
-      server.getServerConn().shutdownGracefully();
-    }
+    server.shutdown();
     pool.shutdown(callback);
     executorService.shutdown();
     timeoutExecutor.shutdown();

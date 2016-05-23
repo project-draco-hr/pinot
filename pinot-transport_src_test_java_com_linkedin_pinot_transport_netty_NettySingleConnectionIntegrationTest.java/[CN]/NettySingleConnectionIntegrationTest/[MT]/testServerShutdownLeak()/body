@@ -1,0 +1,78 @@
+{
+  final NettyClientMetrics metric=new NettyClientMetrics(null,"abc");
+  final Timer timer=new HashedWheelTimer();
+  final int minConns=2;
+  final int maxConns=3;
+  final int maxIdleTimeoutMs=10000000;
+  final int maxBacklogPerServer=1;
+  MyServer server=new MyServer();
+  Thread.sleep(1000);
+  final String serverName="SomeServer";
+  final ServerInstance serverInstance=server.getServerInstance();
+  final MetricsRegistry metricsRegistry=new MetricsRegistry();
+  EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
+  PooledNettyClientResourceManager resourceManager=new PooledNettyClientResourceManager(eventLoopGroup,new HashedWheelTimer(),metric);
+  ExecutorService executorService=Executors.newCachedThreadPool();
+  ScheduledExecutorService timeoutExecutor=new ScheduledThreadPoolExecutor(5);
+  AsyncPoolResourceManagerAdapter<ServerInstance,NettyClientConnection> rmAdapter=new AsyncPoolResourceManagerAdapter<ServerInstance,NettyClientConnection>(serverInstance,resourceManager,executorService,metricsRegistry);
+  KeyedPool<ServerInstance,NettyClientConnection> keyedPool=new KeyedPoolImpl<ServerInstance,NettyClientConnection>(minConns,maxConns,maxIdleTimeoutMs,maxBacklogPerServer,resourceManager,timeoutExecutor,executorService,metricsRegistry);
+  resourceManager.setPool(keyedPool);
+  keyedPool.start();
+  Field keyedPoolMap=KeyedPoolImpl.class.getDeclaredField("_keyedPool");
+  keyedPoolMap.setAccessible(true);
+  KeyedFuture<ServerInstance,NettyClientConnection> keyedFuture=keyedPool.checkoutObject(serverInstance);
+  Map<ServerInstance,AsyncPool<NettyClientConnection>> poolMap=(Map<ServerInstance,AsyncPool<NettyClientConnection>>)keyedPoolMap.get(keyedPool);
+  AsyncPool<NettyClientConnection> asyncPool=poolMap.get(serverInstance);
+  Field waiterList=AsyncPoolImpl.class.getDeclaredField("_waiters");
+  waiterList.setAccessible(true);
+  LinkedDequeue queue=(LinkedDequeue)waiterList.get(asyncPool);
+  PoolStats stats;
+  Thread.sleep(2000L);
+  stats=asyncPool.getStats();
+  Assert.assertEquals(stats.getIdleCount(),minConns);
+  Assert.assertEquals(stats.getPoolSize(),minConns + 1);
+  NettyClientConnection conn=keyedFuture.getOne();
+  LOGGER.debug("Got connection ID " + conn.getConnId());
+  Assert.assertEquals(stats.getIdleCount(),minConns);
+  Assert.assertEquals(stats.getPoolSize(),minConns + 1);
+  keyedFuture=keyedPool.checkoutObject(serverInstance);
+  conn=keyedFuture.getOne();
+  LOGGER.debug("Got connection ID " + conn.getConnId());
+  keyedFuture=keyedPool.checkoutObject(serverInstance);
+  conn=keyedFuture.getOne();
+  LOGGER.debug("Got connection ID " + conn.getConnId());
+  stats=asyncPool.getStats();
+  Assert.assertEquals(stats.getIdleCount(),0);
+  Assert.assertEquals(stats.getPoolSize(),minConns + 1);
+  Assert.assertEquals(queue.size(),0);
+{
+    keyedFuture=keyedPool.checkoutObject(serverInstance);
+    boolean caughtException=false;
+    LOGGER.debug("Will never get a connection here.");
+    try {
+      conn=keyedFuture.getOne(3,TimeUnit.SECONDS);
+    }
+ catch (    TimeoutException e) {
+      caughtException=true;
+    }
+    Assert.assertTrue(caughtException);
+    keyedFuture.cancel(true);
+  }
+  LOGGER.info("Shutting down server instance");
+  server.shutdown();
+  Thread.sleep(2000L);
+  stats=asyncPool.getStats();
+  LOGGER.debug(stats.toString());
+  Assert.assertEquals(stats.getIdleCount(),minConns);
+  Assert.assertEquals(stats.getPoolSize(),minConns);
+  LOGGER.debug("Restarting server instance");
+  server.restart();
+  Thread.sleep(3000);
+  LOGGER.debug("Server restart successful\n" + asyncPool.getStats());
+  for (int i=0; i < 3; i++) {
+    keyedFuture=keyedPool.checkoutObject(serverInstance);
+    conn=keyedFuture.getOne();
+    Assert.assertNotNull(conn);
+  }
+  server.shutdown();
+}

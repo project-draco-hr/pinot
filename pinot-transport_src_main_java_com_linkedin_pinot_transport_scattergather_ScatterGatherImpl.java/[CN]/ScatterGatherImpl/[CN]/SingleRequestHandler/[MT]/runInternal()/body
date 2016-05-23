@@ -5,24 +5,24 @@
     return;
   }
   NettyClientConnection conn=null;
+  KeyedFuture<ServerInstance,NettyClientConnection> keyedFuture=null;
   boolean gotConnection=false;
   boolean error=true;
   try {
-    KeyedFuture<ServerInstance,NettyClientConnection> c=_connPool.checkoutObject(_server);
+    keyedFuture=_connPool.checkoutObject(_server);
     byte[] serializedRequest=_request.getRequestForService(_server,_segmentIds);
     long timeRemaining=_timeoutMS - (System.currentTimeMillis() - _startTime);
     int ntries=0;
     while (true) {
       if (timeRemaining <= 0) {
-        c.cancel(true);
         throw new TimeoutException("Timed out trying to connect to " + _server + "(timeout="+ _timeoutMS+ "ms,ntries="+ ntries+ ")");
       }
-      conn=c.getOne(timeRemaining,TimeUnit.MILLISECONDS);
+      conn=keyedFuture.getOne(timeRemaining,TimeUnit.MILLISECONDS);
       if (conn != null && conn.validate()) {
         gotConnection=true;
         break;
       }
-      Map<ServerInstance,Throwable> errorMap=c.getError();
+      Map<ServerInstance,Throwable> errorMap=keyedFuture.getError();
       String errStr="";
       if (errorMap != null && errorMap.containsKey(_server)) {
         errStr=errorMap.get(_server).getMessage();
@@ -34,7 +34,7 @@
       if (++ntries == MAX_CONN_RETRIES - 1) {
         throw new RuntimeException("Could not connect to " + _server + " after "+ ntries+ "attempts(timeRemaining="+ timeRemaining+ "ms)");
       }
-      c=_connPool.checkoutObject(_server);
+      keyedFuture=_connPool.checkoutObject(_server);
       timeRemaining=_timeoutMS - (System.currentTimeMillis() - _startTime);
     }
     ByteBuf req=Unpooled.wrappedBuffer(serializedRequest);
@@ -59,6 +59,9 @@ catch (  Exception e) {
         _brokerMetrics.addMeteredQueryValue(brokerRequest,BrokerMeter.REQUEST_DROPPED_DUE_TO_SEND_ERROR,1);
       }
  else {
+        if (keyedFuture != null) {
+          keyedFuture.cancel(true);
+        }
         _brokerMetrics.addMeteredQueryValue(brokerRequest,BrokerMeter.REQUEST_DROPPED_DUE_TO_CONNECTION_ERROR,1);
       }
     }

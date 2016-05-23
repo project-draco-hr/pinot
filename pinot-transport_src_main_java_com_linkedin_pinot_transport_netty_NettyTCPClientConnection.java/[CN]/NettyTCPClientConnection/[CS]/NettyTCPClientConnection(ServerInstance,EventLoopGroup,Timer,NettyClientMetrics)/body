@@ -1,8 +1,7 @@
 {
-  super(server,eventGroup,timer);
+  super(server,eventGroup,timer,_connIdGen.incrementAndGet());
   _handler=new NettyClientConnectionHandler();
   _outstandingFuture=new AtomicReference<ResponseFuture>();
   _clientMetric=metric;
-  _connId=_connIdGen.incrementAndGet();
   init();
 }
