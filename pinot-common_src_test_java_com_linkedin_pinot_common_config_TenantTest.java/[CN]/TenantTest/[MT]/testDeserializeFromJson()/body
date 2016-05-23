@@ -1,0 +1,16 @@
+{
+  JSONObject json=new JSONObject();
+  json.put("tenantRole","SERVER");
+  json.put("tenantName","newTenant");
+  json.put("numberOfInstances",10);
+  json.put("offlineInstances",5);
+  json.put("realtimeInstances",5);
+  json.put("keyIDontKnow","blahblahblah");
+  ObjectMapper mapper=new ObjectMapper();
+  JsonNode jsonNode=mapper.readTree(json.toString());
+  Tenant tenant=mapper.readValue(jsonNode,Tenant.class);
+  Assert.assertEquals(5,tenant.getOfflineInstances());
+  Assert.assertEquals(10,tenant.getNumberOfInstances());
+  Assert.assertEquals("newTenant",tenant.getTenantName());
+  Assert.assertEquals(TenantRole.SERVER,tenant.getTenantRole());
+}
