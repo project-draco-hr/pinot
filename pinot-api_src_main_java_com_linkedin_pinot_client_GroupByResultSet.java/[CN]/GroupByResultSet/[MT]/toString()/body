@@ -1,0 +1,35 @@
+{
+  int groupKeyLength=getGroupKeyLength();
+  int numColumns=groupKeyLength + getColumnCount();
+  TextTable table=new TextTable();
+  String[] columnNames=new String[numColumns];
+  for (int c=0; c < groupKeyLength; c++) {
+    try {
+      columnNames[c]=getGroupKeyColumnName(c);
+    }
+ catch (    Exception e) {
+      columnNames[c]="ERROR";
+    }
+  }
+  for (int c=0; c < getColumnCount(); c++) {
+    columnNames[groupKeyLength + c]=getColumnName(c);
+  }
+  table.addHeader(columnNames);
+  int numRows=getRowCount();
+  for (int r=0; r < numRows; r++) {
+    String[] columnValues=new String[numColumns];
+    for (int c=0; c < groupKeyLength; c++) {
+      try {
+        columnValues[c]=getGroupKeyString(r,c);
+      }
+ catch (      Exception e) {
+        columnValues[c]="ERROR";
+      }
+    }
+    for (int c=0; c < getColumnCount(); c++) {
+      columnValues[groupKeyLength + c]=getString(r,c);
+    }
+    table.addRow(columnValues);
+  }
+  return table.toString();
+}

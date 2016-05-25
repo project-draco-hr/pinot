@@ -1,0 +1,17 @@
+{
+  StringBuilder buf=new StringBuilder();
+  int[] colWidths=colWidths();
+  if (headerColumnNames != null) {
+    append(buf,colWidths,headerColumnNames);
+    int totalWidth=0;
+    for (    int width : colWidths) {
+      totalWidth+=width;
+    }
+    buf.append(rightPad("",totalWidth,'='));
+    buf.append('\n');
+  }
+  for (  String[] row : rows) {
+    append(buf,colWidths,row);
+  }
+  return buf.toString();
+}

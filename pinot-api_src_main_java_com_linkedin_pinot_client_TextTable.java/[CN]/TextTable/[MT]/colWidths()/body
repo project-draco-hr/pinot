@@ -1,0 +1,17 @@
+{
+  int cols=0;
+  if (headerColumnNames != null) {
+    cols=headerColumnNames.length;
+  }
+  for (  String[] row : rows) {
+    cols=Math.max(cols,row.length);
+  }
+  int[] widths=new int[cols];
+  if (headerColumnNames != null) {
+    updateWidths(widths,headerColumnNames);
+  }
+  for (  String[] row : rows) {
+    updateWidths(widths,row);
+  }
+  return widths;
+}

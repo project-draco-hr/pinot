@@ -1,0 +1,18 @@
+{
+  int numColumns=getColumnCount();
+  TextTable table=new TextTable();
+  String[] columnNames=new String[numColumns];
+  for (int c=0; c < getColumnCount(); c++) {
+    columnNames[c]=getColumnName(c);
+  }
+  table.addHeader(columnNames);
+  int numRows=getRowCount();
+  for (int r=0; r < numRows; r++) {
+    String[] columnValues=new String[numColumns];
+    for (int c=0; c < getColumnCount(); c++) {
+      columnValues[c]=getString(r,c);
+    }
+    table.addRow(columnValues);
+  }
+  return table.toString();
+}
