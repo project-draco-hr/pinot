@@ -7,7 +7,9 @@
   Arrays.sort(inputStrings);
   try {
     SegmentDictionaryCreator dictionaryCreator=new SegmentDictionaryCreator(false,inputStrings,fieldSpec,indexDir);
-    dictionaryCreator.build();
+    boolean[] isSorted=new boolean[1];
+    isSorted[0]=true;
+    dictionaryCreator.build(isSorted);
     int targetPaddedLength=dictionaryCreator.getStringColumnMaxLength();
     Assert.assertTrue(targetPaddedLength == 4);
     for (int i=0; i < inputStrings.length; i++) {
