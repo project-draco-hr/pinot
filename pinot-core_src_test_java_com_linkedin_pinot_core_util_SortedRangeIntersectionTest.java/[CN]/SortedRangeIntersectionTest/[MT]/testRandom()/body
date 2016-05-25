@@ -2,32 +2,30 @@
   int totalDocs=1000000;
   int maxRange=10000;
   int minRange=1000;
-  Random r=new Random();
+  long randomSeed=System.currentTimeMillis();
+  Random r=new Random(randomSeed);
   int numLists=3;
-  List<List<IntPair>> sortedRangeSetList=new ArrayList<>();
+  List<List<IntPair>> sortedRangePairsList=new ArrayList<>();
   List<Set<Integer>> rawIdSetList=new ArrayList<>();
   for (int i=0; i < numLists; i++) {
     List<IntPair> pairs=new ArrayList<>();
     Set<Integer> rawIdSet=new HashSet<>();
     int docId=0;
-    do {
+    while (docId < totalDocs) {
       int start=docId + r.nextInt(maxRange);
-      int end=start + minRange + r.nextInt(maxRange);
+      int end=start + Math.max(minRange,r.nextInt(maxRange));
       if (end < totalDocs) {
         pairs.add(Pairs.intPair(start,end));
         for (int id=start; id <= end; id++) {
           rawIdSet.add(id);
         }
       }
-      docId=end;
+      docId=end + 1;
     }
- while (docId < totalDocs);
-    System.out.println(i + " List:" + pairs);
-    sortedRangeSetList.add(pairs);
+    sortedRangePairsList.add(pairs);
     rawIdSetList.add(rawIdSet);
   }
-  List<Integer> expected=new ArrayList<Integer>();
-  List<IntPair> expectedPairs=new ArrayList<>();
+  List<IntPair> expected=new ArrayList<>();
   int tempStart=-1;
   for (int id=0; id < totalDocs; id++) {
     boolean foundInAll=true;
@@ -41,25 +39,21 @@
       if (tempStart == -1) {
         tempStart=id;
       }
-      expected.add(id);
     }
  else {
       if (tempStart != -1) {
-        expectedPairs.add(Pairs.intPair(tempStart,id));
+        expected.add(Pairs.intPair(tempStart,id - 1));
         tempStart=-1;
       }
     }
   }
-  List<IntPair> resultPairs=SortedRangeIntersection.intersectSortedRangeSets(sortedRangeSetList);
-  System.out.println("Expected Pairs :" + expectedPairs);
-  System.out.println("Result Pairs size:" + resultPairs.size());
-  System.out.println("Result Pairs:" + resultPairs);
-  List<Integer> actual=new ArrayList<Integer>();
-  for (  IntPair pair : resultPairs) {
-    for (int id=pair.getLeft(); id <= pair.getRight(); id++) {
-      actual.add(id);
-    }
+  List<IntPair> actual=SortedRangeIntersection.intersectSortedRangeSets(sortedRangePairsList);
+  if (!actual.equals(expected)) {
+    LOGGER.error("Actual pairs not equal to expected pairs.");
+    LOGGER.error("Actual pairs: {}",actual);
+    LOGGER.error("Expected pairs: {}",expected);
+    LOGGER.error("Random seed: {}",randomSeed);
+    LOGGER.error("Sorted range pairs list: {}",sortedRangePairsList);
+    Assert.fail();
   }
-  Assert.assertEquals(actual.size(),expected.size());
-  Assert.assertEquals(actual,expected);
 }
