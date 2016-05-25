@@ -5,9 +5,15 @@
     Transaction transaction=session.beginTransaction();
     try {
       for (      AnomalyResult result : results) {
-        result.setFunctionId(anomalyFunction.getSpec().getId());
-        result.setFunctionType(anomalyFunction.getSpec().getType());
-        result.setFunctionProperties(anomalyFunction.getSpec().getProperties());
+        AnomalyFunctionSpec spec=anomalyFunction.getSpec();
+        result.setFunctionId(spec.getId());
+        result.setFunctionType(spec.getType());
+        result.setFunctionProperties(spec.getProperties());
+        result.setCollection(spec.getCollection());
+        result.setMetric(spec.getMetric());
+        result.setFilters(spec.getFilters());
+        result.setScore(normalize(result.getScore()));
+        result.setWeight(normalize(result.getWeight()));
         resultDAO.create(result);
       }
       transaction.commit();

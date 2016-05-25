@@ -1,7 +1,13 @@
 {
   Map<K,V> responseMap=new LinkedHashMap<>();
   for (  Entry<K,Future<V>> entry : futuresMap.entrySet()) {
-    responseMap.put(entry.getKey(),entry.getValue().get(DEFAULT_QUERY_TIMEOUT,TimeUnit.SECONDS));
+    try {
+      responseMap.put(entry.getKey(),entry.getValue().get(DEFAULT_QUERY_TIMEOUT,TimeUnit.SECONDS));
+    }
+ catch (    TimeoutException e) {
+      LOG.error("Unable to get future for key {}: {}",entry.getKey(),e);
+      throw new TimeoutException(e.getMessage());
+    }
   }
   return responseMap;
 }
