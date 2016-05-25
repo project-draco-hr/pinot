@@ -1,0 +1,30 @@
+{
+  File dir=new File("output");
+  if (!dir.exists()) {
+    dir.mkdirs();
+  }
+  Map<String,BufferedWriter> map=new HashMap<>();
+  try (BufferedReader reader=new BufferedReader(new FileReader("input/lineitem.tbl"))){
+    String line;
+    while ((line=reader.readLine()) != null) {
+      String year=line.split("\\|")[10].substring(0,4);
+      BufferedWriter writer=map.get(year);
+      if (writer == null) {
+        writer=new BufferedWriter(new FileWriter("output/" + year + ".csv"));
+        map.put(year,writer);
+      }
+      writer.write(line);
+      writer.newLine();
+    }
+    for (    String month : map.keySet()) {
+      map.get(month).close();
+    }
+  }
+  finally {
+    for (    BufferedWriter writer : map.values()) {
+      if (writer != null) {
+        writer.close();
+      }
+    }
+  }
+}

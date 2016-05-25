@@ -1,0 +1,21 @@
+{
+  if (res.getStatusLine().getStatusCode() != 200) {
+    return false;
+  }
+  String response="";
+  int length;
+  try (BufferedInputStream in=new BufferedInputStream(res.getEntity().getContent())){
+    while ((length=in.read(BUFFER)) > 0) {
+      response+=new String(BUFFER,0,length,"UTF-8");
+    }
+  }
+   if (response.contains("\"numDocsScanned\":0")) {
+    return false;
+  }
+  if (path != null) {
+    try (BufferedWriter writer=new BufferedWriter(new FileWriter(path,false))){
+      writer.write(response);
+    }
+   }
+  return true;
+}

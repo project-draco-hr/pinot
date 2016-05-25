@@ -1,0 +1,76 @@
+{
+  try (CloseableHttpClient client=HttpClients.createDefault()){
+    HttpPost post=new HttpPost("http://localhost:8082/druid/v2/?pretty");
+    post.addHeader("content-type","application/json");
+    CloseableHttpResponse res;
+    if (STORE_RESULT) {
+      File dir=new File(RESULT_DIR);
+      if (!dir.exists()) {
+        dir.mkdirs();
+      }
+    }
+    int length;
+    System.out.println("Test if number of records is " + RECORD_NUMBER);
+    post.setEntity(new StringEntity("{" + "\"queryType\":\"timeseries\"," + "\"dataSource\":\"tpch_lineitem\","+ "\"intervals\":[\"1992-01-01/1999-01-01\"],"+ "\"granularity\":\"all\","+ "\"aggregations\":[{\"type\":\"count\",\"name\":\"count\"}]}"));
+    while (true) {
+      System.out.print('*');
+      res=client.execute(post);
+      boolean valid;
+      try (BufferedInputStream in=new BufferedInputStream(res.getEntity().getContent())){
+        length=in.read(BYTE_BUFFER);
+        valid=new String(BYTE_BUFFER,0,length,"UTF-8").contains("\"count\" : 6001215");
+      }
+       res.close();
+      if (valid) {
+        break;
+      }
+ else {
+        Thread.sleep(5000);
+      }
+    }
+    System.out.println("Number of Records Test Passed");
+    for (int i=0; i < QUERIES.length; i++) {
+      System.out.println("--------------------------------------------------------------------------------");
+      System.out.println("Start running query: " + QUERIES[i]);
+      try (BufferedReader reader=new BufferedReader(new FileReader(QUERY_FILE_DIR + File.separator + i+ ".json"))){
+        length=reader.read(CHAR_BUFFER);
+        post.setEntity(new StringEntity(new String(CHAR_BUFFER,0,length)));
+      }
+       System.out.println("Run " + WARMUP_ROUND + " times to warm up cache...");
+      for (int j=0; j < WARMUP_ROUND; j++) {
+        res=client.execute(post);
+        res.close();
+        System.out.print('*');
+      }
+      System.out.println();
+      int[] time=new int[TEST_ROUND];
+      int totalTime=0;
+      System.out.println("Run " + TEST_ROUND + " times to get average time...");
+      for (int j=0; j < TEST_ROUND; j++) {
+        long startTime=System.currentTimeMillis();
+        res=client.execute(post);
+        long endTime=System.currentTimeMillis();
+        if (STORE_RESULT && j == 0) {
+          try (BufferedInputStream in=new BufferedInputStream(res.getEntity().getContent());BufferedWriter writer=new BufferedWriter(new FileWriter(RESULT_DIR + File.separator + i+ ".json",false))){
+            while ((length=in.read(BYTE_BUFFER)) > 0) {
+              writer.write(new String(BYTE_BUFFER,0,length,"UTF-8"));
+            }
+          }
+         }
+        res.close();
+        time[j]=(int)(endTime - startTime);
+        totalTime+=time[j];
+        System.out.print(time[j] + "ms ");
+      }
+      System.out.println();
+      double avgTime=(double)totalTime / TEST_ROUND;
+      double stdDev=0;
+      for (      int temp : time) {
+        stdDev+=(temp - avgTime) * (temp - avgTime) / TEST_ROUND;
+      }
+      stdDev=Math.sqrt(stdDev);
+      System.out.println("The average response time for the query is: " + avgTime + "ms");
+      System.out.println("The standard deviation is: " + stdDev);
+    }
+  }
+ }

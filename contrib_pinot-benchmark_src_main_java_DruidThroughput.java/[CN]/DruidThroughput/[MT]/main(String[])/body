@@ -1,0 +1,41 @@
+{
+  final int numQueries=QUERIES.length;
+  final Random random=new Random(RANDOM_SEED);
+  final AtomicInteger counter=new AtomicInteger(0);
+  final AtomicLong totalResponseTime=new AtomicLong(0L);
+  final ExecutorService executorService=Executors.newFixedThreadPool(NUM_CLIENTS);
+  for (int i=0; i < NUM_CLIENTS; i++) {
+    executorService.submit(new Runnable(){
+      @Override public void run(){
+        try (CloseableHttpClient client=HttpClients.createDefault()){
+          HttpPost post=new HttpPost("http://localhost:8082/druid/v2/?pretty");
+          post.addHeader("content-type","application/json");
+          CloseableHttpResponse res;
+          while (true) {
+            try (BufferedReader reader=new BufferedReader(new FileReader(QUERY_FILE_DIR + File.separator + random.nextInt(numQueries)+ ".json"))){
+              int length=reader.read(BUFFER);
+              post.setEntity(new StringEntity(new String(BUFFER,0,length)));
+            }
+             long start=System.currentTimeMillis();
+            res=client.execute(post);
+            res.close();
+            counter.getAndIncrement();
+            totalResponseTime.getAndAdd(System.currentTimeMillis() - start);
+          }
+        }
+ catch (        IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+);
+  }
+  long startTime=System.currentTimeMillis();
+  while (true) {
+    Thread.sleep(REPORT_INTERVAL_MILLIS);
+    double timePassedSeconds=((double)(System.currentTimeMillis() - startTime)) / MILLIS_PER_SECOND;
+    int count=counter.get();
+    double avgResponseTime=((double)totalResponseTime.get()) / count;
+    System.out.println("Time Passed: " + timePassedSeconds + "s, Query Executed: "+ count+ ", QPS: "+ count / timePassedSeconds + ", Avg Response Time: " + avgResponseTime + "ms");
+  }
+}
