@@ -13,6 +13,7 @@
     }
   }
 );
+  FailureEmailConfiguration failureEmailConfig=null;
   if (testType == TestType.FUNCTION) {
     int existingFunctionId=this.impersonatedId;
     final AnomalyFunctionSpecDAO anomalyFunctionSpecDAO=new AnomalyFunctionSpecDAO(hibernate.getSessionFactory());
@@ -20,13 +21,13 @@
     final TimeSeriesHandler timeSeriesHandler=new TimeSeriesHandler(queryCache);
     TimeSeriesResponseConverter timeSeriesResponseConverter=TimeSeriesResponseConverter.getInstance();
     final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
-    final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,timeSeriesHandler,timeSeriesResponseConverter,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics(),anomalyFunctionFactory);
+    final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,timeSeriesHandler,timeSeriesResponseConverter,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernate.getSessionFactory(),environment.metrics(),anomalyFunctionFactory,failureEmailConfig);
     jobManager.runAdhocFile(filePath,existingFunctionId,startISO,endISO);
   }
  else   if (testType == TestType.EMAIL) {
     final TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);
     final EmailConfigurationDAO emailConfigurationDAO=new EmailConfigurationDAO(hibernate.getSessionFactory());
-    final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernate.getSessionFactory(),new AtomicInteger(-1),timeOnTimeComparisonHandler,config.getDashboardHost());
+    final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernate.getSessionFactory(),new AtomicInteger(-1),timeOnTimeComparisonHandler,config.getDashboardHost(),failureEmailConfig);
     emailReportJobManager.runAdhocFile(filePath);
   }
  else {

@@ -1,78 +1,22 @@
 {
   anomalyFunction=(AnomalyFunction)context.getJobDetail().getJobDataMap().get(FUNCTION);
-  AnomalyFunctionSpec spec=anomalyFunction.getSpec();
-  timeSeriesHandler=(TimeSeriesHandler)context.getJobDetail().getJobDataMap().get(TIME_SERIES_HANDLER);
-  timeSeriesResponseConverter=(TimeSeriesResponseConverter)context.getJobDetail().getJobDataMap().get(TIME_SERIES_RESPONSE_CONVERTER);
-  resultDAO=(AnomalyResultDAO)context.getJobDetail().getJobDataMap().get(RESULT_DAO);
-  relationDAO=(AnomalyFunctionRelationDAO)context.getJobDetail().getJobDataMap().get(RELATION_DAO);
-  sessionFactory=(SessionFactory)context.getJobDetail().getJobDataMap().get(SESSION_FACTORY);
-  metricRegistry=(MetricRegistry)context.getJobDetail().getJobDataMap().get(METRIC_REGISTRY);
-  String windowEndProp=context.getJobDetail().getJobDataMap().getString(WINDOW_END);
-  String windowStartProp=context.getJobDetail().getJobDataMap().getString(WINDOW_START);
-  String histogramName=context.getJobDetail().getKey().getName();
-  histogram=metricRegistry.getHistograms().get(histogramName);
-  if (histogram == null) {
-    histogram=metricRegistry.histogram(histogramName);
-  }
-  if (windowEndProp == null) {
-    long delayMillis=0;
-    if (spec.getWindowDelay() != null) {
-      delayMillis=TimeUnit.MILLISECONDS.convert(spec.getWindowDelay(),spec.getWindowUnit());
-    }
-    Date scheduledFireTime=context.getScheduledFireTime();
-    windowEnd=new DateTime(scheduledFireTime).minus(delayMillis);
-  }
- else {
-    windowEnd=ISODateTimeFormat.dateTimeParser().parseDateTime(windowEndProp);
-  }
-  if (windowStartProp == null) {
-    long windowMillis=TimeUnit.MILLISECONDS.convert(spec.getWindowSize(),spec.getWindowUnit());
-    windowStart=windowEnd.minus(windowMillis);
-  }
- else {
-    windowStart=ISODateTimeFormat.dateTimeParser().parseDateTime(windowStartProp);
-  }
-  TimeGranularity timeGranularity=new TimeGranularity(spec.getBucketSize(),spec.getBucketUnit());
-  metricFunction=new MetricFunction(MetricFunction.SUM,spec.getMetric());
-  collection=spec.getCollection();
+  final FailureEmailConfiguration failureEmailConfig=(FailureEmailConfiguration)context.getJobDetail().getJobDataMap().get(FAILURE_EMAIL_CONFIG_KEY);
   try {
-    CollectionSchema collectionSchema=timeSeriesHandler.getClient().getCollectionSchema(collection);
-    collectionDimensions=collectionSchema.getDimensionNames();
+    run(context,anomalyFunction);
   }
- catch (  Exception e) {
-    throw new JobExecutionException(e);
-  }
-  knownAnomalies=getExistingAnomalies();
-  Queue<TimeSeriesRequest> timeSeriesRequestQueue=new LinkedList<>();
-  TimeSeriesRequest topLevelRequest=new TimeSeriesRequest();
-  topLevelRequest.setCollectionName(collection);
-  List<MetricFunction> metricFunctions=Collections.singletonList(metricFunction);
-  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunctions);
-  topLevelRequest.setMetricExpressions(metricExpressions);
-  topLevelRequest.setAggregationTimeGranularity(timeGranularity);
-  topLevelRequest.setStart(windowStart);
-  topLevelRequest.setEnd(windowEnd);
-  String filters=spec.getFilters();
-  if (StringUtils.isNotBlank(filters)) {
-    topLevelRequest.setFilterSet(spec.getFilterSet());
-  }
-  timeSeriesRequestQueue.add(topLevelRequest);
-  String exploreDimensionsString=spec.getExploreDimensions();
-  if (StringUtils.isNotBlank(exploreDimensionsString)) {
-    List<String> exploreDimensions=Arrays.asList(exploreDimensionsString.split(","));
-    for (    String exploreDimension : exploreDimensions) {
-      TimeSeriesRequest groupByRequest=new TimeSeriesRequest(topLevelRequest);
-      groupByRequest.setGroupByDimensions(Collections.singletonList(exploreDimension));
-      timeSeriesRequestQueue.add(groupByRequest);
-    }
-  }
-  while (!timeSeriesRequestQueue.isEmpty()) {
+ catch (  Throwable t) {
+    AnomalyFunctionSpec spec=anomalyFunction.getSpec();
+    LOG.error("Job failed with exception:",t);
+    long id=spec.getId();
+    String collection=spec.getCollection();
+    String metric=spec.getMetric();
+    String subject=String.format("FAILED ANOMALY DETECTION JOB ID=%d (%s:%s)",id,collection,metric);
+    String textBody=String.format("%s%n%nException:%s",spec.toString(),ExceptionUtils.getStackTrace(t));
     try {
-      List<TimeSeriesRequest> nextRequests=exploreCombination(timeSeriesRequestQueue.remove());
+      JobUtils.sendFailureEmail(failureEmailConfig,subject,textBody);
     }
- catch (    Exception e) {
+ catch (    EmailException e) {
       throw new JobExecutionException(e);
     }
   }
-  LOG.info("{} anomalies found in total",anomalyCounter);
 }

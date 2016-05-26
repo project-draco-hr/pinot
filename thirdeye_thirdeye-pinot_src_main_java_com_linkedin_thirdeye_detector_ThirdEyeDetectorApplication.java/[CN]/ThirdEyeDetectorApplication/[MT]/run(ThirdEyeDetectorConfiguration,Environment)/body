@@ -37,7 +37,7 @@
   }
 );
   final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
-  final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,timeSeriesHandler,timeSeriesResponseConverter,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),environment.metrics(),anomalyFunctionFactory);
+  final AnomalyDetectionJobManager jobManager=new AnomalyDetectionJobManager(quartzScheduler,timeSeriesHandler,timeSeriesResponseConverter,anomalyFunctionSpecDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),environment.metrics(),anomalyFunctionFactory,config.getFailureEmailConfig());
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
       new HibernateSessionWrapper<Void>(hibernateBundle.getSessionFactory()).execute(new Callable<Void>(){
@@ -59,6 +59,9 @@
           }
           if (!failedToStart.isEmpty()) {
             LOG.warn("{} functions failed to start!: {}",failedToStart.size(),failedToStart);
+            String subject=String.format("Startup failed to initialize %d functions",failedToStart.size());
+            String body=StringUtils.join(failedToStart,"\n");
+            JobUtils.sendFailureEmail(config.getFailureEmailConfig(),subject,body);
           }
           return null;
         }
@@ -75,7 +78,7 @@
   if (dropwizardConfigPort > 0) {
     applicationPort.set(dropwizardConfigPort);
   }
-  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),applicationPort,timeOnTimeComparisonHandler,config.getDashboardHost());
+  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),applicationPort,timeOnTimeComparisonHandler,config.getDashboardHost(),config.getFailureEmailConfig());
   environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener(){
     @Override public void serverStarted(    Server server){
       LOG.info("{} server connectors found",server.getConnectors().length);
