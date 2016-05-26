@@ -6,7 +6,7 @@
     boolean hasConversion=false;
     for (    String column : _schema.getColumnNames()) {
       Object value;
-      if (column.equals(_schema.getTimeColumnName())) {
+      if (column.equals(_schema.getTimeColumnName()) && (_schema.getTimeFieldSpec().getDataType().isNumber())) {
         value=row.getValue(_incomingTimeColumnName);
         if (value != null) {
           try {
