@@ -4,12 +4,12 @@
   List<MetricFunction> metricFunctions=request.getMetricFunctions();
   List<String> dimensionNames=collectionSchema.getDimensionNames();
   String sql=PqlUtils.getPql(request,dataTimeSpec);
-  LOG.info("Executing: {}",sql);
+  LOG.debug("Executing: {}",sql);
   ResultSetGroup result=CACHE_INSTANCE.getResultSetGroupCache().get(new PinotQuery(sql,request.getCollection() + "_OFFLINE"));
   if (LOG.isDebugEnabled()) {
     LOG.debug("Result for: {} {}",sql,format(result));
   }
-  parseResultSetGroup(request,result,metricFunctions,collectionSchema,dimensionNames);
-  PinotThirdEyeResponse resp=new PinotThirdEyeResponse(request,result,dataTimeSpec);
+  List<String[]> resultRows=parseResultSetGroup(request,result,metricFunctions,collectionSchema,dimensionNames);
+  PinotThirdEyeResponse resp=new PinotThirdEyeResponse(request,resultRows,dataTimeSpec);
   return resp;
 }

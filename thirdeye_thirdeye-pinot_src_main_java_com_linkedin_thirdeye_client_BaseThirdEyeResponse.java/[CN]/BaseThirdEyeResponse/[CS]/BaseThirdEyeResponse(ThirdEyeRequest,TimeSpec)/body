@@ -7,4 +7,11 @@
     groupKeyColumns.add(dataTimeSpec.getColumnName());
   }
   groupKeyColumns.addAll(request.getGroupBy());
+  ArrayList<String> allColumnNameList=new ArrayList<>();
+  allColumnNameList.addAll(request.getGroupBy());
+  for (  MetricFunction function : request.getMetricFunctions()) {
+    allColumnNameList.add(function.toString());
+  }
+  allColumnNames=new String[allColumnNameList.size()];
+  allColumnNameList.toArray(allColumnNames);
 }

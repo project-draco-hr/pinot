@@ -1,20 +1,23 @@
 {
-  ThirdEyeConfiguration config=new ThirdEyeDashboardConfiguration();
-  config.setWhitelistCollections("login_mobile");
+  ThirdEyeConfiguration thirdEyeConfig=new ThirdEyeDashboardConfiguration();
+  thirdEyeConfig.setWhitelistCollections("login_mobile");
   PinotThirdEyeClientConfig pinotThirdEyeClientConfig=new PinotThirdEyeClientConfig();
   pinotThirdEyeClientConfig.setControllerHost("lva1-app0086.corp.linkedin.com");
   pinotThirdEyeClientConfig.setControllerPort(11984);
   pinotThirdEyeClientConfig.setZookeeperUrl("zk-lva1-pinot.corp.linkedin.com:12913/pinot-cluster");
   pinotThirdEyeClientConfig.setClusterName("mpSprintDemoCluster");
-  ThirdEyeCacheRegistry.initializeWebappCaches(config,pinotThirdEyeClientConfig);
+  ThirdEyeCacheRegistry.initializeWebappCaches(thirdEyeConfig,pinotThirdEyeClientConfig);
   ThirdEyeClient thirdEyeClient=ThirdEyeCacheRegistry.getInstance().getQueryCache().getClient();
   ThirdEyeRequestBuilder builder=new ThirdEyeRequestBuilder();
   builder.setCollection("login_mobile");
   builder.setStartTimeInclusive(DateTime.parse("2016-05-11"));
-  builder.setEndTimeExclusive(DateTime.parse("2016-05-11"));
-  builder.setMetricFunctions(Lists.newArrayList(new MetricFunction("SUM","sum_loginAttempt")));
+  builder.setEndTimeExclusive(DateTime.parse("2016-05-17"));
+  builder.setMetricFunctions(Lists.newArrayList(new MetricFunction("SUM","loginAttempt")));
+  TimeGranularity timeGranularity=new TimeGranularity(1,TimeUnit.HOURS);
+  builder.setGroupByTimeGranularity(timeGranularity);
   ThirdEyeRequest thirdEyeRequest=builder.build("asd");
   ThirdEyeResponse response=thirdEyeClient.execute(thirdEyeRequest);
-  System.out.println("Response: " + response);
+  System.out.println("Response: \n" + response);
   thirdEyeClient.close();
+  System.exit(0);
 }

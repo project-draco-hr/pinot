@@ -1,21 +1,62 @@
 {
-  for (int groupIdx=0; groupIdx < result.getResultSetCount(); groupIdx++) {
-    ResultSet resultSet=result.getResultSet(groupIdx);
-    for (int row=0; row < resultSet.getRowCount(); row++) {
-      StringBuilder sb=new StringBuilder();
-      String delim="";
-      if (resultSet.getGroupKeyLength() > 0) {
-        for (int groupKey=0; groupKey < resultSet.getGroupKeyLength(); groupKey++) {
-          sb.append(delim).append(resultSet.getGroupKeyString(row,groupKey));
-          delim=",";
-        }
-      }
-      int columnCount=resultSet.getColumnCount();
-      for (int col=0; col < columnCount; col++) {
-        String colValStr=resultSet.getString(row,col);
-        sb.append(delim).append(colValStr);
-        delim=",";
-      }
+  int numGroupByKeys=0;
+  boolean hasGroupBy=false;
+  if (request.getGroupByTimeGranularity() != null) {
+    numGroupByKeys+=1;
+  }
+  if (request.getGroupBy() != null) {
+    numGroupByKeys+=request.getGroupBy().size();
+  }
+  if (numGroupByKeys > 0) {
+    hasGroupBy=true;
+  }
+  int numMetrics=request.getMetricFunctions().size();
+  int numCols=numGroupByKeys + numMetrics;
+  boolean requiresTimeConversion=false;
+  TimeUnit requestTimeUnit=null;
+  TimeUnit dataTimeUnit=null;
+  if (request.getGroupByTimeGranularity() != null) {
+    requestTimeUnit=request.getGroupByTimeGranularity().getUnit();
+    dataTimeUnit=collectionSchema.getTime().getDataGranularity().getUnit();
+    if (!requestTimeUnit.equals(dataTimeUnit)) {
+      requiresTimeConversion=true;
     }
   }
+  LinkedHashMap<String,String[]> dataMap=new LinkedHashMap<>();
+  for (int i=0; i < result.getResultSetCount(); i++) {
+    ResultSet resultSet=result.getResultSet(i);
+    int numRows=resultSet.getRowCount();
+    for (int r=0; r < numRows; r++) {
+      String[] groupKeys;
+      if (hasGroupBy) {
+        groupKeys=new String[resultSet.getGroupKeyLength()];
+        for (int grpKeyIdx=0; grpKeyIdx < resultSet.getGroupKeyLength(); grpKeyIdx++) {
+          String groupKeyVal=resultSet.getGroupKeyString(r,grpKeyIdx);
+          if (requiresTimeConversion && grpKeyIdx == 0) {
+            groupKeyVal=String.valueOf(requestTimeUnit.convert(Long.parseLong(groupKeyVal),dataTimeUnit));
+          }
+          groupKeys[grpKeyIdx]=groupKeyVal;
+        }
+      }
+ else {
+        groupKeys=new String[]{};
+      }
+      StringBuilder groupKeyBuilder=new StringBuilder("");
+      for (      String grpKey : groupKeys) {
+        groupKeyBuilder.append(grpKey).append("|");
+      }
+      String compositeGroupKey=groupKeyBuilder.toString();
+      String[] rowValues=dataMap.get(compositeGroupKey);
+      if (rowValues == null) {
+        rowValues=new String[numCols];
+        Arrays.fill(rowValues,"0");
+        System.arraycopy(groupKeys,0,rowValues,0,groupKeys.length);
+        dataMap.put(compositeGroupKey,rowValues);
+      }
+      rowValues[groupKeys.length + i]=String.valueOf(Double.parseDouble(rowValues[groupKeys.length + i]) + Double.parseDouble(resultSet.getString(r,0)));
+    }
+  }
+  List<String[]> rows=new ArrayList<>();
+  rows.addAll(dataMap.values());
+  return rows;
 }
