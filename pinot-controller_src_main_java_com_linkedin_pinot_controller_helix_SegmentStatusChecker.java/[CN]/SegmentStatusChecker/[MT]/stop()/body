@@ -1,9 +1,6 @@
 {
-  _executorService.shutdown();
-  try {
-    _executorService.awaitTermination(SegmentCheckerDefaultIntervalSeconds,TimeUnit.SECONDS);
+  if (_executorService == null) {
+    return;
   }
- catch (  InterruptedException e) {
-    e.printStackTrace();
-  }
+  stopThread();
 }

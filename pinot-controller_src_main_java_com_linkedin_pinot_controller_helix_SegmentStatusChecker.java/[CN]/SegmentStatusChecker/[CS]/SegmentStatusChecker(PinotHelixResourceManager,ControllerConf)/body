@@ -2,12 +2,4 @@
   _pinotHelixResourceManager=pinotHelixResourceManager;
   _helixAdmin=pinotHelixResourceManager.getHelixAdmin();
   _segmentStatusIntervalSeconds=config.getStatusControllerFrequencyInSeconds();
-  _executorService=Executors.newSingleThreadScheduledExecutor(new ThreadFactory(){
-    @Override public Thread newThread(    Runnable runnable){
-      Thread thread=new Thread(runnable);
-      thread.setName("SegStatChecker");
-      return thread;
-    }
-  }
-);
 }

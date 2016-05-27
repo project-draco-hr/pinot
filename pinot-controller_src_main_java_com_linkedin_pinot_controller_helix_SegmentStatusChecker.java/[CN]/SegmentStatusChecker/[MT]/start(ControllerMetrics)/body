@@ -3,22 +3,11 @@
     return;
   }
   _metricsRegistry=metricsRegistry;
+  setStatusToDefault();
   _pinotHelixResourceManager.getHelixZkManager().addControllerListener(new ControllerChangeListener(){
     @Override public void onControllerChange(    NotificationContext changeContext){
       processLeaderChange(CONTROLLER_LEADER_CHANGE);
     }
   }
 );
-  LOGGER.info("Starting segment status checker");
-  _executorService.scheduleWithFixedDelay(new Runnable(){
-    @Override public void run(){
-      try {
-        runSegmentMetrics();
-      }
- catch (      Exception e) {
-        LOGGER.warn("Caught exception while running segment status checker",e);
-      }
-    }
-  }
-,SegmentCheckerDefaultIntervalSeconds,_segmentStatusIntervalSeconds,TimeUnit.SECONDS);
 }
