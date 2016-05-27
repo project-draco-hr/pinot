@@ -3,7 +3,7 @@
   request.setCollection(collection);
   List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson,collection);
   request.setMetricExpressions(metricExpressions);
-  long maxDataTime=queryCache.getClient().getMaxDataTime(collection);
+  long maxDataTime=CACHE_REGISTRY_INSTANCE.getCollectionMaxDataTimeCache().get(collection);
   if (currentEnd > maxDataTime) {
     long delta=currentEnd - maxDataTime;
     currentEnd=currentEnd - delta;

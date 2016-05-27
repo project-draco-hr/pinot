@@ -1,7 +1,7 @@
 {
   String jsonMetrics=null;
   try {
-    CollectionSchema schema=queryCache.getClient().getCollectionSchema(collection);
+    CollectionSchema schema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(collection);
     List<String> metrics=schema.getMetricNames();
     CollectionConfig collectionConfig=null;
     try {
