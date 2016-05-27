@@ -1,7 +1,8 @@
 {
   List<String> collections=CACHE_INSTANCE.getCollectionsCache().getCollections();
+  LoadingCache<String,CollectionSchema> cache=CACHE_INSTANCE.getCollectionSchemaCache();
   for (  String collection : collections) {
-    CACHE_INSTANCE.getCollectionSchemaCache().refresh(collection);
+    cache.refresh(collection);
   }
   return Response.ok().build();
 }

@@ -1,18 +1,20 @@
 {
-  String controllerHost="lva1-app0086.corp.linkedin.com";
-  int controllerPort=11984;
-  String zkUrl="zk-lva1-pinot.corp.linkedin.com:12913/pinot-cluster";
-  String clusterName="mpSprintDemoCluster";
-  Connection connection=ConnectionFactory.fromZookeeper(zkUrl + "/" + clusterName);
-  String statement="SELECT sum(engaged_feed_session_count) FROM feed_sessions_additive WHERE  Date = 20160514";
-  ResultSetGroup resultSetGroup=connection.execute("feed_sessions_additive_OFFLINE",statement);
-  System.out.println(format(resultSetGroup));
-  ResultSetGroupCacheLoader resultSetGroupCacheLoader=new ResultSetGroupCacheLoader(connection);
-  PinotThirdEyeClient thirdEyeClient=PinotThirdEyeClient.fromZookeeper(controllerHost,controllerPort,zkUrl,clusterName);
+  ThirdEyeConfiguration config=new ThirdEyeDashboardConfiguration();
+  config.setWhitelistCollections("login_mobile");
+  PinotThirdEyeClientConfig pinotThirdEyeClientConfig=new PinotThirdEyeClientConfig();
+  pinotThirdEyeClientConfig.setControllerHost("lva1-app0086.corp.linkedin.com");
+  pinotThirdEyeClientConfig.setControllerPort(11984);
+  pinotThirdEyeClientConfig.setZookeeperUrl("zk-lva1-pinot.corp.linkedin.com:12913/pinot-cluster");
+  pinotThirdEyeClientConfig.setClusterName("mpSprintDemoCluster");
+  ThirdEyeCacheRegistry.initializeWebappCaches(config,pinotThirdEyeClientConfig);
+  ThirdEyeClient thirdEyeClient=ThirdEyeCacheRegistry.getInstance().getQueryCache().getClient();
   ThirdEyeRequestBuilder builder=new ThirdEyeRequestBuilder();
-  builder.setCollection("feed_sessions_additive");
+  builder.setCollection("login_mobile");
   builder.setStartTimeInclusive(DateTime.parse("2016-05-11"));
   builder.setEndTimeExclusive(DateTime.parse("2016-05-11"));
-  builder.setMetricFunctions(Lists.newArrayList(new MetricFunction("SUM","sum_engaged_feed_session_count")));
+  builder.setMetricFunctions(Lists.newArrayList(new MetricFunction("SUM","sum_loginAttempt")));
   ThirdEyeRequest thirdEyeRequest=builder.build("asd");
+  ThirdEyeResponse response=thirdEyeClient.execute(thirdEyeRequest);
+  System.out.println("Response: " + response);
+  thirdEyeClient.close();
 }

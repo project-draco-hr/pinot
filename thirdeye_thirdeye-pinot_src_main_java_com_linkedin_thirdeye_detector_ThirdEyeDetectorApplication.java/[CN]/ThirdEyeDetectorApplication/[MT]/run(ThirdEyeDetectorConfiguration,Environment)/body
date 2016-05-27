@@ -1,28 +1,15 @@
 {
   super.initDetectorRelatedDAO();
-  LOG.info("Loading configs from: {}",config.getRootDir());
-  PinotThirdEyeClientConfig pinotThirdeyeClientConfig=PinotThirdEyeClientConfig.createThirdEyeClientConfig(config);
-  final ThirdEyeClient thirdEyeClient=PinotThirdEyeClient.fromClientConfig(pinotThirdeyeClientConfig);
-  AbstractConfigDAO<CollectionSchema> collectionSchemaDAO=getCollectionSchemaDAO(config);
-  AbstractConfigDAO<CollectionConfig> collectionConfigDAO=getCollectionConfigDAO(config);
   try {
-    ThirdEyeCacheRegistry.initializeDetectorCaches(pinotThirdeyeClientConfig,collectionSchemaDAO,collectionConfigDAO);
+    ThirdEyeCacheRegistry.initializeDetectorCaches(config);
   }
  catch (  Exception e) {
     LOG.error("Exception while loading caches",e);
   }
-  QueryCache queryCache=new QueryCache(thirdEyeClient,Executors.newFixedThreadPool(10));
+  QueryCache queryCache=ThirdEyeCacheRegistry.getInstance().getQueryCache();
   final TimeSeriesHandler timeSeriesHandler=new TimeSeriesHandler(queryCache);
   TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);
   TimeSeriesResponseConverter timeSeriesResponseConverter=TimeSeriesResponseConverter.getInstance();
-  environment.lifecycle().manage(new Managed(){
-    @Override public void start() throws Exception {
-    }
-    @Override public void stop() throws Exception {
-      thirdEyeClient.close();
-    }
-  }
-);
   SchedulerFactory schedulerFactory=new StdSchedulerFactory();
   final Scheduler quartzScheduler=schedulerFactory.getScheduler();
   environment.lifecycle().manage(new Managed(){

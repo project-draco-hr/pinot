@@ -1,8 +1,7 @@
 {
   String jsonDashboards=null;
   try {
-    List<String> dashboards=Utils.getDashboards(dashboardConfigDAO,collection);
-    jsonDashboards=OBJECT_MAPPER.writeValueAsString(dashboards);
+    jsonDashboards=CACHE_REGISTRY_INSTANCE.getDashboardsCache().get(collection);
   }
  catch (  Exception e) {
     LOG.error("Error while fetching dashboards for collection: " + collection,e);

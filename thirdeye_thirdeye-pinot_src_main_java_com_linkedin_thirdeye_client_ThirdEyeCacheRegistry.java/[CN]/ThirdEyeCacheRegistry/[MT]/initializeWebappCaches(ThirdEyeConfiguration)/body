@@ -1,0 +1,12 @@
+{
+  init(config);
+  initCommonCacheLoaders();
+  ThirdEyeCacheRegistry cacheRegistry=ThirdEyeCacheRegistry.getInstance();
+  LoadingCache<String,String> dimensionFiltersCache=CacheBuilder.newBuilder().build(new DimensionFiltersCacheLoader(cacheRegistry.getQueryCache()));
+  cacheRegistry.registerDimensionFiltersCache(dimensionFiltersCache);
+  LoadingCache<String,String> dashboardsCache=CacheBuilder.newBuilder().build(new DashboardsCacheLoader(dashboardConfigDAO));
+  cacheRegistry.registerDashboardsCache(dashboardsCache);
+  CollectionsCache collectionsCache=new CollectionsCache(pinotThirdeyeClientConfig,config);
+  cacheRegistry.registerCollectionsCache(collectionsCache);
+  initPeriodicCacheRefresh();
+}

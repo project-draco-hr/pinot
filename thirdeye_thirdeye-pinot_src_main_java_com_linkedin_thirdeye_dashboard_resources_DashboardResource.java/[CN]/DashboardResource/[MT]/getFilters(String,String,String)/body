@@ -1,14 +1,10 @@
 {
-  DateTime startDateTime=new DateTime(System.currentTimeMillis()).minusDays(7);
-  DateTime endDateTime=new DateTime(System.currentTimeMillis());
   String jsonFilters=null;
   try {
-    List<String> dimensions=Utils.getDimensions(queryCache,collection);
-    Map<String,List<String>> filters=Utils.getFilters(queryCache,collection,"filters","__COUNT",dimensions,startDateTime,endDateTime);
-    jsonFilters=OBJECT_MAPPER.writeValueAsString(filters);
+    jsonFilters=CACHE_REGISTRY_INSTANCE.getDimensionFiltersCache().get(collection);
   }
- catch (  Exception e) {
-    LOG.error("Error while fetching dimension values in filter drop down for collection: {}",collection,e);
+ catch (  ExecutionException e) {
+    LOG.error("Exception while getting filters for collection {}",collection,e);
   }
   return jsonFilters;
 }

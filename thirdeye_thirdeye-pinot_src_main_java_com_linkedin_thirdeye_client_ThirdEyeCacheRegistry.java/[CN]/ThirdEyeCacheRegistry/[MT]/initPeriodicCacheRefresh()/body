@@ -1,7 +1,11 @@
 {
   final CacheResource cacheResource=new CacheResource();
-  ScheduledExecutorService service=Executors.newSingleThreadScheduledExecutor();
-  service.scheduleAtFixedRate(new Runnable(){
+  cacheResource.refreshCollections();
+  cacheResource.refreshMaxDataTimeCache();
+  cacheResource.refreshDimensionFiltersCache();
+  cacheResource.refreshDashboardsCache();
+  ScheduledExecutorService hourlyService=Executors.newSingleThreadScheduledExecutor();
+  hourlyService.scheduleAtFixedRate(new Runnable(){
     @Override public void run(){
       try {
         cacheResource.refreshCollections();
@@ -12,5 +16,17 @@
       }
     }
   }
-,0,1,TimeUnit.HOURS);
+,1,1,TimeUnit.HOURS);
+  ScheduledExecutorService weeklyService=Executors.newSingleThreadScheduledExecutor();
+  weeklyService.scheduleAtFixedRate(new Runnable(){
+    @Override public void run(){
+      try {
+        cacheResource.refreshDimensionFiltersCache();
+      }
+ catch (      Exception e) {
+        LOGGER.error("Exception while loading filter caches",e);
+      }
+    }
+  }
+,7,7,TimeUnit.DAYS);
 }
