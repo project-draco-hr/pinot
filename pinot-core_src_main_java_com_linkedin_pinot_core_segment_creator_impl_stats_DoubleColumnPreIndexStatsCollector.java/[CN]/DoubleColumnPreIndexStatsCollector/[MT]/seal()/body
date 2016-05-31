@@ -1,7 +1,7 @@
 {
   sealed=true;
-  sortedDoubleList=new double[doubleSet.size()];
-  doubleSet.toArray(sortedDoubleList);
+  sortedDoubleList=new double[rawDoubleSet.size()];
+  rawDoubleSet.toArray(sortedDoubleList);
   Arrays.sort(sortedDoubleList);
   if (sortedDoubleList.length == 0) {
     min=null;
@@ -10,4 +10,11 @@
   }
   min=sortedDoubleList[0];
   max=sortedDoubleList[sortedDoubleList.length - 1];
+  int numAggregated=aggregatedDoubleSet.size();
+  if (numAggregated > 0) {
+    rawDoubleSet.addAll(aggregatedDoubleSet);
+    sortedDoubleList=new double[rawDoubleSet.size()];
+    rawDoubleSet.toArray(sortedDoubleList);
+    Arrays.sort(sortedDoubleList);
+  }
 }

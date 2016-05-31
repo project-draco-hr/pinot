@@ -1,7 +1,7 @@
 {
   sealed=true;
-  sortedStringList=new String[stringSet.size()];
-  stringSet.toArray(sortedStringList);
+  sortedStringList=new String[rawStringSet.size()];
+  rawStringSet.toArray(sortedStringList);
   Arrays.sort(sortedStringList);
   if (sortedStringList.length == 0) {
     min=null;
@@ -10,4 +10,11 @@
   }
   min=sortedStringList[0];
   max=sortedStringList[sortedStringList.length - 1];
+  int numAggregated=aggregatedStringSet.size();
+  if (numAggregated > 0) {
+    rawStringSet.addAll(aggregatedStringSet);
+    sortedStringList=new String[rawStringSet.size()];
+    rawStringSet.toArray(sortedStringList);
+    Arrays.sort(sortedStringList);
+  }
 }

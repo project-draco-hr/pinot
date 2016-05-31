@@ -1,7 +1,7 @@
 {
   sealed=true;
-  sortedFloatList=new float[floatSet.size()];
-  floatSet.toArray(sortedFloatList);
+  sortedFloatList=new float[rawFloatSet.size()];
+  rawFloatSet.toArray(sortedFloatList);
   Arrays.sort(sortedFloatList);
   if (sortedFloatList.length == 0) {
     min=null;
@@ -10,4 +10,11 @@
   }
   min=sortedFloatList[0];
   max=sortedFloatList[sortedFloatList.length - 1];
+  int numAggregated=aggregatedFloatSet.size();
+  if (numAggregated > 0) {
+    rawFloatSet.addAll(aggregatedFloatSet);
+    sortedFloatList=new float[rawFloatSet.size()];
+    rawFloatSet.toArray(sortedFloatList);
+    Arrays.sort(sortedFloatList);
+  }
 }

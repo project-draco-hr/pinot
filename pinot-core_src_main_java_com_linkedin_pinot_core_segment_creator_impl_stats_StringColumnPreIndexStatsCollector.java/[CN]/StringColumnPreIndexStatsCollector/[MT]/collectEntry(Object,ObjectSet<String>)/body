@@ -1,0 +1,23 @@
+{
+  if (entry instanceof Object[]) {
+    for (    final Object e : (Object[])entry) {
+      set.add(e.toString());
+    }
+    if (maxNumberOfMultiValues < ((Object[])entry).length) {
+      maxNumberOfMultiValues=((Object[])entry).length;
+    }
+    updateTotalNumberOfEntries((Object[])entry);
+  }
+ else {
+    String value;
+    if (entry != null) {
+      value=entry.toString();
+    }
+ else {
+      value=fieldSpec.getDefaultNullValue().toString();
+    }
+    addressSorted(value);
+    set.add(value);
+    totalNumberOfEntries++;
+  }
+}

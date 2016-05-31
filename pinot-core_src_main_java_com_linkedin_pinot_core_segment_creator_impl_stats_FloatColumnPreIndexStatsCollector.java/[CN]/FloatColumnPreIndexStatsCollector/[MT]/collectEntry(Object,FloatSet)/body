@@ -1,0 +1,17 @@
+{
+  if (entry instanceof Object[]) {
+    for (    final Object e : (Object[])entry) {
+      set.add(((Number)e).floatValue());
+    }
+    if (maxNumberOfMultiValues < ((Object[])entry).length) {
+      maxNumberOfMultiValues=((Object[])entry).length;
+    }
+    updateTotalNumberOfEntries((Object[])entry);
+  }
+ else {
+    float value=((Number)entry).floatValue();
+    addressSorted(value);
+    set.add(value);
+    totalNumberOfEntries++;
+  }
+}

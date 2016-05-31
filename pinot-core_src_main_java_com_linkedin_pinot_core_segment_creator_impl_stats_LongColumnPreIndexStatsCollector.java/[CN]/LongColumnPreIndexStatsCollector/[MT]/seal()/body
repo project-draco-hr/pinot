@@ -1,7 +1,7 @@
 {
   sealed=true;
-  sortedLongList=new long[longSet.size()];
-  longSet.toArray(sortedLongList);
+  sortedLongList=new long[rawLongSet.size()];
+  rawLongSet.toArray(sortedLongList);
   Arrays.sort(sortedLongList);
   if (sortedLongList.length == 0) {
     min=null;
@@ -10,4 +10,11 @@
   }
   min=sortedLongList[0];
   max=sortedLongList[sortedLongList.length - 1];
+  int numAggregated=aggregatedLongSet.size();
+  if (numAggregated > 0) {
+    rawLongSet.addAll(aggregatedLongSet);
+    sortedLongList=new long[rawLongSet.size()];
+    rawLongSet.toArray(sortedLongList);
+    Arrays.sort(sortedLongList);
+  }
 }
