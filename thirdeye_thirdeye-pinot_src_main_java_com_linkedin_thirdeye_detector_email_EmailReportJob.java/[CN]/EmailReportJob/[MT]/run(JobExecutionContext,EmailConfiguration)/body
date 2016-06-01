@@ -9,7 +9,7 @@
   final DateTime now=new DateTime(scheduledFireTime,DateTimeZone.UTC);
   final DateTime then=now.minus(deltaMillis);
   final String collection=config.getCollection();
-  final List<AnomalyResult> results=getAnomalyResults(context,config,sessionFactory,now,then);
+  final List<AnomalyResult> results=getAnomalyResults(context,config,sessionFactory,then,now);
   if (results.isEmpty() && !config.getSendZeroAnomalyEmail()) {
     LOG.info("Zero anomalies found, skipping sending email");
     return;
