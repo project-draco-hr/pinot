@@ -7,6 +7,16 @@
     TimeGranularity dataGranularity=collectionSchema.getTime().getDataGranularity();
     map.put("maxTime","" + maxDataTime);
     map.put("dataGranularity",dataGranularity.getUnit().toString());
+    CollectionConfig collectionConfig=null;
+    try {
+      collectionConfig=CACHE_REGISTRY_INSTANCE.getCollectionConfigCache().get(collection);
+    }
+ catch (    InvalidCacheLoadException e) {
+      LOG.debug("No collection configs for collection {}",collection);
+    }
+    if (collectionConfig != null && CollectionUtils.isNotEmpty(collectionConfig.getInvertColorMetrics())) {
+      map.put("invertColorMetrics",Joiner.on(",").join(collectionConfig.getInvertColorMetrics()));
+    }
     collectionInfo=OBJECT_MAPPER.writeValueAsString(map);
   }
  catch (  Exception e) {

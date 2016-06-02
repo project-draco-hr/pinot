@@ -5,7 +5,7 @@
     List<String> metrics=schema.getMetricNames();
     CollectionConfig collectionConfig=null;
     try {
-      collectionConfig=queryCache.getClient().getCollectionConfig(collection);
+      collectionConfig=CACHE_REGISTRY_INSTANCE.getCollectionConfigCache().get(collection);
     }
  catch (    InvalidCacheLoadException e) {
       LOG.debug("No collection configs for collection {}",collection);

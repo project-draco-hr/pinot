@@ -8,6 +8,10 @@
     String dimensionValue=dimensionValues.get(i);
     double baselineValue=baselineStats.getElement(i);
     double currentValue=currentStats.getElement(i);
+    double numeratorBaseline=numeratorBaselineStats.getValues().length == 0 ? 0 : numeratorBaselineStats.getElement(i);
+    double numeratorCurrent=numeratorCurrentStats.getValues().length == 0 ? 0 : numeratorCurrentStats.getElement(i);
+    double denominatorBaseline=denominatorBaselineStats.getValues().length == 0 ? 0 : denominatorBaselineStats.getElement(i);
+    double denominatorCurrent=denominatorCurrentStats.getValues().length == 0 ? 0 : denominatorCurrentStats.getElement(i);
     double baselineContribution=baselineValue * 100 / baselineTotal;
     double currentContribution=currentValue * 100 / currentTotal;
     double baselineCDFValue=0;
@@ -29,14 +33,15 @@
       }
     }
     double contributionDifference=currentContribution - baselineContribution;
+    double cellSize=cellSizeStats.getValues().length == 0 ? currentValue : cellSizeStats.getElement(i);
     double deltaColor=percentageChange;
-    double deltaSize=currentValue;
+    double deltaSize=cellSize;
     double contributionColor=(currentContribution - baselineContribution);
-    double contributionSize=currentValue;
+    double contributionSize=cellSize;
     double contributionToOverallChange=((currentValue - baselineValue) / baselineTotal) * 100;
     double contributionToOverallColor=contributionToOverallChange;
-    double contributionToOverallSize=currentValue;
-    HeatMapCell cell=new HeatMapCell(dimensionValue,baselineValue,currentValue,baselineContribution,currentContribution,baselineCDFValue,currentCDFValue,percentageChange,absoluteChange,contributionDifference,contributionToOverallChange,deltaColor,deltaSize,contributionColor,contributionSize,contributionToOverallColor,contributionToOverallSize);
+    double contributionToOverallSize=cellSize;
+    HeatMapCell cell=new HeatMapCell(dimensionValue,baselineValue,currentValue,numeratorBaseline,denominatorBaseline,numeratorCurrent,denominatorCurrent,baselineContribution,currentContribution,baselineCDFValue,currentCDFValue,percentageChange,absoluteChange,contributionDifference,contributionToOverallChange,deltaColor,deltaSize,contributionColor,contributionSize,contributionToOverallColor,contributionToOverallSize,cellSizeExpression);
     heatMapCells.add(cell);
   }
   return new HeatMap(dimensionName,heatMapCells);
