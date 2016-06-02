@@ -1,4 +1,5 @@
 {
+  start=calculateGraphDataStart(start,end,bucketGranularity);
   try {
     TimeOnTimeComparisonRequest comparisonRequest=new TimeOnTimeComparisonRequest();
     comparisonRequest.setCollectionName(config.getCollection());
@@ -11,9 +12,9 @@
     metricExpressions.add(expression);
     comparisonRequest.setMetricExpressions(metricExpressions);
     comparisonRequest.setAggregationTimeGranularity(bucketGranularity);
-    LOG.info("Starting...");
+    LOG.debug("Starting...");
     TimeOnTimeComparisonResponse response=timeOnTimeComparisonHandler.handle(comparisonRequest);
-    LOG.info("Done!");
+    LOG.debug("Done!");
     return response;
   }
  catch (  Exception e) {
