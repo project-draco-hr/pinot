@@ -55,9 +55,11 @@
   if (StringUtils.isNotBlank(filters)) {
     topLevelRequest.setFilterSet(spec.getFilterSet());
   }
-  timeSeriesRequestQueue.add(topLevelRequest);
   String exploreDimensionsString=spec.getExploreDimensions();
-  if (StringUtils.isNotBlank(exploreDimensionsString)) {
+  if (StringUtils.isBlank(exploreDimensionsString)) {
+    timeSeriesRequestQueue.add(topLevelRequest);
+  }
+ else {
     List<String> exploreDimensions=Arrays.asList(exploreDimensionsString.split(","));
     for (    String exploreDimension : exploreDimensions) {
       TimeSeriesRequest groupByRequest=new TimeSeriesRequest(topLevelRequest);
