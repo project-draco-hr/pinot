@@ -1,0 +1,35 @@
+{
+  Queue<StarTreeIndexNode> nodes=new LinkedList<>();
+  nodes.add(starTreeRootIndexNode);
+  while (!nodes.isEmpty()) {
+    StarTreeIndexNode node=nodes.remove();
+    if (node.isLeaf()) {
+      if (timeColumnName != null) {
+        int level=node.getLevel();
+        int[] newSortOrder=moveColumnInSortOrder(timeColumnName,getSortOrder(),level);
+        StarTreeDataTable leafDataTable=new StarTreeDataTable(dataFile,dimensionSizeBytes,metricSizeBytes,newSortOrder);
+        int startDocId=node.getStartDocumentId();
+        int endDocId=node.getEndDocumentId();
+        leafDataTable.sort(startDocId,endDocId);
+        int timeColIndex=dimensionNameToIndexMap.get(timeColumnName);
+        Map<Integer,IntPair> timeColumnRangeMap=leafDataTable.groupByIntColumnCount(startDocId,endDocId,timeColIndex);
+        node.setChildDimensionName(timeColIndex);
+        node.setChildren(new HashMap<Integer,StarTreeIndexNode>());
+        for (        int timeValue : timeColumnRangeMap.keySet()) {
+          IntPair range=timeColumnRangeMap.get(timeValue);
+          StarTreeIndexNode child=new StarTreeIndexNode();
+          child.setDimensionName(timeColIndex);
+          child.setDimensionValue(timeValue);
+          child.setParent(node);
+          child.setLevel(node.getLevel() + 1);
+          child.setStartDocumentId(range.getLeft());
+          child.setEndDocumentId(range.getRight());
+          node.getChildren().put(timeValue,child);
+        }
+      }
+    }
+ else {
+      nodes.addAll(node.getChildren().values());
+    }
+  }
+}

@@ -31,9 +31,13 @@
   }
   if (timeColumnName != null) {
     dimensionNames.add(timeColumnName);
-    dimensionTypes.add(schema.getTimeFieldSpec().getDataType());
+    TimeFieldSpec timeFieldSpec=schema.getTimeFieldSpec();
+    dimensionTypes.add(timeFieldSpec.getDataType());
     int index=dimensionNameToIndexMap.size();
     dimensionNameToIndexMap.put(timeColumnName,index);
+    Object starValue;
+    starValue=getAllStarValue(timeFieldSpec);
+    dimensionNameToStarValueMap.put(timeColumnName,starValue);
     HashBiMap<Object,Integer> dictionary=HashBiMap.create();
     dictionaryMap.put(schema.getTimeColumnName(),dictionary);
   }

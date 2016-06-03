@@ -1,0 +1,50 @@
+{
+  int totalDocsToScan=0;
+  int numExactlyMatched=0;
+  long start=System.currentTimeMillis();
+  final MutableRoaringBitmap exactlyMatchedDocsBitmap=new MutableRoaringBitmap();
+  Queue<SearchEntry> matchedEntries=findMatchingLeafNodes();
+  List<Operator> matchingLeafOperators=new ArrayList<>();
+  for (  SearchEntry matchedEntry : matchedEntries) {
+    Operator matchingLeafOperator=null;
+    StarTreeIndexNode matchedLeafNode=matchedEntry.starTreeIndexnode;
+    int startDocId=matchedLeafNode.getStartDocumentId();
+    int endDocId=matchedLeafNode.getEndDocumentId();
+    if (matchedEntry.remainingPredicateColumns.isEmpty()) {
+      if (matchedLeafNode.getAggregatedDocumentId() != -1 && matchedEntry.remainingGroupByColumns.isEmpty()) {
+        exactlyMatchedDocsBitmap.add(matchedLeafNode.getAggregatedDocumentId());
+        numExactlyMatched=numExactlyMatched + 1;
+      }
+ else {
+        exactlyMatchedDocsBitmap.add(startDocId,endDocId);
+        numExactlyMatched+=(endDocId - startDocId);
+      }
+    }
+ else {
+      Map<String,PredicateEntry> remainingPredicatesMap=computeRemainingPredicates(matchedEntry);
+      List<Operator> filterOperators=createFilterOperatorsForRemainingPredicates(matchedEntry,remainingPredicatesMap);
+      if (filterOperators.size() == 0) {
+        exactlyMatchedDocsBitmap.add(startDocId,endDocId);
+        numExactlyMatched+=(endDocId - startDocId);
+      }
+ else       if (filterOperators.size() == 1) {
+        matchingLeafOperator=filterOperators.get(0);
+      }
+ else {
+        matchingLeafOperator=new AndOperator(filterOperators);
+      }
+      if (matchingLeafOperator != null) {
+        matchingLeafOperators.add(matchingLeafOperator);
+      }
+    }
+    totalDocsToScan+=(endDocId - startDocId);
+    LOGGER.debug("{}",matchedLeafNode);
+  }
+  if (numExactlyMatched > 0) {
+    matchingLeafOperators.add(createFilterOperator(exactlyMatchedDocsBitmap));
+    totalDocsToScan+=numExactlyMatched;
+  }
+  long end=System.currentTimeMillis();
+  LOGGER.debug("Found {} matching leaves, took {} ms to create remaining filter operators. Total docs to scan:{}",matchedEntries.size(),(end - start),totalDocsToScan);
+  return matchingLeafOperators;
+}

@@ -1,0 +1,29 @@
+{
+  Map<Integer,StarTreeIndexNode> children=node.getChildren();
+  if (equalityPredicateColumns.contains(column)) {
+    int nextValueId;
+    PredicateEntry predicateEntry=predicatesMap.get(column);
+    nextValueId=predicateEntry.dictionaryId;
+    remainingPredicateColumns.remove(column);
+    remainingGroupByColumns.remove(column);
+    if (children.containsKey(nextValueId)) {
+      addNodeToSearchQueue(searchQueue,children.get(nextValueId),remainingPredicateColumns,remainingGroupByColumns);
+    }
+  }
+ else {
+    int nextValueId;
+    if (groupByColumns.contains(column) || predicatesMap.containsKey(column) || !children.containsKey(StarTreeIndexNode.all())) {
+      for (      StarTreeIndexNode indexNode : children.values()) {
+        if (indexNode.getDimensionValue() != StarTreeIndexNode.all()) {
+          remainingPredicateColumns.remove(column);
+          remainingGroupByColumns.remove(column);
+          addNodeToSearchQueue(searchQueue,indexNode,remainingPredicateColumns,remainingGroupByColumns);
+        }
+      }
+    }
+ else {
+      nextValueId=StarTreeIndexNode.all();
+      addNodeToSearchQueue(searchQueue,children.get(nextValueId),remainingPredicateColumns,remainingGroupByColumns);
+    }
+  }
+}

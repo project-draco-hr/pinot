@@ -1,0 +1,17 @@
+{
+  Preconditions.checkArgument(columnToMove != null);
+  Preconditions.checkArgument(newPositionForTimeColumn >= 0 && newPositionForTimeColumn < origSortOrder.length);
+  int timeDimensionIndex=dimensionNameToIndexMap.get(columnToMove);
+  int[] newSortOrder=new int[origSortOrder.length];
+  int index=0;
+  for (int i=0; i < newPositionForTimeColumn; i++) {
+    newSortOrder[index++]=origSortOrder[i];
+  }
+  newSortOrder[index++]=timeDimensionIndex;
+  for (int i=newPositionForTimeColumn; i < numDimensions; i++) {
+    if (i != timeDimensionIndex) {
+      newSortOrder[index++]=origSortOrder[i];
+    }
+  }
+  return newSortOrder;
+}

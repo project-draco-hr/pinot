@@ -11,6 +11,8 @@
   dataBuffer.flush();
   sort(dataFile,0,rawRecordCount);
   constructStarTree(starTreeRootIndexNode,0,rawRecordCount,0,dataFile);
+  splitLeafNodesOnTimeColumn();
+  createAggDocForAllNodes(starTreeRootIndexNode);
   long end=System.currentTimeMillis();
   LOG.debug("Took {} ms to build star tree index. Original records:{} Materialized record:{}",(end - start),rawRecordCount,aggRecordCount);
   starTree=new StarTree(starTreeRootIndexNode,dimensionNameToIndexMap);
