@@ -1,0 +1,42 @@
+{
+  MultiGetRequest mget=new MultiGetRequest(Executors.newCachedThreadPool(),new MultiThreadedHttpConnectionManager());
+  List<String> urls=Arrays.asList("http://localhost:" + String.valueOf(portStart) + URI_PATH,"http://localhost:" + String.valueOf(portStart + 1) + URI_PATH,"http://localhost:" + String.valueOf(portStart + 2) + URI_PATH,"http://localhost:" + String.valueOf(portStart) + URI_PATH);
+  final int requestTimeoutMs=1000;
+  CompletionService<GetMethod> completionService=mget.execute(urls,requestTimeoutMs);
+  int success=0;
+  int errors=0;
+  int timeouts=0;
+  for (int i=0; i < urls.size(); i++) {
+    try {
+      GetMethod getMethod=completionService.take().get();
+      if (getMethod.getStatusCode() >= 300) {
+        ++errors;
+        Assert.assertEquals(getMethod.getResponseBodyAsString(),ERROR_MSG);
+      }
+ else {
+        ++success;
+        Assert.assertEquals(getMethod.getResponseBodyAsString(),SUCCESS_MSG);
+      }
+    }
+ catch (    InterruptedException e) {
+      LOGGER.error("Interrupted",e);
+      ++errors;
+    }
+catch (    ExecutionException e) {
+      if (Throwables.getRootCause(e) instanceof SocketTimeoutException) {
+        LOGGER.debug("Timeout");
+        ++timeouts;
+      }
+ else {
+        LOGGER.error("Error",e);
+        ++errors;
+      }
+    }
+catch (    IOException e) {
+      ++errors;
+    }
+  }
+  Assert.assertEquals(2,success);
+  Assert.assertEquals(1,errors);
+  Assert.assertEquals(1,timeouts);
+}

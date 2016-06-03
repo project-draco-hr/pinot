@@ -1,0 +1,12 @@
+{
+  final HttpServer server=HttpServer.create(new InetSocketAddress(port),0);
+  server.createContext(URI_PATH,handler);
+  new Thread(new Runnable(){
+    @Override public void run(){
+      server.start();
+    }
+  }
+).start();
+  servers.add(server);
+  return server;
+}

@@ -1,0 +1,18 @@
+{
+  Preconditions.checkNotNull(urls);
+  Preconditions.checkArgument(timeoutMs > 0,"Timeout value for multi-get must be greater than 0");
+  CompletionService<GetMethod> completionService=new ExecutorCompletionService<>(executor);
+  for (  final String url : urls) {
+    completionService.submit(new Callable<GetMethod>(){
+      @Override public GetMethod call() throws Exception {
+        HttpClient client=new HttpClient(connectionManager);
+        GetMethod getMethod=new GetMethod(url);
+        getMethod.getParams().setSoTimeout(timeoutMs);
+        client.executeMethod(getMethod);
+        return getMethod;
+      }
+    }
+);
+  }
+  return completionService;
+}
