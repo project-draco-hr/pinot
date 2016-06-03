@@ -1,12 +1,19 @@
 {
   while (!_closing) {
     try {
-      Set<Integer> segmentIds=pickSegments();
-      List<String> segmentList=new ArrayList<>(segmentIds.size());
-      for (      Integer segmentId : segmentIds) {
-        segmentList.add(segmentPrefix + segmentId);
+      List<SegmentDataManager> segmentDataManagers=null;
+      double probability=_random.nextDouble();
+      if (probability <= acquireAllProbability) {
+        segmentDataManagers=_tableDataManager.acquireAllSegments();
       }
-      List<SegmentDataManager> segmentDataManagers=_tableDataManager.acquireSegments(segmentList);
+ else {
+        Set<Integer> segmentIds=pickSegments();
+        List<String> segmentList=new ArrayList<>(segmentIds.size());
+        for (        Integer segmentId : segmentIds) {
+          segmentList.add(segmentPrefix + segmentId);
+        }
+        segmentDataManagers=_tableDataManager.acquireSegments(segmentList);
+      }
       for (      SegmentDataManager segmentDataManager : segmentDataManagers) {
         _accessedSegManagers.add(segmentDataManager);
       }

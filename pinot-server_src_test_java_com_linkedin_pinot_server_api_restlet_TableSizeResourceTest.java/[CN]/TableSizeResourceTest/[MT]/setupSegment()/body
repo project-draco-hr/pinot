@@ -1,0 +1,12 @@
+{
+  final String filePath=TestUtils.getFileFromResourceUrl(SegmentV1V2ToV3FormatConverter.class.getClassLoader().getResource(AVRO_DATA));
+  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.HOURS,"testTable");
+  config.setSegmentNamePostfix("1");
+  config.setTimeColumnName("daysSinceEpoch");
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(config);
+  driver.build();
+  File segmentDirectory=new File(INDEX_DIR,driver.getSegmentName());
+  indexSegment=ColumnarSegmentLoader.load(segmentDirectory,ReadMode.mmap);
+  serverInstance.getInstanceDataManager().addSegment(indexSegment.getSegmentMetadata(),null);
+}

@@ -1,0 +1,36 @@
+{
+  if (dataManager == null) {
+    setStatus(Status.SERVER_ERROR_INTERNAL,"Invalid server initialization");
+    return new StringRepresentation("{\"message\" : \"Server is incorrectly initialized\"}");
+  }
+  TableDataManager tableDataManager=dataManager.getTableDataManager(tableName);
+  if (tableDataManager == null) {
+    setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+    return new StringRepresentation("{\"message\" : \"Table " + tableName + " is not found\"}");
+  }
+  TableSizeInfo tableSizeInfo=new TableSizeInfo();
+  tableSizeInfo.tableName=tableDataManager.getTableName();
+  tableSizeInfo.diskSizeInBytes=0L;
+  ImmutableList<SegmentDataManager> segmentDataManagers=tableDataManager.acquireAllSegments();
+  for (  SegmentDataManager segmentDataManager : segmentDataManagers) {
+    IndexSegment segment=segmentDataManager.getSegment();
+    long segmentSizeBytes=segment.getDiskSizeBytes();
+    if (detailed) {
+      SegmentSizeInfo segmentSizeInfo=new SegmentSizeInfo();
+      segmentSizeInfo.segmentName=segment.getSegmentName();
+      segmentSizeInfo.diskSizeInBytes=segmentSizeBytes;
+      tableSizeInfo.segments.add(segmentSizeInfo);
+    }
+    tableSizeInfo.diskSizeInBytes+=segmentSizeBytes;
+  }
+  for (  SegmentDataManager segmentDataManager : segmentDataManagers) {
+    tableDataManager.releaseSegment(segmentDataManager);
+  }
+  try {
+    return new StringRepresentation(new ObjectMapper().writeValueAsString(tableSizeInfo));
+  }
+ catch (  IOException e) {
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    return new StringRepresentation("{\"message\": \"Failed to convert data to json\"}");
+  }
+}

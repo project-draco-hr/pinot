@@ -1,0 +1,16 @@
+{
+  INDEX_DIR=Files.createTempDirectory(TableSizeResourceTest.class.getName() + "_segmentDir").toFile();
+  File confFile=new File(TestUtils.getFileFromResourceUrl(InstanceServerStarter.class.getClassLoader().getResource("conf/pinot.properties")));
+  PropertiesConfiguration config=new PropertiesConfiguration();
+  config.setDelimiterParsingDisabled(false);
+  config.load(confFile);
+  ServerConf serverConf=new ServerConf(config);
+  LOGGER.info("Trying to create a new ServerInstance!");
+  serverInstance=new ServerInstance();
+  LOGGER.info("Trying to initial ServerInstance!");
+  serverInstance.init(serverConf,new MetricsRegistry());
+  LOGGER.info("Trying to start ServerInstance!");
+  serverInstance.start();
+  apiService=new AdminApiService(serverInstance);
+  apiService.start(Integer.parseInt(CommonConstants.Server.DEFAULT_ADMIN_API_PORT));
+}

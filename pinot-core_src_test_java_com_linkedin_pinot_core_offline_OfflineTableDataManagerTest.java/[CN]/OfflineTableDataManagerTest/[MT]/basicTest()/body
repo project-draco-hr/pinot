@@ -14,12 +14,21 @@
   Assert.assertEquals(_nDestroys,1);
   segmentDataManager=tableDataManager.acquireSegment(segmentName);
   Assert.assertNull(segmentDataManager);
+  ImmutableList<SegmentDataManager> segmentDataManagers=tableDataManager.acquireAllSegments();
+  Assert.assertEquals(segmentDataManagers.size(),0);
   tableDataManager.releaseSegment(segmentDataManager);
   tableDataManager.removeSegment(segmentName);
   final String anotherSeg="AnotherSegment";
   IndexSegment ix1=makeIndexSegment(anotherSeg,totalDocs);
   tableDataManager.addSegment(ix1);
   SegmentDataManager sdm1=tableDataManager.acquireSegment(anotherSeg);
+  verifyCount(sdm1,2);
+  ImmutableList<SegmentDataManager> segmentDataManagersList=tableDataManager.acquireAllSegments();
+  Assert.assertEquals(segmentDataManagersList.size(),1);
+  verifyCount(sdm1,3);
+  for (  SegmentDataManager dataManager : segmentDataManagersList) {
+    tableDataManager.releaseSegment(dataManager);
+  }
   verifyCount(sdm1,2);
   tableDataManager.releaseSegment(sdm1);
   verifyCount(sdm1,1);

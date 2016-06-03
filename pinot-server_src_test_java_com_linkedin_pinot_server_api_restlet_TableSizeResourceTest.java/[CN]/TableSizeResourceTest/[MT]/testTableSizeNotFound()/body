@@ -1,0 +1,6 @@
+{
+  Client client=new Client(Protocol.HTTP);
+  Request request=new Request(Method.GET,"http://localhost:" + CommonConstants.Server.DEFAULT_ADMIN_API_PORT + "/table/unknownTable/size");
+  Response response=client.handle(request);
+  Assert.assertEquals(response.getStatus(),Status.CLIENT_ERROR_NOT_FOUND);
+}

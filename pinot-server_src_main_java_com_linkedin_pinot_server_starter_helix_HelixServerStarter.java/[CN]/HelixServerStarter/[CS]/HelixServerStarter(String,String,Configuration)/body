@@ -47,26 +47,7 @@
     }
   }
 );
-  try {
-    int adminApiPort=pinotHelixProperties.getInt(CommonConstants.Server.CONFIG_OF_ADMIN_API_PORT,Integer.parseInt(CommonConstants.Server.DEFAULT_ADMIN_API_PORT));
-    if (0 < adminApiPort) {
-      _adminApiComponent=new Component();
-      _adminApiComponent.getServers().add(Protocol.HTTP,adminApiPort);
-      _adminApiComponent.getClients().add(Protocol.FILE);
-      _adminApiComponent.getClients().add(Protocol.JAR);
-      _adminApiComponent.getClients().add(Protocol.WAR);
-      PinotAdminEndpointApplication adminEndpointApplication=new PinotAdminEndpointApplication();
-      final Context applicationContext=_adminApiComponent.getContext().createChildContext();
-      adminEndpointApplication.setContext(applicationContext);
-      _adminApiComponent.getDefaultHost().attach(adminEndpointApplication);
-      LOGGER.info("Will start admin API endpoint on port {}",adminApiPort);
-      _adminApiComponent.start();
-    }
- else {
-      LOGGER.warn("Not starting admin API endpoint due to invalid port number {}",adminApiPort);
-    }
-  }
- catch (  Exception e) {
-    LOGGER.warn("Not starting admin API endpoint due to exception",e);
-  }
+  int adminApiPort=pinotHelixProperties.getInt(CommonConstants.Server.CONFIG_OF_ADMIN_API_PORT,Integer.parseInt(CommonConstants.Server.DEFAULT_ADMIN_API_PORT));
+  adminApiService=new AdminApiService(_serverInstance);
+  adminApiService.start(adminApiPort);
 }

@@ -1,0 +1,16 @@
+{
+  setupSegment();
+  Client client=new Client(Protocol.HTTP);
+{
+    Request request=new Request(Method.GET,"http://localhost:" + CommonConstants.Server.DEFAULT_ADMIN_API_PORT + "/table/testTable/size");
+    Response response=client.handle(request);
+    Assert.assertEquals(response.getStatus(),Status.SUCCESS_OK);
+    String body=response.getEntity().getText();
+    TableSizeResource.TableSizeInfo tableSizeInfo=new ObjectMapper().readValue(body,TableSizeResource.TableSizeInfo.class);
+    Assert.assertEquals("testTable",tableSizeInfo.tableName);
+    Assert.assertEquals(1,tableSizeInfo.segments.size());
+    Assert.assertEquals(indexSegment.getSegmentName(),tableSizeInfo.segments.get(0).segmentName);
+    Assert.assertEquals(tableSizeInfo.segments.get(0).diskSizeInBytes,indexSegment.getDiskSizeBytes());
+    Assert.assertEquals(tableSizeInfo.diskSizeInBytes,indexSegment.getDiskSizeBytes());
+  }
+}

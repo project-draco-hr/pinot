@@ -1,0 +1,15 @@
+{
+  ImmutableList.Builder<SegmentDataManager> segmentListBuilder=ImmutableList.builder();
+  try {
+    _rwLock.readLock().lock();
+    for (    Map.Entry<String,SegmentDataManager> segmentEntry : _segmentsMap.entrySet()) {
+      SegmentDataManager segmentDataManager=segmentEntry.getValue();
+      segmentDataManager.incrementRefCnt();
+      segmentListBuilder.add(segmentDataManager);
+    }
+  }
+  finally {
+    _rwLock.readLock().unlock();
+  }
+  return segmentListBuilder.build();
+}
