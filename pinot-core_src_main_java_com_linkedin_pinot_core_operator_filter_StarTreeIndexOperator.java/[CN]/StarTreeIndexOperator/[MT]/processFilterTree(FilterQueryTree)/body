@@ -3,21 +3,11 @@
   Predicate predicate=Predicate.newPredicate(childFilter);
   Dictionary dictionary=segment.getDataSource(column).getDictionary();
   PredicateEntry predicateEntry=null;
-  if (childFilter.getOperator() == FilterOperator.EQUALITY) {
-    EqPredicate eqPredicate=(EqPredicate)predicate;
-    int dictId=dictionary.indexOf(eqPredicate.getEqualsValue());
-    if (dictId < 0) {
-      emptyResult=true;
-    }
-    predicateEntry=new PredicateEntry(predicate,dictId);
-    equalityPredicateColumns.add(column);
+  PredicateEvaluator predicateEvaluator=PredicateEvaluatorProvider.getPredicateFunctionFor(predicate,dictionary);
+  if (predicateEvaluator.alwaysFalse()) {
+    emptyResult=true;
   }
- else {
-    PredicateEvaluator predicateEvaluator=PredicateEvaluatorProvider.getPredicateFunctionFor(predicate,dictionary);
-    if (predicateEvaluator.alwaysFalse()) {
-      emptyResult=true;
-    }
-    predicateEntry=new PredicateEntry(predicate,-1);
-  }
+  predicateEntry=new PredicateEntry(predicate,predicateEvaluator);
+  predicateColumns.add(column);
   predicatesMap.put(column,predicateEntry);
 }

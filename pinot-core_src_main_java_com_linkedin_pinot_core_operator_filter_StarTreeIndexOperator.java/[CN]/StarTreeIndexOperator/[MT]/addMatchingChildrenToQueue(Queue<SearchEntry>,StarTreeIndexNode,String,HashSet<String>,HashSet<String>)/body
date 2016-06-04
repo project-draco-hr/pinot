@@ -1,13 +1,14 @@
 {
   Map<Integer,StarTreeIndexNode> children=node.getChildren();
-  if (equalityPredicateColumns.contains(column)) {
-    int nextValueId;
+  if (predicateColumns.contains(column)) {
     PredicateEntry predicateEntry=predicatesMap.get(column);
-    nextValueId=predicateEntry.dictionaryId;
     remainingPredicateColumns.remove(column);
     remainingGroupByColumns.remove(column);
-    if (children.containsKey(nextValueId)) {
-      addNodeToSearchQueue(searchQueue,children.get(nextValueId),remainingPredicateColumns,remainingGroupByColumns);
+    int[] matchingDictionaryIds=predicateEntry.predicateEvaluator.getMatchingDictionaryIds();
+    for (    int matchingDictionaryId : matchingDictionaryIds) {
+      if (children.containsKey(matchingDictionaryId)) {
+        addNodeToSearchQueue(searchQueue,children.get(matchingDictionaryId),remainingPredicateColumns,remainingGroupByColumns);
+      }
     }
   }
  else {
