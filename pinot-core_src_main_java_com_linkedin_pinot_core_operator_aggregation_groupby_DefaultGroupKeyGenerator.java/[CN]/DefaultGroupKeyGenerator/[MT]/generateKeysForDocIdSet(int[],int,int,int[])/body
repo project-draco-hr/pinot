@@ -1,7 +1,13 @@
 {
-  int endIndex=startIndex + length - 1;
-  for (int i=startIndex; i <= endIndex; ++i) {
-    int docId=docIdSet[i];
-    docIdToGroupKey[i]=generateKeyForDocId(docId);
+  Preconditions.checkArgument(startIndex == 0);
+  for (int i=0; i < _numGroupByColumns; i++) {
+    _singleBlockValSets[i].readIntValues(docIdSet,0,length,_singleDictIds[i],0);
+  }
+  for (int i=0; i < length; i++) {
+    long rawKey=0;
+    for (int j=0; j < _numGroupByColumns; j++) {
+      rawKey=rawKey * _cardinalities[j] + _singleDictIds[j][i];
+    }
+    docIdToGroupKey[i]=updateRawKeyToGroupKeyMapping(rawKey);
   }
 }

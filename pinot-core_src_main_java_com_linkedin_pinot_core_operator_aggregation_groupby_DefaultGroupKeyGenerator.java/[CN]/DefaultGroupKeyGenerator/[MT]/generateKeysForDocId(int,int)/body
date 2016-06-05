@@ -1,11 +1,9 @@
 {
   List<Long> groupByKeys=new ArrayList<>();
-  groupByKeys.add(0l);
-  for (int i=0; i < _groupByColumns.length; i++) {
+  groupByKeys.add(0L);
+  for (int i=0; i < _numGroupByColumns; i++) {
     if (_isSingleValueGroupByColumn[i]) {
-      BlockSingleValIterator blockValIterator=_singleValIterators[i];
-      blockValIterator.skipTo(docId);
-      int dictId=blockValIterator.nextIntVal();
+      int dictId=_singleDictIds[i][index];
       for (int j=0; j < groupByKeys.size(); j++) {
         groupByKeys.set(j,groupByKeys.get(j) * _cardinalities[i] + dictId);
       }
@@ -13,7 +11,7 @@
  else {
       BlockMultiValIterator blockValIterator=_multiValIterators[i];
       blockValIterator.skipTo(docId);
-      int numMultiValues=blockValIterator.nextIntVal(_multiValueResulableArray[i]);
+      int numMultiValues=blockValIterator.nextIntVal(_reusableMultiValDictIdArray);
       int originalSize=groupByKeys.size();
       for (int j=0; j < numMultiValues - 1; ++j) {
         for (int k=0; k < originalSize; k++) {
@@ -22,8 +20,8 @@
       }
       for (int j=0; j < numMultiValues; j++) {
         for (int k=0; k < originalSize; k++) {
-          int index=j * originalSize + k;
-          groupByKeys.set(index,(groupByKeys.get(index) * _cardinalities[i]) + _multiValueResulableArray[i][j]);
+          int idx=j * originalSize + k;
+          groupByKeys.set(idx,(groupByKeys.get(idx) * _cardinalities[i]) + _reusableMultiValDictIdArray[j]);
         }
       }
     }

@@ -1,27 +1,30 @@
 {
   _groupByColumns=groupByColumns;
-  int numGroupByColumns=groupByColumns.length;
-  _multiValueResulableArray=new int[numGroupByColumns][];
-  _singleValIterators=new BlockSingleValIterator[numGroupByColumns];
-  _multiValIterators=new BlockMultiValIterator[numGroupByColumns];
-  _dictionaries=new Dictionary[numGroupByColumns];
-  _cardinalities=new int[numGroupByColumns];
-  _isSingleValueGroupByColumn=new boolean[numGroupByColumns];
-  for (int i=0; i < numGroupByColumns; i++) {
+  _numGroupByColumns=groupByColumns.length;
+  _singleBlockValSets=new BlockValSet[_numGroupByColumns];
+  _singleDictIds=new int[_numGroupByColumns][];
+  _multiValIterators=new BlockMultiValIterator[_numGroupByColumns];
+  _dictionaries=new Dictionary[_numGroupByColumns];
+  _cardinalities=new int[_numGroupByColumns];
+  _isSingleValueGroupByColumn=new boolean[_numGroupByColumns];
+  int maxNumMultiValues=0;
+  for (int i=0; i < _numGroupByColumns; i++) {
     DataSource dataSource=indexSegment.getDataSource(_groupByColumns[i]);
     _dictionaries[i]=dataSource.getDictionary();
     _cardinalities[i]=dataSource.getDataSourceMetadata().cardinality();
-    _isSingleValueGroupByColumn[i]=(dataSource.getDataSourceMetadata().isSingleValue()) ? true : false;
+    _isSingleValueGroupByColumn[i]=dataSource.getDataSourceMetadata().isSingleValue();
     Block block=dataSource.nextBlock();
     if (_isSingleValueGroupByColumn[i]) {
-      _singleValIterators[i]=(BlockSingleValIterator)block.getBlockValueSet().iterator();
+      BlockValSet blockValSet=block.getBlockValueSet();
+      _singleBlockValSets[i]=blockValSet;
+      _singleDictIds[i]=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL];
     }
  else {
-      int maxNumberOfMultiValues=block.getMetadata().getMaxNumberOfMultiValues();
-      _multiValueResulableArray[i]=new int[maxNumberOfMultiValues];
+      maxNumMultiValues=Math.max(maxNumMultiValues,block.getMetadata().getMaxNumberOfMultiValues());
       _multiValIterators[i]=(BlockMultiValIterator)block.getBlockValueSet().iterator();
     }
   }
+  _reusableMultiValDictIdArray=new int[maxNumMultiValues];
   _numUniqueGroupKeys=0;
   if (maxNumGroupKeys <= ResultHolderFactory.MAX_INITIAL_RESULT_HOLDER_CAPACITY) {
     _storageType=STORAGE_TYPE.ARRAY_BASED;
@@ -32,5 +35,5 @@
     _groupKeyToId=new Long2IntOpenHashMap();
     _groupKeyToId.defaultReturnValue(INVALID_ID);
   }
-  _reusableGroupByValuesArray=new int[numGroupByColumns];
+  _reusableGroupByValuesArray=new int[_numGroupByColumns];
 }
