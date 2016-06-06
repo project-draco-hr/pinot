@@ -1,0 +1,9 @@
+{
+  double change=calculatePercentChange(currentValue,baselineValue);
+  NumberFormat percentInstance=NumberFormat.getPercentInstance();
+  percentInstance.setMaximumFractionDigits(2);
+  String thresholdPercent=percentInstance.format(threshold);
+  String changePercent=percentInstance.format(change);
+  String message=String.format(DEFAULT_MESSAGE_TEMPLATE,thresholdPercent,baselineProp,currentValue,baselineValue,changePercent);
+  return message;
+}

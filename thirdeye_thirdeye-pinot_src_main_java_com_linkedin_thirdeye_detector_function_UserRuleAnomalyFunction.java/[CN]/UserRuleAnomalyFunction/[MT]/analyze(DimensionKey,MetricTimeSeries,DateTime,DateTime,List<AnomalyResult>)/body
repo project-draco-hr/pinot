@@ -9,7 +9,6 @@
   }
   String baselineProp=props.getProperty(BASELINE);
   long baselineMillis=getBaselineMillis(baselineProp);
-  String messageTemplate=props.getProperty(MESSAGE_TEMPLATE,DEFAULT_MESSAGE_TEMPLATE);
   long bucketMillis=TimeUnit.MILLISECONDS.convert(getSpec().getBucketSize(),getSpec().getBucketUnit());
   double averageValue=0;
   for (  Long time : timeSeries.getTimeWindowSet()) {
@@ -39,7 +38,7 @@
       anomalyResult.setEndTimeUtc(null);
       anomalyResult.setScore(calculatePercentChange(currentValue,baselineValue));
       anomalyResult.setWeight(averageValue);
-      String message=String.format(messageTemplate,changeThreshold,baselineProp,currentValue,baselineValue,calculatePercentChange(currentValue,baselineValue));
+      String message=getAnomalyResultMessage(changeThreshold,baselineProp,currentValue,baselineValue);
       anomalyResult.setMessage(message);
       anomalyResult.setFilters(getSpec().getFilters());
       anomalyResults.add(anomalyResult);
