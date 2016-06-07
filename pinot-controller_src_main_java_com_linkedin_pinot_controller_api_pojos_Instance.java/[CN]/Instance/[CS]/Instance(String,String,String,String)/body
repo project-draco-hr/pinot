@@ -1,0 +1,16 @@
+{
+  _host=host;
+  _port=port;
+  _tag=tag;
+  if (CommonConstants.Helix.SERVER_INSTANCE_TYPE.equalsIgnoreCase(type)) {
+    _instancePrefix=CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE;
+    _type=CommonConstants.Helix.SERVER_INSTANCE_TYPE;
+  }
+ else   if (CommonConstants.Helix.BROKER_INSTANCE_TYPE.equalsIgnoreCase(type)) {
+    _instancePrefix=CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE;
+    _type=CommonConstants.Helix.BROKER_INSTANCE_TYPE;
+  }
+ else {
+    throw new IllegalArgumentException("Invalid instance type " + type + ", expected either server or broker");
+  }
+}

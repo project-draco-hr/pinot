@@ -1,0 +1,15 @@
+{
+  if (_tag != null) {
+    return _tag;
+  }
+ else {
+switch (_type) {
+case CommonConstants.Helix.SERVER_INSTANCE_TYPE:
+      return CommonConstants.Helix.UNTAGGED_SERVER_INSTANCE;
+case CommonConstants.Helix.BROKER_INSTANCE_TYPE:
+    return CommonConstants.Helix.UNTAGGED_BROKER_INSTANCE;
+default :
+  throw new RuntimeException("Unknown instance type " + _type + ", was expecting either server or broker");
+}
+}
+}
