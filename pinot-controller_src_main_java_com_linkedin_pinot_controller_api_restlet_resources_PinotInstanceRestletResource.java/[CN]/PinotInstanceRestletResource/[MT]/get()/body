@@ -2,19 +2,11 @@
   Representation presentation;
   try {
     final String instanceName=(String)getRequest().getAttributes().get(INSTANCE_NAME);
-    final String state=getReference().getQueryAsForm().getValues(STATE);
-    if (!isValidState(state)) {
-      LOGGER.error(INVALID_STATE_ERROR);
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-      return new StringRepresentation(INVALID_STATE_ERROR);
-    }
     if (instanceName == null) {
       presentation=getAllInstances();
     }
- else     if (_pinotHelixResourceManager.instanceExists(instanceName)) {
-      presentation=toggleInstanceState(instanceName,state);
-    }
  else {
+      setStatus(Status.CLIENT_ERROR_NOT_FOUND);
       presentation=new StringRepresentation("Error: Instance " + instanceName + " not found.");
     }
   }

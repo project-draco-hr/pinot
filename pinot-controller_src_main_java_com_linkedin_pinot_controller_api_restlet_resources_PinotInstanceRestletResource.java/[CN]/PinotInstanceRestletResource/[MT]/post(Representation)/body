@@ -1,13 +1,41 @@
 {
-  StringRepresentation presentation=null;
+  StringRepresentation presentation;
   try {
-    final Instance instance=mapper.readValue(ByteStreams.toByteArray(entity.getStream()),Instance.class);
-    presentation=addInstance(instance);
+    final String instanceName=(String)getRequest().getAttributes().get(INSTANCE_NAME);
+    if (instanceName == null) {
+      try {
+        final Instance instance=mapper.readValue(ByteStreams.toByteArray(entity.getStream()),Instance.class);
+        presentation=addInstance(instance);
+      }
+ catch (      final Exception e) {
+        presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
+        LOGGER.error("Caught exception while processing post request",e);
+        ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
+        setStatus(Status.SERVER_ERROR_INTERNAL);
+      }
+    }
+ else {
+      if (_pinotHelixResourceManager.instanceExists(instanceName)) {
+        final String state=getRequest().getEntityAsText().trim();
+        if (isValidState(state)) {
+          presentation=toggleInstanceState(instanceName,state);
+        }
+ else {
+          LOGGER.error(INVALID_STATE_ERROR);
+          setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+          return new StringRepresentation(INVALID_STATE_ERROR);
+        }
+      }
+ else {
+        setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+        presentation=new StringRepresentation("Error: Instance " + instanceName + " not found.");
+      }
+    }
   }
  catch (  final Exception e) {
     presentation=new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
     LOGGER.error("Caught exception while processing post request",e);
-    ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_INTERNAL_ERROR,1L);
+    ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_INSTANCE_POST_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
   }
   return presentation;
