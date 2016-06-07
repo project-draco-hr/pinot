@@ -1,5 +1,8 @@
 {
   _config=configuration;
+  if (_config.containsKey(BROKER_DELAY_SHUTDOWN_TIME_CONFIG)) {
+    delayedShutdownTimeMs=_config.getLong(BROKER_DELAY_SHUTDOWN_TIME_CONFIG,DEFAULT_BROKER_DELAY_SHUTDOWN_TIME_MS);
+  }
   _routingTable=helixExternalViewBasedRouting;
   _timeBoundaryService=timeBoundaryService;
   this.listener=listener;
