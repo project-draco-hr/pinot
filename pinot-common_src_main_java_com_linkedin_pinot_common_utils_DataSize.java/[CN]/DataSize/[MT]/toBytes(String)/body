@@ -1,0 +1,14 @@
+{
+  Matcher matcher=STORAGE_VAL_PATTERN.matcher(val);
+  if (!matcher.matches()) {
+    return -1;
+  }
+  String number=matcher.group(1);
+  String unit=matcher.group(2);
+  if (unit == null) {
+    unit="B";
+  }
+  long multiplier=MULTIPLIER.get(unit.toUpperCase());
+  BigDecimal bytes=new BigDecimal(number);
+  return bytes.multiply(BigDecimal.valueOf(multiplier)).longValue();
+}
