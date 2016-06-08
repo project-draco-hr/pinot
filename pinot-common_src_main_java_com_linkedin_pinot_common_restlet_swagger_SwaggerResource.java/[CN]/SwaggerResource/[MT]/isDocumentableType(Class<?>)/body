@@ -1,0 +1,12 @@
+{
+  Constructor<?>[] constructors=clazz.getDeclaredConstructors();
+  for (  Constructor<?> constructor : constructors) {
+    Annotation[] constructorAnnotations=constructor.getDeclaredAnnotations();
+    for (    Annotation constructorAnnotation : constructorAnnotations) {
+      if (constructorAnnotation instanceof JsonCreator) {
+        return true;
+      }
+    }
+  }
+  return false;
+}

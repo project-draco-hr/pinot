@@ -39,7 +39,11 @@
       }
       operation.put("operationId",method.getName());
       ArrayList<JSONObject> parameters=new ArrayList<JSONObject>();
-      for (      Annotation[] annotations : method.getParameterAnnotations()) {
+      Annotation[][] parameterAnnotations=method.getParameterAnnotations();
+      Class<?>[] parameterTypes=method.getParameterTypes();
+      for (int i=0; i < parameterTypes.length; i++) {
+        Class<?> parameterType=parameterTypes[i];
+        Annotation[] annotations=parameterAnnotations[i];
         if (annotations.length != 0) {
           JSONObject parameter=new JSONObject();
           for (          Annotation annotation : annotations) {
@@ -50,8 +54,34 @@
               if (parameterAnnotation.description() != null) {
                 parameter.put("description",parameterAnnotation.description());
               }
-              parameter.put("type","string");
               parameter.put("required",parameterAnnotation.required());
+              if (parameterType.equals(String.class)) {
+                parameter.put("type","string");
+              }
+ else               if (parameterType.equals(Boolean.class) || parameterType.equals(Boolean.TYPE)) {
+                parameter.put("type","boolean");
+              }
+ else               if (parameterType.equals(Integer.class) || parameterType.equals(Integer.TYPE)) {
+                parameter.put("type","integer");
+              }
+ else               if (parameterType.equals(Long.class) || parameterType.equals(Long.TYPE)) {
+                parameter.put("type","integer");
+              }
+ else               if (parameterType.equals(Float.class) || parameterType.equals(Float.TYPE)) {
+                parameter.put("type","boolean");
+              }
+ else               if (parameterType.equals(Double.class) || parameterType.equals(Double.TYPE)) {
+                parameter.put("type","double");
+              }
+ else               if (parameterType.equals(Byte.class) || parameterType.equals(Byte.TYPE)) {
+                parameter.put("type","string");
+              }
+ else               if (isDocumentableType(parameterType)) {
+                parameter.put("schema",schemaForType(parameterType));
+              }
+ else {
+                parameter.put("type","string");
+              }
             }
           }
           if (parameter.keys().hasNext()) {
