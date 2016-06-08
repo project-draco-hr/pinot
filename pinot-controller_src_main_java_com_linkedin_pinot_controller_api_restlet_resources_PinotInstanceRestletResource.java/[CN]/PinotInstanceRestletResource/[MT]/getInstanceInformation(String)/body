@@ -1,0 +1,21 @@
+{
+  try {
+    if (!_pinotHelixResourceManager.instanceExists(instanceName)) {
+      setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+      return new StringRepresentation("Error: Instance " + instanceName + " not found.");
+    }
+    InstanceConfig instanceConfig=_pinotHelixResourceManager.getHelixInstanceConfig(instanceName);
+    JSONObject response=new JSONObject();
+    response.put("instanceName",instanceConfig.getInstanceName());
+    response.put("hostName",instanceConfig.getHostName());
+    response.put("enabled",instanceConfig.getInstanceEnabled());
+    response.put("port",instanceConfig.getPort());
+    response.put("tags",new JSONArray(instanceConfig.getTags()));
+    return new StringRepresentation(response.toString());
+  }
+ catch (  Exception e) {
+    LOGGER.warn("Caught exception while fetching information for instance {}",instanceName,e);
+    setStatus(Status.SERVER_ERROR_INTERNAL);
+    return new StringRepresentation("{}");
+  }
+}
