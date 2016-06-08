@@ -5,7 +5,7 @@ case LONG:
 case DOUBLE:
   return resultHolder.getDoubleResult();
 case AVERAGE_PAIR:
-Pair<Double,Long> doubleLongPair=(Pair<Double,Long>)resultHolder.getResult();
+Pair<Double,Long> doubleLongPair=resultHolder.getResult();
 if (doubleLongPair == null) {
 return new AvgAggregationFunction.AvgPair(0.0,0L);
 }
@@ -13,7 +13,7 @@ return new AvgAggregationFunction.AvgPair(0.0,0L);
 return new AvgAggregationFunction.AvgPair(doubleLongPair.getFirst(),doubleLongPair.getSecond());
 }
 case MINMAXRANGE_PAIR:
-Pair<Double,Double> doubleDoublePair=(Pair<Double,Double>)resultHolder.getResult();
+Pair<Double,Double> doubleDoublePair=resultHolder.getResult();
 if (doubleDoublePair == null) {
 return new MinMaxRangeAggregationFunction.MinMaxRangePair(Double.POSITIVE_INFINITY,Double.NEGATIVE_INFINITY);
 }
@@ -21,7 +21,7 @@ return new MinMaxRangeAggregationFunction.MinMaxRangePair(Double.POSITIVE_INFINI
 return new MinMaxRangeAggregationFunction.MinMaxRangePair(doubleDoublePair.getFirst(),doubleDoublePair.getSecond());
 }
 case DISTINCTCOUNT_SET:
-IntOpenHashSet intOpenHashSet=(IntOpenHashSet)resultHolder.getResult();
+IntOpenHashSet intOpenHashSet=resultHolder.getResult();
 if (intOpenHashSet == null) {
 return new IntOpenHashSet();
 }
@@ -29,7 +29,7 @@ return new IntOpenHashSet();
 return intOpenHashSet;
 }
 case DISTINCTCOUNTHLL_HYPERLOGLOG:
-HyperLogLog hyperLogLog=(HyperLogLog)resultHolder.getResult();
+HyperLogLog hyperLogLog=resultHolder.getResult();
 if (hyperLogLog == null) {
 return new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
 }
@@ -37,7 +37,7 @@ return new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
 return hyperLogLog;
 }
 case PERCENTILE_LIST:
-DoubleArrayList doubleArrayList=(DoubleArrayList)resultHolder.getResult();
+DoubleArrayList doubleArrayList=resultHolder.getResult();
 if (doubleArrayList == null) {
 return new DoubleArrayList();
 }
@@ -45,7 +45,7 @@ return new DoubleArrayList();
 return doubleArrayList;
 }
 case PERCENTILEEST_QUANTILEDIGEST:
-QuantileDigest quantileDigest=(QuantileDigest)resultHolder.getResult();
+QuantileDigest quantileDigest=resultHolder.getResult();
 if (quantileDigest == null) {
 return new QuantileDigest(PercentileestAggregationFunction.DEFAULT_MAX_ERROR);
 }

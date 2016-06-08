@@ -1,10 +1,24 @@
 {
   Preconditions.checkNotNull(indexSegment);
-  Preconditions.checkArgument((aggregationsInfoList != null) && (aggregationsInfoList.size() > 0));
+  Preconditions.checkNotNull(aggregationInfoList);
+  Preconditions.checkArgument(aggregationInfoList.size() > 0);
   Preconditions.checkNotNull(groupBy);
   Preconditions.checkArgument(maxNumGroupKeys > 0);
-  _indexSegment=indexSegment;
-  _aggregationsInfoList=aggregationsInfoList;
-  _groupBy=groupBy;
-  _maxNumGroupKeys=maxNumGroupKeys;
+  DataFetcher dataFetcher=new DataFetcher(indexSegment);
+  _singleValueBlockCache=new SingleValueBlockCache(dataFetcher);
+  List<String> groupByColumnList=groupBy.getColumns();
+  String[] groupByColumns=groupByColumnList.toArray(new String[groupByColumnList.size()]);
+  _groupKeyGenerator=new DefaultGroupKeyGenerator(dataFetcher,groupByColumns,maxNumGroupKeys);
+  _numAggrFunc=aggregationInfoList.size();
+  _aggrFuncContextArray=new AggregationFunctionContext[_numAggrFunc];
+  _resultHolderArray=new GroupByResultHolder[_numAggrFunc];
+  for (int i=0; i < _numAggrFunc; i++) {
+    AggregationInfo aggregationInfo=aggregationInfoList.get(i);
+    String[] columns=aggregationInfo.getAggregationParams().get("column").trim().split(",");
+    AggregationFunctionContext aggregationFunctionContext=new AggregationFunctionContext(aggregationInfo.getAggregationType(),columns);
+    _aggrFuncContextArray[i]=aggregationFunctionContext;
+    AggregationFunction aggregationFunction=aggregationFunctionContext.getAggregationFunction();
+    _resultHolderArray[i]=ResultHolderFactory.getGroupByResultHolder(aggregationFunction,maxNumGroupKeys);
+  }
+  _hasMultiValuedColumns=hasMultiValueGroupByColumns(indexSegment,groupByColumns);
 }

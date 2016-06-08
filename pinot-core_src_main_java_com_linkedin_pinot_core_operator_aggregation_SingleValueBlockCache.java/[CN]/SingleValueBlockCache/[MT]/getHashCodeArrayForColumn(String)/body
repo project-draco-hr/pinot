@@ -1,0 +1,13 @@
+{
+  double[] hashCodes=_columnToHashCodesMap.get(column);
+  if (!_columnHashCodeLoaded.contains(column)) {
+    if (hashCodes == null) {
+      hashCodes=new double[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+      _columnToHashCodesMap.put(column,hashCodes);
+    }
+    int[] dictIds=getDictIdArrayForColumn(column);
+    _dataFetcher.fetchSingleHashCodes(column,dictIds,_startPos,_length,hashCodes,0);
+    _columnHashCodeLoaded.add(column);
+  }
+  return hashCodes;
+}

@@ -1,35 +1,36 @@
 {
-  List<Long> groupByKeys=new ArrayList<>();
-  groupByKeys.add(0L);
-  for (int i=0; i < _numGroupByColumns; i++) {
+  LongList groupKeysList=new LongArrayList();
+  groupKeysList.add(0L);
+  for (int i=_numGroupByColumns - 1; i >= 0; i--) {
     if (_isSingleValueGroupByColumn[i]) {
-      int dictId=_singleDictIds[i][index];
-      for (int j=0; j < groupByKeys.size(); j++) {
-        groupByKeys.set(j,groupByKeys.get(j) * _cardinalities[i] + dictId);
+      int dictId=_reusableSingleDictIds[i][index];
+      int size=groupKeysList.size();
+      for (int j=0; j < size; j++) {
+        groupKeysList.set(j,groupKeysList.getLong(j) * _cardinalities[i] + dictId);
       }
     }
  else {
       BlockMultiValIterator blockValIterator=_multiValIterators[i];
       blockValIterator.skipTo(docId);
-      int numMultiValues=blockValIterator.nextIntVal(_reusableMultiValDictIdArray);
-      int originalSize=groupByKeys.size();
-      for (int j=0; j < numMultiValues - 1; ++j) {
+      int numMultiValues=blockValIterator.nextIntVal(_reusableMultiValDictIdBuffer);
+      int originalSize=groupKeysList.size();
+      for (int j=0; j < numMultiValues - 1; j++) {
         for (int k=0; k < originalSize; k++) {
-          groupByKeys.add(groupByKeys.get(k));
+          groupKeysList.add(groupKeysList.getLong(k));
         }
       }
       for (int j=0; j < numMultiValues; j++) {
         for (int k=0; k < originalSize; k++) {
           int idx=j * originalSize + k;
-          groupByKeys.set(idx,(groupByKeys.get(idx) * _cardinalities[i]) + _reusableMultiValDictIdArray[j]);
+          groupKeysList.set(idx,(groupKeysList.getLong(idx) * _cardinalities[i]) + _reusableMultiValDictIdBuffer[j]);
         }
       }
     }
   }
-  int numGroupKeys=groupByKeys.size();
+  int numGroupKeys=groupKeysList.size();
   int[] groupKeys=new int[numGroupKeys];
   for (int i=0; i < numGroupKeys; i++) {
-    int groupKey=updateRawKeyToGroupKeyMapping(groupByKeys.get(i));
+    int groupKey=updateRawKeyToGroupKeyMapping(groupKeysList.getLong(i));
     groupKeys[i]=groupKey;
   }
   return groupKeys;

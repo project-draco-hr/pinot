@@ -1,0 +1,12 @@
+{
+  int[] dictIds=_columnToDictIdsMap.get(column);
+  if (!_columnDictIdLoaded.contains(column)) {
+    if (dictIds == null) {
+      dictIds=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+      _columnToDictIdsMap.put(column,dictIds);
+    }
+    _dataFetcher.fetchSingleDictIds(column,_docIds,_startPos,_length,dictIds,0);
+    _columnDictIdLoaded.add(column);
+  }
+  return dictIds;
+}

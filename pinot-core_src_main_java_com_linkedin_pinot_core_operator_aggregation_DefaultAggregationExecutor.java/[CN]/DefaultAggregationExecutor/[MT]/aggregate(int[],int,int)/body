@@ -1,8 +1,7 @@
 {
   Preconditions.checkState(_inited,"Method 'aggregate' cannot be called before 'init' for class " + getClass().getName());
-  fetchColumnDictIds(docIdSet,startIndex,length);
-  fetchColumnValues(startIndex,length);
-  for (int i=0; i < _aggrFuncContextList.size(); i++) {
-    aggregateColumn(_aggrFuncContextList.get(i),_resultHolderArray[i],length);
+  _singleValueBlockCache.initNewBlock(docIdSet,startIndex,length);
+  for (int i=0; i < _numAggrFunc; i++) {
+    aggregateColumn(_aggrFuncContextArray[i],_resultHolderArray[i],length);
   }
 }

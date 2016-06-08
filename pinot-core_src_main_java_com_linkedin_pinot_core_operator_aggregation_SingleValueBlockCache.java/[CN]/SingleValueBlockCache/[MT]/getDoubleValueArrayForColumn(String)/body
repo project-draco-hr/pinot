@@ -1,0 +1,13 @@
+{
+  double[] doubleValues=_columnToValuesMap.get(column);
+  if (!_columnValueLoaded.contains(column)) {
+    if (doubleValues == null) {
+      doubleValues=new double[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+      _columnToValuesMap.put(column,doubleValues);
+    }
+    int[] dictIds=getDictIdArrayForColumn(column);
+    _dataFetcher.fetchSingleDoubleValues(column,dictIds,_startPos,_length,doubleValues,0);
+    _columnValueLoaded.add(column);
+  }
+  return doubleValues;
+}

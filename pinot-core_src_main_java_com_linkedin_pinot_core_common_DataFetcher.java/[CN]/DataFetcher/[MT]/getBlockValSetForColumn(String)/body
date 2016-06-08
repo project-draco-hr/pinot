@@ -1,0 +1,8 @@
+{
+  BlockValSet blockValSet=_columnToBlockValSetMap.get(column);
+  if (blockValSet == null) {
+    blockValSet=getDataSourceForColumn(column).getNextBlock().getBlockValueSet();
+    _columnToBlockValSetMap.put(column,blockValSet);
+  }
+  return blockValSet;
+}

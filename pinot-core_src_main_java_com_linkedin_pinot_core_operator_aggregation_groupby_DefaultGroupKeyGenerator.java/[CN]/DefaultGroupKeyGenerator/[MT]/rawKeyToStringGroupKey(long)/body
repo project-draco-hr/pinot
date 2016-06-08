@@ -1,0 +1,12 @@
+{
+  int cardinality=_cardinalities[0];
+  StringBuilder builder=new StringBuilder(_dictionaries[0].get((int)(rawKey % cardinality)).toString());
+  rawKey/=cardinality;
+  for (int i=1; i < _numGroupByColumns; i++) {
+    builder.append(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter);
+    cardinality=_cardinalities[i];
+    builder.append(_dictionaries[i].get((int)(rawKey % cardinality)));
+    rawKey/=cardinality;
+  }
+  return builder.toString();
+}

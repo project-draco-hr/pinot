@@ -1,35 +1,36 @@
 {
-  AggregationFunction function=aggrFuncContext.getAggregationFunction();
-  String aggrFuncName=aggrFuncContext.getFunctionName();
+  AggregationFunction aggregationFunction=aggrFuncContext.getAggregationFunction();
   String[] aggrColumns=aggrFuncContext.getAggregationColumns();
+  String aggrFuncName=aggregationFunction.getName();
   Preconditions.checkState(aggrColumns.length == 1);
   String aggrColumn=aggrColumns[0];
 switch (aggrFuncName) {
 case AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION:
     if (_hasMultiValuedColumns) {
-      function.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder);
+      aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder);
     }
  else {
-      function.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder);
+      aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder);
     }
-  return;
+  break;
 case AggregationFunctionFactory.DISTINCTCOUNT_AGGREGATION_FUNCTION:
 case AggregationFunctionFactory.DISTINCTCOUNTHLL_AGGREGATION_FUNCTION:
-fetchColumnValueHashCodes(aggrColumn,aggrFuncContext.getDictionary(0),length);
+double[] hashCodeArray=_singleValueBlockCache.getHashCodeArrayForColumn(aggrColumn);
 if (_hasMultiValuedColumns) {
-function.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,_hashCodeArray);
+aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,hashCodeArray);
 }
  else {
-function.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,_hashCodeArray);
+aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,hashCodeArray);
 }
-return;
+break;
 default :
-double[] valueArray=_columnToValueArrayMap.get(aggrColumn);
+double[] valueArray=_singleValueBlockCache.getDoubleValueArrayForColumn(aggrColumn);
 if (_hasMultiValuedColumns) {
-function.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,valueArray);
+aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,valueArray);
 }
  else {
-function.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,valueArray);
+aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,valueArray);
 }
+break;
 }
 }

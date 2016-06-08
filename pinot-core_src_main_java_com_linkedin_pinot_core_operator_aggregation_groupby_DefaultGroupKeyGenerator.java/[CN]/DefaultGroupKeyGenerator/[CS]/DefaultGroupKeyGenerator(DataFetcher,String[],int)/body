@@ -1,0 +1,36 @@
+{
+  _numGroupByColumns=groupByColumns.length;
+  _dictionaries=new Dictionary[_numGroupByColumns];
+  _singleBlockValSets=new BlockValSet[_numGroupByColumns];
+  _multiValIterators=new BlockMultiValIterator[_numGroupByColumns];
+  _cardinalities=new int[_numGroupByColumns];
+  _isSingleValueGroupByColumn=new boolean[_numGroupByColumns];
+  _reusableSingleDictIds=new int[_numGroupByColumns][];
+  int maxNumMultiValues=0;
+  for (int i=0; i < _numGroupByColumns; i++) {
+    DataSource dataSource=dataFetcher.getDataSourceForColumn(groupByColumns[i]);
+    _dictionaries[i]=dataSource.getDictionary();
+    _cardinalities[i]=dataSource.getDataSourceMetadata().cardinality();
+    _isSingleValueGroupByColumn[i]=dataSource.getDataSourceMetadata().isSingleValue();
+    Block block=dataSource.nextBlock();
+    if (_isSingleValueGroupByColumn[i]) {
+      _singleBlockValSets[i]=block.getBlockValueSet();
+      _reusableSingleDictIds[i]=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+    }
+ else {
+      maxNumMultiValues=Math.max(maxNumMultiValues,block.getMetadata().getMaxNumberOfMultiValues());
+      _multiValIterators[i]=(BlockMultiValIterator)block.getBlockValueSet().iterator();
+    }
+  }
+  _reusableMultiValDictIdBuffer=new int[maxNumMultiValues];
+  _numUniqueGroupKeys=0;
+  if (maxNumGroupKeys <= ResultHolderFactory.MAX_INITIAL_RESULT_HOLDER_CAPACITY) {
+    _storageType=StorageType.ARRAY_BASED;
+    _uniqueGroupKeysFlag=new boolean[maxNumGroupKeys];
+  }
+ else {
+    _storageType=StorageType.MAP_BASED;
+    _groupKeyToId=new Long2IntOpenHashMap();
+    _groupKeyToId.defaultReturnValue(INVALID_ID);
+  }
+}

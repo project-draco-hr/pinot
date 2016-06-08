@@ -1,0 +1,18 @@
+{
+  int[] docIds=new int[NUM_ROWS];
+  int length=0;
+  for (int i=_random.nextInt(MAX_STEP_LENGTH); i < NUM_ROWS; i+=_random.nextInt(MAX_STEP_LENGTH) + 1) {
+    docIds[length++]=i;
+  }
+  int[] dictIds=new int[length];
+  int[] intValues=new int[length];
+  _dataFetcher.fetchSingleDictIds(INT_METRIC_NAME,docIds,0,length,dictIds,0);
+  _dataFetcher.fetchSingleIntValues(INT_METRIC_NAME,dictIds,0,length,intValues,0);
+  for (int i=0; i < length; i++) {
+    if (intValues[i] != _intMetricValues[docIds[i]]) {
+      LOGGER.error("For index {}, value does not match: fetched value: {}, expected value: {}",i,intValues[i],_intMetricValues[docIds[i]]);
+      LOGGER.error("Random Seed: {}",_randomSeed);
+      Assert.fail();
+    }
+  }
+}
