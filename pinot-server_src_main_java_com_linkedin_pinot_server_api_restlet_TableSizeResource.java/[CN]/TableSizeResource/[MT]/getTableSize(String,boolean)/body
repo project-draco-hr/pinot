@@ -5,8 +5,7 @@
   }
   TableDataManager tableDataManager=dataManager.getTableDataManager(tableName);
   if (tableDataManager == null) {
-    setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-    return new StringRepresentation("{\"message\" : \"Table " + tableName + " is not found\"}");
+    return responseRepresentation(Status.CLIENT_ERROR_NOT_FOUND,"{\"message\" : \"Table " + tableName + " is not found\"}");
   }
   TableSizeInfo tableSizeInfo=new TableSizeInfo();
   tableSizeInfo.tableName=tableDataManager.getTableName();
@@ -28,7 +27,6 @@
     return new StringRepresentation(new ObjectMapper().writeValueAsString(tableSizeInfo));
   }
  catch (  IOException e) {
-    setStatus(Status.SERVER_ERROR_INTERNAL);
-    return new StringRepresentation("{\"message\": \"Failed to convert data to json\"}");
+    return responseRepresentation(Status.SERVER_ERROR_INTERNAL,"{\"message\": \"Failed to convert data to json\"}");
   }
 }
