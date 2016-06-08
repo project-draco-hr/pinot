@@ -1,0 +1,32 @@
+{
+  Preconditions.checkNotNull(tableName,"Table name should not be null");
+  Preconditions.checkArgument(timeoutMsec > 0,"Timeout value must be greater than 0");
+  boolean hasRealtimeTable=false;
+  boolean hasOfflineTable=false;
+  CommonConstants.Helix.TableType tableType=TableNameBuilder.getTableTypeFromTableName(tableName);
+  if (tableType != null) {
+    hasRealtimeTable=tableType == CommonConstants.Helix.TableType.REALTIME;
+    hasOfflineTable=tableType == CommonConstants.Helix.TableType.OFFLINE;
+  }
+ else {
+    hasRealtimeTable=helixResourceManager.hasRealtimeTable(tableName);
+    hasOfflineTable=helixResourceManager.hasOfflineTable(tableName);
+  }
+  if (!hasOfflineTable && !hasRealtimeTable) {
+    return null;
+  }
+  TableSizeDetails tableSizeDetails=new TableSizeDetails(tableName);
+  if (hasRealtimeTable) {
+    String realtimeTableName=new TableNameBuilder(CommonConstants.Helix.TableType.REALTIME).forTable(tableName);
+    tableSizeDetails.realtimeSegments=getTableSubtypeSize(realtimeTableName,timeoutMsec);
+    tableSizeDetails.reportedSizeInBytes+=tableSizeDetails.realtimeSegments.reportedSizeInBytes;
+    tableSizeDetails.estimatedSizeInBytes+=tableSizeDetails.realtimeSegments.estimatedSizeInBytes;
+  }
+  if (hasOfflineTable) {
+    String offlineTableName=new TableNameBuilder(CommonConstants.Helix.TableType.OFFLINE).forTable(tableName);
+    tableSizeDetails.offlineSegments=getTableSubtypeSize(offlineTableName,timeoutMsec);
+    tableSizeDetails.reportedSizeInBytes+=tableSizeDetails.offlineSegments.reportedSizeInBytes;
+    tableSizeDetails.estimatedSizeInBytes+=tableSizeDetails.offlineSegments.estimatedSizeInBytes;
+  }
+  return tableSizeDetails;
+}

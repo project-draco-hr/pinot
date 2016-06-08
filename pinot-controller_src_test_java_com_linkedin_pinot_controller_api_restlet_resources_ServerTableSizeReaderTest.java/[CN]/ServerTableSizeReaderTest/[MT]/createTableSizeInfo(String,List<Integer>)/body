@@ -1,0 +1,12 @@
+{
+  TableSizeInfo tableSizeInfo=new TableSizeInfo();
+  tableSizeInfo.tableName=tableName;
+  tableSizeInfo.diskSizeInBytes=0;
+  for (  int segmentIndex : segmentIndexes) {
+    long size=segmentIndexToSize(segmentIndex);
+    tableSizeInfo.diskSizeInBytes+=size;
+    SegmentSizeInfo s=new SegmentSizeInfo("seg" + segmentIndex,size);
+    tableSizeInfo.segments.add(s);
+  }
+  return tableSizeInfo;
+}

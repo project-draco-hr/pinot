@@ -1,4 +1,7 @@
 {
-  _controllerConf=(ControllerConf)getApplication().getContext().getAttributes().get(ControllerConf.class.toString());
-  _pinotHelixResourceManager=(PinotHelixResourceManager)getApplication().getContext().getAttributes().get(PinotHelixResourceManager.class.toString());
+  ConcurrentMap<String,Object> appAttributes=getApplication().getContext().getAttributes();
+  _controllerConf=(ControllerConf)appAttributes.get(ControllerConf.class.toString());
+  _pinotHelixResourceManager=(PinotHelixResourceManager)appAttributes.get(PinotHelixResourceManager.class.toString());
+  connectionManager=(HttpConnectionManager)appAttributes.get(HttpConnectionManager.class.toString());
+  executor=(Executor)appAttributes.get(Executor.class.toString());
 }

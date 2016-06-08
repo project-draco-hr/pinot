@@ -1,0 +1,20 @@
+{
+  return new HttpHandler(){
+    @Override public void handle(    HttpExchange httpExchange) throws IOException {
+      if (sleepTimeMs > 0) {
+        try {
+          Thread.sleep(sleepTimeMs);
+        }
+ catch (        InterruptedException e) {
+          LOGGER.info("Handler interrupted during sleep");
+        }
+      }
+      String json=new ObjectMapper().writeValueAsString(tableSize);
+      httpExchange.sendResponseHeaders(status,json.length());
+      OutputStream responseBody=httpExchange.getResponseBody();
+      responseBody.write(json.getBytes());
+      responseBody.close();
+    }
+  }
+;
+}

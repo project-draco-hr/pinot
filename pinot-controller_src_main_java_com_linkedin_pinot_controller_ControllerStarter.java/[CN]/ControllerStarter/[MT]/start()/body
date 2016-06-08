@@ -8,6 +8,8 @@
   LOGGER.info("injecting conf and resource manager to the api context");
   applicationContext.getAttributes().put(ControllerConf.class.toString(),config);
   applicationContext.getAttributes().put(PinotHelixResourceManager.class.toString(),helixResourceManager);
+  applicationContext.getAttributes().put(HttpConnectionManager.class.toString(),new MultiThreadedHttpConnectionManager());
+  applicationContext.getAttributes().put(Executor.class.toString(),executorService);
   controllerRestApp.setContext(applicationContext);
   component.getDefaultHost().attach(controllerRestApp);
   MetricsHelper.initializeMetrics(config.subset("pinot.controller.metrics"));

@@ -9,4 +9,5 @@
   validationManager=new ValidationManager(validationMetrics,helixResourceManager,config);
   realtimeSegmentsManager=new PinotRealtimeSegmentManager(helixResourceManager);
   segmentStatusChecker=new SegmentStatusChecker(helixResourceManager,config);
+  executorService=Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("restlet-multiget-thread-%d").build());
 }

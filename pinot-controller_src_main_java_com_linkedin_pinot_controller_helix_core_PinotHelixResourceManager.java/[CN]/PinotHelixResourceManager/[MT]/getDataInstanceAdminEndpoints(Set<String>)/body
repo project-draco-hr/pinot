@@ -1,0 +1,13 @@
+{
+  Preconditions.checkNotNull(instances);
+  BiMap<String,String> endpointToInstance=HashBiMap.create(instances.size());
+  for (  String instance : instances) {
+    InstanceConfig helixInstanceConfig=getHelixInstanceConfig(instance);
+    ZNRecord record=helixInstanceConfig.getRecord();
+    String[] hostnameSplit=helixInstanceConfig.getHostName().split("_");
+    Preconditions.checkState(hostnameSplit.length >= 2);
+    String port=record.getSimpleField(CommonConstants.Helix.Instance.ADMIN_PORT_KEY);
+    endpointToInstance.put(instance,hostnameSplit[1] + ":" + port);
+  }
+  return endpointToInstance;
+}

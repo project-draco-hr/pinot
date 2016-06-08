@@ -1,0 +1,12 @@
+{
+  final String tableName=(String)getRequest().getAttributes().get("tableName");
+  final String detailedVal=(String)getRequest().getAttributes().get("detailed");
+  final boolean detailed=!"false".equalsIgnoreCase(detailedVal);
+  if (tableName == null) {
+    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    StringRepresentation resp=new StringRepresentation("{\"error\" : \"Table name is required\"}");
+    resp.setMediaType(MediaType.APPLICATION_JSON);
+    return resp;
+  }
+  return getTableSizes(tableName,detailed);
+}

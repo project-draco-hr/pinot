@@ -1,0 +1,63 @@
+{
+  final String table=tableNameWithType;
+  Map<String,List<String>> serverSegmentsMap=helixResourceManager.getInstanceToSegmentsInATableMap(table);
+  ServerTableSizeReader serverTableSizeReader=new ServerTableSizeReader(executor,connectionManager);
+  BiMap<String,String> endpoints=helixResourceManager.getDataInstanceAdminEndpoints(serverSegmentsMap.keySet());
+  Map<String,List<SegmentSizeInfo>> serverSizeInfo=serverTableSizeReader.getSizeDetailsFromServers(endpoints,table,timeoutMsec);
+  populateErroredServerSizes(serverSizeInfo,serverSegmentsMap);
+  TableSubTypeSizeDetails subTypeSizeDetails=new TableSubTypeSizeDetails();
+  Map<String,SegmentSizeDetails> segmentMap=subTypeSizeDetails.segments;
+  for (  Map.Entry<String,List<SegmentSizeInfo>> serverSegments : serverSizeInfo.entrySet()) {
+    String server=serverSegments.getKey();
+    List<SegmentSizeInfo> segments=serverSegments.getValue();
+    for (    SegmentSizeInfo segment : segments) {
+      SegmentSizeDetails sizeDetails=segmentMap.get(segment.segmentName);
+      if (sizeDetails == null) {
+        sizeDetails=new SegmentSizeDetails();
+        segmentMap.put(segment.segmentName,sizeDetails);
+      }
+      sizeDetails.serverInfo.put(server,segment);
+    }
+  }
+  long tableLevelMax=-1;
+  for (  Map.Entry<String,SegmentSizeDetails> segmentEntry : segmentMap.entrySet()) {
+    SegmentSizeDetails segmentSizes=segmentEntry.getValue();
+    long segmentLevelMax=-1;
+    int errors=0;
+    for (    Map.Entry<String,SegmentSizeInfo> serverInfo : segmentSizes.serverInfo.entrySet()) {
+      SegmentSizeInfo ss=serverInfo.getValue();
+      if (ss.diskSizeInBytes != -1) {
+        segmentSizes.reportedSizeInBytes+=ss.diskSizeInBytes;
+        segmentLevelMax=Math.max(segmentLevelMax,ss.diskSizeInBytes);
+      }
+ else {
+        ++errors;
+      }
+    }
+    if (errors != segmentSizes.serverInfo.size()) {
+      segmentSizes.estimatedSizeInBytes=segmentSizes.reportedSizeInBytes + errors * segmentLevelMax;
+      tableLevelMax=Math.max(tableLevelMax,segmentLevelMax);
+      subTypeSizeDetails.reportedSizeInBytes+=segmentSizes.reportedSizeInBytes;
+      subTypeSizeDetails.estimatedSizeInBytes+=segmentSizes.estimatedSizeInBytes;
+    }
+ else {
+      segmentSizes.reportedSizeInBytes=-1;
+      segmentSizes.estimatedSizeInBytes=-1;
+    }
+  }
+  if (tableLevelMax == -1) {
+    subTypeSizeDetails.reportedSizeInBytes=-1;
+    subTypeSizeDetails.estimatedSizeInBytes=-1;
+  }
+ else {
+    for (    Map.Entry<String,SegmentSizeDetails> segmentSizeDetailsEntry : segmentMap.entrySet()) {
+      SegmentSizeDetails sizeDetails=segmentSizeDetailsEntry.getValue();
+      if (sizeDetails.reportedSizeInBytes != -1) {
+        continue;
+      }
+      sizeDetails.estimatedSizeInBytes+=sizeDetails.serverInfo.size() * tableLevelMax;
+      subTypeSizeDetails.estimatedSizeInBytes+=sizeDetails.estimatedSizeInBytes;
+    }
+  }
+  return subTypeSizeDetails;
+}

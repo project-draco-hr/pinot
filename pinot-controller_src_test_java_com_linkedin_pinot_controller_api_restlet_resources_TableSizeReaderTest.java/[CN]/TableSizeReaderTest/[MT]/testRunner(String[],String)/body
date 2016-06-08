@@ -1,0 +1,16 @@
+{
+  when(helix.getInstanceToSegmentsInATableMap(anyString())).thenAnswer(new Answer<Object>(){
+    @Override public Object answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      return subsetOfServerSegments(servers);
+    }
+  }
+);
+  when(helix.getDataInstanceAdminEndpoints(anySet())).thenAnswer(new Answer<Object>(){
+    @Override public Object answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      return serverEndpoints(servers);
+    }
+  }
+);
+  TableSizeReader reader=new TableSizeReader(executor,connectionManager,helix);
+  return reader.getTableSizeDetails(table,1000);
+}

@@ -1,0 +1,21 @@
+{
+  for (int i=0; i < numInstances; ++i) {
+    final String instanceId="Server_localhost_" + i;
+    final HelixManager helixZkManager=HelixManagerFactory.getZKHelixManager(helixClusterName,instanceId,InstanceType.PARTICIPANT,zkServer);
+    final StateMachineEngine stateMachineEngine=helixZkManager.getStateMachineEngine();
+    final StateModelFactory<?> stateModelFactory=new EmptySegmentOnlineOfflineStateModelFactory();
+    stateMachineEngine.registerStateModelFactory(EmptySegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
+    helixZkManager.connect();
+    if (isSingleTenant) {
+      helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+      helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(ControllerTenantNameBuilder.DEFAULT_TENANT_NAME));
+    }
+ else {
+      helixZkManager.getClusterManagmentTool().addInstanceTag(helixClusterName,instanceId,UNTAGGED_SERVER_INSTANCE);
+    }
+    HelixConfigScope scope=new HelixConfigScopeBuilder(HelixConfigScope.ConfigScopeProperty.PARTICIPANT,helixClusterName).forParticipant(instanceId).build();
+    Map<String,String> props=new HashMap<>();
+    props.put(CommonConstants.Helix.Instance.ADMIN_PORT_KEY,String.valueOf(adminPort + i));
+    helixZkManager.getClusterManagmentTool().setConfig(scope,props);
+  }
+}

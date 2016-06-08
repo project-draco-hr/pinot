@@ -1,7 +1,8 @@
 {
   _helixClusterName=helixClusterName;
   _pinotHelixProperties=pinotHelixProperties;
-  _instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress()) + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
+  String hostname=pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress());
+  _instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + hostname + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
   pinotHelixProperties.addProperty("pinot.server.instance.id",_instanceId);
   startServerInstance(pinotHelixProperties);
   String zkServers=zkServer.replaceAll("\\s+","");
@@ -14,7 +15,10 @@
   stateMachineEngine.registerStateModelFactory(SegmentOnlineOfflineStateModelFactory.getStateModelDef(),stateModelFactory);
   _helixAdmin=_helixManager.getClusterManagmentTool();
   addInstanceTagIfNeeded(helixClusterName,_instanceId);
-  setShuttingDownStatus(false);
+  int adminApiPort=pinotHelixProperties.getInt(CommonConstants.Server.CONFIG_OF_ADMIN_API_PORT,Integer.parseInt(CommonConstants.Server.DEFAULT_ADMIN_API_PORT));
+  adminApiService=new AdminApiService(_serverInstance);
+  adminApiService.start(adminApiPort);
+  updateInstanceConfigInHelix(adminApiPort,false);
   SegmentMessageHandlerFactory messageHandlerFactory=new SegmentMessageHandlerFactory(fetcherAndLoader);
   _helixManager.getMessagingService().registerMessageHandlerFactory(Message.MessageType.USER_DEFINE_MSG.toString(),messageHandlerFactory);
   _serverInstance.getServerMetrics().addCallbackGauge("helix.connected",new Callable<Long>(){
@@ -47,7 +51,4 @@
     }
   }
 );
-  int adminApiPort=pinotHelixProperties.getInt(CommonConstants.Server.CONFIG_OF_ADMIN_API_PORT,Integer.parseInt(CommonConstants.Server.DEFAULT_ADMIN_API_PORT));
-  adminApiService=new AdminApiService(_serverInstance);
-  adminApiService.start(adminApiPort);
 }

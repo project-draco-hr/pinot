@@ -1,0 +1,9 @@
+{
+  final String[] servers={"server3","server4"};
+  TableSizeReader.TableSizeDetails tableSizeDetails=testRunner(servers,"realtime");
+  Assert.assertNull(tableSizeDetails.offlineSegments);
+  TableSizeReader.TableSubTypeSizeDetails realtimeSegments=tableSizeDetails.realtimeSegments;
+  Assert.assertEquals(realtimeSegments.segments.size(),2);
+  Assert.assertTrue(realtimeSegments.reportedSizeInBytes == realtimeSegments.estimatedSizeInBytes);
+  validateTableSubTypeSize(servers,realtimeSegments);
+}

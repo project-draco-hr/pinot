@@ -1,0 +1,21 @@
+{
+  TableSizeReader tableSizeReader=new TableSizeReader(executor,connectionManager,_pinotHelixResourceManager);
+  TableSizeReader.TableSizeDetails tableSizeDetails=null;
+  try {
+    tableSizeDetails=tableSizeReader.getTableSizeDetails(tableName,_controllerConf.getServerAdminRequestTimeoutSeconds());
+  }
+ catch (  Throwable t) {
+    LOGGER.error("Failed to read table size for: {}",tableName,t);
+    return responseRepresentation(Status.SERVER_ERROR_INTERNAL,"{\"error\" : \"Error reading size information for " + tableName + "\"}");
+  }
+  if (tableSizeDetails == null) {
+    return responseRepresentation(Status.CLIENT_ERROR_NOT_FOUND,"{\"error\" : \"Table " + tableName + " does not exist\" }");
+  }
+  try {
+    return responseRepresentation(Status.SUCCESS_OK,new ObjectMapper().writeValueAsString(tableSizeDetails));
+  }
+ catch (  IOException e) {
+    LOGGER.error("Failed to convert table size to json for table: {}",tableName,e);
+    return responseRepresentation(Status.SERVER_ERROR_INTERNAL,"{\"error\" : \"Error formatting table size\"}");
+  }
+}

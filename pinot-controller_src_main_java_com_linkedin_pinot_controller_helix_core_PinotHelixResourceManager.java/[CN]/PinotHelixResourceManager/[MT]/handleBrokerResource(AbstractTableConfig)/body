@@ -2,7 +2,7 @@
   try {
     String brokerTenant=ControllerTenantNameBuilder.getBrokerTenantNameForTenant(tableConfig.getTenantConfig().getBroker());
     if (_helixAdmin.getInstancesInClusterWithTag(_helixClusterName,brokerTenant).isEmpty()) {
-      throw new RuntimeException("broker tenant : " + tableConfig.getTenantConfig().getBroker() + " is not existed!");
+      throw new RuntimeException("broker tenant : " + tableConfig.getTenantConfig().getBroker() + " does not exist");
     }
     LOGGER.info("Trying to update BrokerDataResource IdealState!");
     final IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE);

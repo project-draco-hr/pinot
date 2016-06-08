@@ -1,0 +1,16 @@
+{
+  for (int i=0; i < serverCount; i++) {
+    serverList.add("server_" + i);
+    endpointList.add("localhost:" + (serverPortStart + i));
+  }
+  server1Segments=Arrays.asList(1,3,5);
+  server2Segments=Arrays.asList(2,3);
+  tableInfo1=createTableSizeInfo(tableName,server1Segments);
+  tableInfo2=createTableSizeInfo(tableName,server2Segments);
+  tableInfo3=createTableSizeInfo(tableName,new ArrayList<Integer>());
+  servers.add(startServer(serverPortStart,createHandler(200,tableInfo1,0)));
+  servers.add(startServer(serverPortStart + 1,createHandler(200,tableInfo2,0)));
+  servers.add(startServer(serverPortStart + 3,createHandler(500,null,0)));
+  servers.add(startServer(serverPortStart + 4,createHandler(200,null,timeoutMsec * 20)));
+  servers.add(startServer(serverPortStart + 5,createHandler(200,tableInfo3,0)));
+}

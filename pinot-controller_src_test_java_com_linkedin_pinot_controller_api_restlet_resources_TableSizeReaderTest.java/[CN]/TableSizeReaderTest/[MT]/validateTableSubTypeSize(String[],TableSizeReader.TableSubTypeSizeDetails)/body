@@ -1,0 +1,41 @@
+{
+  Map<String,List<String>> segmentServers=segmentToServers(servers);
+  long reportedSize=0;
+  long estimatedSize=0;
+  long maxSegmentSize=0;
+  boolean hasErrors=false;
+  for (  Map.Entry<String,List<String>> segmentEntry : segmentServers.entrySet()) {
+    final String segmentName=segmentEntry.getKey();
+    final TableSizeReader.SegmentSizeDetails segmentDetails=tableSize.segments.get(segmentName);
+    if (segmentDetails.reportedSizeInBytes != -1) {
+      reportedSize+=segmentDetails.reportedSizeInBytes;
+    }
+    if (segmentDetails.estimatedSizeInBytes != -1) {
+      estimatedSize+=segmentDetails.estimatedSizeInBytes;
+    }
+    Assert.assertNotNull(segmentDetails);
+    final List<String> expectedServers=segmentEntry.getValue();
+    final long expectedSegmentSize=FakeSizeServer.getSegmentSize(segmentName);
+    int numResponses=expectedServers.size();
+    for (    String expectedServer : expectedServers) {
+      Assert.assertTrue(segmentDetails.serverInfo.containsKey(expectedServer));
+      if (expectedServer.equals("server2") || expectedServer.equals("server5")) {
+        hasErrors=true;
+        --numResponses;
+      }
+    }
+    if (numResponses != 0) {
+      Assert.assertEquals(segmentDetails.reportedSizeInBytes,numResponses * expectedSegmentSize);
+      Assert.assertEquals(segmentDetails.estimatedSizeInBytes,expectedServers.size() * expectedSegmentSize);
+    }
+ else {
+      Assert.assertEquals(segmentDetails.reportedSizeInBytes,-1);
+      Assert.assertTrue(segmentDetails.estimatedSizeInBytes > 0);
+    }
+  }
+  Assert.assertEquals(tableSize.reportedSizeInBytes,reportedSize);
+  Assert.assertEquals(tableSize.estimatedSizeInBytes,estimatedSize);
+  if (hasErrors) {
+    Assert.assertTrue(tableSize.reportedSizeInBytes != tableSize.estimatedSizeInBytes);
+  }
+}

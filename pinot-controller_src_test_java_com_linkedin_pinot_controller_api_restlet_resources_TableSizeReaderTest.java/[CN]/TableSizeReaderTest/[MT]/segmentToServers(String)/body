@@ -1,0 +1,15 @@
+{
+  Map<String,List<String>> segmentServers=new HashMap<>();
+  for (  String server : servers) {
+    List<String> segments=serverMap.get(server).segments;
+    for (    String segment : segments) {
+      List<String> segServers=segmentServers.get(segment);
+      if (segServers == null) {
+        segServers=new ArrayList<String>();
+        segmentServers.put(segment,segServers);
+      }
+      segServers.add(server);
+    }
+  }
+  return segmentServers;
+}

@@ -16,9 +16,7 @@
     IndexSegment segment=segmentDataManager.getSegment();
     long segmentSizeBytes=segment.getDiskSizeBytes();
     if (detailed) {
-      SegmentSizeInfo segmentSizeInfo=new SegmentSizeInfo();
-      segmentSizeInfo.segmentName=segment.getSegmentName();
-      segmentSizeInfo.diskSizeInBytes=segmentSizeBytes;
+      SegmentSizeInfo segmentSizeInfo=new SegmentSizeInfo(segment.getSegmentName(),segmentSizeBytes);
       tableSizeInfo.segments.add(segmentSizeInfo);
     }
     tableSizeInfo.diskSizeInBytes+=segmentSizeBytes;

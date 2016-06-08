@@ -1,0 +1,18 @@
+{
+  ImmutableSet<String> erroredServers=null;
+  try {
+    erroredServers=Sets.difference(serverSegmentsMap.keySet(),serverSizeInfo.keySet()).immutableCopy();
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to get set difference: ",e);
+  }
+  for (  String server : erroredServers) {
+    List<String> serverSegments=serverSegmentsMap.get(server);
+    Preconditions.checkNotNull(serverSegments);
+    List<SegmentSizeInfo> serverSegmentSizes=new ArrayList<>(serverSegments.size());
+    serverSizeInfo.put(server,serverSegmentSizes);
+    for (    String segment : serverSegments) {
+      serverSegmentSizes.add(new SegmentSizeInfo(segment,-1));
+    }
+  }
+}

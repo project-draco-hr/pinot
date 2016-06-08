@@ -1,0 +1,12 @@
+{
+  ServerTableSizeReader reader=new ServerTableSizeReader(executor,httpConnectionManager);
+  BiMap<String,String> endpoints=HashBiMap.create();
+  for (int i=0; i < serverCount; i++) {
+    endpoints.put(serverList.get(i),endpointList.get(i));
+  }
+  Map<String,List<SegmentSizeInfo>> serverSizes=reader.getSizeDetailsFromServers(endpoints,"foo",timeoutMsec);
+  Assert.assertEquals(serverSizes.size(),3);
+  Assert.assertTrue(serverSizes.containsKey(serverList.get(0)));
+  Assert.assertTrue(serverSizes.containsKey(serverList.get(1)));
+  Assert.assertTrue(serverSizes.containsKey(serverList.get(5)));
+}

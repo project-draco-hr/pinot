@@ -1,0 +1,42 @@
+{
+  helix=mock(PinotHelixResourceManager.class);
+  when(helix.hasOfflineTable(anyString())).thenAnswer(new Answer(){
+    @Override public Object answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      String table=(String)invocationOnMock.getArguments()[0];
+      return table.indexOf("offline") >= 0;
+    }
+  }
+);
+  when(helix.hasRealtimeTable(anyString())).thenAnswer(new Answer(){
+    @Override public Object answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      String table=(String)invocationOnMock.getArguments()[0];
+      return table.indexOf("realtime") >= 0;
+    }
+  }
+);
+  int counter=0;
+  FakeSizeServer s=new FakeSizeServer(Arrays.asList("s1","s2","s3"),serverPortStart + counter);
+  s.start(URI_PATH,createHandler(200,s.sizes,0));
+  serverMap.put(serverName(counter),s);
+  ++counter;
+  s=new FakeSizeServer(Arrays.asList("s2","s5"),serverPortStart + counter);
+  s.start(URI_PATH,createHandler(200,s.sizes,0));
+  serverMap.put(serverName(counter),s);
+  ++counter;
+  s=new FakeSizeServer(Arrays.asList("s3","s6"),serverPortStart + counter);
+  s.start(URI_PATH,createHandler(404,s.sizes,0));
+  serverMap.put(serverName(counter),s);
+  ++counter;
+  s=new FakeSizeServer(Arrays.asList("r1","r2"),serverPortStart + counter);
+  s.start(URI_PATH,createHandler(200,s.sizes,0));
+  serverMap.put(serverName(counter),s);
+  ++counter;
+  s=new FakeSizeServer(Arrays.asList("r2"),serverPortStart + counter);
+  s.start(URI_PATH,createHandler(200,s.sizes,0));
+  serverMap.put(serverName(counter),s);
+  ++counter;
+  s=new FakeSizeServer(Arrays.asList("s3","s5"),serverPortStart + counter);
+  s.start(URI_PATH,createHandler(200,s.sizes,timeoutMsec * 100));
+  serverMap.put(serverName(counter),s);
+  ++counter;
+}

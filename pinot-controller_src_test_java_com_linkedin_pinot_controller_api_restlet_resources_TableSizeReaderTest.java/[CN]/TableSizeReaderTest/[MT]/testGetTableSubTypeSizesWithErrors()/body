@@ -1,0 +1,9 @@
+{
+  final String[] servers={"server0","server1","server2","server5"};
+  TableSizeReader.TableSizeDetails tableSizeDetails=testRunner(servers,"offline");
+  TableSizeReader.TableSubTypeSizeDetails offlineSizes=tableSizeDetails.offlineSegments;
+  Assert.assertEquals(offlineSizes.segments.size(),5);
+  Assert.assertTrue(offlineSizes.reportedSizeInBytes != offlineSizes.estimatedSizeInBytes);
+  validateTableSubTypeSize(servers,offlineSizes);
+  Assert.assertNull(tableSizeDetails.realtimeSegments);
+}
