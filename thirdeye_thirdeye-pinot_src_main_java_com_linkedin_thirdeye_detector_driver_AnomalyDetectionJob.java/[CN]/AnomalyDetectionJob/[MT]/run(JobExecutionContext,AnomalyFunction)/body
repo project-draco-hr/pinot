@@ -1,5 +1,7 @@
 {
+  LOG.info("AnomalyFunction: {}",anomalyFunction);
   AnomalyFunctionSpec spec=anomalyFunction.getSpec();
+  LOG.info("AnomalyFunctionSpec: {}",spec);
   timeSeriesHandler=(TimeSeriesHandler)context.getJobDetail().getJobDataMap().get(TIME_SERIES_HANDLER);
   timeSeriesResponseConverter=(TimeSeriesResponseConverter)context.getJobDetail().getJobDataMap().get(TIME_SERIES_RESPONSE_CONVERTER);
   resultDAO=(AnomalyResultDAO)context.getJobDetail().getJobDataMap().get(RESULT_DAO);
@@ -20,13 +22,17 @@
     }
     Date scheduledFireTime=context.getScheduledFireTime();
     windowEnd=new DateTime(scheduledFireTime).minus(delayMillis);
+    LOG.info("Running anomaly detection job with scheduledFireTime: {}, delayMillis: {}, windowEnd: {}",scheduledFireTime,delayMillis,windowEnd);
   }
  else {
     windowEnd=ISODateTimeFormat.dateTimeParser().parseDateTime(windowEndProp);
   }
   if (windowStartProp == null) {
-    long windowMillis=TimeUnit.MILLISECONDS.convert(spec.getWindowSize(),spec.getWindowUnit());
+    int windowSize=spec.getWindowSize();
+    TimeUnit windowUnit=spec.getWindowUnit();
+    long windowMillis=TimeUnit.MILLISECONDS.convert(windowSize,windowUnit);
     windowStart=windowEnd.minus(windowMillis);
+    LOG.info("Running anomaly detection job with windowUnit: {}, windowMillis: {}, windowStart: {}",windowUnit,windowMillis,windowStart);
   }
  else {
     windowStart=ISODateTimeFormat.dateTimeParser().parseDateTime(windowStartProp);
@@ -34,6 +40,7 @@
   TimeGranularity timeGranularity=new TimeGranularity(spec.getBucketSize(),spec.getBucketUnit());
   metricFunction=new MetricFunction(MetricFunction.SUM,spec.getMetric());
   collection=spec.getCollection();
+  LOG.info("Running anomaly detection job with metricFunction: {}, collection: {}",metricFunction,collection);
   try {
     CollectionSchema collectionSchema=timeSeriesHandler.getClient().getCollectionSchema(collection);
     collectionDimensions=collectionSchema.getDimensionNames();
@@ -51,6 +58,7 @@
   topLevelRequest.setAggregationTimeGranularity(timeGranularity);
   topLevelRequest.setStart(windowStart);
   topLevelRequest.setEnd(windowEnd);
+  LOG.info("Running anomaly detection job with windowStartProp: {}, windowEndProp: {}, metricExpressions: {}, timeGranularity: {}, windowStart: {}, windowEnd: {}",windowStartProp,windowEndProp,metricExpressions,timeGranularity,windowStart,windowEnd);
   String filters=spec.getFilters();
   if (StringUtils.isNotBlank(filters)) {
     topLevelRequest.setFilterSet(spec.getFilterSet());
