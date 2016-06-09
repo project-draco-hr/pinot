@@ -1,6 +1,12 @@
 {
-  String thirdEyeConfigDir=args[0];
+  List<String> argList=new ArrayList<String>(Arrays.asList(args));
+  if (argList.size() == 1) {
+    argList.add(0,"server");
+  }
+  int lastIndex=argList.size() - 1;
+  String thirdEyeConfigDir=argList.get(lastIndex);
   System.setProperty("dw.rootDir",thirdEyeConfigDir);
   String detectorApplicationConfigFile=thirdEyeConfigDir + "/" + "detector.yml";
-  new ThirdEyeDetectorApplication().run(new String[]{"server",detectorApplicationConfigFile});
+  argList.set(lastIndex,detectorApplicationConfigFile);
+  new ThirdEyeDetectorApplication().run(argList.toArray(new String[argList.size()]));
 }

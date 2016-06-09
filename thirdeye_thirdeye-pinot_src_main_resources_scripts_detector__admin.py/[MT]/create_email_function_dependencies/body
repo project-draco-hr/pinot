@@ -1,0 +1,9 @@
+def create_email_function_dependencies(email_id, function_ids):
+    print ('Creating dependencies for email %d to functions %s' % (email_id, function_ids))
+
+    @MultipleInps
+    @Request
+    def create_email_function_dependency(function_id):
+        url = (((EMAIL_FUNCTION_DEPENDENCIES_ENDPOINT + str(email_id)) + '/') + str(function_id))
+        return ('POST', url)
+    return create_email_function_dependency(function_ids)

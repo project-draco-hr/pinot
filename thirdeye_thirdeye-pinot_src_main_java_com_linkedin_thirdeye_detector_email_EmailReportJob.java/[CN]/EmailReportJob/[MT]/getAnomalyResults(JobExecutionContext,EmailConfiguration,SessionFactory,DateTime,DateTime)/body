@@ -4,7 +4,7 @@
     results=new HibernateSessionWrapper<List<AnomalyResult>>(sessionFactory).execute(new Callable<List<AnomalyResult>>(){
       @Override public List<AnomalyResult> call() throws Exception {
         AnomalyResultDAO resultDAO=(AnomalyResultDAO)context.getJobDetail().getJobDataMap().get(RESULT_DAO);
-        return resultDAO.findAllByCollectionTimeMetricAndFilters(config.getCollection(),config.getMetric(),start,end,config.getFilters());
+        return resultDAO.findAllByTimeAndEmailId(start,end,config.getId());
       }
     }
 );

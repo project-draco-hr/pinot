@@ -1,0 +1,9 @@
+def delete_email_function_dependencies(email_id, function_ids):
+    print ('Deleting dependencies for email %d to functions %s' % (email_id, function_ids))
+
+    @MultipleInps
+    @Request
+    def delete_email_function_dependency(function_id):
+        url = (((EMAIL_FUNCTION_DEPENDENCIES_ENDPOINT + str(email_id)) + '/') + str(function_id))
+        return ('DELETE', url)
+    return delete_email_function_dependency(function_ids)

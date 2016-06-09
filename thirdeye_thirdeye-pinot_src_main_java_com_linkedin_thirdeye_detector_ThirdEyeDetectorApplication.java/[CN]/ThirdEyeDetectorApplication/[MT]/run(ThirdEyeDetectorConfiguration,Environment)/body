@@ -113,5 +113,6 @@
   environment.jersey().register(new MetricsGraphicsTimeSeriesResource(timeOnTimeComparisonHandler,anomalyResultDAO));
   environment.jersey().register(new AnomalyDetectionJobResource(jobManager,anomalyFunctionSpecDAO));
   environment.jersey().register(new EmailReportResource(emailConfigurationDAO,emailReportJobManager));
+  environment.jersey().register(new EmailFunctionDependencyResource(emailFunctionDependencyDAO));
   environment.admin().addTask(new EmailReportJobManagerTask(emailReportJobManager,hibernateBundle.getSessionFactory()));
 }

@@ -6,10 +6,9 @@
   }
  catch (  Throwable t) {
     LOG.error("Job failed with exception:",t);
-    long id=config.getId();
     String collection=config.getCollection();
     String metric=config.getMetric();
-    String subject=String.format("FAILED ALERT ID=%d (%s:%s)",id,collection,metric);
+    String subject=String.format("FAILED ALERT ID=%d (%s:%s)",config.getId(),collection,metric);
     String textBody=String.format("%s%n%nException:%s",config.toString(),ExceptionUtils.getStackTrace(t));
     try {
       JobUtils.sendFailureEmail(failureEmailConfig,subject,textBody);

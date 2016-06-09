@@ -1,0 +1,7 @@
+@MultipleInps
+@Request
+def create_email_function_dependencies_from_file(file_path):
+    print ('Creating dependency from file path %s' % file_path)
+    with open(file_path, 'r') as f:
+        data = f.read()
+    return ('POST', EMAIL_FUNCTION_DEPENDENCIES_ENDPOINT, {'data': data, 'print_result': create_msg_success('function'), })

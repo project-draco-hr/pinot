@@ -1,0 +1,18 @@
+@MultipleInps
+@Request
+def show_anomaly_results_for_function(id, start=None, end=None):
+    url = ((ANOMALY_RESULTS_ENDPOINT + 'function/') + str(id))
+    if start:
+        start = convert_to_iso(start)
+        url += ('/' + start)
+        if end:
+            end = convert_to_iso(end)
+            url += ('/' + end)
+    elif end:
+        raise ValueError('End date cannot be specified without a start date')
+    return ('GET', url, {'print_result': True, })
+    if end:
+        end = convert_to_iso(end)
+        url += ('/' + end)
+    print url
+    return ('GET', url, {'print_result': True, })
