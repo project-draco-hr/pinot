@@ -1,0 +1,16 @@
+{
+  ExecutorService service=Executors.newFixedThreadPool(10);
+  List<Future<TimeOnTimeComparisonResponse>> timeOnTimeComparisonResponseFutures=new ArrayList<>();
+  for (  final String groupByDimension : groupByDimensions) {
+    final TimeOnTimeComparisonRequest comparisonRequestByDimension=getComparisonRequestByDimension(comparisonRequest,groupByDimension);
+    Callable<TimeOnTimeComparisonResponse> callable=new Callable<TimeOnTimeComparisonResponse>(){
+      public TimeOnTimeComparisonResponse call() throws Exception {
+        return handler.handle(comparisonRequestByDimension);
+      }
+    }
+;
+    timeOnTimeComparisonResponseFutures.add(service.submit(callable));
+  }
+  service.shutdown();
+  return timeOnTimeComparisonResponseFutures;
+}

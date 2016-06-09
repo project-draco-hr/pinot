@@ -1,0 +1,24 @@
+{
+  ThirdEyeRequest request=response.getRequest();
+  Map<Integer,List<Double>> metricSums=new HashMap<>();
+  ThirdEyeRequestBuilder requestBuilder=ThirdEyeRequest.newBuilder();
+  requestBuilder.setCollection(request.getCollection());
+  requestBuilder.setStartTimeInclusive(request.getStartTimeInclusive());
+  requestBuilder.setEndTimeExclusive(request.getEndTimeExclusive());
+  requestBuilder.setFilterSet(request.getFilterSet());
+  requestBuilder.setGroupByTimeGranularity(request.getGroupByTimeGranularity());
+  requestBuilder.setMetricFunctions(request.getMetricFunctions());
+  ThirdEyeRequest metricSumsRequest=requestBuilder.build("metricSums");
+  ThirdEyeResponse metricSumsResponse=null;
+  try {
+    metricSumsResponse=CACHE_REGISTRY_INSTANCE.getQueryCache().getClient().execute(metricSumsRequest);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception when executing metric sums request",e);
+  }
+  for (int i=0; i < metricSumsResponse.getNumRows(); i++) {
+    ThirdEyeResponseRow row=metricSumsResponse.getRow(i);
+    metricSums.put(row.getTimeBucketId(),row.getMetrics());
+  }
+  return metricSums;
+}

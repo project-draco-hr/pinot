@@ -1,0 +1,18 @@
+{
+  baselineResponseMap=createResponseMapByTime(baselineResponse);
+  currentResponseMap=createResponseMapByTime(currentResponse);
+  for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+    Range<DateTime> baselineTimeRange=baselineRanges.get(timeBucketId);
+    ThirdEyeResponseRow baselineRow=baselineResponseMap.get(String.valueOf(timeBucketId));
+    Range<DateTime> currentTimeRange=currentRanges.get(timeBucketId);
+    ThirdEyeResponseRow currentRow=currentResponseMap.get(String.valueOf(timeBucketId));
+    Row.Builder builder=new Row.Builder();
+    builder.setBaselineStart(baselineTimeRange.lowerEndpoint());
+    builder.setBaselineEnd(baselineTimeRange.upperEndpoint());
+    builder.setCurrentStart(currentTimeRange.lowerEndpoint());
+    builder.setCurrentEnd(currentTimeRange.upperEndpoint());
+    addMetric(baselineRow,currentRow,builder);
+    Row row=builder.build();
+    rows.add(row);
+  }
+}

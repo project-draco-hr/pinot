@@ -1,0 +1,19 @@
+{
+  ThirdEyeRequest request=response.getRequest();
+  ThirdEyeRequestBuilder requestBuilder=ThirdEyeRequest.newBuilder();
+  requestBuilder.setCollection(request.getCollection());
+  requestBuilder.setStartTimeInclusive(request.getStartTimeInclusive());
+  requestBuilder.setEndTimeExclusive(request.getEndTimeExclusive());
+  requestBuilder.setFilterSet(request.getFilterSet());
+  requestBuilder.setMetricFunctions(request.getMetricFunctions());
+  ThirdEyeRequest metricSumsRequest=requestBuilder.build("metricSums");
+  ThirdEyeResponse metricSumsResponse=null;
+  try {
+    metricSumsResponse=CACHE_REGISTRY_INSTANCE.getQueryCache().getClient().execute(metricSumsRequest);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception when executing metric sums request",e);
+  }
+  List<Double> metricSums=metricSumsResponse.getRow(0).getMetrics();
+  return metricSums;
+}

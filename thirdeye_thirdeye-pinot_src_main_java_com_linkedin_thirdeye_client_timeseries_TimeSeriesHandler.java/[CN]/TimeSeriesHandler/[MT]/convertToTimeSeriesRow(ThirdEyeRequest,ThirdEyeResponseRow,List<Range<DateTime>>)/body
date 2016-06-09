@@ -1,0 +1,18 @@
+{
+  Builder builder=new TimeSeriesRow.Builder();
+  Range<DateTime> range=timeRanges.get(thirdeyeResponseRow.getTimeBucketId());
+  builder.setStart(range.lowerEndpoint());
+  builder.setEnd(range.upperEndpoint());
+  List<String> dimensionNames=thirdeyeRequest.getGroupBy();
+  for (int i=0; i < dimensionNames.size(); i++) {
+    builder.setDimensionName(dimensionNames.get(i));
+    builder.setDimensionValue(thirdeyeResponseRow.getDimensions().get(i));
+  }
+  List<Double> metrics=thirdeyeResponseRow.getMetrics();
+  for (int i=0; i < metrics.size(); i++) {
+    String metricName=thirdeyeRequest.getMetricFunctions().get(i).getMetricName();
+    builder.addMetric(metricName,metrics.get(i));
+  }
+  TimeSeriesRow timeSeriesRow=builder.build();
+  return timeSeriesRow;
+}

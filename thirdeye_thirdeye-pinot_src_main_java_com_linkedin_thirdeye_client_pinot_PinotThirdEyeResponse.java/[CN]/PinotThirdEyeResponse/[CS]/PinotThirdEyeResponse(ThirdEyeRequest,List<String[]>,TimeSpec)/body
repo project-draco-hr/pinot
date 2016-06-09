@@ -1,8 +1,29 @@
 {
   super(request,dataTimeSpec);
   this.rows=rows;
+  this.responseRows=new ArrayList<>(rows.size());
   this.metricFuncToIdMapping=new HashMap<>();
   for (int i=0; i < metricFunctions.size(); i++) {
     metricFuncToIdMapping.put(metricFunctions.get(i),i + groupKeyColumns.size());
+  }
+  for (  String[] row : rows) {
+    int timeBucketId=-1;
+    List<String> dimensions=new ArrayList<>();
+    if (!groupKeyColumns.isEmpty()) {
+      for (int i=0; i < groupKeyColumns.size(); i++) {
+        if (request.getGroupByTimeGranularity() != null && i == 0) {
+          timeBucketId=Integer.parseInt(row[i]);
+        }
+ else {
+          dimensions.add(row[i]);
+        }
+      }
+    }
+    List<Double> metrics=new ArrayList<>();
+    for (int i=0; i < metricFunctions.size(); i++) {
+      metrics.add(Double.parseDouble(row[groupKeyColumns.size() + i]));
+    }
+    ThirdEyeResponseRow responseRow=new ThirdEyeResponseRow(timeBucketId,dimensions,metrics);
+    responseRows.add(responseRow);
   }
 }

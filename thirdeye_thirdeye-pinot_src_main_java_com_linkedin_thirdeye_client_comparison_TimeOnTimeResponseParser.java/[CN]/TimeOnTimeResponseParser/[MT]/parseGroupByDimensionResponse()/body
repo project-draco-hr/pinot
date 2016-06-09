@@ -1,0 +1,54 @@
+{
+  baselineResponseMap=createResponseMapByDimension(baselineResponse);
+  currentResponseMap=createResponseMapByDimension(currentResponse);
+  List<Double> baselineMetricSums=getMetricSums(baselineResponse);
+  List<Double> currentMetricSums=getMetricSums(currentResponse);
+  String dimensionName=baselineResponse.getGroupKeyColumns().get(0);
+  Set<String> dimensionValues=new HashSet<>();
+  dimensionValues.addAll(baselineResponseMap.keySet());
+  dimensionValues.addAll(currentResponseMap.keySet());
+  Row.Builder otherBuilder=new Row.Builder();
+  otherBuilder.setBaselineStart(baselineRanges.get(0).lowerEndpoint());
+  otherBuilder.setBaselineEnd(baselineRanges.get(0).upperEndpoint());
+  otherBuilder.setCurrentStart(currentRanges.get(0).lowerEndpoint());
+  otherBuilder.setCurrentEnd(currentRanges.get(0).upperEndpoint());
+  otherBuilder.setDimensionName(dimensionName);
+  otherBuilder.setDimensionValue(OTHER);
+  double[] otherBaseline=new double[numMetrics];
+  Arrays.fill(otherBaseline,0);
+  double[] otherCurrent=new double[numMetrics];
+  Arrays.fill(otherCurrent,0);
+  boolean includeOther=false;
+  for (  String dimensionValue : dimensionValues) {
+    Row.Builder builder=new Row.Builder();
+    builder.setBaselineStart(baselineRanges.get(0).lowerEndpoint());
+    builder.setBaselineEnd(baselineRanges.get(0).upperEndpoint());
+    builder.setCurrentStart(currentRanges.get(0).lowerEndpoint());
+    builder.setCurrentEnd(currentRanges.get(0).upperEndpoint());
+    builder.setDimensionName(dimensionName);
+    builder.setDimensionValue(dimensionValue);
+    ThirdEyeResponseRow baselineRow=baselineResponseMap.get(dimensionValue);
+    ThirdEyeResponseRow currentRow=currentResponseMap.get(dimensionValue);
+    addMetric(baselineRow,currentRow,builder);
+    Row row=builder.build();
+    boolean passedThreshold=checkMetricSums(row,baselineMetricSums,currentMetricSums);
+    if (passedThreshold) {
+      rows.add(row);
+    }
+ else {
+      includeOther=true;
+      List<Metric> metrics=row.getMetrics();
+      for (int i=0; i < numMetrics; i++) {
+        Metric metric=metrics.get(i);
+        otherBaseline[i]+=metric.getBaselineValue();
+        otherCurrent[i]+=metric.getCurrentValue();
+      }
+    }
+  }
+  if (includeOther) {
+    for (int i=0; i < numMetrics; i++) {
+      otherBuilder.addMetric(metricFunctions.get(i).getMetricName(),otherBaseline[i],otherCurrent[i]);
+    }
+    rows.add(otherBuilder.build());
+  }
+}

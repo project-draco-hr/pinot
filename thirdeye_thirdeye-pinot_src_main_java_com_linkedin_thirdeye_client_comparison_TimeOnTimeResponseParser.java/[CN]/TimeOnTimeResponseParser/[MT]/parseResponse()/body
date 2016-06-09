@@ -1,0 +1,34 @@
+{
+  if (baselineResponse == null || currentResponse == null) {
+    return Collections.emptyList();
+  }
+  boolean hasGroupByDimensions=false;
+  if (groupByDimensions != null && groupByDimensions.size() > 0) {
+    hasGroupByDimensions=true;
+  }
+  boolean hasGroupByTime=false;
+  if (aggTimeGranularity != null) {
+    hasGroupByTime=true;
+  }
+  metricFunctions=baselineResponse.getMetricFunctions();
+  numMetrics=metricFunctions.size();
+  numTimeBuckets=baselineRanges.size();
+  rows=new ArrayList<>();
+  if (hasGroupByTime) {
+    if (hasGroupByDimensions) {
+      parseGroupByTimeDimensionResponse();
+    }
+ else {
+      parseGroupByTimeResponse();
+    }
+  }
+ else {
+    if (hasGroupByDimensions) {
+      parseGroupByDimensionResponse();
+    }
+ else {
+      throw new UnsupportedOperationException("Response cannot have neither group by time nor group by dimension");
+    }
+  }
+  return rows;
+}

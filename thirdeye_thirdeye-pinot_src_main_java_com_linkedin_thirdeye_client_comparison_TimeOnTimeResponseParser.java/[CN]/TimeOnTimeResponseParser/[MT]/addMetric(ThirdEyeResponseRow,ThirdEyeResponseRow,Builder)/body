@@ -1,0 +1,15 @@
+{
+  List<MetricFunction> metricFunctions=baselineResponse.getMetricFunctions();
+  for (int i=0; i < metricFunctions.size(); i++) {
+    MetricFunction metricFunction=metricFunctions.get(i);
+    double baselineValue=0;
+    if (baselineRow != null) {
+      baselineValue=baselineRow.getMetrics().get(i);
+    }
+    double currentValue=0;
+    if (currentRow != null) {
+      currentValue=currentRow.getMetrics().get(i);
+    }
+    builder.addMetric(metricFunction.getMetricName(),baselineValue,currentValue);
+  }
+}
