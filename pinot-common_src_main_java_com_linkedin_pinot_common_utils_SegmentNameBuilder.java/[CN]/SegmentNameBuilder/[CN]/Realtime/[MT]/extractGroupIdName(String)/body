@@ -1,8 +1,14 @@
 {
-  if (!isOldStyleName(segmentId)) {
+  if (isOldV1StyleName(segmentId)) {
+    return segmentId.split("__")[2];
+  }
+ else   if (isShortV1StyleName(segmentId)) {
     return segmentId.split("__")[0];
   }
+ else   if (isRealtimeV2Name(segmentId)) {
+    throw new RuntimeException("Realtime v2 segments don't have a consumer group id");
+  }
  else {
-    return segmentId.split("__")[2];
+    throw new RuntimeException("Unable to parse segment name " + segmentId);
   }
 }

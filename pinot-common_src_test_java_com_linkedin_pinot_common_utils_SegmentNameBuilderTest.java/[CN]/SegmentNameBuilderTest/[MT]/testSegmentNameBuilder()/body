@@ -1,0 +1,30 @@
+{
+  String oldV1Name="myTable_REALTIME__Server_1.2.3.4_1234__myTable_REALTIME_1234567_0__0__23456789";
+  String shortV1Name=SegmentNameBuilder.Realtime.buildHighLevelConsumerSegmentName("myTable_REALTIME_1234567_0","ALL","1234567");
+  String v2Name=SegmentNameBuilder.Realtime.buildLowLevelConsumerSegmentName("myTable_REALTIME","0","1",1465508537069L);
+  assertEquals(shortV1Name,"myTable_REALTIME_1234567_0__ALL__1234567");
+  assertEquals(v2Name,"myTable_REALTIME__0__1__2016-06-161T214217.069Z");
+  assertEquals(isRealtimeV1Name(oldV1Name),true);
+  assertEquals(isRealtimeV1Name(shortV1Name),true);
+  assertEquals(isRealtimeV1Name(v2Name),false);
+  assertEquals(isRealtimeV2Name(oldV1Name),false);
+  assertEquals(isRealtimeV2Name(shortV1Name),false);
+  assertEquals(isRealtimeV2Name(v2Name),true);
+  assertEquals(extractTableName(oldV1Name),"myTable_REALTIME");
+  assertEquals(extractTableName(shortV1Name),"myTable_REALTIME");
+  assertEquals(extractTableName(v2Name),"myTable_REALTIME");
+  assertEquals(extractPartitionRange(oldV1Name),"0");
+  assertEquals(extractPartitionRange(shortV1Name),"ALL");
+  assertEquals(extractPartitionRange(v2Name),"1");
+  assertEquals(extractGroupIdName(oldV1Name),"myTable_REALTIME_1234567_0");
+  assertEquals(extractGroupIdName(shortV1Name),"myTable_REALTIME_1234567_0");
+  try {
+    extractGroupIdName(v2Name);
+    fail("extractGroupIdName with a v2 name did not throw an exception");
+  }
+ catch (  Exception e) {
+  }
+  assertEquals(extractSequenceNumber(oldV1Name),"23456789");
+  assertEquals(extractSequenceNumber(shortV1Name),"1234567");
+  assertEquals(extractSequenceNumber(v2Name),"1");
+}

@@ -26,7 +26,7 @@
           String groupId=instanceZKMetadata.getGroupId(resource);
           String partitionId=instanceZKMetadata.getPartition(resource);
           if (groupId != null && !groupId.isEmpty() && partitionId != null && !partitionId.isEmpty()) {
-            listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.build(groupId,partitionId,String.valueOf(System.currentTimeMillis())),instanceId));
+            listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.buildHighLevelConsumerSegmentName(groupId,partitionId,String.valueOf(System.currentTimeMillis())),instanceId));
           }
  else {
             LOGGER.warn("Instance {} has invalid groupId ({}) and/or partitionId ({}) for resource {}, ignoring for segment assignment.",instanceId,groupId,partitionId,resource);
@@ -53,7 +53,7 @@
           InstanceZKMetadata instanceZKMetadata=_pinotHelixResourceManager.getInstanceZKMetadata(instanceId);
           String groupId=instanceZKMetadata.getGroupId(resource);
           String partitionId=instanceZKMetadata.getPartition(resource);
-          listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.build(groupId,partitionId,String.valueOf(System.currentTimeMillis())),instanceId));
+          listOfSegmentsToAddToInstances.add(new Pair<String,String>(SegmentNameBuilder.Realtime.buildHighLevelConsumerSegmentName(groupId,partitionId,String.valueOf(System.currentTimeMillis())),instanceId));
         }
       }
     }
