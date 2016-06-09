@@ -1,10 +1,14 @@
 {
   try {
-synchronized (this) {
+    Connection connection=getConnection();
+synchronized (connection) {
+      long start=System.currentTimeMillis();
       ResultSetGroup resultSetGroup=connection.execute(pinotQuery.getTableName(),pinotQuery.getPql());
       if (LOG.isDebugEnabled()) {
         LOG.debug("Query:{}  response:{}",pinotQuery.getPql(),format(resultSetGroup));
       }
+      long end=System.currentTimeMillis();
+      LOG.info("Query:{}  took:{} ms",pinotQuery.getPql(),(end - start));
       return resultSetGroup;
     }
   }
