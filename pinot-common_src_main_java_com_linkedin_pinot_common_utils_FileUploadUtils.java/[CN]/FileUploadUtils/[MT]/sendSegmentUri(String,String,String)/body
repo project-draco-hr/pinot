@@ -1,20 +1,10 @@
 {
+  SendFileMethod httpMethod=SendFileMethod.POST;
   EntityEnclosingMethod method=null;
   try {
-    method=httpMethod.forUri("http://" + host + ":"+ port+ "/"+ path);
-    Part[] parts={new FilePart(fileName,new PartSource(){
-      @Override public long getLength(){
-        return lengthInBytes;
-      }
-      @Override public String getFileName(){
-        return "fileName";
-      }
-      @Override public InputStream createInputStream() throws IOException {
-        return new BufferedInputStream(inputStream);
-      }
-    }
-)};
-    method.setRequestEntity(new MultipartRequestEntity(parts,new HttpMethodParams()));
+    method=httpMethod.forUri("http://" + host + ":"+ port+ "/"+ SEGMENTS_PATH);
+    method.setRequestHeader(UPLOAD_TYPE,FileUploadType.URI.toString());
+    method.setRequestHeader(DOWNLOAD_URI,uri);
     FILE_UPLOAD_HTTP_CLIENT.executeMethod(method);
     if (method.getStatusCode() >= 400) {
       String errorString="POST Status Code: " + method.getStatusCode() + "\n";
@@ -26,7 +16,7 @@
     return method.getStatusCode();
   }
  catch (  Exception e) {
-    LOGGER.error("Caught exception while sending file: {}",fileName,e);
+    LOGGER.error("Caught exception while sending uri: {}",uri,e);
     Utils.rethrowException(e);
     throw new AssertionError("Should not reach this");
   }

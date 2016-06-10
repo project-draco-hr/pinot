@@ -1,4 +1,20 @@
 {
-  final long httpGetResponseContentLength=FileUploadUtils.getFile(uri,tempFile);
-  LOGGER.info("Downloaded file from {} to {}; Length of httpGetResponseContent: {}; Length of downloaded file: {}",uri,tempFile,httpGetResponseContentLength,tempFile.length());
+  for (int retry=1; retry <= maxRetryCount; ++retry) {
+    try {
+      final long httpGetResponseContentLength=FileUploadUtils.getFile(uri,tempFile);
+      LOGGER.info("Downloaded file from {} to {}; Length of httpGetResponseContent: {}; Length of downloaded file: {}",uri,tempFile,httpGetResponseContentLength,tempFile.length());
+      return;
+    }
+ catch (    Exception e) {
+      LOGGER.error("Failed to download file from {}, retry: {}",uri,retry,e);
+      if (retry == maxRetryCount) {
+        LOGGER.error("Exceeded maximum retry count while fetching file from {} to local file: {}, aborting.",uri,tempFile,e);
+        throw e;
+      }
+ else {
+        long backOffTimeInSec=5 * retry;
+        Thread.sleep(backOffTimeInSec * 1000);
+      }
+    }
+  }
 }

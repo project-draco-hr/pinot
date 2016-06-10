@@ -3,63 +3,120 @@
   File tmpSegmentDir=null;
   File dataFile=null;
   try {
-    final DiskFileItemFactory factory=new DiskFileItemFactory();
-    final RestletFileUpload upload=new RestletFileUpload(factory);
-    final List<FileItem> items;
-    items=upload.parseRequest(getRequest());
+    Series headers=(Series)getRequestAttributes().get(RESTLET_HTTP_HEADERS);
+    String uploadTypeStr=headers.getFirstValue(FileUploadUtils.UPLOAD_TYPE);
+    FileUploadType uploadType=null;
+    try {
+      uploadType=(uploadTypeStr == null) ? FileUploadType.getDefaultUploadType() : FileUploadType.valueOf(uploadTypeStr);
+    }
+ catch (    Exception e) {
+      uploadType=FileUploadType.getDefaultUploadType();
+    }
+    String downloadURI=null;
     boolean found=false;
-    for (final Iterator<FileItem> it=items.iterator(); it.hasNext() && !found; ) {
-      final FileItem fi=it.next();
-      if (fi.getFieldName() != null) {
-        found=true;
-        dataFile=new File(tempDir,fi.getFieldName());
-        fi.write(dataFile);
+switch (uploadType) {
+case URI:
+case JSON:
+      try {
+        downloadURI=getDownloadUri(uploadType,headers,entity);
       }
-    }
-    if (found) {
-      rep=new StringRepresentation(dataFile + " sucessfully uploaded",MediaType.TEXT_PLAIN);
-      tmpSegmentDir=new File(tempUntarredPath,dataFile.getName() + "-" + _controllerConf.getControllerHost()+ "_"+ _controllerConf.getControllerPort()+ "-"+ System.currentTimeMillis());
-      LOGGER.info("Untar segment to temp dir: " + tmpSegmentDir);
-      if (tmpSegmentDir.exists()) {
-        FileUtils.deleteDirectory(tmpSegmentDir);
+ catch (      Exception e) {
+        String errorMsg=String.format("Failed to get download Uri for upload file type: %s, with error %s",uploadType,e.getMessage());
+        LOGGER.warn(errorMsg);
+        JSONObject errorMsgInJson=getErrorMsgInJson(errorMsg);
+        ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+        setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+        return new StringRepresentation(errorMsgInJson.toJSONString(),MediaType.APPLICATION_JSON);
       }
-      if (!tmpSegmentDir.exists()) {
-        tmpSegmentDir.mkdirs();
-      }
-      TarGzCompressionUtils.unTar(dataFile,tmpSegmentDir);
-      File segmentFile=tmpSegmentDir.listFiles()[0];
-      String clientIpAddress=getClientInfo().getAddress();
-      String clientAddress=InetAddress.getByName(clientIpAddress).getHostName();
-      LOGGER.info("Processing upload request for segment '{}' from client '{}'",segmentFile.getName(),clientAddress);
-      return uploadSegment(segmentFile,dataFile);
-    }
- else {
-      rep=new StringRepresentation("no file uploaded",MediaType.TEXT_PLAIN);
-      LOGGER.warn("No file was uploaded");
-      ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
-      setStatus(Status.SERVER_ERROR_INTERNAL);
-    }
+    SegmentFetcher segmentFetcher=null;
+  try {
+    segmentFetcher=SegmentFetcherFactory.getSegmentFetcherBasedOnURI(downloadURI);
   }
- catch (  final Exception e) {
-    rep=exceptionToStringRepresentation(e);
-    LOGGER.error("Caught exception in file upload",e);
+ catch (  Exception e) {
+    String errorMsg=String.format("Failed to get SegmentFetcher from download Uri: %s",downloadURI);
+    LOGGER.warn(errorMsg);
+    JSONObject errorMsgInJson=getErrorMsgInJson(errorMsg);
     ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
     setStatus(Status.SERVER_ERROR_INTERNAL);
+    return new StringRepresentation(errorMsgInJson.toJSONString(),MediaType.APPLICATION_JSON);
   }
+dataFile=new File(tempDir,"tmp-" + System.nanoTime());
+try {
+segmentFetcher.fetchSegmentToLocal(downloadURI,dataFile);
+}
+ catch (Exception e) {
+String errorMsg=String.format("Failed to fetch segment tar from download Uri: %s to %s",downloadURI,dataFile.toString());
+LOGGER.warn(errorMsg);
+JSONObject errorMsgInJson=getErrorMsgInJson(errorMsg);
+ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+setStatus(Status.SERVER_ERROR_INTERNAL);
+return new StringRepresentation(errorMsgInJson.toJSONString(),MediaType.APPLICATION_JSON);
+}
+if (dataFile.exists() && dataFile.length() > 0) {
+found=true;
+}
+break;
+case TAR:
+default :
+final DiskFileItemFactory factory=new DiskFileItemFactory();
+final RestletFileUpload upload=new RestletFileUpload(factory);
+final List<FileItem> items;
+items=upload.parseRequest(getRequest());
+for (final Iterator<FileItem> it=items.iterator(); it.hasNext() && !found; ) {
+final FileItem fi=it.next();
+if (fi.getFieldName() != null) {
+found=true;
+dataFile=new File(tempDir,fi.getFieldName());
+fi.write(dataFile);
+}
+}
+}
+if (found) {
+rep=new StringRepresentation(dataFile + " sucessfully uploaded",MediaType.TEXT_PLAIN);
+tmpSegmentDir=new File(tempUntarredPath,dataFile.getName() + "-" + _controllerConf.getControllerHost()+ "_"+ _controllerConf.getControllerPort()+ "-"+ System.currentTimeMillis());
+LOGGER.info("Untar segment to temp dir: " + tmpSegmentDir);
+if (tmpSegmentDir.exists()) {
+FileUtils.deleteDirectory(tmpSegmentDir);
+}
+if (!tmpSegmentDir.exists()) {
+tmpSegmentDir.mkdirs();
+}
+TarGzCompressionUtils.unTar(dataFile,tmpSegmentDir);
+File segmentFile=tmpSegmentDir.listFiles()[0];
+String clientIpAddress=getClientInfo().getAddress();
+String clientAddress=InetAddress.getByName(clientIpAddress).getHostName();
+LOGGER.info("Processing upload request for segment '{}' from client '{}'",segmentFile.getName(),clientAddress);
+return uploadSegment(segmentFile,dataFile,downloadURI);
+}
+ else {
+String errorMsg="No file was uploaded";
+LOGGER.warn(errorMsg);
+JSONObject errorMsgInJson=getErrorMsgInJson(errorMsg);
+rep=new StringRepresentation(errorMsgInJson.toJSONString(),MediaType.APPLICATION_JSON);
+ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+setStatus(Status.SERVER_ERROR_INTERNAL);
+}
+}
+ catch (final Exception e) {
+rep=exceptionToStringRepresentation(e);
+LOGGER.error("Caught exception in file upload",e);
+ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+setStatus(Status.SERVER_ERROR_INTERNAL);
+}
  finally {
-    if ((tmpSegmentDir != null) && tmpSegmentDir.exists()) {
-      try {
-        FileUtils.deleteDirectory(tmpSegmentDir);
-      }
- catch (      final IOException e) {
-        LOGGER.error("Caught exception in file upload",e);
-        ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
-        setStatus(Status.SERVER_ERROR_INTERNAL);
-      }
-    }
-    if ((dataFile != null) && dataFile.exists()) {
-      FileUtils.deleteQuietly(dataFile);
-    }
-  }
-  return rep;
+if ((tmpSegmentDir != null) && tmpSegmentDir.exists()) {
+try {
+FileUtils.deleteDirectory(tmpSegmentDir);
+}
+ catch (final IOException e) {
+LOGGER.error("Caught exception in file upload",e);
+ControllerRestApplication.getControllerMetrics().addMeteredGlobalValue(ControllerMeter.CONTROLLER_SEGMENT_UPLOAD_ERROR,1L);
+setStatus(Status.SERVER_ERROR_INTERNAL);
+}
+}
+if ((dataFile != null) && dataFile.exists()) {
+FileUtils.deleteQuietly(dataFile);
+}
+}
+return rep;
 }

@@ -11,7 +11,10 @@
     response=new PinotResourceManagerResponse("Invalid segment start/end time",false);
   }
  else {
-    response=_pinotHelixResourceManager.addSegment(metadata,constructDownloadUrl(metadata.getTableName(),dataFile.getName()));
+    if (downloadUrl == null) {
+      downloadUrl=constructDownloadUrl(metadata.getTableName(),dataFile.getName());
+    }
+    response=_pinotHelixResourceManager.addSegment(metadata,downloadUrl);
   }
   if (response.isSuccessfull()) {
     setStatus(Status.SUCCESS_OK);

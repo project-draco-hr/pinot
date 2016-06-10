@@ -1,0 +1,13 @@
+{
+switch (uploadType) {
+case URI:
+    return headers.getFirstValue(FileUploadUtils.DOWNLOAD_URI);
+case JSON:
+  String segmentJsonStr=entity.getText();
+JSONObject segmentJson=JSONObject.parseObject(segmentJsonStr);
+return segmentJson.getString(CommonConstants.Segment.Offline.DOWNLOAD_URL);
+default :
+break;
+}
+throw new UnsupportedOperationException("Not support getDownloadUri method for upload type - " + uploadType);
+}

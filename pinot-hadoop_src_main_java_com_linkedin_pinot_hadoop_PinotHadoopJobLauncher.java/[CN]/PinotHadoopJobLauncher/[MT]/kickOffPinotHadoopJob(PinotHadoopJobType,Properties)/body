@@ -6,9 +6,16 @@ case SegmentCreation:
 case SegmentTarPush:
 new SegmentTarPushJob(SEGMENT_PUSH_TAR_JOB_NAME,jobConf).run();
 break;
+case SegmentUriPush:
+new SegmentUriPushJob(SEGMENT_PUSH_URI_JOB_NAME,jobConf).run();
+break;
 case SegmentCreationAndTarPush:
 new SegmentCreationJob(StringUtil.join(":",SEGMENT_CREATION_JOB_NAME,SEGMENT_CREATION_AND_TAR_PUSH_JOB_NAME),jobConf).run();
 new SegmentTarPushJob(StringUtil.join(":",SEGMENT_PUSH_TAR_JOB_NAME,SEGMENT_CREATION_AND_TAR_PUSH_JOB_NAME),jobConf).run();
+break;
+case SegmentCreationAndUriPush:
+new SegmentCreationJob(StringUtil.join(":",SEGMENT_CREATION_JOB_NAME,SEGMENT_CREATION_AND_URI_PUSH_JOB_NAME),jobConf).run();
+new SegmentUriPushJob(StringUtil.join(":",SEGMENT_PUSH_TAR_JOB_NAME,SEGMENT_CREATION_AND_URI_PUSH_JOB_NAME),jobConf).run();
 break;
 default :
 throw new RuntimeException("Not a valid jobType - " + jobType);

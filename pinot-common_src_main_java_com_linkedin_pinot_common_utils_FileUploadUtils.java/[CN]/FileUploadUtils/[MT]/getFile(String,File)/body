@@ -1,8 +1,8 @@
 {
+  GetMethod httpget=null;
   try {
-    HttpClient httpClient=new HttpClient();
-    GetMethod httpget=new GetMethod(url);
-    int responseCode=httpClient.executeMethod(httpget);
+    httpget=new GetMethod(url);
+    int responseCode=FILE_UPLOAD_HTTP_CLIENT.executeMethod(httpget);
     if (responseCode >= 400) {
       long contentLength=httpget.getResponseContentLength();
       if (contentLength > 0) {
@@ -24,5 +24,10 @@
  catch (  Exception ex) {
     LOGGER.error("Caught exception",ex);
     throw ex;
+  }
+ finally {
+    if (httpget != null) {
+      httpget.releaseConnection();
+    }
   }
 }

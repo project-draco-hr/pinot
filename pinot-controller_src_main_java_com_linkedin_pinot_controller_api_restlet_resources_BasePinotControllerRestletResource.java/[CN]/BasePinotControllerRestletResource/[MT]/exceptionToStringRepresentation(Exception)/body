@@ -1,3 +1,5 @@
 {
-  return new StringRepresentation(e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
+  String errorMsg=e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e);
+  JSONObject errorMsgInJson=getErrorMsgInJson(errorMsg);
+  return new StringRepresentation(errorMsgInJson.toJSONString(),MediaType.APPLICATION_JSON);
 }

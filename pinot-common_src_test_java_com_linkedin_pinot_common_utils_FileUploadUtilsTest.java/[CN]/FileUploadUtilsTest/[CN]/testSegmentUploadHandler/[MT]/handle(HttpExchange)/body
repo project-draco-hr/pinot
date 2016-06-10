@@ -1,0 +1,27 @@
+{
+  Headers requestHeaders=httpExchange.getRequestHeaders();
+  String uploadTypeStr=requestHeaders.getFirst(FileUploadUtils.UPLOAD_TYPE);
+  FileUploadType uploadType=FileUploadType.valueOf(uploadTypeStr);
+  if (uploadType == FileUploadType.JSON) {
+    InputStream bodyStream=httpExchange.getRequestBody();
+    String requestBody=IOUtils.toString(bodyStream,"UTF-8");
+    com.alibaba.fastjson.JSONObject jsonObject=com.alibaba.fastjson.JSONObject.parseObject(requestBody);
+    Assert.assertEquals(jsonObject.get(CommonConstants.Segment.Offline.DOWNLOAD_URL),TEST_URI);
+    calledJson++;
+  }
+ else   if (uploadType == FileUploadType.URI) {
+    String downloadUri=requestHeaders.getFirst(FileUploadUtils.DOWNLOAD_URI);
+    Assert.assertEquals(downloadUri,TEST_URI);
+    calledUri++;
+  }
+ else   if (uploadType == FileUploadType.TAR) {
+  }
+ else {
+    Assert.assertTrue(false);
+  }
+  String response="OK";
+  httpExchange.sendResponseHeaders(200,response.length());
+  OutputStream os=httpExchange.getResponseBody();
+  os.write(response.getBytes());
+  os.close();
+}

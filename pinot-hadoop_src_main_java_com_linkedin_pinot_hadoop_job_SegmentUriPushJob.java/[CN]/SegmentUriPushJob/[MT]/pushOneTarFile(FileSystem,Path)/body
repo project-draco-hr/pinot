@@ -1,0 +1,19 @@
+{
+  String fileName=path.getName();
+  if (!fileName.endsWith(".tar.gz")) {
+    return;
+  }
+  for (  String host : _hosts) {
+    String uri=String.format("%s%s%s",_pushUriPrefix,path.toUri().getRawPath(),_pushUriSuffix);
+    LOGGER.info("******** Upoading file: {} to Host: {} and Port: {} with download uri: {} *******",fileName,host,_port,uri);
+    try {
+      int responseCode=FileUploadUtils.sendSegmentUri(host,_port,uri);
+      LOGGER.info("Response code: {}",responseCode);
+    }
+ catch (    Exception e) {
+      LOGGER.error("******** Error Upoading file: {} to Host: {} and Port: {}  *******",fileName,host,_port);
+      LOGGER.error("Caught exception during upload",e);
+      throw new RuntimeException("Got Error during send tar files to push hosts!");
+    }
+  }
+}

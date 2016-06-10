@@ -1,0 +1,28 @@
+{
+  PostMethod postMethod=null;
+  try {
+    RequestEntity requestEntity=new StringRequestEntity(segmentJson.toString(),ContentType.APPLICATION_JSON.getMimeType(),ContentType.APPLICATION_JSON.getCharset().name());
+    postMethod=new PostMethod("http://" + host + ":"+ port+ "/"+ SEGMENTS_PATH);
+    postMethod.setRequestEntity(requestEntity);
+    postMethod.setRequestHeader(UPLOAD_TYPE,FileUploadType.JSON.toString());
+    int statusCode=FILE_UPLOAD_HTTP_CLIENT.executeMethod(postMethod);
+    if (statusCode >= 400) {
+      String errorString="POST Status Code: " + statusCode + "\n";
+      if (postMethod.getResponseHeader("Error") != null) {
+        errorString+="ServletException: " + postMethod.getResponseHeader("Error").getValue();
+      }
+      throw new HttpException(errorString);
+    }
+    return statusCode;
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while sending json: {}",segmentJson.toString(),e);
+    Utils.rethrowException(e);
+    throw new AssertionError("Should not reach this");
+  }
+ finally {
+    if (postMethod != null) {
+      postMethod.releaseConnection();
+    }
+  }
+}
