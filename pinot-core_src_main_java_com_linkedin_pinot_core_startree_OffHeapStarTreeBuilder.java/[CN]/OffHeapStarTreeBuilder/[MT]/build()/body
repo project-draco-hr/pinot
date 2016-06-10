@@ -4,9 +4,13 @@
   }
   if (dimensionsSplitOrder == null || dimensionsSplitOrder.isEmpty()) {
     dimensionsSplitOrder=computeDefaultSplitOrder();
+    dimensionsSplitOrder.removeAll(skipMaterializationForDimensions);
   }
-  dimensionsSplitOrder=sanitizeSplitOrder(dimensionsSplitOrder,skipMaterializationForDimensions);
-  LOG.debug("Split order:{}",dimensionsSplitOrder);
+ else {
+    skipMaterializationForDimensions.removeAll(dimensionsSplitOrder);
+  }
+  LOG.debug("Split order: {}",dimensionsSplitOrder);
+  LOG.debug("Skip Materilazitaion For Dimensions: {}",skipMaterializationForDimensions);
   long start=System.currentTimeMillis();
   dataBuffer.flush();
   sort(dataFile,0,rawRecordCount);
