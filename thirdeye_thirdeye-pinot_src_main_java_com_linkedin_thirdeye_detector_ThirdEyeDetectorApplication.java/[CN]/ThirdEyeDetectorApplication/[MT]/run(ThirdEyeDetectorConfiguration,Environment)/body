@@ -10,6 +10,7 @@
   final TimeSeriesHandler timeSeriesHandler=new TimeSeriesHandler(queryCache);
   TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=new TimeOnTimeComparisonHandler(queryCache);
   TimeSeriesResponseConverter timeSeriesResponseConverter=TimeSeriesResponseConverter.getInstance();
+  System.setProperty("org.quartz.jobStore.misfireThreshold",QUARTZ_MISFIRE_THRESHOLD);
   SchedulerFactory schedulerFactory=new StdSchedulerFactory();
   final Scheduler quartzScheduler=schedulerFactory.getScheduler();
   environment.lifecycle().manage(new Managed(){
