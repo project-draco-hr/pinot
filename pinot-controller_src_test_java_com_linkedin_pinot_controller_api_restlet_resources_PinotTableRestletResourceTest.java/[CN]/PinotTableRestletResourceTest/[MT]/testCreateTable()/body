@@ -1,0 +1,29 @@
+{
+  JSONObject request=ControllerRequestBuilder.buildCreateOfflineTableJSON("bad__table__name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",Collections.<String>emptyList(),"MMAP");
+  try {
+    sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
+    fail("Creation of a table with two underscores in the table name did not fail");
+  }
+ catch (  IOException e) {
+  }
+  request=ControllerRequestBuilder.buildCreateOfflineTableJSON("valid_table_name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",Collections.<String>emptyList(),"MMAP");
+  sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
+  JSONObject metadata=new JSONObject();
+  metadata.put("streamType","kafka");
+  metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.CONSUMER_TYPE,Kafka.ConsumerType.highLevel.toString());
+  metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.TOPIC_NAME,"fakeTopic");
+  metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.DECODER_CLASS,"fakeClass");
+  metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.ZK_BROKER_URL,"fakeUrl");
+  metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.HighLevelConsumer.ZK_CONNECTION_STRING,"potato");
+  metadata.put(DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE,Integer.toString(1234));
+  metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.KAFKA_CONSUMER_PROPS_PREFIX+ "."+ "auto.offset.reset","smallest");
+  request=ControllerRequestBuilder.buildCreateRealtimeTableJSON("bad__table__name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",metadata,"fakeSchema","fakeColumn",Collections.<String>emptyList(),"MMAP");
+  try {
+    sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
+    fail("Creation of a table with two underscores in the table name did not fail");
+  }
+ catch (  IOException e) {
+  }
+  request=ControllerRequestBuilder.buildCreateRealtimeTableJSON("valid_table_name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",metadata,"fakeSchema","fakeColumn",Collections.<String>emptyList(),"MMAP");
+  sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
+}
