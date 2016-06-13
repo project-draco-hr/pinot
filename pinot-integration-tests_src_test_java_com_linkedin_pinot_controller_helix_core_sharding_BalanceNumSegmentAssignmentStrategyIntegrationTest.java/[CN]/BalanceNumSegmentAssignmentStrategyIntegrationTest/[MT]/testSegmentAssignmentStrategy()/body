@@ -1,0 +1,21 @@
+{
+  for (int i=0; i < 9; ++i) {
+    generateAndUploadRandomSegment("mytable_" + i,10);
+  }
+  IdealState idealState=_helixAdmin.getResourceIdealState(getHelixClusterName(),"mytable_OFFLINE");
+  Map<String,Integer> segmentsPerInstance=new HashMap<String,Integer>();
+  for (  String partitionName : idealState.getPartitionSet()) {
+    for (    String instanceName : idealState.getInstanceSet(partitionName)) {
+      if (!segmentsPerInstance.containsKey(instanceName)) {
+        segmentsPerInstance.put(instanceName,1);
+      }
+ else {
+        segmentsPerInstance.put(instanceName,segmentsPerInstance.get(instanceName) + 1);
+      }
+    }
+  }
+  for (  String instanceName : segmentsPerInstance.keySet()) {
+    int segmentCountForInstance=segmentsPerInstance.get(instanceName);
+    assertEquals(segmentCountForInstance,3,"Instance " + instanceName + " did not have the expected number of segments assigned");
+  }
+}

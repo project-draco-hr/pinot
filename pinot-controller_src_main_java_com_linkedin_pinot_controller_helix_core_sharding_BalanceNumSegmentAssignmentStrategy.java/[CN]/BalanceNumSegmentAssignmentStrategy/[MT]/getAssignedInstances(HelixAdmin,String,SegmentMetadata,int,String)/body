@@ -15,16 +15,18 @@
   for (  String instance : allTaggedInstances) {
     currentNumSegmentsPerInstanceMap.put(instance,0);
   }
-  ExternalView externalView=helixAdmin.getResourceExternalView(helixClusterName,tableName);
-  if (externalView != null) {
-    for (    String partitionName : externalView.getPartitionSet()) {
-      Map<String,String> instanceToStateMap=externalView.getStateMap(partitionName);
-      for (      String instanceName : instanceToStateMap.keySet()) {
-        if (currentNumSegmentsPerInstanceMap.containsKey(instanceName)) {
-          currentNumSegmentsPerInstanceMap.put(instanceName,currentNumSegmentsPerInstanceMap.get(instanceName) + 1);
-        }
+  IdealState idealState=helixAdmin.getResourceIdealState(helixClusterName,tableName);
+  if (idealState != null) {
+    for (    String partitionName : idealState.getPartitionSet()) {
+      Map<String,String> instanceToStateMap=idealState.getInstanceStateMap(partitionName);
+      if (instanceToStateMap != null) {
+        for (        String instanceName : instanceToStateMap.keySet()) {
+          if (currentNumSegmentsPerInstanceMap.containsKey(instanceName)) {
+            currentNumSegmentsPerInstanceMap.put(instanceName,currentNumSegmentsPerInstanceMap.get(instanceName) + 1);
+          }
  else {
-          currentNumSegmentsPerInstanceMap.put(instanceName,1);
+            currentNumSegmentsPerInstanceMap.put(instanceName,1);
+          }
         }
       }
     }

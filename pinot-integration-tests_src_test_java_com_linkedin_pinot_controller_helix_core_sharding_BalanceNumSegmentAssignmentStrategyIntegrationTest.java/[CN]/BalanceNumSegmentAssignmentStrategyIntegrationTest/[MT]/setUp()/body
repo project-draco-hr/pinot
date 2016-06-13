@@ -1,0 +1,17 @@
+{
+  startZk();
+  startController();
+  startServer();
+  startBroker();
+  JSONObject request=ControllerRequestBuilder.buildCreateOfflineTableJSON("mytable",null,null,"DaysSinceEpoch","DAYS","DAYS","300",3,"BalanceNumSegmentAssignmentStrategy",Collections.<String>emptyList(),"MMAP");
+  sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
+  for (int i=0; i < 8; ++i) {
+    JSONObject serverInstance=new JSONObject();
+    serverInstance.put("host","1.2.3.4");
+    serverInstance.put("port",Integer.toString(1234 + i));
+    serverInstance.put("tag","DefaultTenant_OFFLINE");
+    serverInstance.put("type","server");
+    sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forInstanceCreate(),serverInstance.toString());
+  }
+  _helixAdmin=new ZKHelixAdmin(ZkStarter.DEFAULT_ZK_STR);
+}
