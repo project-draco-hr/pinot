@@ -2,7 +2,7 @@
   final int numSegments=20;
   setupSegmentList(numSegments);
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
-  final BrokerRequest brokerRequest=getSelectionNoFilterBrokerRequest();
+  final BrokerRequest brokerRequest=getSelectionNoFilterBrokerRequest2();
   final ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
   final Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService,150000);
   globalPlan.print();
@@ -24,11 +24,13 @@
   for (int i=0; i < resultsJsonArray.length(); ++i) {
     JSONArray rowJsonArray=resultsJsonArray.getJSONArray(i);
     Assert.assertEquals(rowJsonArray.length(),3);
-    Assert.assertEquals(rowJsonArray.getString(0),"i");
+    Assert.assertEquals(rowJsonArray.getString(0),"U");
+    Assert.assertEquals(rowJsonArray.getString(1),"db");
+    Assert.assertEquals(rowJsonArray.getString(2),"6240989492723764727");
   }
   final BrokerReduceService brokerReduceService=new BrokerReduceService();
   final BrokerResponseNative brokerResponseNative=brokerReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  System.out.println("Selection Result : " + brokerResponseNative.getSelectionResults().toString());
+  System.out.println("Selection Result : " + brokerResponseNative.getSelectionResults());
   System.out.println("Time used : " + brokerResponseNative.getTimeUsedMs());
   SelectionResults selectionResults=brokerResponseNative.getSelectionResults();
   List<String> columnArray=selectionResults.getColumns();
