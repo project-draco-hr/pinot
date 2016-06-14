@@ -1,10 +1,11 @@
 {
-  SegmentGeneratorConfig config=createSegmentConfigWithCreator();
+  SegmentGeneratorConfig config=CreateSegmentConfigWithoutCreator();
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   driver.init(config);
   driver.build();
   final IndexSegmentImpl segment=(IndexSegmentImpl)Loaders.IndexSegment.load(INDEX_DIR.listFiles()[0],ReadMode.mmap);
   SegmentMetadataImpl metadata=(SegmentMetadataImpl)segment.getSegmentMetadata();
+  verifySegmentAfterLoading(metadata);
   String creatorName=metadata.getCreatorName();
-  Assert.assertEquals(creatorName,CREATOR_VERSION);
+  Assert.assertEquals(creatorName,null);
 }

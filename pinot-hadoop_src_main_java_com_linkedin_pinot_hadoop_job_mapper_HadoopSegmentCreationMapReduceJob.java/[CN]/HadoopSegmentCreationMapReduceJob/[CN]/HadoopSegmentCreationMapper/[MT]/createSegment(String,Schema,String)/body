@@ -22,6 +22,14 @@
   }
   segmentGeneratorConfig.setReaderConfig(getReaderConfig(fileFormat));
   segmentGeneratorConfig.setOutDir(_localDiskSegmentDirectory);
+  Package objPackage=this.getClass().getPackage();
+  if (null != objPackage) {
+    String packageVersion=objPackage.getSpecificationVersion();
+    if (null != packageVersion) {
+      LOGGER.info("Pinot Hadoop Package version {}",packageVersion);
+      segmentGeneratorConfig.setCreatorVersion(packageVersion);
+    }
+  }
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
   driver.init(segmentGeneratorConfig);
   driver.build();
