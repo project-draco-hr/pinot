@@ -28,6 +28,10 @@
       if (nIdeal == 0) {
         continue;
       }
+      if (externalView.getStateMap(partitionName) == null) {
+        nReplicasExternal=0;
+        continue;
+      }
       for (      Map.Entry<String,String> serverAndState : externalView.getStateMap(partitionName).entrySet()) {
         if (serverAndState.getValue().equals(ONLINE)) {
           nReplicas++;
