@@ -9,6 +9,7 @@
       if (!instanceMap.get(instance).equals(CommonConstants.Helix.StateModel.SegmentOnlineOfflineStateModel.ONLINE) || pruner.isInactive(instance)) {
         continue;
       }
+      if (!SegmentName.isHighLevelConsumerSegmentName(segment))       continue;
       String groupId=SegmentNameBuilder.Realtime.extractGroupIdName(segment);
       if (!groupIdToRouting.containsKey(groupId)) {
         groupIdToRouting.put(groupId,new HashMap<String,Set<String>>());
