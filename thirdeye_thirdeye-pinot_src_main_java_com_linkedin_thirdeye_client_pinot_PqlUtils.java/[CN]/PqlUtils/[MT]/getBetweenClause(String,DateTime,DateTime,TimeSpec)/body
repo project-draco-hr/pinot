@@ -1,15 +1,26 @@
 {
+  TimeGranularity dataGranularity=timeFieldSpec.getDataGranularity();
+  long startMillis=start.getMillis();
+  long endMillis=end.getMillis();
+  long dataGranularityMillis=dataGranularity.toMillis();
+  long startAlignmentDelta=startMillis % dataGranularityMillis;
+  if (startAlignmentDelta != 0) {
+    long startMillisAligned=startMillis + dataGranularityMillis - startAlignmentDelta;
+    start=new DateTime(startMillisAligned);
+  }
+  long endAligmentDelta=endMillis % dataGranularityMillis;
+  if (endAligmentDelta != 0) {
+    long endMillisAligned=endMillis - endAligmentDelta;
+    end=new DateTime(endMillisAligned);
+  }
+  String startQueryTime;
+  String endQueryTime;
   String timeField=timeFieldSpec.getColumnName();
   if (timeFieldSpec.getFormat() == null || TimeSpec.SINCE_EPOCH_FORMAT.equals(timeFieldSpec.getFormat())) {
-    TimeGranularity dataGranularity=timeFieldSpec.getDataGranularity();
     long startInConvertedUnits=dataGranularity.convertToUnit(start.getMillis());
     long endInConvertedUnits=dataGranularity.convertToUnit(end.getMillis());
-    if (startInConvertedUnits == endInConvertedUnits) {
-      return String.format(" %s = %s",timeField,startInConvertedUnits);
-    }
- else {
-      return String.format(" %s >= %s AND %s <= %s",timeField,startInConvertedUnits,timeField,endInConvertedUnits);
-    }
+    startQueryTime=String.valueOf(startInConvertedUnits);
+    endQueryTime=String.valueOf(endInConvertedUnits);
   }
  else {
     String timeFormat=null;
@@ -20,13 +31,13 @@
       LOGGER.error("Caught exception when reading from cache",e);
     }
     DateTimeFormatter dateTimeFormatter=DateTimeFormat.forPattern(timeFormat).withZoneUTC();
-    String startDateTime=dateTimeFormatter.print(start);
-    String endDateTime=dateTimeFormatter.print(end);
-    if (startDateTime.equals(endDateTime)) {
-      return String.format(" %s = '%s'",timeField,startDateTime);
-    }
+    startQueryTime=dateTimeFormatter.print(start);
+    endQueryTime=dateTimeFormatter.print(end);
+  }
+  if (startQueryTime.equals(endQueryTime)) {
+    return String.format(" %s = %s",timeField,startQueryTime);
+  }
  else {
-      return String.format(" %s >= %s AND %s <= %s",timeField,startDateTime,timeField,endDateTime);
-    }
+    return String.format(" %s >= %s AND %s <= %s",timeField,startQueryTime,timeField,endQueryTime);
   }
 }
