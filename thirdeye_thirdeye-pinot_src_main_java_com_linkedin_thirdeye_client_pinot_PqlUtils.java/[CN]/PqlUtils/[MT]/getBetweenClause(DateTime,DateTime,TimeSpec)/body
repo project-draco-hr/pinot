@@ -16,20 +16,14 @@
   String startQueryTime;
   String endQueryTime;
   String timeField=timeFieldSpec.getColumnName();
-  if (timeFieldSpec.getFormat() == null || TimeSpec.SINCE_EPOCH_FORMAT.equals(timeFieldSpec.getFormat())) {
+  String timeFormat=timeFieldSpec.getFormat();
+  if (timeFormat == null || TimeSpec.SINCE_EPOCH_FORMAT.equals(timeFormat)) {
     long startInConvertedUnits=dataGranularity.convertToUnit(start.getMillis());
     long endInConvertedUnits=dataGranularity.convertToUnit(end.getMillis());
     startQueryTime=String.valueOf(startInConvertedUnits);
     endQueryTime=String.valueOf(endInConvertedUnits);
   }
  else {
-    String timeFormat=null;
-    try {
-      timeFormat=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(collection).getTime().getFormat();
-    }
- catch (    ExecutionException e) {
-      LOGGER.error("Caught exception when reading from cache",e);
-    }
     DateTimeFormatter dateTimeFormatter=DateTimeFormat.forPattern(timeFormat).withZoneUTC();
     startQueryTime=dateTimeFormatter.print(start);
     endQueryTime=dateTimeFormatter.print(end);
