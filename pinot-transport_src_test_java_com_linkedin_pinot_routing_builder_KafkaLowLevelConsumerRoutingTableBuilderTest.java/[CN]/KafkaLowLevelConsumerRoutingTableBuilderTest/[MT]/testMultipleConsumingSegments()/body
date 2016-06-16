@@ -1,0 +1,33 @@
+{
+  final int SEGMENT_COUNT=10;
+  final int ONLINE_SEGMENT_COUNT=8;
+  final int CONSUMING_SEGMENT_COUNT=SEGMENT_COUNT - ONLINE_SEGMENT_COUNT;
+  KafkaLowLevelConsumerRoutingTableBuilder routingTableBuilder=new KafkaLowLevelConsumerRoutingTableBuilder();
+  routingTableBuilder.init(null);
+  List<SegmentName> segmentNames=new ArrayList<SegmentName>();
+  for (int i=0; i < SEGMENT_COUNT; ++i) {
+    segmentNames.add(new LLCSegmentName("table",0,i,System.currentTimeMillis()));
+  }
+  List<InstanceConfig> instanceConfigs=new ArrayList<InstanceConfig>();
+  InstanceConfig instanceConfig=new InstanceConfig("Server_localhost_1234");
+  instanceConfigs.add(instanceConfig);
+  instanceConfig.getRecord().setSimpleField(CommonConstants.Helix.IS_SHUTDOWN_IN_PROGRESS,"false");
+  ExternalView externalView=new ExternalView("table_REALTIME");
+  for (int i=0; i < ONLINE_SEGMENT_COUNT; i++) {
+    externalView.setState(segmentNames.get(i).getSegmentName(),"Server_localhost_1234","ONLINE");
+  }
+  for (int i=ONLINE_SEGMENT_COUNT; i < SEGMENT_COUNT; ++i) {
+    externalView.setState(segmentNames.get(i).getSegmentName(),"Server_localhost_1234","CONSUMING");
+  }
+  List<ServerToSegmentSetMap> routingTables=routingTableBuilder.computeRoutingTableFromExternalView("table",externalView,instanceConfigs);
+  for (  ServerToSegmentSetMap routingTable : routingTables) {
+    for (    String server : routingTable.getServerSet()) {
+      Set<String> segmentSet=routingTable.getSegmentSet(server);
+      assertEquals(segmentSet.size(),ONLINE_SEGMENT_COUNT + 1,"");
+      assertTrue(segmentSet.contains(segmentNames.get(ONLINE_SEGMENT_COUNT).getSegmentName()),"Segment set does not contain the first segment in consuming state");
+      for (int i=ONLINE_SEGMENT_COUNT + 1; i < SEGMENT_COUNT; i++) {
+        assertFalse(segmentSet.contains(segmentNames.get(i).getSegmentName()),"Segment set contains a segment in consuming state that should not be there");
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  Map<String,SortedSet<SegmentName>> sortedSegmentsByKafkaPartition=new HashMap<String,SortedSet<SegmentName>>();
+  for (  String helixPartitionName : externalView.getPartitionSet()) {
+    if (!SegmentNameBuilder.Realtime.isRealtimeV2Name(helixPartitionName)) {
+      continue;
+    }
+    final LLCSegmentName segmentName=new LLCSegmentName(helixPartitionName);
+    String kafkaPartitionName=segmentName.getPartitionRange();
+    SortedSet<SegmentName> segmentsForPartition=sortedSegmentsByKafkaPartition.get(kafkaPartitionName);
+    if (segmentsForPartition == null) {
+      segmentsForPartition=new TreeSet<SegmentName>();
+      sortedSegmentsByKafkaPartition.put(kafkaPartitionName,segmentsForPartition);
+    }
+    segmentsForPartition.add(segmentName);
+  }
+  Map<String,SegmentName> allowedSegmentInConsumingStateByKafkaPartition=new HashMap<String,SegmentName>();
+  for (  String kafkaPartition : sortedSegmentsByKafkaPartition.keySet()) {
+    SortedSet<SegmentName> sortedSegmentsForKafkaPartition=sortedSegmentsByKafkaPartition.get(kafkaPartition);
+    SegmentName lastAllowedSegmentInConsumingState=null;
+    for (    SegmentName segmentName : sortedSegmentsForKafkaPartition) {
+      Map<String,String> helixPartitionState=externalView.getStateMap(segmentName.getSegmentName());
+      boolean allInConsumingState=true;
+      int replicasInConsumingState=0;
+      for (      String externalViewState : helixPartitionState.values()) {
+        if (externalViewState.equalsIgnoreCase(CommonConstants.Helix.StateModel.RealtimeSegmentOnlineOfflineStateModel.ERROR)) {
+          continue;
+        }
+        if (externalViewState.equalsIgnoreCase(CommonConstants.Helix.StateModel.RealtimeSegmentOnlineOfflineStateModel.ONLINE)) {
+          allInConsumingState=false;
+          break;
+        }
+        if (externalViewState.equalsIgnoreCase(CommonConstants.Helix.StateModel.RealtimeSegmentOnlineOfflineStateModel.CONSUMING)) {
+          replicasInConsumingState++;
+        }
+      }
+      if (allInConsumingState && 0 < replicasInConsumingState) {
+        lastAllowedSegmentInConsumingState=segmentName;
+        break;
+      }
+    }
+    if (lastAllowedSegmentInConsumingState != null) {
+      allowedSegmentInConsumingStateByKafkaPartition.put(kafkaPartition,lastAllowedSegmentInConsumingState);
+    }
+  }
+  PriorityQueue<Pair<String,Set<String>>> segmentToReplicaSetQueue=new PriorityQueue<Pair<String,Set<String>>>(externalView.getPartitionSet().size(),new Comparator<Pair<String,Set<String>>>(){
+    @Override public int compare(    Pair<String,Set<String>> firstPair,    Pair<String,Set<String>> secondPair){
+      return Integer.compare(firstPair.getRight().size(),secondPair.getRight().size());
+    }
+  }
+);
+  RoutingTableInstancePruner instancePruner=new RoutingTableInstancePruner(instanceConfigList);
+  for (  Map.Entry<String,SortedSet<SegmentName>> entry : sortedSegmentsByKafkaPartition.entrySet()) {
+    String kafkaPartition=entry.getKey();
+    SortedSet<SegmentName> segmentNames=entry.getValue();
+    SegmentName validConsumingSegment=allowedSegmentInConsumingStateByKafkaPartition.get(kafkaPartition);
+    for (    SegmentName segmentName : segmentNames) {
+      Set<String> validReplicas=new HashSet<String>();
+      Map<String,String> externalViewState=externalView.getStateMap(segmentName.getSegmentName());
+      for (      Map.Entry<String,String> instanceAndStateEntry : externalViewState.entrySet()) {
+        String instance=instanceAndStateEntry.getKey();
+        String state=instanceAndStateEntry.getValue();
+        if (instancePruner.isInactive(instance)) {
+          continue;
+        }
+        if (state.equalsIgnoreCase(CommonConstants.Helix.StateModel.RealtimeSegmentOnlineOfflineStateModel.ONLINE)) {
+          validReplicas.add(instance);
+          continue;
+        }
+        if (state.equalsIgnoreCase(CommonConstants.Helix.StateModel.RealtimeSegmentOnlineOfflineStateModel.CONSUMING) && segmentName.equals(validConsumingSegment)) {
+          validReplicas.add(instance);
+        }
+      }
+      segmentToReplicaSetQueue.add(new ImmutablePair<String,Set<String>>(segmentName.getSegmentName(),validReplicas));
+      if (segmentName.equals(validConsumingSegment)) {
+        break;
+      }
+    }
+  }
+  List<ServerToSegmentSetMap> routingTables=new ArrayList<ServerToSegmentSetMap>(routingTableCount);
+  for (int i=0; i < routingTableCount; ++i) {
+    Map<String,Set<String>> instanceToSegmentSetMap=new HashMap<String,Set<String>>();
+    PriorityQueue<Pair<String,Set<String>>> segmentToReplicaSetQueueCopy=new PriorityQueue<Pair<String,Set<String>>>(segmentToReplicaSetQueue);
+    while (!segmentToReplicaSetQueueCopy.isEmpty()) {
+      Pair<String,Set<String>> segmentAndValidReplicaSet=segmentToReplicaSetQueueCopy.poll();
+      String segment=segmentAndValidReplicaSet.getKey();
+      Set<String> validReplicaSet=segmentAndValidReplicaSet.getValue();
+      String replica=pickWeightedRandomReplica(validReplicaSet,instanceToSegmentSetMap);
+      if (replica != null) {
+        Set<String> segmentsForInstance=instanceToSegmentSetMap.get(replica);
+        if (segmentsForInstance == null) {
+          segmentsForInstance=new HashSet<String>();
+          instanceToSegmentSetMap.put(replica,segmentsForInstance);
+        }
+        segmentsForInstance.add(segment);
+      }
+    }
+    routingTables.add(new ServerToSegmentSetMap(instanceToSegmentSetMap));
+  }
+  return routingTables;
+}

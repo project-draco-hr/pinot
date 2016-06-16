@@ -1,0 +1,40 @@
+{
+  Random random=new Random();
+  if (validReplicaSet.isEmpty()) {
+    return null;
+  }
+  if (validReplicaSet.size() == 1) {
+    return validReplicaSet.iterator().next();
+  }
+  String[] replicas=validReplicaSet.toArray(new String[validReplicaSet.size()]);
+  int[] replicaSegmentCounts=new int[validReplicaSet.size()];
+  int maxSegmentCount=0;
+  for (int i=0; i < replicas.length; i++) {
+    String replica=replicas[i];
+    if (!instanceToSegmentSetMap.containsKey(replica)) {
+      instanceToSegmentSetMap.put(replica,new HashSet<String>());
+    }
+    int replicaSegmentCount=instanceToSegmentSetMap.get(replica).size();
+    replicaSegmentCounts[i]=replicaSegmentCount;
+    if (maxSegmentCount < replicaSegmentCount) {
+      maxSegmentCount=replicaSegmentCount;
+    }
+  }
+  int[] replicaWeights=new int[validReplicaSet.size()];
+  int totalReplicaWeights=0;
+  for (int i=0; i < replicas.length; i++) {
+    int replicaWeight=maxSegmentCount - replicaSegmentCounts[i];
+    replicaWeights[i]=replicaWeight;
+    totalReplicaWeights+=replicaWeight;
+  }
+  if (totalReplicaWeights == 0) {
+    return replicas[random.nextInt(replicas.length)];
+  }
+  int randomValue=random.nextInt(totalReplicaWeights);
+  int i=0;
+  while (replicaWeights[i] == 0 || replicaWeights[i] <= randomValue) {
+    randomValue-=replicaWeights[i];
+    ++i;
+  }
+  return replicas[i];
+}
