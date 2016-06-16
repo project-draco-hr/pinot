@@ -1,0 +1,13 @@
+{
+  responseMap=ResponseParserUtils.createResponseMapByTime(response);
+  for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+    Range<DateTime> timeRange=ranges.get(timeBucketId);
+    ThirdEyeResponseRow responseRow=responseMap.get(String.valueOf(timeBucketId));
+    TimeSeriesRow.Builder builder=new TimeSeriesRow.Builder();
+    builder.setStart(timeRange.lowerEndpoint());
+    builder.setEnd(timeRange.upperEndpoint());
+    addMetric(responseRow,builder);
+    TimeSeriesRow row=builder.build();
+    rows.add(row);
+  }
+}

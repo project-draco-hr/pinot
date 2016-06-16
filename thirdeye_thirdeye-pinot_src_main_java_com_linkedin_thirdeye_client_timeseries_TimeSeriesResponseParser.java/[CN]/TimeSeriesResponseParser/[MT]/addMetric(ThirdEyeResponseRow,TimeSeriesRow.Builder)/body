@@ -1,0 +1,11 @@
+{
+  List<MetricFunction> metricFunctions=response.getMetricFunctions();
+  for (int i=0; i < metricFunctions.size(); i++) {
+    MetricFunction metricFunction=metricFunctions.get(i);
+    double value=0;
+    if (row != null) {
+      value=row.getMetrics().get(i);
+    }
+    builder.addMetric(metricFunction.getMetricName(),value);
+  }
+}

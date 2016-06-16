@@ -1,0 +1,31 @@
+{
+  List<MetricFunction> metricFunctionsFromExpressions=Utils.computeMetricFunctionsFromExpressions(timeSeriesRequest.getMetricExpressions());
+  Set<String> metricNameSet=new HashSet<>();
+  for (  MetricFunction function : metricFunctionsFromExpressions) {
+    metricNameSet.add(function.getMetricName());
+  }
+  List<MetricExpression> derivedMetricExpressions=new ArrayList<>();
+  for (  MetricExpression expression : timeSeriesRequest.getMetricExpressions()) {
+    if (!metricNameSet.contains(expression.getExpressionName())) {
+      derivedMetricExpressions.add(expression);
+    }
+  }
+  if (derivedMetricExpressions.size() > 0) {
+    Map<String,Double> valueContext=new HashMap<>();
+    for (    TimeSeriesRow row : rows) {
+      valueContext.clear();
+      List<TimeSeriesMetric> metrics=row.getMetrics();
+      for (      TimeSeriesMetric metric : metrics) {
+        valueContext.put(metric.getMetricName(),metric.getValue());
+      }
+      for (      MetricExpression expression : derivedMetricExpressions) {
+        String derivedMetricExpression=expression.getExpression();
+        double derivedMetricValue=MetricExpression.evaluateExpression(derivedMetricExpression,valueContext);
+        if (Double.isInfinite(derivedMetricValue) || Double.isNaN(derivedMetricValue)) {
+          derivedMetricValue=0;
+        }
+        row.getMetrics().add(new TimeSeriesMetric(expression.getExpressionName(),derivedMetricValue));
+      }
+    }
+  }
+}

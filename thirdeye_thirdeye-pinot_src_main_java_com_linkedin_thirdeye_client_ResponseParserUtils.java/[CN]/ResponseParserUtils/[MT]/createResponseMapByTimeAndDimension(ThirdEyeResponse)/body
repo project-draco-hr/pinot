@@ -1,0 +1,10 @@
+{
+  Map<String,ThirdEyeResponseRow> responseMap;
+  responseMap=new HashMap<>();
+  int numRows=thirdEyeResponse.getNumRows();
+  for (int i=0; i < numRows; i++) {
+    ThirdEyeResponseRow thirdEyeResponseRow=thirdEyeResponse.getRow(i);
+    responseMap.put(thirdEyeResponseRow.getTimeBucketId() + TIME_DIMENSION_JOINER + thirdEyeResponseRow.getDimensions().get(0),thirdEyeResponseRow);
+  }
+  return responseMap;
+}

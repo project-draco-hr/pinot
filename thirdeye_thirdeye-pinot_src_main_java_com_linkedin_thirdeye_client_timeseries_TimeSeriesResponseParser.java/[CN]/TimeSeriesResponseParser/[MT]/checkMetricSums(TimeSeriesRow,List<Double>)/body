@@ -1,0 +1,14 @@
+{
+  List<TimeSeriesMetric> metrics=row.getMetrics();
+  for (int i=0; i < metrics.size(); i++) {
+    TimeSeriesMetric metric=metrics.get(i);
+    double sum=0;
+    if (metricSums != null) {
+      sum=metricSums.get(i);
+    }
+    if (metric.getValue() > metricThreshold * sum) {
+      return true;
+    }
+  }
+  return false;
+}

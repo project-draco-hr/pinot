@@ -1,49 +1,14 @@
 {
-  List<String> groupByDimensions=timeSeriesRequest.getGroupByDimensions();
-  boolean hasGroupByDimensions=CollectionUtils.isNotEmpty(groupByDimensions);
-  ThirdEyeRequestBuilder requestBuilder=new ThirdEyeRequestBuilder();
-  requestBuilder.setCollection(timeSeriesRequest.getCollectionName());
-  requestBuilder.setStartTimeInclusive(timeSeriesRequest.getStart());
-  requestBuilder.setEndTimeExclusive(timeSeriesRequest.getEnd());
-  List<MetricFunction> metricFunctionsFromExpressions=Utils.computeMetricFunctionsFromExpressions(timeSeriesRequest.getMetricExpressions());
-  requestBuilder.setMetricFunctions(metricFunctionsFromExpressions);
-  if (hasGroupByDimensions) {
-    requestBuilder.setGroupBy(groupByDimensions);
-  }
-  requestBuilder.setGroupByTimeGranularity(timeSeriesRequest.getAggregationTimeGranularity());
-  ThirdEyeRequest thirdeyeRequest=requestBuilder.build("timeseries");
-  ThirdEyeResponse thirdEyeResponse=queryCache.getClient().execute(thirdeyeRequest);
-  List<TimeSeriesRow> rows=new ArrayList<>();
-  int numRows=thirdEyeResponse.getNumRows();
-  List<Range<DateTime>> timeRanges=timeSeriesRequest.getTimeRanges();
-  for (int i=0; i < numRows; i++) {
-    ThirdEyeResponseRow thirdeyeResponseRow=thirdEyeResponse.getRow(i);
-    if (thirdeyeResponseRow.getTimeBucketId() >= 0 && thirdeyeResponseRow.getTimeBucketId() < timeRanges.size()) {
-      TimeSeriesRow timeSeriesRow=convertToTimeSeriesRow(thirdeyeRequest,thirdeyeResponseRow,timeRanges);
-      rows.add(timeSeriesRow);
-    }
-  }
-  List<MetricExpression> metricExpressions=timeSeriesRequest.getMetricExpressions();
-  List<MetricExpression> derivedMetricExpressions=new ArrayList<>();
-  for (  MetricExpression expression : metricExpressions) {
-    if (expression.computeMetricFunctions().size() > 1) {
-      derivedMetricExpressions.add(expression);
-    }
-  }
-  if (derivedMetricExpressions.size() > 0) {
-    Map<String,Double> metricValueContext=new HashMap<>();
-    for (    TimeSeriesRow row : rows) {
-      metricValueContext.clear();
-      List<TimeSeriesMetric> metrics=row.getMetrics();
-      for (      TimeSeriesMetric metric : metrics) {
-        metricValueContext.put(metric.getMetricName(),metric.getValue());
-      }
-      for (      MetricExpression expression : derivedMetricExpressions) {
-        String derivedMetricExpression=expression.getExpression();
-        double derivedMetricValue=MetricExpression.evaluateExpression(derivedMetricExpression,metricValueContext);
-        row.getMetrics().add(new TimeSeriesMetric(expression.getExpressionName(),derivedMetricValue));
-      }
-    }
-  }
-  return new TimeSeriesResponse(metricExpressions,groupByDimensions,rows);
+  ThirdEyeRequestBuilder builder=new ThirdEyeRequestBuilder();
+  builder.setCollection(timeSeriesRequest.getCollectionName());
+  List<Range<DateTime>> timeranges=new ArrayList<>();
+  TimeGranularity aggregationTimeGranularity=timeSeriesRequest.getAggregationTimeGranularity();
+  timeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,timeSeriesRequest.getStart(),timeSeriesRequest.getEnd());
+  ThirdEyeRequest request=createThirdEyeRequest("timeseries",timeSeriesRequest,timeSeriesRequest.getStart(),timeSeriesRequest.getEnd());
+  Future<ThirdEyeResponse> responseFuture=queryCache.getQueryResultAsync(request);
+  ThirdEyeResponse response=responseFuture.get(60,TimeUnit.SECONDS);
+  TimeSeriesResponseParser timeSeriesResponseParser=new TimeSeriesResponseParser(response,timeranges,timeSeriesRequest.getAggregationTimeGranularity(),timeSeriesRequest.getGroupByDimensions());
+  List<TimeSeriesRow> rows=timeSeriesResponseParser.parseResponse();
+  computeDerivedMetrics(timeSeriesRequest,rows);
+  return new TimeSeriesResponse(rows);
 }

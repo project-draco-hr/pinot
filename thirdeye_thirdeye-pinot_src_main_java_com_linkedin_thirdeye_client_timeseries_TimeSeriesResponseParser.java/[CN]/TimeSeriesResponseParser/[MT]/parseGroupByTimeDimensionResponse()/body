@@ -1,0 +1,74 @@
+{
+  responseMap=ResponseParserUtils.createResponseMapByTimeAndDimension(response);
+  Map<Integer,List<Double>> metricSums=ResponseParserUtils.getMetricSumsByTime(response);
+  Set<String> timeDimensionValues=new HashSet<>();
+  timeDimensionValues.addAll(responseMap.keySet());
+  Set<String> dimensionValues=new HashSet<>();
+  for (  String timeDimensionValue : timeDimensionValues) {
+    String dimensionValue=ResponseParserUtils.extractDimensionValue(timeDimensionValue);
+    dimensionValues.add(dimensionValue);
+  }
+  String dimensionName=response.getGroupKeyColumns().get(1);
+  List<TimeSeriesRow.Builder> otherBuilders=new ArrayList<>();
+  List<double[]> otherMetrics=new ArrayList<>();
+  boolean includeOther=false;
+  for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+    Range<DateTime> timeRange=ranges.get(timeBucketId);
+    TimeSeriesRow.Builder builder=new TimeSeriesRow.Builder();
+    builder.setStart(timeRange.lowerEndpoint());
+    builder.setEnd(timeRange.upperEndpoint());
+    builder.setDimensionName(dimensionName);
+    builder.setDimensionValue(OTHER);
+    otherBuilders.add(builder);
+    double[] other=new double[numMetrics];
+    Arrays.fill(other,0);
+    otherMetrics.add(other);
+  }
+  for (  String dimensionValue : dimensionValues) {
+    List<TimeSeriesRow> thresholdRows=new ArrayList<>();
+    for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+      Range<DateTime> timeRange=ranges.get(timeBucketId);
+      String timeDimensionValue=ResponseParserUtils.computeTimeDimensionValue(timeBucketId,dimensionValue);
+      ThirdEyeResponseRow responseRow=responseMap.get(timeDimensionValue);
+      TimeSeriesRow.Builder builder=new TimeSeriesRow.Builder();
+      builder.setStart(timeRange.lowerEndpoint());
+      builder.setEnd(timeRange.upperEndpoint());
+      builder.setDimensionName(dimensionName);
+      builder.setDimensionValue(dimensionValue);
+      addMetric(responseRow,builder);
+      TimeSeriesRow row=builder.build();
+      thresholdRows.add(row);
+    }
+    boolean passedThreshold=false;
+    for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+      if (checkMetricSums(thresholdRows.get(timeBucketId),metricSums.get(timeBucketId))) {
+        passedThreshold=true;
+        break;
+      }
+    }
+    if (passedThreshold) {
+      rows.addAll(thresholdRows);
+    }
+ else {
+      includeOther=true;
+      for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+        TimeSeriesRow row=thresholdRows.get(timeBucketId);
+        List<TimeSeriesMetric> metrics=row.getMetrics();
+        for (int i=0; i < metrics.size(); i++) {
+          TimeSeriesMetric metricToAdd=metrics.get(i);
+          otherMetrics.get(timeBucketId)[i]+=metricToAdd.getValue();
+        }
+      }
+    }
+  }
+  if (includeOther) {
+    for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
+      Builder otherBuilder=otherBuilders.get(timeBucketId);
+      double[] other=otherMetrics.get(timeBucketId);
+      for (int i=0; i < numMetrics; i++) {
+        otherBuilder.addMetric(metricFunctions.get(i).getMetricName(),other[i]);
+      }
+      rows.add(otherBuilder.build());
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  if (response == null) {
+    return Collections.emptyList();
+  }
+  if (aggTimeGranularity == null) {
+    throw new UnsupportedOperationException("TimeSeriesResponse should always have group by time");
+  }
+  boolean hasGroupByDimensions=CollectionUtils.isNotEmpty(groupByDimensions);
+  metricFunctions=response.getMetricFunctions();
+  numMetrics=metricFunctions.size();
+  numTimeBuckets=ranges.size();
+  rows=new ArrayList<>();
+  if (hasGroupByDimensions) {
+    parseGroupByTimeDimensionResponse();
+  }
+ else {
+    parseGroupByTimeResponse();
+  }
+  return rows;
+}

@@ -1,15 +1,14 @@
 {
-  baselineResponseMap=createResponseMapByTimeAndDimension(baselineResponse);
-  currentResponseMap=createResponseMapByTimeAndDimension(currentResponse);
-  Map<Integer,List<Double>> baselineMetricSums=getMetricSumsByTime(baselineResponse);
-  Map<Integer,List<Double>> currentMetricSums=getMetricSumsByTime(currentResponse);
+  baselineResponseMap=ResponseParserUtils.createResponseMapByTimeAndDimension(baselineResponse);
+  currentResponseMap=ResponseParserUtils.createResponseMapByTimeAndDimension(currentResponse);
+  Map<Integer,List<Double>> baselineMetricSums=ResponseParserUtils.getMetricSumsByTime(baselineResponse);
+  Map<Integer,List<Double>> currentMetricSums=ResponseParserUtils.getMetricSumsByTime(currentResponse);
   Set<String> timeDimensionValues=new HashSet<>();
   timeDimensionValues.addAll(baselineResponseMap.keySet());
   timeDimensionValues.addAll(currentResponseMap.keySet());
   Set<String> dimensionValues=new HashSet<>();
   for (  String timeDimensionValue : timeDimensionValues) {
-    String[] tokens=timeDimensionValue.split(TIME_DIMENSION_JOINER_ESCAPED);
-    String dimensionValue=tokens.length < 2 ? "" : tokens[1];
+    String dimensionValue=ResponseParserUtils.extractDimensionValue(timeDimensionValue);
     dimensionValues.add(dimensionValue);
   }
   String dimensionName=baselineResponse.getGroupKeyColumns().get(1);
@@ -40,8 +39,8 @@
     for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
       Range<DateTime> baselineTimeRange=baselineRanges.get(timeBucketId);
       Range<DateTime> currentTimeRange=currentRanges.get(timeBucketId);
-      String baselineTimeDimensionValue=timeBucketId + TIME_DIMENSION_JOINER + dimensionValue;
-      String currentTimeDimensionValue=timeBucketId + TIME_DIMENSION_JOINER + dimensionValue;
+      String baselineTimeDimensionValue=ResponseParserUtils.computeTimeDimensionValue(timeBucketId,dimensionValue);
+      String currentTimeDimensionValue=baselineTimeDimensionValue;
       ThirdEyeResponseRow baselineRow=baselineResponseMap.get(baselineTimeDimensionValue);
       ThirdEyeResponseRow currentRow=currentResponseMap.get(currentTimeDimensionValue);
       Row.Builder builder=new Row.Builder();

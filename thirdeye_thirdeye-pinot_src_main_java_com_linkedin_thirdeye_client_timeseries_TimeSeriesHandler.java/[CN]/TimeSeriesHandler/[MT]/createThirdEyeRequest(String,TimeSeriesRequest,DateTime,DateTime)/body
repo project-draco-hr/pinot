@@ -1,0 +1,13 @@
+{
+  ThirdEyeRequestBuilder requestBuilder=ThirdEyeRequest.newBuilder();
+  requestBuilder.setCollection(timeSeriesRequest.getCollectionName());
+  requestBuilder.setStartTimeInclusive(start);
+  requestBuilder.setEndTimeExclusive(end);
+  requestBuilder.setFilterSet(timeSeriesRequest.getFilterSet());
+  requestBuilder.addGroupBy(timeSeriesRequest.getGroupByDimensions());
+  requestBuilder.setGroupByTimeGranularity(timeSeriesRequest.getAggregationTimeGranularity());
+  List<MetricExpression> metricExpressions=timeSeriesRequest.getMetricExpressions();
+  List<MetricFunction> metricFunctionsFromExpressions=Utils.computeMetricFunctionsFromExpressions(metricExpressions);
+  requestBuilder.setMetricFunctions(metricFunctionsFromExpressions);
+  return requestBuilder.build(requestReference);
+}
