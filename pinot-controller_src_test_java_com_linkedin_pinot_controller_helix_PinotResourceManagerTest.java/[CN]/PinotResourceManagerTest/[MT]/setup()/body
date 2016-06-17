@@ -2,10 +2,10 @@
   _zookeeperInstance=ZkStarter.startLocalZkServer();
   _zkClient=new ZkClient(ZK_SERVER);
   final String instanceId="localhost_helixController";
-  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null,10000L,true);
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null,10000L,true,false);
   _pinotHelixResourceManager.start();
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_SERVER);
-  _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
+  _helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId,false);
   _helixAdmin=_helixZkManager.getClusterManagmentTool();
   _numInstance=1;
   ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,_numInstance,true);

@@ -1,7 +1,7 @@
 {
   _zookeeperInstance=ZkStarter.startLocalZkServer();
   _zkClient=new ZkClient(ZK_STR);
-  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_STR,HELIX_CLUSTER_NAME,CONTROLLER_INSTANCE_NAME,null,10000L,true);
+  _pinotHelixResourceManager=new PinotHelixResourceManager(ZK_STR,HELIX_CLUSTER_NAME,CONTROLLER_INSTANCE_NAME,null,10000L,true,false);
   _pinotHelixResourceManager.start();
   ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2,true);
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_STR,2,true);

@@ -1,25 +1,3 @@
 {
-  final HelixAdmin admin=new ZKHelixAdmin(zkPath);
-  if (admin.getClusters().contains(helixClusterName)) {
-    LOGGER.info("cluster already exist, skipping it.. ********************************************* ");
-    return;
-  }
-  LOGGER.info("Creating a new cluster, as the helix cluster : " + helixClusterName + " was not found ********************************************* ");
-  admin.addCluster(helixClusterName,false);
-  LOGGER.info("Enable auto join.");
-  final HelixConfigScope scope=new HelixConfigScopeBuilder(ConfigScopeProperty.CLUSTER).forCluster(helixClusterName).build();
-  final Map<String,String> props=new HashMap<String,String>();
-  props.put(ZKHelixManager.ALLOW_PARTICIPANT_AUTO_JOIN,String.valueOf(true));
-  props.put(MessageType.STATE_TRANSITION + "." + HelixTaskExecutor.MAX_THREADS,String.valueOf(1));
-  admin.setConfig(scope,props);
-  LOGGER.info("Adding state model definition named : " + PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL + " generated using : "+ PinotHelixSegmentOnlineOfflineStateModelGenerator.class.toString()+ " ********************************************** ");
-  admin.addStateModelDef(helixClusterName,PinotHelixSegmentOnlineOfflineStateModelGenerator.PINOT_SEGMENT_ONLINE_OFFLINE_STATE_MODEL,PinotHelixSegmentOnlineOfflineStateModelGenerator.generatePinotStateModelDefinition());
-  LOGGER.info("Adding state model definition named : " + PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.PINOT_BROKER_RESOURCE_ONLINE_OFFLINE_STATE_MODEL + " generated using : "+ PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.class.toString()+ " ********************************************** ");
-  admin.addStateModelDef(helixClusterName,PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.PINOT_BROKER_RESOURCE_ONLINE_OFFLINE_STATE_MODEL,PinotHelixBrokerResourceOnlineOfflineStateModelGenerator.generatePinotStateModelDefinition());
-  LOGGER.info("Adding empty ideal state for Broker!");
-  HelixHelper.updateResourceConfigsFor(new HashMap<String,String>(),CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,helixClusterName,admin);
-  IdealState idealState=PinotTableIdealStateBuilder.buildEmptyIdealStateForBrokerResource(admin,helixClusterName);
-  admin.setResourceIdealState(helixClusterName,CommonConstants.Helix.BROKER_RESOURCE_INSTANCE,idealState);
-  initPropertyStorePath(helixClusterName,zkPath);
-  LOGGER.info("New Cluster setup completed... ********************************************** ");
+  createHelixClusterIfNeeded(helixClusterName,zkPath);
 }

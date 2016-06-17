@@ -1,10 +1,10 @@
 {
   zkServer=ZkStarter.startLocalZkServer();
   final String instanceId="localhost_helixController";
-  pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null,10000L,true);
+  pinotHelixResourceManager=new PinotHelixResourceManager(ZK_SERVER,HELIX_CLUSTER_NAME,instanceId,null,10000L,true,false);
   pinotHelixResourceManager.start();
   final String helixZkURL=HelixConfig.getAbsoluteZkPathForHelix(ZK_SERVER);
-  helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId);
+  helixZkManager=HelixSetupUtils.setup(HELIX_CLUSTER_NAME,helixZkURL,instanceId,false);
   helixAdmin=helixZkManager.getClusterManagmentTool();
   ControllerRequestBuilderUtil.addFakeBrokerInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,numInstances);
   ControllerRequestBuilderUtil.addFakeDataInstancesToAutoJoinHelixCluster(HELIX_CLUSTER_NAME,ZK_SERVER,numInstances,true,adminPortStart);
