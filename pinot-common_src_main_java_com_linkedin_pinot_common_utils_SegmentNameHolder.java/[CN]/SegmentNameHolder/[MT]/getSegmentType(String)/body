@@ -1,0 +1,22 @@
+{
+  try {
+    if (SegmentNameBuilder.Realtime.isRealtimeV1Name(segmentName)) {
+      HLCSegmentNameHolder holder=new HLCSegmentNameHolder(segmentName);
+      if (holder.isOldStyleNaming()) {
+        return RealtimeSegmentType.HLC_LONG;
+      }
+ else {
+        return RealtimeSegmentType.HLC_SHORT;
+      }
+    }
+ else     if (SegmentNameBuilder.Realtime.isRealtimeV2Name(segmentName)) {
+      return RealtimeSegmentType.LLC;
+    }
+ else {
+      return RealtimeSegmentType.UNSUPPORTED;
+    }
+  }
+ catch (  Exception e) {
+    return RealtimeSegmentType.UNSUPPORTED;
+  }
+}

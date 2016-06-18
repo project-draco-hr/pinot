@@ -1,0 +1,26 @@
+{
+  LLCSegmentNameHolder other=(LLCSegmentNameHolder)o;
+  if (!this.getTableName().equals(other.getTableName())) {
+    throw new RuntimeException("Cannot compare segment names " + this.getSegmentName() + " and "+ other.getSegmentName());
+  }
+  if (this.getPartitionId() > other.getPartitionId()) {
+    return 1;
+  }
+ else   if (this.getPartitionId() < other.getPartitionId()) {
+    return -1;
+  }
+ else {
+    if (this.getSequenceNumber() > other.getSequenceNumber()) {
+      return 1;
+    }
+ else     if (this.getSequenceNumber() < other.getSequenceNumber()) {
+      return -1;
+    }
+ else {
+      if (!this.getCreationTime().equals(other.getCreationTime())) {
+        throw new RuntimeException("Cannot compare segment names " + this.getSegmentName() + " and "+ other.getSegmentName());
+      }
+      return 0;
+    }
+  }
+}

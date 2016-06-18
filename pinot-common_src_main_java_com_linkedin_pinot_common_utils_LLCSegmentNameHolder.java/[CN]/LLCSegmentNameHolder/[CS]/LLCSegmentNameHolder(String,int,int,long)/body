@@ -1,0 +1,11 @@
+{
+  if (!isValidComponentName(tableName)) {
+    throw new RuntimeException("Invalid table name " + tableName);
+  }
+  _tableName=tableName;
+  _partitionId=partitionId;
+  _sequenceNumber=sequenceNumber;
+  DateTime dateTime=new DateTime(msSinceEpoch,DateTimeZone.UTC);
+  _creationTime=dateTime.toString("yyyyMMdd'T'HHmm'Z'");
+  _segmentName=tableName + SEPARATOR + partitionId+ SEPARATOR+ sequenceNumber+ SEPARATOR+ _creationTime;
+}
