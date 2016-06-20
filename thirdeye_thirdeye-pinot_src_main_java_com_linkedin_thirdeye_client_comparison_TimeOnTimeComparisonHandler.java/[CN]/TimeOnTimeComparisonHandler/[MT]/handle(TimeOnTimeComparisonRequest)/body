@@ -4,10 +4,19 @@
   List<Range<DateTime>> baselineTimeranges=new ArrayList<>();
   List<Range<DateTime>> currentTimeranges=new ArrayList<>();
   TimeGranularity aggregationTimeGranularity=comparisonRequest.getAggregationTimeGranularity();
-  baselineTimeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,comparisonRequest.getBaselineStart(),comparisonRequest.getBaselineEnd());
-  currentTimeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,comparisonRequest.getCurrentStart(),comparisonRequest.getCurrentEnd());
-  ThirdEyeRequest baselineRequest=createThirdEyeRequest("baseline",comparisonRequest,comparisonRequest.getBaselineStart(),comparisonRequest.getBaselineEnd());
-  ThirdEyeRequest currentRequest=createThirdEyeRequest("current",comparisonRequest,comparisonRequest.getCurrentStart(),comparisonRequest.getCurrentEnd());
+  DateTime baselineStart=comparisonRequest.getBaselineStart();
+  DateTime baselineEnd=comparisonRequest.getBaselineEnd();
+  baselineTimeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,baselineStart,baselineEnd);
+  DateTime currentStart=comparisonRequest.getCurrentStart();
+  DateTime currentEnd=comparisonRequest.getCurrentEnd();
+  if (comparisonRequest.isEndDateInclusive()) {
+    long aggTimeBucketMillis=aggregationTimeGranularity.toMillis();
+    currentEnd=currentEnd.plus(aggTimeBucketMillis);
+    baselineEnd=baselineEnd.plus(aggTimeBucketMillis);
+  }
+  currentTimeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,currentStart,currentEnd);
+  ThirdEyeRequest baselineRequest=createThirdEyeRequest(BASELINE,comparisonRequest,baselineStart,baselineEnd);
+  ThirdEyeRequest currentRequest=createThirdEyeRequest(CURRENT,comparisonRequest,currentStart,currentEnd);
   List<ThirdEyeRequest> requests=new ArrayList<>();
   requests.add(baselineRequest);
   requests.add(currentRequest);
@@ -19,10 +28,10 @@
     ThirdEyeRequest request=entry.getKey();
     Future<ThirdEyeResponse> responseFuture=entry.getValue();
     ThirdEyeResponse response=responseFuture.get(60,TimeUnit.SECONDS);
-    if ("baseline".equals(request.getRequestReference())) {
+    if (BASELINE.equals(request.getRequestReference())) {
       baselineResponse=response;
     }
- else     if ("current".equals(request.getRequestReference())) {
+ else     if (CURRENT.equals(request.getRequestReference())) {
       currentResponse=response;
     }
   }

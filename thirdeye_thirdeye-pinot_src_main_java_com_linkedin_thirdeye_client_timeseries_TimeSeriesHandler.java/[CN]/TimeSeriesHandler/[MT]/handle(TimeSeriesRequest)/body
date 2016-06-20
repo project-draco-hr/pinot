@@ -3,8 +3,13 @@
   builder.setCollection(timeSeriesRequest.getCollectionName());
   List<Range<DateTime>> timeranges=new ArrayList<>();
   TimeGranularity aggregationTimeGranularity=timeSeriesRequest.getAggregationTimeGranularity();
-  timeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,timeSeriesRequest.getStart(),timeSeriesRequest.getEnd());
-  ThirdEyeRequest request=createThirdEyeRequest("timeseries",timeSeriesRequest,timeSeriesRequest.getStart(),timeSeriesRequest.getEnd());
+  DateTime start=timeSeriesRequest.getStart();
+  DateTime end=timeSeriesRequest.getEnd();
+  if (timeSeriesRequest.isEndDateInclusive()) {
+    end=end.plus(aggregationTimeGranularity.toMillis());
+  }
+  timeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,start,end);
+  ThirdEyeRequest request=createThirdEyeRequest("timeseries",timeSeriesRequest,start,end);
   Future<ThirdEyeResponse> responseFuture=queryCache.getQueryResultAsync(request);
   ThirdEyeResponse response=responseFuture.get(60,TimeUnit.SECONDS);
   TimeSeriesResponseParser timeSeriesResponseParser=new TimeSeriesResponseParser(response,timeranges,timeSeriesRequest.getAggregationTimeGranularity(),timeSeriesRequest.getGroupByDimensions());

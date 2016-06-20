@@ -4,7 +4,7 @@
   for (  final String groupByDimension : groupByDimensions) {
     final TimeOnTimeComparisonRequest comparisonRequestByDimension=getComparisonRequestByDimension(comparisonRequest,groupByDimension);
     Callable<TimeOnTimeComparisonResponse> callable=new Callable<TimeOnTimeComparisonResponse>(){
-      public TimeOnTimeComparisonResponse call() throws Exception {
+      @Override public TimeOnTimeComparisonResponse call() throws Exception {
         return handler.handle(comparisonRequestByDimension);
       }
     }
