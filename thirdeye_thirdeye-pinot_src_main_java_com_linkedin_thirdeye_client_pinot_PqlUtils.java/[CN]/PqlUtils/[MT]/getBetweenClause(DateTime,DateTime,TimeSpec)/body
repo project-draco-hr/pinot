@@ -1,7 +1,7 @@
 {
   TimeGranularity dataGranularity=timeFieldSpec.getDataGranularity();
   long startMillis=start.getMillis();
-  long endMillis=end.getMillis();
+  long endMillis=endExclusive.getMillis();
   long dataGranularityMillis=dataGranularity.toMillis();
   long startAlignmentDelta=startMillis % dataGranularityMillis;
   if (startAlignmentDelta != 0) {
@@ -11,27 +11,27 @@
   long endAligmentDelta=endMillis % dataGranularityMillis;
   if (endAligmentDelta != 0) {
     long endMillisAligned=endMillis - endAligmentDelta;
-    end=new DateTime(endMillisAligned);
+    endExclusive=new DateTime(endMillisAligned);
   }
   String startQueryTime;
-  String endQueryTime;
+  String endQueryTimeExclusive;
   String timeField=timeFieldSpec.getColumnName();
   String timeFormat=timeFieldSpec.getFormat();
   if (timeFormat == null || TimeSpec.SINCE_EPOCH_FORMAT.equals(timeFormat)) {
     long startInConvertedUnits=dataGranularity.convertToUnit(start.getMillis());
-    long endInConvertedUnits=dataGranularity.convertToUnit(end.getMillis());
+    long endInConvertedUnits=dataGranularity.convertToUnit(endExclusive.getMillis());
     startQueryTime=String.valueOf(startInConvertedUnits);
-    endQueryTime=String.valueOf(endInConvertedUnits);
+    endQueryTimeExclusive=String.valueOf(endInConvertedUnits);
   }
  else {
     DateTimeFormatter dateTimeFormatter=DateTimeFormat.forPattern(timeFormat).withZoneUTC();
     startQueryTime=dateTimeFormatter.print(start);
-    endQueryTime=dateTimeFormatter.print(end);
+    endQueryTimeExclusive=dateTimeFormatter.print(endExclusive);
   }
-  if (startQueryTime.equals(endQueryTime)) {
+  if (startQueryTime.equals(endQueryTimeExclusive)) {
     return String.format(" %s = %s",timeField,startQueryTime);
   }
  else {
-    return String.format(" %s >= %s AND %s <= %s",timeField,startQueryTime,timeField,endQueryTime);
+    return String.format(" %s >= %s AND %s < %s",timeField,startQueryTime,timeField,endQueryTimeExclusive);
   }
 }

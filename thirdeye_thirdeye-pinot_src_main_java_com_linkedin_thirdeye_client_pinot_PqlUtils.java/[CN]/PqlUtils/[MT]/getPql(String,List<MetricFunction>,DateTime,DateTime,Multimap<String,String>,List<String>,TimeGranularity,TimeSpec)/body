@@ -2,7 +2,7 @@
   StringBuilder sb=new StringBuilder();
   String selectionClause=getSelectionClause(metricFunctions);
   sb.append("SELECT ").append(selectionClause).append(" FROM ").append(collection);
-  String betweenClause=getBetweenClause(startTime,endTime,dataTimeSpec);
+  String betweenClause=getBetweenClause(startTime,endTimeExclusive,dataTimeSpec);
   sb.append(" WHERE ").append(betweenClause);
   String dimensionWhereClause=getDimensionWhereClause(filterSet);
   if (StringUtils.isNotBlank(dimensionWhereClause)) {
