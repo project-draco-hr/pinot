@@ -1,9 +1,10 @@
 {
+  collection=Utils.getCollectionFromAlias(collection);
   TabularViewRequest request=new TabularViewRequest();
   request.setCollection(collection);
   List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson,collection);
   request.setMetricExpressions(metricExpressions);
-  long maxDataTime=CACHE_REGISTRY_INSTANCE.getCollectionMaxDataTimeCache().get(collection);
+  long maxDataTime=collectionMaxDataTimeCache.get(collection);
   if (currentEnd > maxDataTime) {
     long delta=currentEnd - maxDataTime;
     currentEnd=currentEnd - delta;

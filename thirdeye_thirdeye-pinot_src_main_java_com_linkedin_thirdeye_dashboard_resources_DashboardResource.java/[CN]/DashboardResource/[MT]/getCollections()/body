@@ -1,7 +1,21 @@
 {
   String jsonCollections=null;
   try {
-    List<String> collections=CACHE_REGISTRY_INSTANCE.getCollectionsCache().getCollections();
+    List<String> collections=new ArrayList<>();
+    for (    String collection : collectionsCache.getCollections()) {
+      CollectionConfig collectionConfig=null;
+      try {
+        collectionConfig=collectionConfigCache.get(collection);
+        String collectionAlias=collectionConfig.getCollectionAlias();
+        if (StringUtils.isNotEmpty(collectionAlias)) {
+          collection=collectionAlias;
+        }
+      }
+ catch (      InvalidCacheLoadException e) {
+        LOG.debug("No CollectionConfig for collection {}",collection);
+      }
+      collections.add(collection);
+    }
     jsonCollections=OBJECT_MAPPER.writeValueAsString(collections);
   }
  catch (  Exception e) {

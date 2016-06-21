@@ -1,0 +1,11 @@
+{
+  String collectionName=null;
+  List<CollectionConfig> collectionConfigs=collectionConfigDAO.findAll();
+  for (  CollectionConfig collectionConfig : collectionConfigs) {
+    String alias=collectionConfig.getCollectionAlias();
+    if (StringUtils.isNotEmpty(alias) && alias.equals(collectionAlias)) {
+      collectionName=collectionConfig.getCollectionName();
+    }
+  }
+  return collectionName;
+}

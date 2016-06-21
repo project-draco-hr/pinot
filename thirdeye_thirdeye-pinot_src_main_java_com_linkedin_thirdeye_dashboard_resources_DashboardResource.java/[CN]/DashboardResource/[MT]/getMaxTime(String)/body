@@ -1,15 +1,16 @@
 {
   String collectionInfo=null;
   try {
+    collection=Utils.getCollectionFromAlias(collection);
     HashMap<String,String> map=new HashMap<>();
-    long maxDataTime=CACHE_REGISTRY_INSTANCE.getCollectionMaxDataTimeCache().get(collection);
-    CollectionSchema collectionSchema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(collection);
+    long maxDataTime=collectionMaxDataTimeCache.get(collection);
+    CollectionSchema collectionSchema=collectionSchemaCache.get(collection);
     TimeGranularity dataGranularity=collectionSchema.getTime().getDataGranularity();
     map.put("maxTime","" + maxDataTime);
     map.put("dataGranularity",dataGranularity.getUnit().toString());
     CollectionConfig collectionConfig=null;
     try {
-      collectionConfig=CACHE_REGISTRY_INSTANCE.getCollectionConfigCache().get(collection);
+      collectionConfig=collectionConfigCache.get(collection);
     }
  catch (    InvalidCacheLoadException e) {
       LOG.debug("No collection configs for collection {}",collection);

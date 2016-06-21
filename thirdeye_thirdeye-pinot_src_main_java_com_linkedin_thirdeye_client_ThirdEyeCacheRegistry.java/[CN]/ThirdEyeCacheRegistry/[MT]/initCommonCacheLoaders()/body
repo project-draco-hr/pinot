@@ -14,8 +14,10 @@
   cacheRegistry.registerCollectionSchemaCache(collectionSchemaCache);
   LoadingCache<String,Long> collectionMaxDataTimeCache=CacheBuilder.newBuilder().build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig));
   cacheRegistry.registerCollectionMaxDataTimeCache(collectionMaxDataTimeCache);
-  LoadingCache<String,CollectionConfig> collectionConfigCache=CacheBuilder.newBuilder().build(new CollectionConfigCacheLoader(pinotThirdeyeClientConfig,collectionConfigDAO));
+  LoadingCache<String,CollectionConfig> collectionConfigCache=CacheBuilder.newBuilder().build(new CollectionConfigCacheLoader(collectionConfigDAO));
   cacheRegistry.registerCollectionConfigCache(collectionConfigCache);
+  LoadingCache<String,String> collectionAliasCache=CacheBuilder.newBuilder().build(new CollectionAliasCacheLoader(collectionConfigDAO));
+  cacheRegistry.registerCollectionAliasCache(collectionAliasCache);
   QueryCache queryCache=new QueryCache(thirdEyeClient,Executors.newFixedThreadPool(10));
   cacheRegistry.registerQueryCache(queryCache);
 }

@@ -1,7 +1,8 @@
 {
   String jsonDashboards=null;
   try {
-    jsonDashboards=CACHE_REGISTRY_INSTANCE.getDashboardsCache().get(collection);
+    collection=Utils.getCollectionFromAlias(collection);
+    jsonDashboards=dashboardsCache.get(collection);
   }
  catch (  Exception e) {
     LOG.error("Error while fetching dashboards for collection: " + collection,e);

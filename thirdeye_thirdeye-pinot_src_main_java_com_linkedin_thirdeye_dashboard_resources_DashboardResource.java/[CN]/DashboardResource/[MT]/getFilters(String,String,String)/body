@@ -1,7 +1,8 @@
 {
   String jsonFilters=null;
   try {
-    jsonFilters=CACHE_REGISTRY_INSTANCE.getDimensionFiltersCache().get(collection);
+    collection=Utils.getCollectionFromAlias(collection);
+    jsonFilters=dimensionFiltersCache.get(collection);
   }
  catch (  ExecutionException e) {
     LOG.error("Exception while getting filters for collection {}",collection,e);
