@@ -1,0 +1,56 @@
+{
+  Properties properties=new Properties();
+  properties.put("metadata.broker.list",kafkaBroker);
+  properties.put("serializer.class","kafka.serializer.DefaultEncoder");
+  properties.put("request.required.acks","1");
+  ProducerConfig producerConfig=new ProducerConfig(properties);
+  Producer<String,byte[]> producer=new Producer<String,byte[]>(producerConfig);
+  for (  File avroFile : avroFiles) {
+    try {
+      ByteArrayOutputStream outputStream=new ByteArrayOutputStream(65536);
+      DataFileStream<GenericRecord> reader=AvroUtils.getAvroReader(avroFile);
+      BinaryEncoder binaryEncoder=new EncoderFactory().directBinaryEncoder(outputStream,null);
+      GenericDatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(reader.getSchema());
+      int recordCount=0;
+      List<KeyedMessage<String,byte[]>> messagesToWrite=new ArrayList<KeyedMessage<String,byte[]>>(10000);
+      int messagesInThisBatch=0;
+      for (      GenericRecord genericRecord : reader) {
+        outputStream.reset();
+        if (header != null && 0 < header.length) {
+          outputStream.write(header);
+        }
+        datumWriter.write(genericRecord,binaryEncoder);
+        binaryEncoder.flush();
+        byte[] bytes=outputStream.toByteArray();
+        KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>(kafkaTopic,bytes);
+        if (BATCH_KAFKA_MESSAGES) {
+          messagesToWrite.add(data);
+          messagesInThisBatch++;
+          if (MAX_MESSAGES_PER_BATCH <= messagesInThisBatch) {
+            LOGGER.debug("Sending a batch of {} records to Kafka",messagesInThisBatch);
+            messagesInThisBatch=0;
+            producer.send(messagesToWrite);
+            messagesToWrite.clear();
+          }
+        }
+ else {
+          producer.send(data);
+        }
+        recordCount+=1;
+      }
+      if (BATCH_KAFKA_MESSAGES) {
+        LOGGER.info("Sending last match of {} records to Kafka",messagesToWrite.size());
+        producer.send(messagesToWrite);
+      }
+      outputStream.close();
+      reader.close();
+      LOGGER.info("Finished writing " + recordCount + " records from "+ avroFile.getName()+ " into Kafka topic "+ kafkaTopic+ " from file "+ avroFile.getName());
+      int totalRecordCount=totalAvroRecordWrittenCount.addAndGet(recordCount);
+      LOGGER.info("Total records written so far " + totalRecordCount);
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+}
