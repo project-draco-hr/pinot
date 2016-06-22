@@ -12,6 +12,9 @@
   HelixAdmin helixAdmin=_pinotHelixResourceManager.getHelixAdmin();
   for (  String tableName : allTableNames) {
     IdealState idealState=helixAdmin.getResourceIdealState(helixClusterName,tableName);
+    if (idealState == null) {
+      continue;
+    }
     ExternalView externalView=helixAdmin.getResourceExternalView(helixClusterName,tableName);
     final int nReplicasIdeal=Integer.parseInt(idealState.getReplicas());
     int nReplicasExternal=nReplicasIdeal;
@@ -20,6 +23,9 @@
       int nReplicas=0;
       int nIdeal=0;
       for (      Map.Entry<String,String> serverAndState : idealState.getInstanceStateMap(partitionName).entrySet()) {
+        if (serverAndState == null) {
+          break;
+        }
         if (serverAndState.getValue().equals(ONLINE)) {
           nIdeal++;
           break;
@@ -28,7 +34,7 @@
       if (nIdeal == 0) {
         continue;
       }
-      if (externalView.getStateMap(partitionName) == null) {
+      if ((externalView == null) || (externalView.getStateMap(partitionName) == null)) {
         nReplicasExternal=0;
         continue;
       }
@@ -42,10 +48,10 @@
       }
       nReplicasExternal=(nReplicasExternal > nReplicas) ? nReplicas : nReplicasExternal;
     }
-    _metricsRegistry.setValueOfTableGauge(externalView.getId(),ControllerGauge.NUMBER_OF_REPLICAS,nReplicasExternal);
-    _metricsRegistry.setValueOfTableGauge(externalView.getId(),ControllerGauge.SEGMENTS_IN_ERROR_STATE,nErrors);
+    _metricsRegistry.setValueOfTableGauge(tableName,ControllerGauge.NUMBER_OF_REPLICAS,nReplicasExternal);
+    _metricsRegistry.setValueOfTableGauge(tableName,ControllerGauge.SEGMENTS_IN_ERROR_STATE,nErrors);
     if (nReplicasExternal < nReplicasIdeal) {
-      LOGGER.warn("Table {} has {} replicas, below replication threshold :{}",externalView.getResourceName(),nReplicasExternal,nReplicasIdeal);
+      LOGGER.warn("Table {} has {} replicas, below replication threshold :{}",tableName,nReplicasExternal,nReplicasIdeal);
     }
   }
   long totalNanos=System.nanoTime() - startTime;
