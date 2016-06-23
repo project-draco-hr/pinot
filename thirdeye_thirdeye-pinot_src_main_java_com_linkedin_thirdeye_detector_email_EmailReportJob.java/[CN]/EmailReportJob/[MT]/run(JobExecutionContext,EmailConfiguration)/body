@@ -12,6 +12,7 @@
   final DateTime now=nowWithoutDelay.minus(delayMillis);
   final DateTime then=now.minus(deltaMillis);
   final String collection=config.getCollection();
+  final String collectionAlias=ThirdEyeUtils.getAliasFromCollection(collection);
   final List<AnomalyResult> results=getAnomalyResults(context,config,sessionFactory,then,now);
   if (results.isEmpty() && !config.getSendZeroAnomalyEmail()) {
     LOG.info("Zero anomalies found, skipping sending email");
@@ -78,7 +79,7 @@
     templateData.put("timeZone",timeZone);
     chartFile=new File(chartFilePath);
     templateData.put("embeddedChart",email.embed(chartFile));
-    templateData.put("collection",collection);
+    templateData.put("collection",collectionAlias);
     templateData.put("metric",metric);
     templateData.put("filters",filtersJsonEncoded);
     templateData.put("windowUnit",windowUnit);
@@ -100,7 +101,7 @@
     for (    String toAddress : config.getToAddresses().split(",")) {
       email.addTo(toAddress);
     }
-    email.setSubject(String.format("Anomaly Alert!: %d anomalies detected for %s:%s",results.size(),config.getCollection(),config.getMetric()));
+    email.setSubject(String.format("Anomaly Alert!: %d anomalies detected for %s:%s",results.size(),collectionAlias,config.getMetric()));
     final String html=new String(baos.toByteArray(),CHARSET);
     email.setHtmlMsg(html);
     email.send();

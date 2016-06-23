@@ -1,0 +1,14 @@
+{
+  String result=collection;
+  try {
+    CollectionConfig collectionConfig=CACHE_REGISTRY_INSTANCE.getCollectionConfigCache().get(collection);
+    String configAlias=collectionConfig.getCollectionAlias();
+    if (StringUtils.isNotBlank(configAlias)) {
+      result=configAlias;
+    }
+  }
+ catch (  InvalidCacheLoadException e) {
+    LOG.debug("No alias for collection {}",collection);
+  }
+  return result;
+}
