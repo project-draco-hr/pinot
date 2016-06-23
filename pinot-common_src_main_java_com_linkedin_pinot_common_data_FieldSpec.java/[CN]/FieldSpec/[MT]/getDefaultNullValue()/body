@@ -1,47 +1,39 @@
 {
-  if (defaultNullValue != null) {
-    return defaultNullValue;
+  if (_defaultNullValue != null) {
+    return _defaultNullValue;
   }
-switch (getFieldType()) {
+  DataType dataType=getDataType();
+switch (_fieldType) {
 case METRIC:
 switch (dataType) {
 case INT:
-case INT_ARRAY:
       return DEFAULT_METRIC_NULL_VALUE_OF_INT;
 case LONG:
-case LONG_ARRAY:
     return DEFAULT_METRIC_NULL_VALUE_OF_LONG;
 case FLOAT:
-case FLOAT_ARRAY:
   return DEFAULT_METRIC_NULL_VALUE_OF_FLOAT;
 case DOUBLE:
-case DOUBLE_ARRAY:
 return DEFAULT_METRIC_NULL_VALUE_OF_DOUBLE;
 default :
-throw new UnsupportedOperationException("Unknown default null value for metric of data type " + dataType);
+throw new UnsupportedOperationException("Unknown default null value for metric of data type " + _dataType);
 }
 case DIMENSION:
 case TIME:
-switch (getDataType()) {
+switch (dataType) {
 case INT:
-case INT_ARRAY:
 return DEFAULT_DIM_NULL_VALUE_OF_INT;
 case LONG:
-case LONG_ARRAY:
 return DEFAULT_DIM_NULL_VALUE_OF_LONG;
 case FLOAT:
-case FLOAT_ARRAY:
 return DEFAULT_DIM_NULL_VALUE_OF_FLOAT;
 case DOUBLE:
-case DOUBLE_ARRAY:
 return DEFAULT_DIM_NULL_VALUE_OF_DOUBLE;
 case STRING:
-case STRING_ARRAY:
 return DEFAULT_DIM_NULL_VALUE_OF_STRING;
 default :
-throw new UnsupportedOperationException("Unknown default null value for dimension/time column of data type " + dataType);
+throw new UnsupportedOperationException("Unknown default null value for dimension/time column of data type " + _dataType);
 }
 default :
-throw new UnsupportedOperationException("Not supported data type for null value - " + dataType);
+throw new UnsupportedOperationException("Unknown field type" + _fieldType);
 }
 }

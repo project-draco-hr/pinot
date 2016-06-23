@@ -1,21 +1,22 @@
 {
-  if (value == null) {
-    this.defaultNullValue=null;
-    return;
-  }
-  PinotDataType source, dest;
-  source=PinotDataType.STRING;
-  dest=PinotDataType.getPinotDataType(this);
-  if (source == dest) {
-    this.defaultNullValue=value;
-    return;
-  }
-  Object defaultNullObj;
-  try {
-    defaultNullObj=dest.convert(((Object)value),source);
-  }
- catch (  Exception e) {
-    defaultNullObj=null;
-  }
-  this.defaultNullValue=defaultNullObj;
+  DataType dataType=getDataType();
+switch (dataType) {
+case INT:
+    _defaultNullValue=Integer.valueOf(value);
+  return;
+case LONG:
+_defaultNullValue=Long.valueOf(value);
+return;
+case FLOAT:
+_defaultNullValue=Float.valueOf(value);
+return;
+case DOUBLE:
+_defaultNullValue=Double.valueOf(value);
+return;
+case STRING:
+_defaultNullValue=value;
+return;
+default :
+throw new UnsupportedOperationException("Unknown data type " + dataType);
+}
 }

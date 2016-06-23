@@ -1,0 +1,20 @@
+{
+  FieldSpec first;
+  FieldSpec second;
+  String[] metricFields={"\"dataType\":\"INT\"","\"name\":\"metric\"","\"defaultNullValue\":-1"};
+  first=_mapper.readValue(getRandomOrderJsonString(metricFields),MetricFieldSpec.class);
+  second=_mapper.readValue(_mapper.writeValueAsString(first),MetricFieldSpec.class);
+  Assert.assertEquals(first,second,_errorMessage);
+  String[] dimensionFields1={"\"dataType\":\"DOUBLE\"","\"name\":\"dimension\""};
+  first=_mapper.readValue(getRandomOrderJsonString(dimensionFields1),DimensionFieldSpec.class);
+  second=_mapper.readValue(_mapper.writeValueAsString(first),DimensionFieldSpec.class);
+  Assert.assertEquals(first,second,_errorMessage);
+  String[] dimensionFields2={"\"dataType\":\"STRING\"","\"name\":\"dimension\"","\"singleValueField\":false","\"defaultNullValue\":\"default\""};
+  first=_mapper.readValue(getRandomOrderJsonString(dimensionFields2),DimensionFieldSpec.class);
+  second=_mapper.readValue(_mapper.writeValueAsString(first),DimensionFieldSpec.class);
+  Assert.assertEquals(first,second,_errorMessage);
+  String[] timeFields={"\"incomingGranularitySpec\":{\"timeType\":\"MILLISECONDS\",\"dataType\":\"LONG\",\"name\":\"time\"}","\"outgoingGranularitySpec\":{\"timeType\":\"SECONDS\",\"dataType\":\"INT\",\"name\":\"time\"}","\"defaultNullValue\":-1"};
+  first=_mapper.readValue(getRandomOrderJsonString(timeFields),TimeFieldSpec.class);
+  second=_mapper.readValue(_mapper.writeValueAsString(first),TimeFieldSpec.class);
+  Assert.assertEquals(first,second,_errorMessage);
+}

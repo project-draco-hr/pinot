@@ -1,0 +1,27 @@
+{
+  FieldSpec fieldSpec=new DimensionFieldSpec();
+  fieldSpec.setDataType(DataType.STRING);
+  Assert.assertEquals(fieldSpec.toString(),"< data type: STRING , field type: DIMENSION, single value column, default null value: null >");
+  Assert.assertTrue(fieldSpec.getDefaultNullValue() instanceof String);
+  fieldSpec=new DimensionFieldSpec();
+  fieldSpec.setDataType(DataType.INT);
+  fieldSpec.setSingleValueField(false);
+  fieldSpec.setDelimiter(";");
+  Assert.assertEquals(fieldSpec.toString(),"< data type: INT , field type: DIMENSION, multi value column, delimiter: ';', default null value: -2147483648 >");
+  Assert.assertTrue(fieldSpec.getDefaultNullValue() instanceof Integer);
+  fieldSpec=new DimensionFieldSpec();
+  fieldSpec.setDataType(DataType.FLOAT);
+  fieldSpec.setSingleValueField(false);
+  fieldSpec.setDefaultNullValue(-0.1);
+  Assert.assertEquals(fieldSpec.toString(),"< data type: FLOAT , field type: DIMENSION, multi value column, delimiter: ',', default null value: -0.1 >");
+  Assert.assertTrue(fieldSpec.getDefaultNullValue() instanceof Float);
+  fieldSpec=new MetricFieldSpec();
+  fieldSpec.setDataType(DataType.DOUBLE);
+  Assert.assertEquals(fieldSpec.toString(),"< data type: DOUBLE , field type: METRIC, single value column, default null value: 0.0 >");
+  Assert.assertTrue(fieldSpec.getDefaultNullValue() instanceof Double);
+  fieldSpec=new MetricFieldSpec();
+  fieldSpec.setDataType(DataType.LONG);
+  fieldSpec.setDefaultNullValue(0L);
+  Assert.assertEquals(fieldSpec.toString(),"< data type: LONG , field type: METRIC, single value column, default null value: 0 >");
+  Assert.assertTrue(fieldSpec.getDefaultNullValue() instanceof Long);
+}

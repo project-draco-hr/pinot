@@ -1,0 +1,17 @@
+{
+  int length=fields.length;
+  List<Integer> indices=new LinkedList<>();
+  for (int i=0; i < length; i++) {
+    indices.add(i);
+  }
+  StringBuilder jsonString=new StringBuilder();
+  jsonString.append('{');
+  for (int i=length; i > 0; i--) {
+    jsonString.append(fields[indices.remove(_random.nextInt(i))]);
+    if (i != 1) {
+      jsonString.append(',');
+    }
+  }
+  jsonString.append('}');
+  return jsonString.toString();
+}
