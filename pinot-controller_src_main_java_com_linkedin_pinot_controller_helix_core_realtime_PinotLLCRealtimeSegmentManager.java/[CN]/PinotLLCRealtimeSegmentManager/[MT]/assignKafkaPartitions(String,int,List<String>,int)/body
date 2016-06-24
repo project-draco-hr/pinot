@@ -1,0 +1,14 @@
+{
+  final String resourceName=topicName;
+  List<String> partitions=new ArrayList<>(nPartitions);
+  for (int i=0; i < nPartitions; i++) {
+    partitions.add(Integer.toString(i));
+  }
+  LinkedHashMap<String,Integer> states=new LinkedHashMap<>(2);
+  states.put("OFFLINE",0);
+  states.put("ONLINE",nReplicas);
+  AutoRebalanceStrategy strategy=new AutoRebalanceStrategy(resourceName,partitions,states);
+  ZNRecord znRecord=strategy.computePartitionAssignment(instanceNames,new HashMap<String,Map<String,String>>(0),instanceNames);
+  znRecord.setMapFields(new HashMap<String,Map<String,String>>(0));
+  return znRecord;
+}

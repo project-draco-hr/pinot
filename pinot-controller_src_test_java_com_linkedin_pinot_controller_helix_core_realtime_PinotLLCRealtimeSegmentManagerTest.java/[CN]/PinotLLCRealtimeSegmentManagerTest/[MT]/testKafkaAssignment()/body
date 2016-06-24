@@ -1,0 +1,34 @@
+{
+  final HelixAdmin helixAdmin=createMockHelixAdmin();
+  final HelixManager helixManager=createMockHelixManager();
+  final PinotHelixResourceManager helixResourceManager=createMockHelixResourceManager();
+  final ZkHelixPropertyStore propertyStore=createMockPropertyStore();
+  PinotLLCRealtimeSegmentManager.create(helixAdmin,helixManager,propertyStore,helixResourceManager);
+  PinotLLCRealtimeSegmentManager segmentManager=PinotLLCRealtimeSegmentManager.getInstance();
+  final String topic="someTopic";
+  final String rtTableName="table_REALTIME";
+  final int nPartitions=8;
+  final int nReplicas=2;
+  String[] instances={server1,server2,server3};
+  Set<Integer> partitionSet=new HashSet<>(nPartitions);
+  for (int i=0; i < nPartitions; i++) {
+    partitionSet.add(i);
+  }
+  ZNRecord znRecord=segmentManager.assignKafkaPartitions(topic,nPartitions,Arrays.asList(instances),nReplicas);
+  Map<String,List<String>> assignmentMap=znRecord.getListFields();
+  Assert.assertEquals(assignmentMap.size(),nPartitions);
+  for (  Map.Entry<String,List<String>> entry : assignmentMap.entrySet()) {
+    int p=Integer.valueOf(entry.getKey());
+    Assert.assertTrue(partitionSet.contains(p));
+    partitionSet.remove(p);
+    Assert.assertEquals(entry.getValue().size(),nReplicas);
+    Set allServers=allServers();
+    for (    String server : entry.getValue()) {
+      Assert.assertTrue(allServers.contains(server));
+      allServers.remove(server);
+    }
+  }
+  Assert.assertTrue(partitionSet.isEmpty());
+  segmentManager.writeKafkaPartitionAssignemnt(rtTableName,znRecord);
+  verify(propertyStore).set(eq("KAFKA_PARTITIONS/" + rtTableName),argThat(new ZNRecordMatcher(znRecord)),eq(AccessOption.PERSISTENT));
+}
