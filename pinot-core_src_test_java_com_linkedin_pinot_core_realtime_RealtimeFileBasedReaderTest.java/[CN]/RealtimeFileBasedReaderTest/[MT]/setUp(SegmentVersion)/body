@@ -31,6 +31,6 @@
     FileUtils.deleteQuietly(new File("/tmp/realtime"));
   }
   RealtimeSegmentConverter conveter=new RealtimeSegmentConverter(realtimeSegment,"/tmp/realtime",schema,tableName,segmentName,null);
-  conveter.build();
+  conveter.build(segmentVersion);
   offlineSegment=Loaders.IndexSegment.load(new File("/tmp/realtime").listFiles()[0],ReadMode.mmap);
 }

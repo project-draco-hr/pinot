@@ -1,5 +1,7 @@
 {
   super();
+  final String segmentVersionStr=tableConfig.getIndexingConfig().getSegmentFormatVersion();
+  _segmentVersion=SegmentVersion.fromStringOrDefault(segmentVersionStr);
   this.schema=schema;
   this.extractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
   this.serverMetrics=serverMetrics;
@@ -109,7 +111,7 @@ catch (        Error e) {
         RealtimeSegmentConverter converter=new RealtimeSegmentConverter(realtimeSegment,tempSegmentFolder.getAbsolutePath(),schema,segmentMetadata.getTableName(),segmentMetadata.getSegmentName(),sortedColumn,invertedIndexColumns);
         segmentLogger.info("Trying to build segment");
         final long buildStartTime=System.nanoTime();
-        converter.build();
+        converter.build(_segmentVersion);
         final long buildEndTime=System.nanoTime();
         segmentLogger.info("Built segment in {} ms",TimeUnit.MILLISECONDS.convert((buildEndTime - buildStartTime),TimeUnit.NANOSECONDS));
         File destDir=new File(resourceDataDir,segmentMetadata.getSegmentName());
