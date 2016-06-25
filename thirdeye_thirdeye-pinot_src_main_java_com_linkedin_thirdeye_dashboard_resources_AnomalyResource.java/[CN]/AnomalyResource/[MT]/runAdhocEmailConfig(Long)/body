@@ -1,0 +1,11 @@
+{
+  if (id == null) {
+    throw new IllegalArgumentException("id is a required query param");
+  }
+  EmailConfiguration emailConfiguration=emailConfigurationDAO.findById(id);
+  if (emailConfiguration == null) {
+    throw new IllegalStateException("No emailConfiguraiton for id " + id);
+  }
+  detectorHttpUtils.runAdhocEmailConfiguration(String.valueOf(id));
+  return Response.ok(id).build();
+}

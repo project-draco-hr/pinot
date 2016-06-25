@@ -1,0 +1,57 @@
+{
+  if (StringUtils.isBlank(dataset)) {
+    throw new IllegalArgumentException("dataset is a required query param");
+  }
+  List<AnomalyResult> anomalyResults=new ArrayList<>();
+  try {
+    DateTime endTime=DateTime.now();
+    if (StringUtils.isNotEmpty(endTimeIso)) {
+      endTime=ISODateTimeFormat.dateTimeParser().parseDateTime(endTimeIso);
+    }
+    DateTime startTime=endTime.minusDays(7);
+    if (StringUtils.isNotEmpty(startTimeIso)) {
+      startTime=ISODateTimeFormat.dateTimeParser().parseDateTime(startTimeIso);
+    }
+    String[] dimensionPatterns=null;
+    if (StringUtils.isNotBlank(dimensions)) {
+      List<String> dimensionNames=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset).getDimensionNames();
+      Map<String,Integer> dimensionNameToIndexMap=new HashMap<>();
+      for (int i=0; i < dimensionNames.size(); i++) {
+        dimensionNameToIndexMap.put(dimensionNames.get(i),i);
+      }
+      dimensions=URLDecoder.decode(dimensions,UTF8);
+      Multimap<String,String> dimensionsMap=ThirdEyeUtils.convertToMultiMap(dimensions);
+      String[] dimensionsArray=new String[dimensionNames.size()];
+      Arrays.fill(dimensionsArray,STAR_DIMENSION);
+      List<String> dimensionPatternsList=new ArrayList<>();
+      for (      String dimensionName : dimensionsMap.keySet()) {
+        List<String> dimensionValues=Lists.newArrayList(dimensionsMap.get(dimensionName));
+        int dimensionIndex=dimensionNameToIndexMap.get(dimensionName);
+        for (        String dimensionValue : dimensionValues) {
+          StringBuffer sb=new StringBuffer();
+          dimensionsArray[dimensionIndex]=dimensionValue;
+          sb.append(Joiner.on(DIMENSION_JOINER).join(Lists.newArrayList(dimensionsArray)));
+          dimensionPatternsList.add(sb.toString());
+          dimensionsArray[dimensionIndex]=STAR_DIMENSION;
+        }
+      }
+      dimensionPatterns=new String[dimensionPatternsList.size()];
+      dimensionPatterns=dimensionPatternsList.toArray(dimensionPatterns);
+    }
+    if (StringUtils.isNotBlank(metric)) {
+      if (StringUtils.isNotBlank(dimensions)) {
+        anomalyResults=anomalyResultDAO.findAllByCollectionTimeMetricAndDimensions(dataset,metric,startTime,endTime,dimensionPatterns);
+      }
+ else {
+        anomalyResults=anomalyResultDAO.findAllByCollectionTimeAndMetric(dataset,metric,startTime,endTime);
+      }
+    }
+ else {
+      anomalyResults=anomalyResultDAO.findAllByCollectionAndTime(dataset,startTime,endTime);
+    }
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in fetching anomalies",e);
+  }
+  return anomalyResults;
+}

@@ -1,0 +1,8 @@
+{
+  List<String> metrics=new ArrayList<>();
+  List<AnomalyFunctionSpec> distinctMetricsList=list(namedQuery("com.linkedin.thirdeye.api.AnomalyFunctionSpec#findDistinctMetricsByCollection").setParameter("collection",collection));
+  for (  Object metric : distinctMetricsList) {
+    metrics.add(metric.toString());
+  }
+  return metrics;
+}

@@ -1,0 +1,16 @@
+{
+  if (StringUtils.isBlank(dataset)) {
+    throw new IllegalArgumentException("dataset is a required query param");
+  }
+  List<AnomalyFunctionSpec> anomalyFunctionSpecs=anomalyFunctionSpecDAO.findAllByCollection(dataset);
+  List<AnomalyFunctionSpec> anomalyFunctions=anomalyFunctionSpecs;
+  if (StringUtils.isNotEmpty(metric)) {
+    anomalyFunctions=new ArrayList<>();
+    for (    AnomalyFunctionSpec anomalyFunctionSpec : anomalyFunctionSpecs) {
+      if (metric.equals(anomalyFunctionSpec.getMetric())) {
+        anomalyFunctions.add(anomalyFunctionSpec);
+      }
+    }
+  }
+  return anomalyFunctions;
+}

@@ -1,0 +1,47 @@
+{
+  if (StringUtils.isEmpty(dataset) || StringUtils.isEmpty(functionName) || StringUtils.isEmpty(metric)|| StringUtils.isEmpty(windowSize)|| StringUtils.isEmpty(windowUnit)|| StringUtils.isEmpty(properties)) {
+    throw new UnsupportedOperationException("Received null for one of the mandatory params: " + "dataset " + dataset + ", functionName "+ functionName+ ", metric "+ metric+ ", windowSize "+ windowSize+ ", windowUnit "+ windowUnit+ ", properties"+ properties);
+  }
+  CollectionSchema schema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset);
+  TimeGranularity dataGranularity=schema.getTime().getDataGranularity();
+  AnomalyFunctionSpec anomalyFunctionSpec=new AnomalyFunctionSpec();
+  anomalyFunctionSpec.setIsActive(false);
+  anomalyFunctionSpec.setCollection(dataset);
+  anomalyFunctionSpec.setFunctionName(functionName);
+  anomalyFunctionSpec.setMetric(metric);
+  if (StringUtils.isEmpty(type)) {
+    type=DEFAULT_FUNCTION_TYPE;
+  }
+  anomalyFunctionSpec.setType(type);
+  anomalyFunctionSpec.setWindowSize(Integer.valueOf(windowSize));
+  anomalyFunctionSpec.setWindowUnit(TimeUnit.valueOf(windowUnit));
+  TimeUnit windowDelayTimeUnit=TimeUnit.valueOf(windowUnit);
+  if (StringUtils.isNotEmpty(windowDelayUnit)) {
+    windowDelayTimeUnit=TimeUnit.valueOf(windowDelayUnit);
+  }
+  int windowDelayTime;
+  if (StringUtils.isNotEmpty(windowDelay)) {
+    windowDelayTime=Integer.valueOf(windowDelay);
+  }
+ else {
+    Long maxDateTime=CACHE_REGISTRY_INSTANCE.getCollectionMaxDataTimeCache().get(dataset);
+    windowDelayTime=(int)windowDelayTimeUnit.convert(System.currentTimeMillis() - maxDateTime,TimeUnit.MILLISECONDS);
+  }
+  anomalyFunctionSpec.setWindowDelayUnit(windowDelayTimeUnit);
+  anomalyFunctionSpec.setWindowDelay(windowDelayTime);
+  anomalyFunctionSpec.setBucketSize(dataGranularity.getSize());
+  anomalyFunctionSpec.setBucketUnit(dataGranularity.getUnit());
+  anomalyFunctionSpec.setExploreDimensions(exploreDimensions);
+  anomalyFunctionSpec.setFilters(filters);
+  anomalyFunctionSpec.setProperties(properties);
+  String cron=DEFAULT_CRON;
+  if (StringUtils.isNotEmpty(repeatEvery)) {
+    cron=ThirdEyeUtils.constructCron(scheduleMinute,scheduleHour,TimeUnit.valueOf(repeatEvery));
+  }
+  anomalyFunctionSpec.setCron(cron);
+  Long id=anomalyFunctionSpecDAO.createOrUpdate(anomalyFunctionSpec);
+  if (isActive) {
+    detectorHttpUtils.enableAnomalyFunction(String.valueOf(id));
+  }
+  return Response.ok(id).build();
+}
