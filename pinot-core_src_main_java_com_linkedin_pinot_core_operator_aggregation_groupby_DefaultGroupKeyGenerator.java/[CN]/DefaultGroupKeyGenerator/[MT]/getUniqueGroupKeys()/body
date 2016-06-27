@@ -1,9 +1,12 @@
 {
-  if (_storageType == StorageType.ARRAY_BASED) {
+switch (_storageType) {
+case ARRAY_BASED:
     return new ArrayBasedGroupKeyIterator();
-  }
- else {
-    final ObjectIterator<Map.Entry<Long,Integer>> iterator=_groupKeyToId.entrySet().iterator();
-    return new MapBasedGroupKeyIterator(iterator);
-  }
+case LONG_MAP_BASED:
+  return new LongMapBasedGroupKeyIterator();
+case ARRAY_MAP_BASED:
+return new ArrayMapBasedGroupKeyIterator();
+default :
+throw new RuntimeException("Unsupported storage type.");
+}
 }

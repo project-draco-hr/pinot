@@ -1,0 +1,37 @@
+{
+  int[] groupKeys={0};
+  int length=1;
+  for (int i=_numGroupByColumns - 1; i >= 0; i--) {
+    int cardinality=_cardinalities[i];
+    if (_isSingleValueGroupByColumn[i]) {
+      int dictId=_reusableSingleDictIds[i][index];
+      for (int j=0; j < length; j++) {
+        groupKeys[j]=groupKeys[j] * cardinality + dictId;
+      }
+    }
+ else {
+      BlockMultiValIterator blockValIterator=_multiValIterators[i];
+      blockValIterator.skipTo(docId);
+      int numMultiValues=blockValIterator.nextIntVal(_reusableMultiValDictIdBuffer);
+      int oldLength=length;
+      length*=numMultiValues;
+      int[] oldGroupKeys=groupKeys;
+      groupKeys=new int[length];
+      for (int j=0; j < numMultiValues; j++) {
+        System.arraycopy(oldGroupKeys,0,groupKeys,j * oldLength,oldLength);
+      }
+      for (int j=0; j < numMultiValues; j++) {
+        int dictId=_reusableMultiValDictIdBuffer[j];
+        int offset=j * oldLength;
+        for (int k=0; k < oldLength; k++) {
+          int idx=offset + k;
+          groupKeys[idx]=groupKeys[idx] * cardinality + dictId;
+        }
+      }
+    }
+  }
+  for (  int groupKey : groupKeys) {
+    _groupKeyFlags[groupKey]=true;
+  }
+  return groupKeys;
+}

@@ -1,0 +1,16 @@
+{
+  int length0=_multiValueGroupKeyBuffer[0].length;
+  int length1=_multiValueGroupKeyBuffer[1].length;
+  int compareLength=Math.min(length0,length1);
+  for (int i=0; i < compareLength; i++) {
+    Assert.assertTrue(_multiValueGroupKeyBuffer[0][i] != _multiValueGroupKeyBuffer[1][i],_errorMessage);
+  }
+  for (int i=0; i < 20; i+=2) {
+    for (int j=0; j < length0; j++) {
+      Assert.assertEquals(_multiValueGroupKeyBuffer[i][j],_multiValueGroupKeyBuffer[0][j],_errorMessage);
+    }
+    for (int j=0; j < length1; j++) {
+      Assert.assertEquals(_multiValueGroupKeyBuffer[i + 1][j],_multiValueGroupKeyBuffer[1][j],_errorMessage);
+    }
+  }
+}

@@ -9,24 +9,21 @@
       }
     }
  else {
-      PlanNode aggregationGroupByPlanNode;
-      if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
-        if (enableNewAggregationGroupBy) {
-          aggregationGroupByPlanNode=new AggregationGroupByPlanNode(indexSegment,brokerRequest);
-        }
- else {
-          aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
-        }
+      if (enableNewAggregationGroupBy) {
+        return new AggregationGroupByPlanNode(indexSegment,brokerRequest);
       }
  else {
-        aggregationGroupByPlanNode=new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+        if (isGroupKeyFitForLong(indexSegment,brokerRequest)) {
+          return new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.Dictionary);
+        }
+ else {
+          return new AggregationGroupByOperatorPlanNode(indexSegment,brokerRequest,AggregationGroupByImplementationType.DictionaryAndTrie);
+        }
       }
-      return aggregationGroupByPlanNode;
     }
   }
   if (brokerRequest.isSetSelections()) {
-    final PlanNode selectionPlanNode=new SelectionPlanNode(indexSegment,brokerRequest);
-    return selectionPlanNode;
+    return new SelectionPlanNode(indexSegment,brokerRequest);
   }
   throw new UnsupportedOperationException("The query contains no aggregation or selection!");
 }

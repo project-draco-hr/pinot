@@ -1,4 +1,5 @@
 {
+  GenericRow[] segmentData=new GenericRow[NUM_ROWS];
   for (int i=0; i < NUM_ROWS; i++) {
     double randomDouble=_random.nextDouble();
     String randomDoubleString=String.valueOf(randomDouble);
@@ -15,49 +16,21 @@
     map.put(DOUBLE_METRIC_NAME,_doubleMetricValues[i]);
     GenericRow genericRow=new GenericRow();
     genericRow.init(map);
-    _segmentData[i]=genericRow;
+    segmentData[i]=genericRow;
   }
   final Schema schema=new Schema();
-  DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(DIMENSION_NAME,FieldSpec.DataType.STRING,true);
-  schema.addField(DIMENSION_NAME,dimensionFieldSpec);
-  MetricFieldSpec intMetricFieldSpec=new MetricFieldSpec(INT_METRIC_NAME,FieldSpec.DataType.INT);
-  schema.addField(INT_METRIC_NAME,intMetricFieldSpec);
-  MetricFieldSpec longMetricFieldSpec=new MetricFieldSpec(LONG_METRIC_NAME,FieldSpec.DataType.LONG);
-  schema.addField(LONG_METRIC_NAME,longMetricFieldSpec);
-  MetricFieldSpec floatMetricFieldSpec=new MetricFieldSpec(FLOAT_METRIC_NAME,FieldSpec.DataType.FLOAT);
-  schema.addField(FLOAT_METRIC_NAME,floatMetricFieldSpec);
-  MetricFieldSpec doubleMetricFieldSpec=new MetricFieldSpec(DOUBLE_METRIC_NAME,FieldSpec.DataType.DOUBLE);
-  schema.addField(DOUBLE_METRIC_NAME,doubleMetricFieldSpec);
+  schema.addField(DIMENSION_NAME,new DimensionFieldSpec(DIMENSION_NAME,FieldSpec.DataType.STRING,true));
+  schema.addField(INT_METRIC_NAME,new MetricFieldSpec(INT_METRIC_NAME,FieldSpec.DataType.INT));
+  schema.addField(LONG_METRIC_NAME,new MetricFieldSpec(LONG_METRIC_NAME,FieldSpec.DataType.LONG));
+  schema.addField(FLOAT_METRIC_NAME,new MetricFieldSpec(FLOAT_METRIC_NAME,FieldSpec.DataType.FLOAT));
+  schema.addField(DOUBLE_METRIC_NAME,new MetricFieldSpec(DOUBLE_METRIC_NAME,FieldSpec.DataType.DOUBLE));
   SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
+  FileUtils.deleteQuietly(new File(INDEX_DIR_PATH));
   config.setOutDir(INDEX_DIR_PATH);
-  config.setSegmentName("dataFetcherTestSegment");
-  RecordReader reader=new RecordReader(){
-    int index=0;
-    @Override public void init() throws Exception {
-    }
-    @Override public void rewind() throws Exception {
-      index=0;
-    }
-    @Override public boolean hasNext(){
-      return index < NUM_ROWS;
-    }
-    @Override public Schema getSchema(){
-      return schema;
-    }
-    @Override public GenericRow next(){
-      return _segmentData[index++];
-    }
-    @Override public Map<String,MutableLong> getNullCountMap(){
-      return null;
-    }
-    @Override public void close() throws Exception {
-    }
-  }
-;
+  config.setSegmentName(SEGMENT_NAME);
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
-  driver.init(config,reader);
+  driver.init(config,new TestDataRecordReader(schema,segmentData));
   driver.build();
-  ReadMode mode=ReadMode.heap;
-  IndexSegment indexSegment=Loaders.IndexSegment.load(new File(INDEX_DIR_PATH,driver.getSegmentName()),mode);
+  IndexSegment indexSegment=Loaders.IndexSegment.load(new File(INDEX_DIR_PATH,SEGMENT_NAME),ReadMode.heap);
   _dataFetcher=new DataFetcher(indexSegment);
 }

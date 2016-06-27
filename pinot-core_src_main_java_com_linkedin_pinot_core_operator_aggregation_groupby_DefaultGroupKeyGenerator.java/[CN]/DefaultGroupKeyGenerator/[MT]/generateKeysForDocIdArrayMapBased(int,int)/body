@@ -1,0 +1,42 @@
+{
+  IntArrayList[] rawKeys={new IntArrayList(_numGroupByColumns)};
+  rawKeys[0].size(_numGroupByColumns);
+  int length=1;
+  for (int i=0; i < _numGroupByColumns; i++) {
+    if (_isSingleValueGroupByColumn[i]) {
+      int dictId=_reusableSingleDictIds[i][index];
+      for (      IntArrayList rawKey : rawKeys) {
+        rawKey.elements()[i]=dictId;
+      }
+    }
+ else {
+      BlockMultiValIterator blockValIterator=_multiValIterators[i];
+      blockValIterator.skipTo(docId);
+      int numMultiValues=blockValIterator.nextIntVal(_reusableMultiValDictIdBuffer);
+      int oldLength=length;
+      length*=numMultiValues;
+      IntArrayList[] oldRawKeys=rawKeys;
+      rawKeys=new IntArrayList[length];
+      System.arraycopy(oldRawKeys,0,rawKeys,0,oldLength);
+      for (int j=1; j < numMultiValues; j++) {
+        int offset=j * oldLength;
+        for (int k=0; k < oldLength; k++) {
+          rawKeys[offset + k]=new IntArrayList(oldRawKeys[k].elements());
+        }
+      }
+      for (int j=0; j < numMultiValues; j++) {
+        int dictId=_reusableMultiValDictIdBuffer[j];
+        int offset=j * oldLength;
+        for (int k=0; k < oldLength; k++) {
+          int idx=offset + k;
+          rawKeys[idx].elements()[i]=dictId;
+        }
+      }
+    }
+  }
+  int[] groupKeys=new int[length];
+  for (int i=0; i < length; i++) {
+    groupKeys[i]=updateRawKeyToGroupKeyMapping(rawKeys[i]);
+  }
+  return groupKeys;
+}

@@ -1,0 +1,11 @@
+{
+  String[] groupByColumns={"s1","s2","s3","s4","s5","s6","s7","s8","s9","s10"};
+  DefaultGroupKeyGenerator defaultGroupKeyGenerator=new DefaultGroupKeyGenerator(_dataFetcher,groupByColumns);
+  Assert.assertEquals(defaultGroupKeyGenerator.getGlobalGroupKeyUpperBound(),Integer.MAX_VALUE,_errorMessage);
+  Assert.assertEquals(defaultGroupKeyGenerator.getCurrentGroupKeyUpperBound(),0,_errorMessage);
+  Assert.assertEquals(defaultGroupKeyGenerator.hasMultiValueGroupByColumn(),false,_errorMessage);
+  defaultGroupKeyGenerator.generateKeysForDocIdSet(_testDocIdSet,0,TEST_LENGTH,_singleValueGroupKeyBuffer);
+  Assert.assertEquals(defaultGroupKeyGenerator.getCurrentGroupKeyUpperBound(),2,_errorMessage);
+  compareSingleValueBuffer();
+  testGetUniqueGroupKeys(defaultGroupKeyGenerator.getUniqueGroupKeys(),2);
+}

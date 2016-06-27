@@ -1,23 +1,8 @@
 {
-  int groupKey;
-  if (_storageType == StorageType.ARRAY_BASED) {
-    int intRawKey=(int)rawKey;
-    if (!_uniqueGroupKeysFlag[intRawKey]) {
-      _uniqueGroupKeysFlag[intRawKey]=true;
-      _numUniqueGroupKeys++;
-    }
-    groupKey=intRawKey;
-  }
- else {
-    groupKey=_groupKeyToId.get(rawKey);
-    if (groupKey == INVALID_ID) {
-      groupKey=_groupKeyToId.size();
-      _groupKeyToId.put(rawKey,groupKey);
-      _numUniqueGroupKeys++;
-    }
- else {
-      groupKey=_groupKeyToId.get(rawKey);
-    }
+  int groupKey=_groupKeyToId.get(rawKey);
+  if (groupKey == INVALID_ID) {
+    groupKey=_numGroupKeys++;
+    _groupKeyToId.put(rawKey,groupKey);
   }
   return groupKey;
 }

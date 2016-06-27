@@ -9,10 +9,6 @@
   _dataFetcher.fetchSingleDictIds(INT_METRIC_NAME,docIds,0,length,dictIds,0);
   _dataFetcher.fetchSingleIntValues(INT_METRIC_NAME,dictIds,0,length,intValues,0);
   for (int i=0; i < length; i++) {
-    if (intValues[i] != _intMetricValues[docIds[i]]) {
-      LOGGER.error("For index {}, value does not match: fetched value: {}, expected value: {}",i,intValues[i],_intMetricValues[docIds[i]]);
-      LOGGER.error("Random Seed: {}",_randomSeed);
-      Assert.fail();
-    }
+    Assert.assertEquals(intValues[i],_intMetricValues[docIds[i]],_errorMessage);
   }
 }

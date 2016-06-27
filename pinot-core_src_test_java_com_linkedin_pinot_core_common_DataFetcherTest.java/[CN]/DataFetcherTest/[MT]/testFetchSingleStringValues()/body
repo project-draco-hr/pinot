@@ -9,10 +9,6 @@
   _dataFetcher.fetchSingleDictIds(DIMENSION_NAME,docIds,0,length,dictIds,0);
   _dataFetcher.fetchSingleStringValues(DIMENSION_NAME,dictIds,0,length,stringValues,0);
   for (int i=0; i < length; i++) {
-    if (!stringValues[i].equals(_dimensionValues[docIds[i]])) {
-      LOGGER.error("For index {}, value does not match: fetched value: {}, expected value: {}",i,stringValues[i],_dimensionValues[docIds[i]]);
-      LOGGER.error("Random Seed: {}",_randomSeed);
-      Assert.fail();
-    }
+    Assert.assertEquals(stringValues[i],_dimensionValues[docIds[i]],_errorMessage);
   }
 }

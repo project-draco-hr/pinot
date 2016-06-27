@@ -6,7 +6,26 @@
   }
   int outIndex=0;
   int endIndex=startIndex + length;
-  for (int i=startIndex; i < endIndex; i++) {
-    docIdToGroupKeys[outIndex++]=generateKeysForDocId(outIndex,docIdSet[i]);
-  }
+switch (_storageType) {
+case ARRAY_BASED:
+    for (int i=startIndex; i < endIndex; i++) {
+      docIdToGroupKeys[outIndex]=generateKeysForDocIdArrayBased(outIndex,docIdSet[i]);
+      outIndex++;
+    }
+  break;
+case LONG_MAP_BASED:
+for (int i=startIndex; i < endIndex; i++) {
+  docIdToGroupKeys[outIndex]=generateKeysForDocIdLongMapBased(outIndex,docIdSet[i]);
+  outIndex++;
+}
+break;
+case ARRAY_MAP_BASED:
+for (int i=startIndex; i < endIndex; i++) {
+docIdToGroupKeys[outIndex]=generateKeysForDocIdArrayMapBased(outIndex,docIdSet[i]);
+outIndex++;
+}
+break;
+default :
+throw new RuntimeException("Unsupported storage type.");
+}
 }

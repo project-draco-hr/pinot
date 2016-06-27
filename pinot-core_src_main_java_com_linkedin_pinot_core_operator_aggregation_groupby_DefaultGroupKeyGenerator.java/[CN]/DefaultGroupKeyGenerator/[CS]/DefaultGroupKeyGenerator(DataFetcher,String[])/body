@@ -1,0 +1,57 @@
+{
+  _numGroupByColumns=groupByColumns.length;
+  _cardinalities=new int[_numGroupByColumns];
+  _isSingleValueGroupByColumn=new boolean[_numGroupByColumns];
+  _dictionaries=new Dictionary[_numGroupByColumns];
+  _singleBlockValSets=new BlockValSet[_numGroupByColumns];
+  _multiValIterators=new BlockMultiValIterator[_numGroupByColumns];
+  _reusableSingleDictIds=new int[_numGroupByColumns][];
+  int maxNumMultiValues=0;
+  boolean longOverflow=false;
+  for (int i=0; i < _numGroupByColumns; i++) {
+    DataSource dataSource=dataFetcher.getDataSourceForColumn(groupByColumns[i]);
+    int cardinality=dataSource.getDataSourceMetadata().cardinality();
+    _cardinalities[i]=cardinality;
+    if (!longOverflow) {
+      if (_cardinalityProduct > Long.MAX_VALUE / cardinality) {
+        longOverflow=true;
+        _cardinalityProduct=Long.MAX_VALUE;
+      }
+ else {
+        _cardinalityProduct*=cardinality;
+      }
+    }
+    boolean isSingleValueGroupByColumn=dataSource.getDataSourceMetadata().isSingleValue();
+    _isSingleValueGroupByColumn[i]=isSingleValueGroupByColumn;
+    if (!isSingleValueGroupByColumn) {
+      _hasMultiValueGroupByColumn=true;
+    }
+    _dictionaries[i]=dataSource.getDictionary();
+    Block block=dataSource.nextBlock(BLOCK_ZERO);
+    if (isSingleValueGroupByColumn) {
+      _singleBlockValSets[i]=block.getBlockValueSet();
+      _reusableSingleDictIds[i]=new int[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+    }
+ else {
+      maxNumMultiValues=Math.max(maxNumMultiValues,block.getMetadata().getMaxNumberOfMultiValues());
+      _multiValIterators[i]=(BlockMultiValIterator)block.getBlockValueSet().iterator();
+    }
+  }
+  _reusableMultiValDictIdBuffer=new int[maxNumMultiValues];
+  if (longOverflow) {
+    _storageType=StorageType.ARRAY_MAP_BASED;
+    _arrayGroupKeyToId=new Object2IntOpenHashMap<>();
+    _arrayGroupKeyToId.defaultReturnValue(INVALID_ID);
+  }
+ else {
+    if (_cardinalityProduct > ResultHolderFactory.MAX_INITIAL_RESULT_HOLDER_CAPACITY) {
+      _storageType=StorageType.LONG_MAP_BASED;
+      _groupKeyToId=new Long2IntOpenHashMap();
+      _groupKeyToId.defaultReturnValue(INVALID_ID);
+    }
+ else {
+      _storageType=StorageType.ARRAY_BASED;
+      _groupKeyFlags=new boolean[(int)_cardinalityProduct];
+    }
+  }
+}

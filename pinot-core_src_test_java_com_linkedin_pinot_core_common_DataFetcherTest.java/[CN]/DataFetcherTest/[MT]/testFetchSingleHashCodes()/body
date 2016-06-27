@@ -9,10 +9,6 @@
   _dataFetcher.fetchSingleDictIds(DIMENSION_NAME,docIds,0,length,dictIds,0);
   _dataFetcher.fetchSingleHashCodes(DIMENSION_NAME,dictIds,0,length,hashCodes,0);
   for (int i=0; i < length; i++) {
-    if (hashCodes[i] != _dimensionValues[docIds[i]].hashCode()) {
-      LOGGER.error("For index {}, hash code does not match: fetched value: {}, expected value: {}",i,hashCodes[i],_dimensionValues[docIds[i]].hashCode());
-      LOGGER.error("Random Seed: {}",_randomSeed);
-      Assert.fail();
-    }
+    Assert.assertEquals((int)hashCodes[i],_dimensionValues[docIds[i]].hashCode(),_errorMessage);
   }
 }

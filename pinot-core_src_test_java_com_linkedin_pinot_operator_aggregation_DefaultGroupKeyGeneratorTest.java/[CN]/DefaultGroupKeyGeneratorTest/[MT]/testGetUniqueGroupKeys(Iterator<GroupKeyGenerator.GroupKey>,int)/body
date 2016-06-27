@@ -1,0 +1,14 @@
+{
+  int count=0;
+  Set<Integer> idSet=new HashSet<>();
+  Set<String> groupKeySet=new HashSet<>();
+  while (groupKeyIterator.hasNext()) {
+    count++;
+    GroupKeyGenerator.GroupKey groupKey=groupKeyIterator.next();
+    idSet.add(groupKey.getFirst());
+    groupKeySet.add(groupKey.getStringKey());
+  }
+  Assert.assertEquals(count,numUniqueKeys,_errorMessage);
+  Assert.assertEquals(idSet.size(),numUniqueKeys,_errorMessage);
+  Assert.assertEquals(groupKeySet.size(),numUniqueKeys,_errorMessage);
+}

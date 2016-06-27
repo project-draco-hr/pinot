@@ -4,11 +4,38 @@
   }
   int outIndex=0;
   int endIndex=startIndex + length;
-  for (int i=startIndex; i < endIndex; i++) {
-    long rawKey=0;
-    for (int j=_numGroupByColumns - 1; j >= 0; j--) {
-      rawKey=rawKey * _cardinalities[j] + _reusableSingleDictIds[j][i];
+switch (_storageType) {
+case ARRAY_BASED:
+    for (int i=startIndex; i < endIndex; i++) {
+      int groupKey=0;
+      for (int j=_numGroupByColumns - 1; j >= 0; j--) {
+        groupKey=groupKey * _cardinalities[j] + _reusableSingleDictIds[j][i];
+      }
+      docIdToGroupKey[outIndex++]=groupKey;
+      _groupKeyFlags[groupKey]=true;
     }
-    docIdToGroupKey[outIndex++]=updateRawKeyToGroupKeyMapping(rawKey);
+  break;
+case LONG_MAP_BASED:
+for (int i=startIndex; i < endIndex; i++) {
+  long rawKey=0;
+  for (int j=_numGroupByColumns - 1; j >= 0; j--) {
+    rawKey=rawKey * _cardinalities[j] + _reusableSingleDictIds[j][i];
   }
+  docIdToGroupKey[outIndex++]=updateRawKeyToGroupKeyMapping(rawKey);
+}
+break;
+case ARRAY_MAP_BASED:
+for (int i=startIndex; i < endIndex; i++) {
+IntArrayList rawKey=new IntArrayList(_numGroupByColumns);
+rawKey.size(_numGroupByColumns);
+int[] rawKeyArray=rawKey.elements();
+for (int j=0; j < _numGroupByColumns; j++) {
+rawKeyArray[j]=_reusableSingleDictIds[j][i];
+}
+docIdToGroupKey[outIndex++]=updateRawKeyToGroupKeyMapping(rawKey);
+}
+break;
+default :
+throw new RuntimeException("Unsupported storage type.");
+}
 }

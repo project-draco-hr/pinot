@@ -1,0 +1,17 @@
+{
+  if (_numGroupByColumns == 1) {
+    return _dictionaries[0].get(groupKey).toString();
+  }
+ else {
+    int cardinality=_cardinalities[0];
+    StringBuilder builder=new StringBuilder(_dictionaries[0].get(groupKey % cardinality).toString());
+    groupKey/=cardinality;
+    for (int i=1; i < _numGroupByColumns; i++) {
+      builder.append(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter);
+      cardinality=_cardinalities[i];
+      builder.append(_dictionaries[i].get(groupKey % cardinality));
+      groupKey/=cardinality;
+    }
+    return builder.toString();
+  }
+}

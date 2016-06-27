@@ -1,0 +1,9 @@
+{
+  int[] rawKeyArray=rawKey.elements();
+  StringBuilder builder=new StringBuilder(_dictionaries[0].get(rawKeyArray[0]).toString());
+  for (int i=1; i < _numGroupByColumns; i++) {
+    builder.append(GroupByConstants.GroupByDelimiter.groupByMultiDelimeter);
+    builder.append(_dictionaries[i].get(rawKeyArray[i]).toString());
+  }
+  return builder.toString();
+}

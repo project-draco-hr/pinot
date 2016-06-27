@@ -1,0 +1,50 @@
+{
+  GenericRow[] segmentData=new GenericRow[NUM_ROWS];
+  int value=_random.nextInt(MAX_STEP_LENGTH);
+  for (int i=0; i < UNIQUE_ROWS; i++) {
+    Map<String,Object> map=new HashMap<>();
+    for (    String singleValueColumn : SINGLE_VALUE_COLUMNS) {
+      map.put(singleValueColumn,value);
+      value+=1 + _random.nextInt(MAX_STEP_LENGTH);
+    }
+    for (    String multiValueColumn : MULTI_VALUE_COLUMNS) {
+      int numMultiValues=1 + _random.nextInt(MAX_NUM_MULTI_VALUES);
+      Integer[] values=new Integer[numMultiValues];
+      for (int k=0; k < numMultiValues; k++) {
+        values[k]=value;
+        value+=1 + _random.nextInt(MAX_STEP_LENGTH);
+      }
+      map.put(multiValueColumn,values);
+    }
+    GenericRow genericRow=new GenericRow();
+    genericRow.init(map);
+    segmentData[i]=genericRow;
+  }
+  for (int i=UNIQUE_ROWS; i < NUM_ROWS; i+=UNIQUE_ROWS) {
+    System.arraycopy(segmentData,0,segmentData,i,UNIQUE_ROWS);
+  }
+  Schema schema=new Schema();
+  for (  String singleValueColumn : SINGLE_VALUE_COLUMNS) {
+    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(singleValueColumn,FieldSpec.DataType.INT,true);
+    schema.addField(singleValueColumn,dimensionFieldSpec);
+  }
+  for (  String multiValueColumn : MULTI_VALUE_COLUMNS) {
+    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(multiValueColumn,FieldSpec.DataType.INT,false);
+    schema.addField(multiValueColumn,dimensionFieldSpec);
+  }
+  SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
+  FileUtils.deleteQuietly(new File(INDEX_DIR_PATH));
+  config.setOutDir(INDEX_DIR_PATH);
+  config.setSegmentName(SEGMENT_NAME);
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  driver.init(config,new TestDataRecordReader(schema,segmentData));
+  driver.build();
+  IndexSegment indexSegment=Loaders.IndexSegment.load(new File(INDEX_DIR_PATH,SEGMENT_NAME),ReadMode.heap);
+  _dataFetcher=new DataFetcher(indexSegment);
+  int num1=_random.nextInt(50);
+  int num2=num1 + 1 + _random.nextInt(50);
+  for (int i=0; i < 20; i+=2) {
+    _testDocIdSet[i]=num1 + 50 * i;
+    _testDocIdSet[i + 1]=num2 + 50 * i;
+  }
+}
