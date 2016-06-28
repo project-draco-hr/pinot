@@ -1,0 +1,41 @@
+{
+  int ROWS=(int)MathUtils.factorial(NUM_DIMENSIONS);
+  _schema=new Schema();
+  for (int i=0; i < NUM_DIMENSIONS; i++) {
+    String dimName="d" + (i + 1);
+    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(dimName,DataType.STRING,true);
+    _schema.addField(dimName,dimensionFieldSpec);
+  }
+  _schema.setTimeFieldSpec(new TimeFieldSpec(TIME_COLUMN_NAME,DataType.INT,TimeUnit.DAYS));
+  for (int i=0; i < NUM_METRICS; i++) {
+    String metricName="m" + (i + 1);
+    MetricFieldSpec metricFieldSpec=new MetricFieldSpec(metricName,DataType.INT);
+    _schema.addField(metricName,metricFieldSpec);
+  }
+  SegmentGeneratorConfig config=new SegmentGeneratorConfig(_schema);
+  config.setEnableStarTreeIndex(true);
+  config.setOutDir(segmentDirName);
+  config.setFormat(FileFormat.AVRO);
+  config.setSegmentName(segmentName);
+  final List<GenericRow> data=new ArrayList<>();
+  for (int row=0; row < ROWS; row++) {
+    HashMap<String,Object> map=new HashMap<>();
+    for (int i=0; i < NUM_DIMENSIONS; i++) {
+      String dimName=_schema.getDimensionFieldSpecs().get(i).getName();
+      map.put(dimName,dimName + "-v" + row % (NUM_DIMENSIONS - i));
+    }
+    map.put("daysSinceEpoch",row % 7);
+    for (int i=0; i < NUM_METRICS; i++) {
+      String metName=_schema.getMetricFieldSpecs().get(i).getName();
+      map.put(metName,1);
+    }
+    GenericRow genericRow=new GenericRow();
+    genericRow.init(map);
+    data.add(genericRow);
+  }
+  SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
+  RecordReader reader=createReader(_schema,data);
+  driver.init(config,reader);
+  driver.build();
+  LOGGER.info("Built segment {} at {}",segmentName,segmentDirName);
+}

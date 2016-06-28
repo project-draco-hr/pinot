@@ -1,0 +1,6 @@
+{
+  FilterPlanNode planNode=new FilterPlanNode(_segment,brokerRequest);
+  Operator rawOperator=planNode.run();
+  BlockDocIdIterator rawDocIdIterator=rawOperator.nextBlock().getBlockDocIdSet().iterator();
+  return computeSum(_segment,rawDocIdIterator,metricNames);
+}
