@@ -11,8 +11,9 @@
     int startDocId=matchedLeafNode.getStartDocumentId();
     int endDocId=matchedLeafNode.getEndDocumentId();
     if (matchedEntry.remainingPredicateColumns.isEmpty()) {
-      if (matchedLeafNode.getAggregatedDocumentId() != -1 && matchedEntry.remainingGroupByColumns.isEmpty()) {
-        exactlyMatchedDocsBitmap.add(matchedLeafNode.getAggregatedDocumentId());
+      int aggregatedDocumentId=matchedLeafNode.getAggregatedDocumentId();
+      if (isValidAggregatedDocId(aggregatedDocumentId) && matchedEntry.remainingGroupByColumns.isEmpty()) {
+        exactlyMatchedDocsBitmap.add(aggregatedDocumentId);
         numExactlyMatched=numExactlyMatched + 1;
       }
  else {

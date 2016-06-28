@@ -12,7 +12,7 @@
     StarTreeIndexNode current=searchEntry.starTreeIndexnode;
     HashSet<String> remainingPredicateColumns=searchEntry.remainingPredicateColumns;
     HashSet<String> remainingGroupByColumns=searchEntry.remainingGroupByColumns;
-    if (current.isLeaf() || (remainingPredicateColumns.isEmpty() && remainingGroupByColumns.isEmpty())) {
+    if (current.isLeaf() || (remainingPredicateColumns.isEmpty() && remainingGroupByColumns.isEmpty()) && isValidAggregatedDocId(current.getAggregatedDocumentId())) {
       matchedEntries.add(searchEntry);
       continue;
     }
