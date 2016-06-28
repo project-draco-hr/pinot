@@ -1,0 +1,42 @@
+{
+  int docId;
+  int numMetrics=metricNames.size();
+  Dictionary[] metricDictionaries=new Dictionary[numMetrics];
+  BlockSingleValIterator[] metricValIterators=new BlockSingleValIterator[numMetrics];
+  int numGroupByColumns=groupByColumns.size();
+  Dictionary[] groupByDictionaries=new Dictionary[numGroupByColumns];
+  BlockSingleValIterator[] groupByValIterators=new BlockSingleValIterator[numGroupByColumns];
+  for (int i=0; i < numMetrics; i++) {
+    String metricName=metricNames.get(i);
+    DataSource dataSource=segment.getDataSource(metricName);
+    metricDictionaries[i]=dataSource.getDictionary();
+    metricValIterators[i]=(BlockSingleValIterator)dataSource.getNextBlock().getBlockValueSet().iterator();
+  }
+  for (int i=0; i < numGroupByColumns; i++) {
+    String groupByColumn=groupByColumns.get(i);
+    DataSource dataSource=segment.getDataSource(groupByColumn);
+    groupByDictionaries[i]=dataSource.getDictionary();
+    groupByValIterators[i]=(BlockSingleValIterator)dataSource.getNextBlock().getBlockValueSet().iterator();
+  }
+  Map<String,double[]> result=new HashMap<String,double[]>();
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    StringBuilder stringBuilder=new StringBuilder();
+    for (int i=0; i < numGroupByColumns; i++) {
+      groupByValIterators[i].skipTo(docId);
+      int dictId=groupByValIterators[i].nextIntVal();
+      stringBuilder.append(groupByDictionaries[i].getStringValue(dictId));
+      stringBuilder.append("_");
+    }
+    String key=stringBuilder.toString();
+    if (!result.containsKey(key)) {
+      result.put(key,new double[numMetrics]);
+    }
+    double[] sumsSoFar=result.get(key);
+    for (int i=0; i < numMetrics; i++) {
+      metricValIterators[i].skipTo(docId);
+      int dictId=metricValIterators[i].nextIntVal();
+      sumsSoFar[i]+=metricDictionaries[i].getDoubleValue(dictId);
+    }
+  }
+  return result;
+}

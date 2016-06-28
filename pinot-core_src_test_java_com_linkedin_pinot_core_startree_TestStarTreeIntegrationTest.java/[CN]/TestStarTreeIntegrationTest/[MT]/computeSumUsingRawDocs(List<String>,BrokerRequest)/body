@@ -2,5 +2,9 @@
   FilterPlanNode planNode=new FilterPlanNode(_segment,brokerRequest);
   Operator rawOperator=planNode.run();
   BlockDocIdIterator rawDocIdIterator=rawOperator.nextBlock().getBlockDocIdSet().iterator();
-  return computeSum(_segment,rawDocIdIterator,metricNames);
+  List<String> groupByColumns=Collections.EMPTY_LIST;
+  if (brokerRequest.isSetAggregationsInfo() && brokerRequest.isSetGroupBy()) {
+    groupByColumns=brokerRequest.getGroupBy().getColumns();
+  }
+  return computeSum(_segment,rawDocIdIterator,metricNames,groupByColumns);
 }

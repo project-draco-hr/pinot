@@ -24,11 +24,12 @@
       String dimName=_schema.getDimensionFieldSpecs().get(i).getName();
       map.put(dimName,dimName + "-v" + row % (NUM_DIMENSIONS - i));
     }
-    map.put("daysSinceEpoch",row % 7);
+    Random random=new Random(_randomSeed);
     for (int i=0; i < NUM_METRICS; i++) {
       String metName=_schema.getMetricFieldSpecs().get(i).getName();
-      map.put(metName,1);
+      map.put(metName,random.nextInt(METRIC_MAX_VALUE));
     }
+    map.put("daysSinceEpoch",row % 7);
     GenericRow genericRow=new GenericRow();
     genericRow.init(map);
     data.add(genericRow);
