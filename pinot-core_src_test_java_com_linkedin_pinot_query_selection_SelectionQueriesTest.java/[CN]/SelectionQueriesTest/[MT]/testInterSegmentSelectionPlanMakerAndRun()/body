@@ -2,7 +2,7 @@
   final int numSegments=20;
   setupSegmentList(numSegments);
   final PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
-  final BrokerRequest brokerRequest=getSelectionNoFilterBrokerRequest();
+  final BrokerRequest brokerRequest=getSelectionNoFilterBrokerRequest1();
   final ExecutorService executorService=Executors.newCachedThreadPool(new NamedThreadFactory("test-plan-maker"));
   final Plan globalPlan=instancePlanMaker.makeInterSegmentPlan(_indexSegmentList,brokerRequest,executorService,150000);
   globalPlan.print();
@@ -17,14 +17,14 @@
   System.out.println("Time used : " + brokerResponse.getTimeUsedMs());
   JSONObject jsonResult=brokerResponse.getSelectionResults();
   JSONArray columnJsonArray=jsonResult.getJSONArray("columns");
-  Assert.assertEquals(columnJsonArray.getString(0),"column11");
-  Assert.assertEquals(columnJsonArray.getString(1),"column12");
-  Assert.assertEquals(columnJsonArray.getString(2),"met_impressionCount");
+  Assert.assertEquals(columnJsonArray.getString(0),"column12");
+  Assert.assertEquals(columnJsonArray.getString(1),"met_impressionCount");
+  Assert.assertEquals(columnJsonArray.getString(2),"column11");
   JSONArray resultsJsonArray=jsonResult.getJSONArray("results");
   for (int i=0; i < resultsJsonArray.length(); ++i) {
     JSONArray rowJsonArray=resultsJsonArray.getJSONArray(i);
     Assert.assertEquals(rowJsonArray.length(),3);
-    Assert.assertEquals(rowJsonArray.getString(0),"i");
+    Assert.assertEquals(rowJsonArray.getString(2),"i");
   }
   final BrokerReduceService brokerReduceService=new BrokerReduceService();
   final BrokerResponseNative brokerResponseNative=brokerReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
@@ -33,9 +33,9 @@
   SelectionResults selectionResults=brokerResponseNative.getSelectionResults();
   List<String> columnArray=selectionResults.getColumns();
   Assert.assertEquals(columnArray.size(),3);
-  Assert.assertEquals(columnArray.get(0),"column11");
-  Assert.assertEquals(columnArray.get(1),"column12");
-  Assert.assertEquals(columnArray.get(2),"met_impressionCount");
+  Assert.assertEquals(columnArray.get(0),"column12");
+  Assert.assertEquals(columnArray.get(1),"met_impressionCount");
+  Assert.assertEquals(columnArray.get(2),"column11");
   List<Serializable[]> resultRows=selectionResults.getRows();
   Assert.assertEquals(resultRows.size(),10);
   for (int i=0; i < resultRows.size(); ++i) {
