@@ -1,0 +1,10 @@
+{
+  String compressedIndex=TestUtils.getFileFromResourceUrl(TestStarTreeIndexBackwardCompatibilityTest.class.getClassLoader().getResource("data/starTreeSegment.tar.gz"));
+  _tmpDir=new File(_tmpDirName);
+  if (_tmpDir.exists()) {
+    FileUtils.deleteQuietly(_tmpDir);
+  }
+  TarGzCompressionUtils.unTar(new File(compressedIndex),_tmpDir);
+  File segmentFile=_tmpDir.listFiles()[0];
+  _segment=Loaders.IndexSegment.load(segmentFile,ReadMode.heap);
+}

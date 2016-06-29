@@ -1,10 +1,10 @@
 {
-  FilterPlanNode planNode=new FilterPlanNode(_segment,brokerRequest);
+  FilterPlanNode planNode=new FilterPlanNode(segment,brokerRequest);
   Operator rawOperator=planNode.run();
   BlockDocIdIterator rawDocIdIterator=rawOperator.nextBlock().getBlockDocIdSet().iterator();
   List<String> groupByColumns=Collections.EMPTY_LIST;
   if (brokerRequest.isSetAggregationsInfo() && brokerRequest.isSetGroupBy()) {
     groupByColumns=brokerRequest.getGroupBy().getColumns();
   }
-  return computeSum(_segment,rawDocIdIterator,metricNames,groupByColumns);
+  return computeSum(segment,rawDocIdIterator,metricNames,groupByColumns);
 }

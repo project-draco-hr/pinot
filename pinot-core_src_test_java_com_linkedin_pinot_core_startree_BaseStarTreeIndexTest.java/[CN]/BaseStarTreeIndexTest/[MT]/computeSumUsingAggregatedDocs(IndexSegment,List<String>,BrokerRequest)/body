@@ -1,10 +1,10 @@
 {
-  StarTreeIndexOperator starTreeOperator=new StarTreeIndexOperator(_segment,brokerRequest);
+  StarTreeIndexOperator starTreeOperator=new StarTreeIndexOperator(segment,brokerRequest);
   starTreeOperator.open();
   BlockDocIdIterator starTreeDocIdIterator=starTreeOperator.nextBlock().getBlockDocIdSet().iterator();
   List<String> groupByColumns=Collections.EMPTY_LIST;
   if (brokerRequest.isSetAggregationsInfo() && brokerRequest.isSetGroupBy()) {
     groupByColumns=brokerRequest.getGroupBy().getColumns();
   }
-  return computeSum(_segment,starTreeDocIdIterator,metricNames,groupByColumns);
+  return computeSum(segment,starTreeDocIdIterator,metricNames,groupByColumns);
 }

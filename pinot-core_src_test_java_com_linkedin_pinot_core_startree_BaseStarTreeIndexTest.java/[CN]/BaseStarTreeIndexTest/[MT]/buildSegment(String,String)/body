@@ -1,18 +1,18 @@
 {
   int ROWS=(int)MathUtils.factorial(NUM_DIMENSIONS);
-  _schema=new Schema();
+  Schema schema=new Schema();
   for (int i=0; i < NUM_DIMENSIONS; i++) {
     String dimName="d" + (i + 1);
-    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(dimName,DataType.STRING,true);
-    _schema.addField(dimName,dimensionFieldSpec);
+    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(dimName,FieldSpec.DataType.STRING,true);
+    schema.addField(dimName,dimensionFieldSpec);
   }
-  _schema.setTimeFieldSpec(new TimeFieldSpec(TIME_COLUMN_NAME,DataType.INT,TimeUnit.DAYS));
+  schema.setTimeFieldSpec(new TimeFieldSpec(TIME_COLUMN_NAME,FieldSpec.DataType.INT,TimeUnit.DAYS));
   for (int i=0; i < NUM_METRICS; i++) {
     String metricName="m" + (i + 1);
-    MetricFieldSpec metricFieldSpec=new MetricFieldSpec(metricName,DataType.INT);
-    _schema.addField(metricName,metricFieldSpec);
+    MetricFieldSpec metricFieldSpec=new MetricFieldSpec(metricName,FieldSpec.DataType.INT);
+    schema.addField(metricName,metricFieldSpec);
   }
-  SegmentGeneratorConfig config=new SegmentGeneratorConfig(_schema);
+  SegmentGeneratorConfig config=new SegmentGeneratorConfig(schema);
   config.setEnableStarTreeIndex(true);
   config.setOutDir(segmentDirName);
   config.setFormat(FileFormat.AVRO);
@@ -21,12 +21,12 @@
   for (int row=0; row < ROWS; row++) {
     HashMap<String,Object> map=new HashMap<>();
     for (int i=0; i < NUM_DIMENSIONS; i++) {
-      String dimName=_schema.getDimensionFieldSpecs().get(i).getName();
+      String dimName=schema.getDimensionFieldSpecs().get(i).getName();
       map.put(dimName,dimName + "-v" + row % (NUM_DIMENSIONS - i));
     }
     Random random=new Random(_randomSeed);
     for (int i=0; i < NUM_METRICS; i++) {
-      String metName=_schema.getMetricFieldSpecs().get(i).getName();
+      String metName=schema.getMetricFieldSpecs().get(i).getName();
       map.put(metName,random.nextInt(METRIC_MAX_VALUE));
     }
     map.put("daysSinceEpoch",row % 7);
@@ -35,8 +35,9 @@
     data.add(genericRow);
   }
   SegmentIndexCreationDriverImpl driver=new SegmentIndexCreationDriverImpl();
-  RecordReader reader=createReader(_schema,data);
+  RecordReader reader=createReader(schema,data);
   driver.init(config,reader);
   driver.build();
   LOGGER.info("Built segment {} at {}",segmentName,segmentDirName);
+  return schema;
 }
