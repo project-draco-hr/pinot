@@ -1,0 +1,32 @@
+{
+  context=details;
+  this.allocationType=allocationType;
+  if (file != null) {
+    fileName=file.getName().intern();
+    File parent=file.getParentFile();
+    if (parent != null) {
+      File parentParent=parent.getParentFile();
+      if (parentParent != null) {
+        String absolutePath=parentParent.getAbsolutePath();
+        if (absolutePath.equals("/"))         absolutePath="";
+        parentFileName=parent.getName().intern();
+        parentPathName=absolutePath.intern();
+      }
+ else {
+        String absolutePath=parent.getAbsolutePath();
+        if (absolutePath.equals("/"))         absolutePath="";
+        parentFileName=absolutePath.intern();
+        parentPathName=null;
+      }
+    }
+ else {
+      parentFileName=null;
+      parentPathName=null;
+    }
+  }
+ else {
+    fileName=null;
+    parentFileName=null;
+    parentPathName=null;
+  }
+}

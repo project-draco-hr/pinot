@@ -1,0 +1,9 @@
+{
+  assertEquals(new MmapUtils.AllocationContext("potato",MmapUtils.AllocationType.MMAP).getContext(),"potato");
+  assertEquals(new MmapUtils.AllocationContext(null,"potato",MmapUtils.AllocationType.MMAP).getContext(),"potato");
+  assertEquals(new MmapUtils.AllocationContext(new File("a"),"potato",MmapUtils.AllocationType.MMAP).getContext(),"a (potato)");
+  assertEquals(new MmapUtils.AllocationContext(new File("/a"),"potato",MmapUtils.AllocationType.MMAP).getContext(),"/a (potato)");
+  assertEquals(new MmapUtils.AllocationContext(new File("/a/b"),"potato",MmapUtils.AllocationType.MMAP).getContext(),"/a/b (potato)");
+  assertEquals(new MmapUtils.AllocationContext(new File("/a/b/c"),"potato",MmapUtils.AllocationType.MMAP).getContext(),"/a/b/c (potato)");
+  assertEquals(new MmapUtils.AllocationContext(new File("/a/b/c/d"),"potato",MmapUtils.AllocationType.MMAP).getContext(),"/a/b/c/d (potato)");
+}

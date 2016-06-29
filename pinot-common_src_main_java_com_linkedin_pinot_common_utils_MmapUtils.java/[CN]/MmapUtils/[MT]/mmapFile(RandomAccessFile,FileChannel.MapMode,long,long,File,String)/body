@@ -1,10 +1,13 @@
 {
-  String context;
-  if (allocationContext != null) {
-    context=allocationContext.getAbsolutePath() + " (" + details+ ")";
+  final String context;
+  final AllocationContext allocationContext;
+  if (file != null) {
+    context=file.getAbsolutePath() + " (" + details+ ")";
+    allocationContext=new AllocationContext(file,details,AllocationType.MMAP);
   }
  else {
     context="no file (" + details + ")";
+    allocationContext=new AllocationContext(details,AllocationType.MMAP);
   }
   MMAP_BUFFER_USAGE.addAndGet(size);
   if (LOGGER.isDebugEnabled()) {
@@ -20,6 +23,6 @@
     LOGGER.error("Allocation status {}",getTrackedAllocationStatus());
     Utils.rethrowException(e);
   }
-  BUFFER_TO_CONTEXT_MAP.put(byteBuffer,new AllocationContext(context,AllocationType.MMAP));
+  BUFFER_TO_CONTEXT_MAP.put(byteBuffer,allocationContext);
   return byteBuffer;
 }
