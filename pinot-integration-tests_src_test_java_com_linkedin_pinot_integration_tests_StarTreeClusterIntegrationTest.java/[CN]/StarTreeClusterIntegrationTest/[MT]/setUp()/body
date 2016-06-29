@@ -13,8 +13,8 @@
   waitForTotalDocsToMatch(DEFAULT_TABLE_NAME,TOTAL_EXPECTED_DOCS,System.currentTimeMillis() + 1500000L);
   waitForTotalDocsToMatch(STAR_TREE_TABLE_NAME,TOTAL_EXPECTED_DOCS,System.currentTimeMillis() + 1500000L);
   SegmentInfoProvider dictionaryReader=new SegmentInfoProvider(_tarredSegmentsDir.getAbsolutePath());
-  List<String> dimensionColumns=dictionaryReader.getDimensionColumns();
   List<String> metricColumns=dictionaryReader.getMetricColumns();
-  Map<String,List<String>> columnValuesMap=dictionaryReader.getColumnValuesMap();
-  _queryGenerator=new StarTreeQueryGenerator(STAR_TREE_TABLE_NAME,dimensionColumns,metricColumns,columnValuesMap);
+  List<String> singleValueDimensionColumns=dictionaryReader.getSingleValueDimensionColumns();
+  Map<String,List<Object>> singleValueDimensionValuesMap=dictionaryReader.getSingleValueDimensionValuesMap();
+  _queryGenerator=new StarTreeQueryGenerator(STAR_TREE_TABLE_NAME,singleValueDimensionColumns,metricColumns,singleValueDimensionValuesMap);
 }

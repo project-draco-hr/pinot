@@ -1,0 +1,44 @@
+{
+  StringBuilder stringBuilder=new StringBuilder(dimensionColumn).append(IN).append('(');
+  List<Object> valueArray=_singleValueDimensionValuesMap.get(dimensionColumn);
+  int size=valueArray.size();
+  int numValues=Math.min(RANDOM.nextInt(MAX_NUM_IN_VALUES) + 1,size);
+  if (size < SHUFFLE_THRESHOLD) {
+    Collections.shuffle(valueArray);
+    for (int i=0; i < numValues; i++) {
+      if (i != 0) {
+        stringBuilder.append(',').append(' ');
+      }
+      Object value=valueArray.get(i);
+      if (value instanceof String) {
+        stringBuilder.append('\'').append(((String)value).replaceAll("'","''")).append('\'');
+      }
+ else {
+        stringBuilder.append(value);
+      }
+    }
+  }
+ else {
+    Set<Integer> indices=new HashSet<>();
+    while (indices.size() < numValues) {
+      indices.add(RANDOM.nextInt(size));
+    }
+    boolean isFirst=true;
+    for (    int index : indices) {
+      if (isFirst) {
+        isFirst=false;
+      }
+ else {
+        stringBuilder.append(',').append(' ');
+      }
+      Object value=valueArray.get(index);
+      if (value instanceof String) {
+        stringBuilder.append('\'').append(((String)value).replaceAll("'","''")).append('\'');
+      }
+ else {
+        stringBuilder.append(value);
+      }
+    }
+  }
+  return stringBuilder.append(')');
+}

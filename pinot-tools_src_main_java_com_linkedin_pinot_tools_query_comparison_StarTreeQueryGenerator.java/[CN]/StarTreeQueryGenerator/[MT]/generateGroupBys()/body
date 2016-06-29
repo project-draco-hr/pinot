@@ -1,14 +1,15 @@
 {
-  List<String> groupBys=new ArrayList<>();
-  int numDimensions=_dimensionColumns.size();
-  int numGroupBys=_random.nextInt(numDimensions + 1);
-  numGroupBys=Math.min(numGroupBys,MAX_NUM_GROUP_BYS);
-  if (numGroupBys == 0) {
-    return EMPTY_STRING;
+  int numPredicates=Math.min(RANDOM.nextInt(MAX_NUM_GROUP_BYS + 1),_singleValueDimensionColumns.size());
+  if (numPredicates == 0) {
+    return null;
   }
-  Collections.shuffle(_dimensionColumns);
-  for (int i=0; i < numGroupBys; i++) {
-    groupBys.add(_dimensionColumns.get(i));
+  StringBuilder stringBuilder=new StringBuilder(GROUP_BY);
+  Collections.shuffle(_singleValueDimensionColumns);
+  for (int i=0; i < numPredicates; i++) {
+    if (i != 0) {
+      stringBuilder.append(',').append(' ');
+    }
+    stringBuilder.append(_singleValueDimensionColumns.get(i));
   }
-  return GROUP_BY + " " + StringUtils.join(groupBys,", ");
+  return stringBuilder;
 }

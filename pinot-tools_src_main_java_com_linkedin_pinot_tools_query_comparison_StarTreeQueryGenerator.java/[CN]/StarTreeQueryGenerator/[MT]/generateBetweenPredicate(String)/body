@@ -1,0 +1,28 @@
+{
+  StringBuilder stringBuilder=new StringBuilder(dimensionColumn).append(BETWEEN);
+  List<Object> valueArray=_singleValueDimensionValuesMap.get(dimensionColumn);
+  Object value1=valueArray.get(RANDOM.nextInt(valueArray.size()));
+  Object value2=valueArray.get(RANDOM.nextInt(valueArray.size()));
+  Preconditions.checkState((value1 instanceof String && value2 instanceof String) || (value1 instanceof Number && value2 instanceof Number));
+  if (value1 instanceof String) {
+    if (((String)value1).compareTo((String)value2) < 0) {
+      stringBuilder.append('\'').append(((String)value1).replaceAll("'","''")).append('\'');
+      stringBuilder.append(AND);
+      stringBuilder.append('\'').append(((String)value2).replaceAll("'","''")).append('\'');
+    }
+ else {
+      stringBuilder.append('\'').append(((String)value2).replaceAll("'","''")).append('\'');
+      stringBuilder.append(AND);
+      stringBuilder.append('\'').append(((String)value1).replaceAll("'","''")).append('\'');
+    }
+  }
+ else {
+    if (((Number)value1).doubleValue() < ((Number)value2).doubleValue()) {
+      stringBuilder.append(value1).append(AND).append(value2);
+    }
+ else {
+      stringBuilder.append(value2).append(AND).append(value1);
+    }
+  }
+  return stringBuilder;
+}

@@ -12,24 +12,23 @@
     segmentDir=segmentFile;
   }
   IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(segmentDir,ReadMode.heap);
-  SegmentMetadata segmentMetadata=indexSegment.getSegmentMetadata();
-  Schema schema=segmentMetadata.getSchema();
-  uniqueDimensions.addAll(schema.getDimensionNames());
+  Schema schema=indexSegment.getSegmentMetadata().getSchema();
   uniqueMetrics.addAll(schema.getMetricNames());
   for (  DimensionFieldSpec fieldSpec : schema.getDimensionFieldSpecs()) {
     if (!fieldSpec.isSingleValueField()) {
       continue;
     }
     String column=fieldSpec.getName();
+    uniqueSingleValueDimensions.add(column);
     Dictionary dictionary=indexSegment.getDictionaryFor(column);
-    Set<String> values=columnValuesMap.get(column);
+    Set<Object> values=singleValueDimensionValuesMap.get(column);
     if (values == null) {
       values=new HashSet<>();
-      columnValuesMap.put(column,values);
+      singleValueDimensionValuesMap.put(column,values);
     }
     int length=dictionary.length();
     for (int i=0; i < length; i++) {
-      values.add(dictionary.getStringValue(i));
+      values.add(dictionary.get(i));
     }
   }
   if (tmpDir != null) {

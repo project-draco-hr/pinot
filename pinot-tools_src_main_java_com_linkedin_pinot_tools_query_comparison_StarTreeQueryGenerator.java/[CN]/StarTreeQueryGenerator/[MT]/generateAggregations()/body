@@ -1,10 +1,12 @@
 {
-  int numAggregations=_random.nextInt(_metricColumns.size() + 1);
-  numAggregations=Math.max(numAggregations,1);
-  List<String> aggregations=new ArrayList<>(numAggregations);
+  StringBuilder stringBuilder=new StringBuilder();
+  int numAggregations=Math.min(RANDOM.nextInt(MAX_NUM_AGGREGATIONS) + 1,_metricColumns.size());
   Collections.shuffle(_metricColumns);
   for (int i=0; i < numAggregations; i++) {
-    aggregations.add(generateAggregation(_metricColumns.get(i)));
+    if (i != 0) {
+      stringBuilder.append(',').append(' ');
+    }
+    stringBuilder.append(generateAggregation(_metricColumns.get(i)));
   }
-  return StringUtils.join(aggregations,", ");
+  return stringBuilder;
 }

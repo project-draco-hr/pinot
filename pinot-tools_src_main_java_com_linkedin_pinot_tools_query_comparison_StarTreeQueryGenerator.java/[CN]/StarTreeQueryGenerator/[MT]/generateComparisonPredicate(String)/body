@@ -1,0 +1,13 @@
+{
+  StringBuilder stringBuilder=new StringBuilder(dimensionColumn);
+  stringBuilder.append(' ').append(COMPARATORS.get(RANDOM.nextInt(COMPARATORS.size()))).append(' ');
+  List<Object> valueArray=_singleValueDimensionValuesMap.get(dimensionColumn);
+  Object value=valueArray.get(RANDOM.nextInt(valueArray.size()));
+  if (value instanceof String) {
+    stringBuilder.append('\'').append(((String)value).replaceAll("'","''")).append('\'');
+  }
+ else {
+    stringBuilder.append(value);
+  }
+  return stringBuilder;
+}

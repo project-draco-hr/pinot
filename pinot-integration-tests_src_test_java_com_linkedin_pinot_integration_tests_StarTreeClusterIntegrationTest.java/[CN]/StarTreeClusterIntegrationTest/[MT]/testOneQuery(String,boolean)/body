@@ -8,6 +8,12 @@
     }
     String refQuery=convertToRefQuery(starQuery);
     JSONObject refResponse=postQuery(refQuery);
+    if (refResponse.getInt("numDocsScanned") > 0) {
+      JSONObject aggregationResults=refResponse.getJSONArray("aggregationResults").getJSONObject(0);
+      if (aggregationResults.has("groupByResult") && aggregationResults.getJSONArray("groupByResult").length() == 10000) {
+        return;
+      }
+    }
     boolean result=QueryComparison.compare(starResponse,refResponse,false);
     String message="Result mis-match for Query: " + starQuery + "\nStar: "+ starResponse.toString()+ "\nRef: "+ refResponse.toString();
     Assert.assertTrue(result,message);

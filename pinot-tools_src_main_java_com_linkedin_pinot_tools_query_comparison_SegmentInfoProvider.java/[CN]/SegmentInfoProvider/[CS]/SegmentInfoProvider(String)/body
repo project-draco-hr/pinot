@@ -1,16 +1,15 @@
 {
-  _segmentDirName=segmentDirName;
-  File segmentsDir=new File(_segmentDirName);
-  Set<String> uniqueDimensions=new HashSet<>();
   Set<String> uniqueMetrics=new HashSet<>();
-  Map<String,Set<String>> uniqueColumnValues=new HashMap<>();
+  Set<String> uniqueSingleValueDimensions=new HashSet<>();
+  Map<String,Set<Object>> uniqueSingleValueDimensionValues=new HashMap<>();
+  File segmentsDir=new File(segmentDirName);
   for (  File segment : segmentsDir.listFiles()) {
-    readOneSegment(segment,uniqueDimensions,uniqueMetrics,uniqueColumnValues);
+    readOneSegment(segment,uniqueMetrics,uniqueSingleValueDimensions,uniqueSingleValueDimensionValues);
   }
-  _dimensionColumns=new ArrayList<>(uniqueDimensions);
+  _singleValueDimensionColumns=new ArrayList<>(uniqueSingleValueDimensions);
   _metricColumns=new ArrayList<>(uniqueMetrics);
-  _columnValuesMap=new HashMap<>(uniqueColumnValues.size());
-  for (  Map.Entry<String,Set<String>> entry : uniqueColumnValues.entrySet()) {
-    _columnValuesMap.put(entry.getKey(),new ArrayList<>(entry.getValue()));
+  _singleValueDimensionValuesMap=new HashMap<>(uniqueSingleValueDimensionValues.size());
+  for (  Map.Entry<String,Set<Object>> entry : uniqueSingleValueDimensionValues.entrySet()) {
+    _singleValueDimensionValuesMap.put(entry.getKey(),new ArrayList<>(entry.getValue()));
   }
 }
