@@ -1,5 +1,11 @@
 {
   Representation presentation;
+  try {
+    segmentName=URLDecoder.decode(segmentName,"UTF-8");
+  }
+ catch (  UnsupportedEncodingException e) {
+    throw new AssertionError("UTF-8 encoding should always be supported",e);
+  }
   final File dataFile=new File(baseDataDir,StringUtil.join("/",tableName,segmentName));
   if (dataFile.exists()) {
     presentation=new FileRepresentation(dataFile,MediaType.ALL,0);

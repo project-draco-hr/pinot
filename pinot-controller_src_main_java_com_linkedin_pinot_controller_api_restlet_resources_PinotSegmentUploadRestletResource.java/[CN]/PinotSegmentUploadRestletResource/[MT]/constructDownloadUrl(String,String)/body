@@ -1,4 +1,8 @@
 {
-  final String ret=StringUtil.join("/",vip,"segments",tableName,segmentName);
-  return ret;
+  try {
+    return StringUtil.join("/",vip,"segments",tableName,URLEncoder.encode(segmentName,"UTF-8"));
+  }
+ catch (  UnsupportedEncodingException e) {
+    throw new AssertionError("UTF-8 encoding should always be supported",e);
+  }
 }
