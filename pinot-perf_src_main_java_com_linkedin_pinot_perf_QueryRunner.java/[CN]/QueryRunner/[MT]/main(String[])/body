@@ -1,40 +1,54 @@
 {
-  String queryFile=null;
-  if (args.length >= 1) {
-    queryFile=args[0];
-  }
- else {
-    System.out.println("QueryRunner <queryFile> <brokerHost(optional. default=localhost)> <brokerPort (optional. default=8099)> <mode(optional.(single-threaded(optional)|multi-threaded))>)");
-    System.exit(1);
-  }
-  String brokerHost=null;
-  String brokerPort=null;
-  if (args.length >= 3) {
-    brokerHost=args[1];
-    brokerPort=args[2];
-  }
-  boolean multiThreaded=false;
-  if (args.length >= 4) {
-    if ("multi-threaded".equals(args[3])) {
-      multiThreaded=true;
-    }
+  QueryRunner queryRunner=new QueryRunner();
+  CmdLineParser parser=new CmdLineParser(queryRunner);
+  parser.parseArgument(args);
+  if (queryRunner._help) {
+    printUsage();
+    return;
   }
   PerfBenchmarkDriverConf conf=new PerfBenchmarkDriverConf();
-  if (brokerHost != null) {
-    conf.setBrokerHost(brokerHost);
-    conf.setBrokerPort(Integer.parseInt(brokerPort));
-  }
-  conf.setStartBroker(false);
-  conf.setStartController(false);
-  conf.setStartServer(false);
-  conf.setStartZookeeper(false);
-  conf.setUploadIndexes(false);
+  conf.setBrokerHost(queryRunner._brokerHost);
+  conf.setBrokerPort(Integer.parseInt(queryRunner._brokerPort));
   conf.setRunQueries(true);
+  conf.setStartZookeeper(false);
+  conf.setStartController(false);
+  conf.setStartBroker(false);
+  conf.setStartServer(false);
+  conf.setUploadIndexes(false);
   conf.setConfigureResources(false);
-  if (multiThreaded) {
-    multiThreadedQueryRunner(conf,queryFile);
-  }
- else {
-    singleThreadedQueryRunner(conf,queryFile);
-  }
+switch (queryRunner._mode) {
+case "singleThread":
+    singleThreadedQueryRunner(conf,queryRunner._queryFile);
+  break;
+case "multiThreads":
+if (queryRunner._numThreads <= 0) {
+  System.out.println("For multiThreads mode, need to specify a positive numThreads");
+  printUsage();
+  return;
+}
+multiThreadedsQueryRunner(conf,queryRunner._queryFile,queryRunner._numThreads);
+break;
+case "targetQPS":
+if (queryRunner._numThreads <= 0) {
+System.out.println("For targetQPS mode, need to specify a positive numThreads");
+printUsage();
+return;
+}
+if (queryRunner._startQPS <= 0) {
+System.out.println("For targetQPS mode, need to specify a positive startQPS");
+printUsage();
+return;
+}
+if (queryRunner._deltaQPS <= 0) {
+System.out.println("For targetQPS mode, need to specify a positive deltaQPS");
+printUsage();
+return;
+}
+targetQPSQueryRunner(conf,queryRunner._queryFile,queryRunner._numThreads,queryRunner._startQPS,queryRunner._deltaQPS);
+break;
+default :
+System.out.println("Invalid mode: " + queryRunner._mode);
+printUsage();
+break;
+}
 }

@@ -1,0 +1,71 @@
+{
+  final long randomSeed=123456789L;
+  final Random random=new Random(randomSeed);
+  final int timePerTargetQPSMillis=60000;
+  final int queueLengthThreshold=Math.max(20,(int)startQPS);
+  final List<String> queries;
+  try (FileInputStream input=new FileInputStream(new File(queryFile))){
+    queries=IOUtils.readLines(input);
+  }
+   final int numQueries=queries.size();
+  final PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
+  final AtomicInteger counter=new AtomicInteger(0);
+  final AtomicLong totalResponseTime=new AtomicLong(0L);
+  final ExecutorService executorService=Executors.newFixedThreadPool(numThreads);
+  final ConcurrentLinkedQueue<String> queryQueue=new ConcurrentLinkedQueue<>();
+  double currentQPS=startQPS;
+  int intervalMillis=(int)(MILLIS_PER_SECOND / currentQPS);
+  for (int i=0; i < numThreads; i++) {
+    executorService.submit(new Runnable(){
+      @Override public void run(){
+        while (true) {
+          String query=queryQueue.poll();
+          if (query == null) {
+            try {
+              Thread.sleep(1);
+              continue;
+            }
+ catch (            InterruptedException e) {
+              LOGGER.error("Interrupted.",e);
+              return;
+            }
+          }
+          long startTime=System.currentTimeMillis();
+          try {
+            System.out.println(driver.postQuery(query));
+            counter.getAndIncrement();
+            totalResponseTime.getAndAdd(System.currentTimeMillis() - startTime);
+          }
+ catch (          Exception e) {
+            LOGGER.error("Caught exception while running query: {}",query,e);
+            return;
+          }
+        }
+      }
+    }
+);
+  }
+  LOGGER.info("Start with QPS: {}, delta QPS: {}",startQPS,deltaQPS);
+  while (true) {
+    long startTime=System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= timePerTargetQPSMillis) {
+      if (queryQueue.size() > queueLengthThreshold) {
+        executorService.shutdownNow();
+        throw new RuntimeException("Cannot achieve target QPS of: " + currentQPS);
+      }
+      queryQueue.add(queries.get(random.nextInt(numQueries)));
+      Thread.sleep(intervalMillis);
+    }
+    double timePassedSeconds=((double)(System.currentTimeMillis() - startTime)) / MILLIS_PER_SECOND;
+    int count=counter.getAndSet(0);
+    double avgResponseTime=((double)totalResponseTime.getAndSet(0)) / count;
+    LOGGER.info("Target QPS: {}, Interval: {}ms, Actual QPS: {}, Avg Response Time: {}ms",currentQPS,intervalMillis,count / timePassedSeconds,avgResponseTime);
+    int newIntervalMillis;
+    do {
+      currentQPS+=deltaQPS;
+      newIntervalMillis=(int)(MILLIS_PER_SECOND / currentQPS);
+    }
+ while (newIntervalMillis == intervalMillis);
+    intervalMillis=newIntervalMillis;
+  }
+}

@@ -1,27 +1,26 @@
 {
   final long randomSeed=123456789L;
-  final int numClients=10;
+  final Random random=new Random(randomSeed);
   final int reportIntervalMillis=3000;
   final List<String> queries;
   try (FileInputStream input=new FileInputStream(new File(queryFile))){
     queries=IOUtils.readLines(input);
   }
-   final int queryNum=queries.size();
+   final int numQueries=queries.size();
   final PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
-  final Random random=new Random(randomSeed);
   final AtomicInteger counter=new AtomicInteger(0);
   final AtomicLong totalResponseTime=new AtomicLong(0L);
-  final ExecutorService executorService=Executors.newFixedThreadPool(numClients);
-  for (int i=0; i < numClients; i++) {
+  final ExecutorService executorService=Executors.newFixedThreadPool(numThreads);
+  for (int i=0; i < numThreads; i++) {
     executorService.submit(new Runnable(){
       @Override public void run(){
         while (true) {
-          String query=queries.get(random.nextInt(queryNum));
-          long start=System.currentTimeMillis();
+          String query=queries.get(random.nextInt(numQueries));
+          long startTime=System.currentTimeMillis();
           try {
             driver.postQuery(query);
             counter.getAndIncrement();
-            totalResponseTime.getAndAdd(System.currentTimeMillis() - start);
+            totalResponseTime.getAndAdd(System.currentTimeMillis() - startTime);
           }
  catch (          Exception e) {
             LOGGER.error("Caught exception while running query: {}",query,e);

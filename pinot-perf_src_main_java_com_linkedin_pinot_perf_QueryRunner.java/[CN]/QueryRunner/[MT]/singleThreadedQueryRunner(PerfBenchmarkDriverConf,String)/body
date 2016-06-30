@@ -1,20 +1,22 @@
 {
-  File file=new File(queryFile);
-  FileReader fileReader=new FileReader(file);
-  BufferedReader bufferedReader=new BufferedReader(fileReader);
-  String query;
-  int numQueries=0;
-  long totalQueryTime=0;
-  long totalClientTime=0;
-  while ((query=bufferedReader.readLine()) != null) {
-    JSONObject response=runSingleQuery(conf,query,1);
-    totalQueryTime+=response.getLong("timeUsedMs");
-    totalClientTime+=response.getLong("totalTime");
-    if ((numQueries > 0) && (numQueries % 1000) == 0) {
-      LOGGER.info("Processed  {} queries, Total Query time: {} ms Total Client side time : {} ms.",numQueries,totalQueryTime,totalClientTime);
+  final PerfBenchmarkDriver driver=new PerfBenchmarkDriver(conf);
+  try (BufferedReader bufferedReader=new BufferedReader(new FileReader(queryFile))){
+    int numQueries=0;
+    int totalServerTime=0;
+    int totalBrokerTime=0;
+    int totalClientTime=0;
+    String query;
+    while ((query=bufferedReader.readLine()) != null) {
+      long startTime=System.currentTimeMillis();
+      JSONObject response=driver.postQuery(query);
+      numQueries++;
+      totalClientTime+=System.currentTimeMillis() - startTime;
+      totalServerTime+=response.getLong("timeUsedMs");
+      totalBrokerTime+=response.getLong("totalTime");
+      if (numQueries % 1000 == 0) {
+        LOGGER.info("Processed {} Queries, Total Server Time: {}ms, Total Broker Time: {}ms, Total Client Time : {}ms.",numQueries,totalServerTime,totalBrokerTime,totalClientTime);
+      }
     }
-    ++numQueries;
+    LOGGER.info("Processed {} Queries, Total Server Time: {}ms, Total Broker Time: {}ms, Total Client Time : {}ms.",numQueries,totalServerTime,totalBrokerTime,totalClientTime);
   }
-  LOGGER.info("Processed  {} queries, Total Query time: {} Total Client side time : {}.",numQueries,totalQueryTime,totalClientTime);
-  fileReader.close();
-}
+ }
