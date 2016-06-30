@@ -1,5 +1,5 @@
 {
-  if (segmentName.endsWith(SEPARATOR) || segmentName.startsWith(SEPARATOR)) {
+  if (!isHighLevelConsumerSegmentName(segmentName)) {
     throw new RuntimeException(segmentName + " is not a HighLevelConsumer segment name");
   }
   String parts[]=segmentName.split(SEPARATOR);

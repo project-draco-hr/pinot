@@ -1,18 +1,15 @@
 {
-  try {
+  if (isHighLevelConsumerSegmentName(segmentName)) {
     HLCSegmentName segName=new HLCSegmentName(segmentName);
     if (segName.isOldStyleNaming()) {
       return RealtimeSegmentType.HLC_LONG;
     }
- else     return RealtimeSegmentType.HLC_SHORT;
-  }
- catch (  Exception e1) {
-    try {
-      LLCSegmentName segName=new LLCSegmentName(segmentName);
-      return RealtimeSegmentType.LLC;
-    }
- catch (    Exception e2) {
-      return RealtimeSegmentType.UNSUPPORTED;
+ else {
+      return RealtimeSegmentType.HLC_SHORT;
     }
   }
+  if (isLowLevelConsumerSegmentName(segmentName)) {
+    return RealtimeSegmentType.LLC;
+  }
+  return RealtimeSegmentType.UNSUPPORTED;
 }
