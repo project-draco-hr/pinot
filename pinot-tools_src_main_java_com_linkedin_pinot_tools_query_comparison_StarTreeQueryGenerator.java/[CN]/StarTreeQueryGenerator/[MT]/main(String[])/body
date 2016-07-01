@@ -1,0 +1,25 @@
+{
+  if (args.length != 2) {
+    System.err.println("Usage: StarTreeQueryGenerator starTreeSegmentsDirectory numQueries");
+    return;
+  }
+  File segmentsDir=new File(args[0]);
+  Preconditions.checkState(segmentsDir.exists());
+  Preconditions.checkState(segmentsDir.isDirectory());
+  File[] segments=segmentsDir.listFiles();
+  Preconditions.checkNotNull(segments);
+  File segment=segments[0];
+  IndexSegment indexSegment=Loaders.IndexSegment.load(segment,ReadMode.heap);
+  SegmentMetadata segmentMetadata=indexSegment.getSegmentMetadata();
+  String tableName=segmentMetadata.getTableName();
+  int numQueries=Integer.parseInt(args[1]);
+  SegmentInfoProvider infoProvider=new SegmentInfoProvider(args[0]);
+  StarTreeQueryGenerator generator=new StarTreeQueryGenerator(tableName,infoProvider.getSingleValueDimensionColumns(),infoProvider.getMetricColumns(),infoProvider.getSingleValueDimensionValuesMap());
+  Pql2Compiler compiler=new Pql2Compiler();
+  for (int i=0; i < numQueries; i++) {
+    String query=generator.nextQuery();
+    System.out.println(query);
+    BrokerRequest brokerRequest=compiler.compileToBrokerRequest(query);
+    Preconditions.checkState(RequestUtils.isFitForStarTreeIndex(segmentMetadata,RequestUtils.generateFilterQueryTree(brokerRequest),brokerRequest));
+  }
+}
