@@ -1,0 +1,19 @@
+{
+  int length=endDocId - startDocId;
+  Map<Integer,IntPair> rangeMap=new LinkedHashMap<>();
+  final int startOffset=startDocId * totalSizeInBytes;
+  int prevValue=-1;
+  int prevStart=0;
+  byte[] dimBuff=new byte[dimensionSizeInBytes];
+  for (int i=0; i < length; i++) {
+    mappedByteBuffer.copyTo(startOffset + (i * totalSizeInBytes),dimBuff,0,dimensionSizeInBytes);
+    int value=ByteBuffer.wrap(dimBuff).asIntBuffer().get(colIndex);
+    if (prevValue != -1 && prevValue != value) {
+      rangeMap.put(prevValue,new IntPair(startDocId + prevStart,startDocId + i));
+      prevStart=i;
+    }
+    prevValue=value;
+  }
+  rangeMap.put(prevValue,new IntPair(startDocId + prevStart,endDocId));
+  return rangeMap;
+}

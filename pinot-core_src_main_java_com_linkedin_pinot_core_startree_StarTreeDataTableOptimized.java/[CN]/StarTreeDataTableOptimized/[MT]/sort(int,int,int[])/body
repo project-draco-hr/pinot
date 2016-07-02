@@ -1,0 +1,52 @@
+{
+  int length=endRecordId - startRecordId;
+  final int startOffset=startRecordId * totalSizeInBytes;
+  List<Integer> idList=new ArrayList<Integer>();
+  for (int i=startRecordId; i < endRecordId; i++) {
+    idList.add(i - startRecordId);
+  }
+  Comparator<Integer> comparator=new Comparator<Integer>(){
+    byte[] buf1=new byte[dimensionSizeInBytes];
+    byte[] buf2=new byte[dimensionSizeInBytes];
+    @Override public int compare(    Integer o1,    Integer o2){
+      int pos1=startOffset + (o1) * totalSizeInBytes;
+      int pos2=startOffset + (o2) * totalSizeInBytes;
+      mappedByteBuffer.copyTo(pos1,buf1,0,dimensionSizeInBytes);
+      mappedByteBuffer.copyTo(pos2,buf2,0,dimensionSizeInBytes);
+      IntBuffer bb1=ByteBuffer.wrap(buf1).asIntBuffer();
+      IntBuffer bb2=ByteBuffer.wrap(buf2).asIntBuffer();
+      for (      int dimIndex : sortOrder) {
+        int v1=bb1.get(dimIndex);
+        int v2=bb2.get(dimIndex);
+        if (v1 != v2) {
+          return v1 - v2;
+        }
+      }
+      return 0;
+    }
+  }
+;
+  Collections.sort(idList,comparator);
+  int[] currentPositions=new int[length];
+  int[] indexToRecordIdMapping=new int[length];
+  byte[] buf1=new byte[totalSizeInBytes];
+  byte[] buf2=new byte[totalSizeInBytes];
+  for (int i=0; i < length; i++) {
+    currentPositions[i]=i;
+    indexToRecordIdMapping[i]=i;
+  }
+  for (int i=0; i < length; i++) {
+    int thisRecordId=indexToRecordIdMapping[i];
+    int thisRecordIdPos=currentPositions[thisRecordId];
+    int thatRecordId=idList.get(i);
+    int thatRecordIdPos=currentPositions[thatRecordId];
+    mappedByteBuffer.copyTo(startOffset + thisRecordIdPos * totalSizeInBytes,buf1,0,totalSizeInBytes);
+    mappedByteBuffer.copyTo(startOffset + thatRecordIdPos * totalSizeInBytes,buf2,0,totalSizeInBytes);
+    mappedByteBuffer.readFrom(buf2,0,startOffset + thisRecordIdPos * totalSizeInBytes,totalSizeInBytes);
+    mappedByteBuffer.readFrom(buf1,0,startOffset + thatRecordIdPos * totalSizeInBytes,totalSizeInBytes);
+    indexToRecordIdMapping[i]=thatRecordId;
+    indexToRecordIdMapping[thatRecordIdPos]=thisRecordId;
+    currentPositions[thatRecordId]=i;
+    currentPositions[thisRecordId]=thatRecordIdPos;
+  }
+}

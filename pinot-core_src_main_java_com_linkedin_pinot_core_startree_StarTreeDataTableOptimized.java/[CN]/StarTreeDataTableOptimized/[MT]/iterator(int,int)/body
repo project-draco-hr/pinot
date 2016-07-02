@@ -1,0 +1,24 @@
+{
+  final int length=endDocId - startDocId;
+  final int startOffset=startDocId * totalSizeInBytes;
+  return new Iterator<Pair<byte[],byte[]>>(){
+    int pointer=0;
+    @Override public boolean hasNext(){
+      return pointer < length;
+    }
+    @Override public void remove(){
+      throw new UnsupportedOperationException();
+    }
+    @Override public Pair<byte[],byte[]> next(){
+      byte[] dimBuff=new byte[dimensionSizeInBytes];
+      byte[] metBuff=new byte[metricSizeInBytes];
+      mappedByteBuffer.copyTo(startOffset + (pointer * totalSizeInBytes),dimBuff,0,dimensionSizeInBytes);
+      if (metricSizeInBytes > 0) {
+        mappedByteBuffer.copyTo(startOffset + (pointer * totalSizeInBytes) + dimensionSizeInBytes,metBuff,0,metricSizeInBytes);
+      }
+      pointer=pointer + 1;
+      return Pair.of(dimBuff,metBuff);
+    }
+  }
+;
+}
