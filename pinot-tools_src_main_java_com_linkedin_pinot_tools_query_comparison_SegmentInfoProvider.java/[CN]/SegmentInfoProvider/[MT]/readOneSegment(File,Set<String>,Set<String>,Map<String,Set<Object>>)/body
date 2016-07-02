@@ -11,8 +11,13 @@
  else {
     segmentDir=segmentFile;
   }
-  IndexSegmentImpl indexSegment=(IndexSegmentImpl)Loaders.IndexSegment.load(segmentDir,ReadMode.heap);
+  IndexSegment indexSegment=Loaders.IndexSegment.load(segmentDir,ReadMode.heap);
   Schema schema=indexSegment.getSegmentMetadata().getSchema();
+  String timeColumn=schema.getTimeColumnName();
+  if (timeColumn != null) {
+    uniqueSingleValueDimensions.add(timeColumn);
+    loadValuesForSingleValueDimension(indexSegment,singleValueDimensionValuesMap,timeColumn);
+  }
   uniqueMetrics.addAll(schema.getMetricNames());
   for (  DimensionFieldSpec fieldSpec : schema.getDimensionFieldSpecs()) {
     if (!fieldSpec.isSingleValueField()) {
@@ -20,16 +25,7 @@
     }
     String column=fieldSpec.getName();
     uniqueSingleValueDimensions.add(column);
-    Dictionary dictionary=indexSegment.getDictionaryFor(column);
-    Set<Object> values=singleValueDimensionValuesMap.get(column);
-    if (values == null) {
-      values=new HashSet<>();
-      singleValueDimensionValuesMap.put(column,values);
-    }
-    int length=dictionary.length();
-    for (int i=0; i < length; i++) {
-      values.add(dictionary.get(i));
-    }
+    loadValuesForSingleValueDimension(indexSegment,singleValueDimensionValuesMap,column);
   }
   if (tmpDir != null) {
     FileUtils.deleteQuietly(tmpDir);

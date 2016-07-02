@@ -1,0 +1,12 @@
+{
+  Dictionary dictionary=indexSegment.getDataSource(column).getDictionary();
+  Set<Object> values=singleValueDimensionValuesMap.get(column);
+  if (values == null) {
+    values=new HashSet<>();
+    singleValueDimensionValuesMap.put(column,values);
+  }
+  int length=dictionary.length();
+  for (int i=0; i < length; i++) {
+    values.add(dictionary.get(i));
+  }
+}
