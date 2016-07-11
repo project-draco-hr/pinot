@@ -23,6 +23,8 @@
   Set<Long> filteredBaselineTimes=filterTimeWindowSet(timeSeries.getTimeWindowSet(),windowStart.getMillis(),windowEnd.minus(baselineMillis).getMillis());
   Long min=Collections.min(timeSeries.getTimeWindowSet());
   Long max=Collections.max(timeSeries.getTimeWindowSet());
+  List<Double> currentValues=new ArrayList<>();
+  List<Double> baselineValues=new ArrayList<>();
   for (  Long baselineKey : filteredBaselineTimes) {
     Long currentKey=baselineKey + baselineMillis;
     double currentValue=timeSeries.get(currentKey,metric).doubleValue();
@@ -42,7 +44,14 @@
       anomalyResult.setMessage(message);
       anomalyResult.setFilters(getSpec().getFilters());
       anomalyResults.add(anomalyResult);
+      currentValues.add(currentValue);
+      baselineValues.add(baselineValue);
     }
   }
-  return anomalyResults;
+  String minConsecutiveSizeStr=props.getProperty(MIN_CONSECUTIVE_SIZE);
+  int minConsecutiveSize=1;
+  if (StringUtils.isNotBlank(minConsecutiveSizeStr)) {
+    minConsecutiveSize=Integer.valueOf(minConsecutiveSizeStr);
+  }
+  return getFilteredAndMergedAnomalyResults(anomalyResults,minConsecutiveSize,bucketMillis,baselineValues,currentValues,changeThreshold,baselineProp);
 }

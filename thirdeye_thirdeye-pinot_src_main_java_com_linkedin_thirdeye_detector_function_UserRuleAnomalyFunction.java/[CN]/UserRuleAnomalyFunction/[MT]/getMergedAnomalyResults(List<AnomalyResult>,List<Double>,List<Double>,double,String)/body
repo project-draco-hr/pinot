@@ -1,0 +1,23 @@
+{
+  int n=anomalyResults.size();
+  AnomalyResult firstAnomalyResult=anomalyResults.get(0);
+  AnomalyResult lastAnomalyResult=anomalyResults.get(n - 1);
+  AnomalyResult mergedAnomalyResult=new AnomalyResult();
+  mergedAnomalyResult.setCollection(firstAnomalyResult.getCollection());
+  mergedAnomalyResult.setMetric(firstAnomalyResult.getMetric());
+  mergedAnomalyResult.setDimensions(firstAnomalyResult.getDimensions());
+  mergedAnomalyResult.setFunctionId(firstAnomalyResult.getFunctionId());
+  mergedAnomalyResult.setProperties(firstAnomalyResult.getProperties());
+  mergedAnomalyResult.setStartTimeUtc(firstAnomalyResult.getStartTimeUtc());
+  mergedAnomalyResult.setEndTimeUtc(lastAnomalyResult.getEndTimeUtc());
+  mergedAnomalyResult.setWeight(firstAnomalyResult.getWeight());
+  mergedAnomalyResult.setFilters(firstAnomalyResult.getFilters());
+  double summedScore=0;
+  for (  AnomalyResult anomalyResult : anomalyResults) {
+    summedScore+=anomalyResult.getScore();
+  }
+  mergedAnomalyResult.setScore(summedScore / n);
+  String message=getMergedAnomalyResultMessage(threshold,baselineProp,currentValues,baselineValues);
+  mergedAnomalyResult.setMessage(message);
+  return mergedAnomalyResult;
+}

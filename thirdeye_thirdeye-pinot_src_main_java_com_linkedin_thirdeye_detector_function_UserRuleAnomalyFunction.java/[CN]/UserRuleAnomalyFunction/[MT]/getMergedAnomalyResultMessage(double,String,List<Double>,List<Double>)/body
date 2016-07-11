@@ -1,0 +1,16 @@
+{
+  int n=currentValues.size();
+  NumberFormat percentInstance=NumberFormat.getPercentInstance();
+  percentInstance.setMaximumFractionDigits(2);
+  String thresholdPercent=percentInstance.format(threshold);
+  List<String> percentChanges=new ArrayList<>();
+  for (int i=0; i < n; i++) {
+    double currentValue=currentValues.get(i);
+    double baselineValue=baselineValues.get(i);
+    double change=calculatePercentChange(currentValue,baselineValue);
+    String changePercent=percentInstance.format(change);
+    percentChanges.add(changePercent);
+  }
+  String message=String.format(DEFAULT_MERGED_MESSAGE_TEMPLATE,thresholdPercent,baselineProp,CSV.join(percentChanges),currentValues.get(n - 1),baselineValues.get(n - 1));
+  return message;
+}
