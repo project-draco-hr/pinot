@@ -1,0 +1,40 @@
+{
+  LOG.info(Thread.currentThread().getId() + " : Starting selectAndUpdate {}",Thread.currentThread().getId());
+  AnomalyTaskSpec acquiredTask=null;
+  LOG.info(Thread.currentThread().getId() + " : Trying to find a task to execute");
+  do {
+    Session session=sessionFactory.openSession();
+    ManagedSessionContext.bind(session);
+    Transaction transaction=null;
+    try {
+      List<AnomalyTaskSpec> anomalyTasks=anomalyTaskSpecDAO.findByStatusOrderByCreateTimeAscending(JobStatus.WAITING);
+      if (anomalyTasks.size() > 0)       LOG.info(Thread.currentThread().getId() + " : Found {} tasks in waiting state",anomalyTasks.size());
+      for (      AnomalyTaskSpec anomalyTaskSpec : anomalyTasks) {
+        transaction=session.beginTransaction();
+        LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getTaskId());
+        boolean success=anomalyTaskSpecDAO.updateStatus(anomalyTaskSpec.getTaskId(),JobStatus.WAITING,JobStatus.RUNNING);
+        LOG.info(Thread.currentThread().getId() + " : Task acquired success: {}",success);
+        if (success) {
+          acquiredTask=anomalyTaskSpec;
+          break;
+        }
+      }
+      if (!transaction.wasCommitted()) {
+        transaction.commit();
+      }
+      Thread.sleep(1000);
+    }
+ catch (    Exception e) {
+      if (transaction != null) {
+        transaction.rollback();
+      }
+    }
+ finally {
+      session.close();
+      ManagedSessionContext.unbind(sessionFactory);
+    }
+  }
+ while (acquiredTask == null);
+  LOG.info(Thread.currentThread().getId() + " : Acquired task ======" + acquiredTask);
+  return acquiredTask;
+}

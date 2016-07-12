@@ -1,0 +1,37 @@
+{
+  LOG.info("Starting ThirdeyeAnomalyApplication : Scheduler {} Worker {}",config.isScheduler(),config.isWorker());
+  super.initDetectorRelatedDAO();
+  ThirdEyeCacheRegistry.initializeDetectorCaches(config);
+  final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
+  if (config.isScheduler()) {
+    jobScheduler=new JobScheduler(anomalyJobSpecDAO,anomalyTaskSpecDAO,anomalyFunctionSpecDAO,hibernateBundle.getSessionFactory());
+  }
+  if (config.isWorker()) {
+    taskDriver=new TaskDriver(anomalyTaskSpecDAO,anomalyResultDAO,anomalyFunctionRelationDAO,hibernateBundle.getSessionFactory(),anomalyFunctionFactory);
+  }
+  environment.lifecycle().manage(new Managed(){
+    @Override public void start() throws Exception {
+      new HibernateSessionWrapper<Void>(hibernateBundle.getSessionFactory()).execute(new Callable<Void>(){
+        @Override public Void call() throws Exception {
+          if (config.isWorker()) {
+            taskDriver.start();
+          }
+          if (config.isScheduler()) {
+            jobScheduler.start();
+          }
+          return null;
+        }
+      }
+);
+    }
+    @Override public void stop() throws Exception {
+      if (config.isWorker()) {
+        taskDriver.stop();
+      }
+      if (config.isScheduler()) {
+        jobScheduler.stop();
+      }
+    }
+  }
+);
+}

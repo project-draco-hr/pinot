@@ -1,0 +1,13 @@
+{
+  this.anomalyJobSpecDAO=anomalyJobSpecDAO;
+  this.anomalyTaskSpecDAO=anomalyTaskSpecDAO;
+  this.anomalyFunctionSpecDAO=anomalyFunctionSpecDAO;
+  this.sessionFactory=sessionFactory;
+  schedulerFactory=new StdSchedulerFactory();
+  try {
+    quartzScheduler=schedulerFactory.getScheduler();
+  }
+ catch (  SchedulerException e) {
+    LOG.error("Exception while starting quartz scheduler",e);
+  }
+}

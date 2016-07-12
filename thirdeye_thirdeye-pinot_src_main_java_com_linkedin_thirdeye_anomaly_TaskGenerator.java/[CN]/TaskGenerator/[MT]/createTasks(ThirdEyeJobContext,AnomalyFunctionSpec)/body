@@ -1,0 +1,28 @@
+{
+  List<TaskInfo> tasks=new ArrayList<>();
+  DateTime windowStart=thirdeyeJobContext.getWindowStart();
+  DateTime windowEnd=thirdeyeJobContext.getWindowEnd();
+  long jobExecutionId=thirdeyeJobContext.getJobExecutionId();
+  String exploreDimensionsString=anomalyFunctionSpec.getExploreDimensions();
+  if (StringUtils.isBlank(exploreDimensionsString)) {
+    TaskInfo taskInfo=new TaskInfo();
+    taskInfo.setJobExecutionId(jobExecutionId);
+    taskInfo.setWindowStartTime(windowStart);
+    taskInfo.setWindowEndTime(windowEnd);
+    taskInfo.setAnomalyFunctionSpec(anomalyFunctionSpec);
+    tasks.add(taskInfo);
+  }
+ else {
+    List<String> exploreDimensions=Arrays.asList(exploreDimensionsString.split(","));
+    for (    String exploreDimension : exploreDimensions) {
+      TaskInfo taskInfo=new TaskInfo();
+      taskInfo.setJobExecutionId(jobExecutionId);
+      taskInfo.setWindowStartTime(windowStart);
+      taskInfo.setWindowEndTime(windowEnd);
+      taskInfo.setAnomalyFunctionSpec(anomalyFunctionSpec);
+      taskInfo.setGroupByDimension(exploreDimension);
+      tasks.add(taskInfo);
+    }
+  }
+  return tasks;
+}

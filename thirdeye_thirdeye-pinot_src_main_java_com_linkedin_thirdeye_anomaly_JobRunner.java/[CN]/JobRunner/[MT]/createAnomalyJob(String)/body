@@ -1,0 +1,30 @@
+{
+  Session session=sessionFactory.openSession();
+  Long jobExecutionId=null;
+  try {
+    ManagedSessionContext.bind(session);
+    Transaction transaction=session.beginTransaction();
+    try {
+      AnomalyJobSpec anomalyJobSpec=new AnomalyJobSpec();
+      anomalyJobSpec.setJobName(jobName);
+      anomalyJobSpec.setWindowStartTime(thirdEyeJobContext.getWindowStart().getMillis());
+      anomalyJobSpec.setWindowEndTime(thirdEyeJobContext.getWindowEnd().getMillis());
+      anomalyJobSpec.setScheduleStartTime(System.currentTimeMillis());
+      anomalyJobSpec.setStatus(JobStatus.WAITING);
+      jobExecutionId=anomalyJobSpecDAO.createOrUpdate(anomalyJobSpec);
+      if (!transaction.wasCommitted()) {
+        transaction.commit();
+      }
+      LOG.info("Created anomalyJobSpec {} with jobExecutionId {}",anomalyJobSpec,jobExecutionId);
+    }
+ catch (    Exception e) {
+      transaction.rollback();
+      throw new RuntimeException(e);
+    }
+  }
+  finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+  return jobExecutionId;
+}

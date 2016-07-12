@@ -1,0 +1,12 @@
+{
+  List<String> argList=new ArrayList<String>(Arrays.asList(args));
+  if (argList.size() == 1) {
+    argList.add(0,"server");
+  }
+  int lastIndex=argList.size() - 1;
+  String thirdEyeConfigDir=argList.get(lastIndex);
+  System.setProperty("dw.rootDir",thirdEyeConfigDir);
+  String detectorApplicationConfigFile=thirdEyeConfigDir + "/" + "detector.yml";
+  argList.set(lastIndex,detectorApplicationConfigFile);
+  new ThirdEyeAnomalyApplication().run(argList.toArray(new String[argList.size()]));
+}
