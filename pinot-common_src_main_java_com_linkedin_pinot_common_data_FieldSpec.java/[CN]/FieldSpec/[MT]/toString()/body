@@ -1,3 +1,9 @@
 {
-  return "< data type: " + getDataType() + " , field type: "+ getFieldType()+ (isSingleValueField() ? ", single value column" : ", multi value column, delimiter: '" + getDelimiter() + "'")+ ", default null value: "+ getDefaultNullValue()+ " >";
+  Object defaultNullValue=new String("N/A");
+  try {
+    defaultNullValue=getDefaultNullValue();
+  }
+ catch (  UnsupportedOperationException e) {
+  }
+  return "< data type: " + getDataType() + " , field type: "+ getFieldType()+ (isSingleValueField() ? ", single value column" : ", multi value column, delimiter: '" + getDelimiter() + "'")+ ", default null value: "+ defaultNullValue+ " >";
 }
