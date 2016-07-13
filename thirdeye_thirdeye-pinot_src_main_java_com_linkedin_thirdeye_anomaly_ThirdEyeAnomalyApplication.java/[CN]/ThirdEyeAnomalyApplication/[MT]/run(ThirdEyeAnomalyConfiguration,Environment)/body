@@ -7,7 +7,7 @@
     jobScheduler=new JobScheduler(anomalyJobSpecDAO,anomalyTaskSpecDAO,anomalyFunctionSpecDAO,hibernateBundle.getSessionFactory());
   }
   if (config.isWorker()) {
-    taskDriver=new TaskDriver(anomalyTaskSpecDAO,anomalyResultDAO,anomalyFunctionRelationDAO,hibernateBundle.getSessionFactory(),anomalyFunctionFactory);
+    taskDriver=new TaskDriver(config.getId(),anomalyTaskSpecDAO,anomalyResultDAO,anomalyFunctionRelationDAO,hibernateBundle.getSessionFactory(),anomalyFunctionFactory);
   }
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
