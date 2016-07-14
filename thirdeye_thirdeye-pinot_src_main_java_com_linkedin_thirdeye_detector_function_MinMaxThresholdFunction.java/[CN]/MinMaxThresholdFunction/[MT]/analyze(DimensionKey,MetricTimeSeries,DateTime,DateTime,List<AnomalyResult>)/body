@@ -1,0 +1,41 @@
+{
+  List<AnomalyResult> anomalyResults=new ArrayList<>();
+  Properties props=getProperties();
+  String metric=getSpec().getMetric();
+  Double min=null;
+  if (props.containsKey(MIN_VAL)) {
+    min=Double.valueOf(props.getProperty(MIN_VAL));
+  }
+  Double max=null;
+  if (props.containsKey(MAX_VAL)) {
+    max=Double.valueOf(props.getProperty(MAX_VAL));
+  }
+  double averageValue=0;
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    averageValue+=timeSeries.get(time,metric).doubleValue();
+  }
+  long bucketMillis=TimeUnit.MILLISECONDS.convert(getSpec().getBucketSize(),getSpec().getBucketUnit());
+  long numBuckets=(windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis;
+  averageValue/=numBuckets;
+  for (  Long timeBucket : timeSeries.getTimeWindowSet()) {
+    Double value=timeSeries.get(timeBucket,metric).doubleValue();
+    double deviationFromThreshold=getDeviationFromThreshold(value,min,max);
+    if (deviationFromThreshold != 0) {
+      AnomalyResult anomalyResult=new AnomalyResult();
+      anomalyResult.setCollection(getSpec().getCollection());
+      anomalyResult.setMetric(metric);
+      anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
+      anomalyResult.setFunctionId(getSpec().getId());
+      anomalyResult.setProperties(getSpec().getProperties());
+      anomalyResult.setStartTimeUtc(timeBucket);
+      anomalyResult.setEndTimeUtc(timeBucket + bucketMillis);
+      anomalyResult.setScore(Math.abs(deviationFromThreshold));
+      anomalyResult.setWeight(averageValue);
+      String message=String.format(DEFAULT_MESSAGE_TEMPLATE,min,max,value,deviationFromThreshold);
+      anomalyResult.setMessage(message);
+      anomalyResult.setFilters(getSpec().getFilters());
+      anomalyResults.add(anomalyResult);
+    }
+  }
+  return anomalyResults;
+}

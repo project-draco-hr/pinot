@@ -38,7 +38,7 @@
       anomalyResult.setProperties(getSpec().getProperties());
       anomalyResult.setStartTimeUtc(currentKey);
       anomalyResult.setEndTimeUtc(currentKey + bucketMillis);
-      anomalyResult.setScore(calculatePercentChange(currentValue,baselineValue));
+      anomalyResult.setScore(calculateChange(currentValue,baselineValue));
       anomalyResult.setWeight(averageValue);
       String message=getAnomalyResultMessage(changeThreshold,baselineProp,currentValue,baselineValue);
       anomalyResult.setMessage(message);
