@@ -1,0 +1,8 @@
+{
+  AnomalyResult result=anomalyResultDAO.findById(anomalyResultId);
+  if (result == null) {
+    throw new IllegalArgumentException("AnomalyResult not found with id " + anomalyResultId);
+  }
+  result.setFeedback(feedBack);
+  anomalyResultDAO.createOrUpdate(result);
+}
