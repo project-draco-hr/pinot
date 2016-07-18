@@ -1,16 +1,20 @@
 {
-  JSONObject o=new JSONObject(jsonString);
-  String tableType=o.getString("tableType").toLowerCase();
-  String tableName=new TableNameBuilder(TableType.valueOf(tableType.toUpperCase())).forTable(o.getString("tableName"));
-  SegmentsValidationAndRetentionConfig validationConfig=loadSegmentsConfig(new ObjectMapper().readTree(o.getJSONObject("segmentsConfig").toString()));
-  TenantConfig tenantConfig=loadTenantsConfig(new ObjectMapper().readTree(o.getJSONObject("tenants").toString()));
-  TableCustomConfig customConfig=loadCustomConfig(new ObjectMapper().readTree(o.getJSONObject("metadata").toString()));
-  IndexingConfig indexingConfig=loadIndexingConfig(new ObjectMapper().readTree(o.getJSONObject("tableIndexConfig").toString()));
+  JSONObject tableJson=new JSONObject(jsonString);
+  String tableType=tableJson.getString("tableType").toLowerCase();
+  String tableName=new TableNameBuilder(TableType.valueOf(tableType.toUpperCase())).forTable(tableJson.getString("tableName"));
+  SegmentsValidationAndRetentionConfig validationConfig=loadSegmentsConfig(new ObjectMapper().readTree(tableJson.getJSONObject("segmentsConfig").toString()));
+  TenantConfig tenantConfig=loadTenantsConfig(new ObjectMapper().readTree(tableJson.getJSONObject("tenants").toString()));
+  TableCustomConfig customConfig=loadCustomConfig(new ObjectMapper().readTree(tableJson.getJSONObject("metadata").toString()));
+  IndexingConfig indexingConfig=loadIndexingConfig(new ObjectMapper().readTree(tableJson.getJSONObject("tableIndexConfig").toString()));
+  QuotaConfig quotaConfig=null;
+  if (tableJson.has(QuotaConfig.QUOTA_SECTION_NAME)) {
+    quotaConfig=loadQuotaConfig(new ObjectMapper().readTree(tableJson.getJSONObject(QuotaConfig.QUOTA_SECTION_NAME).toString()));
+  }
   if (tableType.equals("offline")) {
-    return new OfflineTableConfig(tableName,tableType,validationConfig,tenantConfig,customConfig,indexingConfig);
+    return new OfflineTableConfig(tableName,tableType,validationConfig,tenantConfig,customConfig,indexingConfig,quotaConfig);
   }
  else   if (tableType.equals(TABLE_TYPE_REALTIME)) {
-    return new RealtimeTableConfig(tableName,tableType,validationConfig,tenantConfig,customConfig,indexingConfig);
+    return new RealtimeTableConfig(tableName,tableType,validationConfig,tenantConfig,customConfig,indexingConfig,quotaConfig);
   }
   throw new UnsupportedOperationException("unknown tableType : " + tableType);
 }

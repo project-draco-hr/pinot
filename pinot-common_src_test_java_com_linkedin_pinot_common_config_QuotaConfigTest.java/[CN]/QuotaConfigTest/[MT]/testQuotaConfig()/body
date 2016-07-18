@@ -1,0 +1,14 @@
+{
+{
+    String quotaConfigStr="{\"storage\" : \"100g\"}";
+    QuotaConfig quotaConfig=new ObjectMapper().readValue(quotaConfigStr,QuotaConfig.class);
+    Assert.assertEquals(quotaConfig.getStorage(),"100g");
+    Assert.assertEquals(quotaConfig.storageSizeBytes(),100 * 1024 * 1024* 1024L);
+  }
+{
+    String quotaConfigStr="{}";
+    QuotaConfig quotaConfig=new ObjectMapper().readValue(quotaConfigStr,QuotaConfig.class);
+    Assert.assertNull(quotaConfig.getStorage());
+    Assert.assertEquals(quotaConfig.storageSizeBytes(),-1);
+  }
+}

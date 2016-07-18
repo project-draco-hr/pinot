@@ -7,5 +7,9 @@
   str.put("tenants",new JSONObject(simpleFields.get("tenants")));
   str.put("tableIndexConfig",new JSONObject(simpleFields.get("tableIndexConfig")));
   str.put("metadata",new JSONObject(simpleFields.get("metadata")));
+  String quotaConfig=simpleFields.get(QuotaConfig.QUOTA_SECTION_NAME);
+  if (quotaConfig != null) {
+    str.put(QuotaConfig.QUOTA_SECTION_NAME,new JSONObject(quotaConfig));
+  }
   return init(str.toString());
 }
