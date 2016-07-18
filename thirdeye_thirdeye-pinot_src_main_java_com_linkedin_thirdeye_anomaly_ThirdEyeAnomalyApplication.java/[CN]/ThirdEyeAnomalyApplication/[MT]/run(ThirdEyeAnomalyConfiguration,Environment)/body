@@ -4,7 +4,7 @@
   ThirdEyeCacheRegistry.initializeDetectorCaches(config);
   final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
   if (config.isScheduler()) {
-    jobScheduler=new JobScheduler(anomalyJobSpecDAO,anomalyTaskSpecDAO,anomalyFunctionSpecDAO,hibernateBundle.getSessionFactory());
+    jobScheduler=new DetectionJobScheduler(anomalyJobSpecDAO,anomalyTaskSpecDAO,anomalyFunctionSpecDAO,hibernateBundle.getSessionFactory());
   }
   if (config.isWorker()) {
     taskDriver=new TaskDriver(config.getId(),anomalyTaskSpecDAO,anomalyResultDAO,anomalyFunctionRelationDAO,hibernateBundle.getSessionFactory(),anomalyFunctionFactory);

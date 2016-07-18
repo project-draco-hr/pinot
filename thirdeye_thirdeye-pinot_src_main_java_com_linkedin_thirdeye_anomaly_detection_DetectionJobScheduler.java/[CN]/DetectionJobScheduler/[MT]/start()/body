@@ -1,0 +1,18 @@
+{
+  quartzScheduler.start();
+  List<AnomalyFunctionSpec> functionSpecs=readAnomalyFunctionSpecs();
+  for (  AnomalyFunctionSpec anomalyFunctionSpec : functionSpecs) {
+    if (anomalyFunctionSpec.getIsActive()) {
+      jobContext=new JobContext();
+      jobContext.setAnomalyFunctionSpecDAO(anomalyFunctionSpecDAO);
+      jobContext.setAnomalyJobSpecDAO(anomalyJobSpecDAO);
+      jobContext.setAnomalyTaskSpecDAO(anomalyTaskSpecDAO);
+      jobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
+      jobContext.setSessionFactory(sessionFactory);
+      jobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
+      String jobName=String.format("%s_%d",anomalyFunctionSpec.getFunctionName(),anomalyFunctionSpec.getId());
+      jobContext.setJobName(jobName);
+      scheduleJob(jobContext,anomalyFunctionSpec);
+    }
+  }
+}
