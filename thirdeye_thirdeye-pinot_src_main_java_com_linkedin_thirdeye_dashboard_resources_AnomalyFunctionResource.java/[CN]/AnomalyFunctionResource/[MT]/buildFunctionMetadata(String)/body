@@ -1,0 +1,28 @@
+{
+  Properties props=new Properties();
+  InputStream input=null;
+  try {
+    input=new FileInputStream(functionConfigPath);
+    props.load(input);
+  }
+ catch (  IOException e) {
+    LOG.error("Function config not found at {}",functionConfigPath);
+  }
+ finally {
+    IOUtils.closeQuietly(input);
+  }
+  for (  Object key : props.keySet()) {
+    String functionName=key.toString();
+    try {
+      Class<AnomalyFunction> clz=(Class<AnomalyFunction>)Class.forName(props.get(functionName).toString());
+      Method getFunctionProps=clz.getMethod("getPropertyKeys");
+      anomalyFunctionMetadata.put(functionName,getFunctionProps.invoke(null));
+    }
+ catch (    ClassNotFoundException e) {
+      LOG.error("Unknown class for function " + functionName,e);
+    }
+catch (    NoSuchMethodException|InvocationTargetException|IllegalAccessException e) {
+      LOG.error("Unknown method",e);
+    }
+  }
+}
