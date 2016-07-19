@@ -7,15 +7,15 @@
           LOG.info(Thread.currentThread().getId() + " : Finding next task to execute for threadId:{}",Thread.currentThread().getId());
           try {
             AnomalyTaskSpec anomalyTaskSpec=selectAndUpdate();
-            LOG.info(Thread.currentThread().getId() + " : Executing task: {} {}",anomalyTaskSpec.getTaskId(),anomalyTaskSpec.getTaskInfo());
+            LOG.info(Thread.currentThread().getId() + " : Executing task: {} {}",anomalyTaskSpec.getId(),anomalyTaskSpec.getTaskInfo());
             TaskType taskType=anomalyTaskSpec.getTaskType();
             Constructor<?> taskRunnerConstructor=TaskExecutorFactory.getTaskExecutorClassFromTaskType(taskType).getConstructor();
             TaskRunner taskRunner=(TaskRunner)taskRunnerConstructor.newInstance();
             TaskInfo taskInfo=OBJECT_MAPPER.readValue(anomalyTaskSpec.getTaskInfo(),TaskInfo.class);
             LOG.info(Thread.currentThread().getId() + " : Task Info {}",taskInfo);
             List<TaskResult> taskResults=taskRunner.execute(taskInfo,taskContext);
-            LOG.info(Thread.currentThread().getId() + " : DONE Executing task: {}",anomalyTaskSpec.getTaskId());
-            updateStatus(anomalyTaskSpec.getTaskId(),TaskStatus.RUNNING,TaskStatus.COMPLETED);
+            LOG.info(Thread.currentThread().getId() + " : DONE Executing task: {}",anomalyTaskSpec.getId());
+            updateStatus(anomalyTaskSpec.getId(),TaskStatus.RUNNING,TaskStatus.COMPLETED);
           }
  catch (          Exception e) {
             LOG.error("Exception in electing and executing task",e);

@@ -11,8 +11,8 @@
       if (anomalyTasks.size() > 0)       LOG.info(Thread.currentThread().getId() + " : Found {} tasks in waiting state",anomalyTasks.size());
       for (      AnomalyTaskSpec anomalyTaskSpec : anomalyTasks) {
         transaction=session.beginTransaction();
-        LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getTaskId());
-        boolean success=anomalyTaskSpecDAO.updateStatusAndWorkerId(workerId,anomalyTaskSpec.getTaskId(),TaskStatus.WAITING,TaskStatus.RUNNING);
+        LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getId());
+        boolean success=anomalyTaskSpecDAO.updateStatusAndWorkerId(workerId,anomalyTaskSpec.getId(),TaskStatus.WAITING,TaskStatus.RUNNING);
         LOG.info(Thread.currentThread().getId() + " : Task acquired success: {}",success);
         if (success) {
           acquiredTask=anomalyTaskSpec;

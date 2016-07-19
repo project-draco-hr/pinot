@@ -5,7 +5,7 @@
     ManagedSessionContext.bind(session);
     Transaction transaction=session.beginTransaction();
     try {
-      List<TaskInfo> tasks=taskGenerator.createTasks(thirdEyeJobContext,anomalyFunctionSpec);
+      List<TaskInfo> tasks=taskGenerator.createTasks(jobContext,anomalyFunctionSpec);
       for (      TaskInfo taskInfo : tasks) {
         String taskInfoJson=null;
         try {
@@ -15,9 +15,9 @@
           LOG.error("Exception when converting TaskInfo {} to jsonString",taskInfo,e);
         }
         AnomalyTaskSpec anomalyTaskSpec=new AnomalyTaskSpec();
-        anomalyTaskSpec.setJobExecutionId(thirdEyeJobContext.getJobExecutionId());
+        anomalyTaskSpec.setJobId(jobContext.getJobId());
         anomalyTaskSpec.setTaskType(TaskType.ANOMALY_DETECTION);
-        anomalyTaskSpec.setJobName(thirdEyeJobContext.getJobName());
+        anomalyTaskSpec.setJobName(jobContext.getJobName());
         anomalyTaskSpec.setStatus(TaskStatus.WAITING);
         anomalyTaskSpec.setTaskStartTime(System.currentTimeMillis());
         anomalyTaskSpec.setTaskInfo(taskInfoJson);

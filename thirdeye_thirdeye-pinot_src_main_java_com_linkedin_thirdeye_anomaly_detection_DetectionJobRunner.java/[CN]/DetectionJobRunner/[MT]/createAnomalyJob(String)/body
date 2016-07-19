@@ -7,8 +7,8 @@
     try {
       AnomalyJobSpec anomalyJobSpec=new AnomalyJobSpec();
       anomalyJobSpec.setJobName(jobName);
-      anomalyJobSpec.setWindowStartTime(thirdEyeJobContext.getWindowStart().getMillis());
-      anomalyJobSpec.setWindowEndTime(thirdEyeJobContext.getWindowEnd().getMillis());
+      anomalyJobSpec.setWindowStartTime(jobContext.getWindowStart().getMillis());
+      anomalyJobSpec.setWindowEndTime(jobContext.getWindowEnd().getMillis());
       anomalyJobSpec.setScheduleStartTime(System.currentTimeMillis());
       anomalyJobSpec.setStatus(JobStatus.WAITING);
       jobExecutionId=anomalyJobSpecDAO.createOrUpdate(anomalyJobSpec);
