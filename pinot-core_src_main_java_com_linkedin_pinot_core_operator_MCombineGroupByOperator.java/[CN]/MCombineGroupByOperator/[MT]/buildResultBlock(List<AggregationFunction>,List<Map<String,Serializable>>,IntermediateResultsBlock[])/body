@@ -1,5 +1,5 @@
 {
-  IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(aggregationFunctions,trimmedResults,true);
+  IntermediateResultsBlock resultBlock=new IntermediateResultsBlock(aggregationFunctions,null,true);
   List<ProcessingException> exceptions=null;
   long numDocsScanned=0;
   long totalRawDocs=0;
@@ -14,6 +14,9 @@
  else {
         exceptions.addAll(blockExceptions);
       }
+    }
+ else {
+      resultBlock.setAggregationGroupByResult(trimmedResults);
     }
   }
   resultBlock.setNumDocsScanned(numDocsScanned);
