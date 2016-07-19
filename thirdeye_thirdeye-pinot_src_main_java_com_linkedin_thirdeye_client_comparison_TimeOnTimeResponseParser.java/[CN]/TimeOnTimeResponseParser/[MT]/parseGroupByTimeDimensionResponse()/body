@@ -13,8 +13,8 @@
   }
   String dimensionName=baselineResponse.getGroupKeyColumns().get(1);
   List<Row.Builder> otherBuilders=new ArrayList<>();
-  List<double[]> otherBaselineMetrics=new ArrayList<>();
-  List<double[]> otherCurrentMetrics=new ArrayList<>();
+  List<Double[]> otherBaselineMetrics=new ArrayList<>();
+  List<Double[]> otherCurrentMetrics=new ArrayList<>();
   boolean includeOther=false;
   for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
     Range<DateTime> baselineTimeRange=baselineRanges.get(timeBucketId);
@@ -27,10 +27,10 @@
     builder.setDimensionName(dimensionName);
     builder.setDimensionValue(OTHER);
     otherBuilders.add(builder);
-    double[] otherBaseline=new double[numMetrics];
-    Arrays.fill(otherBaseline,0);
-    double[] otherCurrent=new double[numMetrics];
-    Arrays.fill(otherCurrent,0);
+    Double[] otherBaseline=new Double[numMetrics];
+    Arrays.fill(otherBaseline,0.0);
+    Double[] otherCurrent=new Double[numMetrics];
+    Arrays.fill(otherCurrent,0.0);
     otherBaselineMetrics.add(otherBaseline);
     otherCurrentMetrics.add(otherCurrent);
   }
@@ -80,12 +80,15 @@
   if (includeOther) {
     for (int timeBucketId=0; timeBucketId < numTimeBuckets; timeBucketId++) {
       Builder otherBuilder=otherBuilders.get(timeBucketId);
-      double[] otherBaseline=otherBaselineMetrics.get(timeBucketId);
-      double[] otherCurrent=otherCurrentMetrics.get(timeBucketId);
+      Double[] otherBaseline=otherBaselineMetrics.get(timeBucketId);
+      Double[] otherCurrent=otherCurrentMetrics.get(timeBucketId);
       for (int i=0; i < numMetrics; i++) {
         otherBuilder.addMetric(metricFunctions.get(i).getMetricName(),otherBaseline[i],otherCurrent[i]);
       }
-      rows.add(otherBuilder.build());
+      Row row=otherBuilder.build();
+      if (isValidMetric(row,Arrays.asList(otherBaseline),Arrays.asList(otherCurrent),DEFAULT_THRESHOLD_PERCENT_FOR_OTHER)) {
+        rows.add(row);
+      }
     }
   }
 }

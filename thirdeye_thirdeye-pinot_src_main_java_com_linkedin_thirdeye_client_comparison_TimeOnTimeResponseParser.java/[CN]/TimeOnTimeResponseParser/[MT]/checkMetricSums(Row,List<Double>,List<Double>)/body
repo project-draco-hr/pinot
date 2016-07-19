@@ -1,18 +1,4 @@
 {
   List<Metric> metrics=row.getMetrics();
-  for (int i=0; i < metrics.size(); i++) {
-    Metric metric=metrics.get(i);
-    double baselineSum=0;
-    if (baselineMetricSums != null) {
-      baselineSum=baselineMetricSums.get(i);
-    }
-    double currentSum=0;
-    if (currentMetricSums != null) {
-      currentSum=currentMetricSums.get(i);
-    }
-    if (metric.getBaselineValue() > metricThreshold * baselineSum || metric.getCurrentValue() > metricThreshold * currentSum) {
-      return true;
-    }
-  }
-  return false;
+  return isValidMetric(row,baselineMetricSums,currentMetricSums,metricThreshold);
 }

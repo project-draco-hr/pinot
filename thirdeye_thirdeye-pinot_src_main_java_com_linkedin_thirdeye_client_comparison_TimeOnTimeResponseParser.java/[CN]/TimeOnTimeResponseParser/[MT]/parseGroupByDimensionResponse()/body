@@ -14,10 +14,10 @@
   otherBuilder.setCurrentEnd(currentRanges.get(0).upperEndpoint());
   otherBuilder.setDimensionName(dimensionName);
   otherBuilder.setDimensionValue(OTHER);
-  double[] otherBaseline=new double[numMetrics];
-  Arrays.fill(otherBaseline,0);
-  double[] otherCurrent=new double[numMetrics];
-  Arrays.fill(otherCurrent,0);
+  Double[] otherBaseline=new Double[numMetrics];
+  Arrays.fill(otherBaseline,0.0);
+  Double[] otherCurrent=new Double[numMetrics];
+  Arrays.fill(otherCurrent,0.0);
   boolean includeOther=false;
   for (  String dimensionValue : dimensionValues) {
     Row.Builder builder=new Row.Builder();
@@ -49,6 +49,9 @@
     for (int i=0; i < numMetrics; i++) {
       otherBuilder.addMetric(metricFunctions.get(i).getMetricName(),otherBaseline[i],otherCurrent[i]);
     }
-    rows.add(otherBuilder.build());
+    Row row=otherBuilder.build();
+    if (isValidMetric(row,Arrays.asList(otherBaseline),Arrays.asList(otherCurrent),DEFAULT_THRESHOLD_PERCENT_FOR_OTHER)) {
+      rows.add(row);
+    }
   }
 }
