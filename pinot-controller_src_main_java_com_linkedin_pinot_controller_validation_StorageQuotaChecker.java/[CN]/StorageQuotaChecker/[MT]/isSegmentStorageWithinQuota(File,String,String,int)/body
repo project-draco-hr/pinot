@@ -1,0 +1,28 @@
+{
+  Preconditions.checkNotNull(segmentFile);
+  Preconditions.checkNotNull(tableNameWithType);
+  Preconditions.checkNotNull(segmentName);
+  Preconditions.checkArgument(timeoutMsec > 0,"Timeout value must be > 0, input: %s",timeoutMsec);
+  Preconditions.checkArgument(segmentFile.exists(),"Segment file: %s does not exist",segmentFile);
+  Preconditions.checkArgument(segmentFile.isDirectory(),"Segment file: %s is not a directory",segmentFile);
+  QuotaConfig quotaConfig=tableConfig.getQuotaConfig();
+  int numReplicas=tableConfig.getValidationConfig().getReplicationNumber();
+  if (quotaConfig == null) {
+    return new QuotaCheckerResponse(true,"Quota configuration not set for table: " + tableNameWithType);
+  }
+  long allowedStorageBytes=numReplicas * quotaConfig.storageSizeBytes();
+  if (allowedStorageBytes < 0) {
+    return new QuotaCheckerResponse(true,"Storage quota is not configured for table: " + tableNameWithType);
+  }
+  long incomingSegmentSizeBytes=FileUtils.sizeOfDirectory(segmentFile);
+  TableSizeReader.TableSubTypeSizeDetails tableSubtypeSize=tableSizeReader.getTableSubtypeSize(tableNameWithType,timeoutMsec);
+  TableSizeReader.SegmentSizeDetails sizeDetails=tableSubtypeSize.segments.get(segmentName);
+  long existingSegmentSizeBytes=sizeDetails != null ? sizeDetails.estimatedSizeInBytes : 0;
+  long estimatedFinalSizeBytes=tableSubtypeSize.estimatedSizeInBytes - existingSegmentSizeBytes + incomingSegmentSizeBytes;
+  if (estimatedFinalSizeBytes <= allowedStorageBytes) {
+    return new QuotaCheckerResponse(true,String.format("Estimated size: %d bytes is within the configured quota of %d (bytes). Incoming segment size: %d (bytes)",estimatedFinalSizeBytes,allowedStorageBytes,incomingSegmentSizeBytes));
+  }
+ else {
+    return new QuotaCheckerResponse(false,String.format("Estimated size: %d bytes exceeds the configured quota of %d (bytes). Incoming segment size: %d (bytes)",estimatedFinalSizeBytes,allowedStorageBytes,incomingSegmentSizeBytes));
+  }
+}

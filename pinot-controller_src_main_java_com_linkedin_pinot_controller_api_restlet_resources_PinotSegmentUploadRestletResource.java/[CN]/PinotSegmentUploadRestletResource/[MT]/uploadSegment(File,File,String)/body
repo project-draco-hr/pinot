@@ -2,6 +2,14 @@
   final SegmentMetadata metadata=new SegmentMetadataImpl(indexDir);
   final File tableDir=new File(baseDataDir,metadata.getTableName());
   File segmentFile=new File(tableDir,dataFile.getName());
+  StorageQuotaChecker.QuotaCheckerResponse quotaResponse=checkStorageQuota(indexDir,metadata);
+  if (!quotaResponse.isSegmentWithinQuota) {
+    LOGGER.info("Rejecting segment upload for table: {}, segment: {}, reason: {}",metadata.getTableName(),metadata.getName(),quotaResponse.reason);
+    setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+    StringRepresentation repr=new StringRepresentation("{\"error\" : \"" + quotaResponse.reason + "\"}");
+    repr.setMediaType(MediaType.APPLICATION_JSON);
+    return repr;
+  }
   if (segmentFile.exists()) {
     FileUtils.deleteQuietly(segmentFile);
   }

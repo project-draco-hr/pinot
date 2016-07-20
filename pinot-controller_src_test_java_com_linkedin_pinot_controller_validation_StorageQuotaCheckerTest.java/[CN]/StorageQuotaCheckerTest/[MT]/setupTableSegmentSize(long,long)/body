@@ -1,0 +1,13 @@
+{
+  when(tableSizeReader.getTableSubtypeSize("testTable",1000)).thenAnswer(new Answer<TableSizeReader.TableSubTypeSizeDetails>(){
+    @Override public TableSizeReader.TableSubTypeSizeDetails answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      TableSizeReader.TableSubTypeSizeDetails sizeDetails=new TableSizeReader.TableSubTypeSizeDetails();
+      sizeDetails.estimatedSizeInBytes=tableSize;
+      TableSizeReader.SegmentSizeDetails segSizeDetails=new TableSizeReader.SegmentSizeDetails();
+      segSizeDetails.estimatedSizeInBytes=segmentSize;
+      sizeDetails.segments.put("segment1",segSizeDetails);
+      return sizeDetails;
+    }
+  }
+);
+}

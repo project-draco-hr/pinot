@@ -1,0 +1,9 @@
+{
+  tableSizeReader=mock(TableSizeReader.class);
+  tableConfig=mock(AbstractTableConfig.class);
+  quotaConfig=mock(QuotaConfig.class);
+  validationConfig=mock(SegmentsValidationAndRetentionConfig.class);
+  when(tableConfig.getValidationConfig()).thenReturn(validationConfig);
+  when(validationConfig.getReplicationNumber()).thenReturn(2);
+  TEST_DIR.mkdirs();
+}

@@ -7,6 +7,9 @@
   rawMap.put("tenants",new ObjectMapper().writeValueAsString(config.getTenantConfig()));
   rawMap.put("metadata",new ObjectMapper().writeValueAsString(config.getCustomConfigs()));
   rawMap.put("tableIndexConfig",new ObjectMapper().writeValueAsString(config.getIndexingConfig()));
+  if (config.quotaConfig != null) {
+    rawMap.put("quota",new ObjectMapper().writeValueAsString(config.getQuotaConfig()));
+  }
   rec.setSimpleFields(rawMap);
   return rec;
 }

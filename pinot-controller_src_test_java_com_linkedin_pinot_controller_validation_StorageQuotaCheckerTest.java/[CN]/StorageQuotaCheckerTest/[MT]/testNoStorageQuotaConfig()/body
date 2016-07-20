@@ -1,0 +1,7 @@
+{
+  StorageQuotaChecker checker=new StorageQuotaChecker(tableConfig,tableSizeReader);
+  when(tableConfig.getQuotaConfig()).thenReturn(quotaConfig);
+  when(quotaConfig.storageSizeBytes()).thenReturn(-1L);
+  StorageQuotaChecker.QuotaCheckerResponse res=checker.isSegmentStorageWithinQuota(TEST_DIR,"myTable","segment",1000);
+  Assert.assertTrue(res.isSegmentWithinQuota);
+}
