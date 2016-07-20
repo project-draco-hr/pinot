@@ -1,0 +1,22 @@
+{
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(id);
+  if (anomalyFunctionSpec == null) {
+    throw new IllegalArgumentException("No function with id " + id);
+  }
+  if (!anomalyFunctionSpec.getIsActive()) {
+    throw new IllegalStateException("Anomaly function spec with id " + id + " is not active");
+  }
+  String jobKey=getJobKey(anomalyFunctionSpec.getId(),anomalyFunctionSpec.getFunctionName());
+  if (quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
+    throw new IllegalStateException("Anomaly function with id " + id + " is already scheduled");
+  }
+  JobContext jobContext=new JobContext();
+  jobContext.setAnomalyFunctionSpecDAO(anomalyFunctionSpecDAO);
+  jobContext.setAnomalyJobSpecDAO(anomalyJobSpecDAO);
+  jobContext.setAnomalyTaskSpecDAO(anomalyTaskSpecDAO);
+  jobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
+  jobContext.setSessionFactory(sessionFactory);
+  jobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
+  jobContext.setJobName(jobKey);
+  scheduleJob(jobContext,anomalyFunctionSpec);
+}

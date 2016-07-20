@@ -1,0 +1,28 @@
+{
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(id);
+  if (anomalyFunctionSpec == null) {
+    throw new IllegalArgumentException("No function with id " + id);
+  }
+  String triggerKey=String.format("anomaly_adhoc_trigger_%d",anomalyFunctionSpec.getId());
+  Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
+  String jobKey="adhoc_" + getJobKey(anomalyFunctionSpec.getId(),anomalyFunctionSpec.getFunctionName());
+  JobDetail job=JobBuilder.newJob(DetectionJobRunner.class).withIdentity(jobKey).build();
+  JobContext jobContext=new JobContext();
+  jobContext.setAnomalyFunctionSpecDAO(anomalyFunctionSpecDAO);
+  jobContext.setAnomalyJobSpecDAO(anomalyJobSpecDAO);
+  jobContext.setAnomalyTaskSpecDAO(anomalyTaskSpecDAO);
+  jobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
+  jobContext.setSessionFactory(sessionFactory);
+  jobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
+  jobContext.setJobName(jobKey);
+  jobContext.setWindowStartIso(windowStartIso);
+  jobContext.setWindowEndIso(windowEndIso);
+  job.getJobDataMap().put(DetectionJobRunner.DETECTION_JOB_CONTEXT,jobContext);
+  try {
+    quartzScheduler.scheduleJob(job,trigger);
+  }
+ catch (  SchedulerException e) {
+    LOG.error("Exception while scheduling job",e);
+  }
+  LOG.info("Started {}: {}",jobKey,anomalyFunctionSpec);
+}

@@ -1,6 +1,6 @@
 {
   LOG.info("Running " + jobExecutionContext.getJobDetail().getKey().toString());
-  jobContext=(JobContext)jobExecutionContext.getJobDetail().getJobDataMap().get(THIRDEYE_JOB_CONTEXT);
+  jobContext=(JobContext)jobExecutionContext.getJobDetail().getJobDataMap().get(DETECTION_JOB_CONTEXT);
   sessionFactory=jobContext.getSessionFactory();
   anomalyJobSpecDAO=jobContext.getAnomalyJobSpecDAO();
   anomalyTasksSpecDAO=jobContext.getAnomalyTaskSpecDAO();
@@ -33,6 +33,6 @@
   jobContext.setWindowStart(windowStart);
   jobContext.setWindowEnd(windowEnd);
   Long jobExecutionId=createAnomalyJob(jobName);
-  jobContext.setJobId(jobExecutionId);
+  jobContext.setJobExecutionId(jobExecutionId);
   List<Long> taskIds=createAnomalyTasks(anomalyFunctionSpec);
 }

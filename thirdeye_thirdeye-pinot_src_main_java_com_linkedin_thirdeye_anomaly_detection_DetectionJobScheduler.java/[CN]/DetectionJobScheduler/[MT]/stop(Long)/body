@@ -1,0 +1,10 @@
+{
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(id);
+  String functionName=anomalyFunctionSpec.getFunctionName();
+  String jobKey=getJobKey(id,functionName);
+  if (!quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
+    throw new IllegalStateException("Cannot stop anomaly function with id " + id + ", it has not been scheduled");
+  }
+  quartzScheduler.deleteJob(JobKey.jobKey(jobKey));
+  LOG.info("Stopped function {}",id);
+}

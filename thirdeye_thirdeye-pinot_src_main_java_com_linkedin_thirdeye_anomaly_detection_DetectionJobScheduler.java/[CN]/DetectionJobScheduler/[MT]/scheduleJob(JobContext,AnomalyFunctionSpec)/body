@@ -1,9 +1,9 @@
 {
   String triggerKey=String.format("anomaly_scheduler_trigger_%d",anomalyFunctionSpec.getId());
   CronTrigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(CronScheduleBuilder.cronSchedule(anomalyFunctionSpec.getCron())).build();
-  String jobKey=String.format("%s_%d",anomalyFunctionSpec.getFunctionName(),anomalyFunctionSpec.getId());
-  JobDetail job=JobBuilder.newJob(DetectionJobRunner.class).withIdentity(jobContext.getJobName()).build();
-  job.getJobDataMap().put(DetectionJobRunner.THIRDEYE_JOB_CONTEXT,jobContext);
+  String jobKey=jobContext.getJobName();
+  JobDetail job=JobBuilder.newJob(DetectionJobRunner.class).withIdentity(jobKey).build();
+  job.getJobDataMap().put(DetectionJobRunner.DETECTION_JOB_CONTEXT,jobContext);
   try {
     quartzScheduler.scheduleJob(job,trigger);
   }
