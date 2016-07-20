@@ -1,0 +1,26 @@
+{
+  MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(false);
+  final String topic="someTopic";
+  final String rtTableName="table_REALTIME";
+  List<String> instances=getInstanceList(nInstances);
+  final long startOffset=7L;
+  Set<Integer> partitionSet=new HashSet<>(nPartitions);
+  for (int i=0; i < nPartitions; i++) {
+    partitionSet.add(i);
+  }
+  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset);
+  Map<String,List<String>> assignmentMap=segmentManager._partitionAssignment.getListFields();
+  Assert.assertEquals(assignmentMap.size(),nPartitions);
+  for (  Map.Entry<String,List<String>> entry : assignmentMap.entrySet()) {
+    int p=Integer.valueOf(entry.getKey());
+    Assert.assertTrue(partitionSet.contains(p));
+    partitionSet.remove(p);
+    Assert.assertEquals(entry.getValue().size(),nReplicas,"Mismatch for partition " + p);
+    Set allServers=new HashSet(instances);
+    for (    String server : entry.getValue()) {
+      Assert.assertTrue(allServers.contains(server));
+      allServers.remove(server);
+    }
+  }
+  Assert.assertTrue(partitionSet.isEmpty());
+}
