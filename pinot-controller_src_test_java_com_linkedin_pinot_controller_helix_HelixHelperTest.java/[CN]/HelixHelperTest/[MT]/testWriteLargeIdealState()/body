@@ -1,0 +1,23 @@
+{
+  final int segmentCount=20000;
+  PinotHelixResourceManager resourceManager=_controller.getHelixResourceManager();
+  final IdealState idealState=new IdealState(RESOURCE_NAME);
+  idealState.setStateModelDefRef("OnlineOffline");
+  idealState.setRebalanceMode(IdealState.RebalanceMode.CUSTOMIZED);
+  idealState.setReplicas("0");
+  resourceManager.getHelixAdmin().addResource(CLUSTER_NAME,RESOURCE_NAME,idealState);
+  HelixHelper.updateIdealState(resourceManager.getHelixZkManager(),RESOURCE_NAME,new Function<IdealState,IdealState>(){
+    @Override public IdealState apply(    @Nullable IdealState idealState){
+      for (int i=0; i < segmentCount; ++i) {
+        idealState.setPartitionState("segment_" + i,INSTANCE_NAME,"ONLINE");
+      }
+      return idealState;
+    }
+  }
+,RetryPolicies.noDelayRetryPolicy(1));
+  Uninterruptibles.sleepUninterruptibly(1,TimeUnit.SECONDS);
+  final IdealState resourceIdealState=resourceManager.getHelixAdmin().getResourceIdealState(CLUSTER_NAME,RESOURCE_NAME);
+  for (int i=0; i < segmentCount; ++i) {
+    assertEquals(resourceIdealState.getInstanceStateMap("segment_" + i).get(INSTANCE_NAME),"ONLINE");
+  }
+}
