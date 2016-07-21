@@ -40,7 +40,7 @@
     cron=ThirdEyeUtils.constructCron(scheduleMinute,scheduleHour,TimeUnit.valueOf(repeatEvery));
   }
   anomalyFunctionSpec.setCron(cron);
-  Long id=anomalyFunctionSpecDAO.createOrUpdate(anomalyFunctionSpec);
+  Long id=anomalyFunctionSpecDAO.save(anomalyFunctionSpec);
   if (isActive) {
     detectorHttpUtils.enableAnomalyFunction(String.valueOf(id));
   }

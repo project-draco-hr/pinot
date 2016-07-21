@@ -11,7 +11,7 @@
       anomalyJobSpec.setWindowEndTime(jobContext.getWindowEnd().getMillis());
       anomalyJobSpec.setScheduleStartTime(System.currentTimeMillis());
       anomalyJobSpec.setStatus(JobStatus.WAITING);
-      jobExecutionId=anomalyJobSpecDAO.createOrUpdate(anomalyJobSpec);
+      jobExecutionId=anomalyJobSpecDAO.save(anomalyJobSpec);
       if (!transaction.wasCommitted()) {
         transaction.commit();
       }
