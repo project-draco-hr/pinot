@@ -1,0 +1,14 @@
+{
+  if (create) {
+    addLLCRealtimeSegmentsInIdealState(idealState,idealStateEntries);
+    _helixAdmin.addResource(_clusterName,realtimeTableName,idealState);
+  }
+ else {
+    HelixHelper.updateIdealState(_helixManager,realtimeTableName,new Function<IdealState,IdealState>(){
+      @Override public IdealState apply(      IdealState idealState){
+        return addLLCRealtimeSegmentsInIdealState(idealState,idealStateEntries);
+      }
+    }
+,RetryPolicies.exponentialBackoffRetryPolicy(5,500L,2.0f));
+  }
+}

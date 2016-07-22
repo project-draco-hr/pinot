@@ -1,0 +1,17 @@
+{
+  String realtimeServerTenant=ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(realtimeTableConfig.getTenantConfig().getServer());
+  final List<String> realtimeInstances=helixAdmin.getInstancesInClusterWithTag(helixClusterName,realtimeServerTenant);
+  boolean create=false;
+  if (idealState == null) {
+    idealState=buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName);
+    create=true;
+  }
+  LOGGER.info("Assigning partitions to instances for simple consumer for table {}",realtimeTableName);
+  final int nReplicas=Integer.valueOf(realtimeTableConfig.getValidationConfig().getReplicasPerPartition());
+  final KafkaStreamMetadata kafkaMetadata=new KafkaStreamMetadata(realtimeTableConfig.getIndexingConfig().getStreamConfigs());
+  final String topicName=kafkaMetadata.getKafkaTopicName();
+  final PinotLLCRealtimeSegmentManager segmentManager=PinotLLCRealtimeSegmentManager.getInstance();
+  final int nPartitions=getPartitionsCount(kafkaMetadata);
+  final long startOffset=0L;
+  segmentManager.setupHelixEntries(topicName,realtimeTableName,nPartitions,realtimeInstances,nReplicas,0L,idealState,create);
+}

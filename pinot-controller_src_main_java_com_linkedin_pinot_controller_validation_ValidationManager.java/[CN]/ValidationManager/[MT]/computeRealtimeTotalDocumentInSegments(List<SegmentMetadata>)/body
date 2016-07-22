@@ -3,7 +3,11 @@
   String groupId="";
   for (  SegmentMetadata segmentMetadata : segmentMetadataList) {
     String segmentName=segmentMetadata.getName();
-    String segmentGroupIdName=SegmentNameBuilder.Realtime.extractGroupIdName(segmentName);
+    if (!SegmentName.isHighLevelConsumerSegmentName(segmentName)) {
+      continue;
+    }
+    HLCSegmentName hlcSegmentName=new HLCSegmentName(segmentName);
+    String segmentGroupIdName=hlcSegmentName.getGroupId();
     if (groupId.isEmpty()) {
       groupId=segmentGroupIdName;
     }

@@ -1,7 +1,15 @@
 {
   Map<String,IdealState> idealStateMap=new HashMap<String,IdealState>();
   for (  String resource : _pinotHelixResourceManager.getAllRealtimeTables()) {
-    idealStateMap.put(resource,_pinotHelixResourceManager.getHelixAdmin().getResourceIdealState(_pinotHelixResourceManager.getHelixClusterName(),resource));
+    final String tableName=TableNameBuilder.extractRawTableName(resource);
+    AbstractTableConfig tableConfig=_pinotHelixResourceManager.getTableConfig(tableName,TableType.REALTIME);
+    KafkaStreamMetadata metadata=new KafkaStreamMetadata(tableConfig.getIndexingConfig().getStreamConfigs());
+    if (metadata.hasHighLevelKafkaConsumerType()) {
+      idealStateMap.put(resource,_pinotHelixResourceManager.getHelixAdmin().getResourceIdealState(_pinotHelixResourceManager.getHelixClusterName(),resource));
+    }
+ else {
+      LOGGER.debug("Not considering table {} for realtime segment assignment");
+    }
   }
   List<Pair<String,String>> listOfSegmentsToAddToInstances=new ArrayList<Pair<String,String>>();
   for (  String resource : idealStateMap.keySet()) {
@@ -44,10 +52,12 @@
           _controllerMetrics.addMeteredGlobalValue(ControllerMeter.CONTROLLER_REALTIME_TABLE_SEGMENT_ASSIGNMENT_ERROR,1L);
         }
         for (        String partition : state.getPartitionSet()) {
-          HLCSegmentName segName=new HLCSegmentName(partition);
-          RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),segName.getTableName(),partition);
-          if (realtimeSegmentZKMetadata.getStatus() == Status.IN_PROGRESS) {
-            instancesToAssignRealtimeSegment.removeAll(state.getInstanceSet(partition));
+          if (SegmentName.isHighLevelConsumerSegmentName(partition)) {
+            HLCSegmentName segName=new HLCSegmentName(partition);
+            RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),segName.getTableName(),partition);
+            if (realtimeSegmentZKMetadata.getStatus() == Status.IN_PROGRESS) {
+              instancesToAssignRealtimeSegment.removeAll(state.getInstanceSet(partition));
+            }
           }
         }
         for (        String instanceId : instancesToAssignRealtimeSegment) {

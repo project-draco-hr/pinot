@@ -1,0 +1,10 @@
+{
+  String realtimeServerTenant=ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(realtimeTableConfig.getTenantConfig().getServer());
+  final List<String> realtimeInstances=helixAdmin.getInstancesInClusterWithTag(helixClusterName,realtimeServerTenant);
+  IdealState idealState=buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName);
+  if (realtimeInstances.size() % Integer.parseInt(realtimeTableConfig.getValidationConfig().getReplication()) != 0) {
+    throw new RuntimeException("Number of instance in current tenant should be an integer multiples of the number of replications");
+  }
+  setupInstanceConfigForKafkaHighLevelConsumer(realtimeTableName,realtimeInstances.size(),Integer.parseInt(realtimeTableConfig.getValidationConfig().getReplication()),realtimeTableConfig.getIndexingConfig().getStreamConfigs(),zkHelixPropertyStore,realtimeInstances);
+  return idealState;
+}

@@ -1,0 +1,22 @@
+{
+  LLCSegmentName existingSegmentName=new LLCSegmentName("someTable",1,31,12355L);
+  String[] existingSegs={existingSegmentName.getSegmentName()};
+  MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(true,Arrays.asList(existingSegs));
+  final String topic="someTopic";
+  final String rtTableName="table_REALTIME";
+  List<String> instances=getInstanceList(3);
+  final long startOffset=81L;
+  IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(rtTableName);
+  try {
+    segmentManager.setupHelixEntries(topic,rtTableName,8,instances,3,startOffset,idealState,false);
+    Assert.fail("Did not get expected exception when setting up helix with existing segments in propertystore");
+  }
+ catch (  RuntimeException e) {
+  }
+  try {
+    segmentManager.setupHelixEntries(topic,rtTableName,8,instances,3,startOffset,idealState,true);
+    Assert.fail("Did not get expected exception when setting up helix with existing segments in propertystore");
+  }
+ catch (  RuntimeException e) {
+  }
+}

@@ -5,6 +5,9 @@
   for (  String part : parts) {
     _consumerTypes.add(ConsumerType.valueOf(part));
   }
+  if (_consumerTypes.isEmpty()) {
+    throw new RuntimeException("Empty consumer types: Must have 'highLevel' or 'simple'");
+  }
   Collections.sort(_consumerTypes);
   _kafkaTopicName=streamConfigMap.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM_PREFIX,CommonConstants.Helix.DataSource.Realtime.Kafka.TOPIC_NAME));
   _decoderClass=streamConfigMap.get(StringUtil.join(".",CommonConstants.Helix.DataSource.STREAM_PREFIX,CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_CLASS));

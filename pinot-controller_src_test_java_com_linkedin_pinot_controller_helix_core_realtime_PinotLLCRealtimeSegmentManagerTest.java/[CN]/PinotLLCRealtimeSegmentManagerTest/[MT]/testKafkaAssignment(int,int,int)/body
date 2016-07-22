@@ -1,5 +1,5 @@
 {
-  MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(false);
+  MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(false,null);
   final String topic="someTopic";
   final String rtTableName="table_REALTIME";
   List<String> instances=getInstanceList(nInstances);
@@ -8,7 +8,7 @@
   for (int i=0; i < nPartitions; i++) {
     partitionSet.add(i);
   }
-  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset);
+  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,null,false);
   Map<String,List<String>> assignmentMap=segmentManager._partitionAssignment.getListFields();
   Assert.assertEquals(assignmentMap.size(),nPartitions);
   for (  Map.Entry<String,List<String>> entry : assignmentMap.entrySet()) {
