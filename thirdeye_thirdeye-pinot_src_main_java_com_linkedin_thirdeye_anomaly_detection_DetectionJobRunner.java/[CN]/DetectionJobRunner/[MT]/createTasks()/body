@@ -1,0 +1,35 @@
+{
+  Session session=sessionFactory.openSession();
+  List<Long> taskIds=new ArrayList<>();
+  try {
+    ManagedSessionContext.bind(session);
+    List<DetectionTaskInfo> tasks=taskGenerator.createDetectionTasks(detectionJobContext);
+    for (    DetectionTaskInfo taskInfo : tasks) {
+      String taskInfoJson=null;
+      try {
+        taskInfoJson=OBJECT_MAPPER.writeValueAsString(taskInfo);
+      }
+ catch (      JsonProcessingException e) {
+        LOG.error("Exception when converting DetectionTaskInfo {} to jsonString",taskInfo,e);
+      }
+      AnomalyTaskSpec anomalyTaskSpec=new AnomalyTaskSpec();
+      anomalyTaskSpec.setJobId(detectionJobContext.getJobExecutionId());
+      anomalyTaskSpec.setTaskType(TaskType.ANOMALY_DETECTION);
+      anomalyTaskSpec.setJobName(detectionJobContext.getJobName());
+      anomalyTaskSpec.setStatus(TaskStatus.WAITING);
+      anomalyTaskSpec.setTaskStartTime(System.currentTimeMillis());
+      anomalyTaskSpec.setTaskInfo(taskInfoJson);
+      long taskId=anomalyTasksSpecDAO.save(anomalyTaskSpec);
+      taskIds.add(taskId);
+      LOG.info("Created anomalyTask {} with taskId {}",anomalyTaskSpec,taskId);
+    }
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in creating detection tasks",e);
+  }
+ finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+  return taskIds;
+}

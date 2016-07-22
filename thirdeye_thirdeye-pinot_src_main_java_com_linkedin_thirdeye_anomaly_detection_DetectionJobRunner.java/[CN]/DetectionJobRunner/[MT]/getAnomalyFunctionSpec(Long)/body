@@ -3,19 +3,12 @@
   AnomalyFunctionSpec anomalyFunctionSpec=null;
   try {
     ManagedSessionContext.bind(session);
-    Transaction transaction=session.beginTransaction();
-    try {
-      anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(anomalyFunctionId);
-      if (!transaction.wasCommitted()) {
-        transaction.commit();
-      }
-    }
- catch (    Exception e) {
-      transaction.rollback();
-      throw new RuntimeException(e);
-    }
+    anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(anomalyFunctionId);
   }
-  finally {
+ catch (  Exception e) {
+    LOG.error("Exception in getting anomalyFunctionSpec by id",e);
+  }
+ finally {
     session.close();
     ManagedSessionContext.unbind(sessionFactory);
   }

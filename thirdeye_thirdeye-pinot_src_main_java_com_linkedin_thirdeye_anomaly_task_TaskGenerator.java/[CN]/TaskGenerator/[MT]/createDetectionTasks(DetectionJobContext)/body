@@ -1,0 +1,20 @@
+{
+  List<DetectionTaskInfo> tasks=new ArrayList<>();
+  AnomalyFunctionSpec anomalyFunctionSpec=detectionJobContext.getAnomalyFunctionSpec();
+  DateTime windowStart=detectionJobContext.getWindowStart();
+  DateTime windowEnd=detectionJobContext.getWindowEnd();
+  long jobExecutionId=detectionJobContext.getJobExecutionId();
+  String exploreDimensionsString=anomalyFunctionSpec.getExploreDimensions();
+  if (StringUtils.isBlank(exploreDimensionsString)) {
+    DetectionTaskInfo taskInfo=new DetectionTaskInfo(jobExecutionId,windowStart,windowEnd,anomalyFunctionSpec,null);
+    tasks.add(taskInfo);
+  }
+ else {
+    List<String> exploreDimensions=Arrays.asList(exploreDimensionsString.split(","));
+    for (    String exploreDimension : exploreDimensions) {
+      DetectionTaskInfo taskInfo=new DetectionTaskInfo(jobExecutionId,windowStart,windowEnd,anomalyFunctionSpec,exploreDimension);
+      tasks.add(taskInfo);
+    }
+  }
+  return tasks;
+}

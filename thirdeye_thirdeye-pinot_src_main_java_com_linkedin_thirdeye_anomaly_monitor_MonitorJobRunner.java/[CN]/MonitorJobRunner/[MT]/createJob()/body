@@ -1,0 +1,22 @@
+{
+  Session session=sessionFactory.openSession();
+  Long jobExecutionId=null;
+  try {
+    ManagedSessionContext.bind(session);
+    LOG.info("Creating monitor job");
+    AnomalyJobSpec anomalyJobSpec=new AnomalyJobSpec();
+    anomalyJobSpec.setJobName(monitorJobContext.getJobName());
+    anomalyJobSpec.setScheduleStartTime(System.currentTimeMillis());
+    anomalyJobSpec.setStatus(JobStatus.SCHEDULED);
+    jobExecutionId=anomalyJobSpecDAO.save(anomalyJobSpec);
+    LOG.info("Created anomalyJobSpec {} with jobExecutionId {}",anomalyJobSpec,jobExecutionId);
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in creating monitor job",e);
+  }
+ finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+  return jobExecutionId;
+}

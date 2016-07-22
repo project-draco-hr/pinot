@@ -1,15 +1,15 @@
 {
   LOG.info("Running " + jobExecutionContext.getJobDetail().getKey().toString());
-  jobContext=(JobContext)jobExecutionContext.getJobDetail().getJobDataMap().get(DETECTION_JOB_CONTEXT);
-  sessionFactory=jobContext.getSessionFactory();
-  anomalyJobSpecDAO=jobContext.getAnomalyJobSpecDAO();
-  anomalyTasksSpecDAO=jobContext.getAnomalyTaskSpecDAO();
-  anomalyFunctionSpecDAO=jobContext.getAnomalyFunctionSpecDAO();
-  anomalyFunctionId=jobContext.getAnomalyFunctionId();
-  jobName=jobContext.getJobName();
+  detectionJobContext=(DetectionJobContext)jobExecutionContext.getJobDetail().getJobDataMap().get(DETECTION_JOB_CONTEXT);
+  sessionFactory=detectionJobContext.getSessionFactory();
+  anomalyJobSpecDAO=detectionJobContext.getAnomalyJobSpecDAO();
+  anomalyTasksSpecDAO=detectionJobContext.getAnomalyTaskSpecDAO();
+  anomalyFunctionSpecDAO=detectionJobContext.getAnomalyFunctionSpecDAO();
+  anomalyFunctionId=detectionJobContext.getAnomalyFunctionId();
   AnomalyFunctionSpec anomalyFunctionSpec=getAnomalyFunctionSpec(anomalyFunctionId);
-  String windowEndProp=jobContext.getWindowEndIso();
-  String windowStartProp=jobContext.getWindowStartIso();
+  detectionJobContext.setAnomalyFunctionSpec(anomalyFunctionSpec);
+  String windowEndProp=detectionJobContext.getWindowEndIso();
+  String windowStartProp=detectionJobContext.getWindowStartIso();
   if (windowEndProp == null) {
     long delayMillis=0;
     if (anomalyFunctionSpec.getWindowDelay() != null) {
@@ -30,9 +30,9 @@
  else {
     windowStart=ISODateTimeFormat.dateTimeParser().parseDateTime(windowStartProp);
   }
-  jobContext.setWindowStart(windowStart);
-  jobContext.setWindowEnd(windowEnd);
-  Long jobExecutionId=createAnomalyJob(jobName);
-  jobContext.setJobExecutionId(jobExecutionId);
-  List<Long> taskIds=createAnomalyTasks(anomalyFunctionSpec);
+  detectionJobContext.setWindowStart(windowStart);
+  detectionJobContext.setWindowEnd(windowEnd);
+  Long jobExecutionId=createJob();
+  detectionJobContext.setJobExecutionId(jobExecutionId);
+  List<Long> taskIds=createTasks();
 }

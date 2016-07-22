@@ -1,0 +1,23 @@
+{
+  TaskInfo taskInfo=null;
+  try {
+switch (taskType) {
+case ANOMALY_DETECTION:
+      taskInfo=OBJECT_MAPPER.readValue(taskInfoString,DetectionTaskInfo.class);
+    break;
+case MERGE:
+  break;
+case MONITOR:
+taskInfo=OBJECT_MAPPER.readValue(taskInfoString,MonitorTaskInfo.class);
+break;
+case REPORTER:
+break;
+default :
+break;
+}
+}
+ catch (Exception e) {
+LOG.error("Exception in converting taskInfoString {} to taskType {}",taskInfoString,taskType,e);
+}
+return taskInfo;
+}

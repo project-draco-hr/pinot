@@ -1,0 +1,10 @@
+{
+  LOG.info("Starting monitor service");
+  monitorJobContext=new MonitorJobContext();
+  monitorJobContext.setAnomalyJobSpecDAO(anomalyJobSpecDAO);
+  monitorJobContext.setAnomalyTaskSpecDAO(anomalyTaskSpecDAO);
+  monitorJobContext.setSessionFactory(sessionFactory);
+  monitorJobContext.setMonitorConfiguration(monitorConfiguration);
+  monitorJobRunner=new MonitorJobRunner(monitorJobContext);
+  scheduledExecutorService.scheduleWithFixedDelay(monitorJobRunner,0,monitorConfiguration.getMonitorFrequencyHours(),TimeUnit.HOURS);
+}

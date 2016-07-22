@@ -1,11 +1,3 @@
 {
-  List<AnomalyTaskSpec> anomalyTasks=dao.findAll();
-  AnomalyTaskSpec anomalyTaskSpec=anomalyTasks.get(0);
-  String taskInfoString=anomalyTaskSpec.getTaskInfo();
-  try {
-    TaskInfo taskInfo=OBJECT_MAPPER.readValue(taskInfoString,TaskInfo.class);
-  }
- catch (  Exception e) {
-    LOG.error("Exception",e);
-  }
+  dao.deleteRecordsOlderThanDaysWithStatus(7,TaskStatus.COMPLETED);
 }

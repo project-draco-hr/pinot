@@ -1,0 +1,16 @@
+{
+  List<MonitorTaskInfo> tasks=new ArrayList<>();
+  List<AnomalyJobSpec> anomalyJobSpecs=monitorJobContext.getAnomalyJobSpecs();
+  for (  AnomalyJobSpec anomalyJobSpec : anomalyJobSpecs) {
+    MonitorTaskInfo updateTaskInfo=new MonitorTaskInfo();
+    updateTaskInfo.setJobExecutionId(anomalyJobSpec.getId());
+    updateTaskInfo.setMonitorType(MonitorType.UPDATE);
+    tasks.add(updateTaskInfo);
+  }
+  MonitorConfiguration monitorConfiguration=monitorJobContext.getMonitorConfiguration();
+  MonitorTaskInfo expireTaskInfo=new MonitorTaskInfo();
+  expireTaskInfo.setMonitorType(MonitorType.EXPIRE);
+  expireTaskInfo.setExpireDaysAgo(monitorConfiguration.getExpireDaysAgo());
+  tasks.add(expireTaskInfo);
+  return tasks;
+}

@@ -1,0 +1,17 @@
+{
+  anomalyJobSpecDAO=taskContext.getAnomalyJobSpecDAO();
+  anomalyTaskSpecDAO=taskContext.getAnomalyTaskSpecDAO();
+  sessionFactory=taskContext.getSessionFactory();
+  MonitorTaskInfo monitorTaskInfo=(MonitorTaskInfo)taskInfo;
+  MonitorType monitorType=monitorTaskInfo.getMonitorType();
+  if (monitorType.equals(MonitorType.UPDATE)) {
+    executeMonitorUpdate(monitorTaskInfo);
+  }
+ else   if (monitorType.equals(MonitorType.EXPIRE)) {
+    executeMonitorExpire(monitorTaskInfo);
+  }
+ else {
+    throw new UnsupportedOperationException("Monitor task must be of type UPDATE/EXPIRE, found " + monitorType);
+  }
+  return null;
+}

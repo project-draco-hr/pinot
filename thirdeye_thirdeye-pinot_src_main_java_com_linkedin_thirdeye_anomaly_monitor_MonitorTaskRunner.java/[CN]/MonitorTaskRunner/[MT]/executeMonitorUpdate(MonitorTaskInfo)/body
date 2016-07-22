@@ -1,0 +1,20 @@
+{
+  LOG.info("Execute monitor udpate {}",monitorTaskInfo);
+  Session session=sessionFactory.openSession();
+  try {
+    ManagedSessionContext.bind(session);
+    Long jobExecutionId=monitorTaskInfo.getJobExecutionId();
+    List<AnomalyTaskSpec> anomalyTaskSpecs=anomalyTaskSpecDAO.findByJobIdAndStatusNotIn(jobExecutionId,TaskStatus.COMPLETED);
+    if (anomalyTaskSpecs.isEmpty()) {
+      anomalyJobSpecDAO.updateStatusAndJobEndTime(jobExecutionId,JobStatus.COMPLETED,System.currentTimeMillis());
+      LOG.info("COMPLETED anomaly job {}",jobExecutionId);
+    }
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in monitor update task",e);
+  }
+ finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+}

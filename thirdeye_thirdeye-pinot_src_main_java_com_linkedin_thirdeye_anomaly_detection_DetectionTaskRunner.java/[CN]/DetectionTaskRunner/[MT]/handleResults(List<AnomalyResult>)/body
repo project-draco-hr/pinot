@@ -1,0 +1,25 @@
+{
+  Session session=sessionFactory.openSession();
+  try {
+    ManagedSessionContext.bind(session);
+    for (    AnomalyResult result : results) {
+      AnomalyFunctionSpec spec=anomalyFunction.getSpec();
+      result.setFunctionId(spec.getId());
+      result.setFunctionType(spec.getType());
+      result.setFunctionProperties(spec.getProperties());
+      result.setCollection(spec.getCollection());
+      result.setMetric(spec.getMetric());
+      result.setFilters(spec.getFilters());
+      result.setScore(normalize(result.getScore()));
+      result.setWeight(normalize(result.getWeight()));
+      resultDAO.save(result);
+    }
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in saving anomaly results",e);
+  }
+ finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+}

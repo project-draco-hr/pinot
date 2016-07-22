@@ -1,0 +1,16 @@
+{
+  LOG.info(Thread.currentThread().getId() + " : Starting updateStatus {}",Thread.currentThread().getId());
+  Session session=sessionFactory.openSession();
+  ManagedSessionContext.bind(session);
+  try {
+    boolean updateStatus=anomalyTaskSpecDAO.updateStatusAndTaskEndTime(taskId,oldStatus,newStatus,System.currentTimeMillis());
+    LOG.info(Thread.currentThread().getId() + " : update status {}",updateStatus);
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in updating status and task end time",e);
+  }
+ finally {
+    session.close();
+    ManagedSessionContext.unbind(sessionFactory);
+  }
+}

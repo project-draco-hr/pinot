@@ -7,7 +7,10 @@
     detectionJobScheduler=new DetectionJobScheduler(anomalyJobSpecDAO,anomalyTaskSpecDAO,anomalyFunctionSpecDAO,hibernateBundle.getSessionFactory());
   }
   if (config.isWorker()) {
-    taskDriver=new TaskDriver(config.getId(),anomalyTaskSpecDAO,anomalyResultDAO,anomalyFunctionRelationDAO,hibernateBundle.getSessionFactory(),anomalyFunctionFactory);
+    taskDriver=new TaskDriver(config.getId(),anomalyJobSpecDAO,anomalyTaskSpecDAO,anomalyResultDAO,anomalyFunctionRelationDAO,hibernateBundle.getSessionFactory(),anomalyFunctionFactory);
+  }
+  if (config.isMonitor()) {
+    monitorJobScheduler=new MonitorJobScheduler(anomalyJobSpecDAO,anomalyTaskSpecDAO,hibernateBundle.getSessionFactory(),config.getMonitorConfiguration());
   }
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
@@ -20,6 +23,9 @@
             detectionJobScheduler.start();
             environment.jersey().register(new DetectionJobResource(detectionJobScheduler,anomalyFunctionSpecDAO));
           }
+          if (config.isMonitor()) {
+            monitorJobScheduler.start();
+          }
           return null;
         }
       }
@@ -31,6 +37,9 @@
       }
       if (config.isScheduler()) {
         detectionJobScheduler.stop();
+      }
+      if (config.isMonitor()) {
+        monitorJobScheduler.stop();
       }
     }
   }
