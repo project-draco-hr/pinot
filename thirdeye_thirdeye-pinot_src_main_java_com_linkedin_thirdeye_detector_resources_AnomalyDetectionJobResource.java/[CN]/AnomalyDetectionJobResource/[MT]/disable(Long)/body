@@ -1,5 +1,7 @@
 {
-  specDAO.toggleActive(id,false);
+  AnomalyFunctionSpec function=specDAO.findById(id);
+  function.setIsActive(false);
+  specDAO.save(function);
   manager.stop(id);
   return Response.ok().build();
 }

@@ -2,7 +2,7 @@
   if (id == null || StringUtils.isEmpty(dataset) || StringUtils.isEmpty(functionName) || StringUtils.isEmpty(metric) || StringUtils.isEmpty(windowSize) || StringUtils.isEmpty(windowUnit) || StringUtils.isEmpty(windowDelay) || StringUtils.isEmpty(properties)) {
     throw new UnsupportedOperationException("Received null for one of the mandatory params: " + "id " + id + ",dataset "+ dataset+ ", functionName "+ functionName+ ", metric "+ metric+ ", windowSize "+ windowSize+ ", windowUnit "+ windowUnit+ ", windowDelay "+ windowDelay+ ", properties"+ properties);
   }
-  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(id);
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionDAO.findById(id);
   if (anomalyFunctionSpec == null) {
     throw new IllegalStateException("AnomalyFunctionSpec with id " + id + " does not exist");
   }
@@ -38,7 +38,7 @@
     cron=ThirdEyeUtils.constructCron(scheduleMinute,scheduleHour,TimeUnit.valueOf(repeatEvery));
   }
   anomalyFunctionSpec.setCron(cron);
-  Long responseId=anomalyFunctionSpecDAO.save(anomalyFunctionSpec);
+  Long responseId=anomalyFunctionDAO.save(anomalyFunctionSpec);
   if (isActive) {
     detectorHttpUtils.enableAnomalyFunction(String.valueOf(responseId));
   }

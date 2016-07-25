@@ -1,0 +1,8 @@
+{
+  PersistenceConfig configuration=createConfiguration(localConfigFile);
+  Properties properties=createDbPropertiesFromConfiguration(configuration);
+  JpaPersistModule jpaPersistModule=new JpaPersistModule(JPA_UNIT);
+  jpaPersistModule.properties(properties);
+  injector=Guice.createInjector(jpaPersistModule,new PersistenceModule());
+  injector.getInstance(PersistService.class).start();
+}

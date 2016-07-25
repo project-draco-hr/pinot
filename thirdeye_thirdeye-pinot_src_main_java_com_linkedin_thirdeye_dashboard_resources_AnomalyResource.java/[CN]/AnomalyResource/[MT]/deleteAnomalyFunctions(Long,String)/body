@@ -2,13 +2,13 @@
   if (id == null) {
     throw new IllegalArgumentException("id is a required query param");
   }
-  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(id);
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionDAO.findById(id);
   if (anomalyFunctionSpec == null) {
     throw new IllegalStateException("No anomalyFunctionSpec with id " + id);
   }
   if (anomalyFunctionSpec.getIsActive()) {
     detectorHttpUtils.disableAnomalyFunction(String.valueOf(id));
   }
-  anomalyFunctionSpecDAO.delete(anomalyFunctionSpec);
+  anomalyFunctionDAO.delete(anomalyFunctionSpec);
   return Response.noContent().build();
 }

@@ -5,11 +5,8 @@
     input=new FileInputStream(functionConfigPath);
     props.load(input);
   }
- catch (  FileNotFoundException e) {
-    e.printStackTrace();
-  }
-catch (  IOException e) {
-    e.printStackTrace();
+ catch (  IOException e) {
+    LOGGER.error("Error loading the functions from config",e);
   }
  finally {
     IOUtils.closeQuietly(input);

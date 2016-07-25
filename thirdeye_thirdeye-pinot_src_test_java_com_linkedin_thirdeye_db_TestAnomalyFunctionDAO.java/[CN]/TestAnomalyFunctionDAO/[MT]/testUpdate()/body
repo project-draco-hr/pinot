@@ -1,0 +1,9 @@
+{
+  AnomalyFunctionSpec spec=anomalyFunctionDAO.findById(anomalyFunctionId);
+  Assert.assertNotNull(spec);
+  Assert.assertEquals(spec.getMetricFunction(),MetricAggFunction.SUM);
+  spec.setMetricFunction(MetricAggFunction.COUNT);
+  anomalyFunctionDAO.save(spec);
+  AnomalyFunctionSpec specReturned=anomalyFunctionDAO.findById(anomalyFunctionId);
+  Assert.assertEquals(specReturned.getMetricFunction(),MetricAggFunction.COUNT);
+}
