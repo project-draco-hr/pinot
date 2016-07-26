@@ -1,11 +1,12 @@
 {
-  String query;
-  BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile));
-  while ((query=queryReader.readLine()) != null) {
-    if (query.isEmpty() || query.startsWith("#")) {
-      continue;
+  try (BufferedReader queryReader=new BufferedReader(new InputStreamReader(new FileInputStream(_queryFile),"UTF8"))){
+    String query;
+    while ((query=queryReader.readLine()) != null) {
+      if (query.isEmpty() || query.startsWith("#")) {
+        continue;
+      }
+      int clientTime=_clusterStarter.perfQuery(query);
+      LOGGER.info("Client side response time: {} ms",clientTime);
     }
-    int clientTime=_clusterStarter.perfQuery(query);
-    LOGGER.info("Client side response time: {} ms",clientTime);
   }
-}
+ }

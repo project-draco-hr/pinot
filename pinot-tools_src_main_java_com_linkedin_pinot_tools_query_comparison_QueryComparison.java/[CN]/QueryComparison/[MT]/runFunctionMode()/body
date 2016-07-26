@@ -1,12 +1,12 @@
 {
   BufferedReader resultReader=null;
   ScanBasedQueryProcessor scanBasedQueryProcessor=null;
-  try (BufferedReader queryReader=new BufferedReader(new FileReader(_queryFile))){
+  try (BufferedReader queryReader=new BufferedReader(new InputStreamReader(new FileInputStream(_queryFile),"UTF8"))){
     if (_resultFile == null) {
       scanBasedQueryProcessor=new ScanBasedQueryProcessor(_segmentsDir.getAbsolutePath());
     }
  else {
-      resultReader=new BufferedReader(new FileReader(_resultFile));
+      resultReader=new BufferedReader(new InputStreamReader(new FileInputStream(_resultFile),"UTF8"));
     }
     int passed=0;
     int total=0;
