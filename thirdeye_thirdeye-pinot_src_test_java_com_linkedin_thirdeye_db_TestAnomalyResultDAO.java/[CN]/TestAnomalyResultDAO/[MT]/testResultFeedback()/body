@@ -1,0 +1,15 @@
+{
+  AnomalyResult result=anomalyResultDAO.findById(anomalyResultId);
+  Assert.assertNotNull(result);
+  Assert.assertNull(result.getFeedback());
+  AnomalyFeedback feedback=new AnomalyFeedback();
+  feedback.setComment("this is a good find");
+  feedback.setFeedbackType(AnomalyFeedbackType.ANOMALY);
+  feedback.setStatus(FeedbackStatus.NEW);
+  result.setFeedback(feedback);
+  anomalyResultDAO.update(result);
+  AnomalyResult resultRet=anomalyResultDAO.findById(anomalyResultId);
+  Assert.assertEquals(resultRet.getId(),result.getId());
+  Assert.assertNotNull(resultRet.getFeedback());
+  anomalyResultDAO.deleteById(anomalyResultId);
+}
