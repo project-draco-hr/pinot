@@ -2,10 +2,11 @@
   AnomalyFunctionSpec spec=TestAnomalyFunctionDAO.getTestFunctionSpec();
   anomalyFunctionDAO.save(spec);
   Assert.assertNotNull(spec);
-  AnomalyResult result=getAnomalyResult(spec.getId());
+  AnomalyResult result=getAnomalyResult();
   anomalyResultDAO.save(result);
+  result.setFunction(spec);
+  anomalyResultDAO.update(result);
   AnomalyFunctionSpec specRet=anomalyFunctionDAO.findById(spec.getId());
   Assert.assertEquals(specRet.getAnomalies().size(),1);
   anomalyResultDAO.deleteById(result.getId());
-  anomalyFunctionDAO.delete(specRet);
 }

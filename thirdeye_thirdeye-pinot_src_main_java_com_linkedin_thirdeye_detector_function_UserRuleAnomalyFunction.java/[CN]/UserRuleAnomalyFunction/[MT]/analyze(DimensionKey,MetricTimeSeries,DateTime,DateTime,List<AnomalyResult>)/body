@@ -31,10 +31,7 @@
     double baselineValue=timeSeries.get(baselineKey,metric).doubleValue();
     if (isAnomaly(currentValue,baselineValue,changeThreshold)) {
       AnomalyResult anomalyResult=new AnomalyResult();
-      anomalyResult.setCollection(getSpec().getCollection());
-      anomalyResult.setMetric(metric);
       anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
-      anomalyResult.setFunctionId(getSpec().getId());
       anomalyResult.setProperties(getSpec().getProperties());
       anomalyResult.setStartTimeUtc(currentKey);
       anomalyResult.setEndTimeUtc(currentKey + bucketMillis);
@@ -42,7 +39,6 @@
       anomalyResult.setWeight(averageValue);
       String message=getAnomalyResultMessage(changeThreshold,baselineProp,currentValue,baselineValue);
       anomalyResult.setMessage(message);
-      anomalyResult.setFilters(getSpec().getFilters());
       anomalyResults.add(anomalyResult);
       currentValues.add(currentValue);
       baselineValues.add(baselineValue);
