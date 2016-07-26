@@ -1,18 +1,16 @@
 {
   File indexDir=new File("/tmp/dict.test");
-  indexDir.deleteOnExit();
   FieldSpec fieldSpec=new DimensionFieldSpec("test",DataType.STRING,true,"\t");
   String[] inputStrings=new String[2];
   String[] paddedStrings=new String[2];
-  char paddingChar='%';
-  inputStrings[0]="abc def";
-  inputStrings[1]="abc";
+  char paddingChar='\0';
+  inputStrings[0]="";
+  inputStrings[1]="%";
   Arrays.sort(inputStrings);
+  SegmentDictionaryCreator dictionaryCreator=new SegmentDictionaryCreator(false,inputStrings,fieldSpec,indexDir,paddingChar);
   boolean[] isSorted=new boolean[1];
   isSorted[0]=true;
-  SegmentDictionaryCreator dictionaryCreator=new SegmentDictionaryCreator(false,inputStrings,fieldSpec,indexDir,paddingChar);
   dictionaryCreator.build(isSorted);
-  Assert.assertFalse(isSorted[0]);
   int targetPaddedLength=dictionaryCreator.getStringColumnMaxLength();
   for (int i=0; i < inputStrings.length; i++) {
     paddedStrings[i]=SegmentDictionaryCreator.getPaddedString(inputStrings[i],targetPaddedLength,paddingChar);
@@ -23,5 +21,6 @@
     Assert.assertTrue(paddedStrings[paddedIndex].equals(SegmentDictionaryCreator.getPaddedString(inputStrings[i],targetPaddedLength,paddingChar)));
   }
   dictionaryCreator.close();
+  FileUtils.deleteQuietly(indexDir);
   FileUtils.deleteQuietly(indexDir);
 }

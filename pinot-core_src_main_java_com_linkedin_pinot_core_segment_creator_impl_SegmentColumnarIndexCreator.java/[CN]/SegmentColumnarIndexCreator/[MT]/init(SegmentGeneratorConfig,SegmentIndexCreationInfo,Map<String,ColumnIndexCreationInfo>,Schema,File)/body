@@ -19,10 +19,11 @@
   this.totalNulls=segmentIndexCreationInfo.getTotalNulls();
   this.totalConversions=segmentIndexCreationInfo.getTotalConversions();
   this.totalNullCols=segmentIndexCreationInfo.getTotalNullCols();
+  this.paddingCharacter=segmentCreationSpec.getPaddingCharacter();
   for (  final FieldSpec spec : schema.getAllFieldSpecs()) {
     final ColumnIndexCreationInfo info=indexCreationInfoMap.get(spec.getName());
     if (info.isCreateDictionary()) {
-      dictionaryCreatorMap.put(spec.getName(),new SegmentDictionaryCreator(info.hasNulls(),info.getSortedUniqueElementsArray(),spec,file));
+      dictionaryCreatorMap.put(spec.getName(),new SegmentDictionaryCreator(info.hasNulls(),info.getSortedUniqueElementsArray(),spec,file,paddingCharacter));
     }
  else {
       throw new RuntimeException("Creation of indices without dictionaries is not implemented!");

@@ -1,13 +1,15 @@
 {
   File indexDir=new File("/tmp/dict.test");
+  indexDir.deleteOnExit();
   FieldSpec fieldSpec=new DimensionFieldSpec("test",DataType.STRING,true,"\t");
   String[] inputStrings=new String[2];
   String[] paddedStrings=new String[2];
+  char paddingChar='%';
   try {
     inputStrings[0]="";
     inputStrings[1]="%";
     Arrays.sort(inputStrings);
-    SegmentDictionaryCreator dictionaryCreator=new SegmentDictionaryCreator(false,inputStrings,fieldSpec,indexDir);
+    SegmentDictionaryCreator dictionaryCreator=new SegmentDictionaryCreator(false,inputStrings,fieldSpec,indexDir,paddingChar);
     boolean[] isSorted=new boolean[1];
     isSorted[0]=true;
     dictionaryCreator.build(isSorted);
