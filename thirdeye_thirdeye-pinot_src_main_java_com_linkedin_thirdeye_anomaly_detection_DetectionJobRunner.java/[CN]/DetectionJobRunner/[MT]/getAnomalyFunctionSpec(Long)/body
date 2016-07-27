@@ -1,16 +1,10 @@
 {
-  Session session=sessionFactory.openSession();
   AnomalyFunctionSpec anomalyFunctionSpec=null;
   try {
-    ManagedSessionContext.bind(session);
     anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(anomalyFunctionId);
   }
  catch (  Exception e) {
     LOG.error("Exception in getting anomalyFunctionSpec by id",e);
-  }
- finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
   }
   return anomalyFunctionSpec;
 }

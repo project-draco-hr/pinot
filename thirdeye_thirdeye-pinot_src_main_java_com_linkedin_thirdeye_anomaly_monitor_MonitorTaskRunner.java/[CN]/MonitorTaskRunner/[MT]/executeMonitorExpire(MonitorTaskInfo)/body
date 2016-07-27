@@ -1,18 +1,12 @@
 {
   LOG.info("Execute monitor expire {}",monitorTaskInfo);
-  Session session=sessionFactory.openSession();
   try {
-    ManagedSessionContext.bind(session);
     int expireDaysAgo=monitorTaskInfo.getExpireDaysAgo();
-    int numAnomalyJobsDeleted=anomalyJobSpecDAO.deleteRecordsOlderThanDaysWithStatus(expireDaysAgo,JobStatus.COMPLETED);
-    int numAnomalyTasksDeleted=anomalyTaskSpecDAO.deleteRecordsOlderThanDaysWithStatus(expireDaysAgo,TaskStatus.COMPLETED);
+    int numAnomalyJobsDeleted=anomalyJobDAO.deleteRecordsOlderThanDaysWithStatus(expireDaysAgo,JobStatus.COMPLETED);
+    int numAnomalyTasksDeleted=anomalyTaskDAO.deleteRecordsOlderThanDaysWithStatus(expireDaysAgo,TaskStatus.COMPLETED);
     LOG.info("Deleted {} anomaly jobs and {} anomaly tasks",numAnomalyJobsDeleted,numAnomalyTasksDeleted);
   }
  catch (  Exception e) {
     LOG.error("Exception in monitor expire task",e);
-  }
- finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
   }
 }

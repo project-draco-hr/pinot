@@ -1,8 +1,6 @@
 {
-  Session session=sessionFactory.openSession();
   Long jobExecutionId=null;
   try {
-    ManagedSessionContext.bind(session);
     AnomalyJobSpec anomalyJobSpec=new AnomalyJobSpec();
     anomalyJobSpec.setJobName(detectionJobContext.getJobName());
     anomalyJobSpec.setWindowStartTime(detectionJobContext.getWindowStart().getMillis());
@@ -14,10 +12,6 @@
   }
  catch (  Exception e) {
     LOG.error("Exception in creating detection job",e);
-  }
- finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
   }
   return jobExecutionId;
 }

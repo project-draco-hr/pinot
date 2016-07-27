@@ -1,0 +1,9 @@
+{
+  List<AnomalyTaskSpec> anomalyTaskSpecs=findByIdAndStatus(id,oldStatus);
+  if (anomalyTaskSpecs.size() == 1) {
+    AnomalyTaskSpec anomalyTaskSpec=anomalyTaskSpecs.get(0);
+    anomalyTaskSpec.setStatus(newStatus);
+    anomalyTaskSpec.setTaskEndTime(taskEndTime);
+    save(anomalyTaskSpec);
+  }
+}

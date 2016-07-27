@@ -4,11 +4,10 @@
   for (  AnomalyFunctionSpec anomalyFunctionSpec : functionSpecs) {
     if (anomalyFunctionSpec.getIsActive()) {
       DetectionJobContext detectionJobContext=new DetectionJobContext();
-      detectionJobContext.setAnomalyFunctionSpecDAO(anomalyFunctionSpecDAO);
-      detectionJobContext.setAnomalyJobSpecDAO(anomalyJobSpecDAO);
-      detectionJobContext.setAnomalyTaskSpecDAO(anomalyTaskSpecDAO);
+      detectionJobContext.setAnomalyFunctionDAO(anomalyFunctionDAO);
+      detectionJobContext.setAnomalyJobDAO(anomalyJobDAO);
+      detectionJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
       detectionJobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
-      detectionJobContext.setSessionFactory(sessionFactory);
       detectionJobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
       String jobKey=getJobKey(anomalyFunctionSpec.getId(),anomalyFunctionSpec.getFunctionName());
       detectionJobContext.setJobName(jobKey);

@@ -1,5 +1,5 @@
 {
-  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionSpecDAO.findById(id);
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionDAO.findById(id);
   if (anomalyFunctionSpec == null) {
     throw new IllegalArgumentException("No function with id " + id);
   }
@@ -8,11 +8,10 @@
   String jobKey="adhoc_" + getJobKey(anomalyFunctionSpec.getId(),anomalyFunctionSpec.getFunctionName());
   JobDetail job=JobBuilder.newJob(DetectionJobRunner.class).withIdentity(jobKey).build();
   DetectionJobContext detectionJobContext=new DetectionJobContext();
-  detectionJobContext.setAnomalyFunctionSpecDAO(anomalyFunctionSpecDAO);
-  detectionJobContext.setAnomalyJobSpecDAO(anomalyJobSpecDAO);
-  detectionJobContext.setAnomalyTaskSpecDAO(anomalyTaskSpecDAO);
+  detectionJobContext.setAnomalyFunctionDAO(anomalyFunctionDAO);
+  detectionJobContext.setAnomalyJobDAO(anomalyJobDAO);
+  detectionJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
   detectionJobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
-  detectionJobContext.setSessionFactory(sessionFactory);
   detectionJobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
   detectionJobContext.setJobName(jobKey);
   detectionJobContext.setWindowStartIso(windowStartIso);

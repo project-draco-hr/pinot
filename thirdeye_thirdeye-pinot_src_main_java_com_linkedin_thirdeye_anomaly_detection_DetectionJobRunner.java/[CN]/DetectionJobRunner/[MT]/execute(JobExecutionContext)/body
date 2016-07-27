@@ -1,10 +1,9 @@
 {
   LOG.info("Running " + jobExecutionContext.getJobDetail().getKey().toString());
   detectionJobContext=(DetectionJobContext)jobExecutionContext.getJobDetail().getJobDataMap().get(DETECTION_JOB_CONTEXT);
-  sessionFactory=detectionJobContext.getSessionFactory();
-  anomalyJobSpecDAO=detectionJobContext.getAnomalyJobSpecDAO();
-  anomalyTasksSpecDAO=detectionJobContext.getAnomalyTaskSpecDAO();
-  anomalyFunctionSpecDAO=detectionJobContext.getAnomalyFunctionSpecDAO();
+  anomalyJobSpecDAO=detectionJobContext.getAnomalyJobDAO();
+  anomalyTasksSpecDAO=detectionJobContext.getAnomalyTaskDAO();
+  anomalyFunctionSpecDAO=detectionJobContext.getAnomalyFunctionDAO();
   anomalyFunctionId=detectionJobContext.getAnomalyFunctionId();
   AnomalyFunctionSpec anomalyFunctionSpec=getAnomalyFunctionSpec(anomalyFunctionId);
   detectionJobContext.setAnomalyFunctionSpec(anomalyFunctionSpec);

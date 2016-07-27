@@ -1,16 +1,10 @@
 {
   List<AnomalyJobSpec> anomalyJobSpecs=null;
-  Session session=sessionFactory.openSession();
   try {
-    ManagedSessionContext.bind(session);
-    anomalyJobSpecs=anomalyJobSpecDAO.findByStatus(JobStatus.SCHEDULED);
+    anomalyJobSpecs=anomalyJobDAO.findByStatus(JobStatus.SCHEDULED);
   }
  catch (  Exception e) {
     LOG.error("Exception in finding anomaly jobs with status scheduled",e);
-  }
- finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
   }
   return anomalyJobSpecs;
 }

@@ -1,0 +1,10 @@
+{
+  TaskStatus oldStatus=TaskStatus.WAITING;
+  TaskStatus newStatus=TaskStatus.RUNNING;
+  Long workerId=1L;
+  boolean status=anomalyTaskDAO.updateStatusAndWorkerId(workerId,anomalyTaskId1,oldStatus,newStatus);
+  AnomalyTaskSpec anomalyTask=anomalyTaskDAO.findById(anomalyTaskId1);
+  Assert.assertTrue(status);
+  Assert.assertEquals(anomalyTask.getStatus(),newStatus);
+  Assert.assertEquals(anomalyTask.getWorkerId(),workerId);
+}

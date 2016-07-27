@@ -1,8 +1,6 @@
 {
-  Session session=sessionFactory.openSession();
   List<Long> taskIds=new ArrayList<>();
   try {
-    ManagedSessionContext.bind(session);
     LOG.info("Creating monitor tasks");
     List<MonitorTaskInfo> monitorTasks=taskGenerator.createMonitorTasks(monitorJobContext);
     LOG.info("Monitor tasks {}",monitorTasks);
@@ -15,23 +13,20 @@
         LOG.error("Exception when converting MonitorTaskInfo {} to jsonString",taskInfo,e);
       }
       AnomalyTaskSpec anomalyTaskSpec=new AnomalyTaskSpec();
-      anomalyTaskSpec.setJobId(monitorJobContext.getJobExecutionId());
       anomalyTaskSpec.setTaskType(TaskType.MONITOR);
       anomalyTaskSpec.setJobName(monitorJobContext.getJobName());
       anomalyTaskSpec.setStatus(TaskStatus.WAITING);
       anomalyTaskSpec.setTaskStartTime(System.currentTimeMillis());
       anomalyTaskSpec.setTaskInfo(taskInfoJson);
-      long taskId=anomalyTaskSpecDAO.save(anomalyTaskSpec);
+      AnomalyJobSpec anomalyJobSpec=anomalyJobDAO.findById(monitorJobContext.getJobExecutionId());
+      anomalyTaskSpec.setJob(anomalyJobSpec);
+      long taskId=anomalyTaskDAO.save(anomalyTaskSpec);
       taskIds.add(taskId);
       LOG.info("Created monitorTask {} with taskId {}",anomalyTaskSpec,taskId);
     }
   }
  catch (  Exception e) {
     LOG.error("Exception in creating anomaly tasks",e);
-  }
- finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
   }
   return taskIds;
 }
