@@ -1,6 +1,0 @@
-{
-  DateTime expireDate=new DateTime().minusDays(days);
-  Timestamp expireTimestamp=new Timestamp(expireDate.getMillis());
-  int numRowsUpdated=namedQuery("com.linkedin.thirdeye.anomaly.AnomalyJobSpec#deleteRecordsOlderThanDaysWithStatus").setParameter("expireTimestamp",expireTimestamp).setParameter("status",status).executeUpdate();
-  return numRowsUpdated;
-}

@@ -11,5 +11,7 @@
   AnomalyResult resultRet=anomalyResultDAO.findById(anomalyResultId);
   Assert.assertEquals(resultRet.getId(),result.getId());
   Assert.assertNotNull(resultRet.getFeedback());
+  AnomalyFunctionSpec functionSpec=result.getFunction();
   anomalyResultDAO.deleteById(anomalyResultId);
+  anomalyFunctionDAO.delete(functionSpec);
 }

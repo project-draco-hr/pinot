@@ -4,9 +4,8 @@
       AnomalyFunctionSpec spec=anomalyFunction.getSpec();
       result.setScore(normalize(result.getScore()));
       result.setWeight(normalize(result.getWeight()));
-      resultDAO.save(result);
       result.setFunction(spec);
-      resultDAO.update(result);
+      resultDAO.save(result);
     }
  catch (    Exception e) {
       LOG.error("Exception in saving anomaly result : " + result.toString(),e);
