@@ -7,7 +7,7 @@
   feedback.setFeedbackType(AnomalyFeedbackType.ANOMALY);
   feedback.setStatus(FeedbackStatus.NEW);
   result.setFeedback(feedback);
-  anomalyResultDAO.update(result);
+  anomalyResultDAO.save(result);
   AnomalyResult resultRet=anomalyResultDAO.findById(anomalyResultId);
   Assert.assertEquals(resultRet.getId(),result.getId());
   Assert.assertNotNull(resultRet.getFeedback());

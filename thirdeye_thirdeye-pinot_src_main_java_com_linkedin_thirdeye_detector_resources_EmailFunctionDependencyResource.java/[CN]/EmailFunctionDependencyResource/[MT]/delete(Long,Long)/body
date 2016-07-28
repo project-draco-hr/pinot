@@ -1,4 +1,11 @@
 {
-  dao.delete(emailId,functionId);
+  AnomalyFunctionSpec function=functionDAO.findById(functionId);
+  EmailConfiguration emailConfiguration=emailDAO.findById(emailId);
+  if (function != null && emailConfiguration != null) {
+    if (!emailConfiguration.getFunctions().contains(function)) {
+      emailConfiguration.getFunctions().remove(function);
+      emailDAO.save(emailConfiguration);
+    }
+  }
   return Response.noContent().build();
 }

@@ -1,0 +1,14 @@
+{
+  AnomalyFunctionSpec functionReq=getTestFunctionSpec("testMetric","testCollection");
+  functionId=anomalyFunctionDAO.save(functionReq);
+  assertNotNull(functionId);
+  EmailConfiguration emailConfiguration=emailConfigurationDAO.findById(emailConfigId);
+  AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionDAO.findById(functionId);
+  assertEquals(emailConfiguration.getFunctions().size(),0);
+  List<AnomalyFunctionSpec> functionSpecList=new ArrayList<>();
+  functionSpecList.add(anomalyFunctionSpec);
+  emailConfiguration.setFunctions(functionSpecList);
+  emailConfigurationDAO.save(emailConfiguration);
+  EmailConfiguration emailConfig1=emailConfigurationDAO.findById(emailConfigId);
+  assertEquals(emailConfig1.getFunctions().size(),1);
+}
