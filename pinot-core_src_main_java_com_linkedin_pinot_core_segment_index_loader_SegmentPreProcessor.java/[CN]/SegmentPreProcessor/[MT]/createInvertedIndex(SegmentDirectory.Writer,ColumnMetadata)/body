@@ -1,69 +1,63 @@
 {
-  String segmentName=segmentWriter.toString();
-  String column=columnMetadata.getColumnName();
-  File inProgress=new File(segmentWriter.toSegmentDirectory().getPath().toFile(),column + "_inv.inprogress");
-  if (!inProgress.exists() && segmentWriter.hasIndexFor(column,ColumnIndexType.INVERTED_INDEX)) {
-    LOGGER.info("Found inverted index for segment: {}, colummn {}, loading it",segmentName,column);
-    return;
+  String columnName=columnMetadata.getColumnName();
+  File inProgress=new File(segmentWriter.toSegmentDirectory().getPath().toFile(),columnName + ".inv.inprogress");
+  if (!inProgress.exists()) {
+    if (segmentWriter.hasIndexFor(columnName,ColumnIndexType.INVERTED_INDEX)) {
+      LOGGER.info("Found inverted index for segment: {}, column: {}",segmentName,columnName);
+      return;
+    }
+    FileUtils.touch(inProgress);
   }
-  FileUtils.touch(inProgress);
-  if (segmentWriter.hasIndexFor(column,ColumnIndexType.INVERTED_INDEX)) {
-    LOGGER.info("Deleting stale inverted index for segment: {}, column: {}",segmentName,column);
-    segmentWriter.removeIndex(column,ColumnIndexType.INVERTED_INDEX);
-  }
-  LOGGER.info("Creating new inverted index for segment: {}, column: {}",segmentName,column);
-  OffHeapBitmapInvertedIndexCreator creator=new OffHeapBitmapInvertedIndexCreator(indexDir,columnMetadata.getCardinality(),columnMetadata.getTotalDocs(),columnMetadata.getTotalNumberOfEntries(),columnMetadata.toFieldSpec());
-  DataFileReader fwdIndex=getForwardIndexReader(columnMetadata,segmentWriter);
-  if (!columnMetadata.isSingleValue()) {
-    SingleColumnMultiValueReader mvFwdIndex=(SingleColumnMultiValueReader)fwdIndex;
-    int[] dictIds=new int[columnMetadata.getMaxNumberOfMultiValues()];
-    for (int i=0; i < metadata.getTotalDocs(); i++) {
-      int len=mvFwdIndex.getIntArray(i,dictIds);
-      creator.add(i,dictIds,len);
+ else {
+    if (segmentVersion == SegmentVersion.v1 || segmentVersion == SegmentVersion.v2) {
+      segmentWriter.removeIndex(columnName,ColumnIndexType.INVERTED_INDEX);
     }
   }
- else {
-    FixedBitSingleValueReader svFwdIndex=(FixedBitSingleValueReader)fwdIndex;
-    for (int i=0; i < columnMetadata.getTotalDocs(); i++) {
-      creator.add(i,svFwdIndex.getInt(i));
-    }
-  }
-  creator.seal();
-  File invertedIndexFile=creator.getInvertedIndexFile();
-  File tempFile=new File(invertedIndexFile + ".temp");
-  if (tempFile.exists()) {
-    FileUtils.deleteQuietly(tempFile);
-  }
-  FileUtils.moveFile(invertedIndexFile,tempFile);
-  PinotDataBuffer newIndexBuffer=null;
-  try {
-    if (segmentWriter.hasIndexFor(column,ColumnIndexType.INVERTED_INDEX)) {
-      PinotDataBuffer tempBuffer=segmentWriter.getIndexFor(column,ColumnIndexType.INVERTED_INDEX);
-      if (tempBuffer.size() == tempFile.length()) {
-        newIndexBuffer=tempBuffer;
-      }
- else {
-        if (segmentWriter.isIndexRemovalSupported()) {
-          segmentWriter.removeIndex(column,ColumnIndexType.INVERTED_INDEX);
-          newIndexBuffer=segmentWriter.newIndexFor(column,ColumnIndexType.INVERTED_INDEX,(int)tempFile.length());
-        }
- else {
-          LOGGER.error("Segment: {} already has inverted index that can not be removed. Throwing exception to discard and download segment",segmentWriter);
-          throw new IllegalStateException("Inverted Index exists and can not be removed for segment: " + segmentWriter + ". Throwing exception to download fresh segment");
-        }
+  LOGGER.info("Creating new inverted index for segment: {}, column: {}",segmentName,columnName);
+  int totalDocs=columnMetadata.getTotalDocs();
+  OffHeapBitmapInvertedIndexCreator creator=new OffHeapBitmapInvertedIndexCreator(indexDir,columnMetadata.getCardinality(),totalDocs,columnMetadata.getTotalNumberOfEntries(),columnMetadata.toFieldSpec());
+  try (DataFileReader fwdIndex=getForwardIndexReader(columnMetadata,segmentWriter)){
+    if (columnMetadata.isSingleValue()) {
+      FixedBitSingleValueReader svFwdIndex=(FixedBitSingleValueReader)fwdIndex;
+      for (int i=0; i < totalDocs; i++) {
+        creator.add(i,svFwdIndex.getInt(i));
       }
     }
  else {
-      newIndexBuffer=segmentWriter.newIndexFor(column,ColumnIndexType.INVERTED_INDEX,(int)tempFile.length());
+      SingleColumnMultiValueReader mvFwdIndex=(SingleColumnMultiValueReader)fwdIndex;
+      int[] dictIds=new int[columnMetadata.getMaxNumberOfMultiValues()];
+      for (int i=0; i < totalDocs; i++) {
+        int len=mvFwdIndex.getIntArray(i,dictIds);
+        creator.add(i,dictIds,len);
+      }
     }
-    newIndexBuffer.readFrom(tempFile);
   }
+   creator.seal();
+  if (segmentVersion == SegmentVersion.v3) {
+    File invertedIndexFile=creator.getInvertedIndexFile();
+    int fileLength=(int)invertedIndexFile.length();
+    PinotDataBuffer buffer=null;
+    try {
+      if (segmentWriter.hasIndexFor(columnName,ColumnIndexType.INVERTED_INDEX)) {
+        buffer=segmentWriter.getIndexFor(columnName,ColumnIndexType.INVERTED_INDEX);
+        if (buffer.size() != fileLength) {
+          String failureMessage="V3 format segment: {} already has inverted index that cannot be removed.";
+          LOGGER.error(failureMessage);
+          throw new IllegalStateException(failureMessage);
+        }
+      }
+ else {
+        buffer=segmentWriter.newIndexFor(columnName,ColumnIndexType.INVERTED_INDEX,fileLength);
+      }
+      buffer.readFrom(invertedIndexFile);
+    }
   finally {
-    if (newIndexBuffer != null) {
-      newIndexBuffer.close();
+      FileUtils.deleteQuietly(invertedIndexFile);
+      if (buffer != null) {
+        buffer.close();
+      }
     }
   }
   FileUtils.deleteQuietly(inProgress);
-  FileUtils.deleteQuietly(tempFile);
-  LOGGER.info("Created inverted index for segment: {}, colummn {}",segmentName,column);
+  LOGGER.info("Created inverted index for segment: {}, column: {}",segmentName,columnName);
 }

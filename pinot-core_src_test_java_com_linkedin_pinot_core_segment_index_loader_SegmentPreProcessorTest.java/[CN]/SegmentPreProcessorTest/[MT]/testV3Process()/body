@@ -1,0 +1,30 @@
+{
+  SegmentV1V2ToV3FormatConverter converter=new SegmentV1V2ToV3FormatConverter();
+  converter.convert(segmentDirectoryFile);
+  File v3SegmentDirectoryFile=new File(segmentDirectoryFile,V3_SEGMENT_NAME);
+  SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(v3SegmentDirectoryFile);
+  String segmentVersion=segmentMetadata.getVersion();
+  Assert.assertEquals(SegmentVersion.valueOf(segmentVersion),SegmentVersion.v3);
+  File singleFileIndex=new File(v3SegmentDirectoryFile,"columns.psf");
+  FileTime lastModifiedTime=Files.getLastModifiedTime(singleFileIndex.toPath());
+  long fileSize=singleFileIndex.length();
+  Thread.sleep(2000);
+  checkInvertedIndexCreation(v3SegmentDirectoryFile,segmentMetadata,false);
+  long addedLength=0L;
+  try (SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(v3SegmentDirectoryFile,segmentMetadata,ReadMode.mmap);SegmentDirectory.Reader reader=segmentDirectory.createReader()){
+    try (PinotDataBuffer col1Buffer=reader.getIndexFor(COLUMN1_NAME,ColumnIndexType.INVERTED_INDEX)){
+      addedLength+=col1Buffer.size() + 8;
+    }
+     try (PinotDataBuffer col13Buffer=reader.getIndexFor(COLUMN13_NAME,ColumnIndexType.INVERTED_INDEX)){
+      addedLength+=col13Buffer.size() + 8;
+    }
+   }
+   FileTime newLastModifiedTime=Files.getLastModifiedTime(singleFileIndex.toPath());
+  Assert.assertTrue(newLastModifiedTime.compareTo(lastModifiedTime) > 0);
+  long newFileSize=singleFileIndex.length();
+  Assert.assertEquals(fileSize + addedLength,newFileSize);
+  Thread.sleep(2000);
+  checkInvertedIndexCreation(v3SegmentDirectoryFile,segmentMetadata,true);
+  Assert.assertEquals(Files.getLastModifiedTime(singleFileIndex.toPath()),newLastModifiedTime);
+  Assert.assertEquals(singleFileIndex.length(),newFileSize);
+}

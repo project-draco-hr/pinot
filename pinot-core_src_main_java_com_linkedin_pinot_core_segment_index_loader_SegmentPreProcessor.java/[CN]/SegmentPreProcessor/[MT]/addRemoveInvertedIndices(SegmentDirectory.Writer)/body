@@ -1,7 +1,6 @@
 {
-  Set<String> invertedIndexColumnList=getInvertedIndexColumnList();
-  for (  String column : invertedIndexColumnList) {
-    ColumnMetadata columnMetadata=metadata.getColumnMetadataFor(column);
-    createInvertedIndex(segmentWriter,metadata.getColumnMetadataFor(column));
+  Set<String> invertedIndexColumns=getInvertedIndexColumns();
+  for (  String column : invertedIndexColumns) {
+    createInvertedIndex(segmentWriter,segmentMetadata.getColumnMetadataFor(column));
   }
 }

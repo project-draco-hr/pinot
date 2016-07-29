@@ -1,0 +1,24 @@
+{
+  try (SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryFile,segmentMetadata,ReadMode.mmap);SegmentDirectory.Reader reader=segmentDirectory.createReader()){
+    if (reCreate) {
+      Assert.assertTrue(reader.hasIndexFor(COLUMN1_NAME,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertTrue(reader.hasIndexFor(COLUMN13_NAME,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertTrue(reader.hasIndexFor(COLUMN7_NAME,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertFalse(reader.hasIndexFor(NO_SUCH_COLUMN_NAME,ColumnIndexType.INVERTED_INDEX));
+    }
+ else {
+      Assert.assertFalse(reader.hasIndexFor(COLUMN1_NAME,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertTrue(reader.hasIndexFor(COLUMN7_NAME,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertFalse(reader.hasIndexFor(COLUMN13_NAME,ColumnIndexType.INVERTED_INDEX));
+      Assert.assertFalse(reader.hasIndexFor(NO_SUCH_COLUMN_NAME,ColumnIndexType.INVERTED_INDEX));
+    }
+  }
+   SegmentPreProcessor processor=new SegmentPreProcessor(segmentDirectoryFile,segmentMetadata,indexLoadingConfigMetadata);
+  processor.process();
+  try (SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryFile,segmentMetadata,ReadMode.mmap);SegmentDirectory.Reader reader=segmentDirectory.createReader()){
+    Assert.assertTrue(reader.hasIndexFor(COLUMN1_NAME,ColumnIndexType.INVERTED_INDEX));
+    Assert.assertTrue(reader.hasIndexFor(COLUMN13_NAME,ColumnIndexType.INVERTED_INDEX));
+    Assert.assertTrue(reader.hasIndexFor(COLUMN7_NAME,ColumnIndexType.INVERTED_INDEX));
+    Assert.assertFalse(reader.hasIndexFor(NO_SUCH_COLUMN_NAME,ColumnIndexType.INVERTED_INDEX));
+  }
+ }

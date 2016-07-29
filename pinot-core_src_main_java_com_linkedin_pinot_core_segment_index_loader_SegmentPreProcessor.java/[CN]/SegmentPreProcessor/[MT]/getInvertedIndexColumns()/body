@@ -1,0 +1,14 @@
+{
+  Set<String> invertedIndexColumns=new HashSet<>();
+  if (indexConfig == null) {
+    return invertedIndexColumns;
+  }
+  Set<String> invertedIndexColumnsFromConfig=indexConfig.getLoadingInvertedIndexColumns();
+  for (  String column : invertedIndexColumnsFromConfig) {
+    ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(column);
+    if (columnMetadata != null && !columnMetadata.isSorted()) {
+      invertedIndexColumns.add(column);
+    }
+  }
+  return invertedIndexColumns;
+}

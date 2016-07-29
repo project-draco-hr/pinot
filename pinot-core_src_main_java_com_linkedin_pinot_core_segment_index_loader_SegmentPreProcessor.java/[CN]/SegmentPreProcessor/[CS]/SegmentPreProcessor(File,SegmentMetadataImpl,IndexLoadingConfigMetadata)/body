@@ -1,11 +1,12 @@
 {
   Preconditions.checkNotNull(indexDir);
-  Preconditions.checkNotNull(metadata);
+  Preconditions.checkNotNull(segmentMetadata);
   Preconditions.checkState(indexDir.exists(),"Segment directory: {} does not exist",indexDir);
-  ;
   Preconditions.checkState(indexDir.isDirectory(),"Segment path: {} is not a directory",indexDir);
   this.indexDir=indexDir;
-  this.metadata=metadata;
-  this.indexConfig=Optional.fromNullable(indexConfig);
-  segmentDirectory=SegmentDirectory.createFromLocalFS(indexDir,metadata,ReadMode.mmap);
+  this.segmentMetadata=segmentMetadata;
+  segmentName=segmentMetadata.getName();
+  segmentVersion=SegmentVersion.valueOf(this.segmentMetadata.getVersion());
+  this.indexConfig=indexConfig;
+  segmentDirectory=SegmentDirectory.createFromLocalFS(indexDir,segmentMetadata,ReadMode.mmap);
 }

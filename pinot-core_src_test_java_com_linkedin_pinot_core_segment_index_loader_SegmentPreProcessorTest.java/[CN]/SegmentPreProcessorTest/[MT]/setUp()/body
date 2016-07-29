@@ -1,0 +1,14 @@
+{
+  FileUtils.deleteQuietly(INDEX_DIR);
+  File avroFile=new File(TestUtils.getFileFromResourceUrl(SegmentPreProcessor.class.getClassLoader().getResource(AVRO_DATA)));
+  SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(avroFile,INDEX_DIR,"daysSinceEpoch",TimeUnit.HOURS,"testTable");
+  config.setSegmentNamePostfix("1");
+  config.getInvertedIndexCreationColumns().clear();
+  config.setInvertedIndexCreationColumns(Collections.singletonList(COLUMN7_NAME));
+  SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(config);
+  driver.build();
+  segmentDirectoryFile=new File(INDEX_DIR,driver.getSegmentName());
+  indexLoadingConfigMetadata=new IndexLoadingConfigMetadata(new PropertiesConfiguration());
+  indexLoadingConfigMetadata.initLoadingInvertedIndexColumnSet(new String[]{COLUMN1_NAME,COLUMN7_NAME,COLUMN13_NAME,NO_SUCH_COLUMN_NAME});
+}
