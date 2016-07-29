@@ -33,9 +33,13 @@
   anomalyFunctionSpec.setFilters(filters);
   anomalyFunctionSpec.setExploreDimensions(exploreDimensions);
   anomalyFunctionSpec.setProperties(properties);
-  String cron=DEFAULT_CRON;
-  if (StringUtils.isNotEmpty(repeatEvery)) {
-    cron=ThirdEyeUtils.constructCron(scheduleMinute,scheduleHour,TimeUnit.valueOf(repeatEvery));
+  if (StringUtils.isEmpty(cron)) {
+    cron=DEFAULT_CRON;
+  }
+ else {
+    if (!CronExpression.isValidExpression(cron)) {
+      throw new IllegalArgumentException("Invalid cron expression for cron : " + cron);
+    }
   }
   anomalyFunctionSpec.setCron(cron);
   Long responseId=anomalyFunctionDAO.save(anomalyFunctionSpec);
