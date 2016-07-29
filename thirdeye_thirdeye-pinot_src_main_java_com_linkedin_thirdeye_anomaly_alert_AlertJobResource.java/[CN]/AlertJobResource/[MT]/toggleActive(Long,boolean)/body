@@ -1,0 +1,8 @@
+{
+  EmailConfiguration alertConfig=emailConfigurationDAO.findById(id);
+  if (alertConfig == null) {
+    throw new NullArgumentException("Alert config not found");
+  }
+  alertConfig.setIsActive(state);
+  emailConfigurationDAO.save(alertConfig);
+}

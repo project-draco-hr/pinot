@@ -1,0 +1,13 @@
+{
+  HtmlEmail email=new HtmlEmail();
+  String collection=alertConfig.getCollection();
+  String metric=alertConfig.getMetric();
+  String subject=String.format("[ThirdEye Anomaly Detector] FAILED ALERT ID=%d (%s:%s)",alertConfig.getId(),collection,metric);
+  String textBody=String.format("%s%n%nException:%s",alertConfig.toString(),ExceptionUtils.getStackTrace(t));
+  try {
+    AlertJobUtils.sendEmailWithTextBody(email,thirdeyeConfig.getSmtpConfiguration(),subject,textBody,thirdeyeConfig.getFailureFromAddress(),thirdeyeConfig.getFailureToAddress());
+  }
+ catch (  EmailException e) {
+    throw new JobExecutionException(e);
+  }
+}

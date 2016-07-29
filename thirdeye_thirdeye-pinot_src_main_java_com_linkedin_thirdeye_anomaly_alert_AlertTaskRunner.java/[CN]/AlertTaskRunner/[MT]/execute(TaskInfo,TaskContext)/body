@@ -1,0 +1,18 @@
+{
+  AlertTaskInfo alertTaskInfo=(AlertTaskInfo)taskInfo;
+  List<TaskResult> taskResult=new ArrayList<>();
+  anomalyResultDAO=taskContext.getResultDAO();
+  alertConfig=alertTaskInfo.getAlertConfig();
+  windowStart=alertTaskInfo.getWindowStartTime();
+  windowEnd=alertTaskInfo.getWindowEndTime();
+  thirdeyeConfig=taskContext.getThirdEyeAnomalyConfiguration();
+  try {
+    LOG.info("Begin executing task {}",taskInfo);
+    run();
+  }
+ catch (  Throwable t) {
+    LOG.error("Job failed with exception:",t);
+    sendFailureEmail(t);
+  }
+  return taskResult;
+}

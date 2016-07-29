@@ -1,0 +1,10 @@
+{
+  final List<AnomalyResult> results;
+  try {
+    results=anomalyResultDAO.findAllByTimeAndEmailId(start,end,alertConfig.getId());
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  return results;
+}

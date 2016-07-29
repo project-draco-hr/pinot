@@ -1,0 +1,21 @@
+{
+  if (config != null) {
+    email.setSubject(subject);
+    LOG.info("Sending email to {}",toAddress);
+    email.setHostName(config.getSmtpHost());
+    email.setSmtpPort(config.getSmtpPort());
+    if (config.getSmtpUser() != null && config.getSmtpPassword() != null) {
+      email.setAuthenticator(new DefaultAuthenticator(config.getSmtpUser(),config.getSmtpPassword()));
+      email.setSSLOnConnect(true);
+    }
+    email.setFrom(fromAddress);
+    for (    String address : toAddress.split(EMAIL_ADDRESS_SEPARATOR)) {
+      email.addTo(address);
+    }
+    email.send();
+    LOG.info("Sent!");
+  }
+ else {
+    LOG.error("No failure email configs provided!");
+  }
+}

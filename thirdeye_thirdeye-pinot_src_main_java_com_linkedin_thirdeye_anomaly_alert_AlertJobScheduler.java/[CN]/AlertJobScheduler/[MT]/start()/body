@@ -1,0 +1,16 @@
+{
+  quartzScheduler.start();
+  List<EmailConfiguration> alertConfigs=readAlertConfigurations();
+  for (  EmailConfiguration alertConfig : alertConfigs) {
+    if (alertConfig.getIsActive()) {
+      AlertJobContext alertJobContext=new AlertJobContext();
+      alertJobContext.setAnomalyJobDAO(anomalyJobDAO);
+      alertJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
+      alertJobContext.setEmailConfigurationDAO(emailConfigurationDAO);
+      alertJobContext.setAlertConfigId(alertConfig.getId());
+      String jobKey=getJobKey(alertConfig.getId());
+      alertJobContext.setJobName(jobKey);
+      scheduleJob(alertJobContext,alertConfig);
+    }
+  }
+}

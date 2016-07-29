@@ -1,0 +1,9 @@
+{
+  List<String> activeJobKeys=new ArrayList<>();
+  for (  String groupName : quartzScheduler.getJobGroupNames()) {
+    for (    JobKey jobKey : quartzScheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+      activeJobKeys.add(jobKey.getName());
+    }
+  }
+  return activeJobKeys;
+}

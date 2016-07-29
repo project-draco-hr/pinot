@@ -1,0 +1,17 @@
+{
+  Long jobExecutionId=null;
+  try {
+    AnomalyJobSpec anomalyJobSpec=new AnomalyJobSpec();
+    anomalyJobSpec.setJobName(alertJobContext.getJobName());
+    anomalyJobSpec.setWindowStartTime(alertJobContext.getWindowStart().getMillis());
+    anomalyJobSpec.setWindowEndTime(alertJobContext.getWindowEnd().getMillis());
+    anomalyJobSpec.setScheduleStartTime(System.currentTimeMillis());
+    anomalyJobSpec.setStatus(JobStatus.SCHEDULED);
+    jobExecutionId=anomalyJobSpecDAO.save(anomalyJobSpec);
+    LOG.info("Created alert job {} with jobExecutionId {}",anomalyJobSpec,jobExecutionId);
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in creating alert job",e);
+  }
+  return jobExecutionId;
+}

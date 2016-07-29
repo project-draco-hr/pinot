@@ -1,0 +1,91 @@
+{
+  LOG.info("Starting email report {}",alertConfig.getId());
+  ThirdEyeClient client=queryCache.getClient();
+  final String collection=alertConfig.getCollection();
+  final String collectionAlias=ThirdEyeUtils.getAliasFromCollection(collection);
+  final List<AnomalyResult> results=getAnomalyResults(windowStart,windowEnd);
+  if (results.isEmpty() && !alertConfig.getSendZeroAnomalyEmail()) {
+    LOG.info("Zero anomalies found, skipping sending email");
+    return;
+  }
+  Map<String,List<AnomalyResult>> groupedResults=new TreeMap<>();
+  for (  AnomalyResult result : results) {
+    String dimensions=result.getDimensions();
+    if (!groupedResults.containsKey(dimensions)) {
+      groupedResults.put(dimensions,new ArrayList<AnomalyResult>());
+    }
+    groupedResults.get(dimensions).add(result);
+  }
+  Map<AnomalyResult,String> anomaliesWithLabels=new LinkedHashMap<AnomalyResult,String>();
+  int counter=1;
+  for (  List<AnomalyResult> resultsByDimensionKey : groupedResults.values()) {
+    Collections.sort(resultsByDimensionKey);
+    for (    AnomalyResult result : resultsByDimensionKey) {
+      anomaliesWithLabels.put(result,String.valueOf(counter));
+      counter++;
+    }
+  }
+  String chartFilePath=writeTimeSeriesChart(alertConfig,timeOnTimeComparisonHandler,windowStart,windowEnd,collection,anomaliesWithLabels);
+  List<String> dimensionNames;
+  try {
+    dimensionNames=client.getCollectionSchema(collection).getDimensionNames();
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  DateTimeZone timeZone=DateTimeZone.forTimeZone(DEFAULT_TIME_ZONE);
+  DateFormatMethod dateFormatMethod=new DateFormatMethod(timeZone);
+  HtmlEmail email=new HtmlEmail();
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  File chartFile=null;
+  try (Writer out=new OutputStreamWriter(baos,CHARSET)){
+    Configuration freemarkerConfig=new Configuration(Configuration.VERSION_2_3_21);
+    freemarkerConfig.setClassForTemplateLoading(getClass(),"/com/linkedin/thirdeye/detector/");
+    freemarkerConfig.setDefaultEncoding(CHARSET);
+    freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+    Map<String,Object> templateData=new HashMap<>();
+    String metric=alertConfig.getMetric();
+    String filtersJson=ThirdEyeUtils.convertMultiMapToJson(alertConfig.getFilterSet());
+    String filtersJsonEncoded=URLEncoder.encode(filtersJson,"UTF-8");
+    String windowUnit=alertConfig.getWindowUnit().toString();
+    Set<String> functionTypes=new HashSet<>();
+    for (    AnomalyFunctionSpec spec : alertConfig.getFunctions()) {
+      functionTypes.add(spec.getType());
+    }
+    templateData.put("groupedAnomalyResults",groupedResults);
+    templateData.put("anomalyCount",results.size());
+    templateData.put("startTime",windowStart.getMillis());
+    templateData.put("endTime",windowEnd.getMillis());
+    templateData.put("reportGenerationTimeMillis",System.currentTimeMillis());
+    templateData.put("assignedDimensions",new AssignedDimensionsMethod(dimensionNames));
+    templateData.put("dateFormat",dateFormatMethod);
+    templateData.put("timeZone",timeZone);
+    chartFile=new File(chartFilePath);
+    templateData.put("embeddedChart",email.embed(chartFile));
+    templateData.put("collection",collectionAlias);
+    templateData.put("metric",metric);
+    templateData.put("filters",filtersJsonEncoded);
+    templateData.put("windowUnit",windowUnit);
+    templateData.put("dashboardHost",thirdeyeConfig.getDashboardHost());
+    templateData.put("functionTypes",functionTypes.toString());
+    Template template=freemarkerConfig.getTemplate("simple-anomaly-report.ftl");
+    template.process(templateData,out);
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+  try {
+    String alertEmailSubject=String.format("Anomaly Alert!: %d anomalies detected for %s:%s",results.size(),collectionAlias,alertConfig.getMetric());
+    String alertEmailHtml=new String(baos.toByteArray(),CHARSET);
+    AlertJobUtils.sendEmailWithHtml(email,thirdeyeConfig.getSmtpConfiguration(),alertEmailSubject,alertEmailHtml,alertConfig.getFromAddress(),alertConfig.getToAddresses());
+  }
+ catch (  Exception e) {
+    throw new JobExecutionException(e);
+  }
+ finally {
+    if (!FileUtils.deleteQuietly(chartFile)) {
+      LOG.error("Unable to delete chart {}",chartFilePath);
+    }
+  }
+  LOG.info("Sent email with {} anomalies! {}",results.size(),alertConfig);
+}

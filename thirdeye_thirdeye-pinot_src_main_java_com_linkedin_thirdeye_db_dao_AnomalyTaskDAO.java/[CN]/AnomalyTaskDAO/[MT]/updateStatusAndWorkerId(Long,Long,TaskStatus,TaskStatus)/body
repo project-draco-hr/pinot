@@ -6,11 +6,14 @@
       anomalyTaskSpec.setStatus(newStatus);
       anomalyTaskSpec.setWorkerId(workerId);
       save(anomalyTaskSpec);
+      return true;
     }
   }
- catch (  Exception e) {
-    LOG.info("OptimisticLockException");
-    return false;
+ catch (  OptimisticLockException|RollbackException|StaleObjectStateException e) {
+    LOG.warn("OptimisticLockException while updating workerId {} and status {} for anomalyTaskId {}",workerId,newStatus,id);
   }
-  return true;
+catch (  Exception e) {
+    LOG.error("Exception in updateStatusAndWorkedId",e);
+  }
+  return false;
 }

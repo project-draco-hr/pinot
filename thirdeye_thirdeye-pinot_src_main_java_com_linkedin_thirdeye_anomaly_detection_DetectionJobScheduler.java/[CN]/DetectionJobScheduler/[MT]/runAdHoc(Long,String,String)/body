@@ -14,8 +14,12 @@
   detectionJobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
   detectionJobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
   detectionJobContext.setJobName(jobKey);
-  detectionJobContext.setWindowStartIso(windowStartIso);
-  detectionJobContext.setWindowEndIso(windowEndIso);
+  if (StringUtils.isNotBlank(windowStartIso)) {
+    detectionJobContext.setWindowStart(ISODateTimeFormat.dateTimeParser().parseDateTime(windowStartIso));
+  }
+  if (StringUtils.isNotBlank(windowEndIso)) {
+    detectionJobContext.setWindowEnd(ISODateTimeFormat.dateTimeParser().parseDateTime(windowEndIso));
+  }
   job.getJobDataMap().put(DetectionJobRunner.DETECTION_JOB_CONTEXT,detectionJobContext);
   try {
     quartzScheduler.scheduleJob(job,trigger);

@@ -1,0 +1,30 @@
+{
+  List<Long> taskIds=new ArrayList<>();
+  try {
+    List<AlertTaskInfo> tasks=taskGenerator.createAlertTasks(alertJobContext);
+    for (    AlertTaskInfo taskInfo : tasks) {
+      String taskInfoJson=null;
+      try {
+        taskInfoJson=OBJECT_MAPPER.writeValueAsString(taskInfo);
+      }
+ catch (      JsonProcessingException e) {
+        LOG.error("Exception when converting AlertTaskInfo {} to jsonString",taskInfo,e);
+      }
+      AnomalyTaskSpec anomalyTaskSpec=new AnomalyTaskSpec();
+      anomalyTaskSpec.setTaskType(TaskType.ALERT);
+      anomalyTaskSpec.setJobName(alertJobContext.getJobName());
+      anomalyTaskSpec.setStatus(TaskStatus.WAITING);
+      anomalyTaskSpec.setTaskStartTime(System.currentTimeMillis());
+      anomalyTaskSpec.setTaskInfo(taskInfoJson);
+      AnomalyJobSpec anomalyJobSpec=anomalyJobSpecDAO.findById(alertJobContext.getJobExecutionId());
+      anomalyTaskSpec.setJob(anomalyJobSpec);
+      long taskId=anomalyTasksSpecDAO.save(anomalyTaskSpec);
+      taskIds.add(taskId);
+      LOG.info("Created alert task {} with taskId {}",anomalyTaskSpec,taskId);
+    }
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in creating alert tasks",e);
+  }
+  return taskIds;
+}

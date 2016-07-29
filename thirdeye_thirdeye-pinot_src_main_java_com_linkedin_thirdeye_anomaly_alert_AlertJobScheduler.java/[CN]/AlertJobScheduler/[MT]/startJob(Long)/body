@@ -1,0 +1,20 @@
+{
+  EmailConfiguration alertConfig=emailConfigurationDAO.findById(id);
+  if (alertConfig == null) {
+    throw new IllegalArgumentException("No alert config with id " + id);
+  }
+  if (!alertConfig.getIsActive()) {
+    throw new IllegalStateException("Alert config with id " + id + " is not active");
+  }
+  String jobKey=getJobKey(alertConfig.getId());
+  if (quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
+    throw new IllegalStateException("Alert config with id " + id + " is already scheduled");
+  }
+  AlertJobContext alertJobContext=new AlertJobContext();
+  alertJobContext.setAnomalyJobDAO(anomalyJobDAO);
+  alertJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
+  alertJobContext.setEmailConfigurationDAO(emailConfigurationDAO);
+  alertJobContext.setAlertConfigId(id);
+  alertJobContext.setJobName(jobKey);
+  scheduleJob(alertJobContext,alertConfig);
+}

@@ -1,20 +1,10 @@
 {
   List<AnomalyResult> results=new ArrayList<>();
-  Session session=sessionFactory.openSession();
   try {
-    ManagedSessionContext.bind(session);
     results.addAll(resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,anomalyFunction.getSpec().getId()));
-    List<AnomalyFunctionRelation> relations=relationDAO.findByParent(anomalyFunction.getSpec().getId());
-    for (    AnomalyFunctionRelation relation : relations) {
-      results.addAll(resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,relation.getChildId()));
-    }
   }
  catch (  Exception e) {
     LOG.error("Exception in getting existing anomalies",e);
-  }
- finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
   }
   return results;
 }
