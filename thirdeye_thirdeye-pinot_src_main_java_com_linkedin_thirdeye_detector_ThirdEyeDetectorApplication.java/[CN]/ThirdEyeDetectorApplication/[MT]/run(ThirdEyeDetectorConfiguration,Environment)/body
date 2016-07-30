@@ -1,5 +1,5 @@
 {
-  super.initDetectorRelatedDAO();
+  super.initDAOs();
   try {
     ThirdEyeCacheRegistry.initializeDetectorCaches(config);
   }
@@ -21,35 +21,29 @@
   }
 );
   final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
-  final AnomalyDetectionJobManager anomalyDetectionJobManager=new AnomalyDetectionJobManager(quartzScheduler,anomalyFunctionDAO,anomalyFunctionRelationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),environment.metrics(),anomalyFunctionFactory,config.getFailureEmailConfig());
+  final AnomalyDetectionJobManager anomalyDetectionJobManager=new AnomalyDetectionJobManager(quartzScheduler,anomalyFunctionDAO,anomalyFunctionRelationDAO,anomalyResultDAO,environment.metrics(),anomalyFunctionFactory,config.getFailureEmailConfig());
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
-      new HibernateSessionWrapper<Void>(hibernateBundle.getSessionFactory()).execute(new Callable<Void>(){
-        @Override public Void call() throws Exception {
-          List<AnomalyFunctionSpec> functions=anomalyFunctionDAO.findAll();
-          LinkedList<AnomalyFunctionSpec> failedToStart=new LinkedList<AnomalyFunctionSpec>();
-          for (          AnomalyFunctionSpec function : functions) {
-            if (function.getIsActive()) {
-              try {
-                LOG.info("Starting {}",function);
-                anomalyDetectionJobManager.start(function.getId());
-              }
- catch (              Exception e) {
-                LOG.error("Failed to schedule function " + function.getId(),e);
-                failedToStart.add(function);
-              }
-            }
+      List<AnomalyFunctionSpec> functions=anomalyFunctionDAO.findAll();
+      LinkedList<AnomalyFunctionSpec> failedToStart=new LinkedList<AnomalyFunctionSpec>();
+      for (      AnomalyFunctionSpec function : functions) {
+        if (function.getIsActive()) {
+          try {
+            LOG.info("Starting {}",function);
+            anomalyDetectionJobManager.start(function.getId());
           }
-          if (!failedToStart.isEmpty()) {
-            LOG.warn("{} functions failed to start!: {}",failedToStart.size(),failedToStart);
-            String subject=String.format("Startup failed to initialize %d functions",failedToStart.size());
-            String body=StringUtils.join(failedToStart,"\n");
-            JobUtils.sendFailureEmail(config.getFailureEmailConfig(),subject,body);
+ catch (          Exception e) {
+            LOG.error("Failed to schedule function " + function.getId(),e);
+            failedToStart.add(function);
           }
-          return null;
         }
       }
-);
+      if (!failedToStart.isEmpty()) {
+        LOG.warn("{} functions failed to start!: {}",failedToStart.size(),failedToStart);
+        String subject=String.format("Startup failed to initialize %d functions",failedToStart.size());
+        String body=StringUtils.join(failedToStart,"\n");
+        JobUtils.sendFailureEmail(config.getFailureEmailConfig(),subject,body);
+      }
     }
     @Override public void stop() throws Exception {
     }
@@ -61,7 +55,7 @@
   if (dropwizardConfigPort > 0) {
     applicationPort.set(dropwizardConfigPort);
   }
-  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,hibernateBundle.getSessionFactory(),applicationPort,config.getDashboardHost(),config.getFailureEmailConfig());
+  final EmailReportJobManager emailReportJobManager=new EmailReportJobManager(quartzScheduler,emailConfigurationDAO,anomalyResultDAO,applicationPort,config.getDashboardHost(),config.getFailureEmailConfig());
   environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener(){
     @Override public void serverStarted(    Server server){
       LOG.info("{} server connectors found",server.getConnectors().length);
@@ -87,32 +81,26 @@
         throw new IllegalStateException("Could not determine application port");
       }
       try {
-        new HibernateSessionWrapper<Void>(hibernateBundle.getSessionFactory()).execute(new Callable<Void>(){
-          @Override public Void call() throws Exception {
-            List<EmailConfiguration> configs=emailConfigurationDAO.findAll();
-            LinkedList<EmailConfiguration> failedToStart=new LinkedList<EmailConfiguration>();
-            for (            EmailConfiguration config : configs) {
-              if (config.getIsActive()) {
-                try {
-                  LOG.info("Starting {}",config);
-                  emailReportJobManager.start(config.getId());
-                }
- catch (                Exception e) {
-                  LOG.error("Failed to schedule report " + config.getId(),e);
-                  failedToStart.add(config);
-                }
-              }
+        List<EmailConfiguration> configs=emailConfigurationDAO.findAll();
+        LinkedList<EmailConfiguration> failedToStart=new LinkedList<EmailConfiguration>();
+        for (        EmailConfiguration config : configs) {
+          if (config.getIsActive()) {
+            try {
+              LOG.info("Starting {}",config);
+              emailReportJobManager.start(config.getId());
             }
-            if (!failedToStart.isEmpty()) {
-              LOG.warn("{} reports failed to start!: {}",failedToStart.size(),failedToStart);
-              String subject=String.format("Startup failed to initialize %d reports",failedToStart.size());
-              String body=StringUtils.join(failedToStart,"\n");
-              JobUtils.sendFailureEmail(config.getFailureEmailConfig(),subject,body);
+ catch (            Exception e) {
+              LOG.error("Failed to schedule report " + config.getId(),e);
+              failedToStart.add(config);
             }
-            return null;
           }
         }
-);
+        if (!failedToStart.isEmpty()) {
+          LOG.warn("{} reports failed to start!: {}",failedToStart.size(),failedToStart);
+          String subject=String.format("Startup failed to initialize %d reports",failedToStart.size());
+          String body=StringUtils.join(failedToStart,"\n");
+          JobUtils.sendFailureEmail(config.getFailureEmailConfig(),subject,body);
+        }
       }
  catch (      Exception e) {
         throw new IllegalStateException(e);

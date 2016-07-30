@@ -1,0 +1,12 @@
+{
+  List<String> argList=new ArrayList<>(Arrays.asList(args));
+  if (argList.size() == 0) {
+    System.out.println(USAGE);
+    System.exit(0);
+  }
+  int lastIndex=argList.size() - 1;
+  String thirdEyeConfigDir=argList.get(lastIndex);
+  String dbConfigFile=thirdEyeConfigDir + "/" + "persistence.yml";
+  argList.set(lastIndex,dbConfigFile);
+  new PersistenceApp().run(argList.toArray(new String[argList.size()]));
+}

@@ -1,6 +1,5 @@
 {
   LOG.info("Starting email report {}",config.getId());
-  SessionFactory sessionFactory=(SessionFactory)context.getJobDetail().getJobDataMap().get(SESSION_FACTORY);
   int applicationPort=context.getJobDetail().getJobDataMap().getInt(APPLICATION_PORT);
   TimeOnTimeComparisonHandler timeOnTimeComparisonHandler=(TimeOnTimeComparisonHandler)context.getJobDetail().getJobDataMap().get(TIME_ON_TIME_COMPARISON_HANDLER);
   ThirdEyeClient client=timeOnTimeComparisonHandler.getClient();
@@ -13,7 +12,7 @@
   final DateTime then=now.minus(deltaMillis);
   final String collection=config.getCollection();
   final String collectionAlias=ThirdEyeUtils.getAliasFromCollection(collection);
-  final List<AnomalyResult> results=getAnomalyResults(context,config,sessionFactory,then,now);
+  final List<AnomalyResult> results=getAnomalyResults(context,config,then,now);
   if (results.isEmpty() && !config.getSendZeroAnomalyEmail()) {
     LOG.info("Zero anomalies found, skipping sending email");
     return;
