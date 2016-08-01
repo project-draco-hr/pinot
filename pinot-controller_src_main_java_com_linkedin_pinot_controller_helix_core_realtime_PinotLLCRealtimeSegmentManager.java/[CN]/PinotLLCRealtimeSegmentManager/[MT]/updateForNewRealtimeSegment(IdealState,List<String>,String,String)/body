@@ -1,0 +1,16 @@
+{
+  if (oldSegmentNameStr != null) {
+    Set<String> oldInstances=idealState.getInstanceSet(oldSegmentNameStr);
+    for (    String instance : oldInstances) {
+      idealState.setPartitionState(oldSegmentNameStr,instance,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+    }
+  }
+  Map<String,String> stateMap=idealState.getInstanceStateMap(newSegmentNameStr);
+  if (stateMap != null) {
+    stateMap.clear();
+  }
+  for (  String instance : newInstances) {
+    idealState.setPartitionState(newSegmentNameStr,instance,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  }
+  return idealState;
+}

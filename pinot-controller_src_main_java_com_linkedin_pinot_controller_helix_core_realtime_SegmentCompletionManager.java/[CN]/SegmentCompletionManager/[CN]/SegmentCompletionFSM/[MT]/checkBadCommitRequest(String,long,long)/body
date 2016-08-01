@@ -1,0 +1,11 @@
+{
+  SegmentCompletionProtocol.Response response=abortIfTooLateAndReturnHold(now,instanceId,offset);
+  if (response != null) {
+    return response;
+  }
+ else   if (instanceId.equals(_winner) && offset != _winningOffset) {
+    LOGGER.warn("{}:Aborting FSM (bad commit req) instance={} offset={} now={} winning={}",_state,instanceId,offset,now,_winningOffset);
+    return abortAndReturnHold(now,instanceId,offset);
+  }
+  return null;
+}

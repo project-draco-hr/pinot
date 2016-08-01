@@ -1,0 +1,44 @@
+{
+  IdealState idealState=getTableIdealState(realtimeTableName);
+  Set<String> segmentNamesIS=idealState.getPartitionSet();
+  List<ZNRecord> segmentMetadataList=getExistingSegmentMetadata(realtimeTableName);
+  if (segmentMetadataList == null || segmentMetadataList.isEmpty()) {
+    return;
+  }
+  final List<LLCSegmentName> segmentNames=new ArrayList<>(segmentMetadataList.size());
+  for (  ZNRecord segment : segmentMetadataList) {
+    if (SegmentName.isLowLevelConsumerSegmentName(segment.getId())) {
+      segmentNames.add(new LLCSegmentName(segment.getId()));
+    }
+  }
+  if (segmentNames.isEmpty()) {
+    return;
+  }
+  Collections.sort(segmentNames,Collections.reverseOrder());
+  int curPartition=segmentNames.get(0).getPartitionId();
+  final int nSegments=segmentNames.size();
+  for (int i=0; i < nSegments; i++) {
+    final LLCSegmentName segmentName=segmentNames.get(i);
+    if (segmentName.getPartitionId() == curPartition) {
+      final String curSegmentNameStr=segmentName.getSegmentName();
+      if (!segmentNamesIS.contains(curSegmentNameStr)) {
+        LOGGER.info("{}:Repairing segment for partition {}. Segment {} not found in idealstate",realtimeTableName,curPartition,curSegmentNameStr);
+        final ZNRecord partitionAssignment=getKafkaPartitionAssignment(realtimeTableName);
+        List<String> newInstances=partitionAssignment.getListField(Integer.toString(curPartition));
+        LOGGER.info("{}: Assigning segment {} to {}",realtimeTableName,curSegmentNameStr,newInstances);
+        String prevSegmentNameStr=null;
+        if (i < nSegments - 1) {
+          LLCSegmentName prevSegmentName=segmentNames.get(i + 1);
+          if (prevSegmentName.getPartitionId() == segmentName.getPartitionId()) {
+            prevSegmentNameStr=prevSegmentName.getSegmentName();
+          }
+        }
+        updateHelixIdealState(realtimeTableName,newInstances,prevSegmentNameStr,curSegmentNameStr);
+      }
+      curPartition--;
+    }
+    if (curPartition < 0) {
+      break;
+    }
+  }
+}

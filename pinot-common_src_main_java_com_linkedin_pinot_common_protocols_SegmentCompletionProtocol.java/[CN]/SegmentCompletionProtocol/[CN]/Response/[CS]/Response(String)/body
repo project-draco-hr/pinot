@@ -1,0 +1,17 @@
+{
+  JSONObject jsonObject=JSONObject.parseObject(jsonRespStr);
+  long offset=-1;
+  if (jsonObject.containsKey(OFFSET_KEY)) {
+    offset=jsonObject.getLong(OFFSET_KEY);
+  }
+  _offset=offset;
+  String statusStr=jsonObject.getString(STATUS_KEY);
+  ControllerResponseStatus status;
+  try {
+    status=ControllerResponseStatus.valueOf(statusStr);
+  }
+ catch (  Exception e) {
+    status=ControllerResponseStatus.FAILED;
+  }
+  _status=status;
+}

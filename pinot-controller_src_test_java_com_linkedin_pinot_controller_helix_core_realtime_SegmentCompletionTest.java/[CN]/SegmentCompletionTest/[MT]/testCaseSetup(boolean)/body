@@ -1,0 +1,18 @@
+{
+  segmentManager=new MockPinotLLCRealtimeSegmentManager();
+  final int partitionId=23;
+  final int seqId=12;
+  final long now=System.currentTimeMillis();
+  final String tableName="someTable";
+  final LLCSegmentName segmentName=new LLCSegmentName(tableName,partitionId,seqId,now);
+  segmentNameStr=segmentName.getSegmentName();
+  final LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
+  metadata.setStatus(CommonConstants.Segment.Realtime.Status.IN_PROGRESS);
+  metadata.setNumReplicas(3);
+  segmentManager._segmentMetadata=metadata;
+  segmentCompletionMgr=new MockSegmentCompletionManager(segmentManager,isLeader);
+  segmentManager._segmentCompletionMgr=segmentCompletionMgr;
+  Field fsmMapField=SegmentCompletionManager.class.getDeclaredField("_fsmMap");
+  fsmMapField.setAccessible(true);
+  fsmMap=(Map<String,Object>)fsmMapField.get(segmentCompletionMgr);
+}

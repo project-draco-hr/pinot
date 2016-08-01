@@ -1,0 +1,8 @@
+{
+  long oldSecs=segmentCompletionMgr._secconds;
+  segmentCompletionMgr=new MockSegmentCompletionManager(segmentManager,true);
+  segmentCompletionMgr._secconds=oldSecs;
+  Field fsmMapField=SegmentCompletionManager.class.getDeclaredField("_fsmMap");
+  fsmMapField.setAccessible(true);
+  fsmMap=(Map<String,Object>)fsmMapField.get(segmentCompletionMgr);
+}

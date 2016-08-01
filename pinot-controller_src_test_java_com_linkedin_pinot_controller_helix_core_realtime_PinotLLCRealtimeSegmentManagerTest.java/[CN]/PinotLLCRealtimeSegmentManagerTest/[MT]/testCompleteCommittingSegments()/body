@@ -1,0 +1,64 @@
+{
+  for (int i=0; i < 100; i++) {
+    final List<ZNRecord> existingSegmentMetadata=new ArrayList<>(64);
+    final int nPartitions=16;
+    final long seed=new Random().nextLong();
+    Random random=new Random(seed);
+    final int maxSeq=10;
+    final long now=System.currentTimeMillis();
+    final String tableName="table";
+    final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+    final IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName);
+    int nIncompleteCommits=0;
+    final String topic="someTopic";
+    final int nInstances=5;
+    final int nReplicas=3;
+    List<String> instances=getInstanceList(nInstances);
+    final long startOffset=0L;
+    MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(false,null);
+    segmentManager.setupHelixEntries(topic,realtimeTableName,nPartitions,instances,nReplicas,startOffset,null,false);
+    ZNRecord partitionAssignment=segmentManager.getKafkaPartitionAssignment(realtimeTableName);
+    for (int p=0; p < nPartitions; p++) {
+      int curSeq=random.nextInt(maxSeq);
+      if (curSeq == 0) {
+        curSeq++;
+      }
+      boolean incomplete=false;
+      if (random.nextBoolean()) {
+        incomplete=true;
+      }
+      for (int s=0; s < curSeq; s++) {
+        LLCSegmentName segmentName=new LLCSegmentName(tableName,p,s,now);
+        String segNameStr=segmentName.getSegmentName();
+        String state=PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE;
+        CommonConstants.Segment.Realtime.Status status=CommonConstants.Segment.Realtime.Status.DONE;
+        if (s == curSeq - 1) {
+          state=PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE;
+          if (!incomplete) {
+            status=CommonConstants.Segment.Realtime.Status.IN_PROGRESS;
+          }
+        }
+        List<String> instancesForThisSeg=partitionAssignment.getListField(Integer.toString(p));
+        for (        String instance : instancesForThisSeg) {
+          idealState.setPartitionState(segNameStr,instance,state);
+        }
+        LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
+        metadata.setSegmentName(segNameStr);
+        metadata.setStatus(status);
+        existingSegmentMetadata.add(metadata.toZNRecord());
+      }
+      if (incomplete) {
+        nIncompleteCommits++;
+        LLCSegmentName segmentName=new LLCSegmentName(tableName,p,curSeq,now);
+        LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
+        metadata.setSegmentName(segmentName.getSegmentName());
+        metadata.setStatus(CommonConstants.Segment.Realtime.Status.DONE);
+        existingSegmentMetadata.add(metadata.toZNRecord());
+      }
+    }
+    segmentManager._tableIdealState=idealState;
+    segmentManager._existingSegmentMetadata=existingSegmentMetadata;
+    segmentManager.completeCommittingSegments(TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName));
+    Assert.assertEquals(segmentManager._nCallsToUpdateHelix,nIncompleteCommits,"Failed with seed " + seed);
+  }
+}

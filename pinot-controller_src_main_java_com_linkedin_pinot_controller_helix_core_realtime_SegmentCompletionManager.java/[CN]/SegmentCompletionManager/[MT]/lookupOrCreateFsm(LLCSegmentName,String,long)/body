@@ -1,0 +1,24 @@
+{
+  final String segmentNameStr=segmentName.getSegmentName();
+  SegmentCompletionFSM fsm=_fsmMap.get(segmentNameStr);
+  if (fsm == null) {
+    ZNRecord segment;
+    try {
+      LLCRealtimeSegmentZKMetadata segmentMetadata=_segmentManager.getRealtimeSegmentZKMetadata(segmentName.getTableName(),segmentName.getSegmentName());
+      if (segmentMetadata.getStatus().equals(CommonConstants.Segment.Realtime.Status.DONE)) {
+        final long endOffset=segmentMetadata.getEndOffset();
+        fsm=new SegmentCompletionFSM(_segmentManager,this,segmentName,segmentMetadata.getNumReplicas(),endOffset);
+      }
+ else {
+        fsm=new SegmentCompletionFSM(_segmentManager,this,segmentName,segmentMetadata.getNumReplicas());
+      }
+      LOGGER.info("Created FSM {}",fsm);
+      _fsmMap.put(segmentNameStr,fsm);
+    }
+ catch (    Exception e) {
+      LOGGER.error("Exception reading segment read from propertystore {}",segmentNameStr,e);
+      throw new RuntimeException("Segment read from propertystore " + segmentNameStr,e);
+    }
+  }
+  return fsm;
+}

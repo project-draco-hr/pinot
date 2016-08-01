@@ -1,0 +1,34 @@
+{
+  SegmentCompletionProtocol.Response response;
+  final int startTimeSecs=5;
+  segmentCompletionMgr._secconds=startTimeSecs;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s3Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
+  Assert.assertEquals(response.getOffset(),s2Offset);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT);
+  segmentCompletionMgr._secconds+=SegmentCompletionProtocol.MAX_HOLD_TIME_MS / 1000;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
+  segmentCompletionMgr._secconds+=6 * SegmentCompletionProtocol.MAX_HOLD_TIME_MS / 1000;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  Assert.assertFalse(fsmMap.containsKey(segmentNameStr));
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=5;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT);
+  Assert.assertTrue(fsmMap.containsKey(segmentNameStr));
+}

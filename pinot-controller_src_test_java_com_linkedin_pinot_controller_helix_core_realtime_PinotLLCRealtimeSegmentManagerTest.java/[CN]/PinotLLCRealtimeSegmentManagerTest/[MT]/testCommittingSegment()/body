@@ -1,0 +1,31 @@
+{
+  MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(true,null);
+  final String topic="someTopic";
+  final String rtTableName="table_REALTIME";
+  final String rawTableName=TableNameBuilder.extractRawTableName(rtTableName);
+  final int nInstances=6;
+  final int nPartitions=16;
+  final int nReplicas=3;
+  final boolean existingIS=false;
+  List<String> instances=getInstanceList(nInstances);
+  final long startOffset=81L;
+  IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(rtTableName);
+  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,idealState,!existingIS);
+  final int committingPartition=6;
+  final long nextOffset=3425666L;
+  LLCRealtimeSegmentZKMetadata committingSegmentMetadata=new LLCRealtimeSegmentZKMetadata(segmentManager._records.get(committingPartition));
+  boolean status=segmentManager.commitSegment(rawTableName,committingSegmentMetadata.getSegmentName(),nextOffset);
+  Assert.assertTrue(status);
+  Assert.assertEquals(segmentManager._paths.size(),2);
+  ZNRecord oldZnRec=segmentManager._records.get(0);
+  ZNRecord newZnRec=segmentManager._records.get(1);
+  LLCRealtimeSegmentZKMetadata oldMetadata=new LLCRealtimeSegmentZKMetadata(oldZnRec);
+  LLCRealtimeSegmentZKMetadata newMetadata=new LLCRealtimeSegmentZKMetadata(newZnRec);
+  LLCSegmentName oldSegmentName=new LLCSegmentName(oldMetadata.getSegmentName());
+  LLCSegmentName newSegmentName=new LLCSegmentName(newMetadata.getSegmentName());
+  Assert.assertEquals(oldSegmentName.getSegmentName(),committingSegmentMetadata.getSegmentName());
+  Assert.assertEquals(newSegmentName.getPartitionId(),oldSegmentName.getPartitionId());
+  Assert.assertEquals(newSegmentName.getSequenceNumber(),oldSegmentName.getSequenceNumber() + 1);
+  Assert.assertEquals(oldMetadata.getStatus(),CommonConstants.Segment.Realtime.Status.DONE);
+  Assert.assertEquals(newMetadata.getStatus(),CommonConstants.Segment.Realtime.Status.IN_PROGRESS);
+}

@@ -1,0 +1,16 @@
+{
+  boolean success;
+  if (!_state.equals(State.COMMITTER_UPLOADING)) {
+    LOGGER.warn("State change during upload: state={} segment={} winner={} winningOffset={}",_state,_segmentName.getSegmentName(),_winner,_winningOffset);
+    return SegmentCompletionProtocol.RESP_FAILED;
+  }
+  LOGGER.info("Committing segment {} at offset {} winner {}",_segmentName.getSegmentName(),offset,instanceId);
+  _state=State.COMMITTING;
+  success=_segmentManager.commitSegment(_segmentName.getTableName(),_segmentName.getSegmentName(),_winningOffset);
+  if (success) {
+    _state=State.COMMITTED;
+    LOGGER.info("Committed segment {} at offset {} winner {}",_segmentName.getSegmentName(),offset,instanceId);
+    return SegmentCompletionProtocol.RESP_COMMIT_SUCCESS;
+  }
+  return null;
+}

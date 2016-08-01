@@ -1,0 +1,8 @@
+{
+  HelixHelper.updateIdealState(_helixManager,realtimeTableName,new Function<IdealState,IdealState>(){
+    @Override public IdealState apply(    IdealState idealState){
+      return updateForNewRealtimeSegment(idealState,newInstances,oldSegmentNameStr,newSegmentNameStr);
+    }
+  }
+,RetryPolicies.exponentialBackoffRetryPolicy(5,500L,2.0f));
+}

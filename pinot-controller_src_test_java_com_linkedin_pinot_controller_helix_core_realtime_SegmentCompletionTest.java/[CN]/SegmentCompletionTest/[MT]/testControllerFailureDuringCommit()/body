@@ -1,0 +1,29 @@
+{
+  SegmentCompletionProtocol.Response response;
+  segmentCompletionMgr._secconds=5;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s3Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
+  Assert.assertEquals(response.getOffset(),s2Offset);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT);
+  replaceSegmentCompletionManager();
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentCommitStart(segmentNameStr,s2,s2Offset);
+  Assert.assertTrue(response.getStatus().equals(SegmentCompletionProtocol.ControllerResponseStatus.HOLD));
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT);
+}

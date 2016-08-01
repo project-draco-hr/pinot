@@ -1,0 +1,33 @@
+{
+  SegmentCompletionProtocol.Response response;
+  segmentCompletionMgr._secconds=5;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s3Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
+  Assert.assertEquals(response.getOffset(),s2Offset);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentCommitStart(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT_CONTINUE);
+  segmentCompletionMgr._secconds+=5;
+  response=segmentCompletionMgr.segmentCommitEnd(segmentNameStr,s2,s2Offset,true);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT_SUCCESS);
+  Assert.assertFalse(fsmMap.containsKey(segmentNameStr));
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.KEEP);
+  Assert.assertFalse(fsmMap.containsKey(segmentNameStr));
+}

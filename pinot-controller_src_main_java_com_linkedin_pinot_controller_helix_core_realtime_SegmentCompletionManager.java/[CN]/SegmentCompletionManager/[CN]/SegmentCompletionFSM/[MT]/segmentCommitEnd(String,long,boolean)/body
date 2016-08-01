@@ -1,0 +1,20 @@
+{
+synchronized (this) {
+    LOGGER.info("Processing segmentCommit({}, {})",instanceId,offset);
+    if (!_state.equals(State.COMMITTER_UPLOADING) || !instanceId.equals(_winner)) {
+      LOGGER.warn("State change during upload: state={} segment={} winner={} winningOffset={}",_state,_segmentName.getSegmentName(),_winner,_winningOffset);
+      _state=State.ABORTED;
+      return SegmentCompletionProtocol.RESP_FAILED;
+    }
+    if (!success) {
+      LOGGER.error("Segment upload failed");
+      _state=State.ABORTED;
+      return SegmentCompletionProtocol.RESP_FAILED;
+    }
+    SegmentCompletionProtocol.Response response=updateZk(instanceId,offset);
+    if (response != null) {
+      return response;
+    }
+  }
+  return new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.FAILED,-1L);
+}

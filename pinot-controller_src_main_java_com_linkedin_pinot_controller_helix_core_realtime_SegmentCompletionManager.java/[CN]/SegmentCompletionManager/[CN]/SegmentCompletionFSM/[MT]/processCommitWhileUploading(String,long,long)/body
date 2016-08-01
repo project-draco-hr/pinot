@@ -1,0 +1,8 @@
+{
+  LOGGER.info("Processing segmentCommit({}, {})",instanceId,offset);
+  SegmentCompletionProtocol.Response response=abortIfTooLateAndReturnHold(now,instanceId,offset);
+  if (response != null) {
+    return response;
+  }
+  return new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.HOLD,offset);
+}

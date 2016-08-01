@@ -1,0 +1,10 @@
+{
+  SegmentCompletionProtocol.Response response=null;
+  response=checkBadCommitRequest(instanceId,offset,now);
+  if (response != null) {
+    return response;
+  }
+  LOGGER.info("{}:Uploading for instance={} offset={}",_state,instanceId,offset);
+  _state=State.COMMITTER_UPLOADING;
+  return SegmentCompletionProtocol.RESP_COMMIT_CONTINUE;
+}

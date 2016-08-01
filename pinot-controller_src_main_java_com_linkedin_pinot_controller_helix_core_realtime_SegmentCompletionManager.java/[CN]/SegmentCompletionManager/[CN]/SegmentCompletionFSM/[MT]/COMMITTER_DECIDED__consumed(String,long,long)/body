@@ -1,0 +1,28 @@
+{
+  if (offset > _winningOffset) {
+    LOGGER.warn("{}:Aborting FSM (offset larger than winning) instance={} offset={} now={} winning={}",_state,instanceId,offset,now,_winningOffset);
+    return abortAndReturnHold(now,instanceId,offset);
+  }
+  SegmentCompletionProtocol.Response response;
+  if (_winner.equals(instanceId)) {
+    if (_winningOffset == offset) {
+      LOGGER.info("{}:Notifying winner instance={} offset={}",_state,instanceId,offset);
+      response=commit(instanceId,offset);
+      _state=State.COMMITTER_NOTIFIED;
+    }
+ else {
+      LOGGER.warn("{}:Winner coming back with different offset for instance={} offset={} prevWinnOffset={}",_state,instanceId,offset,_winningOffset);
+      response=abortAndReturnHold(now,instanceId,offset);
+    }
+  }
+ else   if (offset == _winningOffset) {
+    response=hold(instanceId,offset);
+  }
+ else {
+    response=catchup(instanceId,offset);
+  }
+  if (now > _startTime + MAX_TIME_TO_NOTIFY_WINNER_MS) {
+    response=abortAndReturnHold(now,instanceId,offset);
+  }
+  return response;
+}

@@ -1,0 +1,21 @@
+{
+  final IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor("someTable_REALTIME");
+  final String s1="S1";
+  final String s2="S2";
+  final String s3="S3";
+  String[] instanceArr={s1,s2,s3};
+  final String oldSegmentNameStr="oldSeg";
+  final String newSegmentNameStr="newSeg";
+  idealState.setPartitionState(oldSegmentNameStr,s1,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  idealState.setPartitionState(oldSegmentNameStr,s2,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  idealState.setPartitionState(oldSegmentNameStr,s3,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  PinotLLCRealtimeSegmentManager.updateForNewRealtimeSegment(idealState,Arrays.asList(instanceArr),oldSegmentNameStr,newSegmentNameStr);
+  Map<String,String> oldsegStateMap=idealState.getInstanceStateMap(oldSegmentNameStr);
+  Assert.assertEquals(oldsegStateMap.get(s1),PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  Assert.assertEquals(oldsegStateMap.get(s2),PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  Assert.assertEquals(oldsegStateMap.get(s3),PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  Map<String,String> newsegStateMap=idealState.getInstanceStateMap(oldSegmentNameStr);
+  Assert.assertEquals(oldsegStateMap.get(s1),PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  Assert.assertEquals(oldsegStateMap.get(s2),PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  Assert.assertEquals(oldsegStateMap.get(s3),PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+}

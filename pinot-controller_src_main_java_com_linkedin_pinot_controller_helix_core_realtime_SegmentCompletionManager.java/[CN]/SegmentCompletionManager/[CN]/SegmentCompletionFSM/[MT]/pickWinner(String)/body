@@ -1,0 +1,15 @@
+{
+  long maxSoFar=-1;
+  String winner=null;
+  for (  Map.Entry<String,Long> entry : _commitStateMap.entrySet()) {
+    if (entry.getValue() > maxSoFar) {
+      maxSoFar=entry.getValue();
+      winner=entry.getKey();
+    }
+  }
+  _winningOffset=maxSoFar;
+  if (_commitStateMap.get(preferredInstance) == maxSoFar) {
+    winner=preferredInstance;
+  }
+  _winner=winner;
+}

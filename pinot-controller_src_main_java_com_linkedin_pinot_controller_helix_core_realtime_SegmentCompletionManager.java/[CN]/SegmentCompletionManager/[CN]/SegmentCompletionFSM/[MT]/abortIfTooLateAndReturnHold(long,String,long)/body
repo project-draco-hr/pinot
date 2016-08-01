@@ -1,0 +1,7 @@
+{
+  if (now > _startTime + MAX_TIME_ALLOWED_TO_COMMIT_MS) {
+    LOGGER.warn("{}:Aborting FSM (too late) instance={} offset={} now={} start={}",_state,instanceId,offset,now,_startTime);
+    return abortAndReturnHold(now,instanceId,offset);
+  }
+  return null;
+}

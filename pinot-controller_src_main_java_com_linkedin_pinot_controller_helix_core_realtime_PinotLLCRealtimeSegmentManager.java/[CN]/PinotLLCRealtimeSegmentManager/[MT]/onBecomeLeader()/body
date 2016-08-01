@@ -1,0 +1,16 @@
+{
+  if (isLeader()) {
+    if (!_amILeader) {
+      _amILeader=true;
+      LOGGER.info("Became leader");
+      completeCommittingSegments();
+    }
+ else {
+      LOGGER.info("Already leader. Duplicate notification");
+    }
+  }
+ else {
+    _amILeader=false;
+    LOGGER.info("Lost leadership");
+  }
+}

@@ -1,0 +1,29 @@
+{
+  SegmentCompletionProtocol.Response response;
+  response=abortIfTooLateAndReturnHold(now,instanceId,offset);
+  if (response != null) {
+    return response;
+  }
+  if (instanceId.equals(_winner)) {
+    if (offset == _winningOffset) {
+      response=commit(instanceId,offset);
+    }
+ else {
+      response=discard(instanceId,offset);
+      LOGGER.warn("{}:Aborting for instance={} offset={}",_state,instanceId,offset);
+      _state=State.ABORTED;
+    }
+  }
+ else {
+    if (offset == _winningOffset) {
+      response=hold(instanceId,offset);
+    }
+ else     if (offset < _winningOffset) {
+      response=catchup(instanceId,offset);
+    }
+ else {
+      response=hold(instanceId,offset);
+    }
+  }
+  return response;
+}

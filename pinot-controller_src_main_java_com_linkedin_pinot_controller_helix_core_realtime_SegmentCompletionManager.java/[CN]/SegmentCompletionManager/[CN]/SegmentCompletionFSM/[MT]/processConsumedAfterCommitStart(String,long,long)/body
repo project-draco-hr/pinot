@@ -1,0 +1,23 @@
+{
+  SegmentCompletionProtocol.Response response;
+  response=abortIfTooLateAndReturnHold(now,instanceId,offset);
+  if (response != null) {
+    return null;
+  }
+  if (instanceId.equals(_winner)) {
+    LOGGER.warn("{}:Aborting FSM because winner is reporting a segment while it is also committing instance={} offset={} now={}",_state,instanceId,offset,now);
+    return abortAndReturnHold(now,instanceId,offset);
+  }
+ else {
+    if (offset == _winningOffset) {
+      response=hold(instanceId,offset);
+    }
+ else     if (offset < _winningOffset) {
+      response=catchup(instanceId,offset);
+    }
+ else {
+      response=hold(instanceId,offset);
+    }
+  }
+  return response;
+}

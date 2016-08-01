@@ -1,0 +1,21 @@
+{
+  SegmentCompletionProtocol.Response response;
+  if (now > _startTime + MAX_TIME_TO_PICK_WINNER_MS || _commitStateMap.size() == _numReplicas) {
+    LOGGER.info("{}:Picking winner time={} size={}",_state,now - _startTime,_commitStateMap.size());
+    pickWinner(instanceId);
+    if (_winner.equals(instanceId)) {
+      LOGGER.info("{}:Committer notified winner instance={} offset={}",_state,instanceId,offset);
+      response=commit(instanceId,offset);
+      _state=State.COMMITTER_NOTIFIED;
+    }
+ else {
+      LOGGER.info("{}:Committer decided winner={} offset={}",_state,_winner,_winningOffset);
+      response=catchup(instanceId,offset);
+      _state=State.COMMITTER_DECIDED;
+    }
+  }
+ else {
+    response=hold(instanceId,offset);
+  }
+  return response;
+}

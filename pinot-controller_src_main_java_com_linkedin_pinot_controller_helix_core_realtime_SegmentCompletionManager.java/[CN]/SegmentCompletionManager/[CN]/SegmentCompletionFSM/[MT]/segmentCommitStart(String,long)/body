@@ -1,0 +1,24 @@
+{
+  long now=_segmentCompletionManager.getCurrentTimeMs();
+synchronized (this) {
+    LOGGER.info("Processing segmentCommit({}, {})",instanceId,offset);
+switch (_state) {
+case HOLDING:
+      return HOLDING__commit(instanceId,offset,now);
+case COMMITTER_DECIDED:
+    return COMMITTER_DECIDED__commit(instanceId,offset,now);
+case COMMITTER_NOTIFIED:
+  return COMMITTER_NOTIFIED__commit(instanceId,offset,now);
+case COMMITTER_UPLOADING:
+return COMMITTER_UPLOADING__commit(instanceId,offset,now);
+case COMMITTING:
+return COMMITTING__commit(instanceId,offset,now);
+case COMMITTED:
+return COMMITTED__commit(instanceId,offset);
+case ABORTED:
+return hold(instanceId,offset);
+default :
+return fail(instanceId,offset);
+}
+}
+}

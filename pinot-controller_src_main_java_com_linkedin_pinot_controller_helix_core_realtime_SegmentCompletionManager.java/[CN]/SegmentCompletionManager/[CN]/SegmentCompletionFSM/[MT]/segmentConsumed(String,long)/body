@@ -1,0 +1,25 @@
+{
+  final long now=_segmentCompletionManager.getCurrentTimeMs();
+synchronized (this) {
+    LOGGER.info("Processing segmentConsumed({}, {})",instanceId,offset);
+    _commitStateMap.put(instanceId,offset);
+switch (_state) {
+case HOLDING:
+      return HOLDING__consumed(instanceId,offset,now);
+case COMMITTER_DECIDED:
+    return COMMITTER_DECIDED__consumed(instanceId,offset,now);
+case COMMITTER_NOTIFIED:
+  return COMMITTER_NOTIFIED__consumed(instanceId,offset,now);
+case COMMITTER_UPLOADING:
+return COMMITTER_UPLOADING__consumed(instanceId,offset,now);
+case COMMITTING:
+return COMMITTING__consumed(instanceId,offset,now);
+case COMMITTED:
+return COMMITTED__consumed(instanceId,offset);
+case ABORTED:
+return hold(instanceId,offset);
+default :
+return fail(instanceId,offset);
+}
+}
+}

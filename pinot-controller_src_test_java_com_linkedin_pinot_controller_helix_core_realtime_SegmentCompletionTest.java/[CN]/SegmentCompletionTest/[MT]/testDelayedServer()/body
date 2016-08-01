@@ -1,0 +1,30 @@
+{
+  SegmentCompletionProtocol.Response response;
+  final int startTimeSecs=5;
+  segmentCompletionMgr._secconds=startTimeSecs;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=SegmentCompletionProtocol.MAX_HOLD_TIME_MS / 1000;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s2Offset + 10);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentCommitStart(segmentNameStr,s2,s2Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT_CONTINUE);
+  segmentCompletionMgr._secconds+=5;
+  response=segmentCompletionMgr.segmentCommitEnd(segmentNameStr,s2,s2Offset,true);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT_SUCCESS);
+  Assert.assertFalse(fsmMap.containsKey(segmentNameStr));
+  segmentCompletionMgr._secconds+=1;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s3,s2Offset + 10);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.DISCARD);
+  Assert.assertFalse(fsmMap.containsKey(segmentNameStr));
+}

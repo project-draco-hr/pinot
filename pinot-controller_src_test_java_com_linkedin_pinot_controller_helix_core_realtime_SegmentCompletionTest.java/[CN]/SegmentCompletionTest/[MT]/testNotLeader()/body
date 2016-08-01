@@ -1,0 +1,8 @@
+{
+  testCaseSetup(false);
+  SegmentCompletionProtocol.Response response;
+  response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.NOT_LEADER);
+  response=segmentCompletionMgr.segmentCommitStart(segmentNameStr,s1,s1Offset);
+  Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.NOT_LEADER);
+}
