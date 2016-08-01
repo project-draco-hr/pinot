@@ -1,4 +1,5 @@
 {
-  LOGGER.error("Unexpected transition from OFFLINE to CONSUMING for {}",message.getResourceName());
-  throw new RuntimeException("Unexpected state transition");
+  Preconditions.checkState(SegmentName.isLowLevelConsumerSegmentName(message.getPartitionName()),"Tried to go into CONSUMING state on non-low level segment");
+  LOGGER.info("SegmentOnlineOfflineStateModel.onBecomeConsumingFromOffline() : " + message);
+  onBecomeOnlineFromOffline(message,context);
 }

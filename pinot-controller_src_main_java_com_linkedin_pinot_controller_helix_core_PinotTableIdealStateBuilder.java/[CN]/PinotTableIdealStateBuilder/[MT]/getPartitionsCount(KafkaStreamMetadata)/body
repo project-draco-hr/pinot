@@ -1,3 +1,9 @@
 {
-  return 8;
+  SimpleConsumerWrapper consumerWrapper=SimpleConsumerWrapper.forMetadataConsumption(new KafkaSimpleConsumerFactoryImpl(),kafkaMetadata.getBootstrapHosts(),PinotTableIdealStateBuilder.class.getSimpleName() + "-" + kafkaMetadata.getKafkaTopicName());
+  try {
+    return consumerWrapper.getPartitionCount(kafkaMetadata.getKafkaTopicName());
+  }
+  finally {
+    IOUtils.closeQuietly(consumerWrapper);
+  }
 }

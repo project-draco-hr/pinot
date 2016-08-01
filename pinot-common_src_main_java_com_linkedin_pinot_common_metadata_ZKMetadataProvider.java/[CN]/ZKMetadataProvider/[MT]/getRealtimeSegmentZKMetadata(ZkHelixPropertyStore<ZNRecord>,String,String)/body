@@ -1,4 +1,10 @@
 {
   String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
-  return new RealtimeSegmentZKMetadata(propertyStore.get(constructPropertyStorePathForSegment(realtimeTableName,segmentName),null,AccessOption.PERSISTENT));
+  ZNRecord znRecord=propertyStore.get(constructPropertyStorePathForSegment(realtimeTableName,segmentName),null,AccessOption.PERSISTENT);
+  if (SegmentName.isHighLevelConsumerSegmentName(segmentName)) {
+    return new RealtimeSegmentZKMetadata(znRecord);
+  }
+ else {
+    return new LLCRealtimeSegmentZKMetadata(znRecord);
+  }
 }

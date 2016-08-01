@@ -17,13 +17,13 @@
   metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.HighLevelConsumer.ZK_CONNECTION_STRING,"potato");
   metadata.put(DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE,Integer.toString(1234));
   metadata.put(DataSource.STREAM_PREFIX + "." + Kafka.KAFKA_CONSUMER_PROPS_PREFIX+ "."+ "auto.offset.reset","smallest");
-  request=ControllerRequestBuilder.buildCreateRealtimeTableJSON("bad__table__name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",metadata,"fakeSchema","fakeColumn",Collections.<String>emptyList(),"MMAP");
+  request=ControllerRequestBuilder.buildCreateRealtimeTableJSON("bad__table__name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",metadata,"fakeSchema","fakeColumn",Collections.<String>emptyList(),"MMAP",true);
   try {
     sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
     fail("Creation of a table with two underscores in the table name did not fail");
   }
  catch (  IOException e) {
   }
-  request=ControllerRequestBuilder.buildCreateRealtimeTableJSON("valid_table_name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",metadata,"fakeSchema","fakeColumn",Collections.<String>emptyList(),"MMAP");
+  request=ControllerRequestBuilder.buildCreateRealtimeTableJSON("valid_table_name","default","default","potato","DAYS","DAYS","5",3,"BalanceNumSegmentAssignmentStrategy",metadata,"fakeSchema","fakeColumn",Collections.<String>emptyList(),"MMAP",true);
   sendPostRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forTableCreate(),request.toString());
 }

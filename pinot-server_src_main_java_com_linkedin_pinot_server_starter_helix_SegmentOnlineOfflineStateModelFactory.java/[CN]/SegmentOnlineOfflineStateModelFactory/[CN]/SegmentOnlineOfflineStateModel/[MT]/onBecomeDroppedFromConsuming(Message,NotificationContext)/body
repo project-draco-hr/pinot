@@ -1,4 +1,11 @@
 {
-  LOGGER.error("Unexpected transition from CONSUMING to DROPPED for {}",message.getResourceName());
-  throw new RuntimeException("Unexpected state transition");
+  LOGGER.info("SegmentOnlineOfflineStateModel.onBecomeDroppedFromConsuming() : " + message);
+  try {
+    onBecomeOfflineFromConsuming(message,context);
+    onBecomeDroppedFromOffline(message,context);
+  }
+ catch (  final Exception e) {
+    LOGGER.error("Caught exception on CONSUMING -> DROPPED state transition",e);
+    Utils.rethrowException(e);
+  }
 }

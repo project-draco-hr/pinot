@@ -1,4 +1,14 @@
 {
-  LOGGER.error("Unexpected transition from CONSUMING to ONLINE for {}",message.getResourceName());
-  throw new RuntimeException("Unexpected state transition");
+  final TableDataManager tableDataManager=((InstanceDataManager)INSTANCE_DATA_MANAGER).getTableDataManager(message.getResourceName());
+  SegmentDataManager acquiredSegment=tableDataManager.acquireSegment(message.getPartitionName());
+  try {
+    if (acquiredSegment != null && acquiredSegment instanceof LLRealtimeSegmentDataManager) {
+      ((LLRealtimeSegmentDataManager)acquiredSegment).goOnlineFromConsuming();
+    }
+  }
+  finally {
+    if (acquiredSegment != null) {
+      tableDataManager.releaseSegment(acquiredSegment);
+    }
+  }
 }

@@ -27,7 +27,7 @@
   this.segmentMetatdaZk=segmentMetadata;
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
   this.kafkaStreamProviderConfig.init(tableConfig,instanceMetadata,schema);
-  segmentLogger=LoggerFactory.getLogger(RealtimeSegmentDataManager.class.getName() + "_" + segmentName+ "_"+ kafkaStreamProviderConfig.getStreamName());
+  segmentLogger=LoggerFactory.getLogger(HLRealtimeSegmentDataManager.class.getName() + "_" + segmentName+ "_"+ kafkaStreamProviderConfig.getStreamName());
   segmentLogger.info("Created segment data manager with Sorted column:{}, invertedIndexColumns:{}",sortedColumn,invertedIndexColumns);
   segmentEndTimeThreshold=start + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
   this.resourceDir=new File(resourceDataDir);
