@@ -30,9 +30,11 @@
   }
   anomalyFunctionSpec.setBucketSize(dataGranularity.getSize());
   anomalyFunctionSpec.setBucketUnit(dataGranularity.getUnit());
-  filters=URLDecoder.decode(filters,UTF8);
-  String filterString=ThirdEyeUtils.getSortedFiltersFromJson(filters);
-  anomalyFunctionSpec.setFilters(filterString);
+  if (!StringUtils.isBlank(filters)) {
+    filters=URLDecoder.decode(filters,UTF8);
+    String filterString=ThirdEyeUtils.getSortedFiltersFromJson(filters);
+    anomalyFunctionSpec.setFilters(filterString);
+  }
   anomalyFunctionSpec.setExploreDimensions(exploreDimensions);
   anomalyFunctionSpec.setProperties(properties);
   if (StringUtils.isEmpty(cron)) {
