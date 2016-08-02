@@ -1,0 +1,20 @@
+{
+  if (_simpleConsumer != null) {
+    try {
+      _simpleConsumer.close();
+    }
+ catch (    Exception e) {
+      LOGGER.warn("Caught exception while closing consumer, ignoring",e);
+    }
+  }
+  int randomHostIndex=_random.nextInt(_bootstrapHosts.length);
+  String host=_bootstrapHosts[randomHostIndex];
+  int port=_bootstrapPorts[randomHostIndex];
+  try {
+    _simpleConsumer=_simpleConsumerFactory.buildSimpleConsumer(host,port,SOCKET_TIMEOUT_MILLIS,SOCKET_BUFFER_SIZE,_clientId);
+    setCurrentState(new ConnectedToBootstrapNode());
+  }
+ catch (  Exception e) {
+    handleConsumerException(e);
+  }
+}

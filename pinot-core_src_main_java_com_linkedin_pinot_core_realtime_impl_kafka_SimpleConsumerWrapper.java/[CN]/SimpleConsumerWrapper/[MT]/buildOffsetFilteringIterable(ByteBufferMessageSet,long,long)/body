@@ -1,0 +1,15 @@
+{
+  return Iterables.filter(messageAndOffsets,new Predicate<MessageAndOffset>(){
+    @Override public boolean apply(    @Nullable MessageAndOffset input){
+      if (input == null || input.offset() < startOffset || (endOffset <= input.offset() && endOffset != -1)) {
+        return false;
+      }
+      if (!input.message().isValid()) {
+        LOGGER.warn("Discarded message with invalid checksum in partition {} of topic {}",_partition,_topic);
+        return false;
+      }
+      return true;
+    }
+  }
+);
+}

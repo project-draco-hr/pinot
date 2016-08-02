@@ -1,0 +1,8 @@
+{
+  boolean needToCloseConsumer=_currentState.isConnectedToKafkaBroker() && _simpleConsumer != null;
+  setCurrentState(new ConnectingToBootstrapNode());
+  if (needToCloseConsumer) {
+    _simpleConsumer.close();
+    _simpleConsumer=null;
+  }
+}

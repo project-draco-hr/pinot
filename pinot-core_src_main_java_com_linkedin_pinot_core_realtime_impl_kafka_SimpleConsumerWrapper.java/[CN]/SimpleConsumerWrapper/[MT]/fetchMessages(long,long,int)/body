@@ -1,0 +1,7 @@
+{
+  while (_currentState.getStateValue() != ConsumerState.CONNECTED_TO_PARTITION_LEADER) {
+    _currentState.process();
+  }
+  FetchResponse fetchResponse=_simpleConsumer.fetch(new FetchRequestBuilder().minBytes(100000).maxWait(timeoutMillis).addFetch(_topic,_partition,startOffset,500000).build());
+  return buildOffsetFilteringIterable(fetchResponse.messageSet(_topic,_partition),startOffset,endOffset);
+}
