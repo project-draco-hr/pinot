@@ -1,0 +1,13 @@
+{
+  setupCluster(2,1);
+  scaleDownBroker(1);
+  try {
+    Assert.assertEquals(_helixAdmin.getInstancesInClusterWithTag(getHelixClusterName(),brokerTenant).size(),1);
+  }
+ catch (  Exception e) {
+    Assert.fail("Exception caught while getting all instances in cluster with tag: " + e);
+  }
+ finally {
+    tearDownCluster();
+  }
+}

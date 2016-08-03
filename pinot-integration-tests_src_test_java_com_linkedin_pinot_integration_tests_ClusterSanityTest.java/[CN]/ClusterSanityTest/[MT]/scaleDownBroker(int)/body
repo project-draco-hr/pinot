@@ -1,0 +1,7 @@
+{
+  Tenant tenant=new Tenant.TenantBuilder(tenantName).setRole(TenantRole.BROKER).setTotalInstances(newNumBrokers).setOfflineInstances(newNumBrokers).build();
+  JSONObject request=tenant.toJSON();
+  sendPutRequest(ControllerRequestURLBuilder.baseUrl(CONTROLLER_BASE_API_URL).forBrokerTenantCreate(),request.toString());
+  Thread.sleep(WAIT_TIME_FOR_TENANT_UPDATE);
+  return brokerTenant;
+}
