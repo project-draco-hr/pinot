@@ -11,32 +11,41 @@
   final AtomicInteger counter=new AtomicInteger(0);
   final AtomicLong totalResponseTime=new AtomicLong(0L);
   final ExecutorService executorService=Executors.newFixedThreadPool(numThreads);
+  final DescriptiveStatistics stats=new DescriptiveStatistics();
+  final CountDownLatch latch=new CountDownLatch(numThreads);
   for (int i=0; i < numThreads; i++) {
     executorService.submit(new Runnable(){
       @Override public void run(){
-        while (true) {
+        for (int j=0; j < numQueries; j++) {
           String query=queries.get(random.nextInt(numQueries));
           long startTime=System.currentTimeMillis();
           try {
             driver.postQuery(query);
+            long clientTime=System.currentTimeMillis() - startTime;
+synchronized (stats) {
+              stats.addValue(clientTime);
+            }
             counter.getAndIncrement();
-            totalResponseTime.getAndAdd(System.currentTimeMillis() - startTime);
+            totalResponseTime.getAndAdd(clientTime);
           }
  catch (          Exception e) {
             LOGGER.error("Caught exception while running query: {}",query,e);
             return;
           }
         }
+        latch.countDown();
       }
     }
 );
   }
+  executorService.shutdown();
   long startTime=System.currentTimeMillis();
-  while (true) {
+  while (latch.getCount() > 0) {
     Thread.sleep(reportIntervalMillis);
     double timePassedSeconds=((double)(System.currentTimeMillis() - startTime)) / MILLIS_PER_SECOND;
     int count=counter.get();
     double avgResponseTime=((double)totalResponseTime.get()) / count;
     LOGGER.info("Time Passed: {}s, Query Executed: {}, QPS: {}, Avg Response Time: {}ms",timePassedSeconds,count,count / timePassedSeconds,avgResponseTime);
   }
+  printStats(stats);
 }

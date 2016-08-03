@@ -16,6 +16,7 @@
   conf.setStartServer(false);
   conf.setUploadIndexes(false);
   conf.setConfigureResources(false);
+  long start=System.currentTimeMillis();
 switch (queryRunner._mode) {
 case "singleThread":
     singleThreadedQueryRunner(conf,queryRunner._queryFile);
@@ -51,4 +52,5 @@ System.out.println("Invalid mode: " + queryRunner._mode);
 printUsage();
 break;
 }
+System.out.println("Overall time: " + (System.currentTimeMillis() - start) + "ms");
 }

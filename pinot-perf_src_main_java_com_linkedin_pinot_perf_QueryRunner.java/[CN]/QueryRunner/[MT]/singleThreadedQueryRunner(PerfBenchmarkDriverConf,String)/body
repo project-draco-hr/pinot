@@ -6,17 +6,22 @@
     int totalBrokerTime=0;
     int totalClientTime=0;
     String query;
+    DescriptiveStatistics stats=new DescriptiveStatistics();
     while ((query=bufferedReader.readLine()) != null) {
       long startTime=System.currentTimeMillis();
       JSONObject response=driver.postQuery(query);
       numQueries++;
-      totalClientTime+=System.currentTimeMillis() - startTime;
+      long clientTime=System.currentTimeMillis() - startTime;
+      totalClientTime+=clientTime;
       totalServerTime+=response.getLong("timeUsedMs");
-      totalBrokerTime+=response.getLong("totalTime");
+      long brokerTime=response.getLong("totalTime");
+      totalBrokerTime+=brokerTime;
+      stats.addValue(clientTime);
       if (numQueries % 1000 == 0) {
         LOGGER.info("Processed {} Queries, Total Server Time: {}ms, Total Broker Time: {}ms, Total Client Time : {}ms.",numQueries,totalServerTime,totalBrokerTime,totalClientTime);
       }
     }
     LOGGER.info("Processed {} Queries, Total Server Time: {}ms, Total Broker Time: {}ms, Total Client Time : {}ms.",numQueries,totalServerTime,totalBrokerTime,totalClientTime);
+    printStats(stats);
   }
  }
