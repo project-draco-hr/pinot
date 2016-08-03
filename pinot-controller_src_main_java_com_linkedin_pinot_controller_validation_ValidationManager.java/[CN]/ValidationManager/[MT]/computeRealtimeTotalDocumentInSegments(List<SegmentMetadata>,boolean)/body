@@ -1,0 +1,25 @@
+{
+  long totalDocumentCount=0;
+  String groupId="";
+  for (  SegmentMetadata segmentMetadata : segmentMetadataList) {
+    String segmentName=segmentMetadata.getName();
+    if (SegmentName.isHighLevelConsumerSegmentName(segmentName)) {
+      if (countHLCSegments) {
+        HLCSegmentName hlcSegmentName=new HLCSegmentName(segmentName);
+        String segmentGroupIdName=hlcSegmentName.getGroupId();
+        if (groupId.isEmpty()) {
+          groupId=segmentGroupIdName;
+        }
+        if (groupId.equals(segmentGroupIdName) && segmentMetadata.getTotalRawDocs() >= 0) {
+          totalDocumentCount+=segmentMetadata.getTotalRawDocs();
+        }
+      }
+    }
+ else {
+      if (!countHLCSegments) {
+        totalDocumentCount+=segmentMetadata.getTotalRawDocs();
+      }
+    }
+  }
+  return totalDocumentCount;
+}

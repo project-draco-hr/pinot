@@ -10,11 +10,23 @@
     List<SegmentMetadata> segmentMetadataList=new ArrayList<SegmentMetadata>();
     if (TableNameBuilder.getTableTypeFromTableName(tableName) != TableType.OFFLINE) {
       List<RealtimeSegmentZKMetadata> realtimeSegmentZKMetadatas=ZKMetadataProvider.getRealtimeSegmentZKMetadataListForTable(propertyStore,tableName);
+      boolean countHLCSegments=true;
+      try {
+        AbstractTableConfig tableConfig=_pinotHelixResourceManager.getRealtimeTableConfig(tableName);
+        KafkaStreamMetadata streamMetadata=new KafkaStreamMetadata(tableConfig.getIndexingConfig().getStreamConfigs());
+        if (streamMetadata.hasSimpleKafkaConsumerType() && !streamMetadata.hasHighLevelKafkaConsumerType()) {
+          countHLCSegments=false;
+        }
+      }
+ catch (      Exception e) {
+        LOGGER.warn("Cannot get tableconfig for {}",tableName);
+        continue;
+      }
       for (      RealtimeSegmentZKMetadata realtimeSegmentZKMetadata : realtimeSegmentZKMetadatas) {
         SegmentMetadata segmentMetadata=new SegmentMetadataImpl(realtimeSegmentZKMetadata);
         segmentMetadataList.add(segmentMetadata);
       }
-      _validationMetrics.updateTotalDocumentsGauge(tableName,computeRealtimeTotalDocumentInSegments(segmentMetadataList));
+      _validationMetrics.updateTotalDocumentsGauge(tableName,computeRealtimeTotalDocumentInSegments(segmentMetadataList,countHLCSegments));
     }
  else {
       List<OfflineSegmentZKMetadata> offlineSegmentZKMetadatas=ZKMetadataProvider.getOfflineSegmentZKMetadataListForTable(propertyStore,tableName);

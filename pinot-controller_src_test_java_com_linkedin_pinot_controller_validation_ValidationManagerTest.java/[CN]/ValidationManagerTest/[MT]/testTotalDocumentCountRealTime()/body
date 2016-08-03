@@ -15,5 +15,12 @@
   segmentMetadataList.add(metadata2);
   segmentMetadataList.add(metadata3);
   segmentMetadataList.add(metadata4);
-  Assert.assertEquals(ValidationManager.computeRealtimeTotalDocumentInSegments(segmentMetadataList),60);
+  Assert.assertEquals(ValidationManager.computeRealtimeTotalDocumentInSegments(segmentMetadataList,true),60);
+  String segmentName5=new LLCSegmentName(testTableName,1,0,1000).getSegmentName();
+  String segmentName6=new LLCSegmentName(testTableName,2,27,10000).getSegmentName();
+  DummyMetadata metadata5=new DummyMetadata(testTableName,segmentName5,10);
+  DummyMetadata metadata6=new DummyMetadata(testTableName,segmentName6,5);
+  segmentMetadataList.add(metadata5);
+  segmentMetadataList.add(metadata6);
+  Assert.assertEquals(ValidationManager.computeRealtimeTotalDocumentInSegments(segmentMetadataList,false),15);
 }
