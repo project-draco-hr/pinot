@@ -1,0 +1,26 @@
+{
+  EmailConfiguration alertConfig=emailConfigurationDAO.findById(id);
+  if (alertConfig == null) {
+    throw new IllegalArgumentException("No alert config with id " + id);
+  }
+  String triggerKey=String.format("alert_adhoc_trigger_%d",id);
+  Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
+  String jobKey="adhoc_" + getJobKey(id);
+  JobDetail job=JobBuilder.newJob(AlertJobRunner.class).withIdentity(jobKey).build();
+  AlertJobContext alertJobContext=new AlertJobContext();
+  alertJobContext.setAnomalyJobDAO(anomalyJobDAO);
+  alertJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
+  alertJobContext.setEmailConfigurationDAO(emailConfigurationDAO);
+  alertJobContext.setAlertConfigId(id);
+  alertJobContext.setJobName(jobKey);
+  alertJobContext.setWindowStartTime(windowStartTime);
+  alertJobContext.setWindowEndTime(windowEndTime);
+  job.getJobDataMap().put(AlertJobRunner.ALERT_JOB_CONTEXT,alertJobContext);
+  try {
+    quartzScheduler.scheduleJob(job,trigger);
+  }
+ catch (  SchedulerException e) {
+    LOG.error("Exception while scheduling job",e);
+  }
+  LOG.info("Started {}: {}",jobKey,alertConfig);
+}

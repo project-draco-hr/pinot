@@ -7,7 +7,7 @@
     throw new IllegalStateException("AnomalyFunctionSpec with id " + id + " does not exist");
   }
   if (anomalyFunctionSpec.getIsActive()) {
-    detectorHttpUtils.disableAnomalyFunction(String.valueOf(id));
+    detectionResourceHttpUtils.disableAnomalyFunction(String.valueOf(id));
   }
   CollectionSchema schema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset);
   TimeGranularity dataGranularity=schema.getTime().getDataGranularity();
@@ -48,7 +48,7 @@
   anomalyFunctionSpec.setCron(cron);
   Long responseId=anomalyFunctionDAO.save(anomalyFunctionSpec);
   if (isActive) {
-    detectorHttpUtils.enableAnomalyFunction(String.valueOf(responseId));
+    detectionResourceHttpUtils.enableAnomalyFunction(String.valueOf(responseId));
   }
   return Response.ok(responseId).build();
 }

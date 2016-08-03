@@ -1,0 +1,18 @@
+{
+  HttpClient controllerClient=new DefaultHttpClient();
+  HttpResponse res=controllerClient.execute(alertJobHttpHost,req);
+  String response=null;
+  try {
+    if (res.getStatusLine().getStatusCode() != 200) {
+      throw new IllegalStateException(res.getStatusLine().toString());
+    }
+    InputStream content=res.getEntity().getContent();
+    response=IOUtils.toString(content);
+  }
+  finally {
+    if (res.getEntity() != null) {
+      EntityUtils.consume(res.getEntity());
+    }
+  }
+  return response;
+}

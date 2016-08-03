@@ -7,24 +7,24 @@
   anomalyFunctionId=detectionJobContext.getAnomalyFunctionId();
   AnomalyFunctionSpec anomalyFunctionSpec=getAnomalyFunctionSpec(anomalyFunctionId);
   detectionJobContext.setAnomalyFunctionSpec(anomalyFunctionSpec);
-  windowStart=detectionJobContext.getWindowStart();
-  windowEnd=detectionJobContext.getWindowEnd();
-  if (windowEnd == null) {
+  windowStartTime=detectionJobContext.getWindowStartTime();
+  windowEndTime=detectionJobContext.getWindowEndTime();
+  if (windowEndTime == null) {
     long delayMillis=0;
     if (anomalyFunctionSpec.getWindowDelay() != null) {
       delayMillis=TimeUnit.MILLISECONDS.convert(anomalyFunctionSpec.getWindowDelay(),anomalyFunctionSpec.getWindowDelayUnit());
     }
     Date scheduledFireTime=jobExecutionContext.getScheduledFireTime();
-    windowEnd=new DateTime(scheduledFireTime).minus(delayMillis);
+    windowEndTime=new DateTime(scheduledFireTime).minus(delayMillis);
   }
-  if (windowStart == null) {
+  if (windowStartTime == null) {
     int windowSize=anomalyFunctionSpec.getWindowSize();
     TimeUnit windowUnit=anomalyFunctionSpec.getWindowUnit();
     long windowMillis=TimeUnit.MILLISECONDS.convert(windowSize,windowUnit);
-    windowStart=windowEnd.minus(windowMillis);
+    windowStartTime=windowEndTime.minus(windowMillis);
   }
-  detectionJobContext.setWindowStart(windowStart);
-  detectionJobContext.setWindowEnd(windowEnd);
+  detectionJobContext.setWindowStartTime(windowStartTime);
+  detectionJobContext.setWindowEndTime(windowEndTime);
   Long jobExecutionId=createJob();
   detectionJobContext.setJobExecutionId(jobExecutionId);
   List<Long> taskIds=createTasks();

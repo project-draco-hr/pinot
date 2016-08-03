@@ -1,4 +1,12 @@
 {
-  alertJobScheduler.runAdHoc(id,start,end);
+  DateTime startTime=null;
+  DateTime endTime=null;
+  if (StringUtils.isNotBlank(startTimeIso)) {
+    startTime=ISODateTimeFormat.dateTimeParser().parseDateTime(startTimeIso);
+  }
+  if (StringUtils.isNotBlank(endTimeIso)) {
+    endTime=ISODateTimeFormat.dateTimeParser().parseDateTime(endTimeIso);
+  }
+  alertJobScheduler.runAdHoc(id,startTime,endTime);
   return Response.ok().build();
 }
