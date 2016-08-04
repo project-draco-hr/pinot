@@ -42,7 +42,8 @@
       allowedSegmentInConsumingStateByKafkaPartition.put(kafkaPartition,lastAllowedSegmentInConsumingState);
     }
   }
-  PriorityQueue<Pair<String,Set<String>>> segmentToReplicaSetQueue=new PriorityQueue<Pair<String,Set<String>>>(externalView.getPartitionSet().size(),new Comparator<Pair<String,Set<String>>>(){
+  int segmentCount=Math.max(externalView.getPartitionSet().size(),1);
+  PriorityQueue<Pair<String,Set<String>>> segmentToReplicaSetQueue=new PriorityQueue<Pair<String,Set<String>>>(segmentCount,new Comparator<Pair<String,Set<String>>>(){
     @Override public int compare(    Pair<String,Set<String>> firstPair,    Pair<String,Set<String>> secondPair){
       return Integer.compare(firstPair.getRight().size(),secondPair.getRight().size());
     }
