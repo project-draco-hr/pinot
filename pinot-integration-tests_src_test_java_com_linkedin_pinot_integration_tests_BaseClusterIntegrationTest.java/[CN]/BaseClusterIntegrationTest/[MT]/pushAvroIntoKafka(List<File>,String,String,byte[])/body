@@ -4,7 +4,7 @@
   properties.put("serializer.class","kafka.serializer.DefaultEncoder");
   properties.put("request.required.acks","1");
   ProducerConfig producerConfig=new ProducerConfig(properties);
-  Producer<String,byte[]> producer=new Producer<String,byte[]>(producerConfig);
+  Producer<byte[],byte[]> producer=new Producer<byte[],byte[]>(producerConfig);
   for (  File avroFile : avroFiles) {
     try {
       ByteArrayOutputStream outputStream=new ByteArrayOutputStream(65536);
@@ -12,7 +12,7 @@
       BinaryEncoder binaryEncoder=new EncoderFactory().directBinaryEncoder(outputStream,null);
       GenericDatumWriter<GenericRecord> datumWriter=new GenericDatumWriter<GenericRecord>(reader.getSchema());
       int recordCount=0;
-      List<KeyedMessage<String,byte[]>> messagesToWrite=new ArrayList<KeyedMessage<String,byte[]>>(10000);
+      List<KeyedMessage<byte[],byte[]>> messagesToWrite=new ArrayList<KeyedMessage<byte[],byte[]>>(10000);
       int messagesInThisBatch=0;
       for (      GenericRecord genericRecord : reader) {
         outputStream.reset();
@@ -22,7 +22,7 @@
         datumWriter.write(genericRecord,binaryEncoder);
         binaryEncoder.flush();
         byte[] bytes=outputStream.toByteArray();
-        KeyedMessage<String,byte[]> data=new KeyedMessage<String,byte[]>(kafkaTopic,bytes);
+        KeyedMessage<byte[],byte[]> data=new KeyedMessage<byte[],byte[]>(kafkaTopic,Longs.toByteArray(System.currentTimeMillis()),bytes);
         if (BATCH_KAFKA_MESSAGES) {
           messagesToWrite.add(data);
           messagesInThisBatch++;
