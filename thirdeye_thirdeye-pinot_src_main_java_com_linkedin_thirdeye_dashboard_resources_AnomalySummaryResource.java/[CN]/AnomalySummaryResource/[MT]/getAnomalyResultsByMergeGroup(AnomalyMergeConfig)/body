@@ -1,0 +1,15 @@
+{
+  if (mergeConfig == null) {
+    mergeConfig=new AnomalyMergeConfig();
+  }
+switch (mergeConfig.getMergeStrategy()) {
+case FUNCTION:
+    return resultDAO.getCountByFunction(mergeConfig.getStartTime(),mergeConfig.getEndTime());
+case COLLECTION_METRIC:
+  return resultDAO.getCountByCollectionMetric(mergeConfig.getStartTime(),mergeConfig.getEndTime());
+case COLLECTION:
+return resultDAO.getCountByCollection(mergeConfig.getStartTime(),mergeConfig.getEndTime());
+default :
+throw new IllegalArgumentException("Unknown merge strategy : " + mergeConfig.getMergeStrategy());
+}
+}

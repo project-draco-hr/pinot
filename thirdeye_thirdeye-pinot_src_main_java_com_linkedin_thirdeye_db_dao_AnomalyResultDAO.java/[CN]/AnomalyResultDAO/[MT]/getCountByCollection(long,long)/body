@@ -1,12 +1,11 @@
 {
   List<GroupByRow<GroupByKey,Long>> groupByRecords=new ArrayList<>();
-  TypedQuery<Object[]> q=getEntityManager().createQuery(COUNT_GROUP_BY_COLLECTION_METRIC,Object[].class);
+  TypedQuery<Object[]> q=getEntityManager().createQuery(COUNT_GROUP_BY_COLLECTION,Object[].class).setParameter("startTimeUtc",startTime).setParameter("endTimeUtc",endTime);
   List<Object[]> results=q.getResultList();
   for (int i=0; i < results.size(); i++) {
     Long count=(Long)results.get(i)[0];
     GroupByKey groupByKey=new GroupByKey();
     groupByKey.setDataset((String)results.get(i)[1]);
-    groupByKey.setMetric((String)results.get(i)[2]);
     GroupByRow<GroupByKey,Long> row=new GroupByRow<>();
     row.setGroupBy(groupByKey);
     row.setValue(count);

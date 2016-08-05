@@ -1,0 +1,18 @@
+{
+  if (StringUtils.isEmpty(collection)) {
+    throw new IllegalArgumentException("Collection can't be empty");
+  }
+  if (mergeConfig == null) {
+    mergeConfig=new AnomalyMergeConfig();
+  }
+  DateTime startTimeUtc=new DateTime(mergeConfig.getStartTime());
+  DateTime endTimeUtc=new DateTime(mergeConfig.getEndTime());
+  List<AnomalyResult> anomalies;
+  if (!StringUtils.isEmpty(metric)) {
+    anomalies=resultDAO.findAllByCollectionTimeAndMetric(collection,metric,startTimeUtc,endTimeUtc);
+  }
+ else {
+    anomalies=resultDAO.findAllByCollectionAndTime(collection,startTimeUtc,endTimeUtc);
+  }
+  return AnomalySummaryGenerator.mergeAnomalies(anomalies,mergeConfig);
+}

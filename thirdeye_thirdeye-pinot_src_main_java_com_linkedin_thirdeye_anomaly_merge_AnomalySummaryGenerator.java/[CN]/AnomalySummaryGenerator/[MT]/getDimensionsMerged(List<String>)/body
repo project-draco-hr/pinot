@@ -1,0 +1,30 @@
+{
+  Map<Integer,Set<String>> mergedDimensions=new HashMap<>();
+  for (  String dimensions : dimentionList) {
+    if (dimensions != null) {
+      String[] dimArr=dimensions.split(",");
+      if (dimArr.length > 0) {
+        for (int i=0; i < dimArr.length; i++) {
+          if (dimArr[i] != null && !dimArr[i].equals("") && !dimArr[i].equals("*")) {
+            if (!mergedDimensions.containsKey(i)) {
+              mergedDimensions.put(i,new HashSet<>());
+            }
+            mergedDimensions.get(i).add(dimArr[i]);
+          }
+        }
+      }
+    }
+  }
+  StringBuffer dimBuff=new StringBuffer();
+  int count=0;
+  for (  Map.Entry<Integer,Set<String>> entry : mergedDimensions.entrySet()) {
+    if (entry.getValue().size() > 0) {
+      if (count != 0) {
+        dimBuff.append(',');
+      }
+      dimBuff.append(entry.getValue().toString());
+      count++;
+    }
+  }
+  return dimBuff.toString();
+}
