@@ -12,44 +12,36 @@
     LOGGER.info("Updating routing table for table {} due to ZK change (current version {}, last known version {})",tableName,externalViewRecordVersion,lastKnownZkVersion);
   }
   _routingTableLastKnownZkVersionMap.put(tableName,externalViewRecordVersion);
-  if (!_dataTableSet.contains(tableName)) {
-    LOGGER.info("Adding a new data table to broker : " + tableName);
-    _dataTableSet.add(tableName);
-  }
   RoutingTableBuilder routingTableBuilder;
-  TableType tableType=TableNameBuilder.getTableTypeFromTableName(tableName);
-  if (tableType != null) {
-switch (tableType) {
-case REALTIME:
-      routingTableBuilder=_defaultRealtimeRoutingTableBuilder;
-    break;
-case OFFLINE:
-  routingTableBuilder=_defaultOfflineRoutingTableBuilder;
-break;
-default :
-routingTableBuilder=_defaultOfflineRoutingTableBuilder;
-break;
-}
-}
+  CommonConstants.Helix.TableType tableType=TableNameBuilder.getTableTypeFromTableName(tableName);
+  if (CommonConstants.Helix.TableType.REALTIME.equals(tableType)) {
+    routingTableBuilder=_realtimeHLCRoutingTableBuilder;
+  }
  else {
-routingTableBuilder=_defaultOfflineRoutingTableBuilder;
-}
-if (_routingTableBuilderMap.containsKey(tableName) && (_routingTableBuilderMap.get(tableName) != null)) {
-routingTableBuilder=_routingTableBuilderMap.get(tableName);
-}
-LOGGER.info("Trying to compute routing table for table : " + tableName + ",by : "+ routingTableBuilder);
-try {
-List<ServerToSegmentSetMap> serverToSegmentSetMap=routingTableBuilder.computeRoutingTableFromExternalView(tableName,externalView,instanceConfigList);
-_brokerRoutingTable.put(tableName,serverToSegmentSetMap);
-}
- catch (Exception e) {
-LOGGER.error("Failed to compute/update the routing table" + e.getCause(),e);
-}
-try {
-LOGGER.info("Trying to compute time boundary service for table : " + tableName);
-_timeBoundaryService.updateTimeBoundaryService(externalView);
-}
- catch (Exception e) {
-LOGGER.error("Failed to update the TimeBoundaryService : " + e.getCause(),e);
-}
+    routingTableBuilder=_offlineRoutingTableBuilder;
+  }
+  LOGGER.info("Trying to compute routing table for table {} using {}",tableName,routingTableBuilder);
+  try {
+    List<ServerToSegmentSetMap> serverToSegmentSetMap=routingTableBuilder.computeRoutingTableFromExternalView(tableName,externalView,instanceConfigList);
+    _brokerRoutingTable.put(tableName,serverToSegmentSetMap);
+    if (CommonConstants.Helix.TableType.REALTIME.equals(tableType)) {
+      try {
+        List<ServerToSegmentSetMap> llcserverToSegmentSetMap=_realtimeLLCRoutingTableBuilder.computeRoutingTableFromExternalView(tableName,externalView,instanceConfigList);
+        _llcBrokerRoutingTable.put(tableName,llcserverToSegmentSetMap);
+      }
+ catch (      Exception e) {
+        LOGGER.error("Failed to compute LLC routing table for {}. Ignoring",tableName,e);
+      }
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to compute/update the routing table",e);
+  }
+  try {
+    LOGGER.info("Trying to compute time boundary service for table {}",tableName);
+    _timeBoundaryService.updateTimeBoundaryService(externalView);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Failed to update the TimeBoundaryService",e);
+  }
 }

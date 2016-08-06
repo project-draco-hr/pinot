@@ -1,10 +1,28 @@
 {
   String tableName=request.getTableName();
-  if ((_brokerRoutingTable == null) || (!_brokerRoutingTable.containsKey(tableName))) {
-    return null;
+  List<ServerToSegmentSetMap> serverToSegmentSetMaps;
+  if (CommonConstants.Helix.TableType.REALTIME.equals(TableNameBuilder.getTableTypeFromTableName(tableName))) {
+    if (_brokerRoutingTable.containsKey(tableName)) {
+      if (_llcBrokerRoutingTable.containsKey(tableName)) {
+        if (_routingTableSelector.shouldUseLLCRouting(tableName)) {
+          serverToSegmentSetMaps=_llcBrokerRoutingTable.get(tableName);
+        }
+ else {
+          serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
+        }
+      }
+ else {
+        serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
+      }
+    }
+ else {
+      serverToSegmentSetMaps=_llcBrokerRoutingTable.get(tableName);
+    }
   }
-  List<ServerToSegmentSetMap> serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
-  if (serverToSegmentSetMaps.isEmpty()) {
+ else {
+    serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
+  }
+  if (serverToSegmentSetMaps == null || serverToSegmentSetMaps.isEmpty()) {
     return Collections.emptyMap();
   }
   return serverToSegmentSetMaps.get(_random.nextInt(serverToSegmentSetMaps.size())).getRouting();

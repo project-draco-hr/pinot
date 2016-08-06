@@ -1,0 +1,88 @@
+{
+  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(null,NO_LLC_ROUTING);
+  final long now=System.currentTimeMillis();
+  final String tableName="table";
+  final String resourceName=tableName + "_REALTIME";
+  final String group1=resourceName + "_" + Long.toString(now)+ "_0";
+  final String group2=resourceName + "_" + Long.toString(now)+ "_1";
+  final String online="ONLINE";
+  final String consuming="CONSUMING";
+  final int partitionId=1;
+  final String partitionRange="JUNK";
+  final int segId1=1;
+  final int segId2=2;
+  final int port1=1;
+  final int port2=2;
+  final String host="host";
+  final ServerInstance serverInstance1=new ServerInstance(host,port1);
+  final ServerInstance serverInstance2=new ServerInstance(host,port2);
+  final String helixInstance1=CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + serverInstance1;
+  final String helixInstance2=CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + serverInstance2;
+  final HLCSegmentName s1HlcSegment1=new HLCSegmentName(group1,partitionRange,Integer.toString(segId1));
+  final HLCSegmentName s1HlcSegment2=new HLCSegmentName(group1,partitionRange,Integer.toString(segId2));
+  final HLCSegmentName s2HlcSegment1=new HLCSegmentName(group2,partitionRange,Integer.toString(segId1));
+  final HLCSegmentName s2HlcSegment2=new HLCSegmentName(group2,partitionRange,Integer.toString(segId2));
+  final LLCSegmentName llcSegment1=new LLCSegmentName(tableName,partitionId,segId1,now);
+  final LLCSegmentName llcSegment2=new LLCSegmentName(tableName,partitionId,segId2,now);
+  final List<InstanceConfig> instanceConfigs=new ArrayList<>(2);
+  instanceConfigs.add(new InstanceConfig(helixInstance1));
+  instanceConfigs.add(new InstanceConfig(helixInstance2));
+  ExternalView ev=new ExternalView(resourceName);
+  ev.setState(s1HlcSegment1.getSegmentName(),helixInstance1,online);
+  ev.setState(s1HlcSegment2.getSegmentName(),helixInstance1,online);
+  ev.setState(llcSegment1.getSegmentName(),helixInstance2,online);
+  ev.setState(llcSegment2.getSegmentName(),helixInstance2,consuming);
+  routingTable.markDataResourceOnline(resourceName,ev,instanceConfigs);
+  final RoutingTableLookupRequest request=new RoutingTableLookupRequest(resourceName);
+  for (int i=0; i < 100; i++) {
+    Map<ServerInstance,SegmentIdSet> routingMap=routingTable.findServers(request);
+    Assert.assertEquals(routingMap.size(),1);
+    List<String> segments=routingMap.get(serverInstance1).getSegmentsNameList();
+    Assert.assertEquals(segments.size(),2);
+    Assert.assertTrue(segments.contains(s1HlcSegment1.getSegmentName()));
+    Assert.assertTrue(segments.contains(s1HlcSegment2.getSegmentName()));
+  }
+  Configuration configuration=new PropertiesConfiguration();
+  configuration.addProperty("class",PercentageBasedRoutingTableSelector.class.getName());
+  configuration.addProperty("table." + resourceName,new Integer(100));
+  RoutingTableSelector selector=RoutingTableSelectorFactory.getRoutingTableSelector(configuration);
+  selector.init(configuration);
+  Field selectorField=HelixExternalViewBasedRouting.class.getDeclaredField("_routingTableSelector");
+  selectorField.setAccessible(true);
+  selectorField.set(routingTable,selector);
+  for (int i=0; i < 100; i++) {
+    Map<ServerInstance,SegmentIdSet> routingMap=routingTable.findServers(request);
+    Assert.assertEquals(routingMap.size(),1);
+    List<String> segments=routingMap.get(serverInstance2).getSegmentsNameList();
+    Assert.assertEquals(segments.size(),2);
+    Assert.assertTrue(segments.contains(llcSegment1.getSegmentName()));
+    Assert.assertTrue(segments.contains(llcSegment2.getSegmentName()));
+  }
+  configuration=new PropertiesConfiguration();
+  configuration.addProperty("table." + resourceName,new Integer(50));
+  selector=new PercentageBasedRoutingTableSelector();
+  selector.init(configuration);
+  selectorField.set(routingTable,selector);
+  int hlc=0;
+  int llc=0;
+  for (int i=0; i < 100; i++) {
+    Map<ServerInstance,SegmentIdSet> routingMap=routingTable.findServers(request);
+    Assert.assertEquals(routingMap.size(),1);
+    if (routingMap.containsKey(serverInstance2)) {
+      List<String> segments=routingMap.get(serverInstance2).getSegmentsNameList();
+      Assert.assertEquals(segments.size(),2);
+      Assert.assertTrue(segments.contains(llcSegment1.getSegmentName()));
+      Assert.assertTrue(segments.contains(llcSegment2.getSegmentName()));
+      llc++;
+    }
+ else {
+      List<String> segments=routingMap.get(serverInstance1).getSegmentsNameList();
+      Assert.assertEquals(segments.size(),2);
+      Assert.assertTrue(segments.contains(s1HlcSegment1.getSegmentName()));
+      Assert.assertTrue(segments.contains(s1HlcSegment2.getSegmentName()));
+      hlc++;
+    }
+  }
+  Assert.assertTrue(hlc >= 10,"Got low values hlc=" + hlc + ",llc="+ llc);
+  Assert.assertTrue(llc >= 10,"Got low values hlc=" + hlc + ",llc="+ llc);
+}

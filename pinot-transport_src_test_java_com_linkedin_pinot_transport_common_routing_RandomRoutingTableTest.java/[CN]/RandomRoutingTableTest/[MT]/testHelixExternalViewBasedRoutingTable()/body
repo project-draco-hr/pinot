@@ -7,7 +7,10 @@
   ZNRecord externalViewRecord=(ZNRecord)znRecordSerializer.deserialize(IOUtils.toByteArray(evInputStream));
   int totalRuns=10000;
   RoutingTableBuilder routingStrategy=new BalancedRandomRoutingTableBuilder(10);
-  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(routingStrategy,null,null,null);
+  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(null,null);
+  Field offlineRTBField=HelixExternalViewBasedRouting.class.getDeclaredField("_offlineRoutingTableBuilder");
+  offlineRTBField.setAccessible(true);
+  offlineRTBField.set(routingTable,routingStrategy);
   ExternalView externalView=new ExternalView(externalViewRecord);
   routingTable.markDataResourceOnline(tableName,externalView,getInstanceConfigs(externalView));
   double[] globalArrays=new double[9];

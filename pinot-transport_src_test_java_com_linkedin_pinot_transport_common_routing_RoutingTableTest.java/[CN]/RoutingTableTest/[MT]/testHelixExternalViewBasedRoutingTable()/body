@@ -1,6 +1,9 @@
 {
   RoutingTableBuilder routingStrategy=new RandomRoutingTableBuilder(100);
-  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(routingStrategy,null,null,null);
+  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(null,NO_LLC_ROUTING);
+  Field offlineRTBField=HelixExternalViewBasedRouting.class.getDeclaredField("_offlineRoutingTableBuilder");
+  offlineRTBField.setAccessible(true);
+  offlineRTBField.set(routingTable,routingStrategy);
   ExternalView externalView=new ExternalView("testResource0_OFFLINE");
   externalView.setState("segment0","dataServer_instance_0","ONLINE");
   externalView.setState("segment0","dataServer_instance_1","ONLINE");

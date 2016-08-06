@@ -1,0 +1,36 @@
+{
+  RoutingTableSelector routingTableSelector=new PercentageBasedRoutingTableSelector();
+  if (config == null) {
+    LOGGER.warn("No config for routing table selector. Using default");
+  }
+ else {
+    String selectorClassName=null;
+    try {
+      selectorClassName=(String)config.getProperty(CLASSNAME_KEY);
+    }
+ catch (    Exception e) {
+      LOGGER.warn("Could not parse property '{}'. Using {}",CLASSNAME_KEY,defaultClasssName,e);
+    }
+    Class<? extends RoutingTableSelector> clazz;
+    if (selectorClassName == null || selectorClassName.isEmpty()) {
+      LOGGER.info("Null or empty selector class name. Using default");
+    }
+ else {
+      try {
+        clazz=(Class<? extends RoutingTableSelector>)Class.forName(selectorClassName);
+        routingTableSelector=clazz.newInstance();
+      }
+ catch (      ClassNotFoundException e) {
+        LOGGER.warn("Could not load '{}'. Loading {}",selectorClassName,defaultClasssName,e);
+      }
+catch (      InstantiationException e) {
+        LOGGER.warn("Could not instantiate '{}'. Instantiating {}",selectorClassName,defaultClasssName,e);
+      }
+catch (      IllegalAccessException e) {
+        LOGGER.warn("Could not instantiate '{}'. Instantiating {}",selectorClassName,defaultClasssName,e);
+      }
+    }
+  }
+  routingTableSelector.init(config);
+  return routingTableSelector;
+}

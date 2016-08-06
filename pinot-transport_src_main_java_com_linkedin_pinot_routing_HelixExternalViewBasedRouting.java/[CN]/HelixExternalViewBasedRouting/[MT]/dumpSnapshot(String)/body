@@ -15,6 +15,21 @@
     }
   }
   ret.put("routingTableSnapshot",routingTableSnapshot);
+  routingTableSnapshot=new JSONArray();
+  for (  String currentTable : _llcBrokerRoutingTable.keySet()) {
+    if (tableName == null || currentTable.startsWith(tableName)) {
+      JSONObject tableEntry=new JSONObject();
+      tableEntry.put("tableName",currentTable);
+      JSONArray entries=new JSONArray();
+      List<ServerToSegmentSetMap> routableTable=_llcBrokerRoutingTable.get(currentTable);
+      for (      ServerToSegmentSetMap serverToInstaceMap : routableTable) {
+        entries.put(new JSONObject(serverToInstaceMap.toString()));
+      }
+      tableEntry.put("routingTableEntries",entries);
+      routingTableSnapshot.put(tableEntry);
+    }
+  }
+  ret.put("llcRoutingTableSnapshot",routingTableSnapshot);
   ret.put("host",NetUtil.getHostnameOrAddress());
   return ret.toString(2);
 }

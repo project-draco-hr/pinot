@@ -3,8 +3,13 @@
   final String group0="testResource0_REALTIME_1433316466991_0";
   final String group1="testResource1_REALTIME_1433316490099_1";
   final String group2="testResource2_REALTIME_1436589344583_1";
-  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(null,routingStrategy,null,null);
+  final LLCSegmentName llcSegmentName=new LLCSegmentName("testResource0",2,65,System.currentTimeMillis());
+  HelixExternalViewBasedRouting routingTable=new HelixExternalViewBasedRouting(null,NO_LLC_ROUTING);
+  Field realtimeRTBField=HelixExternalViewBasedRouting.class.getDeclaredField("_realtimeHLCRoutingTableBuilder");
+  realtimeRTBField.setAccessible(true);
+  realtimeRTBField.set(routingTable,routingStrategy);
   ExternalView externalView=new ExternalView("testResource0_REALTIME");
+  externalView.setState(llcSegmentName.getSegmentName(),"dataServer_instance_0","CONSUMING");
   externalView.setState(new HLCSegmentName(group0,ALL_PARTITIONS,"0").getSegmentName(),"dataServer_instance_0","ONLINE");
   externalView.setState(new HLCSegmentName(group0,ALL_PARTITIONS,"1").getSegmentName(),"dataServer_instance_1","ONLINE");
   externalView.setState(new HLCSegmentName(group1,ALL_PARTITIONS,"2").getSegmentName(),"dataServer_instance_2","ONLINE");
