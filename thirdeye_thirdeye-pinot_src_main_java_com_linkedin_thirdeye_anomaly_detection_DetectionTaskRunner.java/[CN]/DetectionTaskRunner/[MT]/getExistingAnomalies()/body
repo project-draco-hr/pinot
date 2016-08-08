@@ -1,7 +1,7 @@
 {
   List<AnomalyResult> results=new ArrayList<>();
   try {
-    results.addAll(resultDAO.findAllByCollectionTimeAndFunction(collection,windowStart,windowEnd,anomalyFunction.getSpec().getId()));
+    results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),anomalyFunction.getSpec().getId()));
   }
  catch (  Exception e) {
     LOG.error("Exception in getting existing anomalies",e);
