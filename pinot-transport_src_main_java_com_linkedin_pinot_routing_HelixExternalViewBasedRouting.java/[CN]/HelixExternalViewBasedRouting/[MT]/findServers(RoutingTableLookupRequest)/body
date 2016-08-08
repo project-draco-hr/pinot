@@ -2,8 +2,8 @@
   String tableName=request.getTableName();
   List<ServerToSegmentSetMap> serverToSegmentSetMaps;
   if (CommonConstants.Helix.TableType.REALTIME.equals(TableNameBuilder.getTableTypeFromTableName(tableName))) {
-    if (_brokerRoutingTable.containsKey(tableName)) {
-      if (_llcBrokerRoutingTable.containsKey(tableName)) {
+    if (_brokerRoutingTable.containsKey(tableName) && _brokerRoutingTable.get(tableName).size() != 0) {
+      if (_llcBrokerRoutingTable.containsKey(tableName) && _llcBrokerRoutingTable.get(tableName).size() != 0) {
         if (_routingTableSelector.shouldUseLLCRouting(tableName)) {
           serverToSegmentSetMaps=_llcBrokerRoutingTable.get(tableName);
         }
