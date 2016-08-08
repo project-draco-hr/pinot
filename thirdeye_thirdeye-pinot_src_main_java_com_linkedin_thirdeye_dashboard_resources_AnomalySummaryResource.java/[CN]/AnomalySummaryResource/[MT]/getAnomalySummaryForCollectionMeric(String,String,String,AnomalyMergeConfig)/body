@@ -8,7 +8,10 @@
   DateTime startTimeUtc=new DateTime(mergeConfig.getStartTime());
   DateTime endTimeUtc=new DateTime(mergeConfig.getEndTime());
   List<AnomalyResult> anomalies;
-  if (!StringUtils.isEmpty(metric)) {
+  if (!StringUtils.isEmpty(metric) && !StringUtils.isEmpty(dimensions)) {
+    anomalies=resultDAO.findAllByCollectionTimeMetricAndDimensions(collection,metric,startTimeUtc,endTimeUtc,new String[]{dimensions});
+  }
+ else   if (!StringUtils.isEmpty(metric)) {
     anomalies=resultDAO.findAllByCollectionTimeAndMetric(collection,metric,startTimeUtc,endTimeUtc);
   }
  else {
