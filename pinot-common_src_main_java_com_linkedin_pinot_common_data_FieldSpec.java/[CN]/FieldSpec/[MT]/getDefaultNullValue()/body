@@ -1,39 +1,84 @@
 {
-  if (_defaultNullValue != null) {
-    return _defaultNullValue;
-  }
-  DataType dataType=getDataType();
-switch (_fieldType) {
-case METRIC:
-switch (dataType) {
+  FieldType fieldType=getFieldType();
+  if (_cachedDefaultNullValue == null) {
+    if (_stringDefaultNullValue != null) {
+switch (_dataType) {
+case BYTE:
+case SHORT:
 case INT:
-      return DEFAULT_METRIC_NULL_VALUE_OF_INT;
+        _cachedDefaultNullValue=Integer.valueOf(_stringDefaultNullValue);
+      break;
 case LONG:
-    return DEFAULT_METRIC_NULL_VALUE_OF_LONG;
+    _cachedDefaultNullValue=Long.valueOf(_stringDefaultNullValue);
+  break;
 case FLOAT:
-  return DEFAULT_METRIC_NULL_VALUE_OF_FLOAT;
+_cachedDefaultNullValue=Float.valueOf(_stringDefaultNullValue);
+break;
 case DOUBLE:
-return DEFAULT_METRIC_NULL_VALUE_OF_DOUBLE;
+_cachedDefaultNullValue=Double.valueOf(_stringDefaultNullValue);
+break;
+case BOOLEAN:
+case CHAR:
+case STRING:
+Preconditions.checkState(fieldType != FieldType.METRIC,"For metric field, no support for non-number data type: " + _dataType);
+_cachedDefaultNullValue=_stringDefaultNullValue;
+break;
 default :
-throw new UnsupportedOperationException("Unknown default null value for metric of data type " + _dataType);
+throw new UnsupportedOperationException("Unsupported data type: " + _dataType);
 }
+}
+ else {
+switch (fieldType) {
+case METRIC:
+switch (_dataType) {
+case BYTE:
+case SHORT:
+case INT:
+_cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_INT;
+break;
+case LONG:
+_cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_LONG;
+break;
+case FLOAT:
+_cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_FLOAT;
+break;
+case DOUBLE:
+_cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_DOUBLE;
+break;
+default :
+throw new UnsupportedOperationException("Unknown default null value for metric field of data type: " + _dataType);
+}
+break;
 case DIMENSION:
 case TIME:
-switch (dataType) {
+switch (_dataType) {
+case BYTE:
+case SHORT:
 case INT:
-return DEFAULT_DIM_NULL_VALUE_OF_INT;
+_cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_INT;
+break;
 case LONG:
-return DEFAULT_DIM_NULL_VALUE_OF_LONG;
+_cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_LONG;
+break;
 case FLOAT:
-return DEFAULT_DIM_NULL_VALUE_OF_FLOAT;
+_cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_FLOAT;
+break;
 case DOUBLE:
-return DEFAULT_DIM_NULL_VALUE_OF_DOUBLE;
+_cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_DOUBLE;
+break;
+case BOOLEAN:
+case CHAR:
 case STRING:
-return DEFAULT_DIM_NULL_VALUE_OF_STRING;
+_cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_STRING;
+break;
 default :
-throw new UnsupportedOperationException("Unknown default null value for dimension/time column of data type " + _dataType);
+throw new UnsupportedOperationException("Unknown default null value for dimension/time field of data type: " + _dataType);
 }
+break;
 default :
-throw new UnsupportedOperationException("Unknown field type" + _fieldType);
+throw new UnsupportedOperationException("Unsupported field type: " + fieldType);
 }
+}
+}
+return _cachedDefaultNullValue;
 }

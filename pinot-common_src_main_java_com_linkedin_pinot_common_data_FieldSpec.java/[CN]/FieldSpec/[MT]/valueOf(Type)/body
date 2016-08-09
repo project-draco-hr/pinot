@@ -1,18 +1,18 @@
 {
-  if (type == Type.INT) {
+switch (avroType) {
+case INT:
     return INT;
-  }
-  if (type == Type.LONG) {
-    return LONG;
-  }
-  if (type == Type.ENUM || type == Type.STRING || type == Type.BOOLEAN) {
-    return STRING;
-  }
-  if (type == Type.FLOAT) {
-    return FLOAT;
-  }
-  if (type == Type.DOUBLE) {
-    return DOUBLE;
-  }
-  throw new UnsupportedOperationException("Unsupported DataType " + type.toString());
+case LONG:
+  return LONG;
+case FLOAT:
+return FLOAT;
+case DOUBLE:
+return DOUBLE;
+case BOOLEAN:
+case STRING:
+case ENUM:
+return STRING;
+default :
+throw new UnsupportedOperationException("Unsupported Avro type: " + avroType);
+}
 }

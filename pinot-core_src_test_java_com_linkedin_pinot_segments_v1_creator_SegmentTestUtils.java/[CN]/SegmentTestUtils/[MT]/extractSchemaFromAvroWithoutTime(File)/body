@@ -14,16 +14,13 @@
     final FieldSpec fieldSpec;
     if (pinotType != null && "METRIC".equals(pinotType)) {
       fieldSpec=new MetricFieldSpec();
-      fieldSpec.setFieldType(FieldType.METRIC);
     }
  else {
       fieldSpec=new DimensionFieldSpec();
-      fieldSpec.setFieldType(FieldType.DIMENSION);
     }
     fieldSpec.setName(columnName);
     fieldSpec.setDataType(getColumnType(dataStream.getSchema().getField(columnName)));
     fieldSpec.setSingleValueField(isSingleValueField(dataStream.getSchema().getField(columnName)));
-    fieldSpec.setDelimiter(",");
     schema.addField(columnName,fieldSpec);
   }
   dataStream.close();
