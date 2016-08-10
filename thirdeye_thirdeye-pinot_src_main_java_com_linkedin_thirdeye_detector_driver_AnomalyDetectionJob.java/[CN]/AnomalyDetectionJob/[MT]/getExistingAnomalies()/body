@@ -1,25 +1,9 @@
 {
   List<AnomalyResult> results=new ArrayList<>();
-  Session session=sessionFactory.openSession();
-  try {
-    ManagedSessionContext.bind(session);
-    Transaction transaction=session.beginTransaction();
-    try {
-      results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),anomalyFunction.getSpec().getId()));
-      List<AnomalyFunctionRelation> relations=relationDAO.findByParent(anomalyFunction.getSpec().getId());
-      for (      AnomalyFunctionRelation relation : relations) {
-        results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),relation.getChildId()));
-      }
-      transaction.commit();
-    }
- catch (    Exception e) {
-      transaction.rollback();
-      throw new RuntimeException(e);
-    }
-  }
-  finally {
-    session.close();
-    ManagedSessionContext.unbind(sessionFactory);
+  results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),anomalyFunction.getSpec().getId()));
+  List<AnomalyFunctionRelation> relations=relationDAO.findByParent(anomalyFunction.getSpec().getId());
+  for (  AnomalyFunctionRelation relation : relations) {
+    results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),relation.getChildId()));
   }
   return results;
 }
