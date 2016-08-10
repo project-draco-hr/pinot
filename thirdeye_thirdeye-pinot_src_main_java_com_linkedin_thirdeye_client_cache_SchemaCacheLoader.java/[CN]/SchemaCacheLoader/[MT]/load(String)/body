@@ -7,7 +7,7 @@
       LOGGER.error("Schema {} not found, {}",collection,res.getStatusLine().toString());
     }
     InputStream content=res.getEntity().getContent();
-    Schema schema=new ObjectMapper().readValue(content,Schema.class);
+    Schema schema=OBJECT_MAPPER.readValue(content,Schema.class);
     return schema;
   }
   finally {
