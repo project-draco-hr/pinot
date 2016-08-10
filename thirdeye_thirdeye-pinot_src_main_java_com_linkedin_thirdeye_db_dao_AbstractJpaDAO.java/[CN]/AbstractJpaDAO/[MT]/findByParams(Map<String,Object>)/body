@@ -1,0 +1,13 @@
+{
+  CriteriaBuilder builder=getEntityManager().getCriteriaBuilder();
+  CriteriaQuery<E> query=builder.createQuery(entityClass);
+  Root<E> entityRoot=query.from(entityClass);
+  List<Predicate> predicates=new ArrayList<>();
+  for (  Map.Entry<String,Object> entry : filters.entrySet()) {
+    predicates.add(builder.equal(entityRoot.get(entry.getKey()),entry.getValue()));
+  }
+  if (predicates.size() > 0) {
+    query.where(predicates.toArray(new Predicate[0]));
+  }
+  return getEntityManager().createQuery(query).getResultList();
+}

@@ -1,3 +1,5 @@
 {
-  return getEntityManager().createQuery(FIND_BY_PARENT_ID,entityClass).setParameter("parentId",parentId).getResultList();
+  Map<String,Object> params=new HashMap<>();
+  params.put("parentId",parentId);
+  return super.findByParams(params);
 }

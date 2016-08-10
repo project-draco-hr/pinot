@@ -1,3 +1,6 @@
 {
-  return getEntityManager().createQuery(FIND_BY_STATUS_AND_ID,entityClass).setParameter("status",status).setParameter("id",id).getResultList();
+  Map<String,Object> filters=new HashMap<>();
+  filters.put("status",status);
+  filters.put("id",id);
+  return super.findByParams(filters);
 }

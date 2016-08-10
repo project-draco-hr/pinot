@@ -1,0 +1,12 @@
+{
+  Set<GroupByKey> uniqueCategories=new HashSet<>();
+  Map<GroupByKey,List<AnomalyResult>> anomalyResultMap=new HashMap<>();
+  Map<GroupByKey,AnomalyMergedResult> mergedAnomalyMap=new HashMap<>();
+switch (mergeConfig.getMergeStrategy()) {
+case COLLECTION_METRIC_DIMENSIONS:
+    fillDataForCollectionMetricDimensionGroup(uniqueCategories,anomalyResultMap,mergedAnomalyMap);
+  break;
+default :
+throw new IllegalArgumentException("Merge strategy " + mergeConfig.getMergeStrategy() + " not supported");
+}
+}

@@ -1,3 +1,5 @@
 {
-  return getEntityManager().createQuery(GET_BY_COLLECTION,entityClass).setParameter("collection",collection).getResultList();
+  Map<String,Object> filterParams=new HashMap<>();
+  filterParams.put("collection",collection);
+  return super.findByParams(filterParams);
 }
