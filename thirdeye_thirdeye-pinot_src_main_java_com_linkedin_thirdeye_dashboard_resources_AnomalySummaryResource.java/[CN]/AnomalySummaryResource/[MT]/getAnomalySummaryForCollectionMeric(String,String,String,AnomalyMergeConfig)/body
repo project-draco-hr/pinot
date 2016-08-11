@@ -17,5 +17,5 @@
  else {
     anomalies=resultDAO.findAllByCollectionAndTime(collection,startTimeUtc,endTimeUtc);
   }
-  return AnomalyMergeGenerator.mergeAnomalies(anomalies,mergeConfig);
+  return AnomalyMergeGenerator.mergeAnomalies(anomalies,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
 }

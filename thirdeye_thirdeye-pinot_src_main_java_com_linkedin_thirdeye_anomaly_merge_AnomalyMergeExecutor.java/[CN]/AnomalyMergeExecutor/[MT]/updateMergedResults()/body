@@ -1,12 +1,19 @@
 {
-  Set<GroupByKey> uniqueCategories=new HashSet<>();
-  Map<GroupByKey,List<AnomalyResult>> anomalyResultMap=new HashMap<>();
-  Map<GroupByKey,AnomalyMergedResult> mergedAnomalyMap=new HashMap<>();
+  List<AnomalyFunctionSpec> activeFunctions=anomalyFunctionDAO.findAllActiveFunctions();
+  for (  AnomalyFunctionSpec function : activeFunctions) {
+    List<AnomalyResult> unmergedResults=anomalyResultDAO.findUnmergedByFunctionId(function.getId());
+    List<AnomalyMergedResult> output=new ArrayList<>();
+    if (unmergedResults.size() > 0) {
 switch (mergeConfig.getMergeStrategy()) {
-case COLLECTION_METRIC_DIMENSIONS:
-    fillDataForCollectionMetricDimensionGroup(uniqueCategories,anomalyResultMap,mergedAnomalyMap);
+case FUNCTION:
+        performMergeBasedOnFunctionId(function,unmergedResults,output);
+      break;
+case FUNCTION_DIMENSIONS:
+    performMergeBasedOnFunctionIdAndDimensions(function,unmergedResults,output);
   break;
 default :
 throw new IllegalArgumentException("Merge strategy " + mergeConfig.getMergeStrategy() + " not supported");
+}
+}
 }
 }

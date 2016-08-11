@@ -1,0 +1,21 @@
+{
+  String query=COUNT_UNMERGED_BY_COLLECTION_METRIC_DIMENSION;
+  if (includeMerged) {
+    query=COUNT_GROUP_BY_COLLECTION_METRIC_DIMENSION;
+  }
+  List<GroupByRow<GroupByKey,Long>> groupByRecords=new ArrayList<>();
+  TypedQuery<Object[]> q=getEntityManager().createQuery(query,Object[].class).setParameter("startTimeUtc",startTime).setParameter("endTimeUtc",endTime);
+  List<Object[]> results=q.getResultList();
+  for (int i=0; i < results.size(); i++) {
+    Long count=(Long)results.get(i)[0];
+    GroupByKey groupByKey=new GroupByKey();
+    groupByKey.setCollection((String)results.get(i)[1]);
+    groupByKey.setMetric((String)results.get(i)[2]);
+    groupByKey.setDimensions((String)results.get(i)[3]);
+    GroupByRow<GroupByKey,Long> row=new GroupByRow<>();
+    row.setGroupBy(groupByKey);
+    row.setValue(count);
+    groupByRecords.add(row);
+  }
+  return groupByRecords;
+}

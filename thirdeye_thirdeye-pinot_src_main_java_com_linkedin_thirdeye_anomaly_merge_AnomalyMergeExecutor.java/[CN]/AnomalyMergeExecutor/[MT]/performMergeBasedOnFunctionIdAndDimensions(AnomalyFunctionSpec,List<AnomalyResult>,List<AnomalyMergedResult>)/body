@@ -1,0 +1,15 @@
+{
+  Map<String,List<AnomalyResult>> dimensionsResultMap=new HashMap<>();
+  for (  AnomalyResult anomalyResult : unmergedResults) {
+    String dimensions=anomalyResult.getDimensions();
+    if (!dimensionsResultMap.containsKey(dimensions)) {
+      dimensionsResultMap.put(dimensions,new ArrayList<>());
+    }
+    dimensionsResultMap.get(dimensions).add(anomalyResult);
+  }
+  for (  String dimensions : dimensionsResultMap.keySet()) {
+    AnomalyMergedResult latestMergedResult=mergedResultDAO.findLatestByFunctionIdDimensions(function.getId(),dimensions);
+    List<AnomalyResult> unmergedResultsByDimensions=dimensionsResultMap.get(dimensions);
+    output.addAll(AnomalyMergeGenerator.mergeAnomalies(latestMergedResult,unmergedResultsByDimensions,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap()));
+  }
+}

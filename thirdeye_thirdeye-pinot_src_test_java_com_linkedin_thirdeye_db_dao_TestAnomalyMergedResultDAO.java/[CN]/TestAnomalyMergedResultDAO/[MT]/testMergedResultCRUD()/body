@@ -10,7 +10,7 @@
   List<AnomalyResult> rawResults=new ArrayList<>();
   rawResults.add(result);
   AnomalyMergeConfig mergeConfig=new AnomalyMergeConfig();
-  List<AnomalyMergedResult> mergedResults=AnomalyMergeGenerator.mergeAnomalies(rawResults,mergeConfig);
+  List<AnomalyMergedResult> mergedResults=AnomalyMergeGenerator.mergeAnomalies(rawResults,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
   Assert.assertEquals(mergedResults.get(0).getStartTime(),result.getStartTimeUtc());
   Assert.assertEquals(mergedResults.get(0).getEndTime(),result.getEndTimeUtc());
   Assert.assertEquals(mergedResults.get(0).getAnomalyResults().get(0),result);
