@@ -1,0 +1,19 @@
+{
+  final String offsetStr=getReference().getQueryAsForm().getValues(SegmentCompletionProtocol.PARAM_OFFSET);
+  final String segmentName=getReference().getQueryAsForm().getValues(SegmentCompletionProtocol.PARAM_SEGMENT_NAME);
+  final String instanceId=getReference().getQueryAsForm().getValues(SegmentCompletionProtocol.PARAM_INSTANCE_ID);
+  if (offsetStr == null || segmentName == null || instanceId == null) {
+    LOGGER.error("Invalid call: offset={}, segmentName={}, instanceId={}",offsetStr,segmentName,instanceId);
+    return false;
+  }
+  _segmentNameStr=segmentName;
+  _instanceId=instanceId;
+  try {
+    _offset=Long.valueOf(offsetStr);
+  }
+ catch (  NumberFormatException e) {
+    LOGGER.error("Invalid offset {} for segment {} from instance {}",offsetStr,segmentName,instanceId);
+    return false;
+  }
+  return true;
+}

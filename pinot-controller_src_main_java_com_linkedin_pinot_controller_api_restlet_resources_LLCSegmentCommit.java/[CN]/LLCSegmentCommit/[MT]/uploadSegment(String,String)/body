@@ -1,0 +1,39 @@
+{
+  final DiskFileItemFactory factory=new DiskFileItemFactory();
+  final RestletFileUpload upload=new RestletFileUpload(factory);
+  final List<FileItem> items;
+  try {
+    items=upload.parseRequest(getRequest());
+    boolean found=false;
+    File dataFile=null;
+    for (final Iterator<FileItem> it=items.iterator(); it.hasNext() && !found; ) {
+      final FileItem fi=it.next();
+      if (fi.getFieldName() != null && fi.getFieldName().equals(segmentNameStr)) {
+        found=true;
+        dataFile=new File(tempDir,segmentNameStr);
+        fi.write(dataFile);
+      }
+    }
+    if (!found) {
+      LOGGER.error("Segment not included in request. Instance {}, segment {}",instanceId,segmentNameStr);
+      return false;
+    }
+    LLCSegmentName segmentName=new LLCSegmentName(segmentNameStr);
+    final String rawTableName=segmentName.getTableName();
+    final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(rawTableName);
+    final File tableDir=new File(baseDataDir,realtimeTableName);
+    final File segmentFile=new File(tableDir,segmentNameStr);
+synchronized (_pinotHelixResourceManager) {
+      if (segmentFile.exists()) {
+        LOGGER.warn("Segment file {} exists. Replacing with upload from {}",segmentNameStr,instanceId);
+        FileUtils.deleteQuietly(segmentFile);
+      }
+      FileUtils.moveFile(dataFile,segmentFile);
+    }
+    return true;
+  }
+ catch (  Exception e) {
+    LOGGER.error("File upload exception from instance {} for segment {}",instanceId,segmentNameStr,e);
+  }
+  return false;
+}

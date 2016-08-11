@@ -1,0 +1,14 @@
+{
+  if (!extractParams()) {
+    return new StringRepresentation(SegmentCompletionProtocol.RESP_FAILED.toJsonString());
+  }
+  LOGGER.info("segment={} offset={} instance={} ",_segmentNameStr,_offset,_instanceId);
+  final SegmentCompletionManager segmentCompletionManager=getSegmentCompletionManager();
+  SegmentCompletionProtocol.Response response=segmentCompletionManager.segmentCommitStart(_segmentNameStr,_instanceId,_offset);
+  if (response.equals(SegmentCompletionProtocol.RESP_COMMIT_CONTINUE)) {
+    boolean success=uploadSegment(_instanceId,_segmentNameStr);
+    response=segmentCompletionManager.segmentCommitEnd(_segmentNameStr,_instanceId,_offset,success);
+  }
+  LOGGER.info("Response: instance={}  segment={} status={} offset={}",_instanceId,_segmentNameStr,response.getStatus(),response.getOffset());
+  return new StringRepresentation(response.toJsonString());
+}

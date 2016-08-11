@@ -1,0 +1,34 @@
+{
+  SegmentCompletionManager.create(createMockHelixManager(),null);
+  FakeLLCSegmentCommit segmentCommit=new FakeLLCSegmentCommit();
+  Representation representation;
+  String strResponse;
+  JSONObject jsonResponse;
+  segmentCommit._uploadCalled=false;
+  segmentCommit._scm.commitStartResponse=SegmentCompletionProtocol.RESP_FAILED;
+  representation=segmentCommit.post(null);
+  strResponse=representation.getText();
+  jsonResponse=JSONObject.parseObject(strResponse);
+  Assert.assertEquals(jsonResponse.get(SegmentCompletionProtocol.STATUS_KEY),SegmentCompletionProtocol.ControllerResponseStatus.FAILED.toString());
+  Assert.assertFalse(segmentCommit._uploadCalled);
+  segmentCommit._uploadCalled=false;
+  segmentCommit._scm.commitStartResponse=SegmentCompletionProtocol.RESP_COMMIT_CONTINUE;
+  segmentCommit._scm.commitEndResponse=SegmentCompletionProtocol.RESP_FAILED;
+  segmentCommit._uploadReturnValue=false;
+  representation=segmentCommit.post(null);
+  strResponse=representation.getText();
+  jsonResponse=JSONObject.parseObject(strResponse);
+  Assert.assertEquals(jsonResponse.get(SegmentCompletionProtocol.STATUS_KEY),SegmentCompletionProtocol.ControllerResponseStatus.FAILED.toString());
+  Assert.assertTrue(segmentCommit._uploadCalled);
+  Assert.assertFalse(segmentCommit._scm.uploadSuccess);
+  segmentCommit._uploadCalled=false;
+  segmentCommit._scm.commitStartResponse=SegmentCompletionProtocol.RESP_COMMIT_CONTINUE;
+  segmentCommit._scm.commitEndResponse=SegmentCompletionProtocol.RESP_COMMIT_SUCCESS;
+  segmentCommit._uploadReturnValue=true;
+  representation=segmentCommit.post(null);
+  strResponse=representation.getText();
+  jsonResponse=JSONObject.parseObject(strResponse);
+  Assert.assertEquals(jsonResponse.get(SegmentCompletionProtocol.STATUS_KEY),SegmentCompletionProtocol.ControllerResponseStatus.COMMIT_SUCCESS.toString());
+  Assert.assertTrue(segmentCommit._uploadCalled);
+  Assert.assertTrue(segmentCommit._scm.uploadSuccess);
+}

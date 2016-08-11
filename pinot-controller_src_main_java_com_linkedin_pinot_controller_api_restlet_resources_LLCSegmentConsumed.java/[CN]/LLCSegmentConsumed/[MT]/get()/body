@@ -1,0 +1,12 @@
+{
+  final String offset=getReference().getQueryAsForm().getValues(SegmentCompletionProtocol.PARAM_OFFSET);
+  final String segmentName=getReference().getQueryAsForm().getValues(SegmentCompletionProtocol.PARAM_SEGMENT_NAME);
+  final String instanceId=getReference().getQueryAsForm().getValues(SegmentCompletionProtocol.PARAM_INSTANCE_ID);
+  if (offset == null || segmentName == null || instanceId == null) {
+    return new StringRepresentation(SegmentCompletionProtocol.RESP_FAILED.toJsonString());
+  }
+  LOGGER.info("Request: segment={} offset={} instance={} ",segmentName,offset,instanceId);
+  SegmentCompletionProtocol.Response response=SegmentCompletionManager.getInstance().segmentConsumed(segmentName,instanceId,Long.valueOf(offset));
+  LOGGER.info("Response: instance={} segment={} status={} offset={}",instanceId,segmentName,response.getStatus(),response.getOffset());
+  return new StringRepresentation(response.toJsonString());
+}
