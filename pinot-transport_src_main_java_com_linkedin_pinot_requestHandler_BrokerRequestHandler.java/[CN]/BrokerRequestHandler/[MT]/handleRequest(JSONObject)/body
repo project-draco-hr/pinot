@@ -34,6 +34,15 @@
   final long requestCompilationTime=System.nanoTime() - startTime;
   _brokerMetrics.addPhaseTiming(brokerRequest,BrokerQueryPhase.REQUEST_COMPILATION,requestCompilationTime);
   final ScatterGatherStats scatterGatherStats=new ScatterGatherStats();
+  try {
+    validateRequest(brokerRequest);
+  }
+ catch (  Exception e) {
+    BrokerResponse brokerResponse=new BrokerResponseNative();
+    brokerResponse.setExceptions(Arrays.asList(QueryException.getException(QueryException.QUERY_VALIDATION_ERROR,e)));
+    LOGGER.error("Validation error on query: {}",pql);
+    return brokerResponse;
+  }
   final BrokerResponse resp=_brokerMetrics.timeQueryPhase(brokerRequest,BrokerQueryPhase.QUERY_EXECUTION,new Callable<BrokerResponse>(){
     @Override public BrokerResponse call() throws Exception {
       final BucketingSelection bucketingSelection=getBucketingSelection(brokerRequest);

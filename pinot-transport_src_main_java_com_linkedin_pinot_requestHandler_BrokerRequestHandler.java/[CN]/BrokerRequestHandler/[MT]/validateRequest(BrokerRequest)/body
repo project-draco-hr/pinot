@@ -1,0 +1,16 @@
+{
+  if (brokerRequest.isSetAggregationsInfo()) {
+    if (brokerRequest.isSetGroupBy()) {
+      long topN=brokerRequest.getGroupBy().getTopN();
+      if (topN > _queryResponseLimit) {
+        throw new RuntimeException("Value for 'TOP' " + topN + " exceeded maximum allowed value of "+ _queryResponseLimit);
+      }
+    }
+  }
+ else {
+    int limit=brokerRequest.getSelections().getSize();
+    if (limit > _queryResponseLimit) {
+      throw new RuntimeException("Value for 'LIMIT' " + limit + " exceeded maximum allowed value of "+ _queryResponseLimit);
+    }
+  }
+}
