@@ -2,7 +2,6 @@
   ObjectMapper mapper=new ObjectMapper();
 {
     singleValueDim="true";
-    singleValueMetric="true";
     dimType="\"STRING\"";
     metricType="\"LONG\"";
     String validSchema=makeSchema();
@@ -11,16 +10,6 @@
   }
 {
     singleValueDim="true";
-    singleValueMetric="false";
-    dimType="\"STRING\"";
-    metricType="\"LONG\"";
-    String validSchema=makeSchema();
-    Schema schema=mapper.readValue(validSchema,Schema.class);
-    Assert.assertTrue(schema.validate(LOGGER));
-  }
-{
-    singleValueDim="true";
-    singleValueMetric="true";
     dimType="\"STRING\"";
     metricType="\"BOOLEAN\"";
     String validSchema=makeSchema();
@@ -28,12 +17,19 @@
     Assert.assertFalse(schema.validate(LOGGER));
   }
 {
-    singleValueDim="true";
-    singleValueMetric="true";
+    singleValueDim="false";
     dimType="\"STRING\"";
     metricType="\"STRING\"";
     String validSchema=makeSchema();
     Schema schema=mapper.readValue(validSchema,Schema.class);
     Assert.assertFalse(schema.validate(LOGGER));
+  }
+{
+    singleValueDim="false";
+    dimType="\"BOOLEAN\"";
+    metricType="\"LONG\"";
+    String validSchema=makeSchema();
+    Schema schema=mapper.readValue(validSchema,Schema.class);
+    Assert.assertTrue(schema.validate(LOGGER));
   }
 }
