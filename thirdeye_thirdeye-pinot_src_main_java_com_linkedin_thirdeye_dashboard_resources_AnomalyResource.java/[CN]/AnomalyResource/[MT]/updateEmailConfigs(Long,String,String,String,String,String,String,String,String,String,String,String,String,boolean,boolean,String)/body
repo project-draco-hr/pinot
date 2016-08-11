@@ -42,9 +42,9 @@
     anomalyFunctionSpecs.add(anomalyFunctionSpec);
   }
   emailConfiguration.setFunctions(anomalyFunctionSpecs);
-  Long responseId=emailConfigurationDAO.save(emailConfiguration);
+  emailConfigurationDAO.update(emailConfiguration);
   if (isActive) {
     alertResourceHttpUtils.enableEmailConfiguration(String.valueOf(id));
   }
-  return Response.ok(responseId).build();
+  return Response.ok(id).build();
 }

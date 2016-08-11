@@ -1,6 +1,8 @@
 {
-  anomalyTaskId1=anomalyTaskDAO.save(getTestTaskSpec());
+  AnomalyJobSpec testAnomalyJobSpec=getTestJobSpec();
+  anomalyJobId=anomalyJobDAO.save(testAnomalyJobSpec);
+  anomalyTaskId1=anomalyTaskDAO.save(getTestTaskSpec(testAnomalyJobSpec));
   Assert.assertNotNull(anomalyTaskId1);
-  anomalyTaskId2=anomalyTaskDAO.save(getTestTaskSpec());
+  anomalyTaskId2=anomalyTaskDAO.save(getTestTaskSpec(testAnomalyJobSpec));
   Assert.assertNotNull(anomalyTaskId2);
 }
