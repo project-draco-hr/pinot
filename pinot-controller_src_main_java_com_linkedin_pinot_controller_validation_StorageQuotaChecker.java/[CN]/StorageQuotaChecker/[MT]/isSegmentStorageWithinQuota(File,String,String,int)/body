@@ -7,6 +7,7 @@
   Preconditions.checkArgument(segmentFile.isDirectory(),"Segment file: %s is not a directory",segmentFile);
   QuotaConfig quotaConfig=tableConfig.getQuotaConfig();
   int numReplicas=tableConfig.getValidationConfig().getReplicationNumber();
+  final String tableName=tableConfig.getTableName();
   if (quotaConfig == null) {
     return new QuotaCheckerResponse(true,"Quota configuration not set for table: " + tableNameWithType);
   }
@@ -20,9 +21,9 @@
   long existingSegmentSizeBytes=sizeDetails != null ? sizeDetails.estimatedSizeInBytes : 0;
   long estimatedFinalSizeBytes=tableSubtypeSize.estimatedSizeInBytes - existingSegmentSizeBytes + incomingSegmentSizeBytes;
   if (estimatedFinalSizeBytes <= allowedStorageBytes) {
-    return new QuotaCheckerResponse(true,String.format("Estimated size: %d bytes is within the configured quota of %d (bytes). Incoming segment size: %d (bytes)",estimatedFinalSizeBytes,allowedStorageBytes,incomingSegmentSizeBytes));
+    return new QuotaCheckerResponse(true,String.format("Estimated size: %d bytes is within the configured quota of %d (bytes) for table %s. Incoming segment size: %d (bytes)",estimatedFinalSizeBytes,allowedStorageBytes,tableName,incomingSegmentSizeBytes));
   }
  else {
-    return new QuotaCheckerResponse(false,String.format("Estimated size: %d bytes exceeds the configured quota of %d (bytes). Incoming segment size: %d (bytes)",estimatedFinalSizeBytes,allowedStorageBytes,incomingSegmentSizeBytes));
+    return new QuotaCheckerResponse(false,String.format("Estimated size: %d bytes exceeds the configured quota of %d (bytes) for table %s. Incoming segment size: %d (bytes)",estimatedFinalSizeBytes,allowedStorageBytes,tableName,incomingSegmentSizeBytes));
   }
 }
