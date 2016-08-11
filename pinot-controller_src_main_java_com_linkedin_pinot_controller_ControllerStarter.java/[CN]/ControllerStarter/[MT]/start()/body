@@ -18,6 +18,7 @@
   try {
     LOGGER.info("starting pinot helix resource manager");
     helixResourceManager.start();
+    PinotLLCRealtimeSegmentManager.create(helixResourceManager,config);
     LOGGER.info("starting api component");
     component.start();
     LOGGER.info("starting retention manager");

@@ -17,13 +17,13 @@
   for (int i=0; i < nPartitions; i++) {
     final List instances=partitionMap.get(Integer.toString(i));
     LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
-    String rawTableName=TableNameBuilder.extractRawTableName(realtimeTableName);
+    final String rawTableName=TableNameBuilder.extractRawTableName(realtimeTableName);
     LLCSegmentName llcSegmentName=new LLCSegmentName(rawTableName,i,seqNum,now);
     final String segName=llcSegmentName.getSegmentName();
     metadata.setCreationTime(now);
     metadata.setStartOffset(startOffset);
     metadata.setNumReplicas(instances.size());
-    metadata.setTableName(realtimeTableName);
+    metadata.setTableName(rawTableName);
     metadata.setSegmentName(segName);
     metadata.setStatus(CommonConstants.Segment.Realtime.Status.IN_PROGRESS);
     ZNRecord record=metadata.toZNRecord();
