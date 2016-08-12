@@ -1,7 +1,6 @@
 {
   TableSizeReader tableSizeReader=new TableSizeReader(executor,connectionManager,_pinotHelixResourceManager);
-  AbstractTableConfig offlineTableConfig=ZKMetadataProvider.getOfflineTableConfig(_pinotHelixResourceManager.getPropertyStore(),metadata.getTableName());
   StorageQuotaChecker quotaChecker=new StorageQuotaChecker(offlineTableConfig,tableSizeReader);
   String offlineTableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(metadata.getTableName());
-  return quotaChecker.isSegmentStorageWithinQuota(segmentFile,offlineTableName,metadata.getName(),_controllerConf.getServerAdminRequestTimeoutSeconds());
+  return quotaChecker.isSegmentStorageWithinQuota(segmentFile,offlineTableName,metadata.getName(),_controllerConf.getServerAdminRequestTimeoutSeconds() * 1000);
 }

@@ -1,8 +1,17 @@
 {
   final SegmentMetadata metadata=new SegmentMetadataImpl(indexDir);
   final File tableDir=new File(baseDataDir,metadata.getTableName());
+  String tableName=metadata.getTableName();
   File segmentFile=new File(tableDir,dataFile.getName());
-  StorageQuotaChecker.QuotaCheckerResponse quotaResponse=checkStorageQuota(indexDir,metadata);
+  OfflineTableConfig offlineTableConfig=(OfflineTableConfig)ZKMetadataProvider.getOfflineTableConfig(_pinotHelixResourceManager.getPropertyStore(),tableName);
+  if (offlineTableConfig == null) {
+    LOGGER.info("Missing configuration for table: {} in helix",metadata.getTableName());
+    setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+    StringRepresentation repr=new StringRepresentation("{\"error\" : \"Missing table: " + tableName + "\"}");
+    repr.setMediaType(MediaType.APPLICATION_JSON);
+    return repr;
+  }
+  StorageQuotaChecker.QuotaCheckerResponse quotaResponse=checkStorageQuota(indexDir,metadata,offlineTableConfig);
   if (!quotaResponse.isSegmentWithinQuota) {
     LOGGER.info("Rejecting segment upload for table: {}, segment: {}, reason: {}",metadata.getTableName(),metadata.getName(),quotaResponse.reason);
     setStatus(Status.CLIENT_ERROR_FORBIDDEN);
@@ -20,7 +29,7 @@
   }
  else {
     if (downloadUrl == null) {
-      downloadUrl=ControllerConf.constructDownloadUrl(metadata.getTableName(),dataFile.getName(),vip);
+      downloadUrl=ControllerConf.constructDownloadUrl(tableName,dataFile.getName(),vip);
     }
     response=_pinotHelixResourceManager.addSegment(metadata,downloadUrl);
   }
