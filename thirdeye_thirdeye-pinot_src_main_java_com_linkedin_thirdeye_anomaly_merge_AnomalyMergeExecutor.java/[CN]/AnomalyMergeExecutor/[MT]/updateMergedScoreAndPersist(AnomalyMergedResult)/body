@@ -1,0 +1,20 @@
+{
+  double weightedScoreSum=0.0;
+  double weightSum=0.0;
+  for (  AnomalyResult anomalyResult : mergedResult.getAnomalyResults()) {
+    anomalyResult.setMerged(true);
+    double weight=(anomalyResult.getEndTimeUtc() - anomalyResult.getStartTimeUtc()) / 1000;
+    weightedScoreSum+=anomalyResult.getScore() * weight;
+    weightSum+=weight;
+  }
+  if (weightSum != 0) {
+    mergedResult.setScore(weightedScoreSum / weightSum);
+  }
+  try {
+    mergedResultDAO.update(mergedResult);
+    anomalyResultDAO.updateAll(mergedResult.getAnomalyResults());
+  }
+ catch (  PersistenceException e) {
+    LOG.error("Could not persist merged result : [" + mergedResult.toString() + "]",e);
+  }
+}

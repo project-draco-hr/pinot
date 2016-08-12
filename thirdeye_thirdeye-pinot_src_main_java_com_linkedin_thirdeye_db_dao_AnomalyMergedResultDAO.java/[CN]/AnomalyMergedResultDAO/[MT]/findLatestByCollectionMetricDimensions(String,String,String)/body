@@ -1,3 +1,8 @@
 {
-  return getEntityManager().createQuery(FIND_BY_COLLECTION_METRIC_DIMENSIONS_ORDER_BY_END_TIME,entityClass).setParameter("collection",collection).setParameter("metric",metric).setParameter("dimensions",dimensions).setMaxResults(1).getSingleResult();
+  try {
+    return getEntityManager().createQuery(FIND_BY_COLLECTION_METRIC_DIMENSIONS_ORDER_BY_END_TIME,entityClass).setParameter("collection",collection).setParameter("metric",metric).setParameter("dimensions",dimensions).setMaxResults(1).getSingleResult();
+  }
+ catch (  NoResultException e) {
+    return null;
+  }
 }

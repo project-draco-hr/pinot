@@ -10,6 +10,11 @@
   for (  String dimensions : dimensionsResultMap.keySet()) {
     AnomalyMergedResult latestMergedResult=mergedResultDAO.findLatestByFunctionIdDimensions(function.getId(),dimensions);
     List<AnomalyResult> unmergedResultsByDimensions=dimensionsResultMap.get(dimensions);
-    output.addAll(AnomalyMergeGenerator.mergeAnomalies(latestMergedResult,unmergedResultsByDimensions,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap()));
+    List<AnomalyMergedResult> mergedResults=AnomalyTimeBasedSummarizer.mergeAnomalies(latestMergedResult,unmergedResultsByDimensions,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
+    for (    AnomalyMergedResult mergedResult : mergedResults) {
+      mergedResult.setFunction(function);
+      mergedResult.setDimensions(dimensions);
+    }
+    output.addAll(mergedResults);
   }
 }

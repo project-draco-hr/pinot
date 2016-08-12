@@ -1,4 +1,8 @@
 {
   AnomalyMergedResult latestMergedResult=mergedResultDAO.findLatestByFunctionIdOnly(function.getId());
-  output.addAll(AnomalyMergeGenerator.mergeAnomalies(latestMergedResult,unmergedResults,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap()));
+  List<AnomalyMergedResult> mergedResults=AnomalyTimeBasedSummarizer.mergeAnomalies(latestMergedResult,unmergedResults,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
+  for (  AnomalyMergedResult mergedResult : mergedResults) {
+    mergedResult.setFunction(function);
+  }
+  output.addAll(mergedResults);
 }

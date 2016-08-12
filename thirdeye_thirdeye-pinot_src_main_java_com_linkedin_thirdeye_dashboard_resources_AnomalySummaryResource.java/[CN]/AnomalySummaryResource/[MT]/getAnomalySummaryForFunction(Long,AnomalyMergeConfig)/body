@@ -6,5 +6,5 @@
     throw new IllegalArgumentException("Function id can't be null");
   }
   List<AnomalyResult> anomalies=resultDAO.findAllByTimeAndFunctionId(mergeConfig.getStartTime(),mergeConfig.getEndTime(),functionId);
-  return AnomalyMergeGenerator.mergeAnomalies(anomalies,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
+  return AnomalyTimeBasedSummarizer.mergeAnomalies(anomalies,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
 }
