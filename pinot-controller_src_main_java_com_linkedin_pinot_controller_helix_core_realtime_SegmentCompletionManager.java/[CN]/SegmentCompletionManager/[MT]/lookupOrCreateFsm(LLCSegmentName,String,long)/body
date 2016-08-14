@@ -4,7 +4,8 @@
   if (fsm == null) {
     ZNRecord segment;
     try {
-      LLCRealtimeSegmentZKMetadata segmentMetadata=_segmentManager.getRealtimeSegmentZKMetadata(segmentName.getTableName(),segmentName.getSegmentName());
+      final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(segmentName.getTableName());
+      LLCRealtimeSegmentZKMetadata segmentMetadata=_segmentManager.getRealtimeSegmentZKMetadata(realtimeTableName,segmentName.getSegmentName());
       if (segmentMetadata.getStatus().equals(CommonConstants.Segment.Realtime.Status.DONE)) {
         final long endOffset=segmentMetadata.getEndOffset();
         fsm=new SegmentCompletionFSM(_segmentManager,this,segmentName,segmentMetadata.getNumReplicas(),endOffset);
