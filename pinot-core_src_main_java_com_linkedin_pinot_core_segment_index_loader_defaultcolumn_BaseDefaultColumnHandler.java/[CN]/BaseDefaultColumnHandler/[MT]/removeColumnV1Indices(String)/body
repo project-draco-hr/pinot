@@ -1,0 +1,15 @@
+{
+  FieldSpec fieldSpec=schema.getFieldSpecFor(column);
+  boolean isSingleValue=fieldSpec.isSingleValueField();
+  File dictionaryFile=new File(indexDir,column + V1Constants.Dict.FILE_EXTENTION);
+  File forwardIndexFile;
+  if (isSingleValue) {
+    forwardIndexFile=new File(indexDir,column + V1Constants.Indexes.SORTED_FWD_IDX_FILE_EXTENTION);
+  }
+ else {
+    forwardIndexFile=new File(indexDir,column + V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION);
+  }
+  FileUtils.deleteQuietly(dictionaryFile);
+  FileUtils.deleteQuietly(forwardIndexFile);
+  SegmentColumnarIndexCreator.removeColumnMetadataInfo(segmentProperties,column);
+}

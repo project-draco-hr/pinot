@@ -1,0 +1,11 @@
+{
+  long timeInTwoMinutes=System.currentTimeMillis() + 2 * 60 * 1000L;
+  while (getCurrentServingNumDocs() < TOTAL_DOCS) {
+    if (System.currentTimeMillis() < timeInTwoMinutes) {
+      Thread.sleep(1000);
+    }
+ else {
+      Assert.fail("Segments were not completely loaded within two minutes");
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  SegmentV1V2ToV3FormatConverter converter=new SegmentV1V2ToV3FormatConverter();
+  converter.convert(segmentDirectoryFile);
+  File v3SegmentDirectoryFile=new File(segmentDirectoryFile,V3_SEGMENT_NAME);
+  checkUpdateDefaultColumns(v3SegmentDirectoryFile);
+  try {
+    SegmentPreProcessor processor=new SegmentPreProcessor(v3SegmentDirectoryFile,null,newColumnsSchema3);
+    processor.process();
+    Assert.fail("For segment format v3, should throw exception when trying to update with different length index");
+  }
+ catch (  Exception e) {
+  }
+}

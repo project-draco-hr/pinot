@@ -1,0 +1,24 @@
+{
+  int fileLength=(int)indexFile.length();
+  PinotDataBuffer buffer=null;
+  try {
+    if (segmentWriter.hasIndexFor(column,indexType)) {
+      buffer=segmentWriter.getIndexFor(column,indexType);
+      if (buffer.size() != fileLength) {
+        String failureMessage="V3 format segment already has " + indexType + " for column: "+ column+ " that cannot be removed.";
+        LOGGER.error(failureMessage);
+        throw new IllegalStateException(failureMessage);
+      }
+    }
+ else {
+      buffer=segmentWriter.newIndexFor(column,indexType,fileLength);
+    }
+    buffer.readFrom(indexFile);
+  }
+  finally {
+    FileUtils.deleteQuietly(indexFile);
+    if (buffer != null) {
+      buffer.close();
+    }
+  }
+}

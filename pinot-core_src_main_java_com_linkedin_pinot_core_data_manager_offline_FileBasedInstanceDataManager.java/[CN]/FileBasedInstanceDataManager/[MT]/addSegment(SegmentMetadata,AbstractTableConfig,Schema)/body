@@ -1,0 +1,11 @@
+{
+  String tableName=segmentMetadata.getTableName();
+  LOGGER.info("Trying to add segment : " + segmentMetadata.getName());
+  if (_tableDataManagerMap.containsKey(tableName)) {
+    _tableDataManagerMap.get(tableName).addSegment(segmentMetadata,schema);
+    LOGGER.info("Added a segment : " + segmentMetadata.getName() + " to table : "+ tableName);
+  }
+ else {
+    LOGGER.error("InstanceDataManager doesn't contain the assigned table for segment : " + segmentMetadata.getName());
+  }
+}

@@ -1,0 +1,13 @@
+{
+  LOGGER.info("Set up cluster without new schema.");
+  setUp(false);
+  LOGGER.info("Disable the table.");
+  sendGetRequest(CONTROLLER_BASE_API_URL + "/tables/mytable?type=offline&state=disable");
+  Thread.sleep(1000);
+  LOGGER.info("Send the new schema.");
+  sendSchema();
+  Thread.sleep(1000);
+  LOGGER.info("Enable the table to reload the segments.");
+  sendGetRequest(CONTROLLER_BASE_API_URL + "/tables/mytable?type=offline&state=enable");
+  waitForSegmentsOnline();
+}

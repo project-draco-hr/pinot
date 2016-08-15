@@ -13,7 +13,7 @@
       Assert.assertFalse(reader.hasIndexFor(NO_SUCH_COLUMN_NAME,ColumnIndexType.INVERTED_INDEX));
     }
   }
-   SegmentPreProcessor processor=new SegmentPreProcessor(segmentDirectoryFile,segmentMetadata,indexLoadingConfigMetadata);
+   SegmentPreProcessor processor=new SegmentPreProcessor(segmentDirectoryFile,indexLoadingConfigMetadata,null);
   processor.process();
   try (SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryFile,segmentMetadata,ReadMode.mmap);SegmentDirectory.Reader reader=segmentDirectory.createReader()){
     Assert.assertTrue(reader.hasIndexFor(COLUMN1_NAME,ColumnIndexType.INVERTED_INDEX));

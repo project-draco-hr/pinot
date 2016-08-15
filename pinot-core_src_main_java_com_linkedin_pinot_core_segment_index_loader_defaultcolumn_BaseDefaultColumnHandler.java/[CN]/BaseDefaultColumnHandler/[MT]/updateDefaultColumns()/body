@@ -1,0 +1,42 @@
+{
+  if (schema == null) {
+    return;
+  }
+  Map<String,DefaultColumnAction> defaultColumnActionMap=computeDefaultColumnActionMap();
+  if (defaultColumnActionMap.isEmpty()) {
+    return;
+  }
+  for (  Map.Entry<String,DefaultColumnAction> entry : defaultColumnActionMap.entrySet()) {
+    updateDefaultColumn(entry.getKey(),entry.getValue());
+  }
+  List<String> dimensionColumns=LoaderUtils.getStringListFromSegmentProperties(V1Constants.MetadataKeys.Segment.DIMENSIONS,segmentProperties);
+  List<String> metricColumns=LoaderUtils.getStringListFromSegmentProperties(V1Constants.MetadataKeys.Segment.METRICS,segmentProperties);
+  for (  Map.Entry<String,DefaultColumnAction> entry : defaultColumnActionMap.entrySet()) {
+    String column=entry.getKey();
+    DefaultColumnAction action=entry.getValue();
+switch (action) {
+case ADD_DIMENSION:
+      dimensionColumns.add(column);
+    break;
+case ADD_METRIC:
+  metricColumns.add(column);
+break;
+case REMOVE_DIMENSION:
+dimensionColumns.remove(column);
+break;
+case REMOVE_METRIC:
+metricColumns.remove(column);
+break;
+default :
+break;
+}
+}
+segmentProperties.setProperty(V1Constants.MetadataKeys.Segment.DIMENSIONS,dimensionColumns);
+segmentProperties.setProperty(V1Constants.MetadataKeys.Segment.METRICS,metricColumns);
+File metadataFile=new File(indexDir,V1Constants.MetadataKeys.METADATA_FILE_NAME);
+File metadataBackUpFile=new File(metadataFile + ".bak");
+if (!metadataBackUpFile.exists()) {
+FileUtils.copyFile(metadataFile,metadataBackUpFile);
+}
+segmentProperties.save(metadataFile);
+}

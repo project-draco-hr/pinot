@@ -1,0 +1,16 @@
+{
+  int generatedQueryCount=getGeneratedQueryCount();
+  QueryGenerator.Query[] queries=new QueryGenerator.Query[generatedQueryCount];
+  _queryGenerator.setSkipMultivaluePredicates(false);
+  for (int i=0; i < queries.length; i++) {
+    QueryGenerator.Query query=_queryGenerator.generateQuery();
+    while (query.generatePql().contains("SELECT *")) {
+      query=_queryGenerator.generateQuery();
+    }
+    queries[i]=query;
+  }
+  for (  QueryGenerator.Query query : queries) {
+    LOGGER.debug("Trying to send query : {}",query.generatePql());
+    runQuery(query.generatePql(),query.generateH2Sql());
+  }
+}

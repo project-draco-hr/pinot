@@ -1,0 +1,24 @@
+{
+  LOGGER.info("Starting default column action: {} on column: {}",action,column);
+  if (action.isRemoveAction()) {
+    String failureMessage="Default value indices for column: " + column + " cannot be removed for segment format v3, throw exception to"+ " drop and re-download the segment.";
+    LOGGER.error(failureMessage);
+    throw new RuntimeException(failureMessage);
+  }
+  removeColumnV1Indices(column);
+  if (!action.isRemoveAction()) {
+    createColumnV1Indices(column);
+    FieldSpec fieldSpec=schema.getFieldSpecFor(column);
+    boolean isSingleValue=fieldSpec.isSingleValueField();
+    File dictionaryFile=new File(indexDir,column + V1Constants.Dict.FILE_EXTENTION);
+    File forwardIndexFile;
+    if (isSingleValue) {
+      forwardIndexFile=new File(indexDir,column + V1Constants.Indexes.SORTED_FWD_IDX_FILE_EXTENTION);
+    }
+ else {
+      forwardIndexFile=new File(indexDir,column + V1Constants.Indexes.UN_SORTED_MV_FWD_IDX_FILE_EXTENTION);
+    }
+    LoaderUtils.writeIndexToV3Format(segmentWriter,column,dictionaryFile,ColumnIndexType.DICTIONARY);
+    LoaderUtils.writeIndexToV3Format(segmentWriter,column,forwardIndexFile,ColumnIndexType.FORWARD_INDEX);
+  }
+}

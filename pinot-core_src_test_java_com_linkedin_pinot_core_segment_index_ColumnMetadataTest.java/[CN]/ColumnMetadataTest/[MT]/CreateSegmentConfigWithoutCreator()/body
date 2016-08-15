@@ -1,7 +1,6 @@
 {
   final String filePath=TestUtils.getFileFromResourceUrl(ColumnMetadataTest.class.getClassLoader().getResource(AVRO_DATA));
-  final SegmentGeneratorConfig config;
-  config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.HOURS,"testTable");
+  SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),INDEX_DIR,"daysSinceEpoch",TimeUnit.HOURS,"testTable");
   config.setSegmentNamePostfix("1");
   config.setTimeColumnName("daysSinceEpoch");
   return config;

@@ -2,7 +2,10 @@
   SegmentDirectory.Writer segmentWriter=null;
   try {
     segmentWriter=segmentDirectory.createWriter();
-    addRemoveInvertedIndices(segmentWriter);
+    InvertedIndexHandler invertedIndexHandler=new InvertedIndexHandler(indexDir,segmentMetadata,indexConfig,segmentWriter);
+    invertedIndexHandler.createInvertedIndices();
+    DefaultColumnHandler defaultColumnHandler=DefaultColumnHandlerFactory.getDefaultColumnHandler(indexDir,schema,segmentMetadata,segmentWriter);
+    defaultColumnHandler.updateDefaultColumns();
   }
   finally {
     if (segmentWriter != null) {

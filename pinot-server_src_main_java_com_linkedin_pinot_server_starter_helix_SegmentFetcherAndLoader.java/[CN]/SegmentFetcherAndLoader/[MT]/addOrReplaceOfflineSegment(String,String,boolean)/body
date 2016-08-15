@@ -1,5 +1,12 @@
 {
   OfflineSegmentZKMetadata offlineSegmentZKMetadata=ZKMetadataProvider.getOfflineSegmentZKMetadata(_propertyStore,tableName,segmentId);
+  Schema schema=null;
+  try {
+    schema=getSchema(tableName);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while trying to load schema for table: {}",tableName,e);
+  }
   LOGGER.info("Adding or replacing segment {} for table {}, metadata {}",segmentId,tableName,offlineSegmentZKMetadata);
   try {
     SegmentMetadata segmentMetadataForCheck=new SegmentMetadataImpl(offlineSegmentZKMetadata);
@@ -22,7 +29,7 @@
           if (!isNewSegmentMetadata(localSegmentMetadata,segmentMetadataForCheck,segmentId,tableName)) {
             LOGGER.info("Segment metadata same as before, loading {} of table {} (crc {}) from disk",segmentId,tableName,localSegmentMetadata.getCrc());
             AbstractTableConfig tableConfig=ZKMetadataProvider.getOfflineTableConfig(_propertyStore,tableName);
-            _dataManager.addSegment(localSegmentMetadata,tableConfig);
+            _dataManager.addSegment(localSegmentMetadata,tableConfig,schema);
             return;
           }
         }
@@ -52,7 +59,7 @@
           final String uri=offlineSegmentZKMetadata.getDownloadUrl();
           final String localSegmentDir=downloadSegmentToLocal(uri,tableName,segmentId);
           final SegmentMetadata segmentMetadata=_metadataLoader.loadIndexSegmentMetadataFromDir(localSegmentDir);
-          _dataManager.addSegment(segmentMetadata,tableConfig);
+          _dataManager.addSegment(segmentMetadata,tableConfig,schema);
           LOGGER.info("Downloaded segment {} of table {} crc {} from controller",segmentId,tableName,segmentMetadata.getCrc());
           break;
         }

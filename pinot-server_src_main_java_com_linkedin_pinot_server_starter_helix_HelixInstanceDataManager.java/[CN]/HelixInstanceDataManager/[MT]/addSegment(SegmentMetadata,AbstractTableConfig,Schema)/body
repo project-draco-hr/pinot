@@ -1,0 +1,26 @@
+{
+  if (segmentMetadata == null || segmentMetadata.getTableName() == null) {
+    throw new RuntimeException("Error: adding invalid SegmentMetadata!");
+  }
+  LOGGER.info("Trying to add segment {} of table {}",segmentMetadata.getName(),segmentMetadata.getTableName());
+  if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("Trying to add segment with Metadata: " + segmentMetadata.toString());
+  }
+  String tableName=segmentMetadata.getTableName();
+  if (segmentMetadata.getIndexType().equalsIgnoreCase("realtime")) {
+    tableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+  }
+ else {
+    tableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+  }
+  if (!_tableDataManagerMap.containsKey(tableName)) {
+    LOGGER.info("Trying to add TableDataManager for table name: " + tableName);
+synchronized (_globalLock) {
+      if (!_tableDataManagerMap.containsKey(tableName)) {
+        addTableIfNeed(tableConfig,tableName);
+      }
+    }
+  }
+  _tableDataManagerMap.get(tableName).addSegment(segmentMetadata,schema);
+  LOGGER.info("Successfully added a segment {} of table {}",segmentMetadata.getName(),segmentMetadata.getTableName());
+}

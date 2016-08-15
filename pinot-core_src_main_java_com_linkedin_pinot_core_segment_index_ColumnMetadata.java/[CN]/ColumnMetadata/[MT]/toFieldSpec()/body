@@ -1,11 +1,12 @@
 {
 switch (fieldType) {
 case DIMENSION:
-    return new DimensionFieldSpec(columnName,dataType,inSingleValue);
-case TIME:
-  return new TimeFieldSpec(columnName,dataType,timeunit);
+    return new DimensionFieldSpec(columnName,dataType,isSingleValue);
 case METRIC:
-return new MetricFieldSpec(columnName,dataType);
+  return new MetricFieldSpec(columnName,dataType);
+case TIME:
+return new TimeFieldSpec(columnName,dataType,timeUnit);
+default :
+throw new RuntimeException("Unsupported field type: " + fieldType);
 }
-return null;
 }

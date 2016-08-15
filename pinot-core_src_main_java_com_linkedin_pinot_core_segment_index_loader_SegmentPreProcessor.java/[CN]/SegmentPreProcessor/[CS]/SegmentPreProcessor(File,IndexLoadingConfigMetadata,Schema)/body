@@ -1,0 +1,10 @@
+{
+  Preconditions.checkNotNull(indexDir);
+  Preconditions.checkState(indexDir.exists(),"Segment directory: {} does not exist",indexDir);
+  Preconditions.checkState(indexDir.isDirectory(),"Segment path: {} is not a directory",indexDir);
+  this.indexDir=indexDir;
+  segmentMetadata=new SegmentMetadataImpl(indexDir);
+  this.indexConfig=indexConfig;
+  this.schema=schema;
+  segmentDirectory=SegmentDirectory.createFromLocalFS(indexDir,segmentMetadata,ReadMode.mmap);
+}

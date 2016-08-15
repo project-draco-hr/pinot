@@ -11,4 +11,11 @@
   segmentDirectoryFile=new File(INDEX_DIR,driver.getSegmentName());
   indexLoadingConfigMetadata=new IndexLoadingConfigMetadata(new PropertiesConfiguration());
   indexLoadingConfigMetadata.initLoadingInvertedIndexColumnSet(new String[]{COLUMN1_NAME,COLUMN7_NAME,COLUMN13_NAME,NO_SUCH_COLUMN_NAME});
+  ObjectMapper objectMapper=new ObjectMapper();
+  File newColumnsSchemaFile1=new File(TestUtils.getFileFromResourceUrl(SegmentPreProcessor.class.getClassLoader().getResource(NEW_COLUMNS_SCHEMA1)));
+  newColumnsSchema1=objectMapper.readValue(newColumnsSchemaFile1,Schema.class);
+  File newColumnsSchemaFile2=new File(TestUtils.getFileFromResourceUrl(SegmentPreProcessor.class.getClassLoader().getResource(NEW_COLUMNS_SCHEMA2)));
+  newColumnsSchema2=objectMapper.readValue(newColumnsSchemaFile2,Schema.class);
+  File newColumnsSchemaFile3=new File(TestUtils.getFileFromResourceUrl(SegmentPreProcessor.class.getClassLoader().getResource(NEW_COLUMNS_SCHEMA3)));
+  newColumnsSchema3=objectMapper.readValue(newColumnsSchemaFile3,Schema.class);
 }

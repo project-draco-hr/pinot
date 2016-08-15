@@ -1,12 +1,8 @@
 {
-  System.out.println(getClass().getClassLoader().getResource(AVRO_DATA));
-  final String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
-  if (segmentDir.exists()) {
-    FileUtils.deleteQuietly(segmentDir);
-  }
-  final SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,TimeUnit.DAYS,tableName,null);
-  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  String filePath=TestUtils.getFileFromResourceUrl(getClass().getClassLoader().getResource(AVRO_DATA));
+  SegmentGeneratorConfig config=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(new File(filePath),segmentDir,TimeUnit.DAYS,tableName,null);
+  SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   driver.init(config);
   driver.build();
-  System.out.println("built at : " + INDEX_DIR.getAbsolutePath());
+  LOGGER.info("Table: {} built at path: {}",tableName,segmentDir.getAbsolutePath());
 }

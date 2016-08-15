@@ -1,0 +1,28 @@
+{
+  FileUtils.deleteQuietly(TMP_DIR);
+  Assert.assertTrue(TMP_DIR.mkdirs());
+  Assert.assertTrue(SEGMENT_DIR.mkdir());
+  Assert.assertTrue(TAR_DIR.mkdir());
+  startZk();
+  startController();
+  startBroker();
+  startServer();
+  addOfflineTable("mytable","DaysSinceEpoch","daysSinceEpoch",-1,"",null,null);
+  if (sendSchema) {
+    sendSchema();
+  }
+  List<File> avroFiles=unpackAvroData(TMP_DIR,SEGMENT_COUNT);
+  ExecutorService executor=Executors.newCachedThreadPool();
+  setupH2AndInsertAvro(avroFiles,executor);
+  buildSegmentsFromAvro(avroFiles,executor,0,SEGMENT_DIR,TAR_DIR,"mytable",false,null);
+  setupQueryGenerator(avroFiles,executor);
+  executor.shutdown();
+  executor.awaitTermination(10,TimeUnit.MINUTES);
+  CountDownLatch latch=setupSegmentCountCountDownLatch("mytable",SEGMENT_COUNT);
+  for (  String segmentName : TAR_DIR.list()) {
+    File file=new File(TAR_DIR,segmentName);
+    FileUploadUtils.sendSegmentFile("localhost","8998",segmentName,new FileInputStream(file),file.length());
+  }
+  latch.await();
+  waitForSegmentsOnline();
+}

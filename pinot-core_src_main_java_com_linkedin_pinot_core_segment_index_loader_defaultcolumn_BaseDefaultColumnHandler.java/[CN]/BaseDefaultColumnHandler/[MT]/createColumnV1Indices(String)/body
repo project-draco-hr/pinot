@@ -1,0 +1,54 @@
+{
+  FieldSpec fieldSpec=schema.getFieldSpecFor(column);
+  boolean isSingleValue=fieldSpec.isSingleValueField();
+  int totalDocs=segmentMetadata.getTotalDocs();
+  int totalRawDocs=segmentMetadata.getTotalRawDocs();
+  int totalAggDocs=totalDocs - totalRawDocs;
+  Object defaultValue=fieldSpec.getDefaultNullValue();
+  String stringDefaultValue=defaultValue.toString();
+  FieldSpec.DataType dataType=fieldSpec.getDataType();
+  int maxNumberOfMultiValueElements=isSingleValue ? 0 : 1;
+  int dictionaryElementSize=0;
+  Object sortedArray;
+switch (dataType) {
+case BOOLEAN:
+case STRING:
+    dictionaryElementSize=stringDefaultValue.getBytes("UTF8").length;
+  sortedArray=new String[]{stringDefaultValue};
+break;
+case INT:
+sortedArray=new int[]{Integer.valueOf(stringDefaultValue)};
+break;
+case LONG:
+sortedArray=new long[]{Long.valueOf(stringDefaultValue)};
+break;
+case FLOAT:
+sortedArray=new float[]{Float.valueOf(stringDefaultValue)};
+break;
+case DOUBLE:
+sortedArray=new double[]{Double.valueOf(stringDefaultValue)};
+break;
+default :
+throw new UnsupportedOperationException("Schema evolution not supported for data type:" + fieldSpec.getDataType());
+}
+ColumnIndexCreationInfo columnIndexCreationInfo=new ColumnIndexCreationInfo(true,defaultValue,defaultValue,sortedArray,ForwardIndexType.FIXED_BIT_COMPRESSED,InvertedIndexType.SORTED_INDEX,isSingleValue,false,totalDocs,maxNumberOfMultiValueElements,true,defaultValue);
+SegmentDictionaryCreator segmentDictionaryCreator=new SegmentDictionaryCreator(false,sortedArray,fieldSpec,indexDir,V1Constants.Str.DEFAULT_STRING_PAD_CHAR);
+segmentDictionaryCreator.build(new boolean[]{true});
+segmentDictionaryCreator.close();
+if (isSingleValue) {
+SingleValueSortedForwardIndexCreator svFwdIndexCreator=new SingleValueSortedForwardIndexCreator(indexDir,1,fieldSpec);
+for (int docId=0; docId < totalDocs; docId++) {
+svFwdIndexCreator.add(0,docId);
+}
+svFwdIndexCreator.close();
+}
+ else {
+MultiValueUnsortedForwardIndexCreator mvFwdIndexCreator=new MultiValueUnsortedForwardIndexCreator(fieldSpec,indexDir,1,totalDocs,totalDocs,false);
+int[] dictionaryIds={0};
+for (int docId=0; docId < totalDocs; docId++) {
+mvFwdIndexCreator.index(docId,dictionaryIds);
+}
+mvFwdIndexCreator.close();
+}
+SegmentColumnarIndexCreator.addColumnMetadataInfo(segmentProperties,column,columnIndexCreationInfo,totalDocs,totalRawDocs,totalAggDocs,fieldSpec,dictionaryElementSize,true);
+}

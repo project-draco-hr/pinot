@@ -1,0 +1,40 @@
+{
+  String column=columnMetadata.getColumnName();
+  File inProgress=new File(indexDir,column + ".inv.inprogress");
+  File invertedIndexFile=new File(indexDir,column + V1Constants.Indexes.BITMAP_INVERTED_INDEX_FILE_EXTENSION);
+  if (!inProgress.exists()) {
+    if (segmentWriter.hasIndexFor(column,ColumnIndexType.INVERTED_INDEX)) {
+      LOGGER.info("Found inverted index for segment: {}, column: {}",segmentName,column);
+      return;
+    }
+    FileUtils.touch(inProgress);
+  }
+ else {
+    FileUtils.deleteQuietly(invertedIndexFile);
+  }
+  LOGGER.info("Creating new inverted index for segment: {}, column: {}",segmentName,column);
+  int totalDocs=columnMetadata.getTotalDocs();
+  OffHeapBitmapInvertedIndexCreator creator=new OffHeapBitmapInvertedIndexCreator(indexDir,columnMetadata.getCardinality(),totalDocs,columnMetadata.getTotalNumberOfEntries(),columnMetadata.toFieldSpec());
+  try (DataFileReader fwdIndex=getForwardIndexReader(columnMetadata,segmentWriter)){
+    if (columnMetadata.isSingleValue()) {
+      FixedBitSingleValueReader svFwdIndex=(FixedBitSingleValueReader)fwdIndex;
+      for (int i=0; i < totalDocs; i++) {
+        creator.add(i,svFwdIndex.getInt(i));
+      }
+    }
+ else {
+      SingleColumnMultiValueReader mvFwdIndex=(SingleColumnMultiValueReader)fwdIndex;
+      int[] dictIds=new int[columnMetadata.getMaxNumberOfMultiValues()];
+      for (int i=0; i < totalDocs; i++) {
+        int len=mvFwdIndex.getIntArray(i,dictIds);
+        creator.add(i,dictIds,len);
+      }
+    }
+  }
+   creator.seal();
+  if (segmentVersion == SegmentVersion.v3) {
+    LoaderUtils.writeIndexToV3Format(segmentWriter,column,invertedIndexFile,ColumnIndexType.INVERTED_INDEX);
+  }
+  FileUtils.deleteQuietly(inProgress);
+  LOGGER.info("Created inverted index for segment: {}, column: {}",segmentName,column);
+}
