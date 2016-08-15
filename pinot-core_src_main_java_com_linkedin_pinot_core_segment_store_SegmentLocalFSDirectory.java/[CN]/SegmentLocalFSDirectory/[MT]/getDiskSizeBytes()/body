@@ -1,3 +1,25 @@
 {
-  return FileUtils.sizeOfDirectory(segmentDirectory.toPath().toFile());
+  if (segmentDirectory.exists()) {
+    try {
+      return FileUtils.sizeOfDirectory(segmentDirectory.toPath().toFile());
+    }
+ catch (    IllegalArgumentException e) {
+      LOGGER.error("Failed to read disk size for direcotry: ",segmentDirectory.getAbsolutePath());
+      return -1;
+    }
+  }
+ else {
+    if (!SegmentDirectoryPaths.isV3Directory(segmentDirectory)) {
+      LOGGER.error("Segment directory: {} not found on disk and is not v3 format",segmentDirectory.getAbsolutePath());
+      return -1;
+    }
+    File[] files=segmentDirectory.getParentFile().listFiles();
+    long size=0L;
+    for (    File file : files) {
+      if (file.isFile()) {
+        size+=file.length();
+      }
+    }
+    return size;
+  }
 }

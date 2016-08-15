@@ -1,0 +1,25 @@
+{
+  File sizeTestDirectory=null;
+  try {
+    sizeTestDirectory=new File(SegmentLocalFSDirectoryTest.class.getName() + "-size_test");
+    if (sizeTestDirectory.exists()) {
+      FileUtils.deleteQuietly(sizeTestDirectory);
+    }
+    FileUtils.copyDirectoryToDirectory(segmentDirectory.getPath().toFile(),sizeTestDirectory);
+    SegmentDirectory sizeSegment=SegmentLocalFSDirectory.createFromLocalFS(sizeTestDirectory,metadata,ReadMode.mmap);
+    Assert.assertEquals(sizeSegment.getDiskSizeBytes(),segmentDirectory.getDiskSizeBytes());
+    Assert.assertFalse(SegmentDirectoryPaths.segmentDirectoryFor(sizeTestDirectory,SegmentVersion.v3).exists());
+    File v3SizeDir=new File(sizeTestDirectory,SegmentDirectoryPaths.V3_SUBDIRECTORY_NAME);
+    FileUtils.copyDirectoryToDirectory(segmentDirectory.getPath().toFile(),v3SizeDir);
+    SegmentDirectory sizeV3Segment=SegmentDirectory.createFromLocalFS(v3SizeDir,metadata,ReadMode.mmap);
+    Assert.assertEquals(sizeSegment.getDiskSizeBytes(),sizeV3Segment.getDiskSizeBytes());
+    FileUtils.deleteQuietly(v3SizeDir);
+    v3SizeDir.mkdirs();
+    Assert.assertEquals(sizeSegment.getDiskSizeBytes(),sizeV3Segment.getDiskSizeBytes());
+  }
+  finally {
+    if (sizeTestDirectory != null) {
+      FileUtils.deleteQuietly(sizeTestDirectory);
+    }
+  }
+}
