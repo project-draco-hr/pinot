@@ -8,6 +8,7 @@
         HttpClient client=new HttpClient(connectionManager);
         GetMethod getMethod=new GetMethod(url);
         getMethod.getParams().setSoTimeout(timeoutMs);
+        client.getParams().setConnectionManagerTimeout(timeoutMs);
         client.executeMethod(getMethod);
         return getMethod;
       }
