@@ -23,6 +23,11 @@
         alertJobScheduler.start();
         environment.jersey().register(new AlertJobResource(alertJobScheduler,emailConfigurationDAO));
       }
+      if (config.isMerger()) {
+        ScheduledExecutorService executorService=Executors.newSingleThreadScheduledExecutor();
+        anomalyMergeExecutor=new AnomalyMergeExecutor(anomalyMergedResultDAO,anomalyFunctionDAO,anomalyResultDAO,executorService);
+        anomalyMergeExecutor.start();
+      }
     }
     @Override public void stop() throws Exception {
       if (config.isWorker()) {
@@ -36,6 +41,9 @@
       }
       if (config.isAlert()) {
         alertJobScheduler.stop();
+      }
+      if (config.isMerger()) {
+        anomalyMergeExecutor.stop();
       }
     }
   }

@@ -1,14 +1,18 @@
 {
   double weightedScoreSum=0.0;
-  double weightSum=0.0;
+  double weightedWeightSum=0.0;
+  double totalBucketSize=0.0;
+  double normalizationFactor=1000;
   for (  AnomalyResult anomalyResult : mergedResult.getAnomalyResults()) {
     anomalyResult.setMerged(true);
-    double weight=(anomalyResult.getEndTimeUtc() - anomalyResult.getStartTimeUtc()) / 1000;
-    weightedScoreSum+=anomalyResult.getScore() * weight;
-    weightSum+=weight;
+    double bucketSizeSeconds=(anomalyResult.getEndTimeUtc() - anomalyResult.getStartTimeUtc()) / 1000;
+    weightedScoreSum+=(anomalyResult.getScore() / normalizationFactor) * bucketSizeSeconds;
+    weightedWeightSum+=(anomalyResult.getWeight() / normalizationFactor) * bucketSizeSeconds;
+    totalBucketSize+=bucketSizeSeconds;
   }
-  if (weightSum != 0) {
-    mergedResult.setScore(weightedScoreSum / weightSum);
+  if (totalBucketSize != 0) {
+    mergedResult.setScore((weightedScoreSum / totalBucketSize) * normalizationFactor);
+    mergedResult.setWeight((weightedWeightSum / totalBucketSize) * normalizationFactor);
   }
   try {
     mergedResultDAO.update(mergedResult);
