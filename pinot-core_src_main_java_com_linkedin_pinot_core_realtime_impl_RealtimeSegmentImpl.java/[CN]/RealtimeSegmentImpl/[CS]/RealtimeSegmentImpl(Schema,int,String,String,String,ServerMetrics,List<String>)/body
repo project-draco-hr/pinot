@@ -1,0 +1,48 @@
+{
+  this.segmentName=segmentName;
+  this.serverMetrics=serverMetrics;
+  LOGGER=LoggerFactory.getLogger(RealtimeSegmentImpl.class.getName() + "_" + segmentName+ "_"+ streamName);
+  dataSchema=schema;
+  dictionaryMap=new HashMap<String,MutableDictionaryReader>();
+  maxNumberOfMultivaluesMap=new HashMap<String,Integer>();
+  outgoingTimeColumnName=dataSchema.getTimeFieldSpec().getOutgoingTimeColumnName();
+  this.capacity=capacity;
+  for (  FieldSpec col : dataSchema.getAllFieldSpecs()) {
+    maxNumberOfMultivaluesMap.put(col.getName(),0);
+  }
+  for (  String column : dataSchema.getDimensionNames()) {
+    dictionaryMap.put(column,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(column)));
+  }
+  dictionaryMap.put(outgoingTimeColumnName,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(outgoingTimeColumnName)));
+  for (  String metric : dataSchema.getMetricNames()) {
+    dictionaryMap.put(metric,RealtimeDictionaryProvider.getDictionaryFor(dataSchema.getFieldSpecFor(metric)));
+  }
+  docIdGenerator=new AtomicInteger(-1);
+  incomingGranularitySpec=schema.getTimeFieldSpec().getIncomingGranularitySpec();
+  outgoingGranularitySpec=schema.getTimeFieldSpec().getOutgoingGranularitySpec();
+  timeConverter=TimeConverterProvider.getTimeConverter(incomingGranularitySpec,outgoingGranularitySpec);
+  columnIndexReaderWriterMap=new HashMap<String,DataFileReader>();
+  invertedIndexMap=new HashMap<String,RealtimeInvertedIndex>();
+  for (  String dimension : schema.getDimensionNames()) {
+    if (invertedIndexColumns.contains(dimension)) {
+      invertedIndexMap.put(dimension,new DimensionInvertertedIndex(dimension));
+    }
+    if (schema.getFieldSpecFor(dimension).isSingleValueField()) {
+      columnIndexReaderWriterMap.put(dimension,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
+    }
+ else {
+      columnIndexReaderWriterMap.put(dimension,new FixedByteSingleColumnMultiValueReaderWriter(capacity,Integer.SIZE / 8,FixedByteSingleColumnMultiValueReaderWriter.DEFAULT_MAX_NUMBER_OF_MULTIVALUES));
+    }
+  }
+  for (  String metric : schema.getMetricNames()) {
+    if (invertedIndexColumns.contains(metric)) {
+      invertedIndexMap.put(metric,new MetricInvertedIndex(metric));
+    }
+    columnIndexReaderWriterMap.put(metric,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
+  }
+  if (invertedIndexColumns.contains(outgoingTimeColumnName)) {
+    invertedIndexMap.put(outgoingTimeColumnName,new TimeInvertedIndex(outgoingTimeColumnName));
+  }
+  columnIndexReaderWriterMap.put(outgoingTimeColumnName,new FixedByteSingleColumnSingleValueReaderWriter(capacity,V1Constants.Dict.INT_DICTIONARY_COL_SIZE));
+  tableAndStreamName=tableName + "-" + streamName;
+}

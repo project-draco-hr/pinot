@@ -1,0 +1,18 @@
+{
+  DataSource ds1=segmentWithoutInvIdx.getDataSource("count");
+  ScanBasedFilterOperator op=new ScanBasedFilterOperator(ds1,0,segmentWithoutInvIdx.getRawDocumentCount() - 1);
+  List<String> rhs=new ArrayList<String>();
+  rhs.add("890662862");
+  Predicate predicate=new NEqPredicate("count",rhs);
+  op.setPredicate(predicate);
+  Block b=op.nextBlock();
+  BlockDocIdIterator iterator=b.getBlockDocIdSet().iterator();
+  int counter=0;
+  int docId=iterator.next();
+  while (docId != Constants.EOF) {
+    Assert.assertTrue(false);
+    docId=iterator.next();
+    counter++;
+  }
+  Assert.assertEquals(counter,0);
+}

@@ -1,9 +1,10 @@
 {
-  DataSource ds1=segment.getDataSource("count");
-  BitmapBasedFilterOperator op=new BitmapBasedFilterOperator(ds1,0,segment.getRawDocumentCount() - 1);
+  DataSource ds1=segmentWithoutInvIdx.getDataSource("count");
+  ScanBasedFilterOperator op=new ScanBasedFilterOperator(ds1,0,segmentWithoutInvIdx.getRawDocumentCount() - 1);
   List<String> rhs=new ArrayList<String>();
-  rhs.add("890662862");
-  Predicate predicate=new NEqPredicate("count",rhs);
+  rhs.add("[0\t\t100)");
+  Predicate predicate=new RangePredicate("count",rhs);
+  op.setPredicate(predicate);
   op.setPredicate(predicate);
   Block b=op.nextBlock();
   BlockDocIdIterator iterator=b.getBlockDocIdSet().iterator();

@@ -37,7 +37,9 @@
   }
   _invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
   _tableStreamName=_tableName + "_" + kafkaStreamProviderConfig.getStreamName();
-  _realtimeSegment=new RealtimeSegmentImpl(schema,_segmentMaxRowCount,tableConfig.getTableName(),segmentZKMetadata.getSegmentName(),_kafkaTopic,_serverMetrics);
+  List<String> invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
+  invertedIndexColumns.add(indexingConfig.getSortedColumn().get(0));
+  _realtimeSegment=new RealtimeSegmentImpl(schema,_segmentMaxRowCount,tableConfig.getTableName(),segmentZKMetadata.getSegmentName(),_kafkaTopic,_serverMetrics,invertedIndexColumns);
   _realtimeSegment.setSegmentMetadata(segmentZKMetadata,schema);
   _messageDecoder=kafkaStreamProviderConfig.getDecoder();
   _clientId=_kafkaPartitionId + "-" + NetUtil.getHostnameOrAddress();

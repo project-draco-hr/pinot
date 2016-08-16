@@ -21,10 +21,14 @@
   StreamProvider provider=new FileBasedStreamProviderImpl();
   final String tableName=RealtimeSegmentTest.class.getSimpleName() + ".noTable";
   provider.init(config,tableName,new ServerMetrics(new MetricsRegistry()));
-  segment=new RealtimeSegmentImpl(schema,100000,tableName,"noSegment",AVRO_DATA,new ServerMetrics(new MetricsRegistry()));
+  List<String> invertedIdxCols=new ArrayList<>();
+  invertedIdxCols.add("count");
+  segmentWithInvIdx=new RealtimeSegmentImpl(schema,100000,tableName,"noSegment",AVRO_DATA,new ServerMetrics(new MetricsRegistry()),invertedIdxCols);
+  segmentWithoutInvIdx=new RealtimeSegmentImpl(schema,100000,tableName,"noSegment",AVRO_DATA,new ServerMetrics(new MetricsRegistry()));
   GenericRow row=provider.next();
   while (row != null) {
-    segment.index(row);
+    segmentWithInvIdx.index(row);
+    segmentWithoutInvIdx.index(row);
     row=provider.next();
   }
   provider.shutdown();

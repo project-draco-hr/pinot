@@ -25,6 +25,9 @@
     }
   }
   invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
+  if (sortedColumn != null && !invertedIndexColumns.contains(sortedColumn)) {
+    invertedIndexColumns.add(sortedColumn);
+  }
   this.segmentMetatdaZk=segmentMetadata;
   this.kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
   this.kafkaStreamProviderConfig.init(tableConfig,instanceMetadata,schema);
@@ -42,7 +45,7 @@
   this.kafkaStreamProvider.start();
   this.tableStreamName=tableName + "_" + kafkaStreamProviderConfig.getStreamName();
   segmentLogger.info("Started kafka stream provider");
-  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName(),serverMetrics);
+  realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName(),serverMetrics,invertedIndexColumns);
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
   notifier=realtimeTableDataManager;
   segmentStatusTask=new TimerTask(){

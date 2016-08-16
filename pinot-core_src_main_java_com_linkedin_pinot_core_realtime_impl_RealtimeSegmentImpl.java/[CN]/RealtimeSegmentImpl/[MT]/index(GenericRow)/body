@@ -95,20 +95,26 @@
   ((FixedByteSingleColumnSingleValueReaderWriter)columnIndexReaderWriterMap.get(outgoingTimeColumnName)).setInt(docId,timeDicId);
   rawRowToDicIdMap.put(outgoingTimeColumnName,timeDicId);
   for (  String metric : dataSchema.getMetricNames()) {
-    invertedIndexMap.get(metric).add(rawRowToDicIdMap.get(metric),docId);
+    if (invertedIndexMap.containsKey(metric)) {
+      invertedIndexMap.get(metric).add(rawRowToDicIdMap.get(metric),docId);
+    }
   }
   for (  String dimension : dataSchema.getDimensionNames()) {
-    if (dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
-      invertedIndexMap.get(dimension).add(rawRowToDicIdMap.get(dimension),docId);
-    }
+    if (invertedIndexMap.containsKey(dimension)) {
+      if (dataSchema.getFieldSpecFor(dimension).isSingleValueField()) {
+        invertedIndexMap.get(dimension).add(rawRowToDicIdMap.get(dimension),docId);
+      }
  else {
-      int[] dicIds=(int[])rawRowToDicIdMap.get(dimension);
-      for (      int dicId : dicIds) {
-        invertedIndexMap.get(dimension).add(dicId,docId);
+        int[] dicIds=(int[])rawRowToDicIdMap.get(dimension);
+        for (        int dicId : dicIds) {
+          invertedIndexMap.get(dimension).add(dicId,docId);
+        }
       }
     }
   }
-  invertedIndexMap.get(outgoingTimeColumnName).add(rawRowToDicIdMap.get(outgoingTimeColumnName),docId);
+  if (invertedIndexMap.containsKey(outgoingTimeColumnName)) {
+    invertedIndexMap.get(outgoingTimeColumnName).add(rawRowToDicIdMap.get(outgoingTimeColumnName),docId);
+  }
   docIdSearchableOffset=docId;
   numDocsIndexed+=1;
   numSuccessIndexed+=1;

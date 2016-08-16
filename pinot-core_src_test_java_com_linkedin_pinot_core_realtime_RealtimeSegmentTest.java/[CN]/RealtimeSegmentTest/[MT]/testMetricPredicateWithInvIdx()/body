@@ -1,0 +1,21 @@
+{
+  DataSource ds1=segmentWithInvIdx.getDataSource("count");
+  BitmapBasedFilterOperator op=new BitmapBasedFilterOperator(ds1,0,segmentWithInvIdx.getRawDocumentCount() - 1);
+  List<String> rhs=new ArrayList<String>();
+  rhs.add("890662862");
+  Predicate predicate=new EqPredicate("count",rhs);
+  op.setPredicate(predicate);
+  Block b=op.nextBlock();
+  BlockDocIdIterator iterator=b.getBlockDocIdSet().iterator();
+  DataSource ds2=segmentWithInvIdx.getDataSource("count");
+  BlockSingleValIterator blockValIterator=(BlockSingleValIterator)ds2.nextBlock().getBlockValueSet().iterator();
+  int docId=iterator.next();
+  int counter=0;
+  while (docId != Constants.EOF) {
+    blockValIterator.skipTo(docId);
+    Assert.assertEquals(ds1.getDictionary().get(blockValIterator.nextIntVal()),890662862);
+    docId=iterator.next();
+    counter++;
+  }
+  Assert.assertEquals(counter,100000);
+}
