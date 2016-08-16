@@ -1,0 +1,25 @@
+{
+  try {
+    if (id == null && StringUtils.isBlank(collection)) {
+      throw new IllegalStateException("must specify id or collection");
+    }
+    List<WebappConfig> webappConfigs;
+    if (id != null) {
+      webappConfigs=new ArrayList<>();
+      webappConfigs.add(webappConfigDAO.findById(id));
+    }
+ else     if (configType == null) {
+      webappConfigs=webappConfigDAO.findByCollection(collection);
+    }
+ else {
+      webappConfigs=webappConfigDAO.findByCollectionAndConfigType(collection,configType);
+    }
+    for (    WebappConfig webappConfig : webappConfigs) {
+      webappConfigDAO.deleteById(webappConfig.getId());
+    }
+    return Response.ok(id).build();
+  }
+ catch (  Exception e) {
+    return Response.ok(e).build();
+  }
+}

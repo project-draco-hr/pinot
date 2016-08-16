@@ -1,0 +1,10 @@
+{
+  webappConfigResource.deleteConfig(id,null,null);
+  Assert.assertNull(webappConfigDAO.findById(id));
+  webappConfigResource.createConfig(collection,configType,payload);
+  Assert.assertEquals(webappConfigDAO.findAll().size(),1);
+  webappConfigResource.deleteConfig(null,collection,WebappConfigType.COLLECTION_SCHEMA);
+  Assert.assertEquals(webappConfigDAO.findAll().size(),1);
+  webappConfigResource.deleteConfig(null,collection,null);
+  Assert.assertEquals(webappConfigDAO.findAll().size(),0);
+}

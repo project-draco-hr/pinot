@@ -1,0 +1,10 @@
+{
+  WebappConfig webappConfig=webappConfigDAO.findById(webappConfigId);
+  CollectionConfig collectionConfig=AbstractConfig.fromJSON(webappConfig.getConfig(),CollectionConfig.class);
+  collectionConfig.setCollectionAlias("testAlias");
+  webappConfig.setConfig(collectionConfig.toJSON());
+  webappConfigDAO.update(webappConfig);
+  webappConfig=webappConfigDAO.findById(webappConfigId);
+  collectionConfig=AbstractConfig.fromJSON(webappConfig.getConfig(),CollectionConfig.class);
+  Assert.assertEquals(collectionConfig.getCollectionAlias(),"testAlias");
+}

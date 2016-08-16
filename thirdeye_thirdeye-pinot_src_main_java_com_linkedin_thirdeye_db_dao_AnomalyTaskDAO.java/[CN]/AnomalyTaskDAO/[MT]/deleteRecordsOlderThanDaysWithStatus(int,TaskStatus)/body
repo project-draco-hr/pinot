@@ -3,7 +3,7 @@
   Timestamp expireTimestamp=new Timestamp(expireDate.getMillis());
   List<AnomalyTaskSpec> anomalyTaskSpecs=getEntityManager().createQuery(FIND_BY_STATUS_AND_LAST_MODIFIED_TIME_LT_EXPIRE,entityClass).setParameter("expireTimestamp",expireTimestamp).setParameter("status",status).getResultList();
   for (  AnomalyTaskSpec anomalyTaskSpec : anomalyTaskSpecs) {
-    delete(anomalyTaskSpec);
+    deleteById(anomalyTaskSpec.getId());
   }
   return anomalyTaskSpecs.size();
 }

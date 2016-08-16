@@ -1,0 +1,21 @@
+{
+  List<WebappConfig> webappConfigs=new ArrayList<>();
+  if (id != null) {
+    webappConfigs.add(webappConfigDAO.findById(id));
+  }
+ else   if (!StringUtils.isBlank(collection)) {
+    if (configType != null) {
+      webappConfigs.addAll(webappConfigDAO.findByCollectionAndConfigType(collection,configType));
+    }
+ else {
+      webappConfigs.addAll(webappConfigDAO.findByCollection(collection));
+    }
+  }
+ else   if (configType != null) {
+    webappConfigs.addAll(webappConfigDAO.findByConfigType(configType));
+  }
+ else {
+    webappConfigs.addAll(webappConfigDAO.findAll());
+  }
+  return webappConfigs;
+}

@@ -1,0 +1,13 @@
+{
+  WebappConfig webappConfig=getWebappConfig();
+  Long duplicateId=null;
+  boolean insertSuccess=false;
+  try {
+    duplicateId=webappConfigDAO.save(webappConfig);
+    insertSuccess=true;
+  }
+ catch (  Exception e) {
+    Assert.assertFalse(insertSuccess);
+  }
+  Assert.assertNull(duplicateId);
+}

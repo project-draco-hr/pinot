@@ -1,0 +1,18 @@
+{
+  CollectionConfig collectionConfig=new CollectionConfig();
+  collectionConfig.setCollectionName(collection);
+  Map<String,String> derivedMetrics=new HashMap<>();
+  derivedMetrics.put("dm1","m1/m2");
+  collectionConfig.setDerivedMetrics(derivedMetrics);
+  WebappConfig webappConfig=new WebappConfig();
+  webappConfig.setConfigId(collectionConfig.getConfigId());
+  webappConfig.setCollection(collection);
+  webappConfig.setConfigType(configType);
+  try {
+    webappConfig.setConfig(collectionConfig.toJSON());
+  }
+ catch (  Exception e) {
+    LOG.error("Exception in converting config to json",e);
+  }
+  return webappConfig;
+}

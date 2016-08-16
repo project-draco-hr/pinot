@@ -1,0 +1,22 @@
+{
+  AbstractConfig config=null;
+  try {
+switch (configType) {
+case COLLECTION_CONFIG:
+      config=AbstractConfig.fromJSON(payload,CollectionConfig.class);
+    break;
+case COLLECTION_SCHEMA:
+  config=AbstractConfig.fromJSON(payload,CollectionSchema.class);
+break;
+case DASHBOARD_CONFIG:
+config=AbstractConfig.fromJSON(payload,DashboardConfig.class);
+break;
+default :
+throw new UnsupportedOperationException("Invalid config type " + configType);
+}
+}
+ catch (Exception e) {
+LOG.error("Invalid payload {} for configType {}",payload,configType,e);
+}
+return config;
+}
