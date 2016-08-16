@@ -1,0 +1,9 @@
+{
+  String baseQuery="select count(*) from myTable group by myColumn TOP ";
+  String query=baseQuery + QUERY_RESPONSE_LIMIT;
+  String exceptionMessage=runQuery(query);
+  Assert.assertNull(exceptionMessage);
+  query=baseQuery + (QUERY_RESPONSE_LIMIT + 1);
+  exceptionMessage=runQuery(query);
+  Assert.assertTrue((exceptionMessage != null) && exceptionMessage.contains(LIMIT_VALIDATION_STRING));
+}

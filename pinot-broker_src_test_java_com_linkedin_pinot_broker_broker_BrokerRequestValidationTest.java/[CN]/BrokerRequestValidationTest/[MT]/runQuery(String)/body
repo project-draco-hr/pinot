@@ -1,0 +1,13 @@
+{
+  BrokerRequestHandler brokerRequestHandler=brokerBuilder.getBrokerRequestHandler();
+  Pql2Compiler compiler=new Pql2Compiler();
+  BrokerRequest brokerRequest=compiler.compileToBrokerRequest(query);
+  String exceptionMessage=null;
+  try {
+    brokerRequestHandler.validateRequest(brokerRequest);
+  }
+ catch (  Exception e) {
+    exceptionMessage=e.getMessage();
+  }
+  return exceptionMessage;
+}

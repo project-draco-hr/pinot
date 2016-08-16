@@ -35,7 +35,7 @@
     }
   }
   LOGGER.info("Broker timeout is - " + brokerTimeOutMs + " ms");
-  int queryResponseLimit=_config.getInt(BROKER_QUERY_RESPONSE_LIMIT_CONFIG,BROKER_QUERY_RESPONSE_LIMIT);
+  int queryResponseLimit=_config.getInt(BROKER_QUERY_RESPONSE_LIMIT_CONFIG,DEFAULT_BROKER_QUERY_RESPONSE_LIMIT);
   ReduceServiceRegistry reduceServiceRegistry=buildReduceServiceRegistry();
   _requestHandler=new BrokerRequestHandler(_routingTable,_timeBoundaryService,_scatterGather,reduceServiceRegistry,_brokerMetrics,brokerTimeOutMs,queryResponseLimit);
   LOGGER.info("Network initialized !!");
