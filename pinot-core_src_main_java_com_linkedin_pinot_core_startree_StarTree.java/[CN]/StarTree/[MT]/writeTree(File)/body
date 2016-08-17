@@ -1,0 +1,13 @@
+{
+  OutputStream outputStream=new BufferedOutputStream(new FileOutputStream(outputFile));
+  ObjectOutputStream oos=new ObjectOutputStream(outputStream);
+  try {
+    oos.writeObject(this);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception caught while writing StarTree file",e);
+  }
+ finally {
+    oos.close();
+  }
+}

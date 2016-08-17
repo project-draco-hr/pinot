@@ -5,17 +5,18 @@
   BiMap<Integer,String> inverse=dimensionNameToIndexMap.inverse();
   String dimName="ALL";
   Object dimValue="ALL";
-  if (node.getDimensionName() != StarTreeIndexNode.all()) {
+  if (node.getDimensionName() != StarTreeIndexNodeInterf.ALL) {
     dimName=inverse.get(node.getDimensionName());
   }
-  if (node.getDimensionValue() != StarTreeIndexNode.all()) {
+  if (node.getDimensionValue() != StarTreeIndexNodeInterf.ALL) {
     dimValue=dictionaryMap.get(dimName).inverse().get(node.getDimensionValue());
   }
-  String formattedOutput=Objects.toStringHelper(node).add("nodeId",node.getNodeId()).add("level",level).add("dimensionName",dimName).add("dimensionValue",dimValue).add("childDimensionName",inverse.get(node.getChildDimensionName())).add("childCount",node.getChildren() == null ? 0 : node.getChildren().size()).add("startDocumentId",node.getStartDocumentId()).add("endDocumentId",node.getEndDocumentId()).add("documentCount",(node.getEndDocumentId() - node.getStartDocumentId())).toString();
+  String formattedOutput=Objects.toStringHelper(node).add("nodeId",node.getNodeId()).add("level",level).add("dimensionName",dimName).add("dimensionValue",dimValue).add("childDimensionName",inverse.get(node.getChildDimensionName())).add("childCount",node.getNumChildren()).add("startDocumentId",node.getStartDocumentId()).add("endDocumentId",node.getEndDocumentId()).add("documentCount",(node.getEndDocumentId() - node.getStartDocumentId())).toString();
   LOG.debug(formattedOutput);
   if (!node.isLeaf()) {
-    for (    StarTreeIndexNode child : node.getChildren().values()) {
-      printTree(child,level + 1);
+    Iterator<StarTreeIndexNode> childrenIterator=node.getChildrenIterator();
+    while (childrenIterator.hasNext()) {
+      printTree(childrenIterator.next(),level + 1);
     }
   }
 }

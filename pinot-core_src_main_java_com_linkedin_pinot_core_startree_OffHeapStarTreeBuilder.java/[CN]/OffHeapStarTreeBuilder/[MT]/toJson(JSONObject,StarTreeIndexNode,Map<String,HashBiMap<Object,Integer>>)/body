@@ -1,18 +1,19 @@
 {
   String dimName="ALL";
   Object dimValue="ALL";
-  if (node.getDimensionName() != StarTreeIndexNode.all()) {
+  if (node.getDimensionName() != StarTreeIndexNodeInterf.ALL) {
     dimName=dimensionNames.get(node.getDimensionName());
   }
-  if (node.getDimensionValue() != StarTreeIndexNode.all()) {
+  if (node.getDimensionValue() != StarTreeIndexNodeInterf.ALL) {
     dimValue=dictionaryMap.get(dimName).inverse().get(node.getDimensionValue());
   }
   json.put("title",dimName + ":" + dimValue);
-  if (node.getChildren() != null) {
-    JSONObject[] childJsons=new JSONObject[node.getChildren().size()];
+  Iterator<StarTreeIndexNode> childrenIterator=node.getChildrenIterator();
+  if (childrenIterator != null) {
+    JSONObject[] childJsons=new JSONObject[node.getNumChildren()];
     int index=0;
-    for (    Integer child : node.getChildren().keySet()) {
-      StarTreeIndexNode childNode=node.getChildren().get(child);
+    while (childrenIterator.hasNext()) {
+      StarTreeIndexNode childNode=childrenIterator.next();
       JSONObject childJson=new JSONObject();
       toJson(childJson,childNode,dictionaryMap);
       childJsons[index++]=childJson;

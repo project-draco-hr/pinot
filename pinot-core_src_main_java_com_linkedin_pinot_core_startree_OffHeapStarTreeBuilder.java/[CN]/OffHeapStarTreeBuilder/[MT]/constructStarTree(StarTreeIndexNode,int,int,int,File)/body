@@ -16,7 +16,7 @@
     child.setDimensionValue(childDimensionValue);
     child.setParent(node);
     child.setLevel(node.getLevel() + 1);
-    node.getChildren().put(childDimensionValue,child);
+    node.addChild(child,childDimensionValue);
     int childDocs=0;
     IntPair range=sortGroupBy.get(childDimensionValue);
     if (range.getRight() - range.getLeft() > maxLeafRecords) {
@@ -33,10 +33,10 @@
   }
   StarTreeIndexNode starChild=new StarTreeIndexNode();
   starChild.setDimensionName(splitDimensionId);
-  starChild.setDimensionValue(StarTreeIndexNode.all());
+  starChild.setDimensionValue(StarTreeIndexNodeInterf.ALL);
   starChild.setParent(node);
   starChild.setLevel(node.getLevel() + 1);
-  node.getChildren().put(StarTreeIndexNode.all(),starChild);
+  node.addChild(starChild,StarTreeIndexNodeInterf.ALL);
   Iterator<Pair<DimensionBuffer,MetricBuffer>> iterator=uniqueCombinations(startDocId,endDocId,file,splitDimensionId);
   int rowsAdded=0;
   int startOffset=rawRecordCount + aggRecordCount;

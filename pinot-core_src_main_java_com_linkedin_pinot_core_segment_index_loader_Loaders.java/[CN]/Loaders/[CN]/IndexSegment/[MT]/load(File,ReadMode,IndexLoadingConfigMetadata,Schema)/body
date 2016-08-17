@@ -23,10 +23,10 @@
   for (  String column : metadata.getColumnMetadataMap().keySet()) {
     indexContainerMap.put(column,ColumnIndexContainer.init(segmentReader,metadata.getColumnMetadataFor(column),indexLoadingConfigMetadata));
   }
-  StarTree starTree=null;
+  StarTreeInterf starTree=null;
   if (segmentReader.hasStarTree()) {
     LOGGER.debug("Loading star tree for segment: {}",segmentDirectory);
-    starTree=StarTree.fromBytes(segmentReader.getStarTreeStream());
+    starTree=StarTreeSerDe.fromBytes(segmentReader.getStarTreeStream());
   }
   return new IndexSegmentImpl(segmentDirectory,metadata,indexContainerMap,starTree);
 }

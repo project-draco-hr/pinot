@@ -24,12 +24,15 @@
           child.setLevel(node.getLevel() + 1);
           child.setStartDocumentId(range.getLeft());
           child.setEndDocumentId(range.getRight());
-          node.getChildren().put(timeValue,child);
+          node.addChild(child,timeValue);
         }
       }
     }
  else {
-      nodes.addAll(node.getChildren().values());
+      Iterator<StarTreeIndexNode> childrenIterator=node.getChildrenIterator();
+      while (childrenIterator.hasNext()) {
+        nodes.add(childrenIterator.next());
+      }
     }
   }
   dataSorter.close();

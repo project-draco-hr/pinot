@@ -1,26 +1,27 @@
 {
-  if (node.getDimensionName() != StarTreeIndexNode.all()) {
+  if (node.getDimensionName() != StarTreeIndexNodeInterf.ALL) {
     String dimName=dimensionNameToIndexMap.inverse().get(node.getDimensionName());
     int dimensionValue=node.getDimensionValue();
-    if (dimensionValue != StarTreeIndexNode.all()) {
+    if (dimensionValue != StarTreeIndexNodeInterf.ALL) {
       Object sortedValuesForDim=indexCreationInfoMap.get(dimName).getSortedUniqueElementsArray();
       int indexForDimValue=searchValueInArray(sortedValuesForDim,dictionaryMap.get(dimName).inverse().get(dimensionValue));
       node.setDimensionValue(indexForDimValue);
     }
   }
-  Map<Integer,StarTreeIndexNode> children=node.getChildren();
-  Map<Integer,StarTreeIndexNode> newChildren=new HashMap<>();
-  if (children != null && !children.isEmpty()) {
+  Iterator<StarTreeIndexNode> childrenIterator=node.getChildrenIterator();
+  if (childrenIterator.hasNext()) {
+    Map<Integer,StarTreeIndexNode> newChildren=new HashMap<>();
     String childDimName=dimensionNameToIndexMap.inverse().get(node.getChildDimensionName());
     Object sortedValuesForDim=indexCreationInfoMap.get(childDimName).getSortedUniqueElementsArray();
-    for (    Entry<Integer,StarTreeIndexNode> entry : children.entrySet()) {
-      int childDimValue=entry.getKey();
-      int childMappedDimValue=StarTreeIndexNode.all();
-      if (childDimValue != StarTreeIndexNode.all()) {
+    while (childrenIterator.hasNext()) {
+      StarTreeIndexNode child=childrenIterator.next();
+      int childDimValue=child.getDimensionValue();
+      int childMappedDimValue=StarTreeIndexNodeInterf.ALL;
+      if (childDimValue != StarTreeIndexNodeInterf.ALL) {
         childMappedDimValue=searchValueInArray(sortedValuesForDim,dictionaryMap.get(childDimName).inverse().get(childDimValue));
       }
-      newChildren.put(childMappedDimValue,entry.getValue());
-      updateTree(entry.getValue(),dictionaryMap,dimensionNameToIndexMap);
+      newChildren.put(childMappedDimValue,child);
+      updateTree(child,dictionaryMap,dimensionNameToIndexMap);
     }
     node.setChildren(newChildren);
   }

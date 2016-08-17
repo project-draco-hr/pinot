@@ -12,10 +12,11 @@
     }
   }
  else {
-    Map<Integer,StarTreeIndexNode> children=node.getChildren();
-    for (    StarTreeIndexNode child : children.values()) {
+    Iterator<StarTreeIndexNode> childrenIterator=node.getChildrenIterator();
+    while (childrenIterator.hasNext()) {
+      StarTreeIndexNode child=childrenIterator.next();
       MetricBuffer childMetricBuffer=createAggDocForAllNodes(child);
-      if (child.getDimensionValue() == StarTreeIndexNode.all()) {
+      if (child.getDimensionValue() == StarTreeIndexNodeInterf.ALL) {
         continue;
       }
       if (aggMetricBuffer == null) {
@@ -33,7 +34,7 @@
       dimensionBuffer.setDimension(i,pathValues.get(i));
     }
  else {
-      dimensionBuffer.setDimension(i,StarTreeIndexNode.all());
+      dimensionBuffer.setDimension(i,StarTreeIndexNodeInterf.ALL);
     }
   }
   node.setAggregatedDocumentId(rawRecordCount + aggRecordCount);
