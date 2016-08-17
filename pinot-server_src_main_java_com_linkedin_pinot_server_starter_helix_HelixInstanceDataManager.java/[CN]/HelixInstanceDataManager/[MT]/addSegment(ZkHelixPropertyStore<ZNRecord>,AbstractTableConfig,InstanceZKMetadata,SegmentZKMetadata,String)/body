@@ -1,0 +1,24 @@
+{
+  if (segmentZKMetadata == null || segmentZKMetadata.getTableName() == null) {
+    throw new RuntimeException("Error: adding invalid SegmentMetadata!");
+  }
+  LOGGER.info("Trying to add segment with name: " + segmentZKMetadata.getSegmentName());
+  LOGGER.debug("Trying to add segment with Metadata: " + segmentZKMetadata.toString());
+  String tableName=segmentZKMetadata.getTableName();
+  if (segmentZKMetadata instanceof RealtimeSegmentZKMetadata) {
+    tableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
+  }
+ else   if (segmentZKMetadata instanceof OfflineSegmentZKMetadata) {
+    tableName=TableNameBuilder.OFFLINE_TABLE_NAME_BUILDER.forTable(tableName);
+  }
+  if (!_tableDataManagerMap.containsKey(tableName)) {
+    LOGGER.info("Trying to add TableDataManager for table name: " + tableName);
+synchronized (_globalLock) {
+      if (!_tableDataManagerMap.containsKey(tableName)) {
+        addTableIfNeed(tableConfig,tableName,serverInstance);
+      }
+    }
+  }
+  _tableDataManagerMap.get(tableName).addSegment(propertyStore,tableConfig,instanceZKMetadata,segmentZKMetadata);
+  LOGGER.info("Successfully added a segment : " + segmentZKMetadata.getSegmentName() + " in HelixInstanceDataManager");
+}

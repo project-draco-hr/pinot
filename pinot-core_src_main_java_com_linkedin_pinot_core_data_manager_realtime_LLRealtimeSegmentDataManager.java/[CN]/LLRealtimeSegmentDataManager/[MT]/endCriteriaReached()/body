@@ -1,0 +1,29 @@
+{
+  Preconditions.checkState(_state.shouldConsume(),"Incorrect state %s",_state);
+  if (_state.equals(State.INITIAL_CONSUMING)) {
+    if (_consumeEndTime > 0) {
+      long now=now();
+      if (now >= _consumeEndTime) {
+        segmentLogger.info("Stopping consumption due to time limit start={} now={} numRows={}",_startTimeMs,now,_numRowsConsumed);
+        return true;
+      }
+    }
+ else {
+      if (_numRowsConsumed >= _segmentMaxRowCount) {
+        segmentLogger.info("Stopping consumption due to row limit nRows={} maxNRows={}",_numRowsConsumed,_segmentMaxRowCount);
+        return true;
+      }
+    }
+    return false;
+  }
+ else   if (_state.equals(State.CATCHING_UP)) {
+    if (_currentOffset == _finalOffset) {
+      segmentLogger.info("Caught up to offset {}",_finalOffset);
+      return true;
+    }
+    if (_currentOffset > _finalOffset) {
+      throw new RuntimeException("Offset higher in catchup mode: current " + _currentOffset + " final "+ _finalOffset);
+    }
+  }
+  throw new RuntimeException("Unreachable");
+}

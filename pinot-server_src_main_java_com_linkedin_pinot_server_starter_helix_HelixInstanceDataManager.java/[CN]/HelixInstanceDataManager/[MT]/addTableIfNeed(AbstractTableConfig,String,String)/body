@@ -1,0 +1,9 @@
+{
+  TableDataManagerConfig tableDataManagerConfig=getDefaultHelixTableDataManagerConfig(tableName);
+  if (tableConfig != null) {
+    tableDataManagerConfig.overrideConfigs(tableName,tableConfig);
+  }
+  TableDataManager tableDataManager=TableDataManagerProvider.getTableDataManager(tableDataManagerConfig,serverInstance);
+  tableDataManager.start();
+  addTableDataManager(tableName,tableDataManager);
+}

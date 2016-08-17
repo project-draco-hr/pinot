@@ -1,14 +1,24 @@
 {
-  final TableDataManager tableDataManager=((InstanceDataManager)INSTANCE_DATA_MANAGER).getTableDataManager(message.getResourceName());
-  SegmentDataManager acquiredSegment=tableDataManager.acquireSegment(message.getPartitionName());
-  try {
-    if (acquiredSegment != null && acquiredSegment instanceof LLRealtimeSegmentDataManager) {
-      ((LLRealtimeSegmentDataManager)acquiredSegment).goOnlineFromConsuming();
-    }
+  final String realtimeTableName=message.getResourceName();
+  final TableDataManager tableDataManager=((InstanceDataManager)INSTANCE_DATA_MANAGER).getTableDataManager(realtimeTableName);
+  final String segmentNameStr=message.getPartitionName();
+  LLCSegmentName segmentName=new LLCSegmentName(segmentNameStr);
+  SegmentDataManager acquiredSegment=tableDataManager.acquireSegment(segmentNameStr);
+  if (acquiredSegment == null) {
+    throw new RuntimeException("Segment " + segmentNameStr + " + not present ");
   }
-  finally {
+  LLRealtimeSegmentDataManager segmentDataManager=(LLRealtimeSegmentDataManager)acquiredSegment;
+  try {
+    RealtimeSegmentZKMetadata metadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(propertyStore,segmentName.getTableName(),segmentNameStr);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+  }
+ catch (  InterruptedException e) {
+    LOGGER.warn("State transition interrupted",e);
+    throw new RuntimeException(e);
+  }
+ finally {
     if (acquiredSegment != null) {
-      tableDataManager.releaseSegment(acquiredSegment);
+      tableDataManager.releaseSegment(segmentDataManager);
     }
   }
 }

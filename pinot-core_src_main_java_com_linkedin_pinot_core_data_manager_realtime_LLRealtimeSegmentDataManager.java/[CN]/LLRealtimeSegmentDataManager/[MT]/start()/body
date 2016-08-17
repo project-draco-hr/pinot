@@ -1,0 +1,6 @@
+{
+  _state=State.INITIAL_CONSUMING;
+  _consumerThread=new Thread(new PartitionConsumer(),"consumer_" + _kafkaTopic + "_"+ _kafkaPartitionId+ "_"+ _startOffset);
+  segmentLogger.info("Created new consumer thread {} for {}",_consumerThread,this.toString());
+  _consumerThread.start();
+}

@@ -1,0 +1,32 @@
+{
+  File tempSegmentFolder=new File(_resourceTmpDir,"tmp-" + _segmentNameStr + "-"+ String.valueOf(now()));
+  RealtimeSegmentConverter converter=new RealtimeSegmentConverter(_realtimeSegment,tempSegmentFolder.getAbsolutePath(),_schema,_segmentZKMetadata.getTableName(),_segmentZKMetadata.getSegmentName(),_sortedColumn,_invertedIndexColumns);
+  logStatistics();
+  segmentLogger.info("Trying to build segment");
+  final long buildStartTime=now();
+  try {
+    converter.build(_segmentVersion);
+  }
+ catch (  Exception e) {
+    segmentLogger.error("Could not build segment",e);
+    FileUtils.deleteQuietly(tempSegmentFolder);
+    return false;
+  }
+  final long buildEndTime=now();
+  segmentLogger.info("Successfully built segment in {} ms",(buildEndTime - buildStartTime));
+  File destDir=makeSegmentDirPath();
+  FileUtils.deleteQuietly(destDir);
+  try {
+    FileUtils.moveDirectory(tempSegmentFolder.listFiles()[0],destDir);
+    if (buildTgz) {
+      TarGzCompressionUtils.createTarGzOfDirectory(destDir.getAbsolutePath());
+    }
+  }
+ catch (  IOException e) {
+    segmentLogger.error("Exception during move/tar segment",e);
+    FileUtils.deleteQuietly(tempSegmentFolder);
+    return false;
+  }
+  FileUtils.deleteQuietly(tempSegmentFolder);
+  return true;
+}

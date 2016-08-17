@@ -1,6 +1,8 @@
 {
   this.indexingSchema=schema;
-  this.groupId=instanceMetadata.getGroupId(tableConfig.getTableName());
+  if (instanceMetadata != null) {
+    this.groupId=instanceMetadata.getGroupId(tableConfig.getTableName());
+  }
   KafkaStreamMetadata kafkaMetadata=new KafkaStreamMetadata(tableConfig.getIndexingConfig().getStreamConfigs());
   this.kafkaTopicName=kafkaMetadata.getKafkaTopicName();
   this.decodeKlass=kafkaMetadata.getDecoderClass();

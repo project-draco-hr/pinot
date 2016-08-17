@@ -34,6 +34,19 @@
       manager=new HLRealtimeSegmentDataManager(segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record),_serverMetrics);
     }
  else {
+      LLCRealtimeSegmentZKMetadata llcSegmentMetadata=(LLCRealtimeSegmentZKMetadata)segmentZKMetadata;
+      if (segmentZKMetadata.getStatus().equals(Status.DONE)) {
+        final String uri=llcSegmentMetadata.getDownloadUrl();
+        File tempSegmentFolder=new File(_indexDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
+        File tempFile=new File(_indexDir,segmentId + ".tar.gz");
+        SegmentFetcherFactory.getSegmentFetcherBasedOnURI(uri).fetchSegmentToLocal(uri,tempFile);
+        LOGGER.info("Downloaded file from {} to {}; Length of downloaded file: {}",uri,tempFile,tempFile.length());
+        TarGzCompressionUtils.unTar(tempFile,tempSegmentFolder);
+        FileUtils.deleteQuietly(tempFile);
+        FileUtils.moveDirectory(tempSegmentFolder,new File(_indexDir,segmentId));
+        replaceLLSegment(segmentId);
+        return;
+      }
       manager=new LLRealtimeSegmentDataManager(segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),_readMode,Schema.fromZNRecord(record),_serverMetrics);
     }
     LOGGER.info("Initialize RealtimeSegmentDataManager - " + segmentId);

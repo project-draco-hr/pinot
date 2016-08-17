@@ -1,0 +1,10 @@
+{
+  _finalOffset=endOffset;
+  _consumeEndTime=now() + timeoutMs;
+  consumeLoop();
+  if (_currentOffset != endOffset) {
+    segmentLogger.error("Could not consume up to {} (current offset {})",endOffset,_currentOffset);
+    return false;
+  }
+  return true;
+}

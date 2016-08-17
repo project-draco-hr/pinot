@@ -1,0 +1,22 @@
+{
+  _serverInstance=serverInstance;
+  _tableDataManagerConfig=tableDataManagerConfig;
+  _serverMetrics=serverMetrics;
+  _tableName=_tableDataManagerConfig.getTableName();
+  doInit();
+  _tableDataDir=_tableDataManagerConfig.getDataDir();
+  _indexDir=new File(_tableDataDir);
+  if (!_indexDir.exists()) {
+    _indexDir.mkdirs();
+  }
+  _numberOfTableQueryExecutorThreads=_tableDataManagerConfig.getNumberOfTableQueryExecutorThreads();
+  if (_numberOfTableQueryExecutorThreads > 0) {
+    _queryExecutorService=Executors.newFixedThreadPool(_numberOfTableQueryExecutorThreads,new NamedThreadFactory("parallel-query-executor-" + _tableName));
+  }
+ else {
+    _queryExecutorService=Executors.newCachedThreadPool(new NamedThreadFactory("parallel-query-executor-" + _tableName));
+  }
+  _readMode=ReadMode.valueOf(_tableDataManagerConfig.getReadMode());
+  _indexLoadingConfigMetadata=_tableDataManagerConfig.getIndexLoadingConfigMetadata();
+  LOGGER.info("Initialized table : " + _tableName + " with :\n\tData Directory: "+ _tableDataDir+ "\n\tRead Mode : "+ _readMode+ "\n\tQuery Exeutor with "+ ((_numberOfTableQueryExecutorThreads > 0) ? _numberOfTableQueryExecutorThreads : "cached")+ " threads");
+}

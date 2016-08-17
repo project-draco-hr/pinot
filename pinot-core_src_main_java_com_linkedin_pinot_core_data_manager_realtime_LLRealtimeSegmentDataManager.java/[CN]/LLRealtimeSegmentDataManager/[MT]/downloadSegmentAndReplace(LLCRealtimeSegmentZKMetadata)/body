@@ -1,0 +1,19 @@
+{
+  File tempSegmentFolder=new File(_resourceTmpDir,"tmp-" + String.valueOf(now()));
+  File tempFile=new File(_resourceTmpDir,_segmentNameStr + ".tar.gz");
+  String uri=metadata.getDownloadUrl();
+  try {
+    SegmentFetcherFactory.getSegmentFetcherBasedOnURI(uri).fetchSegmentToLocal(uri,tempFile);
+    segmentLogger.info("Downloaded file from {} to {}; Length of downloaded file: {}",uri,tempFile,tempFile.length());
+    TarGzCompressionUtils.unTar(tempFile,tempSegmentFolder);
+    FileUtils.deleteQuietly(tempFile);
+    FileUtils.moveDirectory(tempSegmentFolder,new File(_resourceTmpDir,_segmentNameStr));
+    _realtimeTableDataManager.replaceLLSegment(_segmentNameStr);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    FileUtils.deleteQuietly(tempSegmentFolder);
+  }
+}

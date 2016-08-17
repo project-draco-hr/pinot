@@ -1,0 +1,17 @@
+{
+  SegmentCompletionProtocol.SegmentCommitRequest request=new SegmentCompletionProtocol.SegmentCommitRequest(segmentName,offset,_instance);
+  final InputStream inputStream=new FileInputStream(segmentTarFile);
+  Part[] parts={new FilePart(segmentName,new PartSource(){
+    @Override public long getLength(){
+      return segmentTarFile.length();
+    }
+    @Override public String getFileName(){
+      return "fileName";
+    }
+    @Override public InputStream createInputStream() throws IOException {
+      return new BufferedInputStream(inputStream);
+    }
+  }
+)};
+  return doHttp(request,parts);
+}

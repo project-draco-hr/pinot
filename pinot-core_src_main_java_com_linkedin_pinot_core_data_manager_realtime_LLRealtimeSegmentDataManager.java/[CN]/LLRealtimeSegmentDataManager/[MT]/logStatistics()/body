@@ -1,0 +1,24 @@
+{
+  int numErrors, numConversions, numNulls, numNullCols;
+  if ((numErrors=_fieldExtractor.getTotalErrors()) > 0) {
+    _serverMetrics.addMeteredTableValue(_tableStreamName,ServerMeter.ROWS_WITH_ERRORS,(long)numErrors);
+  }
+  Map<String,Integer> errorCount=_fieldExtractor.getError_count();
+  for (  String column : errorCount.keySet()) {
+    if ((numErrors=errorCount.get(column)) > 0) {
+      segmentLogger.warn("Column {} had {} rows with errors",column,numErrors);
+    }
+  }
+  if ((numConversions=_fieldExtractor.getTotalConversions()) > 0) {
+    _serverMetrics.addMeteredTableValue(_tableStreamName,ServerMeter.ROWS_NEEDING_CONVERSIONS,(long)numConversions);
+    segmentLogger.info("{} rows needed conversions ",numConversions);
+  }
+  if ((numNulls=_fieldExtractor.getTotalNulls()) > 0) {
+    _serverMetrics.addMeteredTableValue(_tableStreamName,ServerMeter.ROWS_WITH_NULL_VALUES,(long)numNulls);
+    segmentLogger.info("{} rows had null columns",numNulls);
+  }
+  if ((numNullCols=_fieldExtractor.getTotalNullCols()) > 0) {
+    _serverMetrics.addMeteredTableValue(_tableStreamName,ServerMeter.COLUMNS_WITH_NULL_VALUES,(long)numNullCols);
+    segmentLogger.info("{} columns had null values",numNullCols);
+  }
+}

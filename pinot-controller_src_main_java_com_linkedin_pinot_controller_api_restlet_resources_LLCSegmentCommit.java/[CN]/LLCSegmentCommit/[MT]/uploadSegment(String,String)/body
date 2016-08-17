@@ -20,8 +20,7 @@
     }
     LLCSegmentName segmentName=new LLCSegmentName(segmentNameStr);
     final String rawTableName=segmentName.getTableName();
-    final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(rawTableName);
-    final File tableDir=new File(baseDataDir,realtimeTableName);
+    final File tableDir=new File(baseDataDir,rawTableName);
     final File segmentFile=new File(tableDir,segmentNameStr);
 synchronized (_pinotHelixResourceManager) {
       if (segmentFile.exists()) {

@@ -1,0 +1,30 @@
+{
+  while (!_receivedStop && !endCriteriaReached()) {
+    Iterable<MessageAndOffset> messagesAndOffsets=_consumerWrapper.fetchMessages(_currentOffset,_endOffset,KAFKA_MAX_FETCH_TIME_MILLIS);
+    Iterator<MessageAndOffset> msgIterator=messagesAndOffsets.iterator();
+    int batchSize=0;
+    while (!_receivedStop && !endCriteriaReached() && msgIterator.hasNext()) {
+      MessageAndOffset messageAndOffset=msgIterator.next();
+      byte[] array=messageAndOffset.message().payload().array();
+      int offset=messageAndOffset.message().payload().arrayOffset();
+      int length=messageAndOffset.message().payloadSize();
+      GenericRow row=_messageDecoder.decode(array,offset,length);
+      if (row != null) {
+        row=_fieldExtractor.transform(row);
+        boolean canTakeMore=_realtimeSegment.index(row);
+        if (!canTakeMore) {
+          segmentLogger.warn("We got full during indexing");
+        }
+        batchSize++;
+      }
+      _currentOffset=messageAndOffset.nextOffset();
+      _numRowsConsumed++;
+    }
+    if (batchSize != 0) {
+      segmentLogger.debug("Indexed {} messages current offset {}",batchSize,_currentOffset);
+    }
+ else {
+      Uninterruptibles.sleepUninterruptibly(100,TimeUnit.MILLISECONDS);
+    }
+  }
+}

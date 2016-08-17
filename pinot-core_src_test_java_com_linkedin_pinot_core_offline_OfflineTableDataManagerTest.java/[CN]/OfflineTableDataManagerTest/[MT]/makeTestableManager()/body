@@ -9,7 +9,7 @@
     when(config.getReadMode()).thenReturn(readMode.toString());
     when(config.getIndexLoadingConfigMetadata()).thenReturn(null);
   }
-  tableDataManager.init(config,new ServerMetrics(new MetricsRegistry()));
+  tableDataManager.init(config,new ServerMetrics(new MetricsRegistry()),null);
   tableDataManager.start();
   Field segsMapField=AbstractTableDataManager.class.getDeclaredField("_segmentsMap");
   segsMapField.setAccessible(true);

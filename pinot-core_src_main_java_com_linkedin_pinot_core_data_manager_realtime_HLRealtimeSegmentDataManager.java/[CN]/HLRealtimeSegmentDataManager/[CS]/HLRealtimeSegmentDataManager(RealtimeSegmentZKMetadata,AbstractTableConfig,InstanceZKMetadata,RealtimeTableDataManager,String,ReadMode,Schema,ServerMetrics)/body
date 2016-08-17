@@ -1,5 +1,6 @@
 {
   super();
+  _realtimeTableDataManager=realtimeTableDataManager;
   final String segmentVersionStr=tableConfig.getIndexingConfig().getSegmentFormatVersion();
   _segmentVersion=SegmentVersion.fromStringOrDefault(segmentVersionStr);
   this.schema=schema;
@@ -43,7 +44,7 @@
   segmentLogger.info("Started kafka stream provider");
   realtimeSegment=new RealtimeSegmentImpl(schema,kafkaStreamProviderConfig.getSizeThresholdToFlushSegment(),tableName,segmentMetadata.getSegmentName(),kafkaStreamProviderConfig.getStreamName(),serverMetrics);
   realtimeSegment.setSegmentMetadata(segmentMetadata,this.schema);
-  notifier=realtimeResourceManager;
+  notifier=realtimeTableDataManager;
   segmentStatusTask=new TimerTask(){
     @Override public void run(){
       computeKeepIndexing();

@@ -1,0 +1,40 @@
+{
+  final long transitionStartTimeMs=now();
+  long timeoutMs=_maxTimeForConsumingToOnlineSec * 1000L;
+  LLCRealtimeSegmentZKMetadata llcMetadata=(LLCRealtimeSegmentZKMetadata)metadata;
+  final long endOffset=llcMetadata.getEndOffset();
+  stop(timeoutMs);
+  long now=now();
+  timeoutMs-=(now - transitionStartTimeMs);
+  if (timeoutMs <= 0) {
+    throw new RuntimeException("Could not get to stop consumer thread" + _consumerThread);
+  }
+switch (_state) {
+case COMMITTED:
+case RETAINED:
+    break;
+case DISCARDED:
+case ERROR:
+  downloadSegmentAndReplace(llcMetadata);
+break;
+case CATCHING_UP:
+case HOLDING:
+if (_currentOffset > endOffset) {
+segmentLogger.warn("Current offset {} ahead of the offset in zk {}",_currentOffset,endOffset);
+downloadSegmentAndReplace(llcMetadata);
+}
+ else {
+boolean success=catchupToFinalOffset(endOffset,timeoutMs);
+if (success) {
+  buildSegmentAndReplace();
+}
+ else {
+  downloadSegmentAndReplace(llcMetadata);
+}
+}
+break;
+default :
+downloadSegmentAndReplace(llcMetadata);
+break;
+}
+}

@@ -1,0 +1,74 @@
+{
+  _startTimeMs=now();
+  try {
+    while (!_state.isFinal()) {
+      if (_state.shouldConsume()) {
+        consumeLoop();
+      }
+      if (_receivedStop) {
+        break;
+      }
+      _state=State.HOLDING;
+      SegmentCompletionProtocol.Response response=postSegmentConsumedMsg();
+      SegmentCompletionProtocol.ControllerResponseStatus status=response.getStatus();
+      long rspOffset=response.getOffset();
+      boolean success;
+switch (status) {
+case NOT_LEADER:
+        segmentLogger.warn("Got not leader response");
+      hold();
+    break;
+case CATCH_UP:
+  if (rspOffset <= _currentOffset) {
+    segmentLogger.error("Invalid catchup offset {} in controller response, current offset {}",rspOffset,_currentOffset);
+    hold();
+  }
+ else {
+    _state=State.CATCHING_UP;
+    _finalOffset=rspOffset;
+  }
+break;
+case HOLD:
+hold();
+break;
+case DISCARD:
+_state=State.DISCARDED;
+break;
+case KEEP:
+_state=State.RETAINING;
+success=buildSegmentAndReplace();
+if (success) {
+_state=State.RETAINED;
+}
+ else {
+_state=State.ERROR;
+}
+break;
+case COMMIT:
+_state=State.COMMITTING;
+success=buildSegment(true);
+if (!success) {
+_state=State.ERROR;
+}
+ else {
+success=commitSegment();
+if (success) {
+_state=State.COMMITTED;
+}
+ else {
+hold();
+}
+}
+break;
+default :
+segmentLogger.error("Holding after response from Controller: {}",response.toJsonString());
+hold();
+break;
+}
+}
+}
+ catch (Exception e) {
+segmentLogger.error("Exception while in work",e);
+_state=State.ERROR;
+}
+}

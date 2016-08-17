@@ -1,59 +1,53 @@
 {
   _segmentZKMetadata=(LLCRealtimeSegmentZKMetadata)segmentZKMetadata;
   _tableConfig=tableConfig;
-  _instanceZKMetadata=instanceZKMetadata;
   _realtimeTableDataManager=realtimeTableDataManager;
-  _absolutePath=absolutePath;
-  _readMode=readMode;
+  _resourceDataDir=resourceDataDir;
   _schema=schema;
   _serverMetrics=serverMetrics;
-  final String bootstrapNodes=_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.KAFKA_BROKER_LIST);
-  final String kafkaTopic=_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.TOPIC_NAME);
-  final LLCSegmentName segmentName=new LLCSegmentName(_segmentZKMetadata.getSegmentName());
-  final int kafkaPartitionId=segmentName.getPartitionId();
-  final String decoderClassName=_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_CLASS);
-  final int segmentMaxRowCount=Integer.parseInt(_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE));
-  _realtimeSegment=new RealtimeSegmentImpl(schema,segmentMaxRowCount,tableConfig.getTableName(),segmentZKMetadata.getSegmentName(),kafkaTopic,serverMetrics);
-  _realtimeSegment.setSegmentMetadata(segmentZKMetadata,schema);
-  final KafkaMessageDecoder messageDecoder=(KafkaMessageDecoder)Class.forName(decoderClassName).newInstance();
-  messageDecoder.init(new HashMap<String,String>(),_schema,kafkaTopic);
-  final PlainFieldExtractor fieldExtractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
-  _indexingThread=new Thread(new Runnable(){
-    @Override public void run(){
-      try {
-        String clientId=kafkaPartitionId + "-" + NetUtil.getHostnameOrAddress();
-        SimpleConsumerWrapper consumerWrapper=SimpleConsumerWrapper.forPartitionConsumption(new KafkaSimpleConsumerFactoryImpl(),bootstrapNodes,clientId,kafkaTopic,kafkaPartitionId);
-        boolean notFull=true;
-        long currentOffset=_segmentZKMetadata.getStartOffset();
-        while (notFull) {
-          final long endOffset=Long.MAX_VALUE;
-          Iterable<MessageAndOffset> messagesAndOffsets=consumerWrapper.fetchMessages(currentOffset,endOffset,KAFKA_MAX_FETCH_TIME_MILLIS);
-          int batchSize=0;
-          for (          MessageAndOffset messageAndOffset : messagesAndOffsets) {
-            byte[] array=messageAndOffset.message().payload().array();
-            int offset=messageAndOffset.message().payload().arrayOffset();
-            int length=messageAndOffset.message().payloadSize();
-            GenericRow row=messageDecoder.decode(array,offset,length);
-            if (row != null) {
-              row=fieldExtractor.transform(row);
-              notFull=_realtimeSegment.index(row);
-              batchSize++;
-            }
-            currentOffset=messageAndOffset.nextOffset();
-          }
-          if (batchSize != 0) {
-            LOGGER.debug("Indexed {} messages from partition {}, current offset {}",batchSize,kafkaPartitionId,currentOffset);
-          }
+  _segmentVersion=SegmentVersion.fromStringOrDefault(tableConfig.getIndexingConfig().getSegmentFormatVersion());
+  _instance=_realtimeTableDataManager.getServerInstance();
+  _protocolHandler=new ServerSegmentCompletionProtocolHandler(_instance);
+  IndexingConfig indexingConfig=_tableConfig.getIndexingConfig();
+  KafkaHighLevelStreamProviderConfig kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
+  kafkaStreamProviderConfig.init(tableConfig,instanceZKMetadata,schema);
+  final String bootstrapNodes=indexingConfig.getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.KAFKA_BROKER_LIST);
+  _kafkaTopic=kafkaStreamProviderConfig.getTopicName();
+  _segmentNameStr=_segmentZKMetadata.getSegmentName();
+  _segmentName=new LLCSegmentName(_segmentNameStr);
+  _kafkaPartitionId=_segmentName.getPartitionId();
+  _decoderClassName=indexingConfig.getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_CLASS);
+  _segmentMaxRowCount=Integer.parseInt(_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE));
+  _tableName=_tableConfig.getTableName();
+  segmentLogger=LoggerFactory.getLogger(LLRealtimeSegmentDataManager.class.getName() + "_" + _segmentNameStr);
+  if (indexingConfig.getSortedColumn().isEmpty()) {
+    segmentLogger.info("RealtimeDataResourceZKMetadata contains no information about sorted column for segment {}",_segmentName);
+    _sortedColumn=null;
+  }
  else {
-            Uninterruptibles.sleepUninterruptibly(100,TimeUnit.MILLISECONDS);
-          }
-        }
-      }
- catch (      Exception e) {
-        LOGGER.error("Caught exception while indexing events",e);
-      }
+    String firstSortedColumn=indexingConfig.getSortedColumn().get(0);
+    if (_schema.hasColumn(firstSortedColumn)) {
+      segmentLogger.info("Setting sorted column name: {} from RealtimeDataResourceZKMetadata for segment {}",firstSortedColumn,_segmentName);
+      _sortedColumn=firstSortedColumn;
+    }
+ else {
+      segmentLogger.warn("Sorted column name: {} from RealtimeDataResourceZKMetadata is not existed in schema for segment {}.",firstSortedColumn,_segmentName);
+      _sortedColumn=null;
     }
   }
-,"Realtime indexing thread for " + _segmentZKMetadata.getSegmentName());
-  _indexingThread.start();
+  _invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
+  _tableStreamName=_tableName + "_" + kafkaStreamProviderConfig.getStreamName();
+  _realtimeSegment=new RealtimeSegmentImpl(schema,_segmentMaxRowCount,tableConfig.getTableName(),segmentZKMetadata.getSegmentName(),_kafkaTopic,_serverMetrics);
+  _realtimeSegment.setSegmentMetadata(segmentZKMetadata,schema);
+  _messageDecoder=(KafkaMessageDecoder)Class.forName(_decoderClassName).newInstance();
+  _messageDecoder.init(new HashMap<String,String>(),_schema,_kafkaTopic);
+  _clientId=_kafkaPartitionId + "-" + NetUtil.getHostnameOrAddress();
+  _fieldExtractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
+  _consumerWrapper=SimpleConsumerWrapper.forPartitionConsumption(new KafkaSimpleConsumerFactoryImpl(),bootstrapNodes,_clientId,_kafkaTopic,_kafkaPartitionId);
+  _currentOffset=_segmentZKMetadata.getStartOffset();
+  _resourceTmpDir=new File(resourceDataDir,"_tmp");
+  if (!_resourceTmpDir.exists()) {
+    _resourceTmpDir.mkdirs();
+  }
+  start();
 }
