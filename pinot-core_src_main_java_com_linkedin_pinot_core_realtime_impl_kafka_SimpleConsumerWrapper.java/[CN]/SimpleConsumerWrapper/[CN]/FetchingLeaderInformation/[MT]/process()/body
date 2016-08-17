@@ -1,3 +1,23 @@
 {
-  setCurrentState(new ConnectingToPartitionLeader());
+  try {
+    TopicMetadataResponse response=_simpleConsumer.send(new TopicMetadataRequest(Collections.singletonList(_topic)));
+    try {
+      _leader=response.topicsMetadata().get(0).partitionsMetadata().get(_partition).leader();
+      if (_leader != null) {
+        LOGGER.info("Located leader broker {}, connecting to it.",_leader);
+        setCurrentState(new ConnectingToPartitionLeader());
+      }
+ else {
+        LOGGER.warn("Leader broker is null, retrying leader fetch in 100ms");
+        Uninterruptibles.sleepUninterruptibly(100,TimeUnit.MILLISECONDS);
+      }
+    }
+ catch (    Exception e) {
+      LOGGER.warn("Failed to get the leader broker due to exception, retrying in 100ms",e);
+      Uninterruptibles.sleepUninterruptibly(100,TimeUnit.MILLISECONDS);
+    }
+  }
+ catch (  Exception e) {
+    handleConsumerException(e);
+  }
 }

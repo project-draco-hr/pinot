@@ -1,0 +1,7 @@
+{
+  List<KafkaServerStartable> startables=new ArrayList<>(brokerCount);
+  for (int i=0; i < brokerCount; i++) {
+    startables.add(startServer(port + i,i,zkStr,"/tmp/kafka-" + Double.toHexString(Math.random()),configuration));
+  }
+  return startables;
+}

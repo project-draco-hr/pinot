@@ -2,7 +2,9 @@
   stopBroker();
   stopController();
   stopServer();
-  KafkaStarterUtils.stopServer(kafkaStarter);
+  for (  KafkaServerStartable kafkaStarter : kafkaStarters) {
+    KafkaStarterUtils.stopServer(kafkaStarter);
+  }
   try {
     stopZk();
   }
