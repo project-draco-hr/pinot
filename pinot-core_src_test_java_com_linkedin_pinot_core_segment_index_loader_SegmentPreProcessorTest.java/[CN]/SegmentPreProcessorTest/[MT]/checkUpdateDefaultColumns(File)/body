@@ -1,5 +1,5 @@
 {
-  SegmentPreProcessor processor=new SegmentPreProcessor(segmentDirectoryFile,null,newColumnsSchema1);
+  SegmentPreProcessor processor=new SegmentPreProcessor(segmentDirectoryFile,indexLoadingConfigMetadata,newColumnsSchema1);
   processor.process();
   SegmentMetadataImpl segmentMetadata=new SegmentMetadataImpl(segmentDirectoryFile);
   ColumnMetadata columnMetadata=segmentMetadata.getColumnMetadataFor(NEW_INT_METRIC_COLUMN_NAME);
@@ -61,7 +61,7 @@
     Assert.assertTrue(reader.hasIndexFor(NEW_STRING_MV_DIMENSION_COLUMN_NAME,ColumnIndexType.DICTIONARY));
     Assert.assertTrue(reader.hasIndexFor(NEW_STRING_MV_DIMENSION_COLUMN_NAME,ColumnIndexType.FORWARD_INDEX));
   }
-   processor=new SegmentPreProcessor(segmentDirectoryFile,null,newColumnsSchema2);
+   processor=new SegmentPreProcessor(segmentDirectoryFile,indexLoadingConfigMetadata,newColumnsSchema2);
   processor.process();
   segmentMetadata=new SegmentMetadataImpl(segmentDirectoryFile);
   columnMetadata=segmentMetadata.getColumnMetadataFor(NEW_INT_METRIC_COLUMN_NAME);

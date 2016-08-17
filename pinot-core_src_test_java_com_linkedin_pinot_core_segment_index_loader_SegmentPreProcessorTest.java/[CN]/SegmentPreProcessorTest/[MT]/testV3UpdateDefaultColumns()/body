@@ -4,7 +4,7 @@
   File v3SegmentDirectoryFile=new File(segmentDirectoryFile,V3_SEGMENT_NAME);
   checkUpdateDefaultColumns(v3SegmentDirectoryFile);
   try {
-    SegmentPreProcessor processor=new SegmentPreProcessor(v3SegmentDirectoryFile,null,newColumnsSchema3);
+    SegmentPreProcessor processor=new SegmentPreProcessor(v3SegmentDirectoryFile,indexLoadingConfigMetadata,newColumnsSchema3);
     processor.process();
     Assert.fail("For segment format v3, should throw exception when trying to update with different length index");
   }

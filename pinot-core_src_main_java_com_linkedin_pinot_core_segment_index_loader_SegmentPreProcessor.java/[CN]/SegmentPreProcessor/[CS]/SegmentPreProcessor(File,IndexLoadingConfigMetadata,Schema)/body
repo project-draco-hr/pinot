@@ -6,5 +6,11 @@
   segmentMetadata=new SegmentMetadataImpl(indexDir);
   this.indexConfig=indexConfig;
   this.schema=schema;
+  if (schema != null && indexConfig != null && indexConfig.isEnableDefaultColumns()) {
+    enableDefaultColumns=true;
+  }
+ else {
+    enableDefaultColumns=false;
+  }
   segmentDirectory=SegmentDirectory.createFromLocalFS(indexDir,segmentMetadata,ReadMode.mmap);
 }

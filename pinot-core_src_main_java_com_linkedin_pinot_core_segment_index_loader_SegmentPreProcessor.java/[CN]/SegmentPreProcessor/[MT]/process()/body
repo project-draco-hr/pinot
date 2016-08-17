@@ -4,8 +4,10 @@
     segmentWriter=segmentDirectory.createWriter();
     InvertedIndexHandler invertedIndexHandler=new InvertedIndexHandler(indexDir,segmentMetadata,indexConfig,segmentWriter);
     invertedIndexHandler.createInvertedIndices();
-    DefaultColumnHandler defaultColumnHandler=DefaultColumnHandlerFactory.getDefaultColumnHandler(indexDir,schema,segmentMetadata,segmentWriter);
-    defaultColumnHandler.updateDefaultColumns();
+    if (enableDefaultColumns) {
+      DefaultColumnHandler defaultColumnHandler=DefaultColumnHandlerFactory.getDefaultColumnHandler(indexDir,schema,segmentMetadata,segmentWriter);
+      defaultColumnHandler.updateDefaultColumns();
+    }
   }
   finally {
     if (segmentWriter != null) {
