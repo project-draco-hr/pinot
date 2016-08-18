@@ -8,10 +8,10 @@
     }
   }
   int randomHostIndex=_random.nextInt(_bootstrapHosts.length);
-  String host=_bootstrapHosts[randomHostIndex];
-  int port=_bootstrapPorts[randomHostIndex];
+  _currentHost=_bootstrapHosts[randomHostIndex];
+  _currentPort=_bootstrapPorts[randomHostIndex];
   try {
-    _simpleConsumer=_simpleConsumerFactory.buildSimpleConsumer(host,port,SOCKET_TIMEOUT_MILLIS,SOCKET_BUFFER_SIZE,_clientId);
+    _simpleConsumer=_simpleConsumerFactory.buildSimpleConsumer(_currentHost,_currentPort,SOCKET_TIMEOUT_MILLIS,SOCKET_BUFFER_SIZE,_clientId);
     setCurrentState(new ConnectedToBootstrapNode());
   }
  catch (  Exception e) {

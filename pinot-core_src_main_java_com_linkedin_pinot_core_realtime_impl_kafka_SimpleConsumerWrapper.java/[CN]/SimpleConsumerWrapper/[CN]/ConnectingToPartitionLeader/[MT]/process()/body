@@ -1,4 +1,8 @@
 {
+  if (_leader.host().equals(_currentHost) && _leader.port() == _currentPort) {
+    setCurrentState(new ConnectedToPartitionLeader());
+    return;
+  }
   if (_simpleConsumer != null) {
     try {
       _simpleConsumer.close();
