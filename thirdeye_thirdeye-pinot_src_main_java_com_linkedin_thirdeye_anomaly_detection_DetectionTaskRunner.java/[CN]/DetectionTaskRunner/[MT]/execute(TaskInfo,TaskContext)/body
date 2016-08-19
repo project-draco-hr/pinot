@@ -9,7 +9,7 @@
   windowStart=detectionTaskInfo.getWindowStartTime();
   windowEnd=detectionTaskInfo.getWindowEndTime();
   TimeGranularity timeGranularity=new TimeGranularity(anomalyFunctionSpec.getBucketSize(),anomalyFunctionSpec.getBucketUnit());
-  metricFunction=new MetricFunction(MetricAggFunction.SUM,anomalyFunctionSpec.getMetric());
+  metricFunction=new MetricFunction(anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getMetric());
   String filters=anomalyFunctionSpec.getFilters();
   LOG.info("Running anomaly detection job with metricFunction: {}, collection: {}",metricFunction,anomalyFunctionSpec.getCollection());
   CollectionSchema collectionSchema=null;

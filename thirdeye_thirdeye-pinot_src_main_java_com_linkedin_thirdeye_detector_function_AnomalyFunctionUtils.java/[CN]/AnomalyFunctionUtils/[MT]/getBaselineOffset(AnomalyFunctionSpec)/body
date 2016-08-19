@@ -1,0 +1,21 @@
+{
+  long baselineMillis;
+  Properties props=new Properties();
+  if (spec.getProperties() != null) {
+    String[] tokens=spec.getProperties().split(";");
+    for (    String token : tokens) {
+      props.load(new ByteArrayInputStream(token.getBytes()));
+    }
+  }
+  String baselineProp=props.getProperty(BASELINE);
+  if ("w/3w".equals(baselineProp)) {
+    baselineMillis=TimeUnit.MILLISECONDS.convert(21,TimeUnit.DAYS);
+  }
+ else   if ("w/2w".equals(baselineProp)) {
+    baselineMillis=TimeUnit.MILLISECONDS.convert(14,TimeUnit.DAYS);
+  }
+ else {
+    baselineMillis=TimeUnit.MILLISECONDS.convert(7,TimeUnit.DAYS);
+  }
+  return baselineMillis;
+}
