@@ -39,8 +39,7 @@
   _tableStreamName=_tableName + "_" + kafkaStreamProviderConfig.getStreamName();
   _realtimeSegment=new RealtimeSegmentImpl(schema,_segmentMaxRowCount,tableConfig.getTableName(),segmentZKMetadata.getSegmentName(),_kafkaTopic,_serverMetrics);
   _realtimeSegment.setSegmentMetadata(segmentZKMetadata,schema);
-  _messageDecoder=(KafkaMessageDecoder)Class.forName(_decoderClassName).newInstance();
-  _messageDecoder.init(new HashMap<String,String>(),_schema,_kafkaTopic);
+  _messageDecoder=kafkaStreamProviderConfig.getDecoder();
   _clientId=_kafkaPartitionId + "-" + NetUtil.getHostnameOrAddress();
   _fieldExtractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
   _consumerWrapper=SimpleConsumerWrapper.forPartitionConsumption(new KafkaSimpleConsumerFactoryImpl(),bootstrapNodes,_clientId,_kafkaTopic,_kafkaPartitionId);
