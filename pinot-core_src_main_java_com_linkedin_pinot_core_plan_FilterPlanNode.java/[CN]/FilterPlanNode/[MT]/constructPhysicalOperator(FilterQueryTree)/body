@@ -36,7 +36,7 @@ BaseFilterOperator baseFilterOperator;
 int startDocId=0;
 int endDocId=_segment.getSegmentMetadata().getTotalRawDocs() - 1;
 if (dataSourceMetadata.hasInvertedIndex()) {
-if (!filterType.equals(FilterOperator.RANGE) || _segment instanceof RealtimeSegment) {
+if (!filterType.equals(FilterOperator.RANGE)) {
 if (dataSourceMetadata.isSingleValue() && dataSourceMetadata.isSorted()) {
 baseFilterOperator=new SortedInvertedIndexBasedFilterOperator(ds,startDocId,endDocId);
 }
