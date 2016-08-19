@@ -5,16 +5,16 @@
   final String topic="someTopic";
   final String rtTableName="table_REALTIME";
   List<String> instances=getInstanceList(3);
-  final long startOffset=81L;
+  final String startOffset=KAFKA_OFFSET;
   IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(rtTableName,10);
   try {
-    segmentManager.setupHelixEntries(topic,rtTableName,8,instances,3,startOffset,idealState,false);
+    segmentManager.setupHelixEntries(topic,rtTableName,8,instances,3,startOffset,DUMMY_HOST,idealState,false);
     Assert.fail("Did not get expected exception when setting up helix with existing segments in propertystore");
   }
  catch (  RuntimeException e) {
   }
   try {
-    segmentManager.setupHelixEntries(topic,rtTableName,8,instances,3,startOffset,idealState,true);
+    segmentManager.setupHelixEntries(topic,rtTableName,8,instances,3,startOffset,DUMMY_HOST,idealState,true);
     Assert.fail("Did not get expected exception when setting up helix with existing segments in propertystore");
   }
  catch (  RuntimeException e) {

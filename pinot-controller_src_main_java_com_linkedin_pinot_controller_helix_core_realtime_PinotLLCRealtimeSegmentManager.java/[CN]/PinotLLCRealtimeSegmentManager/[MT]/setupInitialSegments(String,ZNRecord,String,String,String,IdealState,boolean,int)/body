@@ -1,0 +1,47 @@
+{
+  List<String> currentSegments=getExistingSegments(realtimeTableName);
+  if (currentSegments != null) {
+    for (    String segment : currentSegments) {
+      if (!SegmentName.isHighLevelConsumerSegmentName(segment)) {
+        throw new RuntimeException("Low-level segments already exist for table " + realtimeTableName);
+      }
+    }
+  }
+  final Map<String,List<String>> idealStateEntries=new HashMap<String,List<String>>(4);
+  final Map<String,List<String>> partitionMap=partitionAssignment.getListFields();
+  final int nPartitions=partitionMap.size();
+  List<String> paths=new ArrayList<>(nPartitions);
+  List<ZNRecord> records=new ArrayList<>(nPartitions);
+  final long now=System.currentTimeMillis();
+  final int seqNum=0;
+  for (int i=0; i < nPartitions; i++) {
+    SimpleConsumerWrapper kafkaConsumer=SimpleConsumerWrapper.forPartitionConsumption(new KafkaSimpleConsumerFactoryImpl(),bootstrapHosts,"dummyClientId",topicName,i);
+    try {
+      final List instances=partitionMap.get(Integer.toString(i));
+      LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
+      final String rawTableName=TableNameBuilder.extractRawTableName(realtimeTableName);
+      LLCSegmentName llcSegmentName=new LLCSegmentName(rawTableName,i,seqNum,now);
+      final String segName=llcSegmentName.getSegmentName();
+      metadata.setCreationTime(now);
+      final long startOffset=kafkaConsumer.fetchPartitionOffset(initialOffset,KAFKA_PARTITION_OFFSET_FETCH_TIMEOUT_MILLIS);
+      LOGGER.warn("Setting start offset for segment {} to {}",segName,startOffset);
+      metadata.setStartOffset(startOffset);
+      metadata.setEndOffset(Long.MAX_VALUE);
+      metadata.setNumReplicas(instances.size());
+      metadata.setTableName(rawTableName);
+      metadata.setSegmentName(segName);
+      metadata.setStatus(CommonConstants.Segment.Realtime.Status.IN_PROGRESS);
+      ZNRecord record=metadata.toZNRecord();
+      final String znodePath=PinotRealtimeSegmentManager.getSegmentsPath() + "/" + realtimeTableName+ "/"+ segName;
+      paths.add(znodePath);
+      records.add(record);
+      idealStateEntries.put(segName,instances);
+    }
+  finally {
+      IOUtils.closeQuietly(kafkaConsumer);
+    }
+  }
+  writeSegmentsToPropertyStore(paths,records);
+  LOGGER.info("Added {} segments to propertyStore for table {}",paths.size(),realtimeTableName);
+  updateHelixIdealState(idealState,realtimeTableName,idealStateEntries,create,nReplicas);
+}

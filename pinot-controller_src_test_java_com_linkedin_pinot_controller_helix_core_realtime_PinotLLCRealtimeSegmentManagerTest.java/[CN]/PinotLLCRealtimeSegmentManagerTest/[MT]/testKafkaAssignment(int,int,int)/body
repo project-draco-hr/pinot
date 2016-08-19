@@ -3,12 +3,12 @@
   final String topic="someTopic";
   final String rtTableName="table_REALTIME";
   List<String> instances=getInstanceList(nInstances);
-  final long startOffset=7L;
+  final String startOffset=KAFKA_OFFSET;
   Set<Integer> partitionSet=new HashSet<>(nPartitions);
   for (int i=0; i < nPartitions; i++) {
     partitionSet.add(i);
   }
-  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,null,true);
+  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,DUMMY_HOST,null,true);
   Map<String,List<String>> assignmentMap=segmentManager._partitionAssignment.getListFields();
   Assert.assertEquals(assignmentMap.size(),nPartitions);
   for (  Map.Entry<String,List<String>> entry : assignmentMap.entrySet()) {

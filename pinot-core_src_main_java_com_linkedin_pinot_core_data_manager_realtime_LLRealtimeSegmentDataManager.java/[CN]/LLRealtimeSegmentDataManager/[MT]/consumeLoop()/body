@@ -1,4 +1,5 @@
 {
+  segmentLogger.info("Starting consumption loop start offset {}, end offset {}",_currentOffset,_endOffset);
   while (!_receivedStop && !endCriteriaReached()) {
     Iterable<MessageAndOffset> messagesAndOffsets=_consumerWrapper.fetchMessages(_currentOffset,_endOffset,KAFKA_MAX_FETCH_TIME_MILLIS);
     Iterator<MessageAndOffset> msgIterator=messagesAndOffsets.iterator();

@@ -14,9 +14,9 @@
     final int nInstances=5;
     final int nReplicas=3;
     List<String> instances=getInstanceList(nInstances);
-    final long startOffset=0L;
+    final String startOffset=KAFKA_OFFSET;
     MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(false,null);
-    segmentManager.setupHelixEntries(topic,realtimeTableName,nPartitions,instances,nReplicas,startOffset,idealState,false);
+    segmentManager.setupHelixEntries(topic,realtimeTableName,nPartitions,instances,nReplicas,startOffset,DUMMY_HOST,idealState,false);
     ZNRecord partitionAssignment=segmentManager.getKafkaPartitionAssignment(realtimeTableName);
     for (int p=0; p < nPartitions; p++) {
       int curSeq=random.nextInt(maxSeq);

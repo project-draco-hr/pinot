@@ -8,9 +8,9 @@
   final int nReplicas=3;
   final boolean existingIS=false;
   List<String> instances=getInstanceList(nInstances);
-  final long startOffset=81L;
+  final String startOffset=KAFKA_OFFSET;
   IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(rtTableName,nReplicas);
-  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,idealState,!existingIS);
+  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,DUMMY_HOST,idealState,!existingIS);
   final int committingPartition=6;
   final long nextOffset=3425666L;
   LLCRealtimeSegmentZKMetadata committingSegmentMetadata=new LLCRealtimeSegmentZKMetadata(segmentManager._records.get(committingPartition));
