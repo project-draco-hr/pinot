@@ -8,7 +8,7 @@
     final long now=System.currentTimeMillis();
     final String tableName="table";
     final String realtimeTableName=TableNameBuilder.REALTIME_TABLE_NAME_BUILDER.forTable(tableName);
-    final IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName);
+    final IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName,19);
     int nIncompleteCommits=0;
     final String topic="someTopic";
     final int nInstances=5;
@@ -16,7 +16,7 @@
     List<String> instances=getInstanceList(nInstances);
     final long startOffset=0L;
     MockPinotLLCRealtimeSegmentManager segmentManager=new MockPinotLLCRealtimeSegmentManager(false,null);
-    segmentManager.setupHelixEntries(topic,realtimeTableName,nPartitions,instances,nReplicas,startOffset,null,false);
+    segmentManager.setupHelixEntries(topic,realtimeTableName,nPartitions,instances,nReplicas,startOffset,idealState,false);
     ZNRecord partitionAssignment=segmentManager.getKafkaPartitionAssignment(realtimeTableName);
     for (int p=0; p < nPartitions; p++) {
       int curSeq=random.nextInt(maxSeq);

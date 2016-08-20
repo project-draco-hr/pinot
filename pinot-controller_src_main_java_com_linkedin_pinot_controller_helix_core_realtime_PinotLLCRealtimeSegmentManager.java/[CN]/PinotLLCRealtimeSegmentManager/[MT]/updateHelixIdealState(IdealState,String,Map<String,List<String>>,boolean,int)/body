@@ -6,6 +6,7 @@
  else {
     HelixHelper.updateIdealState(_helixManager,realtimeTableName,new Function<IdealState,IdealState>(){
       @Override public IdealState apply(      IdealState idealState){
+        idealState.setReplicas(Integer.toString(nReplicas));
         return addLLCRealtimeSegmentsInIdealState(idealState,idealStateEntries);
       }
     }

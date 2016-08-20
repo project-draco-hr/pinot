@@ -9,7 +9,7 @@
   final boolean existingIS=false;
   List<String> instances=getInstanceList(nInstances);
   final long startOffset=81L;
-  IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(rtTableName);
+  IdealState idealState=PinotTableIdealStateBuilder.buildEmptyKafkaConsumerRealtimeIdealStateFor(rtTableName,nReplicas);
   segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,idealState,!existingIS);
   final int committingPartition=6;
   final long nextOffset=3425666L;

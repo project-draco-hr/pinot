@@ -1,7 +1,11 @@
 {
+  String bootstrapHosts=kafkaMetadata.getBootstrapHosts();
+  if (bootstrapHosts == null || bootstrapHosts.isEmpty()) {
+    throw new RuntimeException("Invalid value for " + Helix.DataSource.Realtime.Kafka.KAFKA_BROKER_LIST);
+  }
   SimpleConsumerWrapper consumerWrapper=SimpleConsumerWrapper.forMetadataConsumption(new KafkaSimpleConsumerFactoryImpl(),kafkaMetadata.getBootstrapHosts(),PinotTableIdealStateBuilder.class.getSimpleName() + "-" + kafkaMetadata.getKafkaTopicName());
   try {
-    return consumerWrapper.getPartitionCount(kafkaMetadata.getKafkaTopicName());
+    return consumerWrapper.getPartitionCount(kafkaMetadata.getKafkaTopicName(),5000L);
   }
   finally {
     IOUtils.closeQuietly(consumerWrapper);

@@ -8,7 +8,7 @@
   for (int i=0; i < nPartitions; i++) {
     partitionSet.add(i);
   }
-  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,null,false);
+  segmentManager.setupHelixEntries(topic,rtTableName,nPartitions,instances,nReplicas,startOffset,null,true);
   Map<String,List<String>> assignmentMap=segmentManager._partitionAssignment.getListFields();
   Assert.assertEquals(assignmentMap.size(),nPartitions);
   for (  Map.Entry<String,List<String>> entry : assignmentMap.entrySet()) {

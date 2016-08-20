@@ -2,12 +2,22 @@
   String realtimeServerTenant=ControllerTenantNameBuilder.getRealtimeTenantNameForTenant(realtimeTableConfig.getTenantConfig().getServer());
   final List<String> realtimeInstances=helixAdmin.getInstancesInClusterWithTag(helixClusterName,realtimeServerTenant);
   boolean create=false;
+  final String replicasPerPartitionStr=realtimeTableConfig.getValidationConfig().getReplicasPerPartition();
+  if (replicasPerPartitionStr == null || replicasPerPartitionStr.isEmpty()) {
+    throw new RuntimeException("Null or empty value for replicasPerPartition, expected a number");
+  }
+  final int nReplicas;
+  try {
+    nReplicas=Integer.valueOf(replicasPerPartitionStr);
+  }
+ catch (  NumberFormatException e) {
+    throw new RuntimeException("Invalid value for replicasPerPartition, expected a number: " + replicasPerPartitionStr,e);
+  }
   if (idealState == null) {
-    idealState=buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName);
+    idealState=buildEmptyKafkaConsumerRealtimeIdealStateFor(realtimeTableName,nReplicas);
     create=true;
   }
   LOGGER.info("Assigning partitions to instances for simple consumer for table {}",realtimeTableName);
-  final int nReplicas=Integer.valueOf(realtimeTableConfig.getValidationConfig().getReplicasPerPartition());
   final KafkaStreamMetadata kafkaMetadata=new KafkaStreamMetadata(realtimeTableConfig.getIndexingConfig().getStreamConfigs());
   final String topicName=kafkaMetadata.getKafkaTopicName();
   final PinotLLCRealtimeSegmentManager segmentManager=PinotLLCRealtimeSegmentManager.getInstance();
