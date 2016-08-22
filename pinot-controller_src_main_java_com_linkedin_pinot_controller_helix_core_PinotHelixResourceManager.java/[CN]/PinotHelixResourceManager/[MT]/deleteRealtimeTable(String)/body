@@ -8,8 +8,10 @@
   ZKMetadataProvider.removeResourceConfigFromPropertyStore(getPropertyStore(),realtimeTableName);
   for (  String instance : getAllInstancesForTable(realtimeTableName)) {
     InstanceZKMetadata instanceZKMetadata=ZKMetadataProvider.getInstanceZKMetadata(getPropertyStore(),instance);
-    instanceZKMetadata.removeResource(realtimeTableName);
-    ZKMetadataProvider.setInstanceZKMetadata(getPropertyStore(),instanceZKMetadata);
+    if (instanceZKMetadata != null) {
+      instanceZKMetadata.removeResource(realtimeTableName);
+      ZKMetadataProvider.setInstanceZKMetadata(getPropertyStore(),instanceZKMetadata);
+    }
   }
   _helixAdmin.dropResource(_helixClusterName,realtimeTableName);
 }
