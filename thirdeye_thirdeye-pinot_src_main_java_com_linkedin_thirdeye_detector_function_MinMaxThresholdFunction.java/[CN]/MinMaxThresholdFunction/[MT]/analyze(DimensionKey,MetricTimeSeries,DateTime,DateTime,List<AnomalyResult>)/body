@@ -26,8 +26,8 @@
       anomalyResult.setStartTimeUtc(timeBucket);
       anomalyResult.setEndTimeUtc(timeBucket + bucketMillis);
       anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
-      anomalyResult.setScore(Math.abs(deviationFromThreshold));
-      anomalyResult.setWeight(averageValue);
+      anomalyResult.setScore(averageValue);
+      anomalyResult.setWeight(Math.abs(deviationFromThreshold));
       String message=String.format(DEFAULT_MESSAGE_TEMPLATE,min,max,value,deviationFromThreshold);
       anomalyResult.setMessage(message);
       if (value == 0.0) {
