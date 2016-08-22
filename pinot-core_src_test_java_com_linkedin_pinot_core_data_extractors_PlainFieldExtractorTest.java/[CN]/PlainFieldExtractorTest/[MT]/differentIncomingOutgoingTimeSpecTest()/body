@@ -1,0 +1,17 @@
+{
+  Schema schema=new Schema();
+  schema.setSchemaName("testSchema");
+  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.INT,TimeUnit.DAYS,"incoming");
+  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,TimeUnit.HOURS,"outgoing");
+  schema.setTimeFieldSpec(new TimeFieldSpec(incoming,outgoing));
+  PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(schema);
+  GenericRow row=new GenericRow();
+  Map<String,Object> fieldMap=new HashMap<>();
+  long currentDaysSinceEpoch=System.currentTimeMillis() / 1000 / 60/ 60/ 24;
+  fieldMap.put("incoming",currentDaysSinceEpoch);
+  row.init(fieldMap);
+  plainFieldExtractor.transform(row);
+  Assert.assertNull(row.getValue("incoming"));
+  Assert.assertTrue(row.getValue("outgoing") instanceof Long);
+  Assert.assertEquals(row.getValue("outgoing"),currentDaysSinceEpoch * 24);
+}

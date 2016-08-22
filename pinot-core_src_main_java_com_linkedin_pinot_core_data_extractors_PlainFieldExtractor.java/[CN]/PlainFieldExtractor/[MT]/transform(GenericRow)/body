@@ -1,84 +1,93 @@
 {
-  Map<String,Object> fieldMap=new HashMap<String,Object>();
-  if (_schema.size() > 0) {
-    boolean hasError=false;
-    boolean hasNull=false;
-    boolean hasConversion=false;
-    for (    String column : _schema.getColumnNames()) {
-      Object value;
-      if (column.equals(_schema.getTimeColumnName()) && (_schema.getTimeFieldSpec().getDataType().isNumber())) {
-        value=row.getValue(_incomingTimeColumnName);
-        if (value != null) {
-          try {
-            value=_timeConverter.convert(value);
-          }
- catch (          Exception e) {
-            LOGGER.error("Got exception during converter incoming time value: " + value,e);
-            value=null;
-          }
-        }
-      }
- else {
-        value=row.getValue(column);
-      }
-      FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
-      PinotDataType dest=_columnType.get(column);
-      PinotDataType source;
+  Map<String,Object> fieldMap=new HashMap<>();
+  boolean hasError=false;
+  boolean hasNull=false;
+  boolean hasConversion=false;
+  for (  String column : _schema.getColumnNames()) {
+    Object value;
+    if (column.equals(_outgoingTimeColumnName) && _timeConverter != null) {
+      value=row.getValue(_incomingTimeColumnName);
       if (value == null) {
-        source=PinotDataType.OBJECT;
         hasNull=true;
         _totalNullCols++;
       }
  else {
-        String typeName=(value.getClass().getCanonicalName());
-        if ((typeName.equals("java.lang.Object[]")) && ((Object[])value).length != 0) {
-          typeName=((Object[])value)[0].getClass().getCanonicalName();
-          typeName=typeName + "[]";
+        try {
+          value=_timeConverter.convert(value);
         }
-        source=_typeMap.get(typeName);
+ catch (        Exception e) {
+          LOGGER.debug("Caught exception while converting incoming time value: {}",value,e);
+          value=null;
+          hasError=true;
+          _errorCount.put(column,_errorCount.get(column) + 1);
+        }
+      }
+    }
+ else {
+      value=row.getValue(column);
+      if (value == null) {
+        hasNull=true;
+        _totalNullCols++;
+      }
+    }
+    PinotDataType dest=_columnType.get(column);
+    PinotDataType source=null;
+    if (value != null) {
+      if (value instanceof Object[]) {
+        Object[] valueArray=(Object[])value;
+        if (valueArray.length > 0) {
+          source=MULTI_VALUE_TYPE_MAP.get(valueArray[0].getClass());
+          if (source == null) {
+            source=PinotDataType.OBJECT_ARRAY;
+          }
+        }
+ else {
+          LOGGER.debug("Got 0 length array.");
+          value=null;
+          hasError=true;
+          _errorCount.put(column,_errorCount.get(column) + 1);
+        }
+      }
+ else {
+        source=SINGLE_VALUE_TYPE_MAP.get(value.getClass());
         if (source == null) {
           source=PinotDataType.OBJECT;
         }
       }
-      if ((source != dest) && (value != null)) {
+      if (value != null && source != dest) {
+        Object before=value;
         try {
+          value=dest.convert(before,source);
           hasConversion=true;
-          value=dest.convert(value,source);
-          if (value == null) {
-            hasError=true;
-          }
         }
  catch (        Exception e) {
+          LOGGER.debug("Caught exception while converting value: {} from: {} to: {}",before,source,dest);
           value=null;
           hasError=true;
+          _errorCount.put(column,_errorCount.get(column) + 1);
         }
       }
-      if (value == null) {
-        _errorCount.put(column,_errorCount.get(column) + 1);
-        LOGGER.debug("Invalid value {} in column {} in schema {}",row.getValue(column),column,_schema.getSchemaName());
-        try {
-          if (fieldSpec.isSingleValueField()) {
-            value=fieldSpec.getDefaultNullValue();
-          }
+    }
+    if (value == null) {
+      FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
+      if (fieldSpec.isSingleValueField()) {
+        value=fieldSpec.getDefaultNullValue();
+      }
  else {
-            value=new Object[]{fieldSpec.getDefaultNullValue()};
-          }
-        }
- catch (        UnsupportedOperationException e) {
-        }
+        value=new Object[]{fieldSpec.getDefaultNullValue()};
       }
-      fieldMap.put(column,value);
     }
-    if (hasError) {
-      _totalErrors++;
-    }
-    if (hasNull) {
-      _totalNulls++;
-    }
-    if (hasConversion) {
-      _totalConversions++;
-    }
-    row.init(fieldMap);
+    fieldMap.put(column,value);
   }
+  if (hasError) {
+    _totalErrors++;
+  }
+  if (hasNull) {
+    _totalNulls++;
+  }
+  if (hasConversion) {
+    _totalConversions++;
+  }
+  row.init(fieldMap);
   return row;
 }

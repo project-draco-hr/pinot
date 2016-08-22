@@ -1,39 +1,34 @@
 {
-  Schema schema=new SchemaBuilder().addSingleValueDimension("svDimensionInt",DataType.INT).addSingleValueDimension("svDimensionDouble",DataType.DOUBLE).addSingleValueDimension("someClassObject",DataType.STRING).addMultiValueDimension("mvDimension",DataType.STRING).addMultiValueDimension("mvClassObject",DataType.STRING).addMetric("metric",DataType.INT).addTime("incomingTime",TimeUnit.DAYS,DataType.LONG).build();
-  PlainFieldExtractor extractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
+  Schema schema=new Schema.SchemaBuilder().setSchemaName("testSchema").addSingleValueDimension("svDimensionInt",DataType.INT).addSingleValueDimension("svDimensionDouble",DataType.DOUBLE).addSingleValueDimension("svClassObject",DataType.STRING).addMultiValueDimension("mvDimensionLong",DataType.LONG).addMultiValueDimension("mvClassObject",DataType.STRING).addMetric("metricInt",DataType.INT).addTime("timeInt",TimeUnit.DAYS,DataType.INT).build();
+  PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(schema);
   GenericRow row=new GenericRow();
-  Map<String,Object> fieldMap=new HashMap<String,Object>();
-  Short shortObj=new Short((short)5);
-  fieldMap.put("svDimensionInt",shortObj);
-  Float floatObj=new Float((float)3.2);
-  fieldMap.put("svDimensionDouble",floatObj);
-  Double doubleObj=new Double((double)34.5);
-  fieldMap.put("metric",doubleObj);
+  Map<String,Object> fieldMap=new HashMap<>();
+  fieldMap.put("svDimensionInt",(short)5);
+  fieldMap.put("svDimensionDouble",3.2F);
+  fieldMap.put("svClassObject",new AnyClassWithToString());
+  fieldMap.put("mvDimensionLong",13);
+  fieldMap.put("mvClassObject",new Object[]{new AnyClassWithToString(),new AnyClassWithToString()});
+  fieldMap.put("metricInt",34.5);
   long currentDaysSinceEpoch=System.currentTimeMillis() / 1000 / 60/ 60/ 24;
-  fieldMap.put("incomingTime",currentDaysSinceEpoch);
-  final int value=89;
-{
-    AnyClassWithToString obj=new AnyClassWithToString(value);
-    fieldMap.put("someClassObject",value);
-  }
-{
-    Object[] obj=new Object[2];
-    obj[0]=new AnyClassWithToString(value);
-    obj[1]=new AnyClassWithToString(value + 1);
-    fieldMap.put("mvClassObject",obj);
-  }
+  fieldMap.put("timeInt",currentDaysSinceEpoch);
   row.init(fieldMap);
-  extractor.transform(row);
+  plainFieldExtractor.transform(row);
   Assert.assertTrue(row.getValue("svDimensionInt") instanceof Integer);
+  Assert.assertEquals(row.getValue("svDimensionInt"),5);
   Assert.assertTrue(row.getValue("svDimensionDouble") instanceof Double);
-  Assert.assertTrue(row.getValue("mvDimension") != null);
-  Assert.assertTrue(row.getValue("metric") instanceof Integer);
-  Assert.assertTrue((Integer)row.getValue("metric") == 34);
-  Assert.assertTrue((Long)row.getValue("incomingTime") == currentDaysSinceEpoch);
-  Assert.assertTrue(Integer.toString(value).equals(row.getValue("someClassObject")));
-  Assert.assertTrue(row.getValue("mvClassObject") instanceof String[]);
-  String[] strings=(String[])row.getValue("mvClassObject");
-  Assert.assertEquals(strings.length,2);
-  Assert.assertEquals(Integer.toString(value),strings[0]);
-  Assert.assertEquals(Integer.toString(value + 1),strings[1]);
+  Assert.assertEquals((double)row.getValue("svDimensionDouble"),3.2,0.1);
+  Assert.assertTrue(row.getValue("svClassObject") instanceof String);
+  Assert.assertEquals(row.getValue("svClassObject"),"AnyClass");
+  Assert.assertTrue(row.getValue("mvDimensionLong") instanceof Object[]);
+  Assert.assertTrue(((Object[])row.getValue("mvDimensionLong"))[0] instanceof Long);
+  Assert.assertEquals(((Object[])row.getValue("mvDimensionLong"))[0],13L);
+  Assert.assertTrue(row.getValue("mvClassObject") instanceof Object[]);
+  Assert.assertTrue(((Object[])row.getValue("mvClassObject"))[0] instanceof String);
+  Assert.assertTrue(((Object[])row.getValue("mvClassObject"))[1] instanceof String);
+  Assert.assertEquals(((Object[])row.getValue("mvClassObject"))[0],"AnyClass");
+  Assert.assertEquals(((Object[])row.getValue("mvClassObject"))[1],"AnyClass");
+  Assert.assertTrue(row.getValue("metricInt") instanceof Integer);
+  Assert.assertEquals(row.getValue("metricInt"),34);
+  Assert.assertTrue(row.getValue("timeInt") instanceof Integer);
+  Assert.assertEquals(row.getValue("timeInt"),(int)currentDaysSinceEpoch);
 }

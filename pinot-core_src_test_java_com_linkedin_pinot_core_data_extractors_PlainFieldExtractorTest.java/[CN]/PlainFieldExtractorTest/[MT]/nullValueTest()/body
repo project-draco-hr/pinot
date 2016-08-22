@@ -1,0 +1,12 @@
+{
+  GenericRow row=new GenericRow();
+  Map<String,Object> fieldMap=new HashMap<>();
+  for (int i=0; i < NUMBER_OF_TYPES; i++) {
+    PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(ALL_TYPE_SCHEMAS[i]);
+    row.init(fieldMap);
+    plainFieldExtractor.transform(row);
+    Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
+    Assert.assertEquals(plainFieldExtractor.getTotalNulls(),1);
+    Assert.assertEquals(plainFieldExtractor.getTotalConversions(),0);
+  }
+}

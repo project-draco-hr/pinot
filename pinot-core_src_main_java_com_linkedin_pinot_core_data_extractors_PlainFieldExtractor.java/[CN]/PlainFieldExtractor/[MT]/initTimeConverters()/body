@@ -1,10 +1,12 @@
 {
   TimeFieldSpec timeFieldSpec=_schema.getTimeFieldSpec();
   if (timeFieldSpec != null) {
-    _incomingTimeColumnName=timeFieldSpec.getIncomingTimeColumnName();
-    _outGoingTimeColumnName=timeFieldSpec.getOutgoingTimeColumnName();
     TimeGranularitySpec incomingGranularitySpec=timeFieldSpec.getIncomingGranularitySpec();
     TimeGranularitySpec outgoingGranularitySpec=timeFieldSpec.getOutgoingGranularitySpec();
-    _timeConverter=TimeConverterProvider.getTimeConverter(incomingGranularitySpec,outgoingGranularitySpec);
+    _outgoingTimeColumnName=outgoingGranularitySpec.getName();
+    if (!incomingGranularitySpec.equals(outgoingGranularitySpec)) {
+      _incomingTimeColumnName=incomingGranularitySpec.getName();
+      _timeConverter=TimeConverterProvider.getTimeConverter(incomingGranularitySpec,outgoingGranularitySpec);
+    }
   }
 }

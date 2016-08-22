@@ -1,70 +1,65 @@
 {
-  final Logger LOGGER=LoggerFactory.getLogger(PlainFieldExtractorTest.class);
-  final int numberOfTypes=18;
-  final String columnName="testColumn";
-  Schema[] schemaArray=new Schema[numberOfTypes];
-  Object[] objectArray=new Object[numberOfTypes];
-  int i=0;
-  for (  DataType dataType : DataType.values()) {
-    schemaArray[i]=new SchemaBuilder().setSchemaName("automatedTestSchema").addSingleValueDimension(columnName,dataType).build();
-    i++;
-  }
-  objectArray[0]=new Boolean(true);
-  objectArray[1]=new Byte((byte)65);
-  objectArray[2]=new Character('a');
-  objectArray[3]=new Short((short)500);
-  objectArray[4]=new Integer(500);
-  objectArray[5]=new Long(500);
-  objectArray[6]=new Float(500.50);
-  objectArray[7]=new Double(500.50);
-  objectArray[8]="Pinot Rules";
-  objectArray[9]=null;
-  objectArray[10]=new Byte[1];
-  ((Byte[])objectArray[10])[0]=new Byte((byte)65);
-  objectArray[11]=new Character[1];
-  ((Character[])objectArray[11])[0]=new Character('a');
-  objectArray[12]=new Short[1];
-  ((Short[])objectArray[12])[0]=new Short((short)500);
-  objectArray[13]=new Integer[1];
-  ((Integer[])objectArray[13])[0]=new Integer(500);
-  objectArray[14]=new Long[1];
-  ((Long[])objectArray[14])[0]=new Long(500);
-  objectArray[15]=new Float[1];
-  ((Float[])objectArray[15])[0]=new Float(500.50);
-  objectArray[16]=new Double[1];
-  ((Double[])objectArray[16])[0]=new Double(500.50);
-  objectArray[17]=new String[1];
-  ((String[])objectArray[17])[0]=new String("Pinot Rules");
-  for (i=0; i < numberOfTypes; i++) {
-    for (int j=0; j < numberOfTypes; j++) {
-      PlainFieldExtractor extractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schemaArray[i]);
-      GenericRow row=new GenericRow();
-      Map<String,Object> fieldMap=new HashMap<String,Object>();
-      fieldMap.put(columnName,objectArray[j]);
+  Object[] objectArray=new Object[NUMBER_OF_TYPES];
+  objectArray[0]=true;
+  objectArray[1]=(byte)65;
+  objectArray[2]=new Object[]{(byte)65};
+  objectArray[3]='a';
+  objectArray[4]=new Object[]{'a'};
+  objectArray[5]=(short)500;
+  objectArray[6]=new Object[]{(short)500};
+  objectArray[7]=500;
+  objectArray[8]=new Object[]{500};
+  objectArray[9]=500L;
+  objectArray[10]=new Object[]{500L};
+  objectArray[11]=500.5F;
+  objectArray[12]=new Object[]{500.5F};
+  objectArray[13]=500.5;
+  objectArray[14]=new Object[]{500.5};
+  objectArray[15]="true";
+  objectArray[16]=new Object[]{"true"};
+  GenericRow row=new GenericRow();
+  Map<String,Object> fieldMap=new HashMap<>();
+  for (int i=0; i < NUMBER_OF_TYPES; i++) {
+    for (int j=0; j < NUMBER_OF_TYPES; j++) {
+      PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(ALL_TYPE_SCHEMAS[i]);
+      fieldMap.put(TEST_COLUMN,objectArray[j]);
       row.init(fieldMap);
-      extractor.transform(row);
-      if (j == 9) {
-        Assert.assertEquals(extractor.getTotalNulls(),1);
+      plainFieldExtractor.transform(row);
+      if (i == j) {
+        Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
+        Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
+        Assert.assertEquals(plainFieldExtractor.getTotalConversions(),0);
+        continue;
       }
- else       if ((i == 0) && (j != 0)) {
-        if (j == 8) {
-          Assert.assertEquals(extractor.getTotalErrors(),0);
-          Assert.assertEquals(extractor.getTotalConversions(),1);
+      if (i == 0 || j == 0) {
+        if (i > 14 || j > 14) {
+          Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
+          Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
+          Assert.assertEquals(plainFieldExtractor.getTotalConversions(),1);
         }
  else {
-          Assert.assertEquals(extractor.getTotalErrors(),1);
-          Assert.assertEquals(extractor.getTotalConversions(),1);
+          Assert.assertEquals(plainFieldExtractor.getTotalErrors(),1);
+          Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
+          Assert.assertEquals(plainFieldExtractor.getTotalConversions(),0);
         }
+        continue;
       }
-      if ((i == 8) && (j == 0)) {
-        Assert.assertEquals(extractor.getTotalErrors(),0);
-        Assert.assertEquals(extractor.getTotalConversions(),1);
+      if (j > 14) {
+        if (i == 3 || i == 4 || i > 14) {
+          Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
+          Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
+          Assert.assertEquals(plainFieldExtractor.getTotalConversions(),1);
+        }
+ else {
+          Assert.assertEquals(plainFieldExtractor.getTotalErrors(),1);
+          Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
+          Assert.assertEquals(plainFieldExtractor.getTotalConversions(),0);
+        }
+        continue;
       }
-      LOGGER.debug("Number of Error {}",extractor.getTotalErrors());
-      LOGGER.debug("Number of rows with Null columns {}",extractor.getTotalNulls());
-      LOGGER.debug("Number of rows with columns requiring conversion {}",extractor.getTotalConversions());
-      LOGGER.debug("Column with conversion {}, number of conversions {}",columnName,extractor.getError_count().get(columnName));
-      LOGGER.debug("Old value {}, new value {}",objectArray[j],row.getValue(columnName));
+      Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
+      Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
+      Assert.assertEquals(plainFieldExtractor.getTotalConversions(),1);
     }
   }
 }

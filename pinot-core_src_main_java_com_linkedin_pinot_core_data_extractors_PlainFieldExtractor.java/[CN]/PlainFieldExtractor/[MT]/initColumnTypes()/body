@@ -1,22 +1,7 @@
 {
-  _columnType=new HashMap<String,PinotDataType>();
   for (  String column : _schema.getColumnNames()) {
     FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
-    PinotDataType dest=PinotDataType.OBJECT;
-    if (fieldSpec != null) {
-      dest=PinotDataType.getPinotDataType(fieldSpec);
-    }
- else {
-      LOGGER.warn("Bad schema: {}, Field: {}",_schema.getSchemaName(),column);
-    }
-    _columnType.put(column,dest);
-  }
-  _typeMap=new HashMap<String,PinotDataType>();
-  for (  PinotDataType p : PinotDataType.values()) {
-    for (    Method m : p.getClass().getMethods()) {
-      if (m.getName() == "convert") {
-        _typeMap.put(m.getReturnType().getCanonicalName(),p);
-      }
-    }
+    Preconditions.checkNotNull(fieldSpec,"Bad schema: " + _schema.getSchemaName() + ", field: "+ column);
+    _columnType.put(column,PinotDataType.getPinotDataType(fieldSpec));
   }
 }
