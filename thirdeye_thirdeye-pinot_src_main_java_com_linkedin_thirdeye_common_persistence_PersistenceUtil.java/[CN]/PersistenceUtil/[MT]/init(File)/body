@@ -1,8 +1,17 @@
 {
   PersistenceConfig configuration=createConfiguration(localConfigFile);
   Properties properties=createDbPropertiesFromConfiguration(configuration);
-  JpaPersistModule jpaPersistModule=new JpaPersistModule(JPA_UNIT);
-  jpaPersistModule.properties(properties);
+  DataSource ds=new DataSource();
+  ds.setUrl(configuration.getDatabaseConfiguration().getUrl());
+  ds.setPassword(configuration.getDatabaseConfiguration().getPassword());
+  ds.setUsername(configuration.getDatabaseConfiguration().getUser());
+  ds.setDriverClassName(configuration.getDatabaseConfiguration().getProperties().get("hibernate.connection.driver_class"));
+  ds.setMaxActive(200);
+  ds.setInitialSize(10);
+  ds.setDefaultAutoCommit(true);
+  properties.put(Environment.CONNECTION_PROVIDER,DatasourceConnectionProviderImpl.class.getName());
+  properties.put(Environment.DATASOURCE,ds);
+  JpaPersistModule jpaPersistModule=new JpaPersistModule(JPA_UNIT).properties(properties);
   injector=Guice.createInjector(jpaPersistModule,new PersistenceModule());
   injector.getInstance(PersistService.class).start();
 }
