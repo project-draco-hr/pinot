@@ -1,0 +1,7 @@
+{
+  byte[] byteArray=new byte[arraySize];
+  rand.nextBytes(byteArray);
+  String s=new String(HllUtil.SerializationConverter.byteArrayToChars(byteArray));
+  byte[] byteArray2=HllUtil.SerializationConverter.charsToByteArray(new String(s.getBytes(charset),charset).toCharArray());
+  Assert.assertTrue(Arrays.equals(byteArray,byteArray2));
+}

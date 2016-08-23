@@ -11,7 +11,7 @@
     @Override public GenericRow next(){
       Pair<byte[],byte[]> pair=iterator.next();
       DimensionBuffer dimensionKey=DimensionBuffer.fromBytes(pair.getLeft());
-      MetricBuffer metricsHolder=MetricBuffer.fromBytes(pair.getRight(),metricTypes);
+      MetricBuffer metricsHolder=MetricBuffer.fromBytes(pair.getRight(),schema.getMetricFieldSpecs());
       return toGenericRow(dimensionKey,metricsHolder);
     }
   }

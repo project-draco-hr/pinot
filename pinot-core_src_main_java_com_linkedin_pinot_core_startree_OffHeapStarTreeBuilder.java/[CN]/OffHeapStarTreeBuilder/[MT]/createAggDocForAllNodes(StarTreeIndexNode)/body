@@ -4,11 +4,11 @@
     StarTreeDataTable leafDataTable=new StarTreeDataTable(dataFile,dimensionSizeBytes,metricSizeBytes,null);
     Iterator<Pair<byte[],byte[]>> iterator=leafDataTable.iterator(node.getStartDocumentId(),node.getEndDocumentId());
     Pair<byte[],byte[]> first=iterator.next();
-    aggMetricBuffer=MetricBuffer.fromBytes(first.getRight(),metricTypes);
+    aggMetricBuffer=MetricBuffer.fromBytes(first.getRight(),schema.getMetricFieldSpecs());
     while (iterator.hasNext()) {
       Pair<byte[],byte[]> next=iterator.next();
-      MetricBuffer metricBuffer=MetricBuffer.fromBytes(next.getRight(),metricTypes);
-      aggMetricBuffer.aggregate(metricBuffer,metricTypes);
+      MetricBuffer metricBuffer=MetricBuffer.fromBytes(next.getRight(),schema.getMetricFieldSpecs());
+      aggMetricBuffer.aggregate(metricBuffer);
     }
   }
  else {
@@ -23,7 +23,7 @@
         aggMetricBuffer=new MetricBuffer(childMetricBuffer);
       }
  else {
-        aggMetricBuffer.aggregate(childMetricBuffer,metricTypes);
+        aggMetricBuffer.aggregate(childMetricBuffer);
       }
     }
   }

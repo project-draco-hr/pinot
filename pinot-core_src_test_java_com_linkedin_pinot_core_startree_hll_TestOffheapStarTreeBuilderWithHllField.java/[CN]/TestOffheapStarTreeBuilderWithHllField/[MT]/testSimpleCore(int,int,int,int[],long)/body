@@ -1,0 +1,79 @@
+{
+  StarTreeBuilderConfig builderConfig=null;
+  try {
+    builderConfig=new StarTreeBuilderConfig();
+    Schema schema=new Schema();
+    builderConfig.dimensionsSplitOrder=new ArrayList<>();
+    builderConfig.setSkipMaterializationForDimensions(new HashSet<String>());
+    Set<String> skipMaterializationForDimensions=builderConfig.getSkipMaterializationForDimensions();
+    String dimName=memberIdFieldName;
+    DimensionFieldSpec dimensionFieldSpec=new DimensionFieldSpec(dimName,DataType.INT,true);
+    schema.addField(dimName,dimensionFieldSpec);
+    for (int i=1; i < numDimensions; i++) {
+      dimName="d" + (i + 1);
+      dimensionFieldSpec=new DimensionFieldSpec(dimName,DataType.STRING,true);
+      schema.addField(dimName,dimensionFieldSpec);
+      if (i < (numDimensions - numSkipMaterializationDimensions)) {
+        builderConfig.dimensionsSplitOrder.add(dimName);
+      }
+ else {
+        builderConfig.getSkipMaterializationForDimensions().add(dimName);
+      }
+    }
+    schema.setTimeFieldSpec(new TimeFieldSpec("daysSinceEpoch",DataType.INT,TimeUnit.DAYS));
+    for (int i=0; i < numMetrics - 1; i++) {
+      String metricName="m" + (i + 1);
+      MetricFieldSpec metricFieldSpec=new MetricFieldSpec(metricName,DataType.INT);
+      schema.addField(metricName,metricFieldSpec);
+    }
+    String hllMetricName=memberIdFieldName + hllDeriveFieldSuffix;
+    MetricFieldSpec hllDerivedFieldSpec=new MetricFieldSpec(hllMetricName,FieldSpec.DataType.STRING,HllUtil.getHllFieldSizeFromLog2m(log2m),MetricFieldSpec.DerivedMetricType.HLL);
+    schema.addField(hllMetricName,hllDerivedFieldSpec);
+    builderConfig.maxLeafRecords=10;
+    builderConfig.schema=schema;
+    builderConfig.setOutDir(new File("/tmp/startree"));
+    OffHeapStarTreeBuilder builder=new OffHeapStarTreeBuilder();
+    builder.init(builderConfig);
+    HashMap<String,Object> map=new HashMap<>();
+    for (int row=0; row < memberIdColumnValues.length; row++) {
+      dimName=memberIdFieldName;
+      map.put(dimName,memberIdColumnValues[row]);
+      for (int i=1; i < numDimensions; i++) {
+        dimName=schema.getDimensionFieldSpecs().get(i).getName();
+        map.put(dimName,dimName + "-v" + row % (numDimensions - i));
+      }
+      map.put("daysSinceEpoch",1);
+      for (int i=0; i < numMetrics - 1; i++) {
+        String metName=schema.getMetricFieldSpecs().get(i).getName();
+        map.put(metName,1);
+      }
+      map.put(hllMetricName,HllUtil.singleValueHllAsString(log2m,memberIdColumnValues[row]));
+      GenericRow genericRow=new GenericRow();
+      genericRow.init(map);
+      builder.append(genericRow);
+    }
+    builder.build();
+    int totalDocs=builder.getTotalRawDocumentCount() + builder.getTotalAggregateDocumentCount();
+    Iterator<GenericRow> iterator=builder.iterator(0,totalDocs);
+    while (iterator.hasNext()) {
+      GenericRow row=iterator.next();
+      LOGGER.info(HllUtil.inspectGenericRow(row,hllDeriveFieldSuffix));
+    }
+    iterator=builder.iterator(builder.getTotalRawDocumentCount(),totalDocs);
+    GenericRow lastRow=null;
+    while (iterator.hasNext()) {
+      GenericRow row=iterator.next();
+      for (      String skipDimension : skipMaterializationForDimensions) {
+        String rowValue=(String)row.getValue(skipDimension);
+        assert(rowValue.equals("ALL"));
+      }
+      lastRow=row;
+    }
+    assertApproximation(HllUtil.convertStringToHll((String)lastRow.getValue(hllMetricName)).cardinality(),preciseCardinality,0.1);
+  }
+  finally {
+    if (builderConfig != null) {
+      FileUtils.deleteDirectory(builderConfig.getOutDir());
+    }
+  }
+}

@@ -4,6 +4,12 @@
   recordReader=reader;
   recordReader.init();
   dataSchema=recordReader.getSchema();
+  enableHllIndex=(config.getHllConfig() != null) && (config.getHllConfig().isEnableHllIndex());
+  if (enableHllIndex && !createStarTree) {
+    LOGGER.warn("Hll configuration works only with star tree. " + "Star Tree generation is not specified. " + "This will not add derived hll fields.");
+    enableHllIndex=false;
+  }
+  addDerivedFieldsInSchema();
   extractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(dataSchema);
   statsCollector=new SegmentPreIndexStatsCollectorImpl(recordReader.getSchema());
   statsCollector.init();

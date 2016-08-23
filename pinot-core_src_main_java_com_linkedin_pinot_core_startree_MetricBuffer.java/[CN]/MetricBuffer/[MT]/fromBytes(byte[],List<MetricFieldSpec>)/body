@@ -1,0 +1,34 @@
+{
+  ByteBuffer buffer=ByteBuffer.wrap(bytes);
+  Object[] values=new Object[metricFieldSpecs.size()];
+  for (int i=0; i < metricFieldSpecs.size(); i++) {
+    MetricFieldSpec metric=metricFieldSpecs.get(i);
+    if (metric.getDerivedMetricType() == DerivedMetricType.HLL) {
+      byte[] hllBytes=new byte[metric.getFieldSize()];
+      buffer.get(hllBytes);
+      values[i]=HllUtil.buildHllFromBytes(hllBytes);
+    }
+ else {
+switch (metric.getDataType()) {
+case SHORT:
+        values[i]=buffer.getShort();
+      break;
+case INT:
+    values[i]=buffer.getInt();
+  break;
+case LONG:
+values[i]=buffer.getLong();
+break;
+case FLOAT:
+values[i]=buffer.getFloat();
+break;
+case DOUBLE:
+values[i]=buffer.getDouble();
+break;
+default :
+throw new IllegalArgumentException("Unsupported metric type " + metric.getDataType());
+}
+}
+}
+return new MetricBuffer(values,metricFieldSpecs);
+}

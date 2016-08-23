@@ -1,5 +1,5 @@
 {
-  Schema schema=builderConfig.schema;
+  schema=builderConfig.schema;
   timeColumnName=schema.getTimeColumnName();
   this.dimensionsSplitOrder=builderConfig.dimensionsSplitOrder;
   skipStarNodeCreationForDimensions=builderConfig.getSkipStarNodeCreationForDimensions();
@@ -44,7 +44,6 @@
   }
   dimensionSizeBytes=dimensionNames.size() * Integer.SIZE / 8;
   this.numDimensions=dimensionNames.size();
-  this.metricTypes=new ArrayList<>();
   this.metricNames=new ArrayList<>();
   this.metricNameToIndexMap=new HashMap<>();
   this.metricSizeBytes=0;
@@ -54,13 +53,12 @@
     String metricName=spec.getName();
     metricNames.add(metricName);
     metricNameToIndexMap.put(metricName,index);
-    DataType dataType=spec.getDataType();
-    metricTypes.add(dataType);
-    metricSizeBytes+=dataType.size();
+    metricSizeBytes+=spec.getFieldSize();
   }
-  this.numMetrics=metricNames.size();
+  numMetrics=metricNames.size();
   builderConfig.getOutDir().mkdirs();
   dataFile=new File(outDir,"star-tree.buf");
+  LOG.debug("StarTree output data file: {}",dataFile.getAbsolutePath());
   dataBuffer=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)));
   this.starTreeRootIndexNode=new StarTreeIndexNode();
   this.starTreeRootIndexNode.setDimensionName(StarTreeIndexNodeInterf.ALL);

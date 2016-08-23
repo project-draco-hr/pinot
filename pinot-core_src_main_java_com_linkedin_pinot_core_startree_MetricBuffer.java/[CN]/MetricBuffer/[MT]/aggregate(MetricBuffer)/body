@@ -1,0 +1,34 @@
+{
+  for (int i=0; i < metricFieldSpecs.size(); i++) {
+    MetricFieldSpec metric=metricFieldSpecs.get(i);
+    if (metric.getDerivedMetricType() == DerivedMetricType.HLL) {
+      try {
+        ((HyperLogLog)values[i]).addAll((HyperLogLog)metrics.values[i]);
+      }
+ catch (      CardinalityMergeException e) {
+        throw new RuntimeException(e);
+      }
+    }
+ else {
+switch (metric.getDataType()) {
+case SHORT:
+        values[i]=((Number)values[i]).shortValue() + ((Number)metrics.values[i]).shortValue();
+      break;
+case INT:
+    values[i]=((Number)values[i]).intValue() + ((Number)metrics.values[i]).intValue();
+  break;
+case LONG:
+values[i]=((Number)values[i]).longValue() + ((Number)metrics.values[i]).longValue();
+break;
+case FLOAT:
+values[i]=((Number)values[i]).floatValue() + ((Number)metrics.values[i]).floatValue();
+break;
+case DOUBLE:
+values[i]=((Number)values[i]).doubleValue() + ((Number)metrics.values[i]).doubleValue();
+break;
+default :
+throw new IllegalArgumentException("Unsupported metric type " + metric.getDataType());
+}
+}
+}
+}

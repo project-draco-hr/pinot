@@ -1,0 +1,10 @@
+{
+  try {
+    HyperLogLog ret=new HyperLogLog(log2m);
+    ret.addAll(hll);
+    return ret;
+  }
+ catch (  CardinalityMergeException e) {
+    throw new RuntimeException(e);
+  }
+}

@@ -12,11 +12,16 @@
     }
     dimension.setDimension(i,dictionary.get(dimValue));
   }
-  Number[] numbers=new Number[numMetrics];
+  Object[] metrics=new Object[numMetrics];
   for (int i=0; i < numMetrics; i++) {
     String metName=metricNames.get(i);
-    numbers[i]=(Number)row.getValue(metName);
+    if (schema.getMetricFieldSpecs().get(i).getDerivedMetricType() == MetricFieldSpec.DerivedMetricType.HLL) {
+      metrics[i]=HllUtil.convertStringToHll((String)row.getValue(metName));
+    }
+ else {
+      metrics[i]=row.getValue(metName);
+    }
   }
-  MetricBuffer metrics=new MetricBuffer(numbers);
-  append(dimension,metrics);
+  MetricBuffer metricBuffer=new MetricBuffer(metrics,schema.getMetricFieldSpecs());
+  appendToRawBuffer(dimension,metricBuffer);
 }

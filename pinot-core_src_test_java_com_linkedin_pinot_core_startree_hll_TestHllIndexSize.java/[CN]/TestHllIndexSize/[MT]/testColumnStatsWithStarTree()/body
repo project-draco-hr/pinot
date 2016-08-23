@@ -1,0 +1,23 @@
+{
+  SegmentWithHllIndexCreateHelper helper=null;
+  boolean hasException=false;
+  try {
+    LOGGER.debug("================ With StarTree ================");
+    helper=new SegmentWithHllIndexCreateHelper("withStarTree",AVRO_DATA,timeColumnName,timeUnit);
+    SegmentIndexCreationDriver driver=helper.build(true,hllConfig);
+    LOGGER.debug("================ Cardinality ================");
+    for (    String name : helper.getSchema().getColumnNames()) {
+      LOGGER.debug("* " + name + ": "+ driver.getColumnStatisticsCollector(name).getCardinality());
+    }
+  }
+ catch (  Exception e) {
+    hasException=true;
+    LOGGER.error(e.getMessage());
+  }
+ finally {
+    if (helper != null) {
+      helper.cleanTempDir();
+    }
+    Assert.assertEquals(hasException,false);
+  }
+}

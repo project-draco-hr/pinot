@@ -1,0 +1,7 @@
+{
+  DataFileStream<GenericRecord> dataStream=new DataFileStream<>(new FileInputStream(inputAvro),new GenericDatumReader<GenericRecord>());
+  final TimeGranularitySpec gSpec=new TimeGranularitySpec(SegmentTestUtils.getColumnType(dataStream.getSchema().getField(timeColumnName)),timeUnit,timeColumnName);
+  final TimeFieldSpec fSpec=new TimeFieldSpec(gSpec);
+  segmentGenConfig.getSchema().addField(timeColumnName,fSpec);
+  dataStream.close();
+}

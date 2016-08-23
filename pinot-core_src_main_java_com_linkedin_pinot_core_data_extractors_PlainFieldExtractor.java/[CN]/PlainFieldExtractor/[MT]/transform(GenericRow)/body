@@ -4,6 +4,10 @@
   boolean hasNull=false;
   boolean hasConversion=false;
   for (  String column : _schema.getColumnNames()) {
+    FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
+    if (fieldSpec instanceof MetricFieldSpec && ((MetricFieldSpec)fieldSpec).isDerivedMetric()) {
+      continue;
+    }
     Object value;
     if (column.equals(_outgoingTimeColumnName) && _timeConverter != null) {
       value=row.getValue(_incomingTimeColumnName);
@@ -69,7 +73,6 @@
       }
     }
     if (value == null) {
-      FieldSpec fieldSpec=_schema.getFieldSpecFor(column);
       if (fieldSpec.isSingleValueField()) {
         value=fieldSpec.getDefaultNullValue();
       }

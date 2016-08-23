@@ -1,0 +1,32 @@
+{
+  byte[] bytes=new byte[numBytes];
+  ByteBuffer buffer=ByteBuffer.wrap(bytes);
+  for (int i=0; i < metricFieldSpecs.size(); i++) {
+    MetricFieldSpec metric=metricFieldSpecs.get(i);
+    if (metric.getDerivedMetricType() == DerivedMetricType.HLL) {
+      buffer.put(((HyperLogLog)values[i]).getBytes());
+    }
+ else {
+switch (metric.getDataType()) {
+case SHORT:
+        buffer.putShort(((Number)values[i]).shortValue());
+      break;
+case INT:
+    buffer.putInt(((Number)values[i]).intValue());
+  break;
+case LONG:
+buffer.putLong(((Number)values[i]).longValue());
+break;
+case FLOAT:
+buffer.putFloat(((Number)values[i]).floatValue());
+break;
+case DOUBLE:
+buffer.putDouble(((Number)values[i]).doubleValue());
+break;
+default :
+throw new IllegalArgumentException("Unsupported metric type " + metric.getDataType());
+}
+}
+}
+return bytes;
+}

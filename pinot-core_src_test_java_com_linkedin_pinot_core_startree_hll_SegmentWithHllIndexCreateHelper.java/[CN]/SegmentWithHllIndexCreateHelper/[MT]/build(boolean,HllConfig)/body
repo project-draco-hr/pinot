@@ -1,0 +1,25 @@
+{
+  final SegmentGeneratorConfig segmentGenConfig=new SegmentGeneratorConfig(SegmentTestUtils.extractSchemaFromAvroWithoutTime(inputAvro));
+  addTimeColumnToSchema(segmentGenConfig);
+  segmentGenConfig.setInputFilePath(inputAvro.getAbsolutePath());
+  segmentGenConfig.setTimeColumnName(timeColumnName);
+  segmentGenConfig.setSegmentTimeUnit(timeUnit);
+  segmentGenConfig.setFormat(FileFormat.AVRO);
+  segmentGenConfig.setSegmentVersion(SegmentVersion.v1);
+  segmentGenConfig.setTableName("testTable");
+  segmentGenConfig.setOutDir(INDEX_DIR.getAbsolutePath());
+  segmentGenConfig.createInvertedIndexForAllColumns();
+  segmentGenConfig.setSegmentName("starTreeSegment");
+  segmentGenConfig.setSegmentNamePostfix("1");
+  if (enableStarTree) {
+    setupStarTreeConfig(segmentGenConfig);
+    segmentGenConfig.setHllConfig(hllConfig);
+  }
+  final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
+  driver.init(segmentGenConfig);
+  driver.build();
+  LOGGER.info("segmentGenConfig Schema (w/ derived fields): ");
+  schema=segmentGenConfig.getSchema();
+  printSchema(schema);
+  return driver;
+}

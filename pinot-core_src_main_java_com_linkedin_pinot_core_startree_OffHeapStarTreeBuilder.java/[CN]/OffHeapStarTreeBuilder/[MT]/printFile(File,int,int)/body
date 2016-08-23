@@ -6,7 +6,7 @@
   int counter=0;
   while (iterator.hasNext()) {
     Pair<byte[],byte[]> next=iterator.next();
-    LOG.info("{}, {}",DimensionBuffer.fromBytes(next.getLeft()),MetricBuffer.fromBytes(next.getRight(),metricTypes));
+    LOG.info("{}, {}",DimensionBuffer.fromBytes(next.getLeft()),MetricBuffer.fromBytes(next.getRight(),schema.getMetricFieldSpecs()));
     if (counter++ == numRecordsToPrint) {
       break;
     }

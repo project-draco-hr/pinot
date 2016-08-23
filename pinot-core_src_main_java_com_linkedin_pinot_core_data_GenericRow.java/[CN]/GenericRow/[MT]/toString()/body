@@ -1,12 +1,16 @@
 {
   StringBuilder b=new StringBuilder();
   for (  String key : _fieldMap.keySet()) {
-    if (_fieldMap.get(key) instanceof Object[]) {
-      b.append(key + " : " + Arrays.toString((Object[])_fieldMap.get(key))+ ", ");
+    Object value=_fieldMap.get(key);
+    b.append(key);
+    b.append(" : ");
+    if (value instanceof Object[]) {
+      b.append(Arrays.toString((Object[])value));
     }
  else {
-      b.append(key + " : " + _fieldMap.get(key)+ ", ");
+      b.append(value);
     }
+    b.append(", ");
   }
   return b.toString();
 }

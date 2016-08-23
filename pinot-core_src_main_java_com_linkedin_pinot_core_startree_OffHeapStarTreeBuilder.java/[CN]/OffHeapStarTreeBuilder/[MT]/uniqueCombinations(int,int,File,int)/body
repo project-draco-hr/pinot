@@ -41,10 +41,10 @@
         byte[] dimBuffer=next.getLeft();
         byte[] metricBuffer=next.getRight();
         if (prev == null) {
-          prev=Pair.of(DimensionBuffer.fromBytes(dimBuffer),MetricBuffer.fromBytes(metricBuffer,metricTypes));
+          prev=Pair.of(DimensionBuffer.fromBytes(dimBuffer),MetricBuffer.fromBytes(metricBuffer,schema.getMetricFieldSpecs()));
         }
  else {
-          Pair<DimensionBuffer,MetricBuffer> current=Pair.of(DimensionBuffer.fromBytes(dimBuffer),MetricBuffer.fromBytes(metricBuffer,metricTypes));
+          Pair<DimensionBuffer,MetricBuffer> current=Pair.of(DimensionBuffer.fromBytes(dimBuffer),MetricBuffer.fromBytes(metricBuffer,schema.getMetricFieldSpecs()));
           if (!current.getLeft().equals(prev.getLeft())) {
             Pair<DimensionBuffer,MetricBuffer> ret=prev;
             prev=current;
@@ -52,7 +52,7 @@
             return ret;
           }
  else {
-            prev.getRight().aggregate(current.getRight(),metricTypes);
+            prev.getRight().aggregate(current.getRight());
           }
         }
       }

@@ -1,3 +1,16 @@
 {
-  this.numbers=Arrays.copyOf(copy.numbers,copy.numbers.length);
+  this.values=new Object[copy.values.length];
+  for (int i=0; i < this.values.length; i++) {
+    Object copyValue=copy.values[i];
+    if (copyValue instanceof HyperLogLog) {
+      this.values[i]=HllUtil.clone((HyperLogLog)copyValue,HllUtil.getLog2mFromHllFieldSize(copy.metricFieldSpecs.get(i).getFieldSize()));
+    }
+ else     if (copyValue instanceof Number) {
+      this.values[i]=copyValue;
+    }
+ else {
+      throw new IllegalArgumentException("Unsupported metric type: " + copyValue.getClass());
+    }
+  }
+  this.metricFieldSpecs=copy.metricFieldSpecs;
 }

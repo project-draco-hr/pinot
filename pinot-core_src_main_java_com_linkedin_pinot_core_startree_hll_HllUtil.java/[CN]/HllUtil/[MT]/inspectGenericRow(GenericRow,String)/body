@@ -1,0 +1,19 @@
+{
+  StringBuilder b=new StringBuilder();
+  for (  String name : row.getFieldNames()) {
+    b.append(name);
+    b.append(" : ");
+    Object value=row.getValue(name);
+    if (value instanceof String && name.endsWith(hllDeriveColumnSuffix)) {
+      b.append(convertStringToHll((String)value).cardinality());
+    }
+ else     if (value instanceof Object[]) {
+      b.append(Arrays.toString((Object[])value));
+    }
+ else {
+      b.append(value);
+    }
+    b.append(", ");
+  }
+  return b.toString();
+}

@@ -1,0 +1,28 @@
+{
+  LOGGER.info("schemaName: {}",schema.getSchemaName());
+  LOGGER.info("Dimension columnNames: ");
+  int i=0;
+  for (  DimensionFieldSpec spec : schema.getDimensionFieldSpecs()) {
+    String columnInfo=i + " " + spec.getName();
+    if (!spec.isSingleValueField()) {
+      LOGGER.info(columnInfo + " Multi-Value.");
+    }
+ else {
+      LOGGER.info(columnInfo);
+    }
+    i+=1;
+  }
+  LOGGER.info("Metric columnNames: ");
+  i=0;
+  for (  MetricFieldSpec spec : schema.getMetricFieldSpecs()) {
+    String columnInfo=i + " " + spec.getName();
+    if (!spec.isSingleValueField()) {
+      LOGGER.info(columnInfo + " Multi-Value.");
+    }
+ else {
+      LOGGER.info(columnInfo);
+    }
+    i+=1;
+  }
+  LOGGER.info("Time column: {}",schema.getTimeColumnName());
+}
