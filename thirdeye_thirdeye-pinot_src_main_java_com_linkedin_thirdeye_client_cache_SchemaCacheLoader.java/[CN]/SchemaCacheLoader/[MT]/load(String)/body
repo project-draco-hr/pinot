@@ -1,5 +1,5 @@
 {
-  HttpGet req=new HttpGet(SCHEMA_ENDPOINT + URLEncoder.encode(collection,UTF_8));
+  HttpGet req=new HttpGet(String.format(SCHEMA_ENDPOINT_TEMPLATE,URLEncoder.encode(collection,UTF_8)));
   LOGGER.info("Retrieving schema: {}",req);
   CloseableHttpResponse res=controllerClient.execute(controllerHost,req);
   try {
