@@ -1,0 +1,26 @@
+{
+  long offset=0;
+  mappedByteBuffer.putLong(offset,MAGIC_MARKER);
+  offset+=V1Constants.Numbers.LONG_SIZE;
+  mappedByteBuffer.putInt(offset,version);
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  mappedByteBuffer.putInt(offset,headerSizeInBytes);
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  HashBiMap<String,Integer> dimensionNameToIndexMap=starTree.getDimensionNameToIndexMap();
+  mappedByteBuffer.putInt(offset,dimensionNameToIndexMap.size());
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  for (  Map.Entry<String,Integer> entry : dimensionNameToIndexMap.entrySet()) {
+    String dimension=entry.getKey();
+    int index=entry.getValue();
+    mappedByteBuffer.putInt(offset,index);
+    offset+=V1Constants.Numbers.INTEGER_SIZE;
+    int dimensionLength=dimension.length();
+    mappedByteBuffer.putInt(offset,dimensionLength);
+    offset+=V1Constants.Numbers.INTEGER_SIZE;
+    mappedByteBuffer.readFrom(dimension.getBytes(UTF8),offset);
+    offset+=dimensionLength;
+  }
+  mappedByteBuffer.putInt(offset,starTree.getNumNodes());
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  return offset;
+}

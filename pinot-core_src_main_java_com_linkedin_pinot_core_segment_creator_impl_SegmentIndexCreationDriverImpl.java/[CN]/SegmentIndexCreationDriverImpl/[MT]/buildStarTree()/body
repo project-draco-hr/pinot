@@ -22,6 +22,8 @@
   starTreeBuilderConfig.setSkipMaterializationForDimensions(skipMaterializationForDimensions);
   starTreeBuilderConfig.setSkipMaterializationCardinalityThreshold(starTreeIndexSpec.getskipMaterializationCardinalityThreshold());
   starTreeBuilderConfig.setOutDir(starTreeTempDir);
+  boolean enableOffHeapFormat=starTreeIndexSpec.isEnableOffHeapFormat();
+  starTreeBuilderConfig.setEnableOffHealpFormat(enableOffHeapFormat);
   StarTreeBuilder starTreeBuilder=new OffHeapStarTreeBuilder();
   starTreeBuilder.init(starTreeBuilderConfig);
   recordReader.rewind();
@@ -62,7 +64,7 @@
   if (skipMaterializationForDimensions == null || skipMaterializationForDimensions.isEmpty()) {
     starTreeIndexSpec.setSkipMaterializationForDimensions(starTreeBuilder.getSkipMaterializationForDimensions());
   }
-  serializeTree(starTreeBuilder);
+  serializeTree(starTreeBuilder,enableOffHeapFormat);
   handlePostCreation();
   starTreeBuilder.cleanup();
   long end=System.currentTimeMillis();

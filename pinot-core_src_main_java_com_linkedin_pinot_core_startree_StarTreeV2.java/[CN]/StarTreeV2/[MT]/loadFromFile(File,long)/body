@@ -1,0 +1,17 @@
+{
+  FileChannel fileChannel=new FileInputStream(starTreeFile).getChannel();
+  ByteBuffer byteBuffer=ByteBuffer.allocate(BUFFER_SIZE);
+  long start=rootOffset;
+  long end=starTreeFile.length();
+  long destOffset=0;
+  LBufferAPI lBuffer=new LBuffer(end - start);
+  int bytesRead=0;
+  while ((bytesRead=fileChannel.read(byteBuffer,start)) > 0) {
+    lBuffer.readFrom(byteBuffer.array(),0,destOffset,bytesRead);
+    start+=bytesRead;
+    destOffset+=bytesRead;
+    byteBuffer.clear();
+  }
+  fileChannel.close();
+  return lBuffer;
+}

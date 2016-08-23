@@ -1,0 +1,36 @@
+{
+  int offset=0;
+  int size=(int)Math.min(starTreeFile.length(),STAR_TREE_HEADER_READER_SIZE);
+  MMapBuffer dataBuffer=new MMapBuffer(starTreeFile,offset,size,MMapMode.READ_ONLY);
+  Preconditions.checkState(StarTreeSerDe.MAGIC_MARKER == dataBuffer.getLong(offset),"Invalid magic marker in Star Tree file");
+  offset+=StarTreeSerDe.MAGIC_MARKER_SIZE_IN_BYTES;
+  version=dataBuffer.getInt(offset);
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  Preconditions.checkState(version == 1);
+  rootNodeOffset=dataBuffer.getInt(offset);
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  if (rootNodeOffset > size) {
+    dataBuffer.close();
+    dataBuffer=new MMapBuffer(starTreeFile,0,rootNodeOffset,MMapMode.READ_ONLY);
+  }
+  int numDimensions=dataBuffer.getInt(offset);
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  dimensionNameToIndexMap=HashBiMap.create(numDimensions);
+  byte[] dimensionNameBytes=new byte[DIMENSION_NAME_MAX_LENGTH];
+  for (int i=0; i < numDimensions; i++) {
+    int index=dataBuffer.getInt(offset);
+    offset+=V1Constants.Numbers.INTEGER_SIZE;
+    int dimensionLength=dataBuffer.getInt(offset);
+    offset+=V1Constants.Numbers.INTEGER_SIZE;
+    Preconditions.checkState(dimensionLength < DIMENSION_NAME_MAX_LENGTH);
+    dataBuffer.copyTo((int)offset,dimensionNameBytes,0,dimensionLength);
+    offset+=dimensionLength;
+    String dimensionName=new String(dimensionNameBytes,0,dimensionLength,UTF8);
+    dimensionNameToIndexMap.put(dimensionName,index);
+  }
+  numNodes=dataBuffer.getInt(offset);
+  offset+=V1Constants.Numbers.INTEGER_SIZE;
+  Preconditions.checkState((offset == rootNodeOffset),"Error reading Star Tree file, header length mis-match");
+  dataBuffer.close();
+  return offset;
+}

@@ -23,8 +23,14 @@
   LOG.debug("Took {} ms to build star tree index. Original records:{} Materialized record:{}",(end - start),rawRecordCount,aggRecordCount);
   starTree=new StarTree(starTreeRootIndexNode,dimensionNameToIndexMap);
   File treeBinary=new File(outDir,"star-tree.bin");
-  LOG.debug("Saving tree binary at: {} ",treeBinary);
-  starTree.writeTree(treeBinary);
+  if (enableOffHeapFormat) {
+    LOG.debug("Saving tree binary V2 at: {} ",treeBinary);
+    StarTreeSerDe.writeTreeV2(starTree,treeBinary);
+  }
+ else {
+    LOG.debug("Saving tree binary V1 at: {} ",treeBinary);
+    StarTreeSerDe.writeTreeV1(starTree,treeBinary);
+  }
   printTree(starTreeRootIndexNode,0);
   LOG.debug("Finished build tree. out dir: {} ",outDir);
   dataBuffer.close();

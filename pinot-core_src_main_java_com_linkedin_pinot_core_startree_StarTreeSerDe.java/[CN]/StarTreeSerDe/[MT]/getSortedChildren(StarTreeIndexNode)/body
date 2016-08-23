@@ -1,0 +1,25 @@
+{
+  Map<Integer,StarTreeIndexNode> children=node.getChildren();
+  if (children == null) {
+    return Collections.EMPTY_LIST;
+  }
+  List<StarTreeIndexNode> sortedChildren=new ArrayList<>();
+  sortedChildren.addAll(children.values());
+  Collections.sort(sortedChildren,new Comparator<StarTreeIndexNode>(){
+    @Override public int compare(    StarTreeIndexNode node1,    StarTreeIndexNode node2){
+      int v1=node1.getDimensionValue();
+      int v2=node2.getDimensionValue();
+      if (v1 < v2) {
+        return -1;
+      }
+ else       if (v1 > v2) {
+        return v1;
+      }
+ else {
+        return 0;
+      }
+    }
+  }
+);
+  return sortedChildren;
+}

@@ -1,0 +1,14 @@
+{
+  InputStream inputStream=new FileInputStream(starTreeFile);
+  BufferedInputStream bufferedInputStream=new BufferedInputStream(inputStream);
+  StarTreeInterf.Version starTreeVersion=getStarTreeVersion(bufferedInputStream);
+  if (starTreeVersion.equals(StarTreeInterf.Version.V1)) {
+    return fromBytesV1(bufferedInputStream);
+  }
+ else   if (starTreeVersion.equals(StarTreeInterf.Version.V2)) {
+    return new StarTreeV2(starTreeFile,readMode);
+  }
+ else {
+    throw new RuntimeException("Unrecognized version for Star Tree " + starTreeVersion);
+  }
+}
