@@ -3,8 +3,6 @@
   if (_cachedDefaultNullValue == null) {
     if (_stringDefaultNullValue != null) {
 switch (_dataType) {
-case BYTE:
-case SHORT:
 case INT:
         _cachedDefaultNullValue=Integer.valueOf(_stringDefaultNullValue);
       break;
@@ -17,8 +15,6 @@ break;
 case DOUBLE:
 _cachedDefaultNullValue=Double.valueOf(_stringDefaultNullValue);
 break;
-case BOOLEAN:
-case CHAR:
 case STRING:
 Preconditions.checkState(fieldType != FieldType.METRIC,"For metric field, no support for non-number data type: " + _dataType);
 _cachedDefaultNullValue=_stringDefaultNullValue;
@@ -31,8 +27,6 @@ throw new UnsupportedOperationException("Unsupported data type: " + _dataType);
 switch (fieldType) {
 case METRIC:
 switch (_dataType) {
-case BYTE:
-case SHORT:
 case INT:
 _cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_INT;
 break;
@@ -45,9 +39,6 @@ break;
 case DOUBLE:
 _cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_DOUBLE;
 break;
-case STRING:
-_cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_STRING;
-break;
 default :
 throw new UnsupportedOperationException("Unknown default null value for metric field of data type: " + _dataType);
 }
@@ -55,8 +46,6 @@ break;
 case DIMENSION:
 case TIME:
 switch (_dataType) {
-case BYTE:
-case SHORT:
 case INT:
 _cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_INT;
 break;
@@ -69,8 +58,6 @@ break;
 case DOUBLE:
 _cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_DOUBLE;
 break;
-case BOOLEAN:
-case CHAR:
 case STRING:
 _cachedDefaultNullValue=DEFAULT_DIM_NULL_VALUE_OF_STRING;
 break;

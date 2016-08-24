@@ -1,10 +1,10 @@
 {
-  if (isSameReference(this,o)) {
+  if (this == object) {
     return true;
   }
-  if (isNullOrNotSameClass(this,o)) {
-    return false;
+  if (object instanceof Schema) {
+    Schema that=(Schema)object;
+    return schemaName.equals(that.schemaName) && fieldSpecMap.equals(that.fieldSpecMap);
   }
-  Schema other=(Schema)o;
-  return isEqual(dimensions,other.dimensions) && isEqual(timeFieldSpec,other.timeFieldSpec) && isEqual(metrics,other.metrics)&& isEqual(schemaName,other.schemaName)&& isEqual(metricFieldSpecs,other.metricFieldSpecs)&& isEqual(dimensionFieldSpecs,other.dimensionFieldSpecs);
+  return false;
 }

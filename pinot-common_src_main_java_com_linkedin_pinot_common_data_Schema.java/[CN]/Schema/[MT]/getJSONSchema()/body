@@ -1,3 +1,11 @@
 {
+  if (jsonSchema == null) {
+    try {
+      jsonSchema=MAPPER.writeValueAsString(this);
+    }
+ catch (    IOException e) {
+      LOGGER.error("Caught exception while writing Schema as JSON format string.",e);
+    }
+  }
   return jsonSchema;
 }

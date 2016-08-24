@@ -1,7 +1,6 @@
 {
-  final Schema schema=new Schema();
-  final DataFileStream<GenericRecord> dataStreamReader=getAvroReader(avroFile);
-  final org.apache.avro.Schema avroSchema=dataStreamReader.getSchema();
-  dataStreamReader.close();
-  return getPinotSchemaFromAvroSchema(avroSchema,getDefaultFieldTypes(avroSchema),TimeUnit.DAYS);
-}
+  try (DataFileStream<GenericRecord> dataStreamReader=getAvroReader(avroFile)){
+    org.apache.avro.Schema avroSchema=dataStreamReader.getSchema();
+    return getPinotSchemaFromAvroSchema(avroSchema,getDefaultFieldTypes(avroSchema),TimeUnit.DAYS);
+  }
+ }

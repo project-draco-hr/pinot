@@ -1,30 +1,32 @@
 {
   Schema pinotSchema=new Schema();
   for (  final Field field : avroSchema.getFields()) {
-    FieldSpec spec;
-    FieldSpec.DataType columnType;
+    String fieldName=field.name();
+    FieldSpec.DataType dataType;
     try {
-      columnType=AvroRecordReader.getColumnType(field);
+      dataType=AvroRecordReader.getColumnType(field);
     }
  catch (    UnsupportedOperationException e) {
-      LOGGER.warn("Unsupported field type for field {} schema {}, using String instead.",field.name(),field.schema());
-      columnType=FieldSpec.DataType.STRING;
+      LOGGER.warn("Unsupported field type for field {} schema {}, using String instead.",fieldName,field.schema());
+      dataType=FieldSpec.DataType.STRING;
     }
-    FieldSpec.FieldType fieldType=fieldTypes.get(field.name());
-    if (fieldType == FieldSpec.FieldType.METRIC) {
-      spec=new MetricFieldSpec();
-      spec.setDataType(columnType);
-    }
- else     if (fieldType == FieldSpec.FieldType.TIME) {
-      spec=new TimeFieldSpec(field.name(),columnType,timeUnit);
-    }
- else {
-      spec=new DimensionFieldSpec();
-      spec.setDataType(columnType);
-    }
-    spec.setName(field.name());
-    spec.setSingleValueField(AvroRecordReader.isSingleValueField(field));
-    pinotSchema.addField(spec.getName(),spec);
-  }
-  return pinotSchema;
+    FieldSpec.FieldType fieldType=fieldTypes.get(fieldName);
+    boolean isSingleValueField=AvroRecordReader.isSingleValueField(field);
+switch (fieldType) {
+case DIMENSION:
+      pinotSchema.addField(new DimensionFieldSpec(fieldName,dataType,isSingleValueField));
+    break;
+case METRIC:
+  Preconditions.checkState(isSingleValueField,"Unsupported multi-value for metric field.");
+pinotSchema.addField(new MetricFieldSpec(fieldName,dataType));
+break;
+case TIME:
+Preconditions.checkState(isSingleValueField,"Unsupported multi-value for time field.");
+pinotSchema.addField(new TimeFieldSpec(field.name(),dataType,timeUnit));
+break;
+default :
+throw new UnsupportedOperationException("Unsupported field type: " + fieldType + " for field: "+ fieldName);
+}
+}
+return pinotSchema;
 }

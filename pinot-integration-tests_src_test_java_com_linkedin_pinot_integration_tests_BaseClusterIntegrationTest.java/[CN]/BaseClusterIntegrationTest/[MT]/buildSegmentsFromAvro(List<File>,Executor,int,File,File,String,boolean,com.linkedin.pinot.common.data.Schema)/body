@@ -12,12 +12,7 @@
           File outputDir=new File(baseDirectory,"segment-" + segmentNumber);
           final File inputAvroFile=avroFiles.get(segmentIndex);
           final SegmentGeneratorConfig genConfig=SegmentTestUtils.getSegmentGenSpecWithSchemAndProjectedColumns(inputAvroFile,outputDir,TimeUnit.DAYS,tableName,inputPinotSchema);
-          if (createStarTreeIndex) {
-            final File pinotSchemaFile=new File(TestUtils.getFileFromResourceUrl(BaseClusterIntegrationTest.class.getClassLoader().getResource(PINOT_SCHEMA_FILE)));
-            com.linkedin.pinot.common.data.Schema pinotSchema=com.linkedin.pinot.common.data.Schema.fromFile(pinotSchemaFile);
-            genConfig.setSchema(pinotSchema);
-          }
- else           if (inputPinotSchema != null) {
+          if (inputPinotSchema != null) {
             genConfig.setSchema(inputPinotSchema);
           }
           genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber) + " %");

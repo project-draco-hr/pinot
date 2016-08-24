@@ -1,11 +1,24 @@
 {
-  Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("svDimension",FieldSpec.DataType.INT).addMultiValueDimension("mvDimension",FieldSpec.DataType.STRING).addMetric("metric",FieldSpec.DataType.INT).addTime("incomingTime",TimeUnit.DAYS,FieldSpec.DataType.LONG).build();
-  Assert.assertEquals(schema.getDimensionSpec("svDimension").isSingleValueField(),true);
-  Assert.assertEquals(schema.getDimensionSpec("svDimension").getDataType(),FieldSpec.DataType.INT);
-  Assert.assertEquals(schema.getDimensionSpec("mvDimension").isSingleValueField(),false);
-  Assert.assertEquals(schema.getDimensionSpec("mvDimension").getDataType(),FieldSpec.DataType.STRING);
-  Assert.assertEquals(schema.getMetricSpec("metric").isSingleValueField(),true);
-  Assert.assertEquals(schema.getMetricSpec("metric").getDataType(),FieldSpec.DataType.INT);
-  Assert.assertEquals(schema.getTimeFieldSpec().isSingleValueField(),true);
-  Assert.assertEquals(schema.getTimeFieldSpec().getDataType(),FieldSpec.DataType.LONG);
+  Schema schema=new Schema.SchemaBuilder().addSingleValueDimension("svDimension",FieldSpec.DataType.INT).addMultiValueDimension("mvDimension",FieldSpec.DataType.STRING).addMetric("metric",FieldSpec.DataType.INT).addMetric("derivedMetric",FieldSpec.DataType.STRING,10,MetricFieldSpec.DerivedMetricType.HLL).addTime("time",TimeUnit.DAYS,FieldSpec.DataType.LONG).build();
+  FieldSpec fieldSpec;
+  fieldSpec=schema.getDimensionSpec("svDimension");
+  Assert.assertNotNull(fieldSpec);
+  Assert.assertEquals(fieldSpec.isSingleValueField(),true);
+  Assert.assertEquals(fieldSpec.getDataType(),FieldSpec.DataType.INT);
+  fieldSpec=schema.getDimensionSpec("mvDimension");
+  Assert.assertNotNull(fieldSpec);
+  Assert.assertEquals(fieldSpec.isSingleValueField(),false);
+  Assert.assertEquals(fieldSpec.getDataType(),FieldSpec.DataType.STRING);
+  fieldSpec=schema.getMetricSpec("metric");
+  Assert.assertNotNull(fieldSpec);
+  Assert.assertEquals(fieldSpec.isSingleValueField(),true);
+  Assert.assertEquals(fieldSpec.getDataType(),FieldSpec.DataType.INT);
+  fieldSpec=schema.getMetricSpec("derivedMetric");
+  Assert.assertNotNull(fieldSpec);
+  Assert.assertEquals(fieldSpec.isSingleValueField(),true);
+  Assert.assertEquals(fieldSpec.getDataType(),FieldSpec.DataType.STRING);
+  fieldSpec=schema.getTimeFieldSpec();
+  Assert.assertNotNull(fieldSpec);
+  Assert.assertEquals(fieldSpec.isSingleValueField(),true);
+  Assert.assertEquals(fieldSpec.getDataType(),FieldSpec.DataType.LONG);
 }

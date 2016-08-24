@@ -1,9 +1,5 @@
 {
-  Schema schema=new Schema();
-  schema.setSchemaName("testSchema");
-  TimeGranularitySpec incoming=new TimeGranularitySpec(DataType.INT,TimeUnit.DAYS,"incoming");
-  TimeGranularitySpec outgoing=new TimeGranularitySpec(DataType.LONG,TimeUnit.HOURS,"outgoing");
-  schema.setTimeFieldSpec(new TimeFieldSpec(incoming,outgoing));
+  Schema schema=new Schema.SchemaBuilder().setSchemaName("testSchema").addTime("incoming",TimeUnit.DAYS,DataType.INT,"outgoing",TimeUnit.HOURS,DataType.LONG).build();
   PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(schema);
   GenericRow row=new GenericRow();
   Map<String,Object> fieldMap=new HashMap<>();

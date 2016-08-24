@@ -1,7 +1,5 @@
 {
-  Schema schema=new Schema();
-  schema.setSchemaName("testSchema");
-  schema.setTimeFieldSpec(new TimeFieldSpec("timeString",DataType.STRING,TimeUnit.DAYS));
+  Schema schema=new Schema.SchemaBuilder().setSchemaName("testSchema").addTime("timeString",TimeUnit.DAYS,DataType.STRING).build();
   PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(schema);
   GenericRow row=new GenericRow();
   Map<String,Object> fieldMap=new HashMap<>();

@@ -1,0 +1,27 @@
+{
+  Preconditions.checkNotNull(fieldSpec);
+  String columnName=fieldSpec.getName();
+  Preconditions.checkNotNull(columnName);
+  if (fieldSpecMap.containsKey(columnName)) {
+    throw new RuntimeException("Field spec already exists for column: " + columnName);
+  }
+ else {
+    fieldSpecMap.put(columnName,fieldSpec);
+  }
+  FieldType fieldType=fieldSpec.getFieldType();
+switch (fieldType) {
+case DIMENSION:
+    dimensions.add(columnName);
+  dimensionFieldSpecs.add((DimensionFieldSpec)fieldSpec);
+break;
+case METRIC:
+metrics.add(columnName);
+metricFieldSpecs.add((MetricFieldSpec)fieldSpec);
+break;
+case TIME:
+timeFieldSpec=(TimeFieldSpec)fieldSpec;
+break;
+default :
+throw new UnsupportedOperationException("Unsupported field type: " + fieldType);
+}
+}

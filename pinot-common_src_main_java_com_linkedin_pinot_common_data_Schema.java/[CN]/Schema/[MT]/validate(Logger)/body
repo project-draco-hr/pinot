@@ -1,30 +1,54 @@
 {
-  Collection<FieldSpec> fieldSpecs=getAllFieldSpecs();
   if (ctxLogger == null) {
     ctxLogger=LOGGER;
   }
   boolean isValid=true;
-  for (  FieldSpec fieldSpec : fieldSpecs) {
-    Object o=null;
-    try {
-      if (fieldSpec.getDataType().equals(DataType.BOOLEAN) && fieldSpec.getFieldType().equals(FieldType.METRIC)) {
-        ctxLogger.error("Boolean field {} cannot be a metric ",fieldSpec.getName());
-        isValid=false;
-        continue;
-      }
-      o=fieldSpec.getDefaultNullValue();
-    }
- catch (    Exception e) {
-    }
-    if (o == null) {
-      if (fieldSpec.getDataType().equals(DataType.BOOLEAN)) {
-        ctxLogger.warn("Ignoring field {} of type {} does not have a default value",fieldSpec.getName(),fieldSpec.getFieldType());
-      }
- else {
-        ctxLogger.error("Field {} of type {} does not have a default value",fieldSpec.getName(),fieldSpec.getFieldType());
-        isValid=false;
-      }
-    }
-  }
-  return isValid;
+  try {
+    for (    FieldSpec fieldSpec : fieldSpecMap.values()) {
+      FieldType fieldType=fieldSpec.getFieldType();
+      DataType dataType=fieldSpec.getDataType();
+      String fieldName=fieldSpec.getName();
+switch (fieldType) {
+case DIMENSION:
+case TIME:
+switch (dataType) {
+case INT:
+case LONG:
+case FLOAT:
+case DOUBLE:
+case STRING:
+          fieldSpec.getDefaultNullValue();
+        break;
+default :
+      ctxLogger.error("Unsupported data type: {} in dimension/time field: {}",dataType,fieldName);
+    isValid=false;
+  break;
+}
+break;
+case METRIC:
+switch (dataType) {
+case INT:
+case LONG:
+case FLOAT:
+case DOUBLE:
+fieldSpec.getDefaultNullValue();
+break;
+default :
+ctxLogger.error("Unsupported data type: {} in metric field: {}",dataType,fieldName);
+isValid=false;
+break;
+}
+break;
+default :
+ctxLogger.error("Unsupported field type: {} for field: {}",fieldSpec.getDataType(),fieldName);
+isValid=false;
+break;
+}
+}
+}
+ catch (Exception e) {
+ctxLogger.error("Caught exception while validate the schema.",e);
+isValid=false;
+}
+return isValid;
 }

@@ -1,0 +1,9 @@
+{
+  MetricFieldSpec derivedMetricField=new MetricFieldSpec("derivedMetric",DataType.STRING,10,MetricFieldSpec.DerivedMetricType.HLL);
+  Assert.assertEquals(derivedMetricField.getFieldSize(),10);
+  Assert.assertTrue(derivedMetricField.isDerivedMetric());
+  Assert.assertEquals(derivedMetricField.getDerivedMetricType(),MetricFieldSpec.DerivedMetricType.HLL);
+  Assert.assertEquals(derivedMetricField.getDefaultNullValue(),"null");
+  MetricFieldSpec derivedMetricField2=MAPPER.readValue(MAPPER.writeValueAsString(derivedMetricField),MetricFieldSpec.class);
+  Assert.assertEquals(derivedMetricField2,derivedMetricField);
+}

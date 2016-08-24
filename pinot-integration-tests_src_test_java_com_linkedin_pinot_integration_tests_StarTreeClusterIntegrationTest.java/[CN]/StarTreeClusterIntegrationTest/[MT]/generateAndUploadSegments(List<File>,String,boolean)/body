@@ -2,7 +2,7 @@
   BaseClusterIntegrationTest.ensureDirectoryExistsAndIsEmpty(_segmentsDir);
   BaseClusterIntegrationTest.ensureDirectoryExistsAndIsEmpty(_tarredSegmentsDir);
   ExecutorService executor=Executors.newCachedThreadPool();
-  BaseClusterIntegrationTest.buildSegmentsFromAvro(avroFiles,executor,0,_segmentsDir,_tarredSegmentsDir,tableName,starTree,null);
+  BaseClusterIntegrationTest.buildSegmentsFromAvro(avroFiles,executor,0,_segmentsDir,_tarredSegmentsDir,tableName,starTree,getSingleValueColumnsSchema());
   executor.shutdown();
   executor.awaitTermination(TIMEOUT_IN_SECONDS,TimeUnit.SECONDS);
   for (  String segmentName : _tarredSegmentsDir.list()) {

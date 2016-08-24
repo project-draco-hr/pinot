@@ -1,26 +1,29 @@
 {
-  Object[] objectArray=new Object[NUMBER_OF_TYPES];
-  objectArray[0]=true;
-  objectArray[1]=(byte)65;
-  objectArray[2]=new Object[]{(byte)65};
-  objectArray[3]='a';
-  objectArray[4]=new Object[]{'a'};
-  objectArray[5]=(short)500;
-  objectArray[6]=new Object[]{(short)500};
-  objectArray[7]=500;
-  objectArray[8]=new Object[]{500};
-  objectArray[9]=500L;
-  objectArray[10]=new Object[]{500L};
-  objectArray[11]=500.5F;
-  objectArray[12]=new Object[]{500.5F};
-  objectArray[13]=500.5;
-  objectArray[14]=new Object[]{500.5};
-  objectArray[15]="true";
-  objectArray[16]=new Object[]{"true"};
+  int numTypes=19;
+  Object[] objectArray=new Object[numTypes];
+  objectArray[0]=500;
+  objectArray[1]=new Object[]{500};
+  objectArray[2]=500L;
+  objectArray[3]=new Object[]{500L};
+  objectArray[4]=500.5F;
+  objectArray[5]=new Object[]{500.5F};
+  objectArray[6]=500.5;
+  objectArray[7]=new Object[]{500.5};
+  objectArray[8]="500";
+  objectArray[9]=new Object[]{"500"};
+  objectArray[10]=true;
+  objectArray[11]=(byte)65;
+  objectArray[12]=new Object[]{(byte)65};
+  objectArray[13]='a';
+  objectArray[14]=new Object[]{'a'};
+  objectArray[15]=(short)500;
+  objectArray[16]=new Object[]{(short)500};
+  objectArray[17]=new AnyClassWithToString();
+  objectArray[18]=new Object[]{new AnyClassWithToString()};
   GenericRow row=new GenericRow();
   Map<String,Object> fieldMap=new HashMap<>();
   for (int i=0; i < NUMBER_OF_TYPES; i++) {
-    for (int j=0; j < NUMBER_OF_TYPES; j++) {
+    for (int j=0; j < numTypes; j++) {
       PlainFieldExtractor plainFieldExtractor=new PlainFieldExtractor(ALL_TYPE_SCHEMAS[i]);
       fieldMap.put(TEST_COLUMN,objectArray[j]);
       row.init(fieldMap);
@@ -31,21 +34,8 @@
         Assert.assertEquals(plainFieldExtractor.getTotalConversions(),0);
         continue;
       }
-      if (i == 0 || j == 0) {
-        if (i > 14 || j > 14) {
-          Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
-          Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
-          Assert.assertEquals(plainFieldExtractor.getTotalConversions(),1);
-        }
- else {
-          Assert.assertEquals(plainFieldExtractor.getTotalErrors(),1);
-          Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
-          Assert.assertEquals(plainFieldExtractor.getTotalConversions(),0);
-        }
-        continue;
-      }
-      if (j > 14) {
-        if (i == 3 || i == 4 || i > 14) {
+      if (j == 10 || j >= 17) {
+        if (i >= INDEX_OF_STRING_TYPE) {
           Assert.assertEquals(plainFieldExtractor.getTotalErrors(),0);
           Assert.assertEquals(plainFieldExtractor.getTotalNulls(),0);
           Assert.assertEquals(plainFieldExtractor.getTotalConversions(),1);
