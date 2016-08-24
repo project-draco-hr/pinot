@@ -3,7 +3,8 @@
     List<String> list=allBrokerListRef.get();
     return list.get(_random.nextInt(list.size()));
   }
-  List<String> list=tableToBrokerListMapRef.get().get(table);
+  String tableName=table.replace(OFFLINE_SUFFIX,"").replace(REALTIME_SUFFIX,"");
+  List<String> list=tableToBrokerListMapRef.get().get(tableName);
   if (list != null && !list.isEmpty()) {
     return list.get(_random.nextInt(list.size()));
   }

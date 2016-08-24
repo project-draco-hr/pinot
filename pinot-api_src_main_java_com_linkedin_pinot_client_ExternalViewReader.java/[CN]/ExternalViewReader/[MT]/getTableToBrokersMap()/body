@@ -1,5 +1,5 @@
 {
-  Map<String,List<String>> brokerUrlsMap=new HashMap<String,List<String>>();
+  Map<String,Set<String>> brokerUrlsMap=new HashMap<>();
   try {
     byte[] brokerResourceNodeData=zkClient.readData("/EXTERNALVIEW/brokerResource",true);
     JSONObject jsonObject=new JSONObject(new String(brokerResourceNodeData));
@@ -7,9 +7,13 @@
     Iterator<String> resourceNames=brokerResourceNode.keys();
     while (resourceNames.hasNext()) {
       String resourceName=resourceNames.next();
+      String tableName=resourceName.replace(OFFLINE_SUFFIX,"").replace(REALTIME_SUFFIX,"");
+      Set<String> brokerUrls=brokerUrlsMap.get(tableName);
+      if (brokerUrls == null) {
+        brokerUrls=new HashSet<>();
+        brokerUrlsMap.put(tableName,brokerUrls);
+      }
       JSONObject resource=brokerResourceNode.getJSONObject(resourceName);
-      List<String> brokerUrls=new ArrayList<String>();
-      brokerUrlsMap.put(resourceName,brokerUrls);
       Iterator<String> brokerNames=resource.keys();
       while (brokerNames.hasNext()) {
         String brokerName=brokerNames.next();
@@ -23,5 +27,9 @@
  catch (  Exception e) {
     LOGGER.warn("Exception while reading External view from zookeeper",e);
   }
-  return brokerUrlsMap;
+  Map<String,List<String>> tableToBrokersMap=new HashMap<>();
+  for (  Entry<String,Set<String>> entry : brokerUrlsMap.entrySet()) {
+    tableToBrokersMap.put(entry.getKey(),new ArrayList<>(entry.getValue()));
+  }
+  return tableToBrokersMap;
 }
