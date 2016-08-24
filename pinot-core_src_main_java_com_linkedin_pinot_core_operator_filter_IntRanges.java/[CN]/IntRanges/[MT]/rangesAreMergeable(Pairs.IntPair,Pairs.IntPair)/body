@@ -1,0 +1,8 @@
+{
+  if (ENABLE_PRECONDITION_CHECKS) {
+    Preconditions.checkArgument(!isInvalid(firstRange));
+    Preconditions.checkArgument(!isInvalid(secondRange));
+  }
+  final boolean rangesAreAtLeastOneUnitApart=firstRange.getRight() < secondRange.getLeft() - 1 || secondRange.getRight() < firstRange.getLeft() - 1;
+  return !rangesAreAtLeastOneUnitApart;
+}

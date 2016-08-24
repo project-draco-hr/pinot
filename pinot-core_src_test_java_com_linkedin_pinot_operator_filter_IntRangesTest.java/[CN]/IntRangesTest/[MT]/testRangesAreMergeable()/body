@@ -1,0 +1,18 @@
+{
+  Pairs.IntPair disjointA=new Pairs.IntPair(0,10);
+  Pairs.IntPair disjointB=new Pairs.IntPair(12,20);
+  assertFalse(IntRanges.rangesAreMergeable(disjointA,disjointB));
+  assertFalse(IntRanges.rangesAreMergeable(disjointB,disjointA));
+  Pairs.IntPair adjacentA=new Pairs.IntPair(0,10);
+  Pairs.IntPair adjacentB=new Pairs.IntPair(11,20);
+  assertTrue(IntRanges.rangesAreMergeable(adjacentA,adjacentB));
+  assertTrue(IntRanges.rangesAreMergeable(adjacentB,adjacentA));
+  Pairs.IntPair overlappingA=new Pairs.IntPair(0,10);
+  Pairs.IntPair overlappingB=new Pairs.IntPair(10,15);
+  assertTrue(IntRanges.rangesAreMergeable(overlappingA,overlappingB));
+  assertTrue(IntRanges.rangesAreMergeable(overlappingB,overlappingA));
+  Pairs.IntPair enclosedA=new Pairs.IntPair(0,20);
+  Pairs.IntPair enclosedB=new Pairs.IntPair(5,15);
+  assertTrue(IntRanges.rangesAreMergeable(enclosedA,enclosedB));
+  assertTrue(IntRanges.rangesAreMergeable(enclosedB,enclosedA));
+}

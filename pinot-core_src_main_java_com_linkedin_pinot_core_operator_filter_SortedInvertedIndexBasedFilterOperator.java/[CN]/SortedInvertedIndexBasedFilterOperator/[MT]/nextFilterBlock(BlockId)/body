@@ -4,21 +4,78 @@
   Dictionary dictionary=dataSource.getDictionary();
   List<IntPair> pairs=new ArrayList<IntPair>();
   PredicateEvaluator evaluator=PredicateEvaluatorProvider.getPredicateFunctionFor(predicate,dictionary);
-  int[] dictionaryIds=evaluator.getMatchingDictionaryIds();
-  for (int i=0; i < dictionaryIds.length; i++) {
-    IntPair pair=invertedIndex.getMinMaxRangeFor(dictionaryIds[i]);
-    if (startDocId <= pair.getLeft() && pair.getRight() <= endDocId) {
-      pairs.add(pair);
-    }
+  final int[] dictionaryIds;
+  boolean additiveRanges=true;
+switch (predicate.getType()) {
+case EQ:
+case IN:
+case RANGE:
+    dictionaryIds=evaluator.getMatchingDictionaryIds();
+  break;
+case NEQ:
+case NOT_IN:
+additiveRanges=false;
+dictionaryIds=evaluator.getNonMatchingDictionaryIds();
+break;
+case REGEX:
+throw new RuntimeException("Regex is not supported");
+default :
+throw new RuntimeException("Unimplemented!");
+}
+if (0 < dictionaryIds.length) {
+Arrays.sort(dictionaryIds);
+IntPair lastPair=invertedIndex.getMinMaxRangeFor(dictionaryIds[0]);
+IntRanges.clip(lastPair,startDocId,endDocId);
+for (int i=1; i < dictionaryIds.length; i++) {
+IntPair currentPair=invertedIndex.getMinMaxRangeFor(dictionaryIds[i]);
+IntRanges.clip(currentPair,startDocId,endDocId);
+if (IntRanges.isInvalid(lastPair)) {
+lastPair=currentPair;
+continue;
+}
+if (IntRanges.rangesAreMergeable(lastPair,currentPair)) {
+IntRanges.mergeIntoFirst(lastPair,currentPair);
+}
  else {
-      int newStart=Math.max(pair.getLeft(),startDocId);
-      int newEnd=Math.min(pair.getRight(),endDocId);
-      if (newStart <= newEnd) {
-        pairs.add(Pairs.intPair(newStart,newEnd));
-      }
-    }
-  }
-  LOGGER.debug("Creating a Sorted Block with pairs: {}",pairs);
-  sortedBlock=new SortedBlock(dataSource.getOperatorName(),pairs);
-  return sortedBlock;
+if (!IntRanges.isInvalid(lastPair)) {
+pairs.add(lastPair);
+}
+lastPair=currentPair;
+}
+}
+if (!IntRanges.isInvalid(lastPair)) {
+pairs.add(lastPair);
+}
+}
+if (!additiveRanges) {
+List<IntPair> newPairs=new ArrayList<>();
+if (pairs.isEmpty()) {
+newPairs.add(new IntPair(startDocId,endDocId));
+}
+ else {
+IntPair firstHole=pairs.get(0);
+IntPair firstRange=new IntPair(startDocId,firstHole.getLeft() - 1);
+if (!IntRanges.isInvalid(firstRange)) {
+newPairs.add(firstRange);
+}
+int pairCount=pairs.size();
+for (int i=1; i < pairCount; i++) {
+IntPair previousHole=pairs.get(i - 1);
+IntPair currentHole=pairs.get(i);
+IntPair range=new IntPair(previousHole.getRight() + 1,currentHole.getLeft() - 1);
+if (!IntRanges.isInvalid(range)) {
+newPairs.add(range);
+}
+}
+IntPair lastHole=pairs.get(pairs.size() - 1);
+IntPair lastRange=new IntPair(lastHole.getRight() + 1,endDocId);
+if (!IntRanges.isInvalid(lastRange)) {
+newPairs.add(lastRange);
+}
+}
+pairs=newPairs;
+}
+LOGGER.debug("Creating a Sorted Block with pairs: {}",pairs);
+sortedBlock=new SortedBlock(dataSource.getOperatorName(),pairs);
+return sortedBlock;
 }
