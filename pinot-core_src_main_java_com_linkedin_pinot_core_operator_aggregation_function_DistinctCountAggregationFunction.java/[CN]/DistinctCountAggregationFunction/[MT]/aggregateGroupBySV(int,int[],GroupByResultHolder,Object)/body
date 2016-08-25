@@ -1,0 +1,15 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkArgument(valueArray[0] instanceof double[]);
+  final double[] values=(double[])valueArray[0];
+  Preconditions.checkState(length <= values.length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    IntOpenHashSet valueSet=resultHolder.getResult(groupKey);
+    if (valueSet == null) {
+      valueSet=new IntOpenHashSet();
+      resultHolder.setValueForKey(groupKey,valueSet);
+    }
+    valueSet.add((int)values[i]);
+  }
+}

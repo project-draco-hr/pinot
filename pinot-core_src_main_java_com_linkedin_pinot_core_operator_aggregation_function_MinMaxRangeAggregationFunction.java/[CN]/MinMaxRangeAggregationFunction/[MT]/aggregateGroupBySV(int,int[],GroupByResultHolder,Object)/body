@@ -1,0 +1,23 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkArgument(valueArray[0] instanceof double[]);
+  final double[] values=(double[])valueArray[0];
+  Preconditions.checkState(length <= values.length);
+  for (int i=0; i < length; i++) {
+    int groupKey=groupKeys[i];
+    double value=values[i];
+    Pair<Double,Double> rangeValue=resultHolder.getResult(groupKey);
+    if (rangeValue == null) {
+      rangeValue=new Pair<>(value,value);
+      resultHolder.setValueForKey(groupKey,rangeValue);
+    }
+ else {
+      if (value < rangeValue.getFirst()) {
+        rangeValue.setFirst(value);
+      }
+      if (value > rangeValue.getSecond()) {
+        rangeValue.setSecond(value);
+      }
+    }
+  }
+}

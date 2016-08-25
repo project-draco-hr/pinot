@@ -1,0 +1,16 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkArgument(valueArray[0] instanceof double[]);
+  final double[] values=(double[])valueArray[0];
+  Preconditions.checkState(length <= values.length);
+  double max=DEFAULT_VALUE;
+  for (int i=0; i < length; i++) {
+    if (values[i] > max) {
+      max=values[i];
+    }
+  }
+  double oldValue=resultHolder.getDoubleResult();
+  if (max > oldValue) {
+    resultHolder.setValue(max);
+  }
+}

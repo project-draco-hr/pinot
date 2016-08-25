@@ -1,0 +1,19 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkArgument(valueArray[0] instanceof double[]);
+  final double[] values=(double[])valueArray[0];
+  Preconditions.checkState(length <= values.length);
+  double sum=0.0;
+  for (int i=0; i < length; ++i) {
+    sum+=values[i];
+  }
+  Pair<Double,Long> avgValue=resultHolder.getResult();
+  if (avgValue == null) {
+    avgValue=new Pair<>(sum,(long)length);
+    resultHolder.setValue(avgValue);
+  }
+ else {
+    avgValue.setFirst(avgValue.getFirst() + sum);
+    avgValue.setSecond(avgValue.getSecond() + length);
+  }
+}

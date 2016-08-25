@@ -1,0 +1,17 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkArgument(valueArray[0] instanceof double[]);
+  final double[] values=(double[])valueArray[0];
+  Preconditions.checkState(length <= values.length);
+  for (int i=0; i < length; i++) {
+    long value=(long)values[i];
+    for (    int groupKey : docIdToGroupKeys[i]) {
+      QuantileDigest digest=resultHolder.getResult(groupKey);
+      if (digest == null) {
+        digest=new QuantileDigest(DEFAULT_MAX_ERROR);
+        resultHolder.setValueForKey(groupKey,digest);
+      }
+      digest.add(value);
+    }
+  }
+}
