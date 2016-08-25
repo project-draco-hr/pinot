@@ -3,7 +3,6 @@
   DateFormatMethod dateFormatMethod=new DateFormatMethod(timeZone);
   HtmlEmail email=new HtmlEmail();
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
-  File chartFile=null;
   try (Writer out=new OutputStreamWriter(baos,CHARSET)){
     Configuration freemarkerConfig=new Configuration(Configuration.VERSION_2_3_21);
     freemarkerConfig.setClassForTemplateLoading(getClass(),"/com/linkedin/thirdeye/detector/");
@@ -26,7 +25,6 @@
     templateData.put("assignedDimensions",new AssignedDimensionsMethod(dimensionNames));
     templateData.put("dateFormat",dateFormatMethod);
     templateData.put("timeZone",timeZone);
-    templateData.put("embeddedChart",email.embed(chartFile));
     templateData.put("collection",collectionAlias);
     templateData.put("metric",metric);
     templateData.put("filters",filtersJsonEncoded);
