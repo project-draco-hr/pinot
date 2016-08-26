@@ -2,16 +2,16 @@
   if (StringUtils.isBlank(dataset)) {
     throw new IllegalArgumentException("dataset is a required query param");
   }
-  List<AnomalyResult> anomalyResults=new ArrayList<>();
+  DateTime endTime=DateTime.now();
+  if (StringUtils.isNotEmpty(endTimeIso)) {
+    endTime=ISODateTimeFormat.dateTimeParser().parseDateTime(endTimeIso);
+  }
+  DateTime startTime=endTime.minusDays(7);
+  if (StringUtils.isNotEmpty(startTimeIso)) {
+    startTime=ISODateTimeFormat.dateTimeParser().parseDateTime(startTimeIso);
+  }
+  List<AnomalyMergedResult> anomalyResults=new ArrayList<>();
   try {
-    DateTime endTime=DateTime.now();
-    if (StringUtils.isNotEmpty(endTimeIso)) {
-      endTime=ISODateTimeFormat.dateTimeParser().parseDateTime(endTimeIso);
-    }
-    DateTime startTime=endTime.minusDays(7);
-    if (StringUtils.isNotEmpty(startTimeIso)) {
-      startTime=ISODateTimeFormat.dateTimeParser().parseDateTime(startTimeIso);
-    }
     String[] dimensionPatterns=null;
     if (StringUtils.isNotBlank(dimensions)) {
       List<String> dimensionNames=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset).getDimensionNames();
@@ -40,14 +40,14 @@
     }
     if (StringUtils.isNotBlank(metric)) {
       if (StringUtils.isNotBlank(dimensions)) {
-        anomalyResults=anomalyResultDAO.findAllByCollectionTimeMetricAndDimensions(dataset,metric,startTime,endTime,dimensionPatterns);
+        anomalyResults=anomalyMergedResultDAO.findByCollectionMetricDimensionsTime(dataset,metric,dimensionPatterns,startTime.getMillis(),endTime.getMillis());
       }
  else {
-        anomalyResults=anomalyResultDAO.findAllByCollectionTimeAndMetric(dataset,metric,startTime,endTime);
+        anomalyResults=anomalyMergedResultDAO.findByCollectionMetricTime(dataset,metric,startTime.getMillis(),endTime.getMillis());
       }
     }
  else {
-      anomalyResults=anomalyResultDAO.findAllByCollectionAndTime(dataset,startTime,endTime);
+      anomalyResults=anomalyMergedResultDAO.findByCollectionTime(dataset,startTime.getMillis(),endTime.getMillis());
     }
   }
  catch (  Exception e) {

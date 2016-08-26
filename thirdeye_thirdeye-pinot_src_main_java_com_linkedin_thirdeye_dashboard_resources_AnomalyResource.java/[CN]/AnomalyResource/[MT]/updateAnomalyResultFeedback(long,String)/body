@@ -1,6 +1,6 @@
 {
   try {
-    AnomalyResult result=anomalyResultDAO.findById(anomalyResultId);
+    AnomalyMergedResult result=anomalyMergedResultDAO.findById(anomalyResultId);
     if (result == null) {
       throw new IllegalArgumentException("AnomalyResult not found with id " + anomalyResultId);
     }
@@ -19,7 +19,7 @@
     }
     feedback.setComment(feedbackRequest.getComment());
     feedback.setFeedbackType(feedbackRequest.getFeedbackType());
-    anomalyResultDAO.update(result);
+    anomalyMergedResultDAO.update(result);
   }
  catch (  IOException e) {
     throw new IllegalArgumentException("Invalid payload " + payload,e);
