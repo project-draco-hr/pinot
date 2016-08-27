@@ -19,6 +19,9 @@
       stats.addValue(clientTime);
       if (numQueries % 1000 == 0) {
         LOGGER.info("Processed {} Queries, Total Server Time: {}ms, Total Broker Time: {}ms, Total Client Time : {}ms.",numQueries,totalServerTime,totalBrokerTime,totalClientTime);
+        if (numQueries % 10000 == 0) {
+          printStats(stats);
+        }
       }
     }
     LOGGER.info("Processed {} Queries, Total Server Time: {}ms, Total Broker Time: {}ms, Total Client Time : {}ms.",numQueries,totalServerTime,totalBrokerTime,totalClientTime);

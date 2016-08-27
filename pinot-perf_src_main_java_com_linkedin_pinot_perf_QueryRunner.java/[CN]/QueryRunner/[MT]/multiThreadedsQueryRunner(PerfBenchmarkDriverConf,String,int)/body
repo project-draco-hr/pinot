@@ -39,6 +39,7 @@ synchronized (stats) {
 );
   }
   executorService.shutdown();
+  int iter=0;
   long startTime=System.currentTimeMillis();
   while (latch.getCount() > 0) {
     Thread.sleep(reportIntervalMillis);
@@ -46,6 +47,10 @@ synchronized (stats) {
     int count=counter.get();
     double avgResponseTime=((double)totalResponseTime.get()) / count;
     LOGGER.info("Time Passed: {}s, Query Executed: {}, QPS: {}, Avg Response Time: {}ms",timePassedSeconds,count,count / timePassedSeconds,avgResponseTime);
+    iter++;
+    if (iter % 10 == 0) {
+      printStats(stats);
+    }
   }
   printStats(stats);
 }
