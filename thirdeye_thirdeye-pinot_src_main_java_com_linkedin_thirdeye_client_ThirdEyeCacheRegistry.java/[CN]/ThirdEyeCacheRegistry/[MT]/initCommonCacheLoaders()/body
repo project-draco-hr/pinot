@@ -12,7 +12,7 @@
   cacheRegistry.registerSchemaCache(schemaCache);
   LoadingCache<String,CollectionSchema> collectionSchemaCache=CacheBuilder.newBuilder().build(new CollectionSchemaCacheLoader(pinotThirdeyeClientConfig,collectionSchemaDAO));
   cacheRegistry.registerCollectionSchemaCache(collectionSchemaCache);
-  LoadingCache<String,Long> collectionMaxDataTimeCache=CacheBuilder.newBuilder().build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig));
+  LoadingCache<String,Long> collectionMaxDataTimeCache=CacheBuilder.newBuilder().build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig,collectionSchemaCache,resultSetGroupCache));
   cacheRegistry.registerCollectionMaxDataTimeCache(collectionMaxDataTimeCache);
   LoadingCache<String,CollectionConfig> collectionConfigCache=CacheBuilder.newBuilder().build(new CollectionConfigCacheLoader(collectionConfigDAO));
   cacheRegistry.registerCollectionConfigCache(collectionConfigCache);

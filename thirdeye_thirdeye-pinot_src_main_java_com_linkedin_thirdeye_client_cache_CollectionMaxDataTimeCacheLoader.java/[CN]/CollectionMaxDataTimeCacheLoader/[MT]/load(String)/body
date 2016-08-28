@@ -1,36 +1,28 @@
 {
   LOGGER.info("Loading maxDataTime cache {}",collection);
-  int options=AccessOption.PERSISTENT;
-  String offlineTablePropertyStorePath="/SEGMENTS/" + collection + "_OFFLINE";
-  String realtimeTablePropertyStorePath="/SEGMENTS/" + collection + "_REALTIME";
   long maxTime=0;
-  List<Stat> stats=new ArrayList<>();
-  List<ZNRecord> zkSegmentDataList=new ArrayList<>();
-  ;
-  if (propertyStore != null) {
-    if (propertyStore.exists(realtimeTablePropertyStorePath,options)) {
-      zkSegmentDataList.addAll(propertyStore.getChildren(realtimeTablePropertyStorePath,stats,options));
+  try {
+    TimeSpec timeSpec=collectionSchemaCache.get(collection).getTime();
+    long prevMaxDataTime=getPrevMaxDataTime(collection,timeSpec);
+    String maxTimePql=String.format(COLLECTION_MAX_TIME_QUERY_TEMPLATE,timeSpec.getColumnName(),collection,timeSpec.getColumnName(),prevMaxDataTime);
+    PinotQuery maxTimePinotQuery=new PinotQuery(maxTimePql,collection);
+    resultSetGroupCache.refresh(maxTimePinotQuery);
+    ResultSetGroup resultSetGroup=resultSetGroupCache.get(maxTimePinotQuery);
+    if (resultSetGroup.getResultSetCount() == 0 || resultSetGroup.getResultSet(0).getRowCount() == 0) {
+      LOGGER.info("resultSetGroup is Empty for collection {} is {}",collection,resultSetGroup);
+      this.collectionToPrevMaxDataTimeMap.remove(collection);
     }
-    if (propertyStore.exists(offlineTablePropertyStorePath,options)) {
-      zkSegmentDataList.addAll(propertyStore.getChildren(offlineTablePropertyStorePath,stats,options));
-    }
-    if (zkSegmentDataList != null && !zkSegmentDataList.isEmpty()) {
-      for (      ZNRecord record : zkSegmentDataList) {
-        try {
-          long endTime=Long.parseLong(record.getSimpleField("segment.end.time"));
-          TimeUnit timeUnit=TimeUnit.valueOf(record.getSimpleField("segment.time.unit"));
-          long endTimeMillis=timeUnit.toMillis(endTime);
-          if (endTimeMillis > maxTime) {
-            maxTime=endTimeMillis;
-          }
-        }
- catch (        Exception e) {
-          LOGGER.warn("Exception parsing metadata:{}",record,e);
-        }
-      }
+ else {
+      long endTime=new Double(resultSetGroup.getResultSet(0).getDouble(0)).longValue();
+      this.collectionToPrevMaxDataTimeMap.put(collection,endTime);
+      maxTime=timeSpec.getDataGranularity().toMillis(endTime + 1) - 1;
     }
   }
-  if (maxTime == 0) {
+ catch (  Exception e) {
+    LOGGER.warn("Exception getting maxTime from collection: {}",collection,e);
+    this.collectionToPrevMaxDataTimeMap.remove(collection);
+  }
+  if (maxTime <= 0) {
     maxTime=System.currentTimeMillis();
   }
   return maxTime;
