@@ -1,9 +1,5 @@
 {
   List<AnomalyResult> results=new ArrayList<>();
   results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),anomalyFunction.getSpec().getId()));
-  List<AnomalyFunctionRelation> relations=relationDAO.findByParent(anomalyFunction.getSpec().getId());
-  for (  AnomalyFunctionRelation relation : relations) {
-    results.addAll(resultDAO.findAllByTimeAndFunctionId(windowStart.getMillis(),windowEnd.getMillis(),relation.getChildId()));
-  }
   return results;
 }

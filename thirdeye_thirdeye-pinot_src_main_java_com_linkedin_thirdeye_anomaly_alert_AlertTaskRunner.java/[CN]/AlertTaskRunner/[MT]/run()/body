@@ -3,7 +3,7 @@
   ThirdEyeClient client=queryCache.getClient();
   final String collection=alertConfig.getCollection();
   final String collectionAlias=ThirdEyeUtils.getAliasFromCollection(collection);
-  final List<AnomalyMergedResult> results=anomalyMergedResultDAO.getAllByTimeEmailId(windowStart.getMillis(),windowEnd.getMillis(),alertConfig.getId());
+  final List<AnomalyMergedResult> results=anomalyMergedResultDAO.getAllByTimeEmailIdAndNotifiedFalse(windowStart.getMillis(),windowEnd.getMillis(),alertConfig.getId());
   if (results.isEmpty() && !alertConfig.getSendZeroAnomalyEmail()) {
     LOG.info("Zero anomalies found, skipping sending email");
     return;
@@ -33,4 +33,5 @@
     throw new JobExecutionException(e);
   }
   sendAlertForAnomalies(collectionAlias,results,groupedResults,dimensionNames);
+  updateNotifiedStatus(results);
 }

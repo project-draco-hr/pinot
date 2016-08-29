@@ -21,7 +21,7 @@
   }
 );
   final AnomalyFunctionFactory anomalyFunctionFactory=new AnomalyFunctionFactory(config.getFunctionConfigPath());
-  final AnomalyDetectionJobManager anomalyDetectionJobManager=new AnomalyDetectionJobManager(quartzScheduler,anomalyFunctionDAO,anomalyFunctionRelationDAO,anomalyResultDAO,environment.metrics(),anomalyFunctionFactory,config.getFailureEmailConfig());
+  final AnomalyDetectionJobManager anomalyDetectionJobManager=new AnomalyDetectionJobManager(quartzScheduler,anomalyFunctionDAO,anomalyResultDAO,environment.metrics(),anomalyFunctionFactory,config.getFailureEmailConfig());
   environment.lifecycle().manage(new Managed(){
     @Override public void start() throws Exception {
       List<AnomalyFunctionSpec> functions=anomalyFunctionDAO.findAll();
@@ -109,7 +109,6 @@
   }
 );
   environment.jersey().register(new AnomalyFunctionSpecResource(anomalyFunctionDAO));
-  environment.jersey().register(new AnomalyFunctionRelationResource(anomalyFunctionRelationDAO));
   environment.jersey().register(new AnomalyResultResource(anomalyResultDAO));
   environment.jersey().register(new MetricsGraphicsTimeSeriesResource(anomalyResultDAO));
   environment.jersey().register(new AnomalyDetectionJobResource(anomalyDetectionJobManager,anomalyFunctionDAO));
