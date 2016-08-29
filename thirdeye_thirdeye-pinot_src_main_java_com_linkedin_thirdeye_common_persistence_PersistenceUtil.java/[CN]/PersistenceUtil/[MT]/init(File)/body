@@ -7,13 +7,15 @@
   ds.setUsername(configuration.getDatabaseConfiguration().getUser());
   ds.setDriverClassName(configuration.getDatabaseConfiguration().getProperties().get("hibernate.connection.driver_class"));
   ds.setMaxActive(100);
+  ds.setMinIdle(10);
   ds.setInitialSize(10);
   ds.setValidationQuery("select 1 as dbcp_connection_test");
   ds.setTestWhileIdle(true);
   ds.setTestOnReturn(true);
   ds.setTestOnBorrow(true);
-  ds.setDefaultAutoCommit(true);
+  ds.setRemoveAbandonedTimeout(15 * 60);
   ds.setRemoveAbandoned(true);
+  ds.setDefaultAutoCommit(true);
   properties.put(Environment.CONNECTION_PROVIDER,DatasourceConnectionProviderImpl.class.getName());
   properties.put(Environment.DATASOURCE,ds);
   JpaPersistModule jpaPersistModule=new JpaPersistModule(JPA_UNIT).properties(properties);
