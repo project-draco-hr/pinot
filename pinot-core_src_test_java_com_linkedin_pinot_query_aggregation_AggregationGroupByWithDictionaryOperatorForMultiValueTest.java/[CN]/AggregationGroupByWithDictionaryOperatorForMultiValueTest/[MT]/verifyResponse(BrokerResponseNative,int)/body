@@ -1,0 +1,17 @@
+{
+  Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
+  for (int i=0; i < _numAggregations; ++i) {
+    AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(i);
+    List<String> groupByColumns=aggregationResult.getGroupByColumns();
+    Assert.assertEquals(groupByColumns.size(),2);
+    Assert.assertTrue(groupByColumns.contains("column6"));
+    Assert.assertTrue(groupByColumns.contains("column7"));
+    Assert.assertEquals(aggregationResult.getGroupByResult().size(),groupSize);
+  }
+  Assert.assertEquals(brokerResponse.getAggregationResults().get(0).getFunction(),"count_star");
+  Assert.assertEquals(brokerResponse.getAggregationResults().get(1).getFunction(),"sum_count");
+  Assert.assertEquals(brokerResponse.getAggregationResults().get(2).getFunction(),"max_count");
+  Assert.assertEquals(brokerResponse.getAggregationResults().get(3).getFunction(),"min_count");
+  Assert.assertEquals(brokerResponse.getAggregationResults().get(4).getFunction(),"avg_count");
+  Assert.assertEquals(brokerResponse.getAggregationResults().get(5).getFunction(),"distinctCount_column2");
+}

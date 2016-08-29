@@ -21,9 +21,9 @@
   assertEquals(100000.0,Double.parseDouble(instanceResponse.getObject(0,4).toString()));
   assertEquals(10,((IntOpenHashSet)instanceResponse.getObject(0,5)).size());
   assertEquals(100,((IntOpenHashSet)instanceResponse.getObject(0,6)).size());
-  DefaultReduceService reduceService=new DefaultReduceService();
+  BrokerReduceService reduceService=new BrokerReduceService();
   Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse);
-  BrokerResponseJSON brokerResponse=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  BrokerResponseNative brokerResponse=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   LOGGER.debug(brokerResponse.getAggregationResults().toString());
 }

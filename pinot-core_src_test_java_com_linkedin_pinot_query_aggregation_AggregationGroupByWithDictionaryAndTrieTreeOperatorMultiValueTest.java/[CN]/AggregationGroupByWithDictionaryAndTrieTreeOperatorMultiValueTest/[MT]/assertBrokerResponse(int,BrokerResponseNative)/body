@@ -1,0 +1,22 @@
+{
+  Assert.assertEquals(100000 * numSegments,brokerResponse.getNumDocsScanned());
+  final int groupSize=15;
+  verifyResponse(brokerResponse,groupSize);
+  final List<double[]> aggregationResults=getAggregationResult(numSegments);
+  final List<String[]> groupByResult=getGroupResult();
+  for (int j=0; j < _numAggregations; ++j) {
+    final double[] aggResult=aggregationResults.get(j);
+    final String[] expectedGroupByResult=groupByResult.get(j);
+    for (int i=0; i < 15; ++i) {
+      AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(j);
+      GroupByResult actualGroupByResult=aggregationResult.getGroupByResult().get(i);
+      Assert.assertEquals(0,DoubleComparisonUtil.defaultDoubleCompare(aggResult[i],Double.valueOf(actualGroupByResult.getValue().toString())));
+      if ((i < 14 && aggResult[i] == aggResult[i + 1]) || (i > 0 && aggResult[i] == aggResult[i - 1])) {
+      }
+ else {
+        JSONArray actualGroup=new JSONArray(actualGroupByResult.getGroup());
+        Assert.assertEquals(actualGroup.toString(),expectedGroupByResult[i]);
+      }
+    }
+  }
+}

@@ -11,10 +11,10 @@
     DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
     instanceResponseMap.clear();
     instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-    final BrokerResponseJSON brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    final BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
     LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
     LOGGER.info("Result from avro is : " + aggCall.result);
-    Double actual=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getString("value"));
+    Double actual=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getValue().toString());
     Double expected=aggCall.result;
     try {
       Assert.assertEquals(actual,expected);

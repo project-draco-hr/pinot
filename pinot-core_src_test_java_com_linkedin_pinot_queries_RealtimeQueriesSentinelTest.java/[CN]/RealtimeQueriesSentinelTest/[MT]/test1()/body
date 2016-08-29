@@ -14,9 +14,7 @@
   DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
   instanceResponseMap.clear();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  BrokerResponseJSON brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  JSONArray actual=brokerResponse.getAggregationResults().get(0).getJSONArray("groupByResult");
-  LOGGER.info("actual : {}",brokerResponse.getAggregationResults().get(0).toString(1));
-  LOGGER.info("expected : {}",fromAvro);
+  BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  JSONArray actual=brokerResponse.toJson().getJSONArray("aggregationResults").getJSONObject(0).getJSONArray("groupByResult");
   assertGroupByResults(actual,fromAvro);
 }

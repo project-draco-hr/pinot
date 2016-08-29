@@ -1,0 +1,23 @@
+{
+  Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
+  for (int i=0; i < _numAggregations; ++i) {
+    AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(i);
+    Assert.assertEquals(aggregationResult.getGroupByResult().size(),groupSize);
+    List<String> groupByColumns=aggregationResult.getGroupByColumns();
+    Assert.assertEquals(groupByColumns.size(),2);
+    Assert.assertTrue(groupByColumns.contains("column11"));
+    Assert.assertTrue(groupByColumns.contains("column10"));
+  }
+  AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(0);
+  Assert.assertEquals(aggregationResult.getFunction(),"count_star");
+  aggregationResult=brokerResponse.getAggregationResults().get(1);
+  Assert.assertEquals(aggregationResult.getFunction(),"sum_met_impressionCount");
+  aggregationResult=brokerResponse.getAggregationResults().get(2);
+  Assert.assertEquals(aggregationResult.getFunction(),"max_met_impressionCount");
+  aggregationResult=brokerResponse.getAggregationResults().get(3);
+  Assert.assertEquals(aggregationResult.getFunction(),"min_met_impressionCount");
+  aggregationResult=brokerResponse.getAggregationResults().get(4);
+  Assert.assertEquals(aggregationResult.getFunction(),"avg_met_impressionCount");
+  aggregationResult=brokerResponse.getAggregationResults().get(5);
+  Assert.assertEquals(aggregationResult.getFunction(),"distinctCount_column12");
+}

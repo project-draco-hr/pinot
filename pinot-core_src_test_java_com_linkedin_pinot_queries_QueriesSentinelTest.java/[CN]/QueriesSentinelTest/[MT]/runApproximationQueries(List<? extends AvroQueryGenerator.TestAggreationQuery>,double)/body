@@ -13,14 +13,14 @@
     final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
     instanceResponseMap.clear();
     instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-    final BrokerResponseJSON brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    final BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
     LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
     Object val;
     if (query instanceof AvroQueryGenerator.TestSimpleAggreationQuery) {
-      val=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getString("value"));
+      val=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getValue().toString());
     }
  else {
-      val=brokerResponse.getAggregationResults().get(0).getJSONArray("groupByResult");
+      val=brokerResponse.getAggregationResults().get(0).getGroupByResult();
     }
     if (isAccurate) {
       accurateValue=val;
@@ -31,7 +31,13 @@
         TestUtils.assertApproximation((Double)val,(Double)accurateValue,precision);
       }
  else {
-        TestUtils.assertJSONArrayApproximation((JSONArray)val,(JSONArray)accurateValue,precision);
+        List<GroupByResult> expectedValues=(List<GroupByResult>)accurateValue;
+        List<GroupByResult> groupByResults=(List<GroupByResult>)val;
+        for (int i=0; i < groupByResults.size(); i++) {
+          double expected=Double.parseDouble(groupByResults.get(i).getValue().toString());
+          double actual=Double.parseDouble(expectedValues.get(i).getValue().toString());
+          TestUtils.assertApproximation(actual,expected,precision);
+        }
       }
       isAccurate=true;
     }

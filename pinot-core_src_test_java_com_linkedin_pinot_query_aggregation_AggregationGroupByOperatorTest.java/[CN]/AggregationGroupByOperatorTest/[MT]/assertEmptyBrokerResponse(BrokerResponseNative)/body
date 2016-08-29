@@ -1,0 +1,13 @@
+{
+  Assert.assertEquals(0,brokerResponse.getNumDocsScanned());
+  Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
+  for (int i=0; i < _numAggregations; ++i) {
+    AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(i);
+    List<String> groupByColumns=aggregationResult.getGroupByColumns();
+    Assert.assertEquals(groupByColumns.size(),2);
+    Assert.assertTrue(groupByColumns.contains("column11"));
+    Assert.assertTrue(groupByColumns.contains("column10"));
+    Assert.assertEquals(aggregationResult.getGroupByResult().size(),0);
+  }
+  assertionOnCount(brokerResponse);
+}

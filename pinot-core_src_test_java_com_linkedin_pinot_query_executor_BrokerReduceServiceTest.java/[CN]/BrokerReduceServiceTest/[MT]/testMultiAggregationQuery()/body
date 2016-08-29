@@ -1,0 +1,54 @@
+{
+  BrokerRequest brokerRequest=getMultiAggregationQuery();
+  QuerySource querySource=new QuerySource();
+  querySource.setTableName("midas");
+  brokerRequest.setQuerySource(querySource);
+  InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
+  instanceRequest.setSearchSegments(new ArrayList<String>());
+  for (  IndexSegment segment : _indexSegmentList) {
+    instanceRequest.addToSearchSegments(segment.getSegmentName());
+  }
+  Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  try {
+    instanceResponseMap.put(new ServerInstance("localhost:0000"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:1111"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:2222"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:3333"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:4444"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:5555"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:6666"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:7777"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:8888"),_queryExecutor.processQuery(instanceRequest));
+    instanceResponseMap.put(new ServerInstance("localhost:9999"),_queryExecutor.processQuery(instanceRequest));
+    BrokerResponseNative brokerResponse=_reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(0);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"count_star",4000020.0);
+    aggregationResult=brokerResponse.getAggregationResults().get(1);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"sum_met",400002000000.0);
+    aggregationResult=brokerResponse.getAggregationResults().get(2);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"max_met",200000.0);
+    aggregationResult=brokerResponse.getAggregationResults().get(3);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"min_met",0.0);
+    aggregationResult=brokerResponse.getAggregationResults().get(4);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"avg_met",100000.0);
+    aggregationResult=brokerResponse.getAggregationResults().get(5);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"distinctCount_dim0",10.0);
+    aggregationResult=brokerResponse.getAggregationResults().get(6);
+    LOGGER.info("BrokerResponse is " + aggregationResult);
+    checkAggregationResult(aggregationResult,"distinctCount_dim1",100.0);
+    LOGGER.info("Time Used for BrokerResponse is " + brokerResponse.getTimeUsedMs());
+    LOGGER.info("Num Docs Scanned is " + brokerResponse.getNumDocsScanned());
+    LOGGER.info("Total Docs for BrokerResponse is " + brokerResponse.getTotalDocs());
+    System.out.println(brokerResponse.toJson());
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException(e.toString(),e);
+  }
+}

@@ -13,9 +13,8 @@
     instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
     Map<Object,Double> expected=groupBy.groupResults;
     LOGGER.info("Result from avro is : " + expected);
-    BrokerResponseJSON brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
-    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
-    JSONArray actual=brokerResponse.getAggregationResults().get(0).getJSONArray("groupByResult");
+    BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    JSONArray actual=brokerResponse.toJson().getJSONArray("aggregationResults").getJSONObject(0).getJSONArray("groupByResult");
     try {
       assertGroupByResults(actual,expected);
     }

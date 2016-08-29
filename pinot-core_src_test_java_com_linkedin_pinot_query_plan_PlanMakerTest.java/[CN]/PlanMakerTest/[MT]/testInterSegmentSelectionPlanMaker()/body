@@ -14,19 +14,19 @@
   globalPlan.print();
   globalPlan.execute();
   DataTable instanceResponse=globalPlan.getInstanceResponse();
-  DefaultReduceService defaultReduceService=new DefaultReduceService();
+  BrokerReduceService reduceService=new BrokerReduceService();
   Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse);
-  BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  BrokerResponseNative brokerResponse=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   LOGGER.debug(brokerResponse.getSelectionResults().toString());
   LOGGER.debug("Time used: {}",brokerResponse.getTimeUsedMs());
   LOGGER.debug(brokerResponse.toString());
-  JSONArray selectionResultsArray=brokerResponse.getSelectionResults().getJSONArray("results");
-  for (int j=0; j < selectionResultsArray.length(); ++j) {
-    LOGGER.debug(selectionResultsArray.getJSONArray(j).toString());
-    assertEquals(selectionResultsArray.getJSONArray(j).getInt(0),1);
-    assertEquals(selectionResultsArray.getJSONArray(j).getInt(1),91);
-    assertEquals(selectionResultsArray.getJSONArray(j).getInt(2) % 100,91);
+  List<Serializable[]> rows=brokerResponse.getSelectionResults().getRows();
+  for (int i=0; i < rows.size(); i++) {
+    Serializable[] actualValues=rows.get(i);
+    assertEquals(Double.parseDouble(actualValues[0].toString()),1.0);
+    assertEquals(Double.parseDouble(actualValues[1].toString()),91.0);
+    assertEquals(Double.parseDouble(actualValues[2].toString()) % 100,91.0);
   }
 }

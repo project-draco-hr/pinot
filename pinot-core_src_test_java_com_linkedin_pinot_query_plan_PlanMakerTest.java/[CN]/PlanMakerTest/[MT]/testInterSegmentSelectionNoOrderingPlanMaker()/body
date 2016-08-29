@@ -15,16 +15,16 @@
   globalPlan.print();
   globalPlan.execute();
   DataTable instanceResponse=globalPlan.getInstanceResponse();
-  DefaultReduceService defaultReduceService=new DefaultReduceService();
+  BrokerReduceService defaultReduceService=new BrokerReduceService();
   Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse);
-  BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  BrokerResponseNative brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   LOGGER.debug(brokerResponse.getSelectionResults().toString());
   LOGGER.debug("TimeUsedMs: {}",brokerResponse.getTimeUsedMs());
   LOGGER.debug(brokerResponse.toString());
-  JSONArray selectionResultsArray=brokerResponse.getSelectionResults().getJSONArray("results");
-  for (int j=0; j < selectionResultsArray.length(); ++j) {
-    assertEquals(selectionResultsArray.getJSONArray(j).getInt(0),1);
+  List<Serializable[]> rows=brokerResponse.getSelectionResults().getRows();
+  for (  Serializable[] row : rows) {
+    Assert.assertEquals(Double.parseDouble(row[0].toString()),1.0);
   }
 }

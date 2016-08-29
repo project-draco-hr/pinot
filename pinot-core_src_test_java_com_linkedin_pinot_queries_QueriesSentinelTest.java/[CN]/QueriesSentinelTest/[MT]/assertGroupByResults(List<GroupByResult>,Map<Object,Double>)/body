@@ -1,0 +1,32 @@
+{
+  final Map<String,Double> groupResultsFromQuery=new HashMap<String,Double>();
+  if (groupResultsFromAvro.size() > 10) {
+    Assert.assertEquals(groupByResults.size(),10);
+  }
+ else {
+    Assert.assertTrue(groupByResults.size() >= groupResultsFromAvro.size());
+  }
+  for (int i=0; i < groupByResults.size(); ++i) {
+    groupResultsFromQuery.put(groupByResults.get(i).getGroup().toString(),Double.parseDouble(groupByResults.get(i).getValue().toString()));
+  }
+  for (  final Object key : groupResultsFromAvro.keySet()) {
+    String keyString;
+    if (key == null) {
+      keyString="null";
+    }
+ else {
+      keyString=key.toString();
+    }
+    if (!groupResultsFromQuery.containsKey(keyString)) {
+      continue;
+    }
+    final double actual=groupResultsFromQuery.get(keyString);
+    final double expected=groupResultsFromAvro.get(key);
+    try {
+      Assert.assertEquals(actual,expected);
+    }
+ catch (    AssertionError e) {
+      throw new AssertionError(e);
+    }
+  }
+}

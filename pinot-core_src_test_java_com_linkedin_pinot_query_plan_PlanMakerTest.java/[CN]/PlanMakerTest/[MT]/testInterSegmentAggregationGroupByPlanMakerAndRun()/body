@@ -93,10 +93,10 @@
     int expectedAvgValue=10;
     assertEquals(expectedAvgValue,((IntOpenHashSet)resultList).size());
   }
-  DefaultReduceService defaultReduceService=new DefaultReduceService();
+  BrokerReduceService reduceService=new BrokerReduceService();
   Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  BrokerResponseNative brokerResponse=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   LOGGER.debug(new JSONArray(brokerResponse.getAggregationResults()).toString());
   LOGGER.debug("Time used: {}",brokerResponse.getTimeUsedMs());
 }

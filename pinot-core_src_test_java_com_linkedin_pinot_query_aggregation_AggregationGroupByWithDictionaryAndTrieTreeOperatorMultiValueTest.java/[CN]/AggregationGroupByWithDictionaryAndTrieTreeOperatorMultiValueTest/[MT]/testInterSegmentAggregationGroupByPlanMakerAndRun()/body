@@ -9,11 +9,9 @@
   globalPlan.execute();
   final DataTable instanceResponse=globalPlan.getInstanceResponse();
   LOGGER.debug("instanceResponse: {}",instanceResponse);
-  final DefaultReduceService defaultReduceService=new DefaultReduceService();
+  final BrokerReduceService reduceService=new BrokerReduceService();
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  final BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  LOGGER.debug("brokerResponse: {}",new JSONArray(brokerResponse.getAggregationResults()));
-  LOGGER.debug("Time used : {}",brokerResponse.getTimeUsedMs());
+  final BrokerResponseNative brokerResponse=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   assertBrokerResponse(numSegments,brokerResponse);
 }

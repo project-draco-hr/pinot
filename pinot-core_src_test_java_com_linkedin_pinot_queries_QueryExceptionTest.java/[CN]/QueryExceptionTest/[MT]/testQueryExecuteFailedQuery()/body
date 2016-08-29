@@ -9,7 +9,7 @@
   final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
   instanceResponseMap.clear();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  final BrokerResponseJSON brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  final BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
   LOGGER.info("BrokerResponse is {}",brokerResponse);
   Assert.assertEquals(brokerResponse.getExceptionsSize(),1);
 }

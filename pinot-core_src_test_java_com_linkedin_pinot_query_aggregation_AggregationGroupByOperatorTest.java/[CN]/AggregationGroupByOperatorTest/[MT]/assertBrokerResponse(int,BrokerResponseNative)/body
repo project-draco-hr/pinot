@@ -1,0 +1,26 @@
+{
+  Assert.assertEquals(10001 * numSegments,brokerResponse.getNumDocsScanned());
+  Assert.assertEquals(_numAggregations,brokerResponse.getAggregationResults().size());
+  for (int i=0; i < _numAggregations; ++i) {
+    AggregationResult aggregationResult=brokerResponse.getAggregationResults().get(i);
+    List<String> groupByColumns=aggregationResult.getGroupByColumns();
+    Assert.assertEquals(groupByColumns.size(),2);
+    Assert.assertTrue(groupByColumns.contains("column11"));
+    Assert.assertTrue(groupByColumns.contains("column10"));
+    Assert.assertEquals(aggregationResult.getGroupByResult().size(),15);
+  }
+  assertionOnCount(brokerResponse);
+  final List<double[]> expectedAggregationResults=getAggregationResult(numSegments);
+  final List<String[]> expectedGroupByResults=getGroupResult();
+  for (int j=0; j < _numAggregations; ++j) {
+    LOGGER.debug("For aggregation function: {}",_aggregationInfos.get(j));
+    double[] expectedAggregationResult=expectedAggregationResults.get(j);
+    AggregationResult actualAggregationResult=brokerResponse.getAggregationResults().get(j);
+    for (int i=0; i < 15; ++i) {
+      LOGGER.debug("Comparing group: {}",i);
+      GroupByResult actualGroupByResult=actualAggregationResult.getGroupByResult().get(i);
+      double actual=Double.parseDouble(actualGroupByResult.getValue().toString());
+      Assert.assertEquals(DoubleComparisonUtil.defaultDoubleCompare(actual,expectedAggregationResult[i]),0);
+    }
+  }
+}

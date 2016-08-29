@@ -1,5 +1,5 @@
 {
-  final ReduceService reduceService=new DefaultReduceService();
+  final ReduceService reduceService=new BrokerReduceService();
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getAggregationResultDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getAggregationResultDataTable());
@@ -11,6 +11,6 @@
   instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getAggregationResultDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getAggregationResultDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getAggregationResultDataTable());
-  final BrokerResponseJSON reducedResults=(BrokerResponseJSON)reduceService.reduceOnDataTable(getAggregationNoFilterBrokerRequest(),instanceResponseMap);
+  final BrokerResponseNative reducedResults=(BrokerResponseNative)reduceService.reduceOnDataTable(getAggregationNoFilterBrokerRequest(),instanceResponseMap);
   LOGGER.debug("Reduced Result : {}",reducedResults);
 }

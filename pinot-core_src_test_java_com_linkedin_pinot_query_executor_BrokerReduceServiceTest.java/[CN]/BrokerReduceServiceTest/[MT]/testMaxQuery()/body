@@ -1,0 +1,25 @@
+{
+  BrokerRequest brokerRequest=getMaxQuery();
+  QuerySource querySource=new QuerySource();
+  querySource.setTableName("midas");
+  brokerRequest.setQuerySource(querySource);
+  InstanceRequest instanceRequest=new InstanceRequest(0,brokerRequest);
+  instanceRequest.setSearchSegments(new ArrayList<String>());
+  for (  IndexSegment segment : _indexSegmentList) {
+    instanceRequest.addToSearchSegments(segment.getSegmentName());
+  }
+  Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  try {
+    DataTable instanceResponse1=_queryExecutor.processQuery(instanceRequest);
+    instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse1);
+    DataTable instanceResponse2=_queryExecutor.processQuery(instanceRequest);
+    instanceResponseMap.put(new ServerInstance("localhost:1111"),instanceResponse2);
+    BrokerResponseNative brokerResponse=_reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
+    LOGGER.info("BrokerResponse is " + brokerResponse.getAggregationResults().get(0));
+    LOGGER.info("Time used for BrokerResponse is " + brokerResponse.getTimeUsedMs());
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException(e.toString(),e);
+  }
+}

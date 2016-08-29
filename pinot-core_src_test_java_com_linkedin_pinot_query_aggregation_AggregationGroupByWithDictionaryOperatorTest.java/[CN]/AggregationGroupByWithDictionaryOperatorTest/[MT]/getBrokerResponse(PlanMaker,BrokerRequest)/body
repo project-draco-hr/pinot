@@ -6,11 +6,9 @@
   final DataTable instanceResponse=globalPlan.getInstanceResponse();
   LOGGER.debug("instance Response: {}",instanceResponse);
   LOGGER.debug("timeUsedMs : {}",instanceResponse.getMetadata().get("timeUsedMs"));
-  final DefaultReduceService defaultReduceService=new DefaultReduceService();
+  final BrokerReduceService reduceService=new BrokerReduceService();
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
-  final BrokerResponseJSON brokerResponse=defaultReduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
-  LOGGER.debug("broker Response: {}",new JSONArray(brokerResponse.getAggregationResults()));
-  LOGGER.debug("Time used : {}",brokerResponse.getTimeUsedMs());
+  final BrokerResponseNative brokerResponse=reduceService.reduceOnDataTable(brokerRequest,instanceResponseMap);
   return brokerResponse;
 }
