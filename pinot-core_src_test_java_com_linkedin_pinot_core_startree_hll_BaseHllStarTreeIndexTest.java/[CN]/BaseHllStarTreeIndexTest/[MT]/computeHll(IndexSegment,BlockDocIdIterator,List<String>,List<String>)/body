@@ -1,0 +1,55 @@
+{
+  int docId;
+  int numMetrics=metricNames.size();
+  Dictionary[] metricDictionaries=new Dictionary[numMetrics];
+  BlockSingleValIterator[] metricValIterators=new BlockSingleValIterator[numMetrics];
+  int numGroupByColumns=groupByColumns.size();
+  Dictionary[] groupByDictionaries=new Dictionary[numGroupByColumns];
+  BlockSingleValIterator[] groupByValIterators=new BlockSingleValIterator[numGroupByColumns];
+  for (int i=0; i < numMetrics; i++) {
+    String metricName=metricNames.get(i);
+    DataSource dataSource=segment.getDataSource(metricName);
+    metricDictionaries[i]=dataSource.getDictionary();
+    metricValIterators[i]=(BlockSingleValIterator)dataSource.getNextBlock().getBlockValueSet().iterator();
+  }
+  for (int i=0; i < numGroupByColumns; i++) {
+    String groupByColumn=groupByColumns.get(i);
+    DataSource dataSource=segment.getDataSource(groupByColumn);
+    groupByDictionaries[i]=dataSource.getDictionary();
+    groupByValIterators[i]=(BlockSingleValIterator)dataSource.getNextBlock().getBlockValueSet().iterator();
+  }
+  Map<String,HyperLogLog[]> result=new HashMap<>();
+  while ((docId=docIdIterator.next()) != Constants.EOF) {
+    StringBuilder stringBuilder=new StringBuilder();
+    for (int i=0; i < numGroupByColumns; i++) {
+      groupByValIterators[i].skipTo(docId);
+      int dictId=groupByValIterators[i].nextIntVal();
+      stringBuilder.append(groupByDictionaries[i].getStringValue(dictId));
+      stringBuilder.append("_");
+    }
+    String key=stringBuilder.toString();
+    if (!result.containsKey(key)) {
+      HyperLogLog[] initHllArray=new HyperLogLog[numMetrics];
+      for (int i=0; i < numMetrics; i++) {
+        initHllArray[i]=new HyperLogLog(HLL_CONFIG.getHllLog2m());
+      }
+      result.put(key,initHllArray);
+    }
+    HyperLogLog[] hllSoFar=result.get(key);
+    for (int i=0; i < numMetrics; i++) {
+      metricValIterators[i].skipTo(docId);
+      int dictId=metricValIterators[i].nextIntVal();
+      HyperLogLog value=HllUtil.convertStringToHll(metricDictionaries[i].getStringValue(dictId));
+      hllSoFar[i].addAll(value);
+    }
+  }
+  Map<String,long[]> ret=new HashMap<>();
+  for (  String key : result.keySet()) {
+    long[] valueArray=new long[numMetrics];
+    ret.put(key,valueArray);
+    for (int i=0; i < numMetrics; i++) {
+      valueArray[i]=result.get(key)[i].cardinality();
+    }
+  }
+  return ret;
+}

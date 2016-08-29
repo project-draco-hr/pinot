@@ -1,0 +1,28 @@
+{
+  List<String> metricNames=new ArrayList<>();
+  for (  String column : columnsToDeriveHllFields) {
+    metricNames.add(column + HLL_CONFIG.getHllDeriveColumnSuffix());
+  }
+  SegmentMetadata segmentMetadata=segment.getSegmentMetadata();
+  LOGGER.info("[Schema] Dim: {} Metric: {}",schema.getDimensionNames(),schema.getMetricNames());
+  for (int i=0; i < _hardCodedQueries.length; i++) {
+    Pql2Compiler compiler=new Pql2Compiler();
+    BrokerRequest brokerRequest=compiler.compileToBrokerRequest(_hardCodedQueries[i]);
+    FilterQueryTree filterQueryTree=RequestUtils.generateFilterQueryTree(brokerRequest);
+    Assert.assertTrue(RequestUtils.isFitForStarTreeIndex(segmentMetadata,filterQueryTree,brokerRequest));
+    Map<String,long[]> expectedResult=computeHllUsingRawDocs(segment,metricNames,brokerRequest);
+    Map<String,long[]> actualResult=computeHllUsingAggregatedDocs(segment,metricNames,brokerRequest);
+    Assert.assertEquals(expectedResult.size(),actualResult.size(),"Mis-match in number of groups");
+    for (    Map.Entry<String,long[]> entry : expectedResult.entrySet()) {
+      String expectedKey=entry.getKey();
+      Assert.assertTrue(actualResult.containsKey(expectedKey));
+      long[] expectedSums=entry.getValue();
+      long[] actualSums=actualResult.get(expectedKey);
+      for (int j=0; j < expectedSums.length; j++) {
+        LOGGER.info("actual hll: {} ",actualSums[j]);
+        LOGGER.info("expected hll: {} ",expectedSums[j]);
+        Assert.assertEquals(actualSums[j],expectedSums[j],"Mis-match hll for key '" + expectedKey + "', Metric: "+ metricNames.get(j)+ ", Random Seed: "+ _randomSeed);
+      }
+    }
+  }
+}

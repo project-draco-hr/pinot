@@ -1,0 +1,10 @@
+{
+  StarTreeIndexOperator starTreeOperator=new StarTreeIndexOperator(segment,brokerRequest);
+  starTreeOperator.open();
+  BlockDocIdIterator starTreeDocIdIterator=starTreeOperator.nextBlock().getBlockDocIdSet().iterator();
+  List<String> groupByColumns=Collections.EMPTY_LIST;
+  if (brokerRequest.isSetAggregationsInfo() && brokerRequest.isSetGroupBy()) {
+    groupByColumns=brokerRequest.getGroupBy().getColumns();
+  }
+  return computeHll(segment,starTreeDocIdIterator,metricNames,groupByColumns);
+}

@@ -21,7 +21,8 @@
     }
   }
   for (  AggregationInfo aggregationInfo : aggregationsInfo) {
-    if (!aggregationInfo.getAggregationType().equalsIgnoreCase("sum")) {
+    String aggregationFunctionName=aggregationInfo.getAggregationType().toLowerCase();
+    if (!ALLOWED_AGGREGATION_FUNCTIONS.contains(aggregationFunctionName)) {
       return false;
     }
   }
