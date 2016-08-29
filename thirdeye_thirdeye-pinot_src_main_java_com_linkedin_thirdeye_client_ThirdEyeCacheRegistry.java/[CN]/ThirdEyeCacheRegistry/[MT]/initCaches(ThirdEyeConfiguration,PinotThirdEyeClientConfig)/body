@@ -1,0 +1,29 @@
+{
+  ThirdEyeCacheRegistry cacheRegistry=ThirdEyeCacheRegistry.getInstance();
+  RemovalListener<PinotQuery,ResultSetGroup> listener=new RemovalListener<PinotQuery,ResultSetGroup>(){
+    @Override public void onRemoval(    RemovalNotification<PinotQuery,ResultSetGroup> notification){
+      LOGGER.info("Expired {}",notification.getKey().getPql());
+    }
+  }
+;
+  LoadingCache<PinotQuery,ResultSetGroup> resultSetGroupCache=CacheBuilder.newBuilder().removalListener(listener).expireAfterAccess(1,TimeUnit.HOURS).build(new ResultSetGroupCacheLoader(pinotThirdeyeClientConfig));
+  cacheRegistry.registerResultSetGroupCache(resultSetGroupCache);
+  LoadingCache<String,Schema> schemaCache=CacheBuilder.newBuilder().build(new SchemaCacheLoader(pinotThirdeyeClientConfig));
+  cacheRegistry.registerSchemaCache(schemaCache);
+  LoadingCache<String,CollectionSchema> collectionSchemaCache=CacheBuilder.newBuilder().build(new CollectionSchemaCacheLoader(pinotThirdeyeClientConfig,webappConfigDAO));
+  cacheRegistry.registerCollectionSchemaCache(collectionSchemaCache);
+  LoadingCache<String,Long> collectionMaxDataTimeCache=CacheBuilder.newBuilder().build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig,collectionSchemaCache,resultSetGroupCache));
+  cacheRegistry.registerCollectionMaxDataTimeCache(collectionMaxDataTimeCache);
+  LoadingCache<String,CollectionConfig> collectionConfigCache=CacheBuilder.newBuilder().build(new CollectionConfigCacheLoader(webappConfigDAO));
+  cacheRegistry.registerCollectionConfigCache(collectionConfigCache);
+  LoadingCache<String,String> collectionAliasCache=CacheBuilder.newBuilder().build(new CollectionAliasCacheLoader(webappConfigDAO));
+  cacheRegistry.registerCollectionAliasCache(collectionAliasCache);
+  QueryCache queryCache=new QueryCache(thirdEyeClient,Executors.newFixedThreadPool(10));
+  cacheRegistry.registerQueryCache(queryCache);
+  LoadingCache<String,String> dimensionFiltersCache=CacheBuilder.newBuilder().build(new DimensionFiltersCacheLoader(cacheRegistry.getQueryCache()));
+  cacheRegistry.registerDimensionFiltersCache(dimensionFiltersCache);
+  LoadingCache<String,String> dashboardsCache=CacheBuilder.newBuilder().build(new DashboardsCacheLoader(webappConfigDAO));
+  cacheRegistry.registerDashboardsCache(dashboardsCache);
+  CollectionsCache collectionsCache=new CollectionsCache(pinotThirdeyeClientConfig,config);
+  cacheRegistry.registerCollectionsCache(collectionsCache);
+}

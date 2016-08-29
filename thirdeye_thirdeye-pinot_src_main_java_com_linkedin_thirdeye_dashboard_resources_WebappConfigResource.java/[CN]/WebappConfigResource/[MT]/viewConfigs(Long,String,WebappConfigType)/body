@@ -4,15 +4,15 @@
     webappConfigs.add(webappConfigDAO.findById(id));
   }
  else   if (!StringUtils.isBlank(collection)) {
-    if (configType != null) {
-      webappConfigs.addAll(webappConfigDAO.findByCollectionAndConfigType(collection,configType));
+    if (type != null) {
+      webappConfigs.addAll(webappConfigDAO.findByCollectionAndType(collection,type));
     }
  else {
       webappConfigs.addAll(webappConfigDAO.findByCollection(collection));
     }
   }
- else   if (configType != null) {
-    webappConfigs.addAll(webappConfigDAO.findByConfigType(configType));
+ else   if (type != null) {
+    webappConfigs.addAll(webappConfigDAO.findByType(type));
   }
  else {
     webappConfigs.addAll(webappConfigDAO.findAll());

@@ -1,13 +1,16 @@
 {
   CollectionSchema collectionSchema=null;
-  collectionSchema=collectionSchemaDAO.findById(collection);
-  if (collectionSchema == null) {
+  List<WebappConfig> webappConfigs=webappConfigDAO.findByCollectionAndType(collection,WebappConfigType.COLLECTION_SCHEMA);
+  if (webappConfigs.isEmpty()) {
     Schema schema=ThirdEyeCacheRegistry.getInstance().getSchemaCache().get(collection);
     List<DimensionSpec> dimSpecs=fromDimensionFieldSpecs(schema.getDimensionFieldSpecs());
     List<MetricSpec> metricSpecs=fromMetricFieldSpecs(schema.getMetricFieldSpecs());
     TimeSpec timeSpec=fromTimeFieldSpec(schema.getTimeFieldSpec(),null);
     CollectionSchema config=new CollectionSchema.Builder().setCollection(collection).setDimensions(dimSpecs).setMetrics(metricSpecs).setTime(timeSpec).build();
     return config;
+  }
+ else {
+    collectionSchema=AbstractConfig.fromJSON(webappConfigs.get(0).getConfig(),CollectionSchema.class);
   }
   return collectionSchema;
 }

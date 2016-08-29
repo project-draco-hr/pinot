@@ -3,7 +3,6 @@
     collection=ThirdEyeUtils.getCollectionFromAlias(collection);
     TabularViewRequest request=new TabularViewRequest();
     request.setCollection(collection);
-    DashboardConfig dashboardConfig;
     List<MetricExpression> metricExpressions;
     if (dashboardName == null || DEFAULT_DASHBOARD.equals(dashboardName)) {
       CollectionConfig collectionConfig=null;
@@ -24,7 +23,14 @@
       }
     }
  else {
-      dashboardConfig=dashboardConfigDAO.findById(collection + "_" + dashboardName);
+      List<WebappConfig> webappConfigs=webappConfigDAO.findByCollectionAndType(collection,WebappConfigType.DASHBOARD_CONFIG);
+      DashboardConfig dashboardConfig=null;
+      for (      WebappConfig webappConfig : webappConfigs) {
+        if (webappConfig.getName().equals(dashboardName)) {
+          dashboardConfig=AbstractConfig.fromJSON(webappConfig.getConfig(),DashboardConfig.class);
+          break;
+        }
+      }
       metricExpressions=dashboardConfig.getMetricExpressions();
     }
     request.setMetricExpressions(metricExpressions);

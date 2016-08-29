@@ -8,11 +8,11 @@
       webappConfigs=new ArrayList<>();
       webappConfigs.add(webappConfigDAO.findById(id));
     }
- else     if (configType == null) {
+ else     if (type == null) {
       webappConfigs=webappConfigDAO.findByCollection(collection);
     }
  else {
-      webappConfigs=webappConfigDAO.findByCollectionAndConfigType(collection,configType);
+      webappConfigs=webappConfigDAO.findByCollectionAndType(collection,type);
     }
     for (    WebappConfig webappConfig : webappConfigs) {
       webappConfigDAO.deleteById(webappConfig.getId());

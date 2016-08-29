@@ -1,10 +1,10 @@
 {
   String updatedCollection="update_collection";
   String updatedPayload="{ \"collectionName\" : \"update_collection\", \"collectionAlias\" : \"test_alias\" }";
-  webappConfigResource.updateConfig(id,updatedCollection,configType,updatedPayload);
+  webappConfigResource.updateConfig(id,updatedCollection,type,updatedPayload);
   WebappConfig webappConfig=webappConfigDAO.findById(id);
   Assert.assertEquals(webappConfig.getCollection(),updatedCollection);
-  Assert.assertEquals(webappConfig.getConfigType(),configType);
+  Assert.assertEquals(webappConfig.getType(),type);
   CollectionConfig expectedCollectionConfig=CollectionConfig.fromJSON(updatedPayload,CollectionConfig.class);
   Assert.assertEquals(webappConfig.getConfig(),expectedCollectionConfig.toJSON());
 }

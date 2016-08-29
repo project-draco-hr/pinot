@@ -1,11 +1,11 @@
 {
   webappConfigResource=new WebappConfigResource(webappConfigDAO);
-  Response r=webappConfigResource.createConfig(collection,configType,payload);
+  Response r=webappConfigResource.createConfig(collection,type,payload);
   id=(Long)r.getEntity();
   WebappConfig webappConfig=webappConfigDAO.findById(id);
   Assert.assertEquals(webappConfig.getId(),id);
   Assert.assertEquals(webappConfig.getCollection(),collection);
-  Assert.assertEquals(webappConfig.getConfigType(),configType);
+  Assert.assertEquals(webappConfig.getType(),type);
   CollectionConfig expectedCollectionConfig=CollectionConfig.fromJSON(payload,CollectionConfig.class);
   Assert.assertEquals(webappConfig.getConfig(),expectedCollectionConfig.toJSON());
 }

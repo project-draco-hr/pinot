@@ -1,4 +1,8 @@
 {
-  CollectionConfig collectionConfig=collectionConfigDAO.findById(collection);
+  CollectionConfig collectionConfig=null;
+  List<WebappConfig> webappConfigs=webappConfigDAO.findByCollectionAndType(collection,WebappConfigType.COLLECTION_CONFIG);
+  if (!webappConfigs.isEmpty()) {
+    collectionConfig=AbstractConfig.fromJSON(webappConfigs.get(0).getConfig(),CollectionConfig.class);
+  }
   return collectionConfig;
 }

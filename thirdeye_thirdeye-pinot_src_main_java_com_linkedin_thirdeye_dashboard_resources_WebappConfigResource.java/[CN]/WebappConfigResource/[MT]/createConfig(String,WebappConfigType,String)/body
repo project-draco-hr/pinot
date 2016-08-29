@@ -1,19 +1,19 @@
 {
   try {
-    AbstractConfig abstractConfig=WebappConfigFactory.getConfigFromConfigTypeAndJson(configType,payload);
-    int configId=abstractConfig.getConfigId();
+    AbstractConfig abstractConfig=WebappConfigFactory.getConfigFromConfigTypeAndJson(type,payload);
+    String configName=abstractConfig.getConfigName();
     String config=abstractConfig.toJSON();
     WebappConfig webappConfig=new WebappConfig();
-    webappConfig.setConfigId(configId);
+    webappConfig.setName(configName);
     webappConfig.setCollection(collection);
-    webappConfig.setConfigType(configType);
+    webappConfig.setType(type);
     webappConfig.setConfig(config);
     Long id=webappConfigDAO.save(webappConfig);
     LOG.info("Created webappConfig {} with id {}",webappConfig,id);
     return Response.ok(id).build();
   }
  catch (  Exception e) {
-    LOG.error("Exception in creating webapp config with collection {} configType {} and payload {}",collection,configType,payload,e);
+    LOG.error("Exception in creating webapp config with collection {} configType {} and payload {}",collection,type,payload,e);
     return Response.ok(e).build();
   }
 }
