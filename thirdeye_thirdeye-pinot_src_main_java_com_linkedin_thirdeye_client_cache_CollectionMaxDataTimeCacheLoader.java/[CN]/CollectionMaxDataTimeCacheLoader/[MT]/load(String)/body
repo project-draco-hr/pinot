@@ -15,7 +15,14 @@
  else {
       long endTime=new Double(resultSetGroup.getResultSet(0).getDouble(0)).longValue();
       this.collectionToPrevMaxDataTimeMap.put(collection,endTime);
-      maxTime=timeSpec.getDataGranularity().toMillis(endTime + 1) - 1;
+      String timeFormat=timeSpec.getFormat();
+      if (StringUtils.isBlank(timeFormat) || TimeSpec.SINCE_EPOCH_FORMAT.equals(timeFormat)) {
+        maxTime=timeSpec.getDataGranularity().toMillis(endTime + 1) - 1;
+      }
+ else {
+        DateTimeFormatter dateTimeFormatter=DateTimeFormat.forPattern(timeFormat).withZoneUTC();
+        maxTime=DateTime.parse(String.valueOf(endTime),dateTimeFormatter).getMillis();
+      }
     }
   }
  catch (  Exception e) {
