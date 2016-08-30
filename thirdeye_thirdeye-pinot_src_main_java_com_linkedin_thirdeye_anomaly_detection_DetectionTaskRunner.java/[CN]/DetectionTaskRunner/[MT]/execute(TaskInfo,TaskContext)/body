@@ -15,11 +15,11 @@
   CollectionSchema collectionSchema=null;
   try {
     collectionSchema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(anomalyFunctionSpec.getCollection());
+    collectionDimensions=collectionSchema.getDimensionNames();
   }
  catch (  Exception e) {
     LOG.error("Exception when reading collection schema cache",e);
   }
-  collectionDimensions=collectionSchema.getDimensionNames();
   knownAnomalies=getExistingAnomalies();
   TimeSeriesRequest topLevelRequest=new TimeSeriesRequest();
   topLevelRequest.setCollectionName(anomalyFunctionSpec.getCollection());

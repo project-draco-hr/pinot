@@ -4,8 +4,20 @@
   LOG.info(Thread.currentThread().getId() + " : Trying to find a task to execute");
   do {
     List<AnomalyTaskSpec> anomalyTasks=new ArrayList<>();
-    anomalyTasks=anomalyTaskDAO.findByStatusOrderByCreateTimeAscending(TaskStatus.WAITING);
-    if (anomalyTasks.size() > 0)     LOG.info(Thread.currentThread().getId() + " : Found {} tasks in waiting state",anomalyTasks.size());
+    try {
+      anomalyTasks=anomalyTaskDAO.findByStatusOrderByCreateTimeAsc(TaskStatus.WAITING,TASK_FETCH_SIZE);
+    }
+ catch (    Exception e) {
+      LOG.error("Exception found in fetching new tasks, sleeping for few seconds",e);
+      Thread.sleep(TASK_FAILURE_DELAY_MILLIS);
+    }
+    if (anomalyTasks.size() > 0) {
+      LOG.info(Thread.currentThread().getId() + " : Found {} tasks in waiting state",anomalyTasks.size());
+    }
+ else {
+      LOG.debug("No tasks found to execute, sleeping for {} MS",NO_TASK_IDLE_DELAY_MILLIS + RANDOM.nextInt(1000));
+      Thread.sleep(NO_TASK_IDLE_DELAY_MILLIS);
+    }
     for (    AnomalyTaskSpec anomalyTaskSpec : anomalyTasks) {
       LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getId());
       boolean success=false;
@@ -14,7 +26,7 @@
         LOG.info(Thread.currentThread().getId() + " : Task acquired success: {}",success);
       }
  catch (      OptimisticLockException|RollbackException|StaleObjectStateException e) {
-        LOG.warn("Optimistic lock exception in acquiring task by threadId {} and workerId {}",Thread.currentThread().getId(),workerId);
+        LOG.warn("[{}] in acquiring task by threadId {} and workerId {}",e.getClass().getSimpleName(),Thread.currentThread().getId(),workerId);
       }
       if (success) {
         acquiredTask=anomalyTaskSpec;

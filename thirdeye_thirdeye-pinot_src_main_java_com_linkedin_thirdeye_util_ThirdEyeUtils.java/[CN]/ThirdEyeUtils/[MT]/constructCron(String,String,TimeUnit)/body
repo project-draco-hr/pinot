@@ -7,7 +7,6 @@
   }
   String minute="0";
   String hour="0";
-  String cron=AnomalyResource.DEFAULT_CRON;
   if (repeatEvery.equals(TimeUnit.DAYS)) {
     minute=StringUtils.isEmpty(scheduleMinute) ? minute : scheduleMinute;
     hour=StringUtils.isEmpty(scheduleHour) ? hour : scheduleHour;
@@ -16,6 +15,5 @@
     minute=StringUtils.isEmpty(scheduleMinute) ? minute : scheduleMinute;
     hour="*";
   }
-  cron=String.format("0 %s %s * * ?",minute,hour);
-  return cron;
+  return String.format("0 %s %s * * ?",minute,hour);
 }
