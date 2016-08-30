@@ -1,0 +1,9 @@
+{
+  if (args.length != 1) {
+    throw new IllegalArgumentException("usage: config.properties");
+  }
+  Properties props=new Properties();
+  props.load(new FileInputStream(args[0]));
+  TransformPhaseJob job=new TransformPhaseJob("transform_phase_job",props);
+  job.run();
+}

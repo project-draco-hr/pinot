@@ -1,0 +1,26 @@
+{
+  List<GenericRecord> outputRecords=new ArrayList<GenericRecord>();
+  GenericRecord outputRecord=new GenericData.Record(outputSchema);
+  for (  Field field : fields) {
+    Object value=null;
+    for (    String source : field.sourceEvents) {
+      List<GenericRecord> list=joinInput.get(source);
+      if (list != null && list.size() >= 1) {
+        for (        GenericRecord record : list) {
+          value=record.get(field.name);
+          if (value != null) {
+            break;
+          }
+        }
+      }
+      if (value != null) {
+        break;
+      }
+    }
+    if (value != null) {
+      outputRecord.put(field.name,value);
+    }
+  }
+  outputRecords.add(outputRecord);
+  return outputRecords;
+}

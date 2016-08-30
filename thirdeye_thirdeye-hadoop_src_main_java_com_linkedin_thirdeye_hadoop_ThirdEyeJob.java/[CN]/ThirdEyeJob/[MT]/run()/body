@@ -8,6 +8,20 @@
     usage();
     throw e;
   }
+  if (PhaseSpec.TRANSFORM.equals(phaseSpec)) {
+    TransformPhaseJob job=new TransformPhaseJob("Transform Job",inputConfig);
+    job.run();
+    return;
+  }
+ else   if (PhaseSpec.JOIN.equals(phaseSpec)) {
+    JoinPhaseJob job=new JoinPhaseJob("Join Job",inputConfig);
+    job.run();
+    return;
+  }
+ else   if (PhaseSpec.WAIT.equals(phaseSpec)) {
+    WaitPhaseJob job=new WaitPhaseJob("Wait for inputs",inputConfig);
+    job.run();
+  }
   String root=getAndCheck(ThirdEyeJobProperties.THIRDEYE_ROOT.getName(),inputConfig);
   String collection=getAndCheck(ThirdEyeJobProperties.THIRDEYE_COLLECTION.getName(),inputConfig);
   String inputPaths=getAndCheck(ThirdEyeJobProperties.INPUT_PATHS.getName(),inputConfig);

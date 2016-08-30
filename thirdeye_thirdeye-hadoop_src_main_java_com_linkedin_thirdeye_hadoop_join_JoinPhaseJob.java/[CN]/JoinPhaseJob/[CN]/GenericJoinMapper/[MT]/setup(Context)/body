@@ -1,0 +1,25 @@
+{
+  LOGGER.info("GenericAvroJoinJob.GenericJoinMapper.setup()");
+  FileSplit fileSplit=(FileSplit)context.getInputSplit();
+  LOGGER.info("split name:" + fileSplit.toString());
+  Configuration configuration=context.getConfiguration();
+  try {
+    sourceName=DelegatingAvroKeyInputFormat.getSourceNameFromPath(fileSplit,configuration);
+    LOGGER.info("Input: {} belongs to Source:{}",fileSplit,sourceName);
+    String joinKeyExtractorClass=configuration.get(JOIN_KEY_EXTRACTOR_CLASS.toString());
+    Map<String,String> params=new HashMap<>();
+    List<String> sourceNames=Lists.newArrayList(configuration.get(JOIN_SOURCE_NAMES.toString()).split(","));
+    for (    String sourceName : sourceNames) {
+      String joinKeyExtractorConfig=configuration.get(sourceName + "." + JOIN_KEY_EXTRACTOR_CONFIG.toString());
+      if (StringUtils.isNotBlank(joinKeyExtractorConfig)) {
+        params.put(sourceName,joinKeyExtractorConfig);
+      }
+    }
+    LOGGER.info("Initializing JoinKeyExtractorClass:{} with params:{}",joinKeyExtractorClass,params);
+    Constructor<?> constructor=Class.forName(joinKeyExtractorClass).getConstructor(Map.class);
+    joinKeyExtractor=(JoinKeyExtractor)constructor.newInstance(params);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

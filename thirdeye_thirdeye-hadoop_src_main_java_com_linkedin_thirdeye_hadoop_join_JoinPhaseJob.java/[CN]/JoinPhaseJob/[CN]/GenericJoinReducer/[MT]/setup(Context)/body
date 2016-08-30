@@ -1,0 +1,32 @@
+{
+  Configuration configuration=context.getConfiguration();
+  fileSystem=FileSystem.get(configuration);
+  try {
+    Map<String,String> schemaJSONMapping=new ObjectMapper().readValue(context.getConfiguration().get("schema.json.mapping"),MAP_STRING_STRING_TYPE);
+    LOGGER.info("Schema JSON Mapping: {}",schemaJSONMapping);
+    for (    String sourceName : schemaJSONMapping.keySet()) {
+      Schema schema=new Schema.Parser().parse(schemaJSONMapping.get(sourceName));
+      schemaMap.put(sourceName,schema);
+    }
+    sourceNames=Lists.newArrayList(configuration.get(JOIN_SOURCE_NAMES.toString()).split(","));
+    String joinUDFClass=configuration.get(JOIN_UDF_CLASS.toString());
+    Map<String,String> params=new HashMap<>();
+    for (    String sourceName : sourceNames) {
+      String joinUdfConfig=configuration.get(sourceName + "." + JOIN_UDF_CONFIG.toString());
+      if (StringUtils.isNotBlank(joinUdfConfig)) {
+        params.put(sourceName,joinUdfConfig);
+      }
+    }
+    Constructor<?> constructor=Class.forName(joinUDFClass).getConstructor(Map.class);
+    LOGGER.info("Initializing JoinUDFClass:{} with params:{}",joinUDFClass,params);
+    joinUDF=(JoinUDF)constructor.newInstance(params);
+    String outputSchemaPath=configuration.get(JOIN_OUTPUT_SCHEMA.toString());
+    Schema.Parser parser=new Schema.Parser();
+    Schema outputSchema=parser.parse(fileSystem.open(new Path(outputSchemaPath)));
+    LOGGER.info("Setting outputschema:{}",outputSchema);
+    joinUDF.init(outputSchema);
+  }
+ catch (  Exception e) {
+    throw new IOException(e);
+  }
+}

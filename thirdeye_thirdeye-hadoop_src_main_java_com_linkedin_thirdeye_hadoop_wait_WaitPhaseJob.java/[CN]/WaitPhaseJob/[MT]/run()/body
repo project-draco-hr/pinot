@@ -1,0 +1,18 @@
+{
+  try {
+    String thirdeyeWaitClass=getAndCheck(WAIT_UDF_CLASS.toString());
+    if (thirdeyeWaitClass != null) {
+      LOGGER.info("Initializing class {}",thirdeyeWaitClass);
+      Constructor<?> constructor=Class.forName(thirdeyeWaitClass).getConstructor();
+      WaitUDF waitUdf=(WaitUDF)constructor.newInstance();
+      waitUdf.init(props);
+      boolean complete=waitUdf.checkCompleteness();
+      if (!complete) {
+        throw new RuntimeException("Input folder {} has not received all records");
+      }
+    }
+  }
+ catch (  Exception e) {
+    LOGGER.error("Exception in waiting for inputs",e);
+  }
+}
