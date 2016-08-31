@@ -1,3 +1,17 @@
 {
-  return getEntityManager().createQuery(FIND_BY_STATUS_ORDER_BY_CREATE_TIME_ASC,entityClass).setMaxResults(fetchSize).setParameter("status",status).getResultList();
+  EntityManager em=getEntityManager();
+  EntityTransaction txn=em.getTransaction();
+  List<AnomalyTaskSpec> tasks=new ArrayList<>();
+  try {
+    txn.begin();
+    tasks=em.createQuery(FIND_BY_STATUS_ORDER_BY_CREATE_TIME_ASC,entityClass).setMaxResults(fetchSize).setParameter("status",status).getResultList();
+    txn.commit();
+    return tasks;
+  }
+ catch (  Exception e) {
+    if (txn.isActive()) {
+      txn.rollback();
+    }
+  }
+  return tasks;
 }

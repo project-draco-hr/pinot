@@ -15,8 +15,9 @@
       LOG.info(Thread.currentThread().getId() + " : Found {} tasks in waiting state",anomalyTasks.size());
     }
  else {
-      LOG.debug("No tasks found to execute, sleeping for {} MS",NO_TASK_IDLE_DELAY_MILLIS + RANDOM.nextInt(1000));
-      Thread.sleep(NO_TASK_IDLE_DELAY_MILLIS);
+      int delay=NO_TASK_IDLE_DELAY_MILLIS + RANDOM.nextInt(NO_TASK_IDLE_DELAY_MILLIS);
+      LOG.debug("No tasks found to execute, sleeping for {} MS",delay);
+      Thread.sleep(delay);
     }
     for (    AnomalyTaskSpec anomalyTaskSpec : anomalyTasks) {
       LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getId());

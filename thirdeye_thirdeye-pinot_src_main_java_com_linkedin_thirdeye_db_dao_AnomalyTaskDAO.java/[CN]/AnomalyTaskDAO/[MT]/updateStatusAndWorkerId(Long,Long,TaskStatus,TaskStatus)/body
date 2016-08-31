@@ -1,11 +1,12 @@
 {
-  List<AnomalyTaskSpec> anomalyTaskSpecs=findByIdAndStatus(id,oldStatus);
-  if (anomalyTaskSpecs.size() == 1) {
-    AnomalyTaskSpec anomalyTaskSpec=anomalyTaskSpecs.get(0);
-    anomalyTaskSpec.setStatus(newStatus);
-    anomalyTaskSpec.setWorkerId(workerId);
-    save(anomalyTaskSpec);
+  AnomalyTaskSpec task=findById(id);
+  if (task.getStatus().equals(oldStatus)) {
+    task.setStatus(newStatus);
+    task.setWorkerId(workerId);
+    save(task);
     return true;
   }
-  return false;
+ else {
+    return false;
+  }
 }
