@@ -32,7 +32,7 @@
       metadata.setSegmentName(segName);
       metadata.setStatus(CommonConstants.Segment.Realtime.Status.IN_PROGRESS);
       ZNRecord record=metadata.toZNRecord();
-      final String znodePath=PinotRealtimeSegmentManager.getSegmentsPath() + "/" + realtimeTableName+ "/"+ segName;
+      final String znodePath=ZKMetadataProvider.constructPropertyStorePathForSegment(realtimeTableName,segName);
       paths.add(znodePath);
       records.add(record);
       idealStateEntries.put(segName,instances);

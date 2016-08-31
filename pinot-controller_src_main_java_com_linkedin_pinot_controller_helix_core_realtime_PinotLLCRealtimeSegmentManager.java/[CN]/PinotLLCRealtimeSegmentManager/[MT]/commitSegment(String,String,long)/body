@@ -7,10 +7,15 @@
   final int oldSeqNum=oldSegmentName.getSequenceNumber();
   oldSegMetadata.setEndOffset(nextOffset);
   oldSegMetadata.setStatus(CommonConstants.Segment.Realtime.Status.DONE);
-  oldSegMetadata.setEndTime(now);
   oldSegMetadata.setDownloadUrl(ControllerConf.constructDownloadUrl(rawTableName,committingSegmentNameStr,_controllerConf.generateVipUrl()));
+  SegmentMetadataImpl segmentMetadata=extractSegmentMetadata(rawTableName,committingSegmentNameStr);
+  oldSegMetadata.setCrc(Long.valueOf(segmentMetadata.getCrc()));
+  oldSegMetadata.setStartTime(segmentMetadata.getTimeInterval().getStartMillis());
+  oldSegMetadata.setEndTime(segmentMetadata.getTimeInterval().getEndMillis());
+  oldSegMetadata.setIndexVersion(segmentMetadata.getVersion());
+  oldSegMetadata.setTotalRawDocs(segmentMetadata.getTotalRawDocs());
   final ZNRecord oldZnRecord=oldSegMetadata.toZNRecord();
-  final String oldZnodePath=PinotRealtimeSegmentManager.getSegmentsPath() + "/" + realtimeTableName+ "/"+ committingSegmentNameStr;
+  final String oldZnodePath=ZKMetadataProvider.constructPropertyStorePathForSegment(realtimeTableName,committingSegmentNameStr);
   final ZNRecord partitionAssignment=getKafkaPartitionAssignment(realtimeTableName);
   List<String> newInstances=partitionAssignment.getListField(Integer.toString(partitionId));
   final Map<String,List<String>> idealStateEntries=new HashMap<>(1);
@@ -26,7 +31,7 @@
   newSegMetadata.setSegmentName(newSegmentNameStr);
   newSegMetadata.setStatus(CommonConstants.Segment.Realtime.Status.IN_PROGRESS);
   final ZNRecord newZnRecord=newSegMetadata.toZNRecord();
-  final String newZnodePath=PinotRealtimeSegmentManager.getSegmentsPath() + "/" + realtimeTableName+ "/"+ newSegmentNameStr;
+  final String newZnodePath=ZKMetadataProvider.constructPropertyStorePathForSegment(realtimeTableName,newSegmentNameStr);
   idealStateEntries.put(newSegmentNameStr,newInstances);
   List<String> paths=new ArrayList<>(2);
   paths.add(oldZnodePath);

@@ -1,0 +1,22 @@
+{
+  final String baseDir=StringUtil.join("/",_controllerConf.getDataDir(),rawTableName);
+  final String segFileName=StringUtil.join("/",baseDir,segmentNameStr);
+  final File segFile=new File(segFileName);
+  SegmentMetadataImpl segmentMetadata;
+  Path metadataPath=null;
+  try {
+    InputStream is=TarGzCompressionUtils.unTarOneFile(new FileInputStream(segFile),V1Constants.MetadataKeys.METADATA_FILE_NAME);
+    metadataPath=FileSystems.getDefault().getPath(baseDir,segmentNameStr + ".metadata");
+    Files.copy(is,metadataPath);
+    segmentMetadata=new SegmentMetadataImpl(new File(metadataPath.toString()));
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Exception extacting and reading segment metadata for " + segmentNameStr,e);
+  }
+ finally {
+    if (metadataPath != null) {
+      FileUtils.deleteQuietly(new File(metadataPath.toString()));
+    }
+  }
+  return segmentMetadata;
+}

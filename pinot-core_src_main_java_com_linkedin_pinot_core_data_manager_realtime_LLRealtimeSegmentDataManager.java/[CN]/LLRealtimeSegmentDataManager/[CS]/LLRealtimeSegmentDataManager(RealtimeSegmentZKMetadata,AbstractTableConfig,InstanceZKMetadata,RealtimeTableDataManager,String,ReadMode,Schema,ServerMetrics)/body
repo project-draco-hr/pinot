@@ -16,7 +16,6 @@
   _segmentNameStr=_segmentZKMetadata.getSegmentName();
   _segmentName=new LLCSegmentName(_segmentNameStr);
   _kafkaPartitionId=_segmentName.getPartitionId();
-  _decoderClassName=indexingConfig.getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.DECODER_CLASS);
   _segmentMaxRowCount=Integer.parseInt(_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE));
   _tableName=_tableConfig.getTableName();
   segmentLogger=LoggerFactory.getLogger(LLRealtimeSegmentDataManager.class.getName() + "_" + _segmentNameStr);
