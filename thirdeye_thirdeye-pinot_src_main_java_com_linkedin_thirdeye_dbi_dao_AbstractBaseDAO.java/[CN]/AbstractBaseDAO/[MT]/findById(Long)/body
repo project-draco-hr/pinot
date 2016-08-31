@@ -1,0 +1,10 @@
+{
+  return runTask(new Task<E>(){
+    @Override public E handle(    Connection connection) throws Exception {
+      PreparedStatement selectStatement=sqlQueryBuilder.createFindByIdStatement(connection,entityClass,id);
+      ResultSet resultSet=selectStatement.executeQuery();
+      return (E)genericResultSetMapper.mapSingle(resultSet,entityClass);
+    }
+  }
+,null);
+}

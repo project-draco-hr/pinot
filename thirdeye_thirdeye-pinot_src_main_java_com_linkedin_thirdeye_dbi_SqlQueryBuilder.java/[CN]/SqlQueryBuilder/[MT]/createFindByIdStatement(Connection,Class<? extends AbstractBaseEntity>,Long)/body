@@ -1,0 +1,7 @@
+{
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  String sql="Select * from " + tableName + " where id=?";
+  PreparedStatement prepareStatement=connection.prepareStatement(sql);
+  prepareStatement.setLong(1,id);
+  return prepareStatement;
+}

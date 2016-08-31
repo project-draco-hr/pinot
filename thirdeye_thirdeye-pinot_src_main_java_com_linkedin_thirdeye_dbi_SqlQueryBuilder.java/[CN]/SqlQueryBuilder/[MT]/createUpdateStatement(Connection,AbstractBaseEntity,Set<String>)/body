@@ -1,0 +1,36 @@
+{
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entity.getClass().getSimpleName());
+  LinkedHashMap<String,ColumnInfo> columnInfoMap=entityMappingHolder.columnInfoPerTable.get(tableName);
+  StringBuilder sqlBuilder=new StringBuilder("UPDATE " + tableName + " SET ");
+  String delim="";
+  LinkedHashMap<String,Object> parameterMap=new LinkedHashMap<>();
+  for (  ColumnInfo columnInfo : columnInfoMap.values()) {
+    String columnNameInDB=columnInfo.columnNameInDB;
+    if (!AUTO_UPDATE_COLUMN_SET.contains(columnNameInDB) && (fieldsToUpdate == null || fieldsToUpdate.contains(columnInfo.columnNameInEntity))) {
+      Object val=columnInfo.field.get(entity);
+      if (val != null) {
+        if (Enum.class.isAssignableFrom(val.getClass())) {
+          val=val.toString();
+        }
+        sqlBuilder.append(delim);
+        sqlBuilder.append(columnNameInDB);
+        sqlBuilder.append("=");
+        sqlBuilder.append("?");
+        delim=",";
+        System.out.println("Setting value:" + val + " for "+ columnInfo.columnNameInDB);
+        parameterMap.put(columnNameInDB,val);
+      }
+    }
+  }
+  sqlBuilder.append(" WHERE id=?");
+  parameterMap.put("id",entity.getId());
+  System.out.println("Update statement:" + sqlBuilder.toString());
+  int parameterIndex=1;
+  PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
+  for (  Entry<String,Object> paramEntry : parameterMap.entrySet()) {
+    String dbFieldName=paramEntry.getKey();
+    ColumnInfo info=columnInfoMap.get(dbFieldName);
+    prepareStatement.setObject(parameterIndex++,paramEntry.getValue(),info.sqlType);
+  }
+  return prepareStatement;
+}

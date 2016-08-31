@@ -1,0 +1,19 @@
+{
+  ModelMapper mapper=new ModelMapper();
+  Map<String,Object> result=new HashMap<>();
+  result.put("jobName","Test_Anomaly_Task");
+  result.put("jobId",1L);
+  result.put("taskType","MONITOR");
+  result.put("id",1L);
+  result.put("taskInfo","clob2: '{\"jobExecutionId\":1,\"monitorType\":\"UPDATE\",\"expireDaysAgo\":0}'");
+  result.put("taskType","MONITOR");
+  result.put("lastModified","2016-08-24 17:25:53.258");
+  result.put("status","RUNNING");
+  result.put("lastModified","2016-08-24 17:25:53.258");
+  AnomalyTaskSpec taskSpec1=mapper.map(result,AnomalyTaskSpec.class);
+  System.out.println(taskSpec1);
+  ObjectInputStream ois=new ObjectInputStream(new FileInputStream(new File("/tmp/map.out.1472093046128")));
+  Map<String,Object> inputMap=(Map<String,Object>)ois.readObject();
+  AnomalyTaskSpec taskSpec2=mapper.map(inputMap,AnomalyTaskSpec.class);
+  System.out.println(taskSpec2);
+}

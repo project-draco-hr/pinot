@@ -1,0 +1,9 @@
+{
+  return runTask(new Task<Integer>(){
+    @Override public Integer handle(    Connection connection) throws Exception {
+      PreparedStatement deleteStatement=sqlQueryBuilder.createDeleteByIdStatement(connection,entityClass,filters);
+      return deleteStatement.executeUpdate();
+    }
+  }
+,0);
+}

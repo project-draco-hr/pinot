@@ -1,0 +1,10 @@
+{
+  return runTask(new Task<List<E>>(){
+    @Override public List<E> handle(    Connection connection) throws Exception {
+      PreparedStatement selectStatement=sqlQueryBuilder.createFindByParamsStatement(connection,entityClass,predicate);
+      ResultSet resultSet=selectStatement.executeQuery();
+      return (List<E>)genericResultSetMapper.mapAll(resultSet,entityClass);
+    }
+  }
+,Collections.emptyList());
+}

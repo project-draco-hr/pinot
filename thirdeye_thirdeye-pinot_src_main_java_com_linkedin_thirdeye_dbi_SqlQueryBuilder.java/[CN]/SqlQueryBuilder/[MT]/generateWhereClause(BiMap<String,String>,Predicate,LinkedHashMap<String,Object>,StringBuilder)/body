@@ -1,0 +1,25 @@
+{
+switch (predicate.getOper()) {
+case AND:
+case OR:
+    whereClause.append("(");
+  String delim="";
+for (Predicate childPredicate : predicate.getChildPredicates()) {
+  whereClause.append(delim);
+  generateWhereClause(entityNameToDBNameMapping,childPredicate,parametersMap,whereClause);
+  delim="  " + predicate.getOper().toString() + " ";
+}
+whereClause.append(")");
+break;
+case EQ:
+case GT:
+case IN:
+case LT:
+case NEQ:
+whereClause.append(predicate.getLhs()).append(predicate.getOper().toString()).append("?");
+parametersMap.put(entityNameToDBNameMapping.get(predicate.getLhs()),predicate.getRhs());
+break;
+default :
+break;
+}
+}

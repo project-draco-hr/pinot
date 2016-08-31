@@ -1,0 +1,41 @@
+{
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  parameterizedSQL=parameterizedSQL.replace(entityClass.getSimpleName(),tableName);
+  StringBuilder psSql=new StringBuilder();
+  List<String> paramNames=new ArrayList<String>();
+  Matcher m=PARAM_PATTERN.matcher(parameterizedSQL);
+  int index=0;
+  while (m.find(index)) {
+    psSql.append(parameterizedSQL.substring(index,m.start()));
+    String name=m.group(1);
+    index=m.end();
+    if (parameterMap.containsKey(name)) {
+      psSql.append("?");
+      paramNames.add(name);
+    }
+ else {
+      throw new IllegalArgumentException("Unknown parameter '" + name + "' at position "+ m.start());
+    }
+  }
+  psSql.append(parameterizedSQL.substring(index));
+  String sql=psSql.toString();
+  BiMap<String,String> dbNameToEntityNameMapping=entityMappingHolder.columnMappingPerTable.get(tableName);
+  for (  Entry<String,String> entry : dbNameToEntityNameMapping.entrySet()) {
+    String dbName=entry.getKey();
+    String entityName=entry.getValue();
+    sql=sql.toString().replaceAll(entityName,dbName);
+  }
+  System.out.println("Generated SQL:" + sql);
+  PreparedStatement ps=connection.prepareStatement(sql);
+  int parameterIndex=1;
+  LinkedHashMap<String,ColumnInfo> columnInfo=entityMappingHolder.columnInfoPerTable.get(tableName);
+  for (  String entityFieldName : paramNames) {
+    String dbFieldName=dbNameToEntityNameMapping.inverse().get(entityFieldName);
+    Object val=parameterMap.get(entityFieldName);
+    if (Enum.class.isAssignableFrom(val.getClass())) {
+      val=val.toString();
+    }
+    ps.setObject(parameterIndex++,val,columnInfo.get(dbFieldName).sqlType);
+  }
+  return ps;
+}

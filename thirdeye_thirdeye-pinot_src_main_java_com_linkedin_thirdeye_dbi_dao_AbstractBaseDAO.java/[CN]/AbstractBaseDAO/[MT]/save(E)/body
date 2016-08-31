@@ -1,0 +1,20 @@
+{
+  if (entity.getId() != null) {
+    throw new RuntimeException("id must be null when inserting new record. If you are trying to update call update");
+  }
+  return runTask(new Task<Long>(){
+    @Override public Long handle(    Connection connection) throws Exception {
+      PreparedStatement insertStatement=sqlQueryBuilder.createInsertStatement(connection,entity);
+      int affectedRows=insertStatement.executeUpdate();
+      if (affectedRows == 1) {
+        ResultSet generatedKeys=insertStatement.getGeneratedKeys();
+        if (generatedKeys.next()) {
+          entity.setId(generatedKeys.getLong(1));
+        }
+        return entity.getId();
+      }
+      return null;
+    }
+  }
+,null);
+}

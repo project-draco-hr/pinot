@@ -1,0 +1,19 @@
+{
+  this.dataSource=dataSource;
+  entityMappingHolder=new EntityMappingHolder();
+  try (Connection conn=dataSource.getConnection()){
+    entityMappingHolder.register(conn,AnomalyFeedback.class,convertCamelCaseToUnderscore(AnomalyFeedback.class.getName()));
+    entityMappingHolder.register(conn,AnomalyFunction.class,convertCamelCaseToUnderscore(AnomalyFunction.class.getName()));
+    entityMappingHolder.register(conn,Job.class,convertCamelCaseToUnderscore(Job.class.getName()));
+    entityMappingHolder.register(conn,AnomalyMergedResult.class,convertCamelCaseToUnderscore(AnomalyMergedResult.class.getName()));
+    entityMappingHolder.register(conn,AnomalyRawResult.class,convertCamelCaseToUnderscore(AnomalyRawResult.class.getName()));
+    entityMappingHolder.register(conn,Task.class,convertCamelCaseToUnderscore(Task.class.getName()));
+    entityMappingHolder.register(conn,EmailConfiguration.class,convertCamelCaseToUnderscore(EmailConfiguration.class.getName()));
+    entityMappingHolder.register(conn,WebappConfig.class,convertCamelCaseToUnderscore(WebappConfig.class.getName()));
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  builder=new SqlQueryBuilder(entityMappingHolder);
+  genericResultSetMapper=new GenericResultSetMapper(entityMappingHolder);
+}

@@ -1,0 +1,10 @@
+{
+  return runTask(new Task<Integer>(){
+    @Override public Integer handle(    Connection connection) throws Exception {
+      PreparedStatement updateStatement;
+      updateStatement=sqlQueryBuilder.createUpdateStatement(connection,entity,null);
+      return updateStatement.executeUpdate();
+    }
+  }
+,0);
+}

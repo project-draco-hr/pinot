@@ -1,0 +1,22 @@
+{
+  StringBuilder values=new StringBuilder(" VALUES");
+  StringBuilder names=new StringBuilder("");
+  names.append("(");
+  values.append("(");
+  String delim="";
+  for (  ColumnInfo columnInfo : columnInfoMap.values()) {
+    String columnName=columnInfo.columnNameInDB;
+    if (!AUTO_UPDATE_COLUMN_SET.contains(columnName.toLowerCase())) {
+      names.append(delim);
+      names.append(columnName);
+      values.append(delim);
+      values.append("?");
+      delim=",";
+    }
+  }
+  names.append(")");
+  values.append(")");
+  StringBuilder sb=new StringBuilder("INSERT INTO ");
+  sb.append(tableName).append(names.toString()).append(values.toString());
+  return sb.toString();
+}

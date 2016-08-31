@@ -1,0 +1,21 @@
+{
+  List<Map<String,Object>> resultMapList=new ArrayList<>();
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  BiMap<String,String> dbNameToEntityNameMapping=entityMappingHolder.columnMappingPerTable.get(tableName);
+  while (rs.next()) {
+    ResultSetMetaData resultSetMetaData=rs.getMetaData();
+    int numColumns=resultSetMetaData.getColumnCount();
+    HashMap<String,Object> map=new HashMap<>();
+    for (int i=1; i <= numColumns; i++) {
+      String dbColumnName=resultSetMetaData.getColumnLabel(i).toLowerCase();
+      String entityFieldName=dbNameToEntityNameMapping.get(dbColumnName);
+      Object val=rs.getObject(i);
+      if (val != null) {
+        map.put(entityFieldName,val.toString());
+      }
+    }
+    resultMapList.add(map);
+  }
+  System.out.println(resultMapList);
+  return resultMapList;
+}
