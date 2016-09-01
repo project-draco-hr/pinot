@@ -1,0 +1,13 @@
+{
+  List<EmailConfiguration> emailConfigurations=emailDAO.findAll();
+  List<EmailFunctionDependency> dependencies=new ArrayList<>();
+  for (  EmailConfiguration emailConfiguration : emailConfigurations) {
+    for (    AnomalyFunctionSpec spec : emailConfiguration.getFunctions()) {
+      EmailFunctionDependency dependency=new EmailFunctionDependency();
+      dependency.setEmailId(emailConfiguration.getId());
+      dependency.setFunctionId(spec.getId());
+      dependencies.add(dependency);
+    }
+  }
+  return dependencies;
+}
