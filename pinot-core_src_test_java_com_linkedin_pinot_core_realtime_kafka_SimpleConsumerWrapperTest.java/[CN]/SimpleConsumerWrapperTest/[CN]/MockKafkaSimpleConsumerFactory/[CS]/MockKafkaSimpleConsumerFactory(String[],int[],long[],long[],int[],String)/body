@@ -1,0 +1,17 @@
+{
+  Preconditions.checkArgument(hosts.length == ports.length);
+  this.hosts=hosts;
+  this.ports=ports;
+  brokerCount=hosts.length;
+  brokerArray=new Broker[brokerCount];
+  for (int i=0; i < brokerCount; i++) {
+    brokerArray[i]=new Broker(i,hosts[i],ports[i]);
+  }
+  Preconditions.checkArgument(partitionStartOffsets.length == partitionEndOffsets.length);
+  Preconditions.checkArgument(partitionStartOffsets.length == partitionLeaderIndices.length);
+  this.partitionStartOffsets=partitionStartOffsets;
+  this.partitionEndOffsets=partitionEndOffsets;
+  this.partitionLeaderIndices=partitionLeaderIndices;
+  partitionCount=partitionStartOffsets.length;
+  this.topicName=topicName;
+}

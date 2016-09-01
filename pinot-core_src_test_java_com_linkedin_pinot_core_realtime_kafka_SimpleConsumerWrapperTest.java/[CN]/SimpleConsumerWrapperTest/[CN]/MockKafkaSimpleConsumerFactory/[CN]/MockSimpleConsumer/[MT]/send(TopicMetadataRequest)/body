@@ -1,0 +1,21 @@
+{
+  java.util.List<String> topics=request.topics();
+  TopicMetadata[] topicMetadataArray=new TopicMetadata[topics.size()];
+  for (int i=0; i < topicMetadataArray.length; i++) {
+    String topic=topics.get(i);
+    if (!topic.equals(topicName)) {
+      topicMetadataArray[i]=new TopicMetadata(topic,null,Errors.UNKNOWN_TOPIC_OR_PARTITION.code());
+    }
+ else {
+      PartitionMetadata[] partitionMetadataArray=new PartitionMetadata[partitionCount];
+      for (int j=0; j < partitionCount; j++) {
+        partitionMetadataArray[j]=new PartitionMetadata(j,Some.apply(brokerArray[partitionLeaderIndices[j]]),List.<Broker>empty(),List.<Broker>empty(),Errors.NONE.code());
+      }
+      Seq<PartitionMetadata> partitionsMetadata=List.fromArray(partitionMetadataArray);
+      topicMetadataArray[i]=new TopicMetadata(topic,partitionsMetadata,Errors.NONE.code());
+    }
+  }
+  Seq<Broker> brokers=List.fromArray(brokerArray);
+  Seq<TopicMetadata> topicsMetadata=List.fromArray(topicMetadataArray);
+  return new TopicMetadataResponse(new kafka.api.TopicMetadataResponse(brokers,topicsMetadata,-1));
+}

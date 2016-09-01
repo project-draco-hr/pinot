@@ -1,0 +1,5 @@
+{
+  MockKafkaSimpleConsumerFactory simpleConsumerFactory=new MockKafkaSimpleConsumerFactory(new String[]{"abcd","bcde"},new int[]{1234,2345},new long[]{12345L,23456L},new long[]{23456L,34567L},new int[]{0,1},"theTopic");
+  SimpleConsumerWrapper consumerWrapper=SimpleConsumerWrapper.forPartitionConsumption(simpleConsumerFactory,"abcd:1234,bcde:2345","clientId","theTopic",0);
+  consumerWrapper.fetchPartitionOffset("smallest",1000);
+}

@@ -1,0 +1,22 @@
+{
+  scala.collection.Traversable<Tuple2<TopicAndPartition,PartitionFetchInfo>> requestInfo=request.requestInfo();
+  java.util.Map<TopicAndPartition,Short> errorMap=new HashMap<>();
+  while (requestInfo.headOption().isDefined()) {
+    Tuple2<TopicAndPartition,PartitionFetchInfo> t2=requestInfo.head();
+    TopicAndPartition topicAndPartition=t2._1();
+    PartitionFetchInfo partitionFetchInfo=t2._2();
+    if (!topicAndPartition.topic().equals(topicName)) {
+      errorMap.put(topicAndPartition,Errors.UNKNOWN_TOPIC_OR_PARTITION.code());
+    }
+ else     if (partitionLeaderIndices.length < topicAndPartition.partition()) {
+      errorMap.put(topicAndPartition,Errors.UNKNOWN_TOPIC_OR_PARTITION.code());
+    }
+ else     if (partitionLeaderIndices[topicAndPartition.partition()] != index) {
+      errorMap.put(topicAndPartition,Errors.NOT_LEADER_FOR_PARTITION.code());
+    }
+ else {
+    }
+    requestInfo=requestInfo.tail();
+  }
+  return new MockFetchResponse(errorMap);
+}

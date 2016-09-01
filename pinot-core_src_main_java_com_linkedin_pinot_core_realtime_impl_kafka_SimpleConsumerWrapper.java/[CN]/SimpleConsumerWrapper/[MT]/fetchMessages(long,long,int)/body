@@ -1,4 +1,5 @@
 {
+  Preconditions.checkState(!_metadataOnlyConsumer,"Cannot fetch messages from a metadata-only SimpleConsumerWrapper");
   while (_currentState.getStateValue() != ConsumerState.CONNECTED_TO_PARTITION_LEADER) {
     _currentState.process();
   }

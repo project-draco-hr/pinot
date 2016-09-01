@@ -1,0 +1,5 @@
+{
+  MockKafkaSimpleConsumerFactory simpleConsumerFactory=new MockKafkaSimpleConsumerFactory(new String[]{"abcd","bcde"},new int[]{1234,2345},new long[]{12345L,23456L},new long[]{23456L,34567L},new int[]{0,1},"theTopic");
+  SimpleConsumerWrapper consumerWrapper=SimpleConsumerWrapper.forMetadataConsumption(simpleConsumerFactory,"abcd:1234,bcde:2345","clientId");
+  assertEquals(consumerWrapper.getPartitionCount("theTopic",10000L),2);
+}
