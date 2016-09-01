@@ -1,0 +1,16 @@
+{
+  List<Map<String,Object>> resultMapList=toResultMapList(rs,entityClass);
+  if (resultMapList.size() > 0) {
+    Map<String,Object> map=resultMapList.get(0);
+    if (map.get("workerId") != null) {
+      ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(new File("/tmp/map.out." + System.currentTimeMillis())));
+      oos.writeObject(map);
+      oos.close();
+      System.out.println(map);
+    }
+    AbstractJsonEntity entity=modelMapper.map(map,entityClass);
+    System.out.println(entity);
+    return entity;
+  }
+  return null;
+}

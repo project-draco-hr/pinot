@@ -1,0 +1,37 @@
+{
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  LinkedHashMap<String,ColumnInfo> columnInfoMap=entityMappingHolder.columnInfoPerTable.get(tableName);
+  List<AbstractJsonEntity> entityList=new ArrayList<>();
+  ObjectMapper mapper=new ObjectMapper();
+  while (rs.next()) {
+    AbstractJsonEntity entityObj=entityClass.newInstance();
+    ResultSetMetaData resultSetMetaData=rs.getMetaData();
+    int numColumns=resultSetMetaData.getColumnCount();
+    ObjectNode objectNode=mapper.createObjectNode();
+    for (int i=1; i <= numColumns; i++) {
+      String dbColumnName=resultSetMetaData.getColumnLabel(i).toLowerCase();
+      ColumnInfo columnInfo=columnInfoMap.get(dbColumnName);
+      Field field=columnInfo.field;
+      Object val;
+      if (columnInfo.sqlType == Types.CLOB) {
+        Clob clob=rs.getClob(i);
+        val=clob.getSubString(1,(int)clob.length());
+      }
+ else {
+        val=rs.getObject(i);
+      }
+      if (val == null) {
+        continue;
+      }
+      if (field.getType().isAssignableFrom(Timestamp.class)) {
+        objectNode.put(field.getName(),((Timestamp)val).getTime());
+      }
+ else {
+        objectNode.put(field.getName(),val.toString());
+      }
+    }
+    entityObj=mapper.readValue(objectNode,entityClass);
+    entityList.add(entityObj);
+  }
+  return entityList;
+}
