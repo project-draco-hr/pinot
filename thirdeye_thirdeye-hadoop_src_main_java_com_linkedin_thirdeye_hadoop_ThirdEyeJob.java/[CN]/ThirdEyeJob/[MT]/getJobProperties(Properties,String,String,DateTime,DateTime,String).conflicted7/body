@@ -1,10 +1,13 @@
 {
   Properties config=new Properties();
-  config.setProperty(BackfillPhaseConstants.BACKFILL_PHASE_CONTROLLER_HOST.toString(),inputConfig.getProperty(ThirdEyeJobProperties.THIRDEYE_PINOT_CONTROLLER_HOSTS.getName()));
-  config.setProperty(BackfillPhaseConstants.BACKFILL_PHASE_CONTROLLER_PORT.toString(),inputConfig.getProperty(ThirdEyeJobProperties.THIRDEYE_PINOT_CONTROLLER_PORT.getName()));
-  config.setProperty(BackfillPhaseConstants.BACKFILL_PHASE_START_TIME.toString(),inputConfig.getProperty(ThirdEyeJobProperties.THIRDEYE_BACKFILL_START_TIME.getName()));
-  config.setProperty(BackfillPhaseConstants.BACKFILL_PHASE_END_TIME.toString(),inputConfig.getProperty(ThirdEyeJobProperties.THIRDEYE_BACKFILL_END_TIME.getName()));
-  config.setProperty(BackfillPhaseConstants.BACKFILL_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + BACKFILL.getName());
-  config.setProperty(BackfillPhaseConstants.BACKFILL_PHASE_TABLE_NAME.toString(),collection);
+  Path aggOutputPath=new Path(getIndexDir(root,collection,minTime,maxTime) + File.separator + AGGREGATION.getName());
+  FileSystem fs=FileSystem.get(new Configuration());
+  if (fs.exists(aggOutputPath)) {
+    inputPaths=aggOutputPath.toString();
+  }
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_INPUT_PATH.toString(),inputPaths);
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_SCHEMA.toString(),getIndexDir(root,collection,minTime,maxTime));
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_OUTPUT_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + DERIVED_COLUMN_TRANSFORMATION.getName());
+  config.setProperty(DerivedColumnTransformationPhaseConstants.DERIVED_COLUMN_TRANSFORMATION_PHASE_TOPK_PATH.toString(),getIndexDir(root,collection,minTime,maxTime) + File.separator + TOPK.getName());
   return config;
 }
