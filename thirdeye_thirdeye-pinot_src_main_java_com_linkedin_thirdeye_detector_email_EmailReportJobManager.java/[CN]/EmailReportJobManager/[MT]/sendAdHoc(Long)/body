@@ -1,9 +1,0 @@
-{
-synchronized (sync) {
-    EmailConfiguration emailConfig=configurationDAO.findById(id);
-    String triggerKey=String.format("ad_hoc_email_trigger_%d",emailConfig.getId());
-    Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
-    String jobKey=String.format("ad_hoc_email_job_%d",emailConfig.getId());
-    buildAndScheduleJob(emailConfig,trigger,jobKey);
-  }
-}

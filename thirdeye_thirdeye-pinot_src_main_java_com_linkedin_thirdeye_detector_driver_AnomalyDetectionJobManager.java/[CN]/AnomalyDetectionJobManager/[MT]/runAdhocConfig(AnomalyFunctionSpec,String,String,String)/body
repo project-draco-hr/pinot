@@ -1,7 +1,0 @@
-{
-  AnomalyFunction anomalyFunction=anomalyFunctionFactory.fromSpec(spec);
-  String triggerKey=String.format("file-based_anomaly_function_trigger_%s",executionName);
-  Trigger trigger=TriggerBuilder.newTrigger().withIdentity(triggerKey).startNow().build();
-  String jobKey=String.format("file-based_anomaly_function_job_%s",executionName);
-  buildAndScheduleJob(jobKey,trigger,anomalyFunction,spec,windowStartIsoString,windowEndIsoString);
-}
