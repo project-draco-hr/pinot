@@ -1,6 +1,6 @@
 {
-  AnomalyFunctionSpec function=functionDAO.findById(relation.getFunctionId());
-  EmailConfiguration emailConfiguration=emailDAO.findById(relation.getEmailId());
+  AnomalyFunctionSpec function=functionDAO.findById(functionId);
+  EmailConfiguration emailConfiguration=emailDAO.findById(emailId);
   if (function != null && emailConfiguration != null) {
     if (!emailConfiguration.getFunctions().contains(function)) {
       emailConfiguration.getFunctions().add(function);
@@ -8,7 +8,7 @@
     }
   }
  else {
-    throw new IllegalArgumentException("function or email not found for input : " + relation.toString());
+    throw new IllegalArgumentException("function or email not found for email : " + emailId + " function : "+ functionId);
   }
   return Response.ok().build();
 }

@@ -22,7 +22,7 @@
       LOG.error("Could not recompute severity",e);
     }
   }
-  mergedResult.setMessage(mergedResult.getAnomalyResults().get(mergedResult.getAnomalyResults().size() - 1).getMessage());
+  mergedResult.setMessage(createMessage(mergedResult.getWeight()));
   try {
     mergedResultDAO.update(mergedResult);
     anomalyResultDAO.updateAll(mergedResult.getAnomalyResults());
