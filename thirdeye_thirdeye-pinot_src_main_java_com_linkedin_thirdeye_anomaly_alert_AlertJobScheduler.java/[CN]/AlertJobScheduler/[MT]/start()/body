@@ -1,6 +1,6 @@
 {
   quartzScheduler.start();
-  List<EmailConfiguration> alertConfigs=readAlertConfigurations();
+  List<EmailConfiguration> alertConfigs=emailConfigurationDAO.findAll();
   for (  EmailConfiguration alertConfig : alertConfigs) {
     if (alertConfig.getIsActive()) {
       AlertJobContext alertJobContext=new AlertJobContext();

@@ -1,0 +1,11 @@
+{
+  URL configUrl=getClass().getResource("/persistence-local.yml");
+  File configFile=new File(configUrl.toURI());
+  DaoProviderUtil.init(configFile);
+  DataSource ds=DaoProviderUtil.getInstance(DataSource.class);
+  conn=ds.getConnection();
+  URL createSchemaUrl=getClass().getResource("/schema/create-schema.sql");
+  scriptRunner=new ScriptRunner(conn,false,false);
+  scriptRunner.setDelimiter(";",true);
+  scriptRunner.runScript(new FileReader(createSchemaUrl.getFile()));
+}

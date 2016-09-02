@@ -14,13 +14,11 @@
     mergedResult.setScore((weightedScoreSum / totalBucketSize) * normalizationFactor);
     mergedResult.setWeight((weightedWeightSum / totalBucketSize) * normalizationFactor);
   }
-  if (mergedResult.getAnomalyResults().size() > 1) {
-    try {
-      updateMergedSeverity(mergedResult);
-    }
- catch (    Exception e) {
-      LOG.error("Could not recompute severity",e);
-    }
+  try {
+    updateMergedSeverity(mergedResult);
+  }
+ catch (  Exception e) {
+    LOG.error("Could not recompute severity",e);
   }
   mergedResult.setMessage(createMessage(mergedResult.getWeight()));
   try {

@@ -1,0 +1,40 @@
+{
+  StringBuffer command=null;
+  try {
+    LineNumberReader lineReader=new LineNumberReader(reader);
+    String line=null;
+    while ((line=lineReader.readLine()) != null) {
+      if (command == null) {
+        command=new StringBuffer();
+      }
+      if (line.startsWith("--")) {
+        continue;
+      }
+      command.append(line).append(" ");
+      if (line.endsWith(";")) {
+        conn.prepareStatement(command.toString()).executeUpdate();
+        System.out.println(command);
+        command=null;
+      }
+    }
+    if (!autoCommit) {
+      conn.commit();
+    }
+  }
+ catch (  SQLException e) {
+    e.fillInStackTrace();
+    printlnError("Error executing: " + command);
+    printlnError(e);
+    throw e;
+  }
+catch (  IOException e) {
+    e.fillInStackTrace();
+    printlnError("Error executing: " + command);
+    printlnError(e);
+    throw e;
+  }
+ finally {
+    conn.rollback();
+    flush();
+  }
+}
