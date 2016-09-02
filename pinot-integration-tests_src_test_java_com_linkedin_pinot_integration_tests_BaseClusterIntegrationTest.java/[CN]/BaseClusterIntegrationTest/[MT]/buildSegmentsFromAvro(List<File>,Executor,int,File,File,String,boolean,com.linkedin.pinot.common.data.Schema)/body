@@ -17,7 +17,12 @@
           }
           genConfig.setSegmentNamePostfix(Integer.toString(segmentNumber) + " %");
           genConfig.setEnableStarTreeIndex(createStarTreeIndex);
-          genConfig.setStarTreeIndexSpec(null);
+          StarTreeIndexSpec starTreeIndexSpec=null;
+          if (createStarTreeIndex) {
+            starTreeIndexSpec=new StarTreeIndexSpec();
+            starTreeIndexSpec.setEnableOffHeapFormat(true);
+          }
+          genConfig.setStarTreeIndexSpec(starTreeIndexSpec);
           final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
           driver.init(genConfig);
           driver.build();

@@ -1,0 +1,42 @@
+{
+  File starTreeFile=new File(indexDir,V1Constants.STAR_TREE_INDEX_FILE);
+  if (!starTreeFile.exists()) {
+    LOGGER.info("Skipping Star Tree format conversion, as no star tree file exists for {}",starTreeFile.getAbsoluteFile());
+    return;
+  }
+  StarTreeFormatVersion actualVersion=getStarTreeVersion(starTreeFile);
+  if (actualVersion == StarTreeFormatVersion.V1 && starTreeVersionToLoad == StarTreeFormatVersion.V2) {
+    LOGGER.info("Converting Star Tree from V1 to V2 format for {}",starTreeFile.getAbsolutePath());
+    File starTreeV2File=new File(indexDir,V1Constants.STAR_TREE_V2_INDEX_FILE);
+    if (starTreeV2File.exists()) {
+      LOGGER.info("Replacing star tree v1 format with v2 format for {}",starTreeFile.getAbsolutePath());
+      FileUtils.copyFile(starTreeV2File,starTreeFile);
+    }
+ else {
+      StarTreeInterf starTreeV1=fromFile(starTreeFile,ReadMode.heap);
+      try {
+        writeTreeV2(starTreeV1,starTreeV2File);
+        FileUtils.copyFile(starTreeFile,new File(indexDir,V1Constants.STAR_TREE_V1_INDEX_FILE));
+        FileUtils.copyFile(starTreeV2File,starTreeFile);
+      }
+ catch (      Exception e) {
+        LOGGER.warn("Exception caught while convert star tree v1 to v2 for {}",starTreeFile.getAbsolutePath(),e);
+      }
+    }
+  }
+ else   if (actualVersion == StarTreeFormatVersion.V2 && starTreeVersionToLoad == StarTreeFormatVersion.V1) {
+    File starTreeV1File=new File(indexDir,V1Constants.STAR_TREE_V1_INDEX_FILE);
+    if (starTreeV1File.exists()) {
+      try {
+        FileUtils.copyFile(starTreeFile,new File(indexDir,V1Constants.STAR_TREE_V2_INDEX_FILE));
+        FileUtils.copyFile(starTreeV1File,starTreeFile);
+      }
+ catch (      Exception e) {
+        LOGGER.warn("Exception caught while converting star tree v2 to v1 for {}",starTreeFile.getAbsolutePath(),e);
+      }
+    }
+ else {
+      LOGGER.info("Could not replace star tree format v2 to v1 as {} does not exist, will load v2 format",starTreeV1File.getAbsolutePath());
+    }
+  }
+}

@@ -5,6 +5,10 @@
   SegmentMetadataImpl metadata=new SegmentMetadataImpl(indexDir);
   SegmentVersion configuredVersionToLoad=getSegmentVersionToLoad(indexLoadingConfigMetadata);
   SegmentVersion metadataVersion=metadata.getSegmentVersion();
+  if (indexLoadingConfigMetadata != null) {
+    StarTreeFormatVersion starTreeVersionToLoad=getStarTreeVersionToLoad(indexLoadingConfigMetadata);
+    StarTreeSerDe.convertStarTreeFormatIfNeeded(indexDir,starTreeVersionToLoad);
+  }
   if (shouldConvertFormat(metadataVersion,configuredVersionToLoad) && !targetFormatAlreadyExists(indexDir,configuredVersionToLoad)) {
     LOGGER.info("segment:{} needs to be converted from :{} to {} version.",indexDir.getName(),metadataVersion,configuredVersionToLoad);
     SegmentFormatConverter converter=SegmentFormatConverterFactory.getConverter(metadataVersion,configuredVersionToLoad);

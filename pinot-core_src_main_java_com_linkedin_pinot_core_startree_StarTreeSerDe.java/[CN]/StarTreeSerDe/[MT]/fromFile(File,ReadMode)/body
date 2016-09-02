@@ -1,11 +1,11 @@
 {
   InputStream inputStream=new FileInputStream(starTreeFile);
   BufferedInputStream bufferedInputStream=new BufferedInputStream(inputStream);
-  StarTreeInterf.Version starTreeVersion=getStarTreeVersion(bufferedInputStream);
-  if (starTreeVersion.equals(StarTreeInterf.Version.V1)) {
+  StarTreeFormatVersion starTreeVersion=getStarTreeVersion(bufferedInputStream);
+  if (starTreeVersion.equals(StarTreeFormatVersion.V1)) {
     return fromBytesV1(bufferedInputStream);
   }
- else   if (starTreeVersion.equals(StarTreeInterf.Version.V2)) {
+ else   if (starTreeVersion.equals(StarTreeFormatVersion.V2)) {
     return new StarTreeV2(starTreeFile,readMode);
   }
  else {
