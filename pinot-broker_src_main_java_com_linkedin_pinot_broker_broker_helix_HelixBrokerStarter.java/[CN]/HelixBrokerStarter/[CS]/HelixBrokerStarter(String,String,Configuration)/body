@@ -1,14 +1,17 @@
 {
+  LOGGER.info("Starting Pinot broker");
   _liveInstancesListener=new LiveInstancesChangeListenerImpl(helixClusterName);
   _pinotHelixProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf(pinotHelixProperties);
   final String brokerId=_pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE + NetUtil.getHostAddress() + "_"+ _pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT));
   _pinotHelixProperties.addProperty("pinot.broker.id",brokerId);
   setupHelixSystemProperties();
   String zkServers=zkServer.replaceAll("\\s+","");
+  LOGGER.info("Starting Zookeeper client");
   _zkClient=new ZkClient(getZkAddressForBroker(zkServers,helixClusterName),ZkClient.DEFAULT_SESSION_TIMEOUT,ZkClient.DEFAULT_CONNECTION_TIMEOUT,new ZNRecordSerializer());
   _propertyStore=new ZkHelixPropertyStore<ZNRecord>(new ZkBaseDataAccessor<ZNRecord>(_zkClient),"/",null);
   RoutingTableSelector selector=RoutingTableSelectorFactory.getRoutingTableSelector(pinotHelixProperties.subset(ROUTING_TABLE_SELECTOR_SUBSET_KEY));
   _helixExternalViewBasedRouting=new HelixExternalViewBasedRouting(_propertyStore,selector);
+  LOGGER.info("Connecting Helix components");
   _brokerServerBuilder=startBroker(_pinotHelixProperties);
   _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,brokerId,InstanceType.PARTICIPANT,zkServers);
   final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();

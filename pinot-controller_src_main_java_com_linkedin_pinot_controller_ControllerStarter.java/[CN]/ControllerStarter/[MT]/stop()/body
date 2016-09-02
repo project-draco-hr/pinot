@@ -1,20 +1,20 @@
 {
   try {
-    LOGGER.info("stopping validation manager");
+    LOGGER.info("Stopping validation manager");
     validationManager.stop();
-    LOGGER.info("stopping retention manager");
+    LOGGER.info("Stopping retention manager");
     retentionManager.stop();
-    LOGGER.info("stopping api component");
+    LOGGER.info("Stopping API component");
     component.stop();
-    LOGGER.info("stopping realtime segments manager");
+    LOGGER.info("Stopping realtime segment manager");
     realtimeSegmentsManager.stop();
-    LOGGER.info("stopping resource manager");
+    LOGGER.info("Stopping resource manager");
     helixResourceManager.stop();
-    LOGGER.info("stopping segments status manager");
+    LOGGER.info("Stopping segment status manager");
     segmentStatusChecker.stop();
     executorService.shutdownNow();
   }
  catch (  final Exception e) {
-    LOGGER.error("Caught exception",e);
+    LOGGER.error("Caught exception while shutting down",e);
   }
 }

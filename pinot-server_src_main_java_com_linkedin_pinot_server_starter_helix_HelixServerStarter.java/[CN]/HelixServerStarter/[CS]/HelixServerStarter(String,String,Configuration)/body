@@ -1,10 +1,12 @@
 {
+  LOGGER.info("Starting Pinot server");
   _helixClusterName=helixClusterName;
   _pinotHelixProperties=pinotHelixProperties;
   String hostname=pinotHelixProperties.getString(CommonConstants.Helix.KEY_OF_SERVER_NETTY_HOST,NetUtil.getHostAddress());
   _instanceId=pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_SERVER_INSTANCE + hostname + "_"+ pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_SERVER_NETTY_PORT,CommonConstants.Helix.DEFAULT_SERVER_NETTY_PORT));
   pinotHelixProperties.addProperty("pinot.server.instance.id",_instanceId);
   startServerInstance(pinotHelixProperties);
+  LOGGER.info("Connecting Helix components");
   String zkServers=zkServer.replaceAll("\\s+","");
   _helixManager=HelixManagerFactory.getZKHelixManager(helixClusterName,_instanceId,InstanceType.PARTICIPANT,zkServers);
   final StateMachineEngine stateMachineEngine=_helixManager.getStateMachineEngine();
@@ -34,6 +36,7 @@
   }
 );
   ControllerLeaderLocator.create(_helixManager);
+  LOGGER.info("Pinot server ready");
   _serverInstance.getServerMetrics().addCallbackGauge("memory.directByteBufferUsage",new Callable<Long>(){
     @Override public Long call() throws Exception {
       return MmapUtils.getDirectByteBufferUsage();

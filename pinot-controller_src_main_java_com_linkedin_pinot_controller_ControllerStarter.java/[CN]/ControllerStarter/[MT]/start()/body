@@ -1,10 +1,11 @@
 {
+  LOGGER.info("Starting Pinot controller");
   Utils.logVersions();
   component.getServers().add(Protocol.HTTP,Integer.parseInt(config.getControllerPort()));
   component.getClients().add(Protocol.FILE);
   component.getClients().add(Protocol.JAR);
   final Context applicationContext=component.getContext().createChildContext();
-  LOGGER.info("injecting conf and resource manager to the api context");
+  LOGGER.info("Injecting configuration and resource manager to the API context");
   applicationContext.getAttributes().put(ControllerConf.class.toString(),config);
   applicationContext.getAttributes().put(PinotHelixResourceManager.class.toString(),helixResourceManager);
   MultiThreadedHttpConnectionManager connectionManager=new MultiThreadedHttpConnectionManager();
@@ -17,19 +18,21 @@
   MetricsHelper.registerMetricsRegistry(_metricsRegistry);
   final ControllerMetrics controllerMetrics=new ControllerMetrics(_metricsRegistry);
   try {
-    LOGGER.info("starting pinot helix resource manager");
+    LOGGER.info("Starting Pinot Helix resource manager and connecting to Zookeeper");
     helixResourceManager.start();
     PinotLLCRealtimeSegmentManager.create(helixResourceManager,config);
-    LOGGER.info("starting api component");
+    LOGGER.info("Starting Pinot REST API component");
     component.start();
-    LOGGER.info("starting retention manager");
+    LOGGER.info("Starting retention manager");
     retentionManager.start();
-    LOGGER.info("starting validation manager");
+    LOGGER.info("Starting validation manager");
     validationManager.start();
-    LOGGER.info("starting realtime segments manager");
+    LOGGER.info("Starting realtime segment manager");
     realtimeSegmentsManager.start(controllerMetrics);
-    LOGGER.info("starting segments status manager");
+    LOGGER.info("Starting segment status manager");
     segmentStatusChecker.start(controllerMetrics);
+    LOGGER.info("Pinot controller ready and listening on port {} for API requests",config.getControllerPort());
+    LOGGER.info("Controller services available at http://{}:{}/",config.getControllerHost(),config.getControllerPort());
   }
  catch (  final Exception e) {
     LOGGER.error("Caught exception while starting controller",e);

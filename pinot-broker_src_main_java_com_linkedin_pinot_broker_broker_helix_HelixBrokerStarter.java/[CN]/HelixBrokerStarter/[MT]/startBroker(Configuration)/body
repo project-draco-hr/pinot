@@ -6,6 +6,7 @@
   brokerServerBuilder.buildNetwork();
   brokerServerBuilder.buildHTTP();
   brokerServerBuilder.start();
+  LOGGER.info("Pinot broker ready and listening on port {} for API requests",config.getProperty("pinot.broker.client.queryPort"));
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       try {
