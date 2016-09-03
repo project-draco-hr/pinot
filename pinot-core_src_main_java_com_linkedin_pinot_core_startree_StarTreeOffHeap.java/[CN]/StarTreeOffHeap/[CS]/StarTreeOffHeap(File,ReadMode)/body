@@ -1,0 +1,11 @@
+{
+  int rootOffset=readHeader(starTreeFile);
+  long size=starTreeFile.length() - rootOffset;
+  if (readMode.equals(ReadMode.mmap)) {
+    dataBuffer=new MMapBuffer(starTreeFile,rootOffset,size,MMapMode.READ_ONLY);
+  }
+ else {
+    dataBuffer=loadFromFile(starTreeFile,rootOffset);
+  }
+  root=new StarTreeIndexNodeOffHeap(dataBuffer,0);
+}

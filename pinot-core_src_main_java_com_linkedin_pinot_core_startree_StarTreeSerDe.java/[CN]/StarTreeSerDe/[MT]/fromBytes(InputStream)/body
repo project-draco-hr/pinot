@@ -2,10 +2,10 @@
   BufferedInputStream bufferedInputStream=new BufferedInputStream(inputStream);
   StarTreeFormatVersion version=getStarTreeVersion(bufferedInputStream);
 switch (version) {
-case V1:
-    return fromBytesV1(bufferedInputStream);
-case V2:
-  return fromBytesV2(bufferedInputStream);
+case ON_HEAP:
+    return fromBytesToOnHeapFormat(bufferedInputStream);
+case OFF_HEAP:
+  return fromBytesToOffHeapFormat(bufferedInputStream);
 default :
 throw new RuntimeException("StarTree version number not recognized: " + version);
 }

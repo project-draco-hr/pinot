@@ -1,0 +1,24 @@
+{
+  compareNodes(rootOnheap,rootOffHeap);
+  StarTreeIndexNodeInterf star1=rootOnheap.getChildForDimensionValue(StarTreeIndexNodeInterf.ALL);
+  StarTreeIndexNodeInterf star2=rootOffHeap.getChildForDimensionValue(StarTreeIndexNodeInterf.ALL);
+  Assert.assertEquals((star2 == null),(star1 == null));
+  Assert.assertEquals(rootOnheap.getNumChildren(),rootOnheap.getNumChildren(),"Mis-match in number of children");
+  int numChildren=0;
+  Iterator<? extends StarTreeIndexNodeInterf> childrenIterator=rootOffHeap.getChildrenIterator();
+  while (childrenIterator.hasNext()) {
+    StarTreeIndexNodeInterf childOffHeap=childrenIterator.next();
+    StarTreeIndexNodeInterf childOnHeap=rootOnheap.getChildForDimensionValue(childOffHeap.getDimensionValue());
+    Assert.assertNotNull(childOnHeap);
+    compareNodes(childOnHeap,childOffHeap);
+    numChildren++;
+  }
+  Assert.assertEquals(rootOffHeap.getNumChildren(),numChildren,"Mis-match in number of children");
+  childrenIterator=rootOnheap.getChildrenIterator();
+  while (childrenIterator.hasNext()) {
+    StarTreeIndexNodeInterf childOnHeap=childrenIterator.next();
+    StarTreeIndexNodeInterf childOffHeap=rootOffHeap.getChildForDimensionValue(childOnHeap.getDimensionValue());
+    Assert.assertNotNull(childOffHeap);
+    compareTrees(childOnHeap,childOffHeap);
+  }
+}

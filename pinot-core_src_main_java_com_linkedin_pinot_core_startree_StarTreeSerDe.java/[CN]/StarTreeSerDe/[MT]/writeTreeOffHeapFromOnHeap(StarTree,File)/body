@@ -1,0 +1,10 @@
+{
+  int headerSizeInBytes=computeOffHeapHeaderSizeInBytes(starTree);
+  long totalSize=headerSizeInBytes + computeOffHeapNodesSizeInBytes(starTree);
+  MMapBuffer mappedByteBuffer=new MMapBuffer(outputFile,0,totalSize,MMapMode.READ_WRITE);
+  long offset=writeHeaderOffHeap(starTree,headerSizeInBytes,mappedByteBuffer);
+  Preconditions.checkState((offset == headerSizeInBytes),"Error writing Star Tree file, header size mis-match");
+  writeNodesOffHeap(starTree,mappedByteBuffer,offset);
+  mappedByteBuffer.flush();
+  mappedByteBuffer.close();
+}

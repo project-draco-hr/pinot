@@ -1,0 +1,22 @@
+{
+  if (isLeaf()) {
+    return null;
+  }
+  int lo=childrenStartIndex;
+  int hi=childrenEndIndex;
+  while (lo <= hi) {
+    int mid=lo + ((hi - lo) >>> 1);
+    StarTreeIndexNodeOffHeap midNode=new StarTreeIndexNodeOffHeap(dataBuffer,mid);
+    int midValue=midNode.getDimensionValue();
+    if (midValue == dimensionValue) {
+      return midNode;
+    }
+ else     if (midValue < dimensionValue) {
+      lo=mid + 1;
+    }
+ else {
+      hi=mid - 1;
+    }
+  }
+  return null;
+}

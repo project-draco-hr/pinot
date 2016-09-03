@@ -1,0 +1,20 @@
+{
+  File indexDir=new File(_segmentDir);
+  long start=System.currentTimeMillis();
+  LOGGER.info("Loading segment {}",indexDir.getName());
+  IndexSegment segment=Loaders.IndexSegment.load(indexDir,ReadMode.heap);
+  long end=System.currentTimeMillis();
+  LOGGER.info("Loaded segment {} in {} ms ",indexDir.getName(),(end - start));
+  start=end;
+  StarTreeInterf starTreeOnHeap=segment.getStarTree();
+  File starTreeOffHeapFile=new File(TMP_DIR,(V1Constants.STAR_TREE_INDEX_FILE + System.currentTimeMillis()));
+  StarTreeSerDe.writeTreeOffHeapFormat(starTreeOnHeap,starTreeOffHeapFile);
+  File outputDir=new File(_outputDir);
+  FileUtils.deleteQuietly(outputDir);
+  FileUtils.copyDirectory(indexDir,outputDir);
+  FileUtils.deleteQuietly(new File(_outputDir,V1Constants.STAR_TREE_INDEX_FILE));
+  FileUtils.moveFile(starTreeOffHeapFile,new File(_outputDir,V1Constants.STAR_TREE_INDEX_FILE));
+  end=System.currentTimeMillis();
+  LOGGER.info("Converted segment: {} ms",(end - start));
+  return true;
+}

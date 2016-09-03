@@ -5,38 +5,38 @@
     return;
   }
   StarTreeFormatVersion actualVersion=getStarTreeVersion(starTreeFile);
-  if (actualVersion == StarTreeFormatVersion.V1 && starTreeVersionToLoad == StarTreeFormatVersion.V2) {
-    LOGGER.info("Converting Star Tree from V1 to V2 format for {}",starTreeFile.getAbsolutePath());
-    File starTreeV2File=new File(indexDir,V1Constants.STAR_TREE_V2_INDEX_FILE);
-    if (starTreeV2File.exists()) {
-      LOGGER.info("Replacing star tree v1 format with v2 format for {}",starTreeFile.getAbsolutePath());
-      FileUtils.copyFile(starTreeV2File,starTreeFile);
+  if (actualVersion == StarTreeFormatVersion.ON_HEAP && starTreeVersionToLoad == StarTreeFormatVersion.OFF_HEAP) {
+    LOGGER.info("Converting Star Tree from on-heap to off-heap format for {}",starTreeFile.getAbsolutePath());
+    File starTreeOffHeapFile=new File(indexDir,V1Constants.STAR_TREE_OFF_HEAP_INDEX_FILE);
+    if (starTreeOffHeapFile.exists()) {
+      LOGGER.info("Replacing star tree on-heap format with off-heap format for {}",starTreeFile.getAbsolutePath());
+      FileUtils.copyFile(starTreeOffHeapFile,starTreeFile);
     }
  else {
-      StarTreeInterf starTreeV1=fromFile(starTreeFile,ReadMode.heap);
+      StarTreeInterf starTreeOnHeap=fromFile(starTreeFile,ReadMode.heap);
       try {
-        writeTreeV2(starTreeV1,starTreeV2File);
-        FileUtils.copyFile(starTreeFile,new File(indexDir,V1Constants.STAR_TREE_V1_INDEX_FILE));
-        FileUtils.copyFile(starTreeV2File,starTreeFile);
+        writeTreeOffHeapFormat(starTreeOnHeap,starTreeOffHeapFile);
+        FileUtils.copyFile(starTreeFile,new File(indexDir,V1Constants.STAR_TREE_ON_HEAP_INDEX_FILE));
+        FileUtils.copyFile(starTreeOffHeapFile,starTreeFile);
       }
  catch (      Exception e) {
-        LOGGER.warn("Exception caught while convert star tree v1 to v2 for {}",starTreeFile.getAbsolutePath(),e);
+        LOGGER.warn("Exception caught while convert star tree on-heap to off-heap format for {}",starTreeFile.getAbsolutePath(),e);
       }
     }
   }
- else   if (actualVersion == StarTreeFormatVersion.V2 && starTreeVersionToLoad == StarTreeFormatVersion.V1) {
-    File starTreeV1File=new File(indexDir,V1Constants.STAR_TREE_V1_INDEX_FILE);
-    if (starTreeV1File.exists()) {
+ else   if (actualVersion == StarTreeFormatVersion.OFF_HEAP && starTreeVersionToLoad == StarTreeFormatVersion.ON_HEAP) {
+    File starTreeOnHeapFile=new File(indexDir,V1Constants.STAR_TREE_ON_HEAP_INDEX_FILE);
+    if (starTreeOnHeapFile.exists()) {
       try {
-        FileUtils.copyFile(starTreeFile,new File(indexDir,V1Constants.STAR_TREE_V2_INDEX_FILE));
-        FileUtils.copyFile(starTreeV1File,starTreeFile);
+        FileUtils.copyFile(starTreeFile,new File(indexDir,V1Constants.STAR_TREE_OFF_HEAP_INDEX_FILE));
+        FileUtils.copyFile(starTreeOnHeapFile,starTreeFile);
       }
  catch (      Exception e) {
-        LOGGER.warn("Exception caught while converting star tree v2 to v1 for {}",starTreeFile.getAbsolutePath(),e);
+        LOGGER.warn("Exception caught while converting star tree off-heap to on-heap for {}",starTreeFile.getAbsolutePath(),e);
       }
     }
  else {
-      LOGGER.info("Could not replace star tree format v2 to v1 as {} does not exist, will load v2 format",starTreeV1File.getAbsolutePath());
+      LOGGER.info("Could not replace star tree format off-heap to on-heap as {} does not exist, will load off-heap format",starTreeOnHeapFile.getAbsolutePath());
     }
   }
 }

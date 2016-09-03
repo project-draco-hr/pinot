@@ -1,0 +1,9 @@
+{
+  StarTreeIndexTestSegmentHelper.buildSegment(SEGMENT_DIR_NAME,SEGMENT_NAME,false);
+  _segment=StarTreeIndexTestSegmentHelper.loadSegment(SEGMENT_DIR_NAME,SEGMENT_NAME);
+  _starTreeOnHeap=_segment.getStarTree();
+  _starTreeOffHeapFile=new File(SEGMENT_DIR_NAME,STAR_TREE_OFF_HEAP_FILE_NAME);
+  StarTreeSerDe.writeTreeOffHeapFormat(_starTreeOnHeap,_starTreeOffHeapFile);
+  _schema=StarTreeIndexTestSegmentHelper.buildSegment(SEGMENT_OFF_HEAP_DIR_NAME,SEGMENT_OFF_HEAP_NAME,true);
+  _segmentOffHeap=StarTreeIndexTestSegmentHelper.loadSegment(SEGMENT_OFF_HEAP_DIR_NAME,SEGMENT_OFF_HEAP_NAME);
+}
