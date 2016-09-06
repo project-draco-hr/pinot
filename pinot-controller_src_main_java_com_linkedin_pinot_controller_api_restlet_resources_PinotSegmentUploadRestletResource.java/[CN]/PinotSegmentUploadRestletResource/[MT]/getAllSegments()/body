@@ -6,7 +6,7 @@
     if (fileName.equalsIgnoreCase("fileUploadTemp") || fileName.equalsIgnoreCase("schemasTemp")) {
       continue;
     }
-    final String url="http://" + StringUtil.join(":",_controllerConf.getControllerVipHost(),_controllerConf.getControllerPort()) + "/segments/"+ fileName;
+    final String url=_controllerConf.generateVipUrl() + "/segments/" + fileName;
     ret.put(url);
   }
   presentation=new StringRepresentation(ret.toString());

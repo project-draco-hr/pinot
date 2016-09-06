@@ -14,7 +14,7 @@
     File tableDir=new File(baseDataDir,tableName);
     if (tableDir.exists()) {
       for (      final File file : tableDir.listFiles()) {
-        final String url="http://" + StringUtil.join(":",_controllerConf.getControllerVipHost(),_controllerConf.getControllerPort()) + "/segments/"+ tableName+ "/"+ file.getName();
+        final String url=_controllerConf.generateVipUrl() + "/segments/" + tableName+ "/"+ file.getName();
         ret.put(url);
       }
     }
