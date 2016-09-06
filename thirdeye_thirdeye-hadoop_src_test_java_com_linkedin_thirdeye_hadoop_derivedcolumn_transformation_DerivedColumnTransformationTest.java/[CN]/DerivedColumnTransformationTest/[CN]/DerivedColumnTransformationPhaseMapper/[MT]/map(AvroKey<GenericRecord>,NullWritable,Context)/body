@@ -4,17 +4,27 @@
   for (  String dimension : dimensionsNames) {
     String dimensionName=dimension;
     String dimensionValue=ThirdeyeAvroUtils.getDimensionFromRecord(inputRecord,dimension);
+    String whitelistDimensionValue=dimensionValue;
+    if (whitelist != null) {
+      Set<String> whitelistDimensions=whitelist.get(dimensionName);
+      if (CollectionUtils.isNotEmpty(whitelistDimensions)) {
+        if (!whitelistDimensions.contains(dimensionValue)) {
+          whitelistDimensionValue=ThirdEyeConstants.OTHER;
+        }
+      }
+    }
+    outputRecord.put(dimensionName,whitelistDimensionValue);
     if (topKDimensionsMap.containsKey(dimensionName)) {
       Set<String> topKDimensionValues=topKDimensionsMap.get(dimensionName);
-      if (topKDimensionValues != null && topKDimensionValues.contains(dimensionValue)) {
-        outputRecord.put(dimensionName,dimensionValue);
+      if (CollectionUtils.isNotEmpty(topKDimensionValues)) {
+        String topkDimensionName=dimensionName + ThirdEyeConstants.TOPK_DIMENSION_SUFFIX;
+        String topkDimensionValue=dimensionValue;
+        if (!topKDimensionValues.contains(dimensionValue) && (whitelist == null || whitelist.get(dimensionName) == null || !whitelist.get(dimensionName).contains(dimensionValue))) {
+          topkDimensionValue=ThirdEyeConstants.OTHER;
+        }
+        outputRecord.put(topkDimensionName,topkDimensionValue);
       }
- else {
-        outputRecord.put(dimensionName,ThirdEyeConstants.OTHER);
-      }
-      dimensionName=dimension + ThirdEyeConstants.RAW_DIMENSION_SUFFIX;
     }
-    outputRecord.put(dimensionName,dimensionValue);
   }
   for (  String metric : metricNames) {
     outputRecord.put(metric,ThirdeyeAvroUtils.getMetricFromRecord(inputRecord,metric));

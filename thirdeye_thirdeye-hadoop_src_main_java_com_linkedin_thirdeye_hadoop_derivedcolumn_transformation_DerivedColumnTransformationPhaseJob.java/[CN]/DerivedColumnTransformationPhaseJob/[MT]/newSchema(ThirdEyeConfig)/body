@@ -1,25 +1,21 @@
 {
   Schema outputSchema=null;
-  Set<String> transformDimensionSet=new HashSet<>();
+  Set<String> topKTransformDimensionSet=new HashSet<>();
   TopkWhitelistSpec topkWhitelist=thirdeyeConfig.getTopKWhitelist();
   if (topkWhitelist != null) {
     List<TopKDimensionToMetricsSpec> topKDimensionToMetricsSpecs=topkWhitelist.getTopKDimensionToMetricsSpec();
     if (topKDimensionToMetricsSpecs != null) {
       for (      TopKDimensionToMetricsSpec topKDimensionToMetricsSpec : topKDimensionToMetricsSpecs) {
-        transformDimensionSet.add(topKDimensionToMetricsSpec.getDimensionName());
+        topKTransformDimensionSet.add(topKDimensionToMetricsSpec.getDimensionName());
       }
-    }
-    Map<String,String> whitelist=topkWhitelist.getWhitelist();
-    if (whitelist != null) {
-      transformDimensionSet.addAll(whitelist.keySet());
     }
   }
   RecordBuilder<Schema> recordBuilder=SchemaBuilder.record(thirdeyeConfig.getCollection());
   FieldAssembler<Schema> fieldAssembler=recordBuilder.fields();
   for (  String dimension : thirdeyeConfig.getDimensionNames()) {
     fieldAssembler=fieldAssembler.name(dimension).type().nullable().stringType().noDefault();
-    if (transformDimensionSet.contains(dimension)) {
-      fieldAssembler=fieldAssembler.name(dimension + ThirdEyeConstants.RAW_DIMENSION_SUFFIX).type().nullable().stringType().noDefault();
+    if (topKTransformDimensionSet.contains(dimension)) {
+      fieldAssembler=fieldAssembler.name(dimension + ThirdEyeConstants.TOPK_DIMENSION_SUFFIX).type().nullable().stringType().noDefault();
     }
   }
   for (  MetricSpec metricSpec : thirdeyeConfig.getMetrics()) {

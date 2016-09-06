@@ -12,9 +12,9 @@
   Assert.assertEquals(recordCount,result.size());
   for (  Pair<AvroKey<GenericRecord>,NullWritable> pair : result) {
     GenericRecord datum=pair.getFirst().datum();
-    Assert.assertEquals("TopKTransformationJob did not add new column for topk column",datum.getSchema().getField("d2_raw") != null,true);
+    Assert.assertEquals("TopKTransformationJob did not add new column for topk column",datum.getSchema().getField("d2_topk") != null,true);
     String d2=(String)datum.get("d2");
-    String d2_raw=(String)datum.get("d2_raw");
-    Assert.assertEquals("Incorrect topk column transformation",(d2_raw.equals("pqr1") && d2.equals("other")) || (d2_raw.equals("pqr2") && d2.equals("pqr2")),true);
+    String d2_topk=(String)datum.get("d2_topk");
+    Assert.assertEquals("Incorrect topk column transformation",(d2_topk.equals("other") && d2.equals("pqr1")) || (d2_topk.equals("pqr2") && d2.equals("pqr2")),true);
   }
 }
