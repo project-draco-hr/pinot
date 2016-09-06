@@ -9,7 +9,12 @@
     }
  catch (    Exception e) {
       LOG.error("Exception found in fetching new tasks, sleeping for few seconds",e);
-      Thread.sleep(TASK_FAILURE_DELAY_MILLIS);
+      try {
+        Thread.sleep(TASK_FAILURE_DELAY_MILLIS);
+      }
+ catch (      Exception e1) {
+        LOG.error(e1.getMessage(),e1);
+      }
     }
     if (anomalyTasks.size() > 0) {
       LOG.info(Thread.currentThread().getId() + " : Found {} tasks in waiting state",anomalyTasks.size());
@@ -17,7 +22,12 @@
  else {
       int delay=NO_TASK_IDLE_DELAY_MILLIS + RANDOM.nextInt(NO_TASK_IDLE_DELAY_MILLIS);
       LOG.debug("No tasks found to execute, sleeping for {} MS",delay);
-      Thread.sleep(delay);
+      try {
+        Thread.sleep(delay);
+      }
+ catch (      Exception e1) {
+        LOG.error(e1.getMessage(),e1);
+      }
     }
     for (    TaskDTO anomalyTaskSpec : anomalyTasks) {
       LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getId());

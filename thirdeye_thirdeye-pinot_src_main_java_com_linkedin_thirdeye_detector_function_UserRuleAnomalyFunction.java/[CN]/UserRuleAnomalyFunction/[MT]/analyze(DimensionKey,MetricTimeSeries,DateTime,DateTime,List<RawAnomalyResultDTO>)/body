@@ -31,8 +31,8 @@
       RawAnomalyResultDTO anomalyResult=new RawAnomalyResultDTO();
       anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
       anomalyResult.setProperties(getSpec().getProperties());
-      anomalyResult.setStartTimeUtc(currentKey);
-      anomalyResult.setEndTimeUtc(currentKey + bucketMillis);
+      anomalyResult.setStartTime(currentKey);
+      anomalyResult.setEndTime(currentKey + bucketMillis);
       anomalyResult.setScore(averageValue);
       anomalyResult.setWeight(calculateChange(currentValue,baselineValue));
       String message=getAnomalyResultMessage(changeThreshold,baselineProp,currentValue,baselineValue);

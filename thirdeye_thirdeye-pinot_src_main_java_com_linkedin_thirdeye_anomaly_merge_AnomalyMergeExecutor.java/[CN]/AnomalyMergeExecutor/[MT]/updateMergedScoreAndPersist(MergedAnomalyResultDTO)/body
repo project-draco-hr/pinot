@@ -6,7 +6,7 @@
   String anomalyMessage="";
   for (  RawAnomalyResultDTO anomalyResult : mergedResult.getAnomalyResults()) {
     anomalyResult.setMerged(true);
-    double bucketSizeSeconds=(anomalyResult.getEndTimeUtc() - anomalyResult.getStartTimeUtc()) / 1000;
+    double bucketSizeSeconds=(anomalyResult.getEndTime() - anomalyResult.getStartTime()) / 1000;
     weightedScoreSum+=(anomalyResult.getScore() / normalizationFactor) * bucketSizeSeconds;
     weightedWeightSum+=(anomalyResult.getWeight() / normalizationFactor) * bucketSizeSeconds;
     totalBucketSize+=bucketSizeSeconds;
