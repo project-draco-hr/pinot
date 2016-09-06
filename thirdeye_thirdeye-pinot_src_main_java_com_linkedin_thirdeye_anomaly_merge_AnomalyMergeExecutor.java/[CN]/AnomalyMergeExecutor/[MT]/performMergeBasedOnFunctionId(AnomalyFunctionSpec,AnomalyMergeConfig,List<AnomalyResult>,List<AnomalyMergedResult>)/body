@@ -1,9 +1,0 @@
-{
-  AnomalyMergedResult latestMergedResult=mergedResultDAO.findLatestByFunctionIdOnly(function.getId());
-  List<AnomalyMergedResult> mergedResults=AnomalyTimeBasedSummarizer.mergeAnomalies(latestMergedResult,unmergedResults,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
-  for (  AnomalyMergedResult mergedResult : mergedResults) {
-    mergedResult.setFunction(function);
-  }
-  LOG.info("Merging [{}] raw anomalies into [{}] merged anomalies for function id : [{}]",unmergedResults.size(),mergedResults.size(),function.getId());
-  output.addAll(mergedResults);
-}

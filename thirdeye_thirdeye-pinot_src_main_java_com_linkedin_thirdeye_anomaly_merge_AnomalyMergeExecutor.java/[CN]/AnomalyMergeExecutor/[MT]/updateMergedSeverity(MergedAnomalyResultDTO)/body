@@ -1,0 +1,36 @@
+{
+  AnomalyFunctionDTO anomalyFunctionSpec=anomalyMergedResult.getFunction();
+  TimeSeriesRequest timeSeriesRequest=new TimeSeriesRequest();
+  timeSeriesRequest.setCollectionName(anomalyFunctionSpec.getCollection());
+  MetricFunction metricFunction=new MetricFunction(anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getMetric());
+  List<MetricFunction> metricFunctions=Collections.singletonList(metricFunction);
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunctions);
+  timeSeriesRequest.setMetricExpressions(metricExpressions);
+  TimeGranularity timeBucket=new TimeGranularity(anomalyFunctionSpec.getBucketSize(),anomalyFunctionSpec.getBucketUnit());
+  timeSeriesRequest.setAggregationTimeGranularity(timeBucket);
+  timeSeriesRequest.setEndDateInclusive(false);
+  if (StringUtils.isNotBlank(anomalyFunctionSpec.getFilters())) {
+    timeSeriesRequest.setFilterSet(ThirdEyeUtils.getFilterSet(anomalyFunctionSpec.getFilters()));
+  }
+  String exploreDimension=anomalyFunctionSpec.getExploreDimensions();
+  if (StringUtils.isNotBlank(exploreDimension)) {
+    timeSeriesRequest.setGroupByDimensions(Collections.singletonList(exploreDimension));
+  }
+  timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime()));
+  timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime()));
+  TimeSeriesResponse responseCurrent=timeSeriesHandler.handle(timeSeriesRequest);
+  long baselineOffset=AnomalyFunctionUtils.getBaselineOffset(anomalyFunctionSpec);
+  timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime() - baselineOffset));
+  timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime() - baselineOffset));
+  TimeSeriesResponse responseBaseline=timeSeriesHandler.handle(timeSeriesRequest);
+  Double currentValue=getMetricValueSum(responseCurrent,anomalyFunctionSpec.getMetric());
+  Double baselineValue=getMetricValueSum(responseBaseline,anomalyFunctionSpec.getMetric());
+  Double severity;
+  if (baselineValue != 0) {
+    severity=(currentValue - baselineValue) / baselineValue;
+  }
+ else {
+    severity=1.0;
+  }
+  anomalyMergedResult.setWeight(severity);
+}

@@ -2,7 +2,7 @@
   if (StringUtils.isEmpty(dataset) || StringUtils.isEmpty(functionIds) || StringUtils.isEmpty(metric)|| StringUtils.isEmpty(windowSize)|| StringUtils.isEmpty(windowUnit)|| StringUtils.isEmpty(fromAddress)|| StringUtils.isEmpty(toAddresses)) {
     throw new UnsupportedOperationException("Received null for one of the mandatory params: " + "dataset " + dataset + ", functionIds "+ functionIds+ ", metric "+ metric+ ", windowSize "+ windowSize+ ", windowUnit "+ windowUnit+ ", fromAddress"+ fromAddress+ ", toAddresses "+ toAddresses);
   }
-  EmailConfiguration emailConfiguration=new EmailConfiguration();
+  EmailConfigurationDTO emailConfiguration=new EmailConfigurationDTO();
   emailConfiguration.setIsActive(false);
   emailConfiguration.setCollection(dataset);
   emailConfiguration.setMetric(metric);
@@ -29,9 +29,9 @@
   emailConfiguration.setWindowDelay(windowDelayTime);
   emailConfiguration.setSendZeroAnomalyEmail(sendZeroAnomalyEmail);
   emailConfiguration.setFilters(filters);
-  List<AnomalyFunctionSpec> anomalyFunctionSpecs=new ArrayList<>();
+  List<AnomalyFunctionDTO> anomalyFunctionSpecs=new ArrayList<>();
   for (  String functionIdString : functionIds.split(",")) {
-    AnomalyFunctionSpec anomalyFunctionSpec=anomalyFunctionDAO.findById(Long.valueOf(functionIdString));
+    AnomalyFunctionDTO anomalyFunctionSpec=anomalyFunctionDAO.findById(Long.valueOf(functionIdString));
     anomalyFunctionSpecs.add(anomalyFunctionSpec);
   }
   emailConfiguration.setFunctions(anomalyFunctionSpecs);

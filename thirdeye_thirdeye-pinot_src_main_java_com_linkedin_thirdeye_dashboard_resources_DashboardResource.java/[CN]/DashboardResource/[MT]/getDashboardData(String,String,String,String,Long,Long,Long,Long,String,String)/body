@@ -23,9 +23,9 @@
       }
     }
  else {
-      List<WebappConfig> webappConfigs=webappConfigDAO.findByCollectionAndType(collection,WebappConfigType.DASHBOARD_CONFIG);
+      List<WebappConfigDTO> webappConfigs=webappConfigDAO.findByCollectionAndType(collection,WebappConfigType.DASHBOARD_CONFIG);
       DashboardConfig dashboardConfig=null;
-      for (      WebappConfig webappConfig : webappConfigs) {
+      for (      WebappConfigDTO webappConfig : webappConfigs) {
         if (webappConfig.getName().equals(dashboardName)) {
           dashboardConfig=AbstractConfig.fromJSON(webappConfig.getConfig(),DashboardConfig.class);
           break;

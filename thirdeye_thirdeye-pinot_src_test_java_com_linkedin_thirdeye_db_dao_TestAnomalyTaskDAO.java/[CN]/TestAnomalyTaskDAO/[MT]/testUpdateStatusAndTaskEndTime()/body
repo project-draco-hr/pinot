@@ -3,7 +3,7 @@
   TaskStatus newStatus=TaskStatus.COMPLETED;
   long taskEndTime=System.currentTimeMillis();
   anomalyTaskDAO.updateStatusAndTaskEndTime(anomalyTaskId1,oldStatus,newStatus,taskEndTime);
-  AnomalyTaskSpec anomalyTask=anomalyTaskDAO.findById(anomalyTaskId1);
+  TaskDTO anomalyTask=anomalyTaskDAO.findById(anomalyTaskId1);
   Assert.assertEquals(anomalyTask.getStatus(),newStatus);
   Assert.assertEquals(anomalyTask.getTaskEndTime(),taskEndTime);
 }

@@ -1,0 +1,31 @@
+{
+  double weightedScoreSum=0.0;
+  double weightedWeightSum=0.0;
+  double totalBucketSize=0.0;
+  double normalizationFactor=1000;
+  for (  RawAnomalyResultDTO anomalyResult : mergedResult.getAnomalyResults()) {
+    anomalyResult.setMerged(true);
+    double bucketSizeSeconds=(anomalyResult.getEndTimeUtc() - anomalyResult.getStartTimeUtc()) / 1000;
+    weightedScoreSum+=(anomalyResult.getScore() / normalizationFactor) * bucketSizeSeconds;
+    weightedWeightSum+=(anomalyResult.getWeight() / normalizationFactor) * bucketSizeSeconds;
+    totalBucketSize+=bucketSizeSeconds;
+  }
+  if (totalBucketSize != 0) {
+    mergedResult.setScore((weightedScoreSum / totalBucketSize) * normalizationFactor);
+    mergedResult.setWeight((weightedWeightSum / totalBucketSize) * normalizationFactor);
+  }
+  try {
+    updateMergedSeverity(mergedResult);
+  }
+ catch (  Exception e) {
+    LOG.error("Could not recompute severity",e);
+  }
+  mergedResult.setMessage(createMessage(mergedResult.getWeight()));
+  try {
+    mergedResultDAO.update(mergedResult);
+    anomalyResultDAO.updateAll(mergedResult.getAnomalyResults());
+  }
+ catch (  PersistenceException e) {
+    LOG.error("Could not persist merged result : [" + mergedResult.toString() + "]",e);
+  }
+}

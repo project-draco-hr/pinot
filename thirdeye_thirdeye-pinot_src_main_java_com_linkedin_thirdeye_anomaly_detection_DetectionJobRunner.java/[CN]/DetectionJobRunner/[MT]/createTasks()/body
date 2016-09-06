@@ -10,13 +10,13 @@
  catch (      JsonProcessingException e) {
         LOG.error("Exception when converting DetectionTaskInfo {} to jsonString",taskInfo,e);
       }
-      AnomalyTaskSpec anomalyTaskSpec=new AnomalyTaskSpec();
+      TaskDTO anomalyTaskSpec=new TaskDTO();
       anomalyTaskSpec.setTaskType(TaskType.ANOMALY_DETECTION);
       anomalyTaskSpec.setJobName(detectionJobContext.getJobName());
       anomalyTaskSpec.setStatus(TaskStatus.WAITING);
       anomalyTaskSpec.setTaskStartTime(System.currentTimeMillis());
       anomalyTaskSpec.setTaskInfo(taskInfoJson);
-      AnomalyJobSpec anomalyJobSpec=anomalyJobSpecDAO.findById(detectionJobContext.getJobExecutionId());
+      JobDTO anomalyJobSpec=anomalyJobSpecDAO.findById(detectionJobContext.getJobExecutionId());
       anomalyTaskSpec.setJob(anomalyJobSpec);
       long taskId=anomalyTasksSpecDAO.save(anomalyTaskSpec);
       taskIds.add(taskId);

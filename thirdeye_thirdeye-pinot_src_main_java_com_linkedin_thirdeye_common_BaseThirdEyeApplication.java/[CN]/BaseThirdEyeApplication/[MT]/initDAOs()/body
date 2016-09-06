@@ -2,11 +2,11 @@
   String persistenceConfig=System.getProperty("dw.rootDir") + "/persistence.yml";
   LOG.info("Loading persistence config from [{}]",persistenceConfig);
   PersistenceUtil.init(new File(persistenceConfig));
-  anomalyFunctionDAO=PersistenceUtil.getInstance(AnomalyFunctionDAO.class);
-  anomalyResultDAO=PersistenceUtil.getInstance(AnomalyResultDAO.class);
-  emailConfigurationDAO=PersistenceUtil.getInstance(EmailConfigurationDAO.class);
-  anomalyJobDAO=PersistenceUtil.getInstance(AnomalyJobDAO.class);
-  anomalyTaskDAO=PersistenceUtil.getInstance(AnomalyTaskDAO.class);
-  webappConfigDAO=PersistenceUtil.getInstance(WebappConfigDAO.class);
-  anomalyMergedResultDAO=PersistenceUtil.getInstance(AnomalyMergedResultDAO.class);
+  anomalyFunctionDAO=PersistenceUtil.getInstance(AnomalyFunctionManagerImpl.class);
+  anomalyResultDAO=PersistenceUtil.getInstance(RawAnomalyResultManagerImpl.class);
+  emailConfigurationDAO=PersistenceUtil.getInstance(EmailConfigurationManagerImpl.class);
+  anomalyJobDAO=PersistenceUtil.getInstance(JobManagerImpl.class);
+  anomalyTaskDAO=PersistenceUtil.getInstance(TaskManagerImpl.class);
+  webappConfigDAO=PersistenceUtil.getInstance(WebappConfigManagerImpl.class);
+  anomalyMergedResultDAO=PersistenceUtil.getInstance(MergedAnomalyResultManagerImpl.class);
 }

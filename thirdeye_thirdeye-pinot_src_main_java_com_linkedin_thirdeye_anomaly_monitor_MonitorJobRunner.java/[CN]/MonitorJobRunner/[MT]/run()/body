@@ -1,7 +1,7 @@
 {
   try {
     LOG.info("Starting monitor job");
-    List<AnomalyJobSpec> anomalyJobSpecs=findAnomalyJobsWithStatusScheduled();
+    List<JobDTO> anomalyJobSpecs=findAnomalyJobsWithStatusScheduled();
     monitorJobContext.setJobName(TaskType.MONITOR.toString());
     monitorJobContext.setAnomalyJobSpecs(anomalyJobSpecs);
     Long jobExecutionId=createJob();

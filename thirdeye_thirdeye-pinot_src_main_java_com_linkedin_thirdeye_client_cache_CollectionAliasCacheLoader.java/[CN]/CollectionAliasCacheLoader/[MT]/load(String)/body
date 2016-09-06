@@ -1,7 +1,7 @@
 {
   String collectionName=null;
-  List<WebappConfig> webappConfigs=webappConfigDAO.findByType(WebappConfigType.COLLECTION_CONFIG);
-  for (  WebappConfig webappConfig : webappConfigs) {
+  List<WebappConfigDTO> webappConfigs=webappConfigDAO.findByType(WebappConfigType.COLLECTION_CONFIG);
+  for (  WebappConfigDTO webappConfig : webappConfigs) {
     CollectionConfig collectionConfig=AbstractConfig.fromJSON(webappConfig.getConfig(),CollectionConfig.class);
     String alias=collectionConfig.getCollectionAlias();
     if (StringUtils.isNotEmpty(alias) && alias.equals(collectionAlias)) {

@@ -2,7 +2,7 @@
   JobStatus status=JobStatus.COMPLETED;
   long jobEndTime=System.currentTimeMillis();
   anomalyJobDAO.updateStatusAndJobEndTime(anomalyJobId1,status,jobEndTime);
-  AnomalyJobSpec anomalyJob=anomalyJobDAO.findById(anomalyJobId1);
+  JobDTO anomalyJob=anomalyJobDAO.findById(anomalyJobId1);
   Assert.assertEquals(anomalyJob.getStatus(),status);
   Assert.assertEquals(anomalyJob.getScheduleEndTime(),jobEndTime);
 }

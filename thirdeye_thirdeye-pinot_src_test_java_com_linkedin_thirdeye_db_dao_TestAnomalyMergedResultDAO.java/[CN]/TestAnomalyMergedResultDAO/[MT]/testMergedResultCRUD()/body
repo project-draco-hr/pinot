@@ -1,16 +1,16 @@
 {
   anomalyFunctionDAO.save(function);
   Assert.assertNotNull(function.getId());
-  AnomalyResult result=getAnomalyResult();
+  RawAnomalyResultDTO result=getAnomalyResult();
   result.setFunction(function);
   anomalyResultDAO.save(result);
-  AnomalyResult resultRet=anomalyResultDAO.findById(result.getId());
+  RawAnomalyResultDTO resultRet=anomalyResultDAO.findById(result.getId());
   Assert.assertEquals(resultRet.getFunction(),function);
   anomalyResultId=result.getId();
-  List<AnomalyResult> rawResults=new ArrayList<>();
+  List<RawAnomalyResultDTO> rawResults=new ArrayList<>();
   rawResults.add(result);
   AnomalyMergeConfig mergeConfig=new AnomalyMergeConfig();
-  List<AnomalyMergedResult> mergedResults=AnomalyTimeBasedSummarizer.mergeAnomalies(rawResults,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
+  List<MergedAnomalyResultDTO> mergedResults=AnomalyTimeBasedSummarizer.mergeAnomalies(rawResults,mergeConfig.getMergeDuration(),mergeConfig.getSequentialAllowedGap());
   Assert.assertEquals(mergedResults.get(0).getStartTime(),result.getStartTimeUtc());
   Assert.assertEquals(mergedResults.get(0).getEndTime(),result.getEndTimeUtc());
   Assert.assertEquals(mergedResults.get(0).getAnomalyResults().get(0),result);
@@ -18,7 +18,7 @@
   mergedResultDAO.save(mergedResults.get(0));
   mergedResult=mergedResults.get(0);
   Assert.assertNotNull(mergedResult.getId());
-  AnomalyMergedResult mergedResult1=mergedResultDAO.findById(mergedResult.getId());
+  MergedAnomalyResultDTO mergedResult1=mergedResultDAO.findById(mergedResult.getId());
   Assert.assertEquals(mergedResult1.getAnomalyResults(),rawResults);
   Assert.assertEquals(mergedResult1.getAnomalyResults().get(0).getId(),anomalyResultId);
 }

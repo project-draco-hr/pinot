@@ -3,24 +3,24 @@
   ThirdEyeClient client=queryCache.getClient();
   final String collection=alertConfig.getCollection();
   final String collectionAlias=ThirdEyeUtils.getAliasFromCollection(collection);
-  final List<AnomalyMergedResult> results=anomalyMergedResultDAO.getAllByTimeEmailIdAndNotifiedFalse(windowStart.getMillis(),windowEnd.getMillis(),alertConfig.getId());
+  final List<MergedAnomalyResultDTO> results=anomalyMergedResultDAO.getAllByTimeEmailIdAndNotifiedFalse(windowStart.getMillis(),windowEnd.getMillis(),alertConfig.getId());
   if (results.isEmpty() && !alertConfig.getSendZeroAnomalyEmail()) {
     LOG.info("Zero anomalies found, skipping sending email");
     return;
   }
-  Map<String,List<AnomalyMergedResult>> groupedResults=new TreeMap<>();
-  for (  AnomalyMergedResult result : results) {
+  Map<String,List<MergedAnomalyResultDTO>> groupedResults=new TreeMap<>();
+  for (  MergedAnomalyResultDTO result : results) {
     String dimensions=result.getDimensions();
     if (!groupedResults.containsKey(dimensions)) {
       groupedResults.put(dimensions,new ArrayList<>());
     }
     groupedResults.get(dimensions).add(result);
   }
-  Map<AnomalyMergedResult,String> anomaliesWithLabels=new LinkedHashMap<>();
+  Map<MergedAnomalyResultDTO,String> anomaliesWithLabels=new LinkedHashMap<>();
   int counter=1;
-  for (  List<AnomalyMergedResult> resultsByDimensionKey : groupedResults.values()) {
+  for (  List<MergedAnomalyResultDTO> resultsByDimensionKey : groupedResults.values()) {
     Collections.sort(resultsByDimensionKey);
-    for (    AnomalyMergedResult result : resultsByDimensionKey) {
+    for (    MergedAnomalyResultDTO result : resultsByDimensionKey) {
       anomaliesWithLabels.put(result,String.valueOf(counter));
       counter++;
     }

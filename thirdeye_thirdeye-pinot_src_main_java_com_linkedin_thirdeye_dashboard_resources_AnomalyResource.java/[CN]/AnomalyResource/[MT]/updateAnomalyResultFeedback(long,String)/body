@@ -1,14 +1,14 @@
 {
   try {
-    AnomalyResult result=anomalyResultDAO.findById(anomalyResultId);
+    RawAnomalyResultDTO result=anomalyResultDAO.findById(anomalyResultId);
     if (result == null) {
       throw new IllegalArgumentException("AnomalyResult not found with id " + anomalyResultId);
     }
     ObjectMapper mapper=new ObjectMapper();
-    AnomalyFeedback feedbackRequest=mapper.readValue(payload,AnomalyFeedback.class);
-    AnomalyFeedback feedback=result.getFeedback();
+    AnomalyFeedbackDTO feedbackRequest=mapper.readValue(payload,AnomalyFeedbackDTO.class);
+    AnomalyFeedbackDTO feedback=result.getFeedback();
     if (feedback == null) {
-      feedback=new AnomalyFeedback();
+      feedback=new AnomalyFeedbackDTO();
       result.setFeedback(feedback);
     }
     if (feedbackRequest.getStatus() == null) {

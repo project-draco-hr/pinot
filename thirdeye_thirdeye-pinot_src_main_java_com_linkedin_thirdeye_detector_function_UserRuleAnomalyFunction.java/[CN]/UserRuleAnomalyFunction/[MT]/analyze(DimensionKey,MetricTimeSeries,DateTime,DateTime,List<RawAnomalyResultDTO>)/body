@@ -1,0 +1,54 @@
+{
+  List<RawAnomalyResultDTO> anomalyResults=new ArrayList<>();
+  Properties props=getProperties();
+  String metric=getSpec().getMetric();
+  double changeThreshold=Double.valueOf(props.getProperty(CHANGE_THRESHOLD));
+  double volumeThreshold=0;
+  if (props.containsKey(AVERAGE_VOLUME_THRESHOLD)) {
+    volumeThreshold=Double.valueOf(props.getProperty(AVERAGE_VOLUME_THRESHOLD));
+  }
+  String baselineProp=props.getProperty(BASELINE);
+  long baselineMillis=getBaselineMillis(baselineProp);
+  long bucketMillis=TimeUnit.MILLISECONDS.convert(getSpec().getBucketSize(),getSpec().getBucketUnit());
+  double averageValue=0;
+  for (  Long time : timeSeries.getTimeWindowSet()) {
+    averageValue+=timeSeries.get(time,metric).doubleValue();
+  }
+  long numBuckets=(windowEnd.getMillis() - windowStart.getMillis()) / bucketMillis;
+  averageValue/=numBuckets;
+  if (averageValue < volumeThreshold) {
+    LOGGER.info("{} does not meet volume threshold {}: {}",dimensionKey,volumeThreshold,averageValue);
+    return anomalyResults;
+  }
+  Set<Long> filteredBaselineTimes=filterTimeWindowSet(timeSeries.getTimeWindowSet(),windowStart.getMillis(),windowEnd.minus(baselineMillis).getMillis());
+  List<Double> currentValues=new ArrayList<>();
+  List<Double> baselineValues=new ArrayList<>();
+  for (  Long baselineKey : filteredBaselineTimes) {
+    Long currentKey=baselineKey + baselineMillis;
+    double currentValue=timeSeries.get(currentKey,metric).doubleValue();
+    double baselineValue=timeSeries.get(baselineKey,metric).doubleValue();
+    if (isAnomaly(currentValue,baselineValue,changeThreshold)) {
+      RawAnomalyResultDTO anomalyResult=new RawAnomalyResultDTO();
+      anomalyResult.setDimensions(CSV.join(dimensionKey.getDimensionValues()));
+      anomalyResult.setProperties(getSpec().getProperties());
+      anomalyResult.setStartTimeUtc(currentKey);
+      anomalyResult.setEndTimeUtc(currentKey + bucketMillis);
+      anomalyResult.setScore(averageValue);
+      anomalyResult.setWeight(calculateChange(currentValue,baselineValue));
+      String message=getAnomalyResultMessage(changeThreshold,baselineProp,currentValue,baselineValue);
+      anomalyResult.setMessage(message);
+      anomalyResults.add(anomalyResult);
+      currentValues.add(currentValue);
+      baselineValues.add(baselineValue);
+      if (currentValue == 0.0 || baselineValue == 0.0) {
+        anomalyResult.setDataMissing(true);
+      }
+    }
+  }
+  String minConsecutiveSizeStr=props.getProperty(MIN_CONSECUTIVE_SIZE);
+  int minConsecutiveSize=1;
+  if (StringUtils.isNotBlank(minConsecutiveSizeStr)) {
+    minConsecutiveSize=Integer.valueOf(minConsecutiveSizeStr);
+  }
+  return getFilteredAndMergedAnomalyResults(anomalyResults,minConsecutiveSize,bucketMillis,baselineValues,currentValues,changeThreshold,baselineProp);
+}

@@ -1,0 +1,9 @@
+{
+  DateTime expireDate=new DateTime().minusDays(days);
+  Timestamp expireTimestamp=new Timestamp(expireDate.getMillis());
+  List<TaskDTO> anomalyTaskSpecs=getEntityManager().createQuery(FIND_BY_STATUS_AND_LAST_MODIFIED_TIME_LT_EXPIRE,entityClass).setParameter("expireTimestamp",expireTimestamp).setParameter("status",status).getResultList();
+  for (  TaskDTO anomalyTaskSpec : anomalyTaskSpecs) {
+    deleteById(anomalyTaskSpec.getId());
+  }
+  return anomalyTaskSpecs.size();
+}

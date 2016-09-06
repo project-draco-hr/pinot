@@ -2,9 +2,9 @@
   if (StringUtils.isEmpty(dataset)) {
     throw new UnsupportedOperationException("dataset is a required query param");
   }
-  List<EmailConfiguration> emailConfigSpecs=emailConfigurationDAO.findAll();
-  List<EmailConfiguration> emailConfigurations=new ArrayList<>();
-  for (  EmailConfiguration emailConfigSpec : emailConfigSpecs) {
+  List<EmailConfigurationDTO> emailConfigSpecs=emailConfigurationDAO.findAll();
+  List<EmailConfigurationDTO> emailConfigurations=new ArrayList<>();
+  for (  EmailConfigurationDTO emailConfigSpec : emailConfigSpecs) {
     if (dataset.equals(emailConfigSpec.getCollection()) && (StringUtils.isEmpty(metric) || (StringUtils.isNotEmpty(metric) && metric.equals(emailConfigSpec.getMetric())))) {
       emailConfigurations.add(emailConfigSpec);
     }

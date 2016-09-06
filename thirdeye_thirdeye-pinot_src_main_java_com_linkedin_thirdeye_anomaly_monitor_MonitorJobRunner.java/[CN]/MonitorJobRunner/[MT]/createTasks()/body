@@ -12,13 +12,13 @@
  catch (      JsonProcessingException e) {
         LOG.error("Exception when converting MonitorTaskInfo {} to jsonString",taskInfo,e);
       }
-      AnomalyTaskSpec anomalyTaskSpec=new AnomalyTaskSpec();
+      TaskDTO anomalyTaskSpec=new TaskDTO();
       anomalyTaskSpec.setTaskType(TaskType.MONITOR);
       anomalyTaskSpec.setJobName(monitorJobContext.getJobName());
       anomalyTaskSpec.setStatus(TaskStatus.WAITING);
       anomalyTaskSpec.setTaskStartTime(System.currentTimeMillis());
       anomalyTaskSpec.setTaskInfo(taskInfoJson);
-      AnomalyJobSpec anomalyJobSpec=anomalyJobDAO.findById(monitorJobContext.getJobExecutionId());
+      JobDTO anomalyJobSpec=anomalyJobDAO.findById(monitorJobContext.getJobExecutionId());
       anomalyTaskSpec.setJob(anomalyJobSpec);
       long taskId=anomalyTaskDAO.save(anomalyTaskSpec);
       taskIds.add(taskId);

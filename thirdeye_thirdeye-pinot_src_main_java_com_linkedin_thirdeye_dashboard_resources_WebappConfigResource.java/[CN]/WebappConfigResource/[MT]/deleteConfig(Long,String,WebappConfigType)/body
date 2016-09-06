@@ -3,7 +3,7 @@
     if (id == null && StringUtils.isBlank(collection)) {
       throw new IllegalStateException("must specify id or collection");
     }
-    List<WebappConfig> webappConfigs;
+    List<WebappConfigDTO> webappConfigs;
     if (id != null) {
       webappConfigs=new ArrayList<>();
       webappConfigs.add(webappConfigDAO.findById(id));
@@ -14,7 +14,7 @@
  else {
       webappConfigs=webappConfigDAO.findByCollectionAndType(collection,type);
     }
-    for (    WebappConfig webappConfig : webappConfigs) {
+    for (    WebappConfigDTO webappConfig : webappConfigs) {
       webappConfigDAO.deleteById(webappConfig.getId());
     }
     return Response.ok(id).build();

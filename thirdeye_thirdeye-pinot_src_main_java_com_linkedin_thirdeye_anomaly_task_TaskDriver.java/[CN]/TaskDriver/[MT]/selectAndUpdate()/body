@@ -1,9 +1,9 @@
 {
   LOG.info(Thread.currentThread().getId() + " : Starting selectAndUpdate {}",Thread.currentThread().getId());
-  AnomalyTaskSpec acquiredTask=null;
+  TaskDTO acquiredTask=null;
   LOG.info(Thread.currentThread().getId() + " : Trying to find a task to execute");
   do {
-    List<AnomalyTaskSpec> anomalyTasks=new ArrayList<>();
+    List<TaskDTO> anomalyTasks=new ArrayList<>();
     try {
       anomalyTasks=anomalyTaskDAO.findByStatusOrderByCreateTimeAsc(TaskStatus.WAITING,TASK_FETCH_SIZE);
     }
@@ -19,7 +19,7 @@
       LOG.debug("No tasks found to execute, sleeping for {} MS",delay);
       Thread.sleep(delay);
     }
-    for (    AnomalyTaskSpec anomalyTaskSpec : anomalyTasks) {
+    for (    TaskDTO anomalyTaskSpec : anomalyTasks) {
       LOG.info(Thread.currentThread().getId() + " : Trying to acquire task : {}",anomalyTaskSpec.getId());
       boolean success=false;
       try {

@@ -2,7 +2,7 @@
   LOG.info("Execute monitor udpate {}",monitorTaskInfo);
   try {
     Long jobExecutionId=monitorTaskInfo.getJobExecutionId();
-    List<AnomalyTaskSpec> anomalyTaskSpecs=anomalyTaskDAO.findByJobIdStatusNotIn(jobExecutionId,TaskStatus.COMPLETED);
+    List<TaskDTO> anomalyTaskSpecs=anomalyTaskDAO.findByJobIdStatusNotIn(jobExecutionId,TaskStatus.COMPLETED);
     if (anomalyTaskSpecs.isEmpty()) {
       anomalyJobDAO.updateStatusAndJobEndTime(jobExecutionId,JobStatus.COMPLETED,System.currentTimeMillis());
       LOG.info("COMPLETED anomaly job {}",jobExecutionId);
