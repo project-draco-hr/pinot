@@ -9,6 +9,19 @@
   if (anomalyFunctionSpec.getIsActive()) {
     detectionResourceHttpUtils.disableAnomalyFunction(String.valueOf(id));
   }
+  List<EmailConfigurationDTO> emailConfigurations=emailConfigurationDAO.findByFunctionId(id);
+  for (  EmailConfigurationDTO emailConfiguration : emailConfigurations) {
+    emailConfiguration.getFunctions().remove(anomalyFunctionSpec);
+    emailConfigurationDAO.save(emailConfiguration);
+  }
+  List<RawAnomalyResultDTO> rawResults=anomalyResultDAO.findAllByTimeAndFunctionId(0,System.currentTimeMillis(),id);
+  for (  RawAnomalyResultDTO result : rawResults) {
+    anomalyResultDAO.delete(result);
+  }
+  List<MergedAnomalyResultDTO> mergedResults=anomalyMergedResultDAO.findByFunctionId(id);
+  for (  MergedAnomalyResultDTO result : mergedResults) {
+    anomalyMergedResultDAO.delete(result);
+  }
   anomalyFunctionDAO.deleteById(id);
   return Response.noContent().build();
 }
