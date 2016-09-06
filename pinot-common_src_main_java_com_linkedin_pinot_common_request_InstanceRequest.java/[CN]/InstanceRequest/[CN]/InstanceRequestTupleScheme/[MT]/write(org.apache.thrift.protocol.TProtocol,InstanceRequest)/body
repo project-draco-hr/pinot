@@ -9,7 +9,10 @@
   if (struct.isSetEnableTrace()) {
     optionals.set(1);
   }
-  oprot.writeBitSet(optionals,2);
+  if (struct.isSetBrokerId()) {
+    optionals.set(2);
+  }
+  oprot.writeBitSet(optionals,3);
   if (struct.isSetSearchSegments()) {
 {
       oprot.writeI32(struct.searchSegments.size());
@@ -20,5 +23,8 @@
   }
   if (struct.isSetEnableTrace()) {
     oprot.writeBool(struct.enableTrace);
+  }
+  if (struct.isSetBrokerId()) {
+    oprot.writeString(struct.brokerId);
   }
 }

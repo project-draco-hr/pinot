@@ -5,7 +5,7 @@
   struct.query=new BrokerRequest();
   struct.query.read(iprot);
   struct.setQueryIsSet(true);
-  BitSet incoming=iprot.readBitSet(2);
+  BitSet incoming=iprot.readBitSet(3);
   if (incoming.get(0)) {
 {
       org.apache.thrift.protocol.TList _list73=new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING,iprot.readI32());
@@ -21,5 +21,9 @@
   if (incoming.get(1)) {
     struct.enableTrace=iprot.readBool();
     struct.setEnableTraceIsSet(true);
+  }
+  if (incoming.get(2)) {
+    struct.brokerId=iprot.readString();
+    struct.setBrokerIdIsSet(true);
   }
 }

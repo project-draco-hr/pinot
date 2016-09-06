@@ -3,7 +3,7 @@
   _liveInstancesListener=new LiveInstancesChangeListenerImpl(helixClusterName);
   _pinotHelixProperties=DefaultHelixBrokerConfig.getDefaultBrokerConf(pinotHelixProperties);
   final String brokerId=_pinotHelixProperties.getString("instanceId",CommonConstants.Helix.PREFIX_OF_BROKER_INSTANCE + NetUtil.getHostAddress() + "_"+ _pinotHelixProperties.getInt(CommonConstants.Helix.KEY_OF_BROKER_QUERY_PORT,CommonConstants.Helix.DEFAULT_BROKER_QUERY_PORT));
-  _pinotHelixProperties.addProperty("pinot.broker.id",brokerId);
+  _pinotHelixProperties.addProperty(BrokerRequestHandler.BROKER_ID_CONFIG_KEY,brokerId);
   setupHelixSystemProperties();
   String zkServers=zkServer.replaceAll("\\s+","");
   LOGGER.info("Starting Zookeeper client");

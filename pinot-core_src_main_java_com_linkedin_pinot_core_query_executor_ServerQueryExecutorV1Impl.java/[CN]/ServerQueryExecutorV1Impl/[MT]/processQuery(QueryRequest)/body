@@ -1,0 +1,69 @@
+{
+  DataTable instanceResponse;
+  long start=System.currentTimeMillis();
+  List<SegmentDataManager> queryableSegmentDataManagerList=null;
+  InstanceRequest instanceRequest=queryRequest.getInstanceRequest();
+  final long requestId=instanceRequest.getRequestId();
+  final long nSegmentsInQuery=instanceRequest.getSearchSegmentsSize();
+  long nPrunedSegments=-1;
+  try {
+    TraceContext.register(instanceRequest);
+    final BrokerRequest brokerRequest=instanceRequest.getQuery();
+    LOGGER.debug("Incoming query is : {}",brokerRequest);
+    long startPruningTime=System.nanoTime();
+    queryableSegmentDataManagerList=getPrunedQueryableSegments(instanceRequest);
+    long pruningTime=System.nanoTime() - startPruningTime;
+    _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.SEGMENT_PRUNING,pruningTime);
+    nPrunedSegments=queryableSegmentDataManagerList.size();
+    LOGGER.debug("Matched {} segments! ",nPrunedSegments);
+    if (queryableSegmentDataManagerList.isEmpty()) {
+      return null;
+    }
+    final long startPlanTime=System.nanoTime();
+    final Plan globalQueryPlan=_planMaker.makeInterSegmentPlan(queryableSegmentDataManagerList,brokerRequest,_instanceDataManager.getTableDataManager(brokerRequest.getQuerySource().getTableName()).getExecutorService(),getResourceTimeOut(instanceRequest.getQuery()));
+    final long planTime=System.nanoTime() - startPlanTime;
+    _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.BUILD_QUERY_PLAN,planTime);
+    if (_printQueryPlan) {
+      LOGGER.debug("***************************** Query Plan for Request {} ***********************************",instanceRequest.getRequestId());
+      globalQueryPlan.print();
+      LOGGER.debug("*********************************** End Query Plan ***********************************");
+    }
+    final long executeStartTime=System.nanoTime();
+    globalQueryPlan.execute();
+    final long executeTime=System.nanoTime() - executeStartTime;
+    _serverMetrics.addPhaseTiming(brokerRequest,ServerQueryPhase.QUERY_PLAN_EXECUTION,executeTime);
+    instanceResponse=globalQueryPlan.getInstanceResponse();
+    final long end=System.currentTimeMillis();
+    LOGGER.debug("Searching Instance for Request Id - {}, browse took: {}",instanceRequest.getRequestId(),(end - start));
+    LOGGER.debug("InstanceResponse for Request Id - {} : {}",instanceRequest.getRequestId(),instanceResponse.toString());
+    instanceResponse.getMetadata().put("timeUsedMs",Long.toString((end - start)));
+    instanceResponse.getMetadata().put("requestId",Long.toString(instanceRequest.getRequestId()));
+    instanceResponse.getMetadata().put("traceInfo",TraceContext.getTraceInfoOfRequestId(instanceRequest.getRequestId()));
+    LOGGER.info("Processed requestId {},reqSegments={},prunedSegments={},planTime={},timeUsed={},executeTime={},broker={}",requestId,nSegmentsInQuery,nPrunedSegments,TimeUnit.MILLISECONDS.convert(planTime,TimeUnit.NANOSECONDS),(end - start),TimeUnit.MILLISECONDS.convert(executeTime,TimeUnit.NANOSECONDS),queryRequest.getClientId());
+    return instanceResponse;
+  }
+ catch (  Exception e) {
+    _serverMetrics.addMeteredQueryValue(instanceRequest.getQuery(),ServerMeter.QUERY_EXECUTION_EXCEPTIONS,1);
+    LOGGER.error("Exception processing requestId {}",requestId,e);
+    instanceResponse=new DataTable();
+    instanceResponse.addException(QueryException.getException(QueryException.QUERY_EXECUTION_ERROR,e));
+    TraceContext.logException("ServerQueryExecutorV1Impl","Exception occurs in processQuery");
+    long end=System.currentTimeMillis();
+    LOGGER.info("Searching Instance for Request Id - {}, browse took: {}",requestId,requestId,(end - start));
+    LOGGER.info("InstanceResponse for Request Id - {} : {}",requestId,instanceResponse.toString());
+    instanceResponse.getMetadata().put("timeUsedMs",Long.toString((end - start)));
+    instanceResponse.getMetadata().put("requestId",Long.toString(instanceRequest.getRequestId()));
+    instanceResponse.getMetadata().put("traceInfo",TraceContext.getTraceInfoOfRequestId(instanceRequest.getRequestId()));
+    return instanceResponse;
+  }
+ finally {
+    if (_instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()) != null) {
+      if (queryableSegmentDataManagerList != null) {
+        for (        SegmentDataManager segmentDataManager : queryableSegmentDataManagerList) {
+          _instanceDataManager.getTableDataManager(instanceRequest.getQuery().getQuerySource().getTableName()).releaseSegment(segmentDataManager);
+        }
+      }
+    }
+    TraceContext.unregister(instanceRequest);
+  }
+}

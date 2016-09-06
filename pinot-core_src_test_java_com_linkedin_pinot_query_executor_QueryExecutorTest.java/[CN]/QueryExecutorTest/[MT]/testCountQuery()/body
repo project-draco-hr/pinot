@@ -8,7 +8,8 @@
   for (  IndexSegment segment : _indexSegmentList) {
     instanceRequest.getSearchSegments().add(segment.getSegmentName());
   }
-  DataTable instanceResponse=_queryExecutor.processQuery(instanceRequest);
+  QueryRequest queryRequest=new QueryRequest(instanceRequest);
+  DataTable instanceResponse=_queryExecutor.processQuery(queryRequest);
   LOGGER.info("InstanceResponse is " + instanceResponse.getLong(0,0));
   Assert.assertEquals(instanceResponse.getLong(0,0),400002L);
   LOGGER.info("Time used for instanceResponse is " + instanceResponse.getMetadata().get("timeUsedMs"));

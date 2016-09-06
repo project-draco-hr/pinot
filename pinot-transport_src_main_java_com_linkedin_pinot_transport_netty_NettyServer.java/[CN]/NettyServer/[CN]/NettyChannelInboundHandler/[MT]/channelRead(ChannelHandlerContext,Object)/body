@@ -5,7 +5,7 @@
   ByteBuf request=(ByteBuf)msg;
   _lastRequsetSizeInBytes=request.readableBytes();
   _lastProcessingLatency=MetricsHelper.startTimer();
-  byte[] response=_handler.processRequest(request);
+  byte[] response=_handler.processRequest(ctx,request);
   _lastProcessingLatency.stop();
   ByteBuf responseBuf=Unpooled.wrappedBuffer(response);
   _lastSendResponseLatency=MetricsHelper.startTimer();

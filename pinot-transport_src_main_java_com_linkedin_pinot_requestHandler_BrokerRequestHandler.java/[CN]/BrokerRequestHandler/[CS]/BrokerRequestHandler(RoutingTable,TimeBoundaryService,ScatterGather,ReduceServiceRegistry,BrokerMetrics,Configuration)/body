@@ -1,0 +1,17 @@
+{
+  _routingTable=table;
+  _timeBoundaryService=timeBoundaryService;
+  _reduceServiceRegistry=reduceServiceRegistry;
+  _scatterGatherer=scatterGatherer;
+  _replicaSelection=new RoundRobinReplicaSelection();
+  _brokerMetrics=brokerMetrics;
+  _config=config;
+  _optimizer=new BrokerRequestOptimizer();
+  _requestIdGenerator=new AtomicLong(0);
+  _queryResponseLimit=_config.getInt(BROKER_QUERY_RESPONSE_LIMIT_CONFIG,DEFAULT_BROKER_QUERY_RESPONSE_LIMIT);
+  _brokerTimeOutMs=_config.getLong(BROKER_TIME_OUT_CONFIG,DEFAULT_BROKER_TIME_OUT_MS);
+  _brokerId=_config.getString(BROKER_ID_CONFIG_KEY,DEFAULT_BROKER_ID);
+  LOGGER.info("Broker response limit is: " + _queryResponseLimit);
+  LOGGER.info("Broker timeout is - " + _brokerTimeOutMs + " ms");
+  LOGGER.info("Broker id: " + _brokerId);
+}

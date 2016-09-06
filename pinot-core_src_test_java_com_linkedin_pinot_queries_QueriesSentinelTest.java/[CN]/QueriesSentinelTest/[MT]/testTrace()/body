@@ -8,7 +8,8 @@
   instanceRequest.setEnableTrace(true);
   instanceRequest.setSearchSegments(new ArrayList<String>());
   instanceRequest.getSearchSegments().add(segmentName);
-  final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(instanceRequest);
+  QueryRequest queryRequest=new QueryRequest(instanceRequest);
+  final DataTable instanceResponse=QUERY_EXECUTOR.processQuery(queryRequest);
   instanceResponseMap.clear();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
   final BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
