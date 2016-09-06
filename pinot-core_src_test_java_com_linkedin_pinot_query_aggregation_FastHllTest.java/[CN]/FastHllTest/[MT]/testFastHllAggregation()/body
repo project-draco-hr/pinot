@@ -1,0 +1,16 @@
+{
+  AggregationFunction aggregationFunction=new FastHllAggregationFunction();
+  aggregationFunction.init(_paramsInfo);
+  int _sizeOfCombineList=1000;
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<HyperLogLog> aggregationResults=getHllResultValues(i);
+    List<HyperLogLog> combinedResult=aggregationFunction.combine(aggregationResults,CombineLevel.SEGMENT);
+    long estimate=((combinedResult.get(0))).cardinality();
+    TestUtils.assertApproximation(estimate,i,0.1);
+  }
+  for (int i=1; i <= _sizeOfCombineList; ++i) {
+    List<HyperLogLog> combinedResults=getHllResultValues(i);
+    long reduceSize=(Long)aggregationFunction.reduce(combinedResults);
+    TestUtils.assertApproximation(reduceSize,i,0.1);
+  }
+}

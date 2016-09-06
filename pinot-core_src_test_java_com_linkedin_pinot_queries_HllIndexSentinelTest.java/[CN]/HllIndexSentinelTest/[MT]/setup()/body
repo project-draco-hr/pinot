@@ -1,0 +1,12 @@
+{
+  setupTableManager();
+  helper=new SegmentWithHllIndexCreateHelper(tableName,AVRO_DATA,timeColumnName,timeUnit);
+  SegmentIndexCreationDriver driver=helper.build(true,hllConfig);
+  File segmentFile=helper.getSegmentDirectory();
+  segmentName=helper.getSegmentName();
+  LOGGER.debug("************************** Segment Directory: " + segmentFile.getAbsolutePath());
+  final IndexSegment indexSegment=ColumnarSegmentLoader.load(segmentFile,ReadMode.heap);
+  instanceDataManager.getTableDataManager(tableName).addSegment(indexSegment);
+  QUERY_EXECUTOR=new ServerQueryExecutorV1Impl(false);
+  QUERY_EXECUTOR.init(serverConf.subset("pinot.server.query.executor"),instanceDataManager,new ServerMetrics(new MetricsRegistry()));
+}

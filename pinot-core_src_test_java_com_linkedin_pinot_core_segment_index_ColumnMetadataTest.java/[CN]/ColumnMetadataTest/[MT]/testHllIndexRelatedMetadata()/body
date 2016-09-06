@@ -1,0 +1,20 @@
+{
+  SegmentWithHllIndexCreateHelper helper=null;
+  try {
+    helper=new SegmentWithHllIndexCreateHelper("testHllIndexRelatedMetadata","data/test_data-sv.avro","daysSinceEpoch",TimeUnit.DAYS);
+    helper.build(true,new HllConfig(new HashSet<String>(Arrays.asList("column7")),8,"_hllSuffix"));
+    IndexSegment segment=Loaders.IndexSegment.load(helper.getSegmentDirectory(),ReadMode.mmap);
+    SegmentMetadataImpl metadata=(SegmentMetadataImpl)segment.getSegmentMetadata();
+    StarTreeMetadata starTreeMetadata=metadata.getStarTreeMetadata();
+    Assert.assertEquals(starTreeMetadata.isEnableHll(),true);
+    Assert.assertEquals(starTreeMetadata.getHllLog2m(),8);
+    ColumnMetadata column=metadata.getColumnMetadataFor("column7_hllSuffix");
+    Assert.assertEquals(column.getDerivedMetricType(),MetricFieldSpec.DerivedMetricType.HLL);
+    Assert.assertEquals(column.getOriginColumnName(),"column7");
+  }
+  finally {
+    if (helper != null) {
+      helper.cleanTempDir();
+    }
+  }
+}

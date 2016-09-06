@@ -1,0 +1,31 @@
+{
+  LOGGER.info("\nRunning: " + query.getPql());
+  final BrokerRequest brokerRequest=REQUEST_COMPILER.compileToBrokerRequest(query.getPql());
+  InstanceRequest instanceRequest=new InstanceRequest(counter++,brokerRequest);
+  instanceRequest.setSearchSegments(new ArrayList<String>());
+  instanceRequest.getSearchSegments().add(segmentName);
+  QueryRequest queryRequest=new QueryRequest(instanceRequest);
+  final DataTable instanceResponse=queryExecutor.processQuery(queryRequest);
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),instanceResponse);
+  final BrokerResponseNative brokerResponse=REDUCE_SERVICE.reduceOnDataTable(brokerRequest,instanceResponseMap);
+  AggregationResult result=brokerResponse.getAggregationResults().get(0);
+  Assert.assertNotNull(result);
+  if (result.getValue() != null) {
+    LOGGER.info("Aggregation Result is " + result.getValue().toString());
+  }
+ else   if (result.getGroupByResult() != null) {
+    LOGGER.info("GroupBy Result is " + result.getGroupByResult().toString());
+  }
+ else {
+    throw new RuntimeException("Aggregation and GroupBy Results both null.");
+  }
+  Object val;
+  if (query instanceof AvroQueryGenerator.TestSimpleAggreationQuery) {
+    val=Double.parseDouble(brokerResponse.getAggregationResults().get(0).getValue().toString());
+  }
+ else {
+    val=brokerResponse.getAggregationResults().get(0).getGroupByResult();
+  }
+  return val;
+}

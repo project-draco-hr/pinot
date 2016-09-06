@@ -1,0 +1,13 @@
+{
+  String[] stringValues=_columnToStringsMap.get(column);
+  if (!_columnStringLoaded.contains(column)) {
+    if (stringValues == null) {
+      stringValues=new String[DocIdSetPlanNode.MAX_DOC_PER_CALL];
+      _columnToStringsMap.put(column,stringValues);
+    }
+    int[] dictIds=getDictIdArrayForColumn(column);
+    _dataFetcher.fetchSingleStringValues(column,dictIds,_startPos,_length,stringValues,0);
+    _columnStringLoaded.add(column);
+  }
+  return stringValues;
+}

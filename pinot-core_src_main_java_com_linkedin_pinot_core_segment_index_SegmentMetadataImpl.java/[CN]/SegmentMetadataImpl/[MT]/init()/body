@@ -36,15 +36,15 @@
       _allColumns.add(columnName);
     }
   }
+  for (  final String column : _allColumns) {
+    _columnMetadataMap.put(column,ColumnMetadata.fromPropertiesConfiguration(column,_segmentMetadataPropertiesConfiguration));
+  }
+  _segmentName=_segmentMetadataPropertiesConfiguration.getString(Segment.SEGMENT_NAME);
   _hasStarTree=_segmentMetadataPropertiesConfiguration.getBoolean(MetadataKeys.StarTree.STAR_TREE_ENABLED,false);
   if (_hasStarTree) {
     initStarTreeMetadata();
   }
-  _segmentName=_segmentMetadataPropertiesConfiguration.getString(V1Constants.MetadataKeys.Segment.SEGMENT_NAME);
-  for (  final String column : _allColumns) {
-    _columnMetadataMap.put(column,extractColumnMetadataFor(column));
-  }
   for (  final String column : _columnMetadataMap.keySet()) {
-    _schema.addField(_columnMetadataMap.get(column).toFieldSpec());
+    _schema.addField(_columnMetadataMap.get(column).getFieldSpec());
   }
 }

@@ -1,0 +1,20 @@
+{
+  boolean isAccurate=true;
+  Object accurateValue=null;
+  for (  final AvroQueryGenerator.TestAggreationQuery query : queries) {
+    Object val=runQuery(queryExecutor,segmentName,query);
+    if (isAccurate) {
+      accurateValue=val;
+      isAccurate=false;
+    }
+ else {
+      if (query instanceof AvroQueryGenerator.TestSimpleAggreationQuery) {
+        TestUtils.assertApproximation((Double)val,(Double)accurateValue,precision);
+      }
+ else {
+        TestUtils.assertGroupByResultsApproximation((List<GroupByResult>)val,(List<GroupByResult>)accurateValue,precision);
+      }
+      isAccurate=true;
+    }
+  }
+}

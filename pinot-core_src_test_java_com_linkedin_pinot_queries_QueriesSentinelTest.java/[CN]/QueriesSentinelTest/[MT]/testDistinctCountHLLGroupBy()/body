@@ -7,5 +7,5 @@
     groupByCalls.add(new TestGroupByAggreationQuery("select distinctcount(column2) from testTable group by column" + i + " limit 0",null));
     groupByCalls.add(new TestGroupByAggreationQuery("select distinctcounthll(column2) from testTable group by column" + i + " limit 0",null));
   }
-  runApproximationQueries(groupByCalls,0.1);
+  ApproximateQueryTestUtil.runApproximationQueries(QUERY_EXECUTOR,segmentName,groupByCalls,TestUtils.hllEstimationThreshold);
 }

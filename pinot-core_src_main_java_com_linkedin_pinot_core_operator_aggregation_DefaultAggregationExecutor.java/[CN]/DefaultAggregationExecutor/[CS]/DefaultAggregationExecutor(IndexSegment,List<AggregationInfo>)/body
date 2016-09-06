@@ -5,10 +5,11 @@
   _singleValueBlockCache=new SingleValueBlockCache(new DataFetcher(indexSegment));
   _numAggrFunc=aggregationInfoList.size();
   _aggrFuncContextArray=new AggregationFunctionContext[_numAggrFunc];
+  _segmentMetadata=indexSegment.getSegmentMetadata();
   for (int i=0; i < _numAggrFunc; i++) {
     AggregationInfo aggregationInfo=aggregationInfoList.get(i);
     String[] columns=aggregationInfo.getAggregationParams().get("column").trim().split(",");
-    _aggrFuncContextArray[i]=new AggregationFunctionContext(aggregationInfo.getAggregationType(),columns);
+    _aggrFuncContextArray[i]=new AggregationFunctionContext(aggregationInfo.getAggregationType(),columns,_segmentMetadata);
   }
   _resultHolderArray=new AggregationResultHolder[_numAggrFunc];
 }

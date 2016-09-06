@@ -1,0 +1,12 @@
+{
+  HyperLogLog hllResult=resultList.get(0);
+  for (int i=1; i < resultList.size(); ++i) {
+    try {
+      hllResult.addAll(resultList.get(i));
+    }
+ catch (    CardinalityMergeException e) {
+      Utils.rethrowException(e);
+    }
+  }
+  return hllResult;
+}

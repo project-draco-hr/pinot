@@ -4,5 +4,5 @@
     aggCalls.add(new TestSimpleAggreationQuery("select distinctcount(column" + i + ") from testTable limit 0",0.0));
     aggCalls.add(new TestSimpleAggreationQuery("select distinctcounthll(column" + i + ") from testTable limit 0",0.0));
   }
-  runApproximationQueries(aggCalls,0.1);
+  ApproximateQueryTestUtil.runApproximationQueries(QUERY_EXECUTOR,segmentName,aggCalls,TestUtils.hllEstimationThreshold);
 }

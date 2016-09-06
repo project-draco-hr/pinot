@@ -10,10 +10,14 @@ case AggregationFunctionFactory.COUNT_AGGREGATION_FUNCTION:
   break;
 case AggregationFunctionFactory.DISTINCTCOUNT_AGGREGATION_FUNCTION:
 case AggregationFunctionFactory.DISTINCTCOUNTHLL_AGGREGATION_FUNCTION:
-aggregationFunction.aggregate(length,resultHolder,_singleValueBlockCache.getHashCodeArrayForColumn(aggrColumn));
+aggregationFunction.aggregate(length,resultHolder,(Object)_singleValueBlockCache.getHashCodeArrayForColumn(aggrColumn));
+break;
+case AggregationFunctionFactory.FASTHLL_AGGREGATION_FUNCTION:
+String derivedColumn=_segmentMetadata.getStarTreeMetadata().getDerivedHllColumnFromOrigin(aggrColumn);
+aggregationFunction.aggregate(length,resultHolder,(Object)_singleValueBlockCache.getStringValueArrayForColumn(derivedColumn));
 break;
 default :
-aggregationFunction.aggregate(length,resultHolder,_singleValueBlockCache.getDoubleValueArrayForColumn(aggrColumn));
+aggregationFunction.aggregate(length,resultHolder,(Object)_singleValueBlockCache.getDoubleValueArrayForColumn(aggrColumn));
 break;
 }
 }

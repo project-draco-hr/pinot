@@ -34,7 +34,12 @@
       last=intSortedList[rowCount - 1];
     }
   }
-  LOGGER.info("Creating segment for column {}, hasNulls = {}, cardinality = {}, dataType = {}, single value field = {}, range = {} to {}",spec.getName(),hasNulls,rowCount,spec.getDataType(),spec.isSingleValueField(),first,last);
+  if (spec instanceof MetricFieldSpec && ((MetricFieldSpec)spec).getDerivedMetricType() == MetricFieldSpec.DerivedMetricType.HLL) {
+    LOGGER.info("Creating segment for column {}, hasNulls = {}, cardinality = {}, dataType = {}, single value field = {}, is HLL derived column",spec.getName(),hasNulls,rowCount,spec.getDataType(),spec.isSingleValueField());
+  }
+ else {
+    LOGGER.info("Creating segment for column {}, hasNulls = {}, cardinality = {}, dataType = {}, single value field = {}, range = {} to {}",spec.getName(),hasNulls,rowCount,spec.getDataType(),spec.isSingleValueField(),first,last);
+  }
   this.sortedList=sortedList;
   this.spec=spec;
   this.paddingChar=paddingChar;

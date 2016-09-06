@@ -1,0 +1,22 @@
+{
+  LOGGER.info("====== assertGroupByResultsApproximation ======");
+  Assert.assertEquals(estimateValues.size(),actualValues.size());
+  Map<List<String>,Double> mapEstimate=new HashMap<>();
+  Map<List<String>,Double> mapActual=new HashMap<>();
+  for (  GroupByResult gby : estimateValues) {
+    mapEstimate.put(gby.getGroup(),Double.parseDouble(gby.getValue().toString()));
+  }
+  for (  GroupByResult gby : actualValues) {
+    mapActual.put(gby.getGroup(),Double.parseDouble(gby.getValue().toString()));
+  }
+  LOGGER.info("estimate: " + mapEstimate.keySet());
+  LOGGER.info("actual: " + mapActual.keySet());
+  int cnt=0;
+  for (  List<String> key : mapEstimate.keySet()) {
+    if (mapActual.keySet().contains(key)) {
+      assertApproximation(mapEstimate.get(key),mapActual.get(key),precision);
+      cnt+=1;
+    }
+  }
+  LOGGER.info("group overlap rate: " + (cnt + 0.0) / mapEstimate.keySet().size());
+}

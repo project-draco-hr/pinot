@@ -11,7 +11,7 @@
   if (outDir == null) {
     outDir=new File(System.getProperty("java.io.tmpdir"),V1Constants.STAR_TREE_INDEX_DIR + "_" + DateTime.now());
   }
-  LOG.debug("Index output directory:{}",outDir);
+  LOG.info("Index output directory:{}",outDir);
   dimensionTypes=new ArrayList<>();
   dimensionNames=new ArrayList<>();
   dimensionNameToIndexMap=HashBiMap.create();
@@ -58,12 +58,12 @@
   numMetrics=metricNames.size();
   builderConfig.getOutDir().mkdirs();
   dataFile=new File(outDir,"star-tree.buf");
-  LOG.debug("StarTree output data file: {}",dataFile.getAbsolutePath());
+  LOG.info("StarTree output data file: {}",dataFile.getAbsolutePath());
   dataBuffer=new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)));
   this.starTreeRootIndexNode=new StarTreeIndexNode();
   this.starTreeRootIndexNode.setDimensionName(StarTreeIndexNodeInterf.ALL);
   this.starTreeRootIndexNode.setDimensionValue(StarTreeIndexNodeInterf.ALL);
   this.starTreeRootIndexNode.setLevel(0);
-  LOG.debug("dimensionNames:{}",dimensionNames);
-  LOG.debug("metricNames:{}",metricNames);
+  LOG.info("dimensionNames:{}",dimensionNames);
+  LOG.info("metricNames:{}",metricNames);
 }

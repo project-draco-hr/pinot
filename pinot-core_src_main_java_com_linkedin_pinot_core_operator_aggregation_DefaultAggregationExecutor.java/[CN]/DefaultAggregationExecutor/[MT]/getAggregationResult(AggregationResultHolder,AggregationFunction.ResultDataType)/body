@@ -31,10 +31,18 @@ return intOpenHashSet;
 case DISTINCTCOUNTHLL_HYPERLOGLOG:
 HyperLogLog hyperLogLog=resultHolder.getResult();
 if (hyperLogLog == null) {
-return new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
+return new HyperLogLog(HllConstants.DEFAULT_LOG2M);
 }
  else {
 return hyperLogLog;
+}
+case HLL_PREAGGREGATED:
+HyperLogLog hllPreaggregated=resultHolder.getResult();
+if (hllPreaggregated == null) {
+return new HyperLogLog(_segmentMetadata.getStarTreeMetadata().getHllLog2m());
+}
+ else {
+return hllPreaggregated;
 }
 case PERCENTILE_LIST:
 DoubleArrayList doubleArrayList=resultHolder.getResult();

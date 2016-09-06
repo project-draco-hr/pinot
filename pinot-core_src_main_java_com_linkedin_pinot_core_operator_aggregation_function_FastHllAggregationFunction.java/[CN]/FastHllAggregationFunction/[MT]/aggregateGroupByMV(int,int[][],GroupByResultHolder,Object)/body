@@ -1,0 +1,22 @@
+{
+  Preconditions.checkArgument(valueArray.length == 1);
+  Preconditions.checkArgument(valueArray[0] instanceof String[]);
+  final String[] values=(String[])valueArray[0];
+  Preconditions.checkState(length <= values.length);
+  for (int i=0; i < length; i++) {
+    for (    int groupKey : docIdToGroupKeys[i]) {
+      HyperLogLog hll=resultHolder.getResult(groupKey);
+      if (hll == null) {
+        hll=new HyperLogLog(hllLog2m);
+        resultHolder.setValueForKey(groupKey,hll);
+      }
+      try {
+        HyperLogLog value=HllUtil.convertStringToHll(values[i]);
+        hll.addAll(value);
+      }
+ catch (      Exception e) {
+        Utils.rethrowException(e);
+      }
+    }
+  }
+}

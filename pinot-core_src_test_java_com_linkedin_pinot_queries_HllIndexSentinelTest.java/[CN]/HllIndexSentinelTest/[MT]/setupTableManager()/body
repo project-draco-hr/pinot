@@ -1,0 +1,8 @@
+{
+  TableDataManagerProvider.setServerMetrics(new ServerMetrics(new MetricsRegistry()));
+  serverConf=new TestingServerPropertiesBuilder(tableName).build();
+  serverConf.setDelimiterParsingDisabled(false);
+  instanceDataManager=FileBasedInstanceDataManager.getInstanceDataManager();
+  instanceDataManager.init(new FileBasedInstanceDataManagerConfig(serverConf.subset("pinot.server.instance")));
+  instanceDataManager.start();
+}

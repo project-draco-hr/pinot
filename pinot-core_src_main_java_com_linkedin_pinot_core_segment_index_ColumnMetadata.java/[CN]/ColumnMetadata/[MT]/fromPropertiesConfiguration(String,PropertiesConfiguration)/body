@@ -26,5 +26,26 @@
     paddingCharacter=StringEscapeUtils.unescapeJava(padding).charAt(0);
   }
   builder.setPaddingCharacter(paddingCharacter);
-  return builder.build();
+  String typeStr=config.getString(getKeyFor(column,DERIVED_METRIC_TYPE),null);
+  DerivedMetricType derivedMetricType=(typeStr == null) ? null : DerivedMetricType.valueOf(typeStr.toUpperCase());
+  if (derivedMetricType != null) {
+switch (derivedMetricType) {
+case HLL:
+      try {
+        final int hllLog2m=config.getInt(V1Constants.MetadataKeys.StarTree.STAR_TREE_HLL_LOG2M);
+        builder.setFieldSize(HllUtil.getHllFieldSizeFromLog2m(hllLog2m));
+        final String originColumnName=config.getString(getKeyFor(column,ORIGIN_COLUMN));
+        builder.setOriginColumnName(originColumnName);
+      }
+ catch (      RuntimeException e) {
+        LOGGER.error("Column: " + column + " is HLL derived column, but missing log2m, fieldSize or originColumnName.");
+        throw e;
+      }
+    break;
+default :
+  throw new IllegalArgumentException("Column: " + column + " with derived metric Type: "+ derivedMetricType+ " is not supported in building column metadata.");
+}
+builder.setDerivedMetricType(derivedMetricType);
+}
+return builder.build();
 }

@@ -17,19 +17,29 @@ case AggregationFunctionFactory.DISTINCTCOUNT_AGGREGATION_FUNCTION:
 case AggregationFunctionFactory.DISTINCTCOUNTHLL_AGGREGATION_FUNCTION:
 double[] hashCodeArray=_singleValueBlockCache.getHashCodeArrayForColumn(aggrColumn);
 if (_hasMultiValuedColumns) {
-aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,hashCodeArray);
+aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,(Object)hashCodeArray);
 }
  else {
-aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,hashCodeArray);
+aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,(Object)hashCodeArray);
+}
+break;
+case AggregationFunctionFactory.FASTHLL_AGGREGATION_FUNCTION:
+String derivedColumn=_segmentMetadata.getStarTreeMetadata().getDerivedHllColumnFromOrigin(aggrColumn);
+String[] stringArray=_singleValueBlockCache.getStringValueArrayForColumn(derivedColumn);
+if (_hasMultiValuedColumns) {
+aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,(Object)stringArray);
+}
+ else {
+aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,(Object)stringArray);
 }
 break;
 default :
 double[] valueArray=_singleValueBlockCache.getDoubleValueArrayForColumn(aggrColumn);
 if (_hasMultiValuedColumns) {
-aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,valueArray);
+aggregationFunction.aggregateGroupByMV(length,_docIdToMVGroupKey,resultHolder,(Object)valueArray);
 }
  else {
-aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,valueArray);
+aggregationFunction.aggregateGroupBySV(length,_docIdToSVGroupKey,resultHolder,(Object)valueArray);
 }
 break;
 }

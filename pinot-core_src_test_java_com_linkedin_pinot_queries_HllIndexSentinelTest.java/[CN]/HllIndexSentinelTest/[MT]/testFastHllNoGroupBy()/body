@@ -1,0 +1,14 @@
+{
+  final int baseValue=10000000;
+  final String[] filterColumns={"column1","column17"};
+  for (  String filterColumn : filterColumns) {
+    for (    String distinctCountColumn : columnsToDeriveHllFields) {
+      final List<TestSimpleAggreationQuery> aggCalls=new ArrayList<>();
+      aggCalls.add(new TestSimpleAggreationQuery("select fasthll(" + distinctCountColumn + ") from "+ tableName+ " where "+ filterColumn+ " > "+ baseValue+ " limit 0",0.0));
+      aggCalls.add(new TestSimpleAggreationQuery("select distinctcounthll(" + distinctCountColumn + ") from "+ tableName+ " where "+ filterColumn+ " > "+ baseValue+ " limit 0",0.0));
+      ApproximateQueryTestUtil.runApproximationQueries(QUERY_EXECUTOR,segmentName,aggCalls,approximationThreshold);
+      Object ret=ApproximateQueryTestUtil.runQuery(QUERY_EXECUTOR,segmentName,new TestSimpleAggreationQuery("select distinctcount(" + distinctCountColumn + ") from "+ tableName+ " where "+ filterColumn+ " > "+ baseValue+ " limit 0",0.0));
+      LOGGER.debug(ret.toString());
+    }
+  }
+}

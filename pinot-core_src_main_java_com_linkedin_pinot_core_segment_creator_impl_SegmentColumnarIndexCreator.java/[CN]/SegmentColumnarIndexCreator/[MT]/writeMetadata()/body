@@ -23,6 +23,8 @@
     properties.setProperty(STAR_TREE_SKIP_STAR_NODE_CREATION_FOR_DIMENSIONS,starTreeIndexSpec.getSkipStarNodeCreationForDimensions());
     properties.setProperty(STAR_TREE_SKIP_MATERIALIZATION_CARDINALITY,starTreeIndexSpec.getskipMaterializationCardinalityThreshold());
     properties.setProperty(STAR_TREE_SKIP_MATERIALIZATION_FOR_DIMENSIONS,starTreeIndexSpec.getskipMaterializationForDimensions());
+    properties.setProperty(STAR_TREE_HLL_ENABLED,config.getHllConfig().isEnableHllIndex());
+    properties.setProperty(STAR_TREE_HLL_LOG2M,config.getHllConfig().getHllLog2m());
   }
   String timeColumn=config.getTimeColumnName();
   if (indexCreationInfoMap.get(timeColumn) != null) {
@@ -47,7 +49,7 @@
     ColumnIndexCreationInfo columnIndexCreationInfo=entry.getValue();
     int dictionaryElementSize=dictionaryCreatorMap.get(column).getStringColumnMaxLength();
     boolean hasInvertedIndex=true;
-    addColumnMetadataInfo(properties,column,columnIndexCreationInfo,totalDocs,totalRawDocs,totalAggDocs,schema.getFieldSpecFor(column),dictionaryElementSize,hasInvertedIndex);
+    addColumnMetadataInfo(properties,column,columnIndexCreationInfo,totalDocs,totalRawDocs,totalAggDocs,schema.getFieldSpecFor(column),dictionaryElementSize,hasInvertedIndex,config.getHllConfig());
   }
   properties.save();
 }

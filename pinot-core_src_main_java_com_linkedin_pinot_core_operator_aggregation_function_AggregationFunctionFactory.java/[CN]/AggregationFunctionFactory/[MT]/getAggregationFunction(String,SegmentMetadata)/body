@@ -1,0 +1,40 @@
+{
+switch (functionName.toLowerCase()) {
+case COUNT_AGGREGATION_FUNCTION:
+    return new CountAggregationFunction();
+case MIN_AGGREGATION_FUNCTION:
+  return new MinAggregationFunction();
+case MAX_AGGREGATION_FUNCTION:
+return new MaxAggregationFunction();
+case SUM_AGGREGATION_FUNCTION:
+return new SumAggregationFunction();
+case AVG_AGGREGATION_FUNCTION:
+return new AvgAggregationFunction();
+case MINMAXRANGE_AGGREGATION_FUNCTION:
+return new MinMaxRangeAggregationFunction();
+case DISTINCTCOUNT_AGGREGATION_FUNCTION:
+return new DistinctCountAggregationFunction();
+case DISTINCTCOUNTHLL_AGGREGATION_FUNCTION:
+return new DistinctCountHLLAggregationFunction();
+case FASTHLL_AGGREGATION_FUNCTION:
+return new FastHllAggregationFunction(segmentMetadata.getStarTreeMetadata().getHllLog2m());
+case PERCENTILE50_AGGREGATION_FUNCTION:
+return new PercentileAggregationFunction(50);
+case PERCENTILE90_AGGREGATION_FUNCTION:
+return new PercentileAggregationFunction(90);
+case PERCENTILE95_AGGREGATION_FUNCTION:
+return new PercentileAggregationFunction(95);
+case PERCENTILE99_AGGREGATION_FUNCTION:
+return new PercentileAggregationFunction(99);
+case PERCENTILEEST50_AGGREGATION_FUNCTION:
+return new PercentileestAggregationFunction(50);
+case PERCENTILEEST90_AGGREGATION_FUNCTION:
+return new PercentileestAggregationFunction(90);
+case PERCENTILEEST95_AGGREGATION_FUNCTION:
+return new PercentileestAggregationFunction(95);
+case PERCENTILEEST99_AGGREGATION_FUNCTION:
+return new PercentileestAggregationFunction(99);
+default :
+throw new RuntimeException("Unsupported aggregation function: " + functionName);
+}
+}

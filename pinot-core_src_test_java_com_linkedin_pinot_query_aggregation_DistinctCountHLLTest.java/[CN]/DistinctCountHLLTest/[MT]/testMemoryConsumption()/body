@@ -1,12 +1,12 @@
 {
-  int numOfItems=10000000;
+  int numOfItems=1000000;
   println("#items_inserted, HLL_ser_size, openHashSet_ser_size, ser_size_ratio, estimate, precise, error");
   for (int i=0; i < numOfItems; i+=numOfItems / 17) {
     if (i == 0) {
       continue;
     }
     RandomNumberArray arr=new RandomNumberArray(i,DUPLICATION_PER_ITEM);
-    HyperLogLog hllResult=new HyperLogLog(DistinctCountHLLAggregationFunction.DEFAULT_BIT_SIZE);
+    HyperLogLog hllResult=new HyperLogLog(HllConstants.DEFAULT_LOG2M);
     IntOpenHashSet set=new IntOpenHashSet();
     arr.offerAllNumberTo(hllResult);
     arr.offerAllNumberTo(set);

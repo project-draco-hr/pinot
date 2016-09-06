@@ -8,7 +8,7 @@
     for (    int groupKey : docIdToGroupKeys[i]) {
       HyperLogLog hll=resultHolder.getResult(groupKey);
       if (hll == null) {
-        hll=new HyperLogLog(DEFAULT_BIT_SIZE);
+        hll=new HyperLogLog(log2m);
         resultHolder.setValueForKey(groupKey,hll);
       }
       hll.offer(value);

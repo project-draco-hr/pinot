@@ -2,7 +2,7 @@
   if (enableHllIndex) {
     Collection<String> columnNames=dataSchema.getColumnNames();
     HllConfig hllConfig=config.getHllConfig();
-    for (    String derivedFieldName : hllConfig.getDerivedHllFieldsMap().values()) {
+    for (    String derivedFieldName : hllConfig.getDerivedHllFieldToOriginMap().keySet()) {
       if (columnNames.contains(derivedFieldName)) {
         throw new IllegalArgumentException("Cannot add derived field: " + derivedFieldName + " since it already exists in schema.");
       }

@@ -1,0 +1,17 @@
+{
+  final int baseValue=10000000;
+  final String[] filterColumns={"column1","column17"};
+  final String[] gbyColumns=new String[]{"column17","column13","column1","column9"};
+  for (  String filterColumn : filterColumns) {
+    for (    String gbyColumn : gbyColumns) {
+      for (      String distinctCountColumn : columnsToDeriveHllFields) {
+        final List<AvroQueryGenerator.TestGroupByAggreationQuery> groupByCalls=new ArrayList<>();
+        groupByCalls.add(new AvroQueryGenerator.TestGroupByAggreationQuery("select fasthll(" + distinctCountColumn + ") from "+ tableName+ " where "+ filterColumn+ " < "+ baseValue+ " group by "+ gbyColumn+ " limit 0",null));
+        groupByCalls.add(new AvroQueryGenerator.TestGroupByAggreationQuery("select distinctcounthll(" + distinctCountColumn + ") from "+ tableName+ " where "+ filterColumn+ " < "+ baseValue+ " group by "+ gbyColumn+ " limit 0",null));
+        ApproximateQueryTestUtil.runApproximationQueries(QUERY_EXECUTOR,segmentName,groupByCalls,approximationThreshold);
+        Object ret=ApproximateQueryTestUtil.runQuery(QUERY_EXECUTOR,segmentName,new AvroQueryGenerator.TestGroupByAggreationQuery("select distinctcount(" + distinctCountColumn + ") from "+ tableName+ " where "+ filterColumn+ " < "+ baseValue+ " group by "+ gbyColumn+ " limit 0",null));
+        LOGGER.debug(ret.toString());
+      }
+    }
+  }
+}

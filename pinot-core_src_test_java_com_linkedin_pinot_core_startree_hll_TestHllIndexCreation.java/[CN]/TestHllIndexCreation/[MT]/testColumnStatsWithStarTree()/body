@@ -1,0 +1,36 @@
+{
+  SegmentWithHllIndexCreateHelper helper=null;
+  boolean hasException=false;
+  int maxDocLength=10000;
+  try {
+    LOGGER.debug("================ With StarTree ================");
+    helper=new SegmentWithHllIndexCreateHelper("withStarTree",AVRO_DATA,timeColumnName,timeUnit);
+    SegmentIndexCreationDriver driver=helper.build(true,hllConfig);
+    LOGGER.debug("================ Cardinality ================");
+    for (    String name : helper.getSchema().getColumnNames()) {
+      LOGGER.debug("* " + name + ": "+ driver.getColumnStatisticsCollector(name).getCardinality());
+    }
+    LOGGER.debug("Loading ...");
+    IndexSegment indexSegment=Loaders.IndexSegment.load(helper.getSegmentDirectory(),ReadMode.mmap);
+    int[] docIdSet=new int[maxDocLength];
+    for (int i=0; i < maxDocLength; i++) {
+      docIdSet[i]=i;
+    }
+    SingleValueBlockCache blockCache=new SingleValueBlockCache(new DataFetcher(indexSegment));
+    blockCache.initNewBlock(docIdSet,0,maxDocLength);
+    String[] strings=blockCache.getStringValueArrayForColumn("column1_hll");
+    Assert.assertEquals(strings.length,maxDocLength);
+    double[] ints=blockCache.getDoubleValueArrayForColumn("column1");
+    Assert.assertEquals(ints.length,maxDocLength);
+  }
+ catch (  Exception e) {
+    hasException=true;
+    LOGGER.error(e.getMessage());
+  }
+ finally {
+    if (helper != null) {
+      helper.cleanTempDir();
+    }
+    Assert.assertEquals(hasException,false);
+  }
+}
