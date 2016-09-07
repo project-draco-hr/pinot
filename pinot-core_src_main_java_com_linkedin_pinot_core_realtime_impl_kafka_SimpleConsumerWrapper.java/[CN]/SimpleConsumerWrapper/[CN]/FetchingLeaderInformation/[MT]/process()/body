@@ -2,7 +2,14 @@
   try {
     TopicMetadataResponse response=_simpleConsumer.send(new TopicMetadataRequest(Collections.singletonList(_topic)));
     try {
-      _leader=response.topicsMetadata().get(0).partitionsMetadata().get(_partition).leader();
+      _leader=null;
+      List<PartitionMetadata> pMetaList=response.topicsMetadata().get(0).partitionsMetadata();
+      for (      PartitionMetadata pMeta : pMetaList) {
+        if (pMeta.partitionId() == _partition) {
+          _leader=pMeta.leader();
+          break;
+        }
+      }
       if (_leader != null) {
         LOGGER.info("Located leader broker {}, connecting to it.",_leader);
         setCurrentState(new ConnectingToPartitionLeader());
