@@ -1,0 +1,7 @@
+{
+  AnomalyFunction anomalyFunction=anomalyFunctionDAO.findById(anomalyFunctionId);
+  AnomalyFunctionBean anomalyFunctionBean=OBJECT_MAPPER.readValue(anomalyFunction.getJsonVal(),AnomalyFunctionBean.class);
+  AnomalyFunctionDTO anomalyFunctionDTO=new AnomalyFunctionDTO();
+  MODEL_MAPPER.map(anomalyFunctionDTO,anomalyFunctionBean);
+  return anomalyFunctionDTO;
+}

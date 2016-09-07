@@ -1,0 +1,27 @@
+{
+  Predicate predicate=Predicate.AND(Predicate.GT("startTime",startTime),Predicate.LT("endTime",endTime),Predicate.EQ("functionId",functionId));
+  List<RawAnomalyResult> rawAnomalyResults=rawAnomalyResultDAO.findByParams(predicate);
+  List<RawAnomalyResultDTO> rawAnomalyResultDTOList=new ArrayList<>();
+  for (  RawAnomalyResult result : rawAnomalyResults) {
+    try {
+      RawAnomalyResultDTO dto=new RawAnomalyResultDTO();
+      RawAnomalyResultBean rawAnomalyResultBean=OBJECT_MAPPER.readValue(result.getJsonVal(),RawAnomalyResultBean.class);
+      MODEL_MAPPER.map(rawAnomalyResultBean,dto);
+      Long feedbackId=result.getAnomalyFeedbackId();
+      if (feedbackId != null) {
+        AnomalyFeedbackDTO anomalyFeedbackDTO=fetchAnomalyFeedback(feedbackId);
+        dto.setFeedback(anomalyFeedbackDTO);
+      }
+      Long anomalyFunctionId=result.getAnomalyFunctionId();
+      if (anomalyFunctionId != null) {
+        AnomalyFunctionDTO anomalyFunctionDTO=fetchAnomalyFunction(anomalyFunctionId);
+        dto.setFunction(anomalyFunctionDTO);
+      }
+      rawAnomalyResultDTOList.add(dto);
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+    }
+  }
+  return rawAnomalyResultDTOList;
+}
