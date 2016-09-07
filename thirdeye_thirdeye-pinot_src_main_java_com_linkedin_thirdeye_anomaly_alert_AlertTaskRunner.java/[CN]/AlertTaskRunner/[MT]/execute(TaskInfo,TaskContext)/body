@@ -8,11 +8,12 @@
   thirdeyeConfig=taskContext.getThirdEyeAnomalyConfiguration();
   try {
     LOG.info("Begin executing task {}",taskInfo);
-    run();
+    runTask();
   }
- catch (  Throwable t) {
-    LOG.error("Job failed with exception:",t);
+ catch (  Exception t) {
+    LOG.error("Task failed with exception:",t);
     sendFailureEmail(t);
+    throw t;
   }
   return taskResult;
 }
