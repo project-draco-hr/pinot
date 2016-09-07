@@ -40,6 +40,7 @@
     _columnMetadataMap.put(column,ColumnMetadata.fromPropertiesConfiguration(column,_segmentMetadataPropertiesConfiguration));
   }
   _segmentName=_segmentMetadataPropertiesConfiguration.getString(Segment.SEGMENT_NAME);
+  _hllLog2m=_segmentMetadataPropertiesConfiguration.getInt(Segment.SEGMENT_HLL_LOG2M,HllConstants.DEFAULT_LOG2M);
   _hasStarTree=_segmentMetadataPropertiesConfiguration.getBoolean(MetadataKeys.StarTree.STAR_TREE_ENABLED,false);
   if (_hasStarTree) {
     initStarTreeMetadata();
