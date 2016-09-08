@@ -1,0 +1,20 @@
+{
+  ScheduledRequestHandler handler=new ScheduledRequestHandler(new QueryScheduler(null){
+    @Override public ListenableFuture<DataTable> submit(    QueryRequest queryRequest){
+      return queryWorkers.submit(new Callable<DataTable>(){
+        @Override public DataTable call() throws Exception {
+          throw new RuntimeException("query processing error");
+        }
+      }
+);
+    }
+  }
+,serverMetrics);
+  ByteBuf requestBuf=getSerializedInstanceRequest(getInstanceRequest());
+  ListenableFuture<byte[]> responseFuture=handler.processRequest(channelHandlerContext,requestBuf);
+  byte[] bytes=responseFuture.get(2,TimeUnit.SECONDS);
+  Assert.assertTrue(bytes.length > 0);
+  DataTable expectedDT=new DataTable();
+  expectedDT.addException(QueryException.INTERNAL_ERROR);
+  Assert.assertEquals(bytes,expectedDT.toBytes());
+}

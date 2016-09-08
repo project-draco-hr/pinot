@@ -6,8 +6,9 @@
   _instanceDataManager=serverBuilder.buildInstanceDataManager();
   LOGGER.info("Trying to build QueryExecutor");
   _queryExecutor=serverBuilder.buildQueryExecutor(_instanceDataManager);
+  _queryScheduler=serverBuilder.buildQueryScheduler(_queryExecutor);
   LOGGER.info("Trying to build RequestHandlerFactory");
-  setRequestHandlerFactory(serverBuilder.buildRequestHandlerFactory(_queryExecutor));
+  setRequestHandlerFactory(serverBuilder.buildRequestHandlerFactory(_queryScheduler));
   LOGGER.info("Trying to build NettyServer");
   _nettyServer=serverBuilder.buildNettyServer(_serverConf.getNettyConfig(),_requestHandlerFactory);
   setServerThread(new Thread(_nettyServer));

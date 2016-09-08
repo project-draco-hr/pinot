@@ -1,16 +1,41 @@
 {
-  _requestStartTime=System.currentTimeMillis();
+  final long requestStartTime=System.currentTimeMillis();
   LOGGER.debug("Request received by server !!");
-  _state=State.REQUEST_RECEIVED;
-  ByteBuf request=(ByteBuf)msg;
-  _lastRequsetSizeInBytes=request.readableBytes();
-  _lastProcessingLatency=MetricsHelper.startTimer();
-  byte[] response=_handler.processRequest(ctx,request);
-  _lastProcessingLatency.stop();
-  ByteBuf responseBuf=Unpooled.wrappedBuffer(response);
-  _lastSendResponseLatency=MetricsHelper.startTimer();
-  ChannelFuture f=ctx.writeAndFlush(responseBuf);
-  _state=State.RESPONSE_WRITTEN;
-  f.addListener(this);
-  request.release();
+  final ByteBuf request=(ByteBuf)msg;
+  final long requestSizeInBytes=request.readableBytes();
+  final TimerContext requestProcessingLatency=MetricsHelper.startTimer();
+  final ChannelHandlerContext requestChannelHandlerContext=ctx;
+  ListenableFuture<byte[]> serializedQueryResponse=_handler.processRequest(ctx,request);
+  Futures.addCallback(serializedQueryResponse,new FutureCallback<byte[]>(){
+    void sendResponse(    @Nonnull final byte[] result){
+      requestProcessingLatency.stop();
+      final ByteBuf responseBuf=Unpooled.wrappedBuffer(result);
+      final TimerContext responseSendLatency=MetricsHelper.startTimer();
+      ChannelFuture f=requestChannelHandlerContext.writeAndFlush(responseBuf);
+      f.addListener(new ChannelFutureListener(){
+        @Override public void operationComplete(        ChannelFuture future) throws Exception {
+          LOGGER.debug("Response has been sent !!");
+          responseSendLatency.stop();
+          _metric.addServingStats(requestSizeInBytes,result.length,1L,false,requestProcessingLatency.getLatencyMs(),responseSendLatency.getLatencyMs());
+          long totalQueryTime=System.currentTimeMillis() - requestStartTime;
+          if (totalQueryTime > _defaultLargeQueryLatencyMs) {
+            LOGGER.info("Slow query: request handler processing time: {}, send response latency: {}, total time to handle request: {}",requestProcessingLatency.getLatencyMs(),responseSendLatency.getLatencyMs(),totalQueryTime);
+          }
+        }
+      }
+);
+      request.release();
+    }
+    @Override public void onSuccess(    @Nullable byte[] result){
+      if (result == null) {
+        result=new byte[0];
+      }
+      sendResponse(result);
+    }
+    @Override public void onFailure(    Throwable t){
+      LOGGER.error("Request processing returned unhandled exception, error: ",t);
+      sendResponse(new byte[0]);
+    }
+  }
+);
 }

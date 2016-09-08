@@ -1,0 +1,11 @@
+{
+  serverMetrics=new ServerMetrics(new MetricsRegistry());
+  channelHandlerContext=mock(ChannelHandlerContext.class,RETURNS_DEEP_STUBS);
+  when(channelHandlerContext.channel().remoteAddress()).thenAnswer(new Answer<InetSocketAddress>(){
+    @Override public InetSocketAddress answer(    InvocationOnMock invocationOnMock) throws Throwable {
+      return new InetSocketAddress("localhost",60000);
+    }
+  }
+);
+  queryScheduler=mock(QueryScheduler.class);
+}

@@ -1,0 +1,36 @@
+{
+  ScheduledRequestHandler handler=new ScheduledRequestHandler(new QueryScheduler(null){
+    @Override public ListenableFuture<DataTable> submit(    QueryRequest queryRequest){
+      return queryRunners.submit(new Callable<DataTable>(){
+        @Override public DataTable call() throws Exception {
+          String[] columns=new String[]{"foo","bar"};
+          FieldSpec.DataType[] columnTypes=new FieldSpec.DataType[]{FieldSpec.DataType.STRING,FieldSpec.DataType.INT};
+          DataTableBuilder.DataSchema dataSchema=new DataTableBuilder.DataSchema(columns,columnTypes);
+          DataTableBuilder dtBuilder=new DataTableBuilder(dataSchema);
+          dtBuilder.open();
+          dtBuilder.startRow();
+          dtBuilder.setColumn(0,"mars");
+          dtBuilder.setColumn(1,10);
+          dtBuilder.finishRow();
+          dtBuilder.startRow();
+          dtBuilder.setColumn(0,"jupiter");
+          dtBuilder.setColumn(1,100);
+          dtBuilder.finishRow();
+          dtBuilder.seal();
+          return dtBuilder.build();
+        }
+      }
+);
+    }
+  }
+,serverMetrics);
+  ByteBuf requestBuf=getSerializedInstanceRequest(getInstanceRequest());
+  ListenableFuture<byte[]> responseFuture=handler.processRequest(channelHandlerContext,requestBuf);
+  byte[] responseBytes=responseFuture.get(2,TimeUnit.SECONDS);
+  DataTable responseDT=new DataTable(responseBytes);
+  Assert.assertEquals(responseDT.getNumberOfRows(),2);
+  Assert.assertEquals(responseDT.getString(0,0),"mars");
+  Assert.assertEquals(responseDT.getInt(0,1),10);
+  Assert.assertEquals(responseDT.getString(1,0),"jupiter");
+  Assert.assertEquals(responseDT.getInt(1,1),100);
+}

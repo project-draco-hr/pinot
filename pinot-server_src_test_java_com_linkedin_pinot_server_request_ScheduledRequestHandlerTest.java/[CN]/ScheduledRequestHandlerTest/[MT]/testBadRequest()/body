@@ -1,0 +1,13 @@
+{
+  ScheduledRequestHandler handler=new ScheduledRequestHandler(queryScheduler,serverMetrics);
+  String requestBadString="foobar";
+  byte[] requestData=requestBadString.getBytes();
+  ByteBuf buffer=Unpooled.wrappedBuffer(requestData);
+  ListenableFuture<byte[]> response=handler.processRequest(channelHandlerContext,buffer);
+  Assert.assertTrue(response.isDone());
+  byte[] responseBytes=response.get();
+  Assert.assertTrue(responseBytes.length > 0);
+  DataTable expectedDT=new DataTable();
+  expectedDT.addException(QueryException.INTERNAL_ERROR);
+  Assert.assertEquals(responseBytes,expectedDT.toBytes());
+}

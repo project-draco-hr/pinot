@@ -1,0 +1,7 @@
+{
+  String querySchedulerClassName=_serverConf.getQuerySchedulerClassName();
+  LOGGER.info("Using query scheduler class: {}",querySchedulerClassName);
+  Constructor<?> schedulerConstructor=Class.forName(querySchedulerClassName).getConstructor(Configuration.class,QueryExecutor.class);
+  QueryScheduler scheduler=(QueryScheduler)schedulerConstructor.newInstance(_serverConf.getSchedulerConfig(),queryExecutor);
+  return scheduler;
+}

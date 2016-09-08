@@ -13,13 +13,13 @@
   ServerInstance server=new ServerInstance("localhost",port);
   EventLoopGroup eventLoopGroup=new NioEventLoopGroup();
   NettyTCPClientConnection clientConn=new NettyTCPClientConnection(server,eventLoopGroup,timer,metric);
-  LOGGER.info("About to connect the client !!");
+  LOGGER.debug("About to connect the client !!");
   boolean connected=clientConn.connect();
-  LOGGER.info("Client connected !!");
+  LOGGER.debug("Client connected !!");
   Assert.assertTrue(connected,"connected");
   Thread.sleep(1000);
   String request="dummy request";
-  LOGGER.info("Sending the request !!");
+  LOGGER.debug("Sending the request !!");
   ResponseFuture serverRespFuture=clientConn.sendRequest(Unpooled.wrappedBuffer(request.getBytes()),1L,5000L);
   clientConn.close();
   latch.countDown();
@@ -30,5 +30,5 @@
   Assert.assertFalse(serverRespFuture.isCancelled(),"Is Cancelled");
   Assert.assertTrue(serverRespFuture.getError() != null,"Got Exception");
   serverConn.shutdownGracefully();
-  System.out.println(metric);
+  LOGGER.trace("metrics: {}",metric);
 }

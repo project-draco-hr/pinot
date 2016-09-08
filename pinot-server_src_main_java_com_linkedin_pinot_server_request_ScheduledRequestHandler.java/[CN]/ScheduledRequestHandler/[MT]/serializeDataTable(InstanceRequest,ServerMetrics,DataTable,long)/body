@@ -1,0 +1,25 @@
+{
+  byte[] responseByte;
+  long serializationStartTime=System.nanoTime();
+  long requestId=instanceRequest != null ? instanceRequest.getRequestId() : -1;
+  String brokerId=instanceRequest != null ? instanceRequest.getBrokerId() : "null";
+  try {
+    if (instanceResponse == null) {
+      LOGGER.warn("Instance response is null for requestId: {}, brokerId: {}",requestId,brokerId);
+      responseByte=new byte[0];
+    }
+ else {
+      responseByte=instanceResponse.toBytes();
+    }
+  }
+ catch (  Exception e) {
+    metrics.addMeteredGlobalValue(ServerMeter.RESPONSE_SERIALIZATION_EXCEPTIONS,1);
+    LOGGER.error("Got exception while serializing response for requestId: {}, brokerId: {}",requestId,brokerId,e);
+    responseByte=null;
+  }
+  long serializationEndTime=System.nanoTime();
+  BrokerRequest brokerRequest=instanceRequest != null ? instanceRequest.getQuery() : null;
+  metrics.addPhaseTiming(brokerRequest,ServerQueryPhase.RESPONSE_SERIALIZATION,serializationEndTime - serializationStartTime);
+  metrics.addPhaseTiming(brokerRequest,ServerQueryPhase.TOTAL_QUERY_TIME,serializationEndTime - queryStartTime);
+  return responseByte;
+}

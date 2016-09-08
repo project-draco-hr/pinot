@@ -15,7 +15,8 @@
   sendQueryToQueryExecutor(getMaxQuery(),queryExecutor);
   sendQueryToQueryExecutor(getMinQuery(),queryExecutor);
   LOGGER.info("Trying to build RequestHandlerFactory");
-  RequestHandlerFactory simpleRequestHandlerFactory=serverBuilder.buildRequestHandlerFactory(queryExecutor);
+  QueryScheduler queryScheduler=serverBuilder.buildQueryScheduler(queryExecutor);
+  RequestHandlerFactory simpleRequestHandlerFactory=serverBuilder.buildRequestHandlerFactory(queryScheduler);
   LOGGER.info("Trying to build NettyServer");
   System.out.println(getMaxQuery());
   String queryJson="";

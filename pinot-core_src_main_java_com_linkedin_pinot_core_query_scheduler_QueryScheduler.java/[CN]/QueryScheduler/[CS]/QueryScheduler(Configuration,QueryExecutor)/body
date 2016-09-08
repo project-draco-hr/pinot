@@ -1,0 +1,8 @@
+{
+  Preconditions.checkNotNull(schedulerConfig);
+  numQueryRunnerThreads=schedulerConfig.getInt(QUERY_RUNNER_CONFIG_KEY,DEFAULT_QUERY_RUNNER_THREADS);
+  numQueryWorkerThreads=schedulerConfig.getInt(QUERY_WORKER_CONFIG_KEY,DEFAULT_QUERY_WORKER_THREADS);
+  queryRunners=MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(numQueryRunnerThreads));
+  queryWorkers=MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(numQueryWorkerThreads));
+  this.queryExecutor=queryExecutor;
+}
