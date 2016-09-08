@@ -1,0 +1,22 @@
+{
+  List<AggregationInfo> aggregationsInfo=brokerRequest.getAggregationsInfo();
+  StarTreeMetadata starTreeMetadata=segmentMetadata.getStarTreeMetadata();
+  Map<AggregationInfo,String> fastHllAggregationInfoToDerivedColumnNameMap=new HashMap<>();
+  for (  AggregationInfo aggregationInfo : aggregationsInfo) {
+    if (aggregationInfo.getAggregationType().toLowerCase().equals("fasthll")) {
+      String derivedColumn=extractDerivedColumn(aggregationInfo,starTreeMetadata);
+      if (derivedColumn == null) {
+        return false;
+      }
+ else {
+        fastHllAggregationInfoToDerivedColumnNameMap.put(aggregationInfo,derivedColumn);
+      }
+    }
+  }
+  for (  AggregationInfo aggregationInfo : fastHllAggregationInfoToDerivedColumnNameMap.keySet()) {
+    String derivedColumn=fastHllAggregationInfoToDerivedColumnNameMap.get(aggregationInfo);
+    LOGGER.info("Performed rewriting to fasthll({})",derivedColumn);
+    aggregationInfo.getAggregationParams().put("column",derivedColumn);
+  }
+  return true;
+}
