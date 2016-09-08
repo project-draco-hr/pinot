@@ -19,11 +19,17 @@
           List<String> childNames=_pinotHelixResourceManager.getPropertyStore().getChildNames(SEGMENTS_PATH + "/" + realtimeTable,0);
           if (childNames != null && !childNames.isEmpty()) {
             for (            String segmentName : childNames) {
+              if (!SegmentName.isHighLevelConsumerSegmentName(segmentName)) {
+                continue;
+              }
               String segmentPath=realtimeSegmentsPathForTable + "/" + segmentName;
               RealtimeSegmentZKMetadata realtimeSegmentZKMetadata=ZKMetadataProvider.getRealtimeSegmentZKMetadata(_pinotHelixResourceManager.getPropertyStore(),abstractTableConfig.getTableName(),segmentName);
               if (realtimeSegmentZKMetadata.getStatus() == Status.IN_PROGRESS) {
                 LOGGER.info("Setting data change watch for real-time segment currently being consumed: {}",segmentPath);
                 _zkClient.subscribeDataChanges(segmentPath,this);
+              }
+ else {
+                _zkClient.unsubscribeDataChanges(segmentPath,this);
               }
             }
           }
