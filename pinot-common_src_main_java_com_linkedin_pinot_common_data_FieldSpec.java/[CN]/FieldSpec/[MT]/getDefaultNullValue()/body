@@ -16,7 +16,6 @@ case DOUBLE:
 _cachedDefaultNullValue=Double.valueOf(_stringDefaultNullValue);
 break;
 case STRING:
-Preconditions.checkState(fieldType != FieldType.METRIC,"For metric field, no support for non-number data type: " + _dataType);
 _cachedDefaultNullValue=_stringDefaultNullValue;
 break;
 default :
@@ -38,6 +37,9 @@ _cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_FLOAT;
 break;
 case DOUBLE:
 _cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_DOUBLE;
+break;
+case STRING:
+_cachedDefaultNullValue=DEFAULT_METRIC_NULL_VALUE_OF_STRING;
 break;
 default :
 throw new UnsupportedOperationException("Unknown default null value for metric field of data type: " + _dataType);

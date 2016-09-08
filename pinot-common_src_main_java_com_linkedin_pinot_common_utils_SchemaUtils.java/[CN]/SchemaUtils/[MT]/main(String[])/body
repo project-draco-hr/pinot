@@ -1,0 +1,9 @@
+{
+  Schema schema=new Schema.SchemaBuilder().setSchemaName("testSchema").addSingleValueDimension("dimension",FieldSpec.DataType.DOUBLE).addMetric("metric",FieldSpec.DataType.INT).addTime("time",TimeUnit.DAYS,FieldSpec.DataType.INT).build();
+  System.out.println(postSchema("localhost",8100,schema));
+  Schema fetchedSchema=getSchema("localhost",8100,"testSchema");
+  Preconditions.checkNotNull(fetchedSchema);
+  System.out.println(fetchedSchema);
+  System.out.println(equalsIgnoreVersion(schema,fetchedSchema));
+  System.out.println(deleteSchema("localhost",8100,"testSchema"));
+}

@@ -1,30 +1,22 @@
 {
   String[] metricFields={"\"name\":\"metric\"","\"dataType\":\"INT\"","\"defaultNullValue\":-1"};
   MetricFieldSpec metricFieldSpec1=MAPPER.readValue(getRandomOrderJsonString(metricFields),MetricFieldSpec.class);
-  MetricFieldSpec metricFieldSpec2=new MetricFieldSpec("metric",DataType.INT);
-  metricFieldSpec2.setDefaultNullValue(-1);
+  MetricFieldSpec metricFieldSpec2=new MetricFieldSpec("metric",DataType.INT,-1);
   Assert.assertEquals(metricFieldSpec1,metricFieldSpec2,ERROR_MESSAGE);
-  Assert.assertTrue(metricFieldSpec1.getDefaultNullValue() instanceof Integer,ERROR_MESSAGE);
   Assert.assertEquals(metricFieldSpec1.getDefaultNullValue(),-1,ERROR_MESSAGE);
   String[] dimensionFields={"\"name\":\"dimension\"","\"dataType\":\"BOOLEAN\"","\"defaultNullValue\":false"};
   DimensionFieldSpec dimensionFieldSpec1=MAPPER.readValue(getRandomOrderJsonString(dimensionFields),DimensionFieldSpec.class);
-  DimensionFieldSpec dimensionFieldSpec2=new DimensionFieldSpec("dimension",DataType.BOOLEAN,true);
-  dimensionFieldSpec2.setDefaultNullValue(false);
+  DimensionFieldSpec dimensionFieldSpec2=new DimensionFieldSpec("dimension",DataType.BOOLEAN,true,false);
   Assert.assertEquals(dimensionFieldSpec1,dimensionFieldSpec2,ERROR_MESSAGE);
-  Assert.assertTrue(dimensionFieldSpec1.getDefaultNullValue() instanceof String,ERROR_MESSAGE);
   Assert.assertEquals(dimensionFieldSpec1.getDefaultNullValue(),"false",ERROR_MESSAGE);
   dimensionFields=new String[]{"\"name\":\"dimension\"","\"dataType\":\"STRING\"","\"singleValueField\":false","\"defaultNullValue\":\"default\""};
   dimensionFieldSpec1=MAPPER.readValue(getRandomOrderJsonString(dimensionFields),DimensionFieldSpec.class);
-  dimensionFieldSpec2=new DimensionFieldSpec("dimension",DataType.STRING,false);
-  dimensionFieldSpec2.setDefaultNullValue("default");
+  dimensionFieldSpec2=new DimensionFieldSpec("dimension",DataType.STRING,false,"default");
   Assert.assertEquals(dimensionFieldSpec1,dimensionFieldSpec2,ERROR_MESSAGE);
-  Assert.assertTrue(dimensionFieldSpec1.getDefaultNullValue() instanceof String,ERROR_MESSAGE);
   Assert.assertEquals(dimensionFieldSpec1.getDefaultNullValue(),"default",ERROR_MESSAGE);
   String[] timeFields={"\"incomingGranularitySpec\":{\"timeType\":\"MILLISECONDS\",\"dataType\":\"LONG\",\"name\":\"incomingTime\"}","\"outgoingGranularitySpec\":{\"timeType\":\"SECONDS\",\"dataType\":\"INT\",\"name\":\"outgoingTime\"}","\"defaultNullValue\":-1"};
   TimeFieldSpec timeFieldSpec1=MAPPER.readValue(getRandomOrderJsonString(timeFields),TimeFieldSpec.class);
-  TimeFieldSpec timeFieldSpec2=new TimeFieldSpec(new TimeGranularitySpec(DataType.LONG,TimeUnit.MILLISECONDS,"incomingTime"),new TimeGranularitySpec(DataType.INT,TimeUnit.SECONDS,"outgoingTime"));
-  timeFieldSpec2.setDefaultNullValue(-1);
+  TimeFieldSpec timeFieldSpec2=new TimeFieldSpec("incomingTime",DataType.LONG,TimeUnit.MILLISECONDS,"outgoingTime",DataType.INT,TimeUnit.SECONDS,-1);
   Assert.assertEquals(timeFieldSpec1,timeFieldSpec2,ERROR_MESSAGE);
-  Assert.assertTrue(timeFieldSpec1.getDefaultNullValue() instanceof Integer,ERROR_MESSAGE);
   Assert.assertEquals(timeFieldSpec1.getDefaultNullValue(),-1,ERROR_MESSAGE);
 }

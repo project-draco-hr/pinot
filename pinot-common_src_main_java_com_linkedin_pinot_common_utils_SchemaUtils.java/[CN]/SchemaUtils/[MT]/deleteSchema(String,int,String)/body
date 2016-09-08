@@ -1,0 +1,19 @@
+{
+  Preconditions.checkNotNull(host);
+  Preconditions.checkNotNull(schemaName);
+  try {
+    URL url=new URL("http",host,port,"/schemas/" + schemaName);
+    DeleteMethod httpDelete=new DeleteMethod(url.toString());
+    int responseCode=HTTP_CLIENT.executeMethod(httpDelete);
+    if (responseCode >= 400) {
+      String response=httpDelete.getResponseBodyAsString();
+      LOGGER.warn("Got error response code: {}, response: {}",responseCode,response);
+      return false;
+    }
+    return true;
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while getting the schema: {} from host: {}, port: {}",schemaName,host,port,e);
+    return false;
+  }
+}

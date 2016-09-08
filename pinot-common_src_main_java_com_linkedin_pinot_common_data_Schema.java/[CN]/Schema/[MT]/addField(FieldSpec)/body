@@ -2,12 +2,7 @@
   Preconditions.checkNotNull(fieldSpec);
   String columnName=fieldSpec.getName();
   Preconditions.checkNotNull(columnName);
-  if (fieldSpecMap.containsKey(columnName)) {
-    throw new RuntimeException("Field spec already exists for column: " + columnName);
-  }
- else {
-    fieldSpecMap.put(columnName,fieldSpec);
-  }
+  Preconditions.checkState(!fieldSpecMap.containsKey(columnName),"Field spec already exists for column: " + columnName);
   FieldType fieldType=fieldSpec.getFieldType();
 switch (fieldType) {
 case DIMENSION:
@@ -19,9 +14,11 @@ metrics.add(columnName);
 metricFieldSpecs.add((MetricFieldSpec)fieldSpec);
 break;
 case TIME:
+Preconditions.checkState(timeFieldSpec == null,"Already defined the time column: " + timeFieldSpec);
 timeFieldSpec=(TimeFieldSpec)fieldSpec;
 break;
 default :
 throw new UnsupportedOperationException("Unsupported field type: " + fieldType);
 }
+fieldSpecMap.put(columnName,fieldSpec);
 }

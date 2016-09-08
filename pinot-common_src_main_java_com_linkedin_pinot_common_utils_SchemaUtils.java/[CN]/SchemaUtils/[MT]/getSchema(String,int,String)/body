@@ -1,0 +1,24 @@
+{
+  Preconditions.checkNotNull(host);
+  Preconditions.checkNotNull(schemaName);
+  try {
+    URL url=new URL("http",host,port,"/schemas/" + schemaName);
+    GetMethod httpGet=new GetMethod(url.toString());
+    int responseCode=HTTP_CLIENT.executeMethod(httpGet);
+    String response=httpGet.getResponseBodyAsString();
+    if (responseCode >= 400) {
+      if (responseCode == 404) {
+        LOGGER.info("Cannot find schema: {} from host: {}, port: {}",schemaName,host,port);
+      }
+ else {
+        LOGGER.warn("Got error response code: {}, response: {}",responseCode,response);
+      }
+      return null;
+    }
+    return Schema.fromString(response);
+  }
+ catch (  Exception e) {
+    LOGGER.error("Caught exception while getting the schema: {} from host: {}, port: {}",schemaName,host,port,e);
+    return null;
+  }
+}
