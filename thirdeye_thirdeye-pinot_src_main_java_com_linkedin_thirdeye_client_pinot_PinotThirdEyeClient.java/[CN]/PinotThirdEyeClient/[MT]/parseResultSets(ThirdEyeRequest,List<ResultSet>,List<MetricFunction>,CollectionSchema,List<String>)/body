@@ -13,10 +13,10 @@
   int numMetrics=request.getMetricFunctions().size();
   int numCols=numGroupByKeys + numMetrics;
   boolean hasGroupByTime=false;
-  TimeUnit dataTimeUnit=null;
+  TimeGranularity dataGranularity=null;
   long startTime=request.getStartTimeInclusive().getMillis();
   long interval=-1;
-  dataTimeUnit=collectionSchema.getTime().getDataGranularity().getUnit();
+  dataGranularity=collectionSchema.getTime().getDataGranularity();
   boolean isISOFormat=false;
   DateTimeFormatter dateTimeFormatter=null;
   String timeFormat=collectionSchema.getTime().getFormat();
@@ -43,7 +43,7 @@
             int timeBucket;
             long millis;
             if (!isISOFormat) {
-              millis=dataTimeUnit.toMillis(Double.valueOf(groupKeyVal).longValue());
+              millis=dataGranularity.toMillis(Double.valueOf(groupKeyVal).longValue());
             }
  else {
               millis=DateTime.parse(groupKeyVal,dateTimeFormatter).getMillis();
