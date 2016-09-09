@@ -21,23 +21,37 @@
     LOG.error("Exception when reading collection schema cache",e);
   }
   knownAnomalies=getExistingAnomalies();
-  TimeSeriesRequest topLevelRequest=new TimeSeriesRequest();
-  topLevelRequest.setCollectionName(anomalyFunctionSpec.getCollection());
+  TimeSeriesRequest request=new TimeSeriesRequest();
+  request.setCollectionName(anomalyFunctionSpec.getCollection());
   List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunction.getMetricName(),anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getCollection());
-  topLevelRequest.setMetricExpressions(metricExpressions);
-  topLevelRequest.setAggregationTimeGranularity(timeGranularity);
-  topLevelRequest.setStart(windowStart);
-  topLevelRequest.setEnd(windowEnd);
-  topLevelRequest.setEndDateInclusive(false);
+  request.setMetricExpressions(metricExpressions);
+  request.setAggregationTimeGranularity(timeGranularity);
+  request.setEndDateInclusive(false);
   if (StringUtils.isNotBlank(filters)) {
-    topLevelRequest.setFilterSet(ThirdEyeUtils.getFilterSet(filters));
+    request.setFilterSet(ThirdEyeUtils.getFilterSet(filters));
   }
   String exploreDimension=detectionTaskInfo.getGroupByDimension();
   if (StringUtils.isNotBlank(exploreDimension)) {
-    topLevelRequest.setGroupByDimensions(Collections.singletonList(detectionTaskInfo.getGroupByDimension()));
+    request.setGroupByDimensions(Collections.singletonList(detectionTaskInfo.getGroupByDimension()));
   }
-  LOG.info("Running anomaly detection job with windowStartProp: {}, windowEndProp: {}, metricExpressions: {}, timeGranularity: {}, windowStart: {}, windowEnd: {}",windowStart,windowEnd,metricExpressions,timeGranularity);
-  List<RawAnomalyResultDTO> results=exploreCombination(topLevelRequest);
-  LOG.info("{} anomalies found in total",anomalyCounter);
+  List<Pair<Long,Long>> startEndTimeRanges=anomalyFunction.getDataRangeIntervals(windowStart.getMillis(),windowEnd.getMillis());
+  List<TimeSeriesRow> timeSeriesRows=new ArrayList<>();
+  for (  Pair<Long,Long> startEndInterval : startEndTimeRanges) {
+    DateTime startTime=new DateTime(startEndInterval.getFirst());
+    DateTime endTime=new DateTime(startEndInterval.getSecond());
+    request.setStart(startTime);
+    request.setEnd(endTime);
+    LOG.info("Fetching data with startTime: [{}], endTime: [{}], metricExpressions: [{}], timeGranularity: [{}]",startTime,endTime,metricExpressions,timeGranularity);
+    try {
+      LOG.debug("Executing {}",request);
+      TimeSeriesResponse response=timeSeriesHandler.handle(request);
+      timeSeriesRows.addAll(response.getRows());
+    }
+ catch (    Exception e) {
+      throw new JobExecutionException(e);
+    }
+  }
+  TimeSeriesResponse finalResponse=new TimeSeriesResponse(timeSeriesRows);
+  exploreDimensionsAndAnalyze(finalResponse);
   return taskResult;
 }

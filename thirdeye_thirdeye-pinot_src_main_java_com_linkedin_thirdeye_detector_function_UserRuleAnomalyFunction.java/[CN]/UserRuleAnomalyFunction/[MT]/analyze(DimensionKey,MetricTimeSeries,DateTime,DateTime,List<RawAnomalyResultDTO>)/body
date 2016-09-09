@@ -20,7 +20,7 @@
     LOGGER.info("{} does not meet volume threshold {}: {}",dimensionKey,volumeThreshold,averageValue);
     return anomalyResults;
   }
-  Set<Long> filteredBaselineTimes=filterTimeWindowSet(timeSeries.getTimeWindowSet(),windowStart.getMillis(),windowEnd.minus(baselineMillis).getMillis());
+  Set<Long> filteredBaselineTimes=filterTimeWindowSet(timeSeries.getTimeWindowSet(),windowStart.minus(baselineMillis).getMillis(),windowEnd.minus(baselineMillis).getMillis());
   List<Double> currentValues=new ArrayList<>();
   List<Double> baselineValues=new ArrayList<>();
   for (  Long baselineKey : filteredBaselineTimes) {

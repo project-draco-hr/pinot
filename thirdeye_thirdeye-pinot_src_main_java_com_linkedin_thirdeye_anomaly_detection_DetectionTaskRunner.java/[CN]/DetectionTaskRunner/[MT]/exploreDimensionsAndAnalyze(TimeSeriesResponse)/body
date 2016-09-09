@@ -1,15 +1,7 @@
 {
-  LOG.info("Exploring {}",request);
+  int anomalyCounter=0;
   List<RawAnomalyResultDTO> results=null;
-  TimeSeriesResponse response;
-  try {
-    LOG.debug("Executing {}",request);
-    response=timeSeriesHandler.handle(request);
-  }
- catch (  Exception e) {
-    throw new JobExecutionException(e);
-  }
-  Map<DimensionKey,MetricTimeSeries> res=timeSeriesResponseConverter.toMap(response,collectionDimensions);
+  Map<DimensionKey,MetricTimeSeries> res=timeSeriesResponseConverter.toMap(finalResponse,collectionDimensions);
   for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : res.entrySet()) {
     if (entry.getValue().getTimeWindowSet().size() < 2) {
       LOG.warn("Insufficient data for {} to run anomaly detection function",entry.getKey());
@@ -29,5 +21,5 @@
       LOG.error("Could not compute for {}",entry.getKey(),e);
     }
   }
-  return results;
+  LOG.info("{} anomalies found in total",anomalyCounter);
 }

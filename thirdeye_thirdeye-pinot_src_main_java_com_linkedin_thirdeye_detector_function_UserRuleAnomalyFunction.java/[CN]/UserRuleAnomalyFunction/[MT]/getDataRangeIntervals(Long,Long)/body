@@ -1,0 +1,14 @@
+{
+  List<Pair<Long,Long>> startEndTimeIntervals=new ArrayList<>();
+  startEndTimeIntervals.add(new Pair<>(windowStartTime,windowEndTime));
+  try {
+    Properties anomalyProps=getProperties();
+    String baselineProp=anomalyProps.getProperty(BASELINE);
+    long baselineMillis=getBaselineMillis(baselineProp);
+    startEndTimeIntervals.add(new Pair<>(windowStartTime - baselineMillis,windowEndTime - baselineMillis));
+  }
+ catch (  Exception e) {
+    LOGGER.error("Error reading the properties",e);
+  }
+  return startEndTimeIntervals;
+}
