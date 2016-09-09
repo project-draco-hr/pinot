@@ -2,7 +2,7 @@
   collection=ThirdEyeUtils.getCollectionFromAlias(collection);
   TabularViewRequest request=new TabularViewRequest();
   request.setCollection(collection);
-  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson,collection);
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricsJson,MetricAggFunction.SUM,collection);
   request.setMetricExpressions(metricExpressions);
   long maxDataTime=collectionMaxDataTimeCache.get(collection);
   if (currentEnd > maxDataTime) {

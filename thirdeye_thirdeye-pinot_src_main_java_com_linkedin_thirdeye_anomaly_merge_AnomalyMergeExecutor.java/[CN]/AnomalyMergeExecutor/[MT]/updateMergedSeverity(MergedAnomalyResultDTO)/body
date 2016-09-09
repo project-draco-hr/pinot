@@ -2,9 +2,7 @@
   AnomalyFunctionDTO anomalyFunctionSpec=anomalyMergedResult.getFunction();
   TimeSeriesRequest timeSeriesRequest=new TimeSeriesRequest();
   timeSeriesRequest.setCollectionName(anomalyFunctionSpec.getCollection());
-  MetricFunction metricFunction=new MetricFunction(anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getMetric());
-  List<MetricFunction> metricFunctions=Collections.singletonList(metricFunction);
-  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunctions);
+  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(anomalyFunctionSpec.getMetric(),anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getCollection());
   timeSeriesRequest.setMetricExpressions(metricExpressions);
   TimeGranularity timeBucket=new TimeGranularity(anomalyFunctionSpec.getBucketSize(),anomalyFunctionSpec.getBucketUnit());
   timeSeriesRequest.setAggregationTimeGranularity(timeBucket);
