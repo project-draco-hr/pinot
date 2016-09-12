@@ -40,7 +40,7 @@
   try {
     String alertEmailSubject=String.format("Anomaly Alert!: %d anomalies detected for %s:%s",results.size(),collectionAlias,alertConfig.getMetric());
     String alertEmailHtml=new String(baos.toByteArray(),CHARSET);
-    AlertJobUtils.sendEmailWithHtml(email,thirdeyeConfig.getSmtpConfiguration(),alertEmailSubject,alertEmailHtml,alertConfig.getFromAddress(),alertConfig.getToAddresses());
+    EmailHelper.sendEmailWithHtml(email,thirdeyeConfig.getSmtpConfiguration(),alertEmailSubject,alertEmailHtml,alertConfig.getFromAddress(),alertConfig.getToAddresses());
   }
  catch (  Exception e) {
     throw new JobExecutionException(e);
