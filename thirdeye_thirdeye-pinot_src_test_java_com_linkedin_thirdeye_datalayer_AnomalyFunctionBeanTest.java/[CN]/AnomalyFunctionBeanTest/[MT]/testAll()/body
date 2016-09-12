@@ -1,0 +1,34 @@
+{
+  GenericPojoDao genericPojoDao=DaoProviderUtil.getInstance(GenericPojoDao.class);
+  AnomalyFunctionBean anomalyFunctionBean=new AnomalyFunctionBean();
+  anomalyFunctionBean.setFunctionName("testFunction");
+  anomalyFunctionBean.setIsActive(true);
+  anomalyFunctionBean.setCollection("testCollection");
+  anomalyFunctionBean.setMetric("testMetric");
+  anomalyFunctionBean.setMetricId(1L);
+  Long id=genericPojoDao.put(anomalyFunctionBean);
+  System.out.println("id:" + id);
+  Assert.assertNotNull(id);
+  Assert.assertEquals(id,(Long)1L);
+  AnomalyFunctionBean retrivedById=genericPojoDao.get(id,AnomalyFunctionBean.class);
+  Assert.assertEquals(id,retrivedById.getId());
+  Assert.assertEquals("testCollection",retrivedById.getCollection());
+  Predicate predicate;
+  predicate=Predicate.EQ("metricId",1L);
+  List<AnomalyFunctionBean> retrievedByPredicate=genericPojoDao.get(predicate,AnomalyFunctionBean.class);
+  Assert.assertEquals(1,retrievedByPredicate.size());
+  retrivedById.setCollection("testCollection-new");
+  int rowsUpdate=genericPojoDao.update(retrivedById);
+  Assert.assertEquals(rowsUpdate,1);
+  AnomalyFunctionBean retrivedAfterUpdateById=genericPojoDao.get(id,AnomalyFunctionBean.class);
+  Assert.assertEquals(id,retrivedAfterUpdateById.getId());
+  Assert.assertEquals("testCollection-new",retrivedById.getCollection());
+  predicate=Predicate.EQ("collection","testCollection-new");
+  List<AnomalyFunctionBean> retrievedAfterUpdateByPredicate=genericPojoDao.get(predicate,AnomalyFunctionBean.class);
+  Assert.assertEquals(1,retrievedByPredicate.size());
+  Assert.assertEquals("testCollection-new",retrievedAfterUpdateByPredicate.get(0).getCollection());
+  int numRowsDeleted=genericPojoDao.delete(id,AnomalyFunctionBean.class);
+  Assert.assertEquals(1,numRowsDeleted);
+  AnomalyFunctionBean afterDelete=genericPojoDao.get(id,AnomalyFunctionBean.class);
+  Assert.assertNull(afterDelete);
+}

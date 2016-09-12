@@ -2,14 +2,15 @@
   this.dataSource=dataSource;
   entityMappingHolder=new EntityMappingHolder();
   try (Connection conn=dataSource.getConnection()){
-    entityMappingHolder.register(conn,AnomalyFeedback.class,convertCamelCaseToUnderscore(AnomalyFeedback.class.getName()));
-    entityMappingHolder.register(conn,AnomalyFunction.class,convertCamelCaseToUnderscore(AnomalyFunction.class.getName()));
-    entityMappingHolder.register(conn,Job.class,convertCamelCaseToUnderscore(Job.class.getName()));
-    entityMappingHolder.register(conn,MergedAnomalyResult.class,convertCamelCaseToUnderscore(MergedAnomalyResult.class.getName()));
-    entityMappingHolder.register(conn,RawAnomalyResult.class,convertCamelCaseToUnderscore(RawAnomalyResult.class.getName()));
-    entityMappingHolder.register(conn,Task.class,convertCamelCaseToUnderscore(Task.class.getName()));
-    entityMappingHolder.register(conn,EmailConfiguration.class,convertCamelCaseToUnderscore(EmailConfiguration.class.getName()));
-    entityMappingHolder.register(conn,WebappConfig.class,convertCamelCaseToUnderscore(WebappConfig.class.getName()));
+    entityMappingHolder.register(conn,GenericJsonEntity.class,convertCamelCaseToUnderscore(GenericJsonEntity.class.getSimpleName()));
+    entityMappingHolder.register(conn,AnomalyFeedbackIndex.class,convertCamelCaseToUnderscore(AnomalyFeedbackIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,AnomalyFunctionIndex.class,convertCamelCaseToUnderscore(AnomalyFunctionIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,JobIndex.class,convertCamelCaseToUnderscore(JobIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,MergedAnomalyResultIndex.class,convertCamelCaseToUnderscore(MergedAnomalyResultIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,RawAnomalyResultIndex.class,convertCamelCaseToUnderscore(RawAnomalyResultIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,TaskIndex.class,convertCamelCaseToUnderscore(TaskIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,EmailConfigurationIndex.class,convertCamelCaseToUnderscore(EmailConfigurationIndex.class.getSimpleName()));
+    entityMappingHolder.register(conn,WebappConfigIndex.class,convertCamelCaseToUnderscore(WebappConfigIndex.class.getSimpleName()));
   }
  catch (  Exception e) {
     throw new RuntimeException(e);

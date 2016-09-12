@@ -1,0 +1,16 @@
+{
+  return runTask(new QueryTask<Integer>(){
+    @Override public Integer handle(    Connection connection) throws Exception {
+      PojoInfo pojoInfo=pojoInfoMap.get(pojoClass);
+      Map<String,Object> filters=new HashMap<>();
+      filters.put("id",id);
+      PreparedStatement deleteStatement=sqlQueryBuilder.createDeleteByIdStatement(connection,GenericJsonEntity.class,filters);
+      deleteStatement.executeUpdate();
+      filters.clear();
+      filters.put("baseId",id);
+      PreparedStatement deleteIndexStatement=sqlQueryBuilder.createDeleteByIdStatement(connection,pojoInfo.indexEntityClass,filters);
+      return deleteIndexStatement.executeUpdate();
+    }
+  }
+,0);
+}

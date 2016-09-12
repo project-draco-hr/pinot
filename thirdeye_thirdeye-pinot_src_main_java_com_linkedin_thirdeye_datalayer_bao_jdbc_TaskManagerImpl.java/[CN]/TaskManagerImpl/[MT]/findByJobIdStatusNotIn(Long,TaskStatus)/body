@@ -1,0 +1,10 @@
+{
+  Predicate jobIdPredicate=Predicate.EQ("jobId",jobId);
+  Predicate statusPredicate=Predicate.NEQ("status",status);
+  List<TaskBean> list=genericPojoDao.get(Predicate.AND(statusPredicate,jobIdPredicate),TaskBean.class);
+  List<TaskDTO> result=new ArrayList<>();
+  for (  TaskBean bean : list) {
+    result.add((TaskDTO)MODEL_MAPPER.map(bean,TaskDTO.class));
+  }
+  return result;
+}

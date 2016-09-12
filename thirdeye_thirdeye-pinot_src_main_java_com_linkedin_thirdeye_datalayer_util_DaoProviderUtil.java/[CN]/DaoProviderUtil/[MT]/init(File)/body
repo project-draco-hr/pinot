@@ -1,6 +1,6 @@
 {
   PersistenceConfig configuration=PersistenceUtil.createConfiguration(localConfigFile);
-  DataSource dataSource=new DataSource();
+  dataSource=new DataSource();
   dataSource.setInitialSize(10);
   dataSource.setDefaultAutoCommit(true);
   dataSource.setMaxActive(100);
@@ -8,6 +8,4 @@
   dataSource.setPassword(configuration.getDatabaseConfiguration().getPassword());
   dataSource.setUrl(configuration.getDatabaseConfiguration().getUrl());
   dataSource.setDriverClassName(configuration.getDatabaseConfiguration().getDriver());
-  DataSourceModule dataSourceModule=new DataSourceModule(dataSource);
-  injector=Guice.createInjector(dataSourceModule);
 }

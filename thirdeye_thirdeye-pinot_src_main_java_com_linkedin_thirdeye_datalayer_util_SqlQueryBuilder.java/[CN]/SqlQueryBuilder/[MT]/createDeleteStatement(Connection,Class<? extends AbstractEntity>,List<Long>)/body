@@ -1,0 +1,16 @@
+{
+  if (ids == null || ids.isEmpty()) {
+    throw new IllegalArgumentException("ids to delete cannot be null/empty");
+  }
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  StringBuilder sqlBuilder=new StringBuilder("DELETE FROM " + tableName);
+  StringBuilder whereClause=new StringBuilder(" WHERE  id IN( ");
+  String delim="";
+  for (  Long id : ids) {
+    whereClause.append(delim).append(id);
+  }
+  whereClause.append(")");
+  sqlBuilder.append(whereClause.toString());
+  PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
+  return prepareStatement;
+}

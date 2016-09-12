@@ -1,0 +1,21 @@
+{
+  return runTask(new QueryTask<Integer>(){
+    @Override public Integer handle(    Connection connection) throws Exception {
+      PojoInfo pojoInfo=pojoInfoMap.get(pojoClass);
+      PreparedStatement findByParamsStatement=sqlQueryBuilder.createFindByParamsStatement(connection,pojoInfo.indexEntityClass,filters);
+      ResultSet rs=findByParamsStatement.executeQuery();
+      List<? extends AbstractIndexEntity> indexEntities=genericResultSetMapper.mapAll(rs,pojoInfo.indexEntityClass);
+      List<Long> idsToDelete=new ArrayList<>();
+      for (      AbstractIndexEntity entity : indexEntities) {
+        idsToDelete.add(entity.getBaseId());
+      }
+      PreparedStatement statement=sqlQueryBuilder.createDeleteStatement(connection,pojoInfo.indexEntityClass,idsToDelete);
+      int indexRowsDeleted=statement.executeUpdate();
+      PreparedStatement baseTableDeleteStatement=sqlQueryBuilder.createDeleteStatement(connection,GenericJsonEntity.class,idsToDelete);
+      int baseRowsDeleted=baseTableDeleteStatement.executeUpdate();
+      assert(baseRowsDeleted == indexRowsDeleted);
+      return baseRowsDeleted;
+    }
+  }
+,0);
+}

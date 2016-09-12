@@ -1,0 +1,27 @@
+{
+  return runTask(new QueryTask<Integer>(){
+    @Override public Integer handle(    Connection connection) throws Exception {
+      PojoInfo pojoInfo=pojoInfoMap.get(pojo.getClass());
+      String jsonVal=OBJECT_MAPPER.writeValueAsString(pojo);
+      AbstractJsonEntity genericJsonEntity=new GenericJsonEntity();
+      genericJsonEntity.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+      genericJsonEntity.setJsonVal(jsonVal);
+      genericJsonEntity.setId(pojo.getId());
+      Set<String> fieldsToUpdate=Sets.newHashSet("jsonVal","updateTime");
+      PreparedStatement baseTableInsertStmt=sqlQueryBuilder.createUpdateStatement(connection,genericJsonEntity,fieldsToUpdate);
+      int affectedRows=baseTableInsertStmt.executeUpdate();
+      if (affectedRows == 1) {
+        if (pojoInfo.indexEntityClass != null) {
+          AbstractIndexEntity abstractIndexEntity=pojoInfo.indexEntityClass.newInstance();
+          MODEL_MAPPER.map(pojo,abstractIndexEntity);
+          abstractIndexEntity.setBaseId(pojo.getId());
+          PreparedStatement indexTableInsertStatement=sqlQueryBuilder.createUpdateStatementForIndexTable(connection,abstractIndexEntity);
+          int numRowsUpdated=indexTableInsertStatement.executeUpdate();
+          return numRowsUpdated;
+        }
+      }
+      return affectedRows;
+    }
+  }
+,0);
+}

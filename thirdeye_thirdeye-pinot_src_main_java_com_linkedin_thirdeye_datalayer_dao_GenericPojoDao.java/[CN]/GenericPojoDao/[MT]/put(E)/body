@@ -1,0 +1,37 @@
+{
+  return runTask(new QueryTask<Long>(){
+    @Override public Long handle(    Connection connection) throws Exception {
+      PojoInfo pojoInfo=pojoInfoMap.get(pojo.getClass());
+      AbstractJsonEntity genericJsonEntity=new GenericJsonEntity();
+      genericJsonEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+      genericJsonEntity.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+      genericJsonEntity.setVersion(1);
+      genericJsonEntity.setBeanClass(pojo.getClass().getName());
+      String jsonVal=OBJECT_MAPPER.writeValueAsString(pojo);
+      genericJsonEntity.setJsonVal(jsonVal);
+      PreparedStatement baseTableInsertStmt=sqlQueryBuilder.createInsertStatement(connection,genericJsonEntity);
+      int affectedRows=baseTableInsertStmt.executeUpdate();
+      if (affectedRows == 1) {
+        ResultSet generatedKeys=baseTableInsertStmt.getGeneratedKeys();
+        if (generatedKeys.next()) {
+          pojo.setId(generatedKeys.getLong(1));
+        }
+        if (pojoInfo.indexEntityClass != null) {
+          AbstractIndexEntity abstractIndexEntity=pojoInfo.indexEntityClass.newInstance();
+          MODEL_MAPPER.map(pojo,abstractIndexEntity);
+          abstractIndexEntity.setBaseId(pojo.getId());
+          PreparedStatement indexTableInsertStatement=sqlQueryBuilder.createInsertStatement(connection,abstractIndexEntity);
+          int numRowsCreated=indexTableInsertStatement.executeUpdate();
+          if (numRowsCreated == 1) {
+            return pojo.getId();
+          }
+        }
+ else {
+          return pojo.getId();
+        }
+      }
+      return null;
+    }
+  }
+,null);
+}

@@ -1,0 +1,9 @@
+{
+  Predicate predicate=Predicate.EQ("collection",collection);
+  List<AnomalyFunctionBean> list=genericPojoDao.get(predicate,AnomalyFunctionBean.class);
+  Set<String> metrics=new HashSet<>();
+  for (  AnomalyFunctionBean anomalyFunctionBean : list) {
+    metrics.add(anomalyFunctionBean.getMetric());
+  }
+  return new ArrayList<>(metrics);
+}

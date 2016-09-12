@@ -1,0 +1,11 @@
+{
+  List<Map<String,Object>> resultMapList=toResultMapList(rs,entityClass);
+  List<AbstractEntity> resultEntityList=new ArrayList<>();
+  if (resultMapList.size() > 0) {
+    for (    Map<String,Object> map : resultMapList) {
+      AbstractEntity entity=modelMapper.map(map,entityClass);
+      resultEntityList.add(entity);
+    }
+  }
+  return resultEntityList;
+}

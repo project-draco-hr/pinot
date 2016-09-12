@@ -1,0 +1,12 @@
+{
+  String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  StringBuilder sql=new StringBuilder("Select * from " + tableName + " where id IN (");
+  String delim="";
+  for (  Long id : ids) {
+    sql.append(delim).append(id);
+    delim=", ";
+  }
+  sql.append(")");
+  PreparedStatement prepareStatement=connection.prepareStatement(sql.toString());
+  return prepareStatement;
+}

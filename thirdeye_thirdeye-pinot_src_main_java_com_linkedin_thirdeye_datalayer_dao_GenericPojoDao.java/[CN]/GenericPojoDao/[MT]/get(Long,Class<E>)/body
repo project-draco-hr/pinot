@@ -1,0 +1,16 @@
+{
+  return runTask(new QueryTask<E>(){
+    @Override public E handle(    Connection connection) throws Exception {
+      PreparedStatement selectStatement=sqlQueryBuilder.createFindByIdStatement(connection,GenericJsonEntity.class,id);
+      ResultSet resultSet=selectStatement.executeQuery();
+      GenericJsonEntity genericJsonEntity=(GenericJsonEntity)genericResultSetMapper.mapSingle(resultSet,GenericJsonEntity.class);
+      E e=null;
+      if (genericJsonEntity != null) {
+        e=OBJECT_MAPPER.readValue(genericJsonEntity.getJsonVal(),pojoClass);
+        e.setId(genericJsonEntity.getId());
+      }
+      return e;
+    }
+  }
+,null);
+}
