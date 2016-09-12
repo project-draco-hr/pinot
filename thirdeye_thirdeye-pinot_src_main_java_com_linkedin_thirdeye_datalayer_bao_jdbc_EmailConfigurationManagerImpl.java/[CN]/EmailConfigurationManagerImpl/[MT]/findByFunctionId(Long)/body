@@ -2,8 +2,8 @@
   Predicate predicate=Predicate.EQ("active",true);
   List<EmailConfigurationBean> list=genericPojoDao.get(predicate,EmailConfigurationBean.class);
   List<EmailConfigurationDTO> result=new ArrayList<>();
-  for (  AbstractBean abstractBean : list) {
-    EmailConfigurationDTO dto=MODEL_MAPPER.map(abstractBean,dtoClass);
+  for (  EmailConfigurationBean abstractBean : list) {
+    EmailConfigurationDTO dto=MODEL_MAPPER.map(abstractBean,EmailConfigurationDTO.class);
     result.add(dto);
   }
   return result;
