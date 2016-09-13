@@ -7,13 +7,25 @@
   TimeGranularity timeBucket=new TimeGranularity(anomalyFunctionSpec.getBucketSize(),anomalyFunctionSpec.getBucketUnit());
   timeSeriesRequest.setAggregationTimeGranularity(timeBucket);
   timeSeriesRequest.setEndDateInclusive(false);
+  Multimap<String,String> filters=ArrayListMultimap.create();
   if (StringUtils.isNotBlank(anomalyFunctionSpec.getFilters())) {
-    timeSeriesRequest.setFilterSet(ThirdEyeUtils.getFilterSet(anomalyFunctionSpec.getFilters()));
+    filters.putAll(ThirdEyeUtils.getFilterSet(anomalyFunctionSpec.getFilters()));
   }
   String exploreDimension=anomalyFunctionSpec.getExploreDimensions();
   if (StringUtils.isNotBlank(exploreDimension)) {
     timeSeriesRequest.setGroupByDimensions(Collections.singletonList(exploreDimension));
+    String anomalyDimensions=anomalyMergedResult.getDimensions();
+    String[] dimArr=anomalyDimensions.split(",");
+    for (    String dim : dimArr) {
+      if (!StringUtils.isBlank(dim) && !"*".equals(dim)) {
+        filters.removeAll(exploreDimension);
+        filters.put(exploreDimension,dim);
+        LOG.info("Adding filter : [{} = {}] in the query",exploreDimension,dim);
+      }
+    }
   }
+  LOG.info("Applying final filter : {}",filters.toString());
+  timeSeriesRequest.setFilterSet(filters);
   timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime()));
   timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime()));
   TimeSeriesResponse responseCurrent=timeSeriesHandler.handle(timeSeriesRequest);
@@ -21,8 +33,8 @@
   timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime() - baselineOffset));
   timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime() - baselineOffset));
   TimeSeriesResponse responseBaseline=timeSeriesHandler.handle(timeSeriesRequest);
-  Double currentValue=getMetricValueSum(responseCurrent,anomalyFunctionSpec.getMetric());
-  Double baselineValue=getMetricValueSum(responseBaseline,anomalyFunctionSpec.getMetric());
+  Double currentValue=getAvgMetricValuePerBucket(responseCurrent,anomalyFunctionSpec.getMetric());
+  Double baselineValue=getAvgMetricValuePerBucket(responseBaseline,anomalyFunctionSpec.getMetric());
   Double severity;
   if (baselineValue != 0) {
     severity=(currentValue - baselineValue) / baselineValue;
