@@ -2,7 +2,14 @@
   final long _endOffset=Long.MAX_VALUE;
   segmentLogger.info("Starting consumption loop start offset {}, finalOffset {}",_currentOffset,_finalOffset);
   while (!_receivedStop && !endCriteriaReached()) {
-    Iterable<MessageAndOffset> messagesAndOffsets=_consumerWrapper.fetchMessages(_currentOffset,_endOffset,KAFKA_MAX_FETCH_TIME_MILLIS);
+    Iterable<MessageAndOffset> messagesAndOffsets=null;
+    try {
+      messagesAndOffsets=_consumerWrapper.fetchMessages(_currentOffset,_endOffset,KAFKA_MAX_FETCH_TIME_MILLIS);
+    }
+ catch (    TimeoutException e) {
+      segmentLogger.warn("Timed out when fetching messages from Kafka, retrying");
+      continue;
+    }
     Iterator<MessageAndOffset> msgIterator=messagesAndOffsets.iterator();
     int batchSize=0;
     while (!_receivedStop && !endCriteriaReached() && msgIterator.hasNext()) {

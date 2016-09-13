@@ -1,7 +1,11 @@
 {
   Preconditions.checkState(!_metadataOnlyConsumer,"Cannot fetch messages from a metadata-only SimpleConsumerWrapper");
-  while (_currentState.getStateValue() != ConsumerState.CONNECTED_TO_PARTITION_LEADER) {
+  final long endTime=System.currentTimeMillis() + timeoutMillis;
+  while (_currentState.getStateValue() != ConsumerState.CONNECTED_TO_PARTITION_LEADER && System.currentTimeMillis() < endTime) {
     _currentState.process();
+  }
+  if (_currentState.getStateValue() != ConsumerState.CONNECTED_TO_PARTITION_LEADER && endTime <= System.currentTimeMillis()) {
+    throw new TimeoutException();
   }
   FetchResponse fetchResponse=_simpleConsumer.fetch(new FetchRequestBuilder().minBytes(100000).maxWait(timeoutMillis).addFetch(_topic,_partition,startOffset,500000).build());
   if (!fetchResponse.hasError()) {

@@ -23,7 +23,14 @@
       LLCSegmentName llcSegmentName=new LLCSegmentName(rawTableName,i,seqNum,now);
       final String segName=llcSegmentName.getSegmentName();
       metadata.setCreationTime(now);
-      final long startOffset=kafkaConsumer.fetchPartitionOffset(initialOffset,KAFKA_PARTITION_OFFSET_FETCH_TIMEOUT_MILLIS);
+      final long startOffset;
+      try {
+        startOffset=kafkaConsumer.fetchPartitionOffset(initialOffset,KAFKA_PARTITION_OFFSET_FETCH_TIMEOUT_MILLIS);
+      }
+ catch (      TimeoutException e) {
+        LOGGER.warn("Timed out when fetching partition offsets for segment {}",segName);
+        throw new RuntimeException(e);
+      }
       LOGGER.warn("Setting start offset for segment {} to {}",segName,startOffset);
       metadata.setStartOffset(startOffset);
       metadata.setEndOffset(Long.MAX_VALUE);
