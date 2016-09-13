@@ -1,0 +1,19 @@
+{
+  Method endCriteriaReached=null;
+  try {
+    endCriteriaReached=LLRealtimeSegmentDataManager.class.getDeclaredMethod("endCriteriaReached");
+    endCriteriaReached.setAccessible(true);
+    Boolean result=(Boolean)endCriteriaReached.invoke(this);
+    return result;
+  }
+ catch (  NoSuchMethodException e) {
+    Assert.fail();
+  }
+catch (  InvocationTargetException e) {
+    Assert.fail();
+  }
+catch (  IllegalAccessException e) {
+    Assert.fail();
+  }
+  throw new RuntimeException("Cannot get here");
+}

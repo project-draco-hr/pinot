@@ -1,0 +1,31 @@
+{
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    final int numRows=10;
+    segmentDataManager.setSegmentMaxRowCount(numRows);
+    segmentDataManager.setConsumeEndTime(0L);
+    Assert.assertFalse(segmentDataManager.invokeEndCriteriaReached());
+    segmentDataManager.setNumRowsConsumed(numRows - 1);
+    Assert.assertFalse(segmentDataManager.invokeEndCriteriaReached());
+    segmentDataManager.setNumRowsConsumed(numRows);
+    Assert.assertTrue(segmentDataManager.invokeEndCriteriaReached());
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    final long durationMs=100;
+    final long endTime=segmentDataManager.now() + durationMs;
+    segmentDataManager.setConsumeEndTime(endTime);
+    Assert.assertFalse(segmentDataManager.invokeEndCriteriaReached());
+    _timeNow+=10;
+    _timeNow=endTime;
+    Assert.assertTrue(segmentDataManager.invokeEndCriteriaReached());
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.CATCHING_UP);
+    final long finalOffset=_startOffset + 100;
+    segmentDataManager.setFinalOffset(finalOffset);
+    segmentDataManager.setCurrentOffset(finalOffset);
+    Assert.assertTrue(segmentDataManager.invokeEndCriteriaReached());
+  }
+}

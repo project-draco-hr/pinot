@@ -1,0 +1,13 @@
+{
+  KafkaHighLevelStreamProviderConfig config=mock(KafkaHighLevelStreamProviderConfig.class);
+  Mockito.doNothing().when(config).init(any(AbstractTableConfig.class),any(InstanceZKMetadata.class),any(Schema.class));
+  when(config.getTopicName()).thenReturn(_topicName);
+  when(config.getStreamName()).thenReturn(_topicName);
+  try {
+    when(config.getDecoder()).thenReturn(null);
+  }
+ catch (  Exception e) {
+    Assert.fail("Exception setting up streapProviderConfig");
+  }
+  return config;
+}

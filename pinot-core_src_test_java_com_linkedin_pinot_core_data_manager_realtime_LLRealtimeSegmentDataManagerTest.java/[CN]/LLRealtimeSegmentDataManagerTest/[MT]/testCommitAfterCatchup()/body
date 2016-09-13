@@ -1,0 +1,24 @@
+{
+  FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+  LLRealtimeSegmentDataManager.PartitionConsumer consumer=segmentDataManager.createPartitionConsumer();
+  final long firstOffset=_startOffset + 500;
+  final long catchupOffset=firstOffset + 10;
+  segmentDataManager._consumeOffsets.add(firstOffset);
+  segmentDataManager._consumeOffsets.add(catchupOffset);
+  final SegmentCompletionProtocol.Response holdResponse1=new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.HOLD,firstOffset);
+  final SegmentCompletionProtocol.Response catchupResponse=new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP,catchupOffset);
+  final SegmentCompletionProtocol.Response holdResponse2=new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.HOLD,catchupOffset);
+  final SegmentCompletionProtocol.Response commitResponse=new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.COMMIT,catchupOffset);
+  segmentDataManager._responses.add(holdResponse1);
+  segmentDataManager._responses.add(catchupResponse);
+  segmentDataManager._responses.add(holdResponse2);
+  segmentDataManager._responses.add(commitResponse);
+  consumer.run();
+  Assert.assertTrue(segmentDataManager._responses.isEmpty());
+  Assert.assertTrue(segmentDataManager._consumeOffsets.isEmpty());
+  Assert.assertTrue(segmentDataManager._buildSegmentCalled);
+  Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  Assert.assertFalse(segmentDataManager._downloadAndReplaceCalled);
+  Assert.assertTrue(segmentDataManager._commitSegmentCalled);
+  Assert.assertEquals(segmentDataManager._state.get(segmentDataManager),LLRealtimeSegmentDataManager.State.COMMITTED);
+}

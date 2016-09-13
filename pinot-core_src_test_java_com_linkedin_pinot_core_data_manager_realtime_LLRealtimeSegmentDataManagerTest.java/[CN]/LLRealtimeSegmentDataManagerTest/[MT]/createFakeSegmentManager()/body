@@ -1,0 +1,11 @@
+{
+  LLCRealtimeSegmentZKMetadata segmentZKMetadata=createZkMetadata();
+  AbstractTableConfig tableConfig=createTableConfig();
+  InstanceZKMetadata instanceZKMetadata=new InstanceZKMetadata();
+  RealtimeTableDataManager tableDataManager=createTableDataManager();
+  String resourceDir=_segmentDir;
+  Schema schema=Schema.fromString(makeSchema());
+  ServerMetrics serverMetrics=null;
+  FakeLLRealtimeSegmentDataManager segmentDataManager=new FakeLLRealtimeSegmentDataManager(segmentZKMetadata,tableConfig,instanceZKMetadata,tableDataManager,resourceDir,schema,serverMetrics);
+  return segmentDataManager;
+}

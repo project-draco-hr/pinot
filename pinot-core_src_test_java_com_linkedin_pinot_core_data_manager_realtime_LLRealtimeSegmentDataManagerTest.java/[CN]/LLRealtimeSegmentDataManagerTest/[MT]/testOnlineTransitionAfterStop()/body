@@ -1,0 +1,73 @@
+{
+  LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
+  final long finalOffset=_startOffset + 600;
+  metadata.setEndOffset(finalOffset);
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.COMMITTED);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertFalse(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.RETAINED);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertFalse(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.DISCARDED);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertTrue(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.ERROR);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertTrue(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.HOLDING);
+    segmentDataManager.setCurrentOffset(finalOffset + 1);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertTrue(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.CATCHING_UP);
+    segmentDataManager.setCurrentOffset(finalOffset + 1);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertTrue(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.CATCHING_UP);
+    segmentDataManager._consumeOffsets.add(finalOffset - 1);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertTrue(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertFalse(segmentDataManager._buildAndReplaceCalled);
+  }
+{
+    FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+    segmentDataManager._stopWaitTimeMs=0;
+    segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.CATCHING_UP);
+    segmentDataManager._consumeOffsets.add(finalOffset);
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.assertFalse(segmentDataManager._downloadAndReplaceCalled);
+    Assert.assertTrue(segmentDataManager._buildAndReplaceCalled);
+  }
+}

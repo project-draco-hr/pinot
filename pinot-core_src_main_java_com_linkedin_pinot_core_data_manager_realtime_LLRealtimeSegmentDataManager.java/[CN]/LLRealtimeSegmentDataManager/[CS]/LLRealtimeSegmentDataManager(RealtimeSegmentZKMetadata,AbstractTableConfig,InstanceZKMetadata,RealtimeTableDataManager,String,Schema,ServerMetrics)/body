@@ -9,7 +9,7 @@
   _instance=_realtimeTableDataManager.getServerInstance();
   _protocolHandler=new ServerSegmentCompletionProtocolHandler(_instance);
   IndexingConfig indexingConfig=_tableConfig.getIndexingConfig();
-  KafkaHighLevelStreamProviderConfig kafkaStreamProviderConfig=new KafkaHighLevelStreamProviderConfig();
+  KafkaHighLevelStreamProviderConfig kafkaStreamProviderConfig=createStreamProviderConfig();
   kafkaStreamProviderConfig.init(tableConfig,instanceZKMetadata,schema);
   final String bootstrapNodes=indexingConfig.getStreamConfigs().get(CommonConstants.Helix.DataSource.STREAM_PREFIX + "." + CommonConstants.Helix.DataSource.Realtime.Kafka.KAFKA_BROKER_LIST);
   _kafkaTopic=kafkaStreamProviderConfig.getTopicName();
@@ -37,8 +37,8 @@
   _invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
   _tableStreamName=_tableName + "_" + kafkaStreamProviderConfig.getStreamName();
   List<String> invertedIndexColumns=indexingConfig.getInvertedIndexColumns();
-  if (!indexingConfig.getSortedColumn().isEmpty()) {
-    invertedIndexColumns.add(indexingConfig.getSortedColumn().get(0));
+  if (_sortedColumn != null && !invertedIndexColumns.contains(_sortedColumn)) {
+    invertedIndexColumns.add(_sortedColumn);
   }
   _realtimeSegment=new RealtimeSegmentImpl(schema,_segmentMaxRowCount,tableConfig.getTableName(),segmentZKMetadata.getSegmentName(),_kafkaTopic,_serverMetrics,invertedIndexColumns);
   _realtimeSegment.setSegmentMetadata(segmentZKMetadata,schema);
@@ -51,5 +51,6 @@
   if (!_resourceTmpDir.exists()) {
     _resourceTmpDir.mkdirs();
   }
+  _state=State.INITIAL_CONSUMING;
   start();
 }

@@ -1,0 +1,16 @@
+{
+  FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+  LLRealtimeSegmentDataManager.PartitionConsumer consumer=segmentDataManager.createPartitionConsumer();
+  final long endOffset=_startOffset + 500;
+  segmentDataManager._consumeOffsets.add(endOffset);
+  final SegmentCompletionProtocol.Response keepResponse=new SegmentCompletionProtocol.Response(SegmentCompletionProtocol.ControllerResponseStatus.KEEP,endOffset);
+  segmentDataManager._responses.add(keepResponse);
+  consumer.run();
+  Assert.assertTrue(segmentDataManager._responses.isEmpty());
+  Assert.assertTrue(segmentDataManager._consumeOffsets.isEmpty());
+  Assert.assertFalse(segmentDataManager._buildSegmentCalled);
+  Assert.assertFalse(segmentDataManager._downloadAndReplaceCalled);
+  Assert.assertTrue(segmentDataManager._buildAndReplaceCalled);
+  Assert.assertFalse(segmentDataManager._commitSegmentCalled);
+  Assert.assertEquals(segmentDataManager._state.get(segmentDataManager),LLRealtimeSegmentDataManager.State.RETAINED);
+}

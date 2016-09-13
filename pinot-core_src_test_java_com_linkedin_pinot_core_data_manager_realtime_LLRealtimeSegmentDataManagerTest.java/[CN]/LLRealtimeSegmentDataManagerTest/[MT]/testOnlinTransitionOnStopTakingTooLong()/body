@@ -1,0 +1,13 @@
+{
+  FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
+  LLCRealtimeSegmentZKMetadata metadata=new LLCRealtimeSegmentZKMetadata();
+  metadata.setEndOffset(_startOffset + 600);
+  segmentDataManager._stopWaitTimeMs=segmentDataManager.getMaxTimeForConsumingToOnlineSec() * 1000 + 300;
+  try {
+    segmentDataManager.goOnlineFromConsuming(metadata);
+    Assert.fail();
+  }
+ catch (  RuntimeException e) {
+  }
+  Assert.assertFalse(segmentDataManager._downloadAndReplaceCalled);
+}
