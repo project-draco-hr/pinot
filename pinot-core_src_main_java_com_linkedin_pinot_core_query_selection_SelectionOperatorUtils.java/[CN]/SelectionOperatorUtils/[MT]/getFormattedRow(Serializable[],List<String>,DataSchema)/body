@@ -1,59 +1,64 @@
 {
-  Serializable[] formattedRow=new Serializable[selectionColumns.size()];
+  int numColumns=selectionColumns.size();
+  Serializable[] formattedRow=new Serializable[numColumns];
   Map<String,Integer> columnToIdxMapping=buildColumnToIdxMappingForDataSchema(dataSchema);
-  for (int i=0; i < selectionColumns.size(); ++i) {
-    if (!columnToIdxMapping.containsKey(selectionColumns.get(i))) {
-      formattedRow[i]=null;
-      continue;
-    }
-    int idxInDataSchema=columnToIdxMapping.get(selectionColumns.get(i));
-    if (dataSchema.getColumnType(idxInDataSchema).isSingleValue()) {
-      if (dataSchema.getColumnType(idxInDataSchema) == DataType.STRING) {
-        formattedRow[i]=inputValues[idxInDataSchema];
+  for (int i=0; i < numColumns; i++) {
+    String column=selectionColumns.get(i);
+    if (columnToIdxMapping.containsKey(column)) {
+      int idxInDataSchema=columnToIdxMapping.get(selectionColumns.get(i));
+      DataType columnType=dataSchema.getColumnType(idxInDataSchema);
+      if (columnType.isSingleValue()) {
+        if (columnType == DataType.STRING) {
+          formattedRow[i]=row[idxInDataSchema];
+        }
+ else {
+          formattedRow[i]=DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(idxInDataSchema)).format(row[idxInDataSchema]);
+        }
       }
  else {
-        formattedRow[i]=DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(idxInDataSchema)).format(inputValues[idxInDataSchema]);
-      }
-    }
- else {
-      String[] multiValued;
-      DecimalFormat decimalFormat=DEFAULT_FORMAT_STRING_MAP.get(dataSchema.getColumnType(idxInDataSchema));
-switch (dataSchema.getColumnType(idxInDataSchema)) {
-case STRING_ARRAY:
-        multiValued=(String[])inputValues[idxInDataSchema];
-      break;
+        String[] multiValues;
+        int numValues;
+switch (columnType) {
 case INT_ARRAY:
-    int[] intValues=(int[])inputValues[idxInDataSchema];
-  multiValued=new String[intValues.length];
-for (int j=0; j < intValues.length; j++) {
-  multiValued[j]=decimalFormat.format(intValues[j]);
+          int[] intValues=(int[])row[idxInDataSchema];
+        numValues=intValues.length;
+      multiValues=new String[numValues];
+    for (int j=0; j < numValues; j++) {
+      multiValues[j]=DEFAULT_FORMAT_STRING_MAP.get(DataType.INT).format(intValues[j]);
+    }
+  break;
+case LONG_ARRAY:
+long[] longValues=(long[])row[idxInDataSchema];
+numValues=longValues.length;
+multiValues=new String[numValues];
+for (int j=0; j < numValues; j++) {
+multiValues[j]=DEFAULT_FORMAT_STRING_MAP.get(DataType.LONG).format(longValues[j]);
 }
 break;
 case FLOAT_ARRAY:
-float[] floatValues=(float[])inputValues[idxInDataSchema];
-multiValued=new String[floatValues.length];
-for (int j=0; j < floatValues.length; j++) {
-multiValued[j]=decimalFormat.format(floatValues[j]);
-}
-break;
-case LONG_ARRAY:
-long[] longValues=(long[])inputValues[idxInDataSchema];
-multiValued=new String[longValues.length];
-for (int j=0; j < longValues.length; j++) {
-multiValued[j]=decimalFormat.format(longValues[j]);
+float[] floatValues=(float[])row[idxInDataSchema];
+numValues=floatValues.length;
+multiValues=new String[numValues];
+for (int j=0; j < numValues; j++) {
+multiValues[j]=DEFAULT_FORMAT_STRING_MAP.get(DataType.FLOAT).format(floatValues[j]);
 }
 break;
 case DOUBLE_ARRAY:
-double[] doubleValues=(double[])inputValues[idxInDataSchema];
-multiValued=new String[doubleValues.length];
-for (int j=0; j < doubleValues.length; j++) {
-multiValued[j]=decimalFormat.format(doubleValues[j]);
+double[] doubleValues=(double[])row[idxInDataSchema];
+numValues=doubleValues.length;
+multiValues=new String[numValues];
+for (int j=0; j < numValues; j++) {
+multiValues[j]=DEFAULT_FORMAT_STRING_MAP.get(DataType.DOUBLE).format(doubleValues[j]);
 }
 break;
+case STRING_ARRAY:
+multiValues=(String[])row[idxInDataSchema];
+break;
 default :
-throw new RuntimeException("Unsupported data type in selection results");
+throw new RuntimeException("Unsupported data type " + columnType + " for column "+ dataSchema.getColumnName(idxInDataSchema));
 }
-formattedRow[i]=multiValued;
+formattedRow[i]=multiValues;
+}
 }
 }
 return formattedRow;

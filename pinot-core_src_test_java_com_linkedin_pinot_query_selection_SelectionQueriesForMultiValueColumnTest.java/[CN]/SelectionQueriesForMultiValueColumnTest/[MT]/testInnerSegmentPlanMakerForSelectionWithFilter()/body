@@ -13,13 +13,10 @@
   Assert.assertEquals(resultBlock.getNumDocsScanned(),10);
   Assert.assertEquals(resultBlock.getTotalRawDocs(),100000);
   final SelectionOperatorService selectionOperatorService=new SelectionOperatorService(brokerRequest.getSelections(),resultBlock.getSelectionDataSchema());
-  final JSONObject jsonResult=getJsonResult(resultBlock,selectionOperatorService);
-  assertColumnsInResult(jsonResult);
-  JSONArray resultsJsonArray=jsonResult.getJSONArray("results");
-  for (int i=0; i < resultsJsonArray.length(); ++i) {
-    JSONArray rowJsonArray=resultsJsonArray.getJSONArray(i);
-    Assert.assertEquals(rowJsonArray.getString(0),"1787748327");
+  SelectionResults selectionResults=getSelectionResults(resultBlock,selectionOperatorService);
+  assertColumnsInResult(selectionResults);
+  List<Serializable[]> rows=selectionResults.getRows();
+  for (  Serializable[] row : rows) {
+    Assert.assertEquals(row[0],"1787748327");
   }
-  System.out.println(jsonResult);
-  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"columns\":[\"column2\",\"column1\",\"column5\",\"column6\",\"column7\",\"count\"]," + "\"results\":[[\"1787748327\",\"401448718\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"]," + "[\"1787748327\",\"1493628747\",\"AKXcXcIqsqOJFsdwxZ\",[\"1482\"],[\"478\"],\"890662862\"],"+ "[\"1787748327\",\"1295439109\",\"AKXcXcIqsqOJFsdwxZ\",[\"94413\"],[\"532\"],\"890662862\"],"+ "[\"1787748327\",\"269506187\",\"EOFxevm\",[\"10061\"],[\"239\",\"565\"],\"890662862\"],"+ "[\"1787748327\",\"1295439109\",\"AKXcXcIqsqOJFsdwxZ\",[\"94413\"],[\"532\"],\"890662862\"],"+ "[\"1787748327\",\"401448718\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"1787748327\",\"1493628747\",\"AKXcXcIqsqOJFsdwxZ\",[\"1482\"],[\"478\"],\"890662862\"],"+ "[\"1787748327\",\"401448718\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"1787748327\",\"401448718\",\"OKyOqU\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"1787748327\",\"1966355282\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"]]}");
 }

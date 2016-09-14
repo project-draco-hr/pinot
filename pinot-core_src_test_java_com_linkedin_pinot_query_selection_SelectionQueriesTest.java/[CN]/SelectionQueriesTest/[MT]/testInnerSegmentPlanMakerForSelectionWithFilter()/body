@@ -10,9 +10,8 @@
   System.out.println("TotalDocs : " + resultBlock.getTotalRawDocs());
   Assert.assertEquals(resultBlock.getNumDocsScanned(),582);
   Assert.assertEquals(resultBlock.getTotalRawDocs(),10001);
-  JSONArray resultsJsonArray=getJsonArray(brokerRequest,resultBlock);
-  for (int i=0; i < resultsJsonArray.length(); ++i) {
-    JSONArray rowJsonArray=resultsJsonArray.getJSONArray(i);
-    Assert.assertEquals(rowJsonArray.getString(0),"U");
+  List<Serializable[]> rows=getSelectionRows(brokerRequest,resultBlock);
+  for (  Serializable[] row : rows) {
+    Assert.assertEquals(row[0],"U");
   }
 }

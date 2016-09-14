@@ -1,0 +1,12 @@
+{
+  if (_maxRowSize > 0) {
+    for (    DataTable dataTable : selectionResults.values()) {
+      int numRows=dataTable.getNumberOfRows();
+      for (int rowId=0; rowId < numRows; rowId++) {
+        Serializable[] row=SelectionOperatorUtils.extractRowFromDataTable(dataTable,rowId);
+        addToPriorityQueue(row,_rowEventsSet);
+      }
+    }
+  }
+  return _rowEventsSet;
+}

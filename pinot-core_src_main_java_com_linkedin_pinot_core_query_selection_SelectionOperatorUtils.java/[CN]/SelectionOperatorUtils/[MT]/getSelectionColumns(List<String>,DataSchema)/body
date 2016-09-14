@@ -1,9 +1,14 @@
 {
   if ((selectionColumns.size() == 1) && selectionColumns.get(0).equals("*")) {
-    selectionColumns.clear();
-    for (int i=0; i < dataSchema.size(); ++i) {
-      selectionColumns.add(dataSchema.getColumnName(i));
+    int numColumns=dataSchema.size();
+    List<String> allColumns=new ArrayList<>(numColumns);
+    for (int i=0; i < numColumns; i++) {
+      allColumns.add(dataSchema.getColumnName(i));
     }
+    Collections.sort(allColumns);
+    return allColumns;
   }
-  return selectionColumns;
+ else {
+    return selectionColumns;
+  }
 }

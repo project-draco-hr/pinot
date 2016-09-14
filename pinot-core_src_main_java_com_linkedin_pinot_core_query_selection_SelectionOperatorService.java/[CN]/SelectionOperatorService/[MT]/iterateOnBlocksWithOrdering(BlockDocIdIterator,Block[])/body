@@ -1,0 +1,17 @@
+{
+  if (_maxRowSize > 0) {
+    Comparator<Integer> rowDocIdComparator=new CompositeDocIdValComparator(_sortSequence,blocks);
+    PriorityQueue<Integer> rowDocIdPriorityQueue=new PriorityQueue<>(_maxRowSize,rowDocIdComparator);
+    int docId;
+    while ((docId=blockDocIdIterator.next()) != Constants.EOF) {
+      _numDocsScanned++;
+      addToPriorityQueue(docId,rowDocIdPriorityQueue);
+    }
+    SelectionFetcher selectionFetcher=new SelectionFetcher(blocks,_dataSchema);
+    Collection<Serializable[]> rowEventsSet=new ArrayList<>(rowDocIdPriorityQueue.size());
+    for (    int rowDocId : rowDocIdPriorityQueue) {
+      rowEventsSet.add(selectionFetcher.getRow(rowDocId));
+    }
+    mergeWithOrdering(_rowEventsSet,rowEventsSet);
+  }
+}

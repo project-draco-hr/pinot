@@ -1,64 +1,41 @@
 {
-  final Serializable[] row=new Serializable[dt.getDataSchema().size()];
-  for (int i=0; i < dt.getDataSchema().size(); ++i) {
-    if (dt.getDataSchema().getColumnType(i).isSingleValue()) {
-switch (dt.getDataSchema().getColumnType(i)) {
+  DataSchema dataSchema=dataTable.getDataSchema();
+  int numRows=dataSchema.size();
+  Serializable[] row=new Serializable[numRows];
+  for (int i=0; i < numRows; i++) {
+switch (dataSchema.getColumnType(i)) {
 case INT:
-        row[i]=dt.getInt(rowId,i);
-      break;
+      row[i]=dataTable.getInt(rowId,i);
+    break;
 case LONG:
-    row[i]=dt.getLong(rowId,i);
-  break;
-case DOUBLE:
-row[i]=dt.getDouble(rowId,i);
+  row[i]=dataTable.getLong(rowId,i);
 break;
 case FLOAT:
-row[i]=dt.getFloat(rowId,i);
+row[i]=dataTable.getFloat(rowId,i);
+break;
+case DOUBLE:
+row[i]=dataTable.getDouble(rowId,i);
 break;
 case STRING:
-row[i]=dt.getString(rowId,i);
+row[i]=dataTable.getString(rowId,i);
 break;
-case SHORT:
-row[i]=dt.getShort(rowId,i);
-break;
-case CHAR:
-row[i]=dt.getChar(rowId,i);
-break;
-case BYTE:
-row[i]=dt.getByte(rowId,i);
-break;
-default :
-row[i]=dt.getObject(rowId,i);
-break;
-}
-}
- else {
-switch (dt.getDataSchema().getColumnType(i)) {
 case INT_ARRAY:
-row[i]=dt.getIntArray(rowId,i);
+row[i]=dataTable.getIntArray(rowId,i);
 break;
 case LONG_ARRAY:
-row[i]=dt.getLongArray(rowId,i);
-break;
-case DOUBLE_ARRAY:
-row[i]=dt.getDoubleArray(rowId,i);
+row[i]=dataTable.getLongArray(rowId,i);
 break;
 case FLOAT_ARRAY:
-row[i]=dt.getFloatArray(rowId,i);
+row[i]=dataTable.getFloatArray(rowId,i);
+break;
+case DOUBLE_ARRAY:
+row[i]=dataTable.getDoubleArray(rowId,i);
 break;
 case STRING_ARRAY:
-row[i]=dt.getStringArray(rowId,i);
-break;
-case CHAR_ARRAY:
-row[i]=dt.getCharArray(rowId,i);
-break;
-case BYTE_ARRAY:
-row[i]=dt.getByteArray(rowId,i);
+row[i]=dataTable.getStringArray(rowId,i);
 break;
 default :
-row[i]=dt.getObject(rowId,i);
-break;
-}
+throw new RuntimeException("Unsupported data type " + dataSchema.getColumnType(i) + " for column "+ dataSchema.getColumnName(i));
 }
 }
 return row;

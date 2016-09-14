@@ -8,9 +8,9 @@
       for (int i=0; i < _dataSchema.size(); ++i) {
         _blocks[j++]=projectionBlock.getBlock(_dataSchema.getColumnName(i));
       }
-      _selectionOperatorService.iterateOnBlock(projectionBlock.getDocIdSetBlock().getBlockDocIdSet().iterator(),_blocks);
-      numDocsScanned+=((DocIdSetBlock)(projectionBlock.getDocIdSetBlock())).getSearchableLength();
+      _selectionOperatorService.iterateOnBlocksWithOrdering(projectionBlock.getDocIdSetBlock().getBlockDocIdSet().iterator(),_blocks);
     }
+    numDocsScanned+=_selectionOperatorService.getNumDocsScanned();
     final IntermediateResultsBlock resultBlock=new IntermediateResultsBlock();
     resultBlock.setSelectionResult(_selectionOperatorService.getRowEventsSet());
     resultBlock.setSelectionDataSchema(_selectionOperatorService.getDataSchema());

@@ -1,9 +1,10 @@
 {
-  if ((selectionColumns.size() == 1) && selectionColumns.get(0).equals("*")) {
-    selectionColumns.clear();
-    for (    final String columnName : indexSegment.getColumnNames()) {
-      selectionColumns.add(columnName);
-    }
+  if (selectionColumns.size() == 1 && selectionColumns.get(0).equals("*")) {
+    List<String> allColumns=Arrays.asList(indexSegment.getColumnNames());
+    Collections.sort(allColumns);
+    return allColumns;
   }
-  return selectionColumns;
+ else {
+    return selectionColumns;
+  }
 }

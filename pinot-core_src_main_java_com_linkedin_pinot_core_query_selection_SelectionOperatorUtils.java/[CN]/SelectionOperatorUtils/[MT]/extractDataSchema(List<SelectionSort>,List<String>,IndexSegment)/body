@@ -1,19 +1,19 @@
 {
-  final List<String> columns=new ArrayList<String>();
-  if (sortSequence != null && !sortSequence.isEmpty()) {
-    for (    final SelectionSort selectionSort : sortSequence) {
+  List<String> columns=new ArrayList<>();
+  if (sortSequence != null) {
+    for (    SelectionSort selectionSort : sortSequence) {
       columns.add(selectionSort.getColumn());
     }
   }
   String[] selectionColumnArray=selectionColumns.toArray(new String[selectionColumns.size()]);
   Arrays.sort(selectionColumnArray);
-  for (int i=0; i < selectionColumnArray.length; ++i) {
-    String selectionColumn=selectionColumnArray[i];
+  for (  String selectionColumn : selectionColumnArray) {
     if (!columns.contains(selectionColumn)) {
       columns.add(selectionColumn);
     }
   }
-  final DataType[] dataTypes=new DataType[columns.size()];
+  int numColumns=columns.size();
+  DataType[] dataTypes=new DataType[numColumns];
   for (int i=0; i < dataTypes.length; ++i) {
     DataSource ds=indexSegment.getDataSource(columns.get(i));
     DataSourceMetadata m=ds.getDataSourceMetadata();
@@ -22,5 +22,5 @@
       dataTypes[i]=DataType.valueOf(dataTypes[i] + "_ARRAY");
     }
   }
-  return new DataSchema(columns.toArray(new String[0]),dataTypes);
+  return new DataSchema(columns.toArray(new String[numColumns]),dataTypes);
 }

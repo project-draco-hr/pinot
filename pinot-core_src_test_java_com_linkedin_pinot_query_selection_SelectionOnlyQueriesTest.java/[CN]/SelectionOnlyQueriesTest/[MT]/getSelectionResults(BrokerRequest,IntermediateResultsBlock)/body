@@ -1,16 +1,4 @@
 {
-  setupSegment();
-  final BrokerRequest brokerRequest=getSelectionWithFilterBrokerRequest();
-  final PlanMaker instancePlanMaker=new InstancePlanMakerImplV2();
-  final PlanNode rootPlanNode=instancePlanMaker.makeInnerSegmentPlan(_indexSegment,brokerRequest);
-  rootPlanNode.showTree("");
-  final MSelectionOnlyOperator operator=(MSelectionOnlyOperator)rootPlanNode.run();
-  final IntermediateResultsBlock resultBlock=(IntermediateResultsBlock)operator.nextBlock();
-  System.out.println("RunningTime : " + resultBlock.getTimeUsedMs());
-  System.out.println("NumDocsScanned : " + resultBlock.getNumDocsScanned());
-  System.out.println("TotalDocs : " + resultBlock.getTotalRawDocs());
-  Assert.assertEquals(resultBlock.getNumDocsScanned(),10);
-  Assert.assertEquals(resultBlock.getTotalRawDocs(),100000);
   final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
   instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getDataTable());
@@ -25,5 +13,5 @@
   final Collection<Serializable[]> reducedResults=SelectionOperatorUtils.reduceWithoutOrdering(instanceResponseMap,brokerRequest.getSelections().getSize());
   List<String> selectionColumns=SelectionOperatorUtils.getSelectionColumns(brokerRequest.getSelections().getSelectionColumns(),_indexSegment);
   DataSchema dataSchema=resultBlock.getSelectionDataSchema();
-  SelectionResults selectionResults=SelectionOperatorUtils.renderSelectionResultsWithoutOrdering(reducedResults,selectionColumns,dataSchema);
+  return SelectionOperatorUtils.renderSelectionResultsWithoutOrdering(reducedResults,selectionColumns,dataSchema);
 }

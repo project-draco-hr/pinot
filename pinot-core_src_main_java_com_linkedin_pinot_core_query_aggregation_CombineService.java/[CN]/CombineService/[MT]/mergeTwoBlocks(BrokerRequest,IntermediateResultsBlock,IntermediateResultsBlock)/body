@@ -1,9 +1,6 @@
 {
+  Preconditions.checkNotNull(mergedBlock);
   if (blockToMerge == null) {
-    return;
-  }
-  if (mergedBlock == null) {
-    mergedBlock=blockToMerge;
     return;
   }
   mergedBlock.setNumDocsScanned(mergedBlock.getNumDocsScanned() + blockToMerge.getNumDocsScanned());
@@ -37,10 +34,11 @@
     }
     if (brokerRequest.getSelections().isSetSelectionSortSequence()) {
       SelectionOperatorService selectionService=new SelectionOperatorService(brokerRequest.getSelections(),mergedBlockSchema);
-      mergedBlock.setSelectionResult(selectionService.merge(mergedResultSet,toMergeResultSet));
+      selectionService.mergeWithOrdering(mergedResultSet,toMergeResultSet);
     }
  else {
-      mergedBlock.setSelectionResult(SelectionOperatorUtils.merge(mergedResultSet,toMergeResultSet,brokerRequest.getSelections().getSize()));
+      SelectionOperatorUtils.mergeWithoutOrdering(mergedResultSet,toMergeResultSet,brokerRequest.getSelections().getSize());
     }
+    mergedBlock.setSelectionResult(mergedResultSet);
   }
 }

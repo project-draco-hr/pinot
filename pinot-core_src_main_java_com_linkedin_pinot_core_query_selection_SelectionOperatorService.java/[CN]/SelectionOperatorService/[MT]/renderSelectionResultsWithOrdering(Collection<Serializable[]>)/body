@@ -1,0 +1,8 @@
+{
+  LinkedList<Serializable[]> rowEventsSet=new LinkedList<>();
+  PriorityQueue<Serializable[]> finalResultsPriorityQueue=(PriorityQueue<Serializable[]>)finalResults;
+  while (finalResultsPriorityQueue.size() > _selectionOffset) {
+    rowEventsSet.addFirst(SelectionOperatorUtils.getFormattedRow(finalResultsPriorityQueue.poll(),_selectionColumns,_dataSchema));
+  }
+  return new SelectionResults(_selectionColumns,rowEventsSet);
+}

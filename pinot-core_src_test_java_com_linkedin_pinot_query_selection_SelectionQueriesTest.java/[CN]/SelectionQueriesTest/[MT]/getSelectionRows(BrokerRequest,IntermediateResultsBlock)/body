@@ -1,0 +1,21 @@
+{
+  final SelectionOperatorService selectionOperatorService=new SelectionOperatorService(brokerRequest.getSelections(),resultBlock.getSelectionDataSchema());
+  final Map<ServerInstance,DataTable> instanceResponseMap=new HashMap<ServerInstance,DataTable>();
+  instanceResponseMap.put(new ServerInstance("localhost:0000"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:1111"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:2222"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:3333"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:4444"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:5555"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:6666"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getDataTable());
+  instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getDataTable());
+  final Collection<Serializable[]> reducedResults=selectionOperatorService.reduceWithOrdering(instanceResponseMap);
+  SelectionResults selectionResults=selectionOperatorService.renderSelectionResultsWithOrdering(reducedResults);
+  List<String> columns=selectionResults.getColumns();
+  Assert.assertEquals(columns.get(0),"column11");
+  Assert.assertEquals(columns.get(1),"column12");
+  Assert.assertEquals(columns.get(2),"met_impressionCount");
+  return selectionResults.getRows();
+}

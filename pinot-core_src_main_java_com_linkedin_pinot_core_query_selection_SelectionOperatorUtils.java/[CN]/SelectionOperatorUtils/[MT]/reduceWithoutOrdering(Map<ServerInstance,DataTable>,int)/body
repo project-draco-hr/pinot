@@ -1,0 +1,15 @@
+{
+  Collection<Serializable[]> rowEventsSet=new ArrayList<>(maxRowSize);
+  for (  DataTable dataTable : selectionResults.values()) {
+    int numRows=dataTable.getNumberOfRows();
+    for (int rowId=0; rowId < numRows; rowId++) {
+      if (rowEventsSet.size() < maxRowSize) {
+        rowEventsSet.add(extractRowFromDataTable(dataTable,rowId));
+      }
+ else {
+        break;
+      }
+    }
+  }
+  return rowEventsSet;
+}

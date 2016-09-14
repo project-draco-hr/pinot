@@ -1,76 +1,58 @@
 {
-  String rowString="";
-  if (dataSchema.getColumnType(0).isSingleValue()) {
-    if (dataSchema.getColumnType(0) == DataType.STRING) {
-      rowString+=(String)row[0];
+  StringBuilder rowStringBuilder=new StringBuilder();
+  int numColumns=dataSchema.size();
+  for (int i=0; i < numColumns; ++i) {
+    if (i != 0) {
+      rowStringBuilder.append(" : ");
+    }
+    DataType columnType=dataSchema.getColumnType(i);
+    if (columnType.isSingleValue()) {
+      rowStringBuilder.append(row[i]);
     }
  else {
-      rowString+=row[0];
-    }
-  }
- else {
-    rowString+="[ ";
-    if (dataSchema.getColumnType(0) == DataType.STRING) {
-      String[] values=(String[])row[0];
-      for (int i=0; i < values.length; ++i) {
-        rowString+=values[i];
-      }
-    }
- else {
-      Serializable[] values=(Serializable[])row[0];
-      for (int i=0; i < values.length; ++i) {
-        rowString+=values[i];
-      }
-    }
-    rowString+=" ]";
-  }
-  for (int i=1; i < row.length; ++i) {
-    if (dataSchema.getColumnType(i).isSingleValue()) {
-      if (dataSchema.getColumnType(i) == DataType.STRING) {
-        rowString+=" : " + (String)row[i];
-      }
- else {
-        rowString+=" : " + row[i];
-      }
-    }
- else {
-      rowString+=" : [ ";
-switch (dataSchema.getColumnType(i)) {
-case STRING_ARRAY:
-        String[] stringValues=(String[])row[i];
-      for (int j=0; j < stringValues.length; ++j) {
-        rowString+=stringValues[j] + " ";
-      }
-    break;
+      rowStringBuilder.append("[ ");
+      int arrayLength;
+switch (columnType) {
 case INT_ARRAY:
-  int[] intValues=(int[])row[i];
-for (int j=0; j < intValues.length; ++j) {
-  rowString+=intValues[j] + " ";
+        int[] intValues=(int[])row[i];
+      arrayLength=intValues.length;
+    for (int j=0; j < arrayLength; j++) {
+      rowStringBuilder.append(intValues[j]).append(' ');
+    }
+  break;
+case LONG_ARRAY:
+long[] longValues=(long[])row[i];
+arrayLength=longValues.length;
+for (int j=0; j < arrayLength; j++) {
+rowStringBuilder.append(longValues[j]).append(' ');
 }
 break;
 case FLOAT_ARRAY:
 float[] floatValues=(float[])row[i];
-for (int j=0; j < floatValues.length; ++j) {
-rowString+=floatValues[j] + " ";
-}
-break;
-case LONG_ARRAY:
-long[] longValues=(long[])row[i];
-for (int j=0; j < longValues.length; ++j) {
-rowString+=longValues[j] + " ";
+arrayLength=floatValues.length;
+for (int j=0; j < arrayLength; j++) {
+rowStringBuilder.append(floatValues[j]).append(' ');
 }
 break;
 case DOUBLE_ARRAY:
 double[] doubleValues=(double[])row[i];
-for (int j=0; j < doubleValues.length; ++j) {
-rowString+=doubleValues[j] + " ";
+arrayLength=doubleValues.length;
+for (int j=0; j < arrayLength; j++) {
+rowStringBuilder.append(doubleValues[j]).append(' ');
+}
+break;
+case STRING_ARRAY:
+String[] stringValues=(String[])row[i];
+arrayLength=stringValues.length;
+for (int j=0; j < arrayLength; j++) {
+rowStringBuilder.append(stringValues[j]).append(' ');
 }
 break;
 default :
-break;
+throw new RuntimeException("Unsupported data type " + dataSchema.getColumnType(i) + " for column "+ dataSchema.getColumnName(i));
 }
-rowString+="]";
+rowStringBuilder.append(']');
 }
 }
-return rowString;
+return rowStringBuilder.toString();
 }

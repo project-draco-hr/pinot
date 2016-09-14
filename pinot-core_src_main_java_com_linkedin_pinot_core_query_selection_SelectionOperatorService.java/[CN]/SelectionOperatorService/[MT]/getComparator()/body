@@ -1,0 +1,59 @@
+{
+  return new Comparator<Serializable[]>(){
+    @Override public int compare(    Serializable[] o1,    Serializable[] o2){
+      int numSortColumns=_sortSequence.size();
+      for (int i=0; i < numSortColumns; i++) {
+        int ret=0;
+switch (_dataSchema.getColumnType(i)) {
+case INT:
+          if (!_sortSequence.get(i).isIsAsc()) {
+            ret=((Integer)o1[i]).compareTo((Integer)o2[i]);
+          }
+ else {
+            ret=((Integer)o2[i]).compareTo((Integer)o1[i]);
+          }
+        break;
+case LONG:
+      if (!_sortSequence.get(i).isIsAsc()) {
+        ret=((Long)o1[i]).compareTo((Long)o2[i]);
+      }
+ else {
+        ret=((Long)o2[i]).compareTo((Long)o1[i]);
+      }
+    break;
+case FLOAT:
+  if (!_sortSequence.get(i).isIsAsc()) {
+    ret=((Float)o1[i]).compareTo((Float)o2[i]);
+  }
+ else {
+    ret=((Float)o2[i]).compareTo((Float)o1[i]);
+  }
+break;
+case DOUBLE:
+if (!_sortSequence.get(i).isIsAsc()) {
+ret=((Double)o1[i]).compareTo((Double)o2[i]);
+}
+ else {
+ret=((Double)o2[i]).compareTo((Double)o1[i]);
+}
+break;
+case STRING:
+if (!_sortSequence.get(i).isIsAsc()) {
+ret=((String)o1[i]).compareTo((String)o2[i]);
+}
+ else {
+ret=((String)o2[i]).compareTo((String)o1[i]);
+}
+break;
+default :
+break;
+}
+if (ret != 0) {
+return ret;
+}
+}
+return 0;
+}
+}
+;
+}

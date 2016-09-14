@@ -20,10 +20,8 @@
   instanceResponseMap.put(new ServerInstance("localhost:7777"),resultBlock.getDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:8888"),resultBlock.getDataTable());
   instanceResponseMap.put(new ServerInstance("localhost:9999"),resultBlock.getDataTable());
-  final Collection<Serializable[]> reducedResults=SelectionOperatorUtils.reduce(instanceResponseMap,brokerRequest.getSelections().getSize());
+  final Collection<Serializable[]> reducedResults=SelectionOperatorUtils.reduceWithoutOrdering(instanceResponseMap,brokerRequest.getSelections().getSize());
   List<String> selectionColumns=SelectionOperatorUtils.getSelectionColumns(brokerRequest.getSelections().getSelectionColumns(),_indexSegment);
   DataSchema dataSchema=resultBlock.getSelectionDataSchema();
-  final JSONObject jsonResult=SelectionOperatorUtils.render(reducedResults,selectionColumns,dataSchema);
-  System.out.println(jsonResult);
-  JsonAssert.assertEqualsIgnoreOrder(jsonResult.toString(),"{\"columns\":[\"column1\",\"column2\",\"column5\",\"column6\",\"column7\",\"count\"]," + "\"results\":[[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"]," + "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"890282370\",\"890662862\",\"AKXcXcIqsqOJFsdwxZ\",[\"2147483647\"],[\"2147483647\"],\"890662862\"],"+ "[\"972569181\",\"1458119540\",\"EOFxevm\",[\"593959\"],[\"225\"],\"890662862\"]]}");
+  SelectionResults selectionResults=SelectionOperatorUtils.renderSelectionResultsWithoutOrdering(reducedResults,selectionColumns,dataSchema);
 }
