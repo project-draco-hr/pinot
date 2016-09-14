@@ -16,7 +16,7 @@
   _segmentNameStr=_segmentZKMetadata.getSegmentName();
   _segmentName=new LLCSegmentName(_segmentNameStr);
   _kafkaPartitionId=_segmentName.getPartitionId();
-  _segmentMaxRowCount=Integer.parseInt(_tableConfig.getIndexingConfig().getStreamConfigs().get(CommonConstants.Helix.DataSource.Realtime.REALTIME_SEGMENT_FLUSH_SIZE));
+  _segmentMaxRowCount=kafkaStreamProviderConfig.getSizeThresholdToFlushSegment();
   _tableName=_tableConfig.getTableName();
   segmentLogger=LoggerFactory.getLogger(LLRealtimeSegmentDataManager.class.getName() + "_" + _segmentNameStr);
   if (indexingConfig.getSortedColumn().isEmpty()) {
@@ -52,5 +52,6 @@
     _resourceTmpDir.mkdirs();
   }
   _state=State.INITIAL_CONSUMING;
+  _consumeEndTime=now() + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
   start();
 }

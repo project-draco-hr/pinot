@@ -1,29 +1,43 @@
 {
   Preconditions.checkState(_state.shouldConsume(),"Incorrect state %s",_state);
-  if (_state.equals(State.INITIAL_CONSUMING)) {
-    if (_consumeEndTime > 0) {
-      long now=now();
-      if (now >= _consumeEndTime) {
-        segmentLogger.info("Stopping consumption due to time limit start={} now={} numRows={}",_startTimeMs,now,_numRowsConsumed);
-        return true;
-      }
-    }
- else {
-      if (_numRowsConsumed >= _segmentMaxRowCount) {
-        segmentLogger.info("Stopping consumption due to row limit nRows={} maxNRows={}",_numRowsConsumed,_segmentMaxRowCount);
-        return true;
-      }
-    }
-    return false;
-  }
- else   if (_state.equals(State.CATCHING_UP)) {
-    if (_currentOffset == _finalOffset) {
-      segmentLogger.info("Caught up to offset {}",_finalOffset);
+  long now=now();
+switch (_state) {
+case INITIAL_CONSUMING:
+    if (now >= _consumeEndTime) {
+      segmentLogger.info("Stopping consumption due to time limit start={} now={} numRows={}",_startTimeMs,now,_numRowsConsumed);
       return true;
     }
-    if (_currentOffset > _finalOffset) {
-      throw new RuntimeException("Offset higher in catchup mode: current " + _currentOffset + " final "+ _finalOffset);
+ else     if (_numRowsConsumed >= _segmentMaxRowCount) {
+      segmentLogger.info("Stopping consumption due to row limit nRows={} maxNRows={}",_numRowsConsumed,_segmentMaxRowCount);
+      return true;
     }
-  }
-  throw new RuntimeException("Unreachable");
+  return false;
+case CATCHING_UP:
+if (_currentOffset == _finalOffset) {
+  segmentLogger.info("Caught up to offset={}, state={}",_finalOffset,_state.toString());
+  return true;
+}
+if (_currentOffset > _finalOffset) {
+segmentLogger.error("Offset higher in state={}, current={}, final={}",_state.toString(),_currentOffset,_finalOffset);
+throw new RuntimeException("Past max offset");
+}
+return false;
+case CONSUMING_TO_ONLINE:
+if (_currentOffset == _finalOffset) {
+segmentLogger.info("Caught up to offset={}, state={}",_finalOffset,_state.toString());
+return true;
+}
+ else if (now >= _consumeEndTime) {
+segmentLogger.info("Past max time budget: offset={}, state={}",_currentOffset,_state.toString());
+return true;
+}
+if (_currentOffset > _finalOffset) {
+segmentLogger.error("Offset higher in state={}, current={}, final={}",_state.toString(),_currentOffset,_finalOffset);
+throw new RuntimeException("Past max offset");
+}
+return false;
+default :
+segmentLogger.error("Illegal state {}" + _state.toString());
+throw new RuntimeException("Illegal state to consume");
+}
 }

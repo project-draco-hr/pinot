@@ -3,6 +3,8 @@
   Mockito.doNothing().when(config).init(any(AbstractTableConfig.class),any(InstanceZKMetadata.class),any(Schema.class));
   when(config.getTopicName()).thenReturn(_topicName);
   when(config.getStreamName()).thenReturn(_topicName);
+  when(config.getSizeThresholdToFlushSegment()).thenReturn(maxRowsInSegment);
+  when(config.getTimeThresholdToFlushSegment()).thenReturn(maxTimeForSegmentCloseMs);
   try {
     when(config.getDecoder()).thenReturn(null);
   }
