@@ -2,7 +2,7 @@
   quartzScheduler.start();
   List<EmailConfigurationDTO> alertConfigs=emailConfigurationDAO.findAll();
   for (  EmailConfigurationDTO alertConfig : alertConfigs) {
-    if (alertConfig.getIsActive()) {
+    if (alertConfig.isActive()) {
       AlertJobContext alertJobContext=new AlertJobContext();
       alertJobContext.setAnomalyJobDAO(anomalyJobDAO);
       alertJobContext.setAnomalyTaskDAO(anomalyTaskDAO);

@@ -1,0 +1,10 @@
+{
+  if (mergedAnomalyResultDTO.getId() != null) {
+    update(mergedAnomalyResultDTO);
+    return mergedAnomalyResultDTO.getId();
+  }
+  MergedAnomalyResultBean mergeAnomalyBean=convertMergeAnomalyDTO2Bean(mergedAnomalyResultDTO);
+  Long id=genericPojoDao.put(mergeAnomalyBean);
+  mergedAnomalyResultDTO.setId(id);
+  return id;
+}

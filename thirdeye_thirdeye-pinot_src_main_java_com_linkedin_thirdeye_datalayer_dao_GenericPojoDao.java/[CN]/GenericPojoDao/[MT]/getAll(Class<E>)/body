@@ -7,7 +7,9 @@
       List<GenericJsonEntity> entities=genericResultSetMapper.mapAll(resultSet,GenericJsonEntity.class);
       List<E> ret=new ArrayList<>(entities.size());
       for (      GenericJsonEntity entity : entities) {
-        ret.add(OBJECT_MAPPER.readValue(entity.getJsonVal(),beanClass));
+        E e=OBJECT_MAPPER.readValue(entity.getJsonVal(),beanClass);
+        e.setId(entity.getId());
+        ret.add(e);
       }
       return ret;
     }

@@ -1,5 +1,6 @@
 {
   String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
+  parameterizedSQL="select * from " + tableName + " "+ parameterizedSQL;
   parameterizedSQL=parameterizedSQL.replace(entityClass.getSimpleName(),tableName);
   StringBuilder psSql=new StringBuilder();
   List<String> paramNames=new ArrayList<String>();
@@ -35,6 +36,7 @@
     if (Enum.class.isAssignableFrom(val.getClass())) {
       val=val.toString();
     }
+    System.out.println("Setting " + dbFieldName + " to "+ val);
     ps.setObject(parameterIndex++,val,columnInfo.get(dbFieldName).sqlType);
   }
   return ps;

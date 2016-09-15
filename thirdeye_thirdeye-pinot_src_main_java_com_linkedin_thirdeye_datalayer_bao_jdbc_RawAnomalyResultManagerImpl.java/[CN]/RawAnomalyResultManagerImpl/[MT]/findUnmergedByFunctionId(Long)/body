@@ -1,3 +1,9 @@
 {
-  return null;
+  Predicate predicate=Predicate.AND(Predicate.EQ("functionId",functionId),Predicate.EQ("merged",false),Predicate.EQ("dataMissing",false));
+  List<RawAnomalyResultBean> list=genericPojoDao.get(predicate,RawAnomalyResultBean.class);
+  List<RawAnomalyResultDTO> result=new ArrayList<>();
+  for (  RawAnomalyResultBean bean : list) {
+    result.add(createRawAnomalyDTOFromBean(bean));
+  }
+  return result;
 }

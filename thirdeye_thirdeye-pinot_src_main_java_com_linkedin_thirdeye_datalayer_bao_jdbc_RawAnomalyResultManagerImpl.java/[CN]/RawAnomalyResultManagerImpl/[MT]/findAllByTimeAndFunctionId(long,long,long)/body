@@ -1,3 +1,15 @@
 {
-  return null;
+  Predicate startTimePredicate;
+  startTimePredicate=Predicate.AND(Predicate.GE("startTime",startTime),Predicate.LE("startTime",endTime));
+  Predicate endTimeTimePredicate;
+  endTimeTimePredicate=Predicate.AND(Predicate.GE("endTime",startTime),Predicate.LE("endTime",endTime));
+  ;
+  Predicate functionIdPredicate=Predicate.EQ("functionId",functionId);
+  Predicate finalPredicate=Predicate.AND(startTimePredicate,Predicate.OR(endTimeTimePredicate,functionIdPredicate));
+  List<RawAnomalyResultBean> list=genericPojoDao.get(finalPredicate,RawAnomalyResultBean.class);
+  List<RawAnomalyResultDTO> result=new ArrayList<>();
+  for (  RawAnomalyResultBean bean : list) {
+    result.add(createRawAnomalyDTOFromBean(bean));
+  }
+  return result;
 }

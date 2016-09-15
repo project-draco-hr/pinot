@@ -1,5 +1,10 @@
 {
   AbstractBean abstractBean=genericPojoDao.get(id,beanClass);
-  AbstractDTO abstractDTO=MODEL_MAPPER.map(abstractBean,dtoClass);
-  return (E)abstractDTO;
+  if (abstractBean != null) {
+    AbstractDTO abstractDTO=MODEL_MAPPER.map(abstractBean,dtoClass);
+    return (E)abstractDTO;
+  }
+ else {
+    return null;
+  }
 }

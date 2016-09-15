@@ -1,0 +1,20 @@
+{
+  return runTask(new QueryTask<List<E>>(){
+    @Override public List<E> handle(    Connection connection) throws Exception {
+      PreparedStatement selectStatement=sqlQueryBuilder.createFindByIdStatement(connection,GenericJsonEntity.class,idList);
+      ResultSet resultSet=selectStatement.executeQuery();
+      List<GenericJsonEntity> genericJsonEntities=genericResultSetMapper.mapAll(resultSet,GenericJsonEntity.class);
+      E e=null;
+      List<E> result=new ArrayList<>();
+      if (genericJsonEntities != null && !genericJsonEntities.isEmpty()) {
+        for (        GenericJsonEntity genericJsonEntity : genericJsonEntities) {
+          e=OBJECT_MAPPER.readValue(genericJsonEntity.getJsonVal(),pojoClass);
+          e.setId(genericJsonEntity.getId());
+          result.add(e);
+        }
+      }
+      return result;
+    }
+  }
+,Collections.emptyList());
+}

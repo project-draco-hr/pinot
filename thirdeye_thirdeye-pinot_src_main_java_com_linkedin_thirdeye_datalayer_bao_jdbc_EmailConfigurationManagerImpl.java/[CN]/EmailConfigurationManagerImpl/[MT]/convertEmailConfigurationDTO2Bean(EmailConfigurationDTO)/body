@@ -1,0 +1,9 @@
+{
+  EmailConfigurationBean emailConfigurationBean=convertDTO2Bean(emailConfigurationDTO,EmailConfigurationBean.class);
+  List<Long> functionIds=new ArrayList<>();
+  for (  AnomalyFunctionDTO function : emailConfigurationDTO.getFunctions()) {
+    functionIds.add(function.getId());
+  }
+  emailConfigurationBean.setFunctionIds(functionIds);
+  return emailConfigurationBean;
+}

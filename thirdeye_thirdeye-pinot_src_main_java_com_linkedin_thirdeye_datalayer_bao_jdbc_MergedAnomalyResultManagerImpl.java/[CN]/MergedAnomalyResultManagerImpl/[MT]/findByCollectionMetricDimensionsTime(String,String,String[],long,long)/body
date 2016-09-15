@@ -1,3 +1,14 @@
 {
-  return null;
+  Map<String,Object> filterParams=new HashMap<>();
+  filterParams.put("collection",collection);
+  filterParams.put("metric",metric);
+  filterParams.put("dimensions",dimensions[0]);
+  filterParams.put("startTime",startTime);
+  filterParams.put("endTime",endTime);
+  List<MergedAnomalyResultBean> list=genericPojoDao.executeParameterizedSQL(FIND_BY_COLLECTION_METRIC_DIMENSIONS_TIME,filterParams,MergedAnomalyResultBean.class);
+  List<MergedAnomalyResultDTO> result=new ArrayList<>();
+  for (  MergedAnomalyResultBean bean : list) {
+    result.add(convertMergedAnomalyBean2DTO(bean));
+  }
+  return result;
 }

@@ -1,4 +1,9 @@
 {
   List<? extends AbstractBean> list=genericPojoDao.getAll(beanClass);
-  return null;
+  List<E> result=new ArrayList<>();
+  for (  AbstractBean bean : list) {
+    AbstractDTO dto=MODEL_MAPPER.map(bean,dtoClass);
+    result.add((E)dto);
+  }
+  return result;
 }

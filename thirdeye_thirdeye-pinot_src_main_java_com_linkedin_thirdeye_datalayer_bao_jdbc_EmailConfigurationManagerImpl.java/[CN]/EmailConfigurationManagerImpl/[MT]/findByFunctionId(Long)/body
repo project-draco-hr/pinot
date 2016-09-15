@@ -1,10 +1,11 @@
 {
-  Predicate predicate=Predicate.EQ("active",true);
-  List<EmailConfigurationBean> list=genericPojoDao.get(predicate,EmailConfigurationBean.class);
+  List<EmailConfigurationBean> list=genericPojoDao.getAll(EmailConfigurationBean.class);
   List<EmailConfigurationDTO> result=new ArrayList<>();
-  for (  EmailConfigurationBean abstractBean : list) {
-    EmailConfigurationDTO dto=MODEL_MAPPER.map(abstractBean,EmailConfigurationDTO.class);
-    result.add(dto);
+  for (  EmailConfigurationBean bean : list) {
+    if (bean.getFunctionIds() != null && bean.getFunctionIds().contains(functionId)) {
+      EmailConfigurationDTO dto=convertEmailConfigurationBean2DTO(bean);
+      result.add(dto);
+    }
   }
   return result;
 }

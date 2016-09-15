@@ -2,16 +2,18 @@
   String tableName=entityMappingHolder.tableToEntityNameMap.inverse().get(entityClass.getSimpleName());
   BiMap<String,String> entityNameToDBNameMapping=entityMappingHolder.columnMappingPerTable.get(tableName).inverse();
   StringBuilder sqlBuilder=new StringBuilder("SELECT * FROM " + tableName);
-  StringBuilder whereClause=new StringBuilder(" WHERE ");
   LinkedHashMap<String,Object> parametersMap=new LinkedHashMap<>();
-  String delim="";
-  for (  String columnName : filters.keySet()) {
-    String dbFieldName=entityNameToDBNameMapping.get(columnName);
-    whereClause.append(delim).append(dbFieldName).append("=").append("?");
-    parametersMap.put(dbFieldName,filters.get(columnName));
-    delim=" AND ";
+  if (filters != null && !filters.isEmpty()) {
+    StringBuilder whereClause=new StringBuilder(" WHERE ");
+    String delim="";
+    for (    String columnName : filters.keySet()) {
+      String dbFieldName=entityNameToDBNameMapping.get(columnName);
+      whereClause.append(delim).append(dbFieldName).append("=").append("?");
+      parametersMap.put(dbFieldName,filters.get(columnName));
+      delim=" AND ";
+    }
+    sqlBuilder.append(whereClause.toString());
   }
-  sqlBuilder.append(whereClause.toString());
   System.out.println("FIND BY SQL:" + sqlBuilder.toString());
   PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
   int parameterIndex=1;

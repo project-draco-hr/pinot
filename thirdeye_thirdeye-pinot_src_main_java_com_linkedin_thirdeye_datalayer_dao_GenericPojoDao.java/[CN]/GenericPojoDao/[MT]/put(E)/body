@@ -20,6 +20,9 @@
           AbstractIndexEntity abstractIndexEntity=pojoInfo.indexEntityClass.newInstance();
           MODEL_MAPPER.map(pojo,abstractIndexEntity);
           abstractIndexEntity.setBaseId(pojo.getId());
+          abstractIndexEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+          abstractIndexEntity.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+          abstractIndexEntity.setVersion(1);
           PreparedStatement indexTableInsertStatement=sqlQueryBuilder.createInsertStatement(connection,abstractIndexEntity);
           int numRowsCreated=indexTableInsertStatement.executeUpdate();
           if (numRowsCreated == 1) {

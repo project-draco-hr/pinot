@@ -1,0 +1,21 @@
+{
+  if (implMode.equals("hibernate")) {
+    anomalyFunctionDAO=(AnomalyFunctionManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".AnomalyFunctionManagerImpl"));
+    anomalyResultDAO=(RawAnomalyResultManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".RawAnomalyResultManagerImpl"));
+    anomalyJobDAO=(JobManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".JobManagerImpl"));
+    anomalyTaskDAO=(TaskManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".TaskManagerImpl"));
+    emailConfigurationDAO=(EmailConfigurationManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".EmailConfigurationManagerImpl"));
+    mergedResultDAO=(MergedAnomalyResultManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".MergedAnomalyResultManagerImpl"));
+    webappConfigDAO=(WebappConfigManager)PersistenceUtil.getInstance(Class.forName(packagePrefix + implMode + ".WebappConfigManagerImpl"));
+    entityManager=PersistenceUtil.getInstance(EntityManager.class);
+  }
+  if (implMode.equals("jdbc")) {
+    anomalyFunctionDAO=(AnomalyFunctionManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".AnomalyFunctionManagerImpl"));
+    anomalyResultDAO=(RawAnomalyResultManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".RawAnomalyResultManagerImpl"));
+    anomalyJobDAO=(JobManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".JobManagerImpl"));
+    anomalyTaskDAO=(TaskManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".TaskManagerImpl"));
+    emailConfigurationDAO=(EmailConfigurationManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".EmailConfigurationManagerImpl"));
+    mergedResultDAO=(MergedAnomalyResultManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".MergedAnomalyResultManagerImpl"));
+    webappConfigDAO=(WebappConfigManager)DaoProviderUtil.getInstance(Class.forName(packagePrefix + implMode + ".WebappConfigManagerImpl"));
+  }
+}

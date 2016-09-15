@@ -1,12 +1,11 @@
 {
   DateTime expireDate=new DateTime().minusDays(days);
   Timestamp expireTimestamp=new Timestamp(expireDate.getMillis());
-  Predicate jobIdPredicate=Predicate.LT("createTime",expireTimestamp);
-  Predicate statusPredicate=Predicate.EQ("status",status);
-  List<TaskBean> list=genericPojoDao.get(Predicate.AND(statusPredicate,jobIdPredicate),TaskBean.class);
-  List<TaskDTO> result=new ArrayList<>();
+  Predicate timestampPredicate=Predicate.LT("createTime",expireTimestamp);
+  Predicate statusPredicate=Predicate.EQ("status",status.toString());
+  List<TaskBean> list=genericPojoDao.get(Predicate.AND(statusPredicate,timestampPredicate),TaskBean.class);
   for (  TaskBean bean : list) {
     deleteById(bean.getId());
   }
-  return result.size();
+  return list.size();
 }

@@ -1,0 +1,23 @@
+{
+  MergedAnomalyResultDTO mergedAnomalyResultDTO;
+  mergedAnomalyResultDTO=MODEL_MAPPER.map(mergedAnomalyResultBean,MergedAnomalyResultDTO.class);
+  if (mergedAnomalyResultBean.getFunctionId() != null) {
+    AnomalyFunctionBean anomalyFunctionBean=genericPojoDao.get(mergedAnomalyResultBean.getFunctionId(),AnomalyFunctionBean.class);
+    AnomalyFunctionDTO anomalyFunctionDTO=MODEL_MAPPER.map(anomalyFunctionBean,AnomalyFunctionDTO.class);
+    mergedAnomalyResultDTO.setFunction(anomalyFunctionDTO);
+  }
+  if (mergedAnomalyResultBean.getAnomalyFeedbackId() != null) {
+    AnomalyFeedbackBean anomalyFeedbackBean=genericPojoDao.get(mergedAnomalyResultBean.getAnomalyFeedbackId(),AnomalyFeedbackBean.class);
+    AnomalyFeedbackDTO anomalyFeedbackDTO=MODEL_MAPPER.map(anomalyFeedbackBean,AnomalyFeedbackDTO.class);
+    mergedAnomalyResultDTO.setFeedback(anomalyFeedbackDTO);
+  }
+  if (mergedAnomalyResultBean.getRawAnomalyIdList() != null && !mergedAnomalyResultBean.getRawAnomalyIdList().isEmpty()) {
+    List<RawAnomalyResultDTO> anomalyResults=new ArrayList<>();
+    List<RawAnomalyResultBean> list=genericPojoDao.get(mergedAnomalyResultBean.getRawAnomalyIdList(),RawAnomalyResultBean.class);
+    for (    RawAnomalyResultBean rawAnomalyResultBean : list) {
+      anomalyResults.add(createRawAnomalyDTOFromBean(rawAnomalyResultBean));
+    }
+    mergedAnomalyResultDTO.setAnomalyResults(anomalyResults);
+  }
+  return mergedAnomalyResultDTO;
+}

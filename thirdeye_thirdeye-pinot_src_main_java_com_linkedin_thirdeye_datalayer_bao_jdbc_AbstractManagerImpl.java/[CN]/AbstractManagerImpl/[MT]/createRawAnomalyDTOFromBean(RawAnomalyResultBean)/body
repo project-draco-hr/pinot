@@ -1,0 +1,15 @@
+{
+  RawAnomalyResultDTO rawAnomalyResultDTO;
+  rawAnomalyResultDTO=MODEL_MAPPER.map(rawAnomalyResultBean,RawAnomalyResultDTO.class);
+  if (rawAnomalyResultBean.getFunctionId() != null) {
+    AnomalyFunctionBean anomalyFunctionBean=genericPojoDao.get(rawAnomalyResultBean.getFunctionId(),AnomalyFunctionBean.class);
+    AnomalyFunctionDTO anomalyFunctionDTO=MODEL_MAPPER.map(anomalyFunctionBean,AnomalyFunctionDTO.class);
+    rawAnomalyResultDTO.setFunction(anomalyFunctionDTO);
+  }
+  if (rawAnomalyResultBean.getAnomalyFeedbackId() != null) {
+    AnomalyFeedbackBean anomalyFeedbackBean=genericPojoDao.get(rawAnomalyResultBean.getAnomalyFeedbackId(),AnomalyFeedbackBean.class);
+    AnomalyFeedbackDTO anomalyFeedbackDTO=MODEL_MAPPER.map(anomalyFeedbackBean,AnomalyFeedbackDTO.class);
+    rawAnomalyResultDTO.setFeedback(anomalyFeedbackDTO);
+  }
+  return rawAnomalyResultDTO;
+}

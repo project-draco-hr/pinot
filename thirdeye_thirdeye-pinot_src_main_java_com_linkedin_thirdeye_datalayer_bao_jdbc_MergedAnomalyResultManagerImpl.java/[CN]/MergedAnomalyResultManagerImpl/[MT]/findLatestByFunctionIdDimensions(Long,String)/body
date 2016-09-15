@@ -1,8 +1,14 @@
 {
-  try {
-    return null;
+  Map<String,Object> filterParams=new HashMap<>();
+  filterParams.put("functionId",functionId);
+  filterParams.put("dimensions",dimensions);
+  List<MergedAnomalyResultBean> list=genericPojoDao.executeParameterizedSQL(FIND_BY_FUNCTION_AND_DIMENSIONS,filterParams,MergedAnomalyResultBean.class);
+  List<MergedAnomalyResultDTO> result=new ArrayList<>();
+  for (  MergedAnomalyResultBean bean : list) {
+    result.add(convertMergedAnomalyBean2DTO(bean));
   }
- catch (  NoResultException e) {
-    return null;
+  if (result.size() > 0) {
+    return result.get(0);
   }
+  return null;
 }

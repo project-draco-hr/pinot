@@ -1,0 +1,11 @@
+{
+  if (entity.getId() != null) {
+    update(entity);
+    return entity.getId();
+  }
+  TaskBean bean=(TaskBean)convertDTO2Bean(entity,TaskBean.class);
+  bean.setJobId(entity.getJob().getId());
+  Long id=genericPojoDao.put(bean);
+  entity.setId(id);
+  return id;
+}

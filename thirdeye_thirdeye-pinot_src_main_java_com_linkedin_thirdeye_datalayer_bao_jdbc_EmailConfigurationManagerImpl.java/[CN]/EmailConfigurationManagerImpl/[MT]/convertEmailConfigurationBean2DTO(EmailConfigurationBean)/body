@@ -1,0 +1,14 @@
+{
+  EmailConfigurationDTO emailConfigurationDTO=convertBean2DTO(emailConfigurationBean,EmailConfigurationDTO.class);
+  List<Long> functionIds=emailConfigurationBean.getFunctionIds();
+  if (functionIds != null && !functionIds.isEmpty()) {
+    List<AnomalyFunctionBean> list=genericPojoDao.get(functionIds,AnomalyFunctionBean.class);
+    List<AnomalyFunctionDTO> functions=new ArrayList<>();
+    for (    AnomalyFunctionBean bean : list) {
+      AnomalyFunctionDTO dto=(AnomalyFunctionDTO)convertBean2DTO(bean,AnomalyFunctionDTO.class);
+      functions.add(dto);
+    }
+    emailConfigurationDTO.setFunctions(functions);
+  }
+  return emailConfigurationDTO;
+}

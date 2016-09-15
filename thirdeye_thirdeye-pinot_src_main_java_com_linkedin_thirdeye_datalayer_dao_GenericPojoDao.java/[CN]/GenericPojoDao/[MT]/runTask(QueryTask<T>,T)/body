@@ -1,6 +1,8 @@
 {
   try (Connection connection=getConnection()){
-    return task.handle(connection);
+    T t=task.handle(connection);
+    connection.commit();
+    return t;
   }
  catch (  Exception e) {
     e.printStackTrace();

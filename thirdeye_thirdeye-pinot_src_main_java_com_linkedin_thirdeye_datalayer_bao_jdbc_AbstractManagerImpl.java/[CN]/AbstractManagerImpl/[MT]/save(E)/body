@@ -1,4 +1,10 @@
 {
-  AbstractBean bean=MODEL_MAPPER.map(entity,beanClass);
-  return genericPojoDao.put(bean);
+  if (entity.getId() != null) {
+    update(entity);
+    return entity.getId();
+  }
+  AbstractBean bean=convertDTO2Bean(entity,beanClass);
+  Long id=genericPojoDao.put(bean);
+  entity.setId(id);
+  return id;
 }

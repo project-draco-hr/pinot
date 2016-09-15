@@ -1,0 +1,10 @@
+{
+  if (emailConfigurationDTO.getId() != null) {
+    update(emailConfigurationDTO);
+    return emailConfigurationDTO.getId();
+  }
+  EmailConfigurationBean bean=(EmailConfigurationBean)convertEmailConfigurationDTO2Bean(emailConfigurationDTO);
+  Long id=genericPojoDao.put(bean);
+  emailConfigurationDTO.setId(id);
+  return id;
+}

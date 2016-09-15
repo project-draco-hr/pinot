@@ -1,3 +1,10 @@
 {
-  return null;
+  Map<String,Object> filterParams=new HashMap<>();
+  filterParams.put("functionId",functionId);
+  List<MergedAnomalyResultBean> list=genericPojoDao.executeParameterizedSQL(FIND_BY_FUNCTION_ID,filterParams,MergedAnomalyResultBean.class);
+  List<MergedAnomalyResultDTO> result=new ArrayList<>();
+  for (  MergedAnomalyResultBean bean : list) {
+    result.add(convertMergedAnomalyBean2DTO(bean));
+  }
+  return result;
 }

@@ -1,0 +1,21 @@
+{
+  if (entity.getId() != null) {
+    update(entity);
+    return entity.getId();
+  }
+  RawAnomalyResultBean bean=(RawAnomalyResultBean)convertDTO2Bean(entity,RawAnomalyResultBean.class);
+  if (entity.getFeedback() != null) {
+    if (entity.getFeedback().getId() == null) {
+      AnomalyFeedbackBean feedbackBean=(AnomalyFeedbackBean)convertDTO2Bean(entity.getFeedback(),AnomalyFeedbackBean.class);
+      Long feedbackId=genericPojoDao.put(feedbackBean);
+      entity.getFeedback().setId(feedbackId);
+    }
+    bean.setAnomalyFeedbackId(entity.getFeedback().getId());
+  }
+  if (entity.getFunction() != null) {
+    bean.setFunctionId(entity.getFunction().getId());
+  }
+  Long id=genericPojoDao.put(bean);
+  entity.setId(id);
+  return id;
+}

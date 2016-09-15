@@ -9,6 +9,7 @@
       for (      AbstractIndexEntity entity : indexEntities) {
         idsToFind.add(entity.getBaseId());
       }
+      dumpTable(connection,pojoInfo.indexEntityClass);
       PreparedStatement selectStatement=sqlQueryBuilder.createFindByIdStatement(connection,GenericJsonEntity.class,idsToFind);
       ResultSet resultSet=selectStatement.executeQuery();
       List<GenericJsonEntity> entities=genericResultSetMapper.mapAll(resultSet,GenericJsonEntity.class);
