@@ -19,7 +19,13 @@
     for (    String dim : dimArr) {
       if (!StringUtils.isBlank(dim) && !"*".equals(dim)) {
         filters.removeAll(exploreDimension);
-        filters.put(exploreDimension,dim);
+        if (dim.equalsIgnoreCase("other")) {
+          filters.put(exploreDimension,dim);
+          filters.put(exploreDimension,"");
+        }
+ else {
+          filters.put(exploreDimension,dim);
+        }
         LOG.info("Adding filter : [{} = {}] in the query",exploreDimension,dim);
       }
     }
@@ -33,14 +39,22 @@
   timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime() - baselineOffset));
   timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime() - baselineOffset));
   TimeSeriesResponse responseBaseline=timeSeriesHandler.handle(timeSeriesRequest);
-  Double currentValue=getAvgMetricValuePerBucket(responseCurrent,anomalyFunctionSpec.getMetric());
-  Double baselineValue=getAvgMetricValuePerBucket(responseBaseline,anomalyFunctionSpec.getMetric());
+  Double currentValue;
+  Double baselineValue;
+  if (anomalyFunctionSpec.getMetric().toLowerCase().startsWith("percent")) {
+    currentValue=getAvgMetricValuePerBucket(responseCurrent,anomalyFunctionSpec.getMetric());
+    baselineValue=getAvgMetricValuePerBucket(responseBaseline,anomalyFunctionSpec.getMetric());
+  }
+ else {
+    currentValue=getMetricValueSum(responseCurrent,anomalyFunctionSpec.getMetric());
+    baselineValue=getAvgMetricValuePerBucket(responseBaseline,anomalyFunctionSpec.getMetric());
+  }
   Double severity;
   if (baselineValue != 0) {
     severity=(currentValue - baselineValue) / baselineValue;
   }
  else {
-    severity=1.0;
+    severity=0.0;
   }
   anomalyMergedResult.setWeight(severity);
   anomalyMergedResult.setMessage(createMessage(severity,currentValue,baselineValue));
