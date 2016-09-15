@@ -7,7 +7,12 @@
     throw new IllegalStateException("AnomalyFunctionSpec with id " + id + " does not exist");
   }
   if (anomalyFunctionSpec.getIsActive()) {
-    detectionResourceHttpUtils.disableAnomalyFunction(String.valueOf(id));
+    try {
+      detectionResourceHttpUtils.disableAnomalyFunction(String.valueOf(id));
+    }
+ catch (    Exception e) {
+      LOG.error("Could not disable the function : " + id,e);
+    }
   }
   CollectionSchema schema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset);
   TimeGranularity dataGranularity=schema.getTime().getDataGranularity();
@@ -23,7 +28,7 @@
   anomalyFunctionSpec.setWindowUnit(TimeUnit.valueOf(windowUnit));
   anomalyFunctionSpec.setWindowDelay(Integer.valueOf(windowDelay));
   if (StringUtils.isEmpty(windowDelayUnit)) {
-    anomalyFunctionSpec.setWindowDelayUnit(TimeUnit.valueOf(windowUnit));
+    anomalyFunctionSpec.setWindowDelayUnit(dataGranularity.getUnit());
   }
  else {
     anomalyFunctionSpec.setWindowDelayUnit(TimeUnit.valueOf(windowDelayUnit));
