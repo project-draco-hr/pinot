@@ -1,6 +1,10 @@
 {
   final int length=positionCursorInVariableBuffer(rowId,colId);
+  DataTableSerDe.DataType dataType=DataTableSerDe.DataType.Object;
+  if (version == Version.V2) {
+    dataType=DataTableSerDe.DataType.valueOf(variableSizeData.getInt());
+  }
   final byte[] serData=new byte[length];
   variableSizeData.get(serData);
-  return (T)deserialize(serData);
+  return (T)dataTableSerDe.deserialize(serData,dataType);
 }

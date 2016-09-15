@@ -3,5 +3,6 @@
   LOGGER.info("Trying to Load Instance DataManager by Class : " + className);
   DataManager instanceDataManager=(DataManager)Class.forName(className).newInstance();
   instanceDataManager.init(_serverConf.getInstanceDataManagerConfig());
+  DataTableSerDeRegistry.getInstance().register(new DataTableCustomSerDe());
   return instanceDataManager;
 }

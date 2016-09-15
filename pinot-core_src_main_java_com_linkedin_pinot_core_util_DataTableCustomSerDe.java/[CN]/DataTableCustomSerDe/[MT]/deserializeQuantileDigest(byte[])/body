@@ -1,0 +1,10 @@
+{
+  ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(bytes);
+  try (DataInputStream dataInputStream=new DataInputStream(byteArrayInputStream)){
+    return QuantileDigest.deserialize(dataInputStream);
+  }
+ catch (  IOException e) {
+    LOGGER.error("De-serialization error for QuantileDigest",e);
+    throw new RuntimeException("QuantileDigest de-serialization error",e);
+  }
+}

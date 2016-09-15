@@ -1,0 +1,17 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    Map<String,Double> expected=new HashMap<>();
+    int size=random.nextInt(100);
+    for (int j=0; j < size; j++) {
+      expected.put(RandomStringUtils.random(random.nextInt(20),true,true),random.nextDouble());
+    }
+    byte[] bytes=serde.serialize(expected);
+    HashMap<String,Double> actual=serde.deserialize(bytes,DataTableSerDe.DataType.HashMap);
+    Assert.assertEquals(actual.size(),expected.size(),"Random seed: " + randomSeed);
+    for (    Map.Entry<String,Double> entry : expected.entrySet()) {
+      String key=entry.getKey();
+      Assert.assertTrue(actual.containsKey(key),"Random seed: " + randomSeed);
+      Assert.assertEquals(actual.get(key),entry.getValue(),"Random seed: " + randomSeed);
+    }
+  }
+}

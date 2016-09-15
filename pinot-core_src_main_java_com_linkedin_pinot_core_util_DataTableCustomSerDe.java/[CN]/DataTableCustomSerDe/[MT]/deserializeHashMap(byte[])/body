@@ -1,0 +1,25 @@
+{
+  if (bytes.length == 0) {
+    return Collections.EMPTY_MAP;
+  }
+  ByteBuffer byteBuffer=ByteBuffer.wrap(bytes);
+  int size=byteBuffer.getInt();
+  HashMap<Object,Object> map=new HashMap<>(size);
+  if (size == 0) {
+    return map;
+  }
+  DataType keyType=DataType.valueOf(byteBuffer.getInt());
+  DataType valueType=DataType.valueOf(byteBuffer.getInt());
+  for (int i=0; i < size; i++) {
+    int numBytes=byteBuffer.getInt();
+    byte[] keyBytes=new byte[numBytes];
+    byteBuffer.get(keyBytes);
+    Object key=deserializeObject(keyBytes,keyType);
+    numBytes=byteBuffer.getInt();
+    byte[] valueBytes=new byte[numBytes];
+    byteBuffer.get(valueBytes);
+    Object value=deserializeObject(valueBytes,valueType);
+    map.put(key,value);
+  }
+  return map;
+}

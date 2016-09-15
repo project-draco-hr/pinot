@@ -1,9 +1,6 @@
 {
   final ByteBuffer input=ByteBuffer.wrap(buffer);
-  final int version=input.getInt();
-  if (version == VERSION_1) {
-    decodeV1(input);
-    return;
-  }
-  throw new RuntimeException("Unknown version of DataTable encoding:" + version);
+  dataTableSerDe=DataTableSerDeRegistry.getInstance().get();
+  version=Version.valueOf(input.getInt());
+  deserializeDataTable(input);
 }

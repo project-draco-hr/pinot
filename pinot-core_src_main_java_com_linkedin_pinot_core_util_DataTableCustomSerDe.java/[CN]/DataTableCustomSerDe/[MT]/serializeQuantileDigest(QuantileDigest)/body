@@ -1,0 +1,11 @@
+{
+  ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+  try (DataOutputStream dataOutputStream=new DataOutputStream(byteArrayOutputStream)){
+    quantileDigest.serialize(dataOutputStream);
+    return byteArrayOutputStream.toByteArray();
+  }
+ catch (  IOException e) {
+    LOGGER.error("Exception caught while serializing QuantileDigest",e);
+    throw new RuntimeException("Serialization error for QuantileDigest",e);
+  }
+}

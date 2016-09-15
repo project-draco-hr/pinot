@@ -1,0 +1,14 @@
+{
+  ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+  try (DataOutputStream dataOutputStream=new DataOutputStream(byteArrayOutputStream)){
+    dataOutputStream.writeInt(set.size());
+    for (    Integer value : set) {
+      dataOutputStream.writeInt(value);
+    }
+    return byteArrayOutputStream.toByteArray();
+  }
+ catch (  IOException e) {
+    LOGGER.error("Exception caught while serializing IntOpenHashSet",e);
+    throw new RuntimeException("HashMap serialization error",e);
+  }
+}

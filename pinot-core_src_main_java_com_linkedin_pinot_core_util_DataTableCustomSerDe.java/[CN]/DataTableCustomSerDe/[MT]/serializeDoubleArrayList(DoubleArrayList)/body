@@ -1,0 +1,11 @@
+{
+  int numElements=doubleArray.size();
+  int size=(V1Constants.Numbers.INTEGER_SIZE) + (numElements * (V1Constants.Numbers.DOUBLE_SIZE));
+  ByteBuffer byteBuffer=ByteBuffer.allocate(size);
+  byteBuffer.putInt(numElements);
+  double[] elements=doubleArray.elements();
+  for (int i=0; i < numElements; i++) {
+    byteBuffer.putDouble(elements[i]);
+  }
+  return byteBuffer.array();
+}

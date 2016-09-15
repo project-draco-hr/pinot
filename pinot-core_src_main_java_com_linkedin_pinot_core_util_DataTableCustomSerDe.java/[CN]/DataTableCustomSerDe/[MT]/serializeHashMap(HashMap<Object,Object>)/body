@@ -1,0 +1,26 @@
+{
+  ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+  try (DataOutputStream dataOutputStream=new DataOutputStream(byteArrayOutputStream)){
+    dataOutputStream.writeInt(map.size());
+    boolean first=true;
+    for (    Map.Entry<Object,Object> entry : map.entrySet()) {
+      if (first) {
+        dataOutputStream.writeInt(getDataTypeOfObject(entry.getKey()).getValue());
+        dataOutputStream.writeInt(getDataTypeOfObject(entry.getValue()).getValue());
+        first=false;
+      }
+      byte[] bytes=serializeObject(entry.getKey());
+      dataOutputStream.writeInt(bytes.length);
+      dataOutputStream.write(bytes);
+      bytes=serializeObject(entry.getValue());
+      dataOutputStream.writeInt(bytes.length);
+      dataOutputStream.write(bytes);
+    }
+    dataOutputStream.flush();
+    return byteArrayOutputStream.toByteArray();
+  }
+ catch (  IOException e) {
+    LOGGER.error("Exception caught while serializing HashMap",e);
+    throw new RuntimeException("HashMap serialization error",e);
+  }
+}

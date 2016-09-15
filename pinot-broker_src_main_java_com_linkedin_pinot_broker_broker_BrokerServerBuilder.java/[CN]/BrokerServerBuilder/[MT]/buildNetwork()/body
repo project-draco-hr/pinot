@@ -27,5 +27,6 @@
   _scatterGather=new ScatterGatherImpl(_connPool,_requestSenderPool);
   ReduceServiceRegistry reduceServiceRegistry=buildReduceServiceRegistry();
   _requestHandler=new BrokerRequestHandler(_routingTable,_timeBoundaryService,_scatterGather,reduceServiceRegistry,_brokerMetrics,_config);
+  DataTableSerDeRegistry.getInstance().register(new DataTableCustomSerDe());
   LOGGER.info("Network initialized !!");
 }

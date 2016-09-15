@@ -1,0 +1,19 @@
+{
+  final ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(bytes);
+  ObjectInputStream objectInputStream=null;
+  Object readObject;
+  try {
+    try {
+      objectInputStream=new ObjectInputStream(byteArrayInputStream);
+      readObject=objectInputStream.readObject();
+    }
+ catch (    final Exception e) {
+      throw new RuntimeException("Caught exception while deserializing DataTable: " + e);
+    }
+  }
+  finally {
+    IOUtils.closeQuietly(objectInputStream);
+    IOUtils.closeQuietly(byteArrayInputStream);
+  }
+  return (T)readObject;
+}

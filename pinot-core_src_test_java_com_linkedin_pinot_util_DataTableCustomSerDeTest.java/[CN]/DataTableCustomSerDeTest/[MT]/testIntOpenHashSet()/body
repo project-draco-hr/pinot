@@ -1,0 +1,16 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    int size=random.nextInt(100);
+    IntOpenHashSet expected=new IntOpenHashSet(size);
+    for (int j=0; j < size; j++) {
+      expected.add(random.nextInt());
+    }
+    byte[] bytes=serde.serialize(expected);
+    IntOpenHashSet actual=serde.deserialize(bytes,DataTableSerDe.DataType.IntOpenHashSet);
+    Assert.assertEquals(actual.size(),expected.size(),"Random seed: " + randomSeed);
+    IntIterator iterator=expected.iterator();
+    while (iterator.hasNext()) {
+      Assert.assertTrue(actual.contains(iterator.nextInt()),"Random seed: " + randomSeed);
+    }
+  }
+}

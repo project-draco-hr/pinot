@@ -1,0 +1,43 @@
+{
+  ByteBuffer byteBuffer;
+switch (dataType) {
+case String:
+    try {
+      return (T)new String(bytes,"UTF-8");
+    }
+ catch (    UnsupportedEncodingException e) {
+      LOGGER.error("Exception caught while de-serializing String",e);
+      throw new RuntimeException("String de-serialization error",e);
+    }
+case MutableLong:
+  byteBuffer=ByteBuffer.wrap(bytes);
+return (T)new MutableLongValue(byteBuffer.getLong());
+case Double:
+byteBuffer=ByteBuffer.wrap(bytes);
+return (T)new Double(byteBuffer.getDouble());
+case DoubleArrayList:
+return (T)deserializeDoubleArray(bytes);
+case AvgPair:
+return (T)AvgAggregationFunction.AvgPair.fromBytes(bytes);
+case MinMaxRangePair:
+return (T)MinMaxRangeAggregationFunction.MinMaxRangePair.fromBytes(bytes);
+case HyperLogLog:
+try {
+return (T)HyperLogLog.Builder.build(bytes);
+}
+ catch (IOException e) {
+LOGGER.error("Exception caught while de-serializing HyperLogLog",e);
+throw new RuntimeException("HyperLogLog de-serializing error",e);
+}
+case QuantileDigest:
+return (T)deserializeQuantileDigest(bytes);
+case HashMap:
+return (T)deserializeHashMap(bytes);
+case IntOpenHashSet:
+return (T)deserializeIntOpenHashSet(bytes);
+case Object:
+return (T)deserializeJavaObject(bytes);
+default :
+throw new RuntimeException("Illegal object type found when de-serializing data table");
+}
+}

@@ -1,0 +1,57 @@
+{
+  if (object instanceof String) {
+    String value=(String)object;
+    try {
+      return value.getBytes("UTF-8");
+    }
+ catch (    UnsupportedEncodingException e) {
+      LOGGER.error("Exception caught while serializing String",e);
+      throw new RuntimeException("String serialization error",e);
+    }
+  }
+ else   if (object instanceof MutableLongValue) {
+    MutableLongValue value=(MutableLongValue)object;
+    return value.toBytes();
+  }
+ else   if (object instanceof Double) {
+    Double value=(Double)object;
+    return serializeDouble(value);
+  }
+ else   if (object instanceof DoubleArrayList) {
+    DoubleArrayList value=(DoubleArrayList)object;
+    return serializeDoubleArrayList(value);
+  }
+ else   if (object instanceof AvgAggregationFunction.AvgPair) {
+    AvgAggregationFunction.AvgPair avgPair=(AvgAggregationFunction.AvgPair)object;
+    return avgPair.toBytes();
+  }
+ else   if (object instanceof MinMaxRangeAggregationFunction.MinMaxRangePair) {
+    MinMaxRangeAggregationFunction.MinMaxRangePair minMaxRangePair=(MinMaxRangeAggregationFunction.MinMaxRangePair)object;
+    return minMaxRangePair.toBytes();
+  }
+ else   if (object instanceof HyperLogLog) {
+    try {
+      HyperLogLog hll=(HyperLogLog)object;
+      return hll.getBytes();
+    }
+ catch (    IOException e) {
+      LOGGER.error("Exception caught while serializing HyperLogLog",e);
+      throw new RuntimeException("HyperLogLog serialization error",e);
+    }
+  }
+ else   if (object instanceof QuantileDigest) {
+    QuantileDigest quantileDigest=(QuantileDigest)object;
+    return serializeQuantileDigest(quantileDigest);
+  }
+ else   if (object instanceof HashMap) {
+    HashMap<Object,Object> map=(HashMap<Object,Object>)object;
+    return serializeHashMap(map);
+  }
+ else   if (object instanceof IntOpenHashSet) {
+    IntOpenHashSet hashSet=(IntOpenHashSet)object;
+    return serializeIntOpenHashSet(hashSet);
+  }
+ else {
+    return serializeJavaObject(object);
+  }
+}

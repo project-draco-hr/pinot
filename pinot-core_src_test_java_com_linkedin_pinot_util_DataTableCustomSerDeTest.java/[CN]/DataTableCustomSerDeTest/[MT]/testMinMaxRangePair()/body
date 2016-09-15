@@ -1,0 +1,9 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    MinMaxRangeAggregationFunction.MinMaxRangePair expected=new MinMaxRangeAggregationFunction.MinMaxRangePair(random.nextDouble(),random.nextDouble());
+    byte[] bytes=serde.serialize(expected);
+    MinMaxRangeAggregationFunction.MinMaxRangePair actual=serde.deserialize(bytes,DataTableSerDe.DataType.MinMaxRangePair);
+    Assert.assertEquals(actual.getFirst(),expected.getFirst());
+    Assert.assertEquals(actual.getSecond(),expected.getSecond(),"Random seed: " + randomSeed);
+  }
+}

@@ -1,8 +1,10 @@
 {
-  byte[] bytes=new byte[0];
-  bytes=serializeObject(value);
+  byte[] bytes=dataTableSerDe.serialize(value);
   currentRowData.position(columnOffsets[columnIndex]);
   currentRowData.putInt(variableSizeDataHolder.position());
+  if (version == DataTable.Version.V2) {
+    variableSizeDataHolder.add(dataTableSerDe.getObjectType(value).getValue());
+  }
   variableSizeDataHolder.add(bytes);
   currentRowData.putInt(bytes.length);
 }

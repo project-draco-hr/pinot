@@ -1,0 +1,14 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    int size=random.nextInt(100);
+    DoubleArrayList expected=new DoubleArrayList(size);
+    for (int j=0; j < size; j++) {
+      expected.add(random.nextDouble());
+    }
+    byte[] bytes=serde.serialize(expected);
+    DoubleArrayList actual=serde.deserialize(bytes,DataTableSerDe.DataType.DoubleArrayList);
+    for (int j=0; j < size; j++) {
+      Assert.assertEquals(actual.getDouble(j),expected.getDouble(j),"Random seed: " + randomSeed);
+    }
+  }
+}

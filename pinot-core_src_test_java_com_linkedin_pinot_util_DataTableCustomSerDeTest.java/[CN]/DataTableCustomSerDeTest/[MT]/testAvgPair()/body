@@ -1,0 +1,9 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    AvgAggregationFunction.AvgPair expected=new AvgAggregationFunction.AvgPair(random.nextDouble(),random.nextLong());
+    byte[] bytes=serde.serialize(expected);
+    AvgAggregationFunction.AvgPair actual=serde.deserialize(bytes,DataTableSerDe.DataType.AvgPair);
+    Assert.assertEquals(actual.getFirst(),expected.getFirst());
+    Assert.assertEquals(actual.getSecond(),expected.getSecond(),"Random seed: " + randomSeed);
+  }
+}

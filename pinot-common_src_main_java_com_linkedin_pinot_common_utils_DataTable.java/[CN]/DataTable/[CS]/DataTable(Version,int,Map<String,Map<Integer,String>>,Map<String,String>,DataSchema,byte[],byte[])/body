@@ -1,0 +1,14 @@
+{
+  this.dataTableSerDe=DataTableSerDeRegistry.getInstance().get();
+  this.version=version;
+  this.numRows=numRows;
+  this.dictionary=dictionary;
+  this.metadata=metadata;
+  this.schema=schema;
+  this.fixedSizeDataBytes=fixedSizeDataBytes;
+  this.variableSizeDataBytes=variableSizeDataBytes;
+  numCols=schema.columnNames.length;
+  fixedSizeData=ByteBuffer.wrap(fixedSizeDataBytes);
+  variableSizeData=ByteBuffer.wrap(variableSizeDataBytes);
+  columnOffsets=computeColumnOffsets(schema);
+}

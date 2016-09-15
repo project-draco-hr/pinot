@@ -1,0 +1,8 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    Double expected=random.nextDouble();
+    byte[] bytes=serde.serialize(expected);
+    Double actual=serde.deserialize(bytes,DataTableSerDe.DataType.Double);
+    Assert.assertEquals(actual,expected,"Random seed: " + randomSeed);
+  }
+}

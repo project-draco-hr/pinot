@@ -1,0 +1,8 @@
+{
+  for (int i=0; i < NUM_ITERATIONS; i++) {
+    MutableLongValue expected=new MutableLongValue(random.nextLong());
+    byte[] bytes=serde.serialize(expected);
+    MutableLongValue actual=serde.deserialize(bytes,DataTableSerDe.DataType.MutableLong);
+    Assert.assertEquals(actual.getValue(),expected.getValue(),"Random seed: " + random);
+  }
+}
