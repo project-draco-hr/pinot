@@ -2,8 +2,8 @@
   TaskStatus oldStatus=TaskStatus.RUNNING;
   TaskStatus newStatus=TaskStatus.COMPLETED;
   long taskEndTime=System.currentTimeMillis();
-  anomalyTaskDAO.updateStatusAndTaskEndTime(anomalyTaskId1,oldStatus,newStatus,taskEndTime);
-  TaskDTO anomalyTask=anomalyTaskDAO.findById(anomalyTaskId1);
+  taskDAO.updateStatusAndTaskEndTime(anomalyTaskId1,oldStatus,newStatus,taskEndTime);
+  TaskDTO anomalyTask=taskDAO.findById(anomalyTaskId1);
   Assert.assertEquals(anomalyTask.getStatus(),newStatus);
   Assert.assertEquals(anomalyTask.getEndTime(),taskEndTime);
 }

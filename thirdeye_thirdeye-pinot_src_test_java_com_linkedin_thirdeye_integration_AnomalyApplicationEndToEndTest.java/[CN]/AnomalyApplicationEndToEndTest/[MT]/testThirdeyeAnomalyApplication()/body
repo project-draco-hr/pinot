@@ -1,0 +1,69 @@
+{
+  setup();
+  startDetectionScheduler();
+  startAlertScheduler();
+  Thread.sleep(10000);
+  Assert.assertEquals(jobDAO.findAll().size(),2);
+  Assert.assertEquals(taskDAO.findAll().size(),2);
+  Thread.sleep(10000);
+  Assert.assertEquals(jobDAO.findAll().size(),4);
+  Assert.assertEquals(taskDAO.findAll().size(),4);
+  tasks=taskDAO.findAll();
+  int detectionCount=0;
+  int alertCount=0;
+  for (  TaskDTO task : tasks) {
+    if (task.getTaskType().equals(TaskType.ANOMALY_DETECTION)) {
+      detectionCount++;
+    }
+ else     if (task.getTaskType().equals(TaskType.ALERT)) {
+      alertCount++;
+    }
+  }
+  Assert.assertEquals(detectionCount,2);
+  Assert.assertEquals(alertCount,2);
+  tasks=taskDAO.findAll();
+  for (  TaskDTO task : tasks) {
+    Assert.assertEquals(task.getStatus(),TaskStatus.WAITING);
+  }
+  startMonitor();
+  Thread.sleep(5000);
+  tasks=taskDAO.findAll();
+  int monitorCount=0;
+  for (  TaskDTO task : tasks) {
+    if (task.getTaskType().equals(TaskType.MONITOR)) {
+      monitorCount++;
+    }
+  }
+  Assert.assertTrue(monitorCount > 0);
+  jobs=jobDAO.findAll();
+  for (  JobDTO job : jobs) {
+    Assert.assertEquals(job.getStatus(),JobStatus.SCHEDULED);
+  }
+  startWorker();
+  startWorker();
+  startWorker();
+  Thread.sleep(30000);
+  tasks=taskDAO.findAll();
+  int completedCount=0;
+  for (  TaskDTO task : tasks) {
+    if (task.getStatus().equals(TaskStatus.COMPLETED)) {
+      completedCount++;
+    }
+  }
+  Assert.assertTrue(completedCount > 0);
+  List<RawAnomalyResultDTO> rawAnomalies=rawResultDAO.findUnmergedByFunctionId(functionId);
+  Assert.assertTrue(rawAnomalies.size() > 0);
+  startMerger();
+  Thread.sleep(10000);
+  List<MergedAnomalyResultDTO> mergedAnomalies=mergedResultDAO.findByFunctionId(functionId);
+  Assert.assertTrue(mergedAnomalies.size() > 0);
+  jobs=jobDAO.findAll();
+  int completedJobCount=0;
+  for (  JobDTO job : jobs) {
+    if (job.getStatus().equals(JobStatus.COMPLETED)) {
+      completedJobCount++;
+    }
+  }
+  Assert.assertTrue(completedJobCount > 0);
+  cleanup();
+}

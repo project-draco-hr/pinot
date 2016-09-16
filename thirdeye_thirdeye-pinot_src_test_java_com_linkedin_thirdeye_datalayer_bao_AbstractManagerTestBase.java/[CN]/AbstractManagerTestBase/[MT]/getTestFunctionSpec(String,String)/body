@@ -1,17 +1,18 @@
 {
   AnomalyFunctionDTO functionSpec=new AnomalyFunctionDTO();
-  functionSpec.setMetricFunction(MetricAggFunction.SUM);
-  functionSpec.setMetric(metricName);
-  functionSpec.setBucketSize(5);
-  functionSpec.setCollection(collection);
-  functionSpec.setBucketUnit(TimeUnit.MINUTES);
-  functionSpec.setCron("0 0/5 * * * ?");
-  functionSpec.setFunctionName("my awesome test function");
+  functionSpec.setFunctionName("integration test function 1");
   functionSpec.setType("USER_RULE");
-  functionSpec.setWindowDelay(1);
+  functionSpec.setMetric(metricName);
+  functionSpec.setCollection(collection);
+  functionSpec.setMetricFunction(MetricAggFunction.SUM);
+  functionSpec.setCron("0/10 * * * * ?");
+  functionSpec.setBucketSize(1);
+  functionSpec.setBucketUnit(TimeUnit.HOURS);
+  functionSpec.setWindowDelay(3);
   functionSpec.setWindowDelayUnit(TimeUnit.HOURS);
-  functionSpec.setWindowSize(10);
-  functionSpec.setWindowUnit(TimeUnit.HOURS);
+  functionSpec.setWindowSize(1);
+  functionSpec.setWindowUnit(TimeUnit.DAYS);
+  functionSpec.setProperties("baseline=w/w;changeThreshold=0.001");
   functionSpec.setIsActive(true);
   return functionSpec;
 }

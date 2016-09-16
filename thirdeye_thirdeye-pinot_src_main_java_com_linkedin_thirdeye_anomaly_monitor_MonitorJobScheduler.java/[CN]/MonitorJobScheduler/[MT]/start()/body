@@ -5,5 +5,5 @@
   monitorJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
   monitorJobContext.setMonitorConfiguration(monitorConfiguration);
   monitorJobRunner=new MonitorJobRunner(monitorJobContext);
-  scheduledExecutorService.scheduleWithFixedDelay(monitorJobRunner,0,monitorConfiguration.getMonitorFrequencyHours(),TimeUnit.HOURS);
+  scheduledExecutorService.scheduleWithFixedDelay(monitorJobRunner,0,monitorConfiguration.getMonitorFrequency().getSize(),monitorConfiguration.getMonitorFrequency().getUnit());
 }

@@ -1,7 +1,7 @@
 {
   JobStatus status=JobStatus.COMPLETED;
-  int numRecordsDeleted=anomalyJobDAO.deleteRecordsOlderThanDaysWithStatus(0,status);
+  int numRecordsDeleted=jobDAO.deleteRecordsOlderThanDaysWithStatus(0,status);
   Assert.assertEquals(numRecordsDeleted,1);
-  List<JobDTO> anomalyJobs=anomalyJobDAO.findByStatus(status);
+  List<JobDTO> anomalyJobs=jobDAO.findByStatus(status);
   Assert.assertEquals(anomalyJobs.size(),0);
 }

@@ -1,0 +1,22 @@
+{
+  ThirdEyeResponse response=null;
+  Random rand=new Random();
+  TimeSpec dataTimeSpec=testCollectionSchema.getTime();
+  List<String[]> rows=new ArrayList<>();
+  DateTime start=request.getStartTimeInclusive();
+  DateTime end=request.getEndTimeExclusive();
+  List<String> metrics=request.getMetricNames();
+  int bucket=0;
+  while (start.isBefore(end)) {
+    String[] row=new String[metrics.size() + 1];
+    row[0]=String.valueOf(bucket);
+    bucket++;
+    for (int i=0; i < metrics.size(); i++) {
+      row[i + 1]=String.valueOf(rand.nextInt(1000));
+    }
+    rows.add(row);
+    start=start.plusHours(1);
+  }
+  response=new PinotThirdEyeResponse(request,rows,dataTimeSpec);
+  return response;
+}

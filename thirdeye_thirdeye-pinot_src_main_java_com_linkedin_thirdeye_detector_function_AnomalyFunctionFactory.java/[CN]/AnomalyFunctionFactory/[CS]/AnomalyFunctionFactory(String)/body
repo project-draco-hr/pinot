@@ -1,18 +1,10 @@
 {
   props=new Properties();
-  InputStream input=null;
   try {
-    input=new FileInputStream(functionConfigPath);
-    props.load(input);
+    InputStream input=new FileInputStream(functionConfigPath);
+    loadPropertiesFromInputStream(input);
   }
- catch (  IOException e) {
-    LOGGER.error("Error loading the functions from config",e);
-  }
- finally {
-    IOUtils.closeQuietly(input);
-  }
-  LOGGER.info("Found {} entries in anomaly function configuration file {}",props.size(),functionConfigPath);
-  for (  Entry<Object,Object> entry : props.entrySet()) {
-    LOGGER.info("{}: {}",entry.getKey(),entry.getValue());
+ catch (  FileNotFoundException e) {
+    LOGGER.error("File {} not found",functionConfigPath,e);
   }
 }

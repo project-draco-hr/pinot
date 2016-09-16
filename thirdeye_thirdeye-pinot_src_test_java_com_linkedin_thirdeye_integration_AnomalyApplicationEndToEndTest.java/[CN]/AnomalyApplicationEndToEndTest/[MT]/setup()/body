@@ -1,0 +1,31 @@
+{
+  ThirdEyeClient mockThirdeyeClient=Mockito.mock(ThirdEyeClient.class);
+  Mockito.when(mockThirdeyeClient.execute(Matchers.any(ThirdEyeRequest.class))).thenAnswer(new Answer<ThirdEyeResponse>(){
+    @Override public ThirdEyeResponse answer(    InvocationOnMock invocation) throws Throwable {
+      Object[] args=invocation.getArguments();
+      ThirdEyeRequest request=(ThirdEyeRequest)args[0];
+      ThirdEyeResponse response=getMockResponse(request);
+      return response;
+    }
+  }
+);
+  QueryCache mockQueryCache=new QueryCache(mockThirdeyeClient,Executors.newFixedThreadPool(10));
+  cacheRegistry.registerQueryCache(mockQueryCache);
+  testCollectionSchema=CollectionSchema.decode(AnomalyApplicationEndToEndTest.class.getResourceAsStream(thirdeyeCollectionSchema));
+  LoadingCache<String,CollectionSchema> mockCollectionSchemaCache=Mockito.mock(LoadingCache.class);
+  Mockito.when(mockCollectionSchemaCache.get(collection)).thenReturn(testCollectionSchema);
+  cacheRegistry.registerCollectionSchemaCache(mockCollectionSchemaCache);
+  testCollectionConfig=new CollectionConfig();
+  testCollectionConfig.setCollectionName(collection);
+  LoadingCache<String,CollectionConfig> mockCollectionConfigCache=Mockito.mock(LoadingCache.class);
+  Mockito.when(mockCollectionConfigCache.get(collection)).thenReturn(testCollectionConfig);
+  cacheRegistry.registerCollectionConfigCache(mockCollectionConfigCache);
+  thirdeyeAnomalyConfig=new ThirdEyeAnomalyConfiguration();
+  thirdeyeAnomalyConfig.setId(id);
+  thirdeyeAnomalyConfig.setDashboardHost(dashboardHost);
+  MonitorConfiguration monitorConfiguration=new MonitorConfiguration();
+  monitorConfiguration.setMonitorFrequency(new TimeGranularity(30,TimeUnit.SECONDS));
+  thirdeyeAnomalyConfig.setMonitorConfiguration(monitorConfiguration);
+  functionId=anomalyFunctionDAO.save(getTestFunctionSpec(metric,collection));
+  emailConfigurationDAO.save(getTestEmailConfiguration(metric,collection));
+}

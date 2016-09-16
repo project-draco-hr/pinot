@@ -1,5 +1,5 @@
 {
-  RawAnomalyResultDTO result=anomalyResultDAO.findById(anomalyResult.getId());
+  RawAnomalyResultDTO result=rawResultDAO.findById(anomalyResult.getId());
   Assert.assertNotNull(result);
   Assert.assertNull(result.getFeedback());
   AnomalyFeedbackDTO feedback=new AnomalyFeedbackDTO();
@@ -7,11 +7,11 @@
   feedback.setFeedbackType(AnomalyFeedbackType.ANOMALY);
   feedback.setStatus(FeedbackStatus.NEW);
   result.setFeedback(feedback);
-  anomalyResultDAO.save(result);
-  RawAnomalyResultDTO resultRet=anomalyResultDAO.findById(anomalyResult.getId());
+  rawResultDAO.save(result);
+  RawAnomalyResultDTO resultRet=rawResultDAO.findById(anomalyResult.getId());
   Assert.assertEquals(resultRet.getId(),result.getId());
   Assert.assertNotNull(resultRet.getFeedback());
   AnomalyFunctionDTO functionSpec=result.getFunction();
-  anomalyResultDAO.deleteById(anomalyResult.getId());
+  rawResultDAO.deleteById(anomalyResult.getId());
   anomalyFunctionDAO.deleteById(functionSpec.getId());
 }

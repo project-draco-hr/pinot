@@ -1,0 +1,15 @@
+{
+  try {
+    props.load(input);
+  }
+ catch (  IOException e) {
+    LOGGER.error("Error loading the functions from config",e);
+  }
+ finally {
+    IOUtils.closeQuietly(input);
+  }
+  LOGGER.info("Found {} entries in anomaly function configuration file {}",props.size());
+  for (  Entry<Object,Object> entry : props.entrySet()) {
+    LOGGER.info("{}: {}",entry.getKey(),entry.getValue());
+  }
+}
