@@ -1,8 +1,8 @@
 {
   try {
     final int length=endDocId - startDocId;
-    final int startOffset=startDocId * totalSizeInBytes;
-    final MMapBuffer mappedByteBuffer=new MMapBuffer(file,startOffset,length * totalSizeInBytes,MMapMode.READ_WRITE);
+    final long startOffset=startDocId * (long)totalSizeInBytes;
+    final MMapBuffer mappedByteBuffer=new MMapBuffer(file,startOffset,length * (long)totalSizeInBytes,MMapMode.READ_WRITE);
     return new Iterator<Pair<byte[],byte[]>>(){
       int pointer=0;
       @Override public boolean hasNext(){
@@ -14,9 +14,9 @@
       @Override public Pair<byte[],byte[]> next(){
         byte[] dimBuff=new byte[dimensionSizeInBytes];
         byte[] metBuff=new byte[metricSizeInBytes];
-        mappedByteBuffer.copyTo(pointer * totalSizeInBytes,dimBuff,0,dimensionSizeInBytes);
+        mappedByteBuffer.toDirectByteBuffer(pointer * (long)totalSizeInBytes,dimensionSizeInBytes).get(dimBuff);
         if (metricSizeInBytes > 0) {
-          mappedByteBuffer.copyTo(pointer * totalSizeInBytes + dimensionSizeInBytes,metBuff,0,metricSizeInBytes);
+          mappedByteBuffer.toDirectByteBuffer(pointer * (long)totalSizeInBytes + dimensionSizeInBytes,metricSizeInBytes).get(metBuff);
         }
         pointer=pointer + 1;
         if (pointer == length) {

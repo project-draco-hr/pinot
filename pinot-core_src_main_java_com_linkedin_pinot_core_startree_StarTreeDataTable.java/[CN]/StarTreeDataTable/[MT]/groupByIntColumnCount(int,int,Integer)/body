@@ -3,13 +3,13 @@
   try {
     int length=endDocId - startDocId;
     Map<Integer,IntPair> rangeMap=new LinkedHashMap<>();
-    final int startOffset=startDocId * totalSizeInBytes;
-    mappedByteBuffer=new MMapBuffer(file,startOffset,length * totalSizeInBytes,MMapMode.READ_WRITE);
+    final long startOffset=startDocId * (long)totalSizeInBytes;
+    mappedByteBuffer=new MMapBuffer(file,startOffset,length * (long)totalSizeInBytes,MMapMode.READ_WRITE);
     int prevValue=-1;
     int prevStart=0;
     byte[] dimBuff=new byte[dimensionSizeInBytes];
     for (int i=0; i < length; i++) {
-      mappedByteBuffer.copyTo(i * totalSizeInBytes,dimBuff,0,dimensionSizeInBytes);
+      mappedByteBuffer.toDirectByteBuffer(i * (long)totalSizeInBytes,dimensionSizeInBytes).get(dimBuff);
       int value=ByteBuffer.wrap(dimBuff).asIntBuffer().get(colIndex);
       if (prevValue != -1 && prevValue != value) {
         rangeMap.put(prevValue,new IntPair(startDocId + prevStart,startDocId + i));
