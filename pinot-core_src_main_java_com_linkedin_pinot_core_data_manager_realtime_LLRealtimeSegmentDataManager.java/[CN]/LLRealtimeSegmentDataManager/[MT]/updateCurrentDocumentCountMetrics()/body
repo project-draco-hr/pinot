@@ -2,4 +2,12 @@
   int currentRawDocs=_realtimeSegment.getRawDocumentCount();
   _serverMetrics.addValueToTableGauge(_tableName,ServerGauge.DOCUMENT_COUNT,(currentRawDocs - _lastUpdatedRawDocuments.get()));
   _lastUpdatedRawDocuments.set(currentRawDocs);
+  final long now=now();
+  final int rowsConsumed=_numRowsConsumed - _lastConsumedCount;
+  final long prevTime=_lastConsumedCount == 0 ? _consumeStartTime : _lastLogTime;
+  if (now - prevTime > TimeUnit.MINUTES.toMillis(TIME_THRESHOLD_FOR_LOG_MINUTES) || rowsConsumed >= MSG_COUNT_THRESHOLD_FOR_LOG) {
+    segmentLogger.info("Consumed {} events from (rate:{}/s)",rowsConsumed,(float)(rowsConsumed) * 1000 / (now - prevTime));
+    _lastConsumedCount=_numRowsConsumed;
+    _lastLogTime=now;
+  }
 }

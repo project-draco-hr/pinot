@@ -1,6 +1,6 @@
 {
   final long _endOffset=Long.MAX_VALUE;
-  segmentLogger.info("Starting consumption loop start offset {}, end offset {}",_currentOffset,_endOffset);
+  segmentLogger.info("Starting consumption loop start offset {}, finalOffset {}",_currentOffset,_finalOffset);
   while (!_receivedStop && !endCriteriaReached()) {
     Iterable<MessageAndOffset> messagesAndOffsets=_consumerWrapper.fetchMessages(_currentOffset,_endOffset,KAFKA_MAX_FETCH_TIME_MILLIS);
     Iterator<MessageAndOffset> msgIterator=messagesAndOffsets.iterator();
@@ -22,9 +22,9 @@
       _currentOffset=messageAndOffset.nextOffset();
       _numRowsConsumed++;
     }
+    updateCurrentDocumentCountMetrics();
     if (batchSize != 0) {
       segmentLogger.debug("Indexed {} messages current offset {}",batchSize,_currentOffset);
-      updateCurrentDocumentCountMetrics();
     }
  else {
       Uninterruptibles.sleepUninterruptibly(100,TimeUnit.MILLISECONDS);

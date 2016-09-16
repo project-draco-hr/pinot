@@ -6,4 +6,10 @@
     segmentLogger.error("Could not stop consumer thread");
   }
   _realtimeSegment.destroy();
+  try {
+    _consumerWrapper.close();
+  }
+ catch (  Exception e) {
+    segmentLogger.warn("Could not close consumer wrapper",e);
+  }
 }

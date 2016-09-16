@@ -46,12 +46,15 @@
   _clientId=_kafkaPartitionId + "-" + NetUtil.getHostnameOrAddress();
   _fieldExtractor=(PlainFieldExtractor)FieldExtractorFactory.getPlainFieldExtractor(schema);
   _consumerWrapper=SimpleConsumerWrapper.forPartitionConsumption(new KafkaSimpleConsumerFactoryImpl(),bootstrapNodes,_clientId,_kafkaTopic,_kafkaPartitionId);
-  _currentOffset=_segmentZKMetadata.getStartOffset();
+  _startOffset=_segmentZKMetadata.getStartOffset();
+  _currentOffset=_startOffset;
   _resourceTmpDir=new File(resourceDataDir,"_tmp");
   if (!_resourceTmpDir.exists()) {
     _resourceTmpDir.mkdirs();
   }
   _state=State.INITIAL_CONSUMING;
-  _consumeEndTime=now() + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
+  long now=now();
+  _consumeStartTime=now;
+  _consumeEndTime=now + kafkaStreamProviderConfig.getTimeThresholdToFlushSegment();
   start();
 }

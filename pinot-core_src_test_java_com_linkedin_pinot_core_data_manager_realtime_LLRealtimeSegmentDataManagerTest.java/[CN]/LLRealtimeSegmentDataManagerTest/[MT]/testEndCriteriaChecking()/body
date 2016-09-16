@@ -12,6 +12,9 @@
     FakeLLRealtimeSegmentDataManager segmentDataManager=createFakeSegmentManager();
     segmentDataManager._state.set(segmentDataManager,LLRealtimeSegmentDataManager.State.INITIAL_CONSUMING);
     Assert.assertFalse(segmentDataManager.invokeEndCriteriaReached());
+    _timeNow+=maxTimeForSegmentCloseMs + 1;
+    Assert.assertFalse(segmentDataManager.invokeEndCriteriaReached());
+    replaceRealtimeSegment(segmentDataManager,10);
     _timeNow+=maxTimeForSegmentCloseMs;
     Assert.assertTrue(segmentDataManager.invokeEndCriteriaReached());
   }

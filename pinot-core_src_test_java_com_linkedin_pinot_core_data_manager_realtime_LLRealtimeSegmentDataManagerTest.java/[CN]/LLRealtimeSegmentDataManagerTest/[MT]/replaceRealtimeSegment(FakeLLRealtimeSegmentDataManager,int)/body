@@ -1,0 +1,7 @@
+{
+  RealtimeSegmentImpl mockSegmentImpl=mock(RealtimeSegmentImpl.class);
+  when(mockSegmentImpl.getRawDocumentCount()).thenReturn(numDocs);
+  Field segmentImpl=LLRealtimeSegmentDataManager.class.getDeclaredField("_realtimeSegment");
+  segmentImpl.setAccessible(true);
+  segmentImpl.set(segmentDataManager,mockSegmentImpl);
+}

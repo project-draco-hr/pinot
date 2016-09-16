@@ -4,6 +4,11 @@
 switch (_state) {
 case INITIAL_CONSUMING:
     if (now >= _consumeEndTime) {
+      if (_realtimeSegment.getRawDocumentCount() == 0) {
+        segmentLogger.info("No events came in, extending time by {} hours",TIME_EXTENSION_ON_EMPTY_SEGMENT_HOURS);
+        _consumeEndTime+=TimeUnit.HOURS.toMillis(TIME_EXTENSION_ON_EMPTY_SEGMENT_HOURS);
+        return false;
+      }
       segmentLogger.info("Stopping consumption due to time limit start={} now={} numRows={}",_startTimeMs,now,_numRowsConsumed);
       return true;
     }
