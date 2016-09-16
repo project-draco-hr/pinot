@@ -1,3 +1,10 @@
 {
-  return deserializeObject(bytes,dataType);
+  T object=deserializeObject(bytes,dataType);
+  if (dataType == DataType.Object) {
+    if (_brokerMetrics != null) {
+      _brokerMetrics.addMeteredGlobalValue(BrokerMeter.DATA_TABLE_OBJECT_DESERIALIZATION,1);
+    }
+    LOGGER.warn("Identified Java serialized object in data table {}",object.getClass().getName());
+  }
+  return object;
 }
