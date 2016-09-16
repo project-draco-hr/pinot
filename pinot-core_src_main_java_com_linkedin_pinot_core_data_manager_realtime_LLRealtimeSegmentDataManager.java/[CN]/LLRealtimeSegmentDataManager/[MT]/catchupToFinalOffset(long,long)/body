@@ -2,6 +2,7 @@
   _finalOffset=endOffset;
   _consumeEndTime=now() + timeoutMs;
   _state=State.CONSUMING_TO_ONLINE;
+  _receivedStop=false;
   consumeLoop();
   if (_currentOffset != endOffset) {
     segmentLogger.error("Could not consume up to {} (current offset {})",endOffset,_currentOffset);
