@@ -1,0 +1,12 @@
+{
+  if (_kafkaBroker != null) {
+    try {
+      Method method=_kafkaBroker.getClass().getMethod("host",new Class<?>[0]);
+      return (String)method.invoke(_kafkaBroker);
+    }
+ catch (    Exception e) {
+      LOGGER.error("Failed to get host() method from KafkaBroker Object: {}",_kafkaBroker,e);
+    }
+  }
+  return "";
+}

@@ -6,7 +6,7 @@
       List<PartitionMetadata> pMetaList=response.topicsMetadata().get(0).partitionsMetadata();
       for (      PartitionMetadata pMeta : pMetaList) {
         if (pMeta.partitionId() == _partition) {
-          _leader=pMeta.leader();
+          _leader=new KafkaBrokerWrapper(pMeta.leader());
           break;
         }
       }

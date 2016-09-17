@@ -1,0 +1,12 @@
+{
+  if (_kafkaBroker != null) {
+    try {
+      Method method=_kafkaBroker.getClass().getMethod("port",new Class<?>[0]);
+      return (int)method.invoke(_kafkaBroker);
+    }
+ catch (    Exception e) {
+      LOGGER.error("Failed to get port() method from KafkaBroker Object: {}",_kafkaBroker,e);
+    }
+  }
+  return 0;
+}
