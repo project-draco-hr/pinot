@@ -2,7 +2,11 @@
   File destSeg=makeSegmentDirPath();
   final String segTarFileName=destSeg.getAbsolutePath() + TarGzCompressionUtils.TAR_GZ_FILE_EXTENTION;
   try {
-    _protocolHandler.segmentCommit(_currentOffset,_segmentNameStr,new File(segTarFileName));
+    SegmentCompletionProtocol.Response response=_protocolHandler.segmentCommit(_currentOffset,_segmentNameStr,new File(segTarFileName));
+    if (!response.getStatus().equals(SegmentCompletionProtocol.ControllerResponseStatus.COMMIT_SUCCESS)) {
+      segmentLogger.warn("Received controller response {}",response);
+      return false;
+    }
     FileUtils.deleteQuietly(new File(segTarFileName));
   }
  catch (  FileNotFoundException e) {
