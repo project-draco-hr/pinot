@@ -1,7 +1,8 @@
 {
   EmailConfigurationBean emailConfigurationBean=genericPojoDao.get(emailConfigId,EmailConfigurationBean.class);
   List<Long> functionIds=emailConfigurationBean.getFunctionIds();
-  Predicate predicate=Predicate.AND(Predicate.LT("startTime",endTime),Predicate.GT("endTime",startTime),Predicate.IN("functionId",functionIds.toArray(new Long[]{})),Predicate.EQ("notified",false));
+  Long[] functionIdArray=functionIds.toArray(new Long[]{});
+  Predicate predicate=Predicate.AND(Predicate.LT("startTime",endTime),Predicate.GT("endTime",startTime),Predicate.IN("functionId",functionIdArray),Predicate.EQ("notified",false));
   List<MergedAnomalyResultBean> list=genericPojoDao.get(predicate,MergedAnomalyResultBean.class);
   List<MergedAnomalyResultDTO> result=new ArrayList<>();
   for (  MergedAnomalyResultBean bean : list) {

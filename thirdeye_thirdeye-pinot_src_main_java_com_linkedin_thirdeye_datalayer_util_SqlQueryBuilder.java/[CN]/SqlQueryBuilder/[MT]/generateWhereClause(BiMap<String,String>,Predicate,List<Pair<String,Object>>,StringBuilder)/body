@@ -1,0 +1,49 @@
+{
+  String columnName=null;
+  if (predicate.getLhs() != null) {
+    columnName=entityNameToDBNameMapping.get(predicate.getLhs());
+  }
+switch (predicate.getOper()) {
+case AND:
+case OR:
+    whereClause.append("(");
+  String delim="";
+for (Predicate childPredicate : predicate.getChildPredicates()) {
+  whereClause.append(delim);
+  generateWhereClause(entityNameToDBNameMapping,childPredicate,parametersList,whereClause);
+  delim="  " + predicate.getOper().toString() + " ";
+}
+whereClause.append(")");
+break;
+case EQ:
+case GT:
+case LT:
+case NEQ:
+case LE:
+case GE:
+whereClause.append(columnName).append(predicate.getOper().toString()).append("?");
+parametersList.add(ImmutablePair.of(columnName,predicate.getRhs()));
+break;
+case IN:
+Object rhs=predicate.getRhs();
+if (rhs != null && rhs.getClass().isArray()) {
+whereClause.append(columnName).append(" ").append(Predicate.OPER.IN.toString()).append("(");
+delim="";
+for (int i=0; i < Array.getLength(rhs); i++) {
+whereClause.append(delim).append("?");
+parametersList.add(ImmutablePair.of(columnName,Array.get(rhs,i)));
+delim=",";
+}
+whereClause.append(")");
+}
+break;
+case BETWEEN:
+whereClause.append(columnName).append(predicate.getOper().toString()).append("? AND ?");
+ImmutablePair<Object,Object> pair=(ImmutablePair<Object,Object>)predicate.getRhs();
+parametersList.add(ImmutablePair.of(columnName,pair.getLeft()));
+parametersList.add(ImmutablePair.of(columnName,pair.getRight()));
+break;
+default :
+throw new RuntimeException("Unsupported predicate type:" + predicate.getOper());
+}
+}

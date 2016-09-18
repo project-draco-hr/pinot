@@ -2,7 +2,7 @@
   setup();
   startDetectionScheduler();
   startAlertScheduler();
-  Thread.sleep(10000);
+  Thread.sleep(1000);
   Assert.assertEquals(jobDAO.findAll().size(),2);
   Assert.assertEquals(taskDAO.findAll().size(),2);
   Thread.sleep(10000);
@@ -39,8 +39,6 @@
   for (  JobDTO job : jobs) {
     Assert.assertEquals(job.getStatus(),JobStatus.SCHEDULED);
   }
-  startWorker();
-  startWorker();
   startWorker();
   Thread.sleep(30000);
   tasks=taskDAO.findAll();

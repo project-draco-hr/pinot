@@ -3,18 +3,18 @@
   BiMap<String,String> entityNameToDBNameMapping=entityMappingHolder.columnMappingPerTable.get(tableName).inverse();
   StringBuilder sqlBuilder=new StringBuilder("SELECT * FROM " + tableName);
   StringBuilder whereClause=new StringBuilder(" WHERE ");
-  LinkedHashMap<String,Object> parametersMap=new LinkedHashMap<>();
-  generateWhereClause(entityNameToDBNameMapping,predicate,parametersMap,whereClause);
+  List<Pair<String,Object>> parametersList=new ArrayList<>();
+  generateWhereClause(entityNameToDBNameMapping,predicate,parametersList,whereClause);
   sqlBuilder.append(whereClause.toString());
   System.out.println("createFindByParamsStatement Query " + sqlBuilder.toString());
   PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
   int parameterIndex=1;
   LinkedHashMap<String,ColumnInfo> columnInfoMap=entityMappingHolder.columnInfoPerTable.get(tableName);
-  for (  Entry<String,Object> paramEntry : parametersMap.entrySet()) {
-    String dbFieldName=paramEntry.getKey();
+  for (  Pair<String,Object> pair : parametersList) {
+    String dbFieldName=pair.getKey();
     ColumnInfo info=columnInfoMap.get(dbFieldName);
-    prepareStatement.setObject(parameterIndex++,paramEntry.getValue(),info.sqlType);
-    System.out.println("Setting " + paramEntry.getKey() + " to "+ paramEntry.getValue());
+    prepareStatement.setObject(parameterIndex++,pair.getValue(),info.sqlType);
+    System.out.println("Setting " + pair.getKey() + " to "+ pair.getValue());
   }
   return prepareStatement;
 }

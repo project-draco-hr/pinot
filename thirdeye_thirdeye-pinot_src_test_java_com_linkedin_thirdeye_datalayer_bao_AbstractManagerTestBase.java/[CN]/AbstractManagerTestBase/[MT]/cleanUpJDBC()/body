@@ -1,7 +1,9 @@
 {
+  System.out.println("Cleaning database: start");
   try (Connection conn=ds.getConnection()){
     URL deleteSchemaUrl=getClass().getResource("/schema/drop-tables.sql");
     ScriptRunner scriptRunner=new ScriptRunner(conn,false,false);
     scriptRunner.runScript(new FileReader(deleteSchemaUrl.getFile()));
   }
- }
+   System.out.println("Cleaning database: done!");
+}

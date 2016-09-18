@@ -1,4 +1,9 @@
 {
-  MergedAnomalyResultBean mergeAnomalyBean=convertMergeAnomalyDTO2Bean(mergedAnomalyResultDTO);
-  genericPojoDao.update(mergeAnomalyBean);
+  if (mergedAnomalyResultDTO.getId() == null) {
+    save(mergedAnomalyResultDTO);
+  }
+ else {
+    MergedAnomalyResultBean mergeAnomalyBean=convertMergeAnomalyDTO2Bean(mergedAnomalyResultDTO);
+    genericPojoDao.update(mergeAnomalyBean);
+  }
 }
