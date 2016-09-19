@@ -1,5 +1,4 @@
 {
-  String jsonMetrics=null;
   try {
     collection=ThirdEyeUtils.getCollectionFromAlias(collection);
     CollectionSchema schema=collectionSchemaCache.get(collection);
@@ -16,10 +15,10 @@
       metrics.removeAll(collectionConfig.getDerivedMetrics().values());
     }
     Collections.sort(metrics);
-    jsonMetrics=OBJECT_MAPPER.writeValueAsString(metrics);
+    return metrics;
   }
  catch (  Exception e) {
     LOG.error("Error while fetching metrics",e);
+    throw e;
   }
-  return jsonMetrics;
 }

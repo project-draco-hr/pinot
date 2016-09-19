@@ -1,4 +1,12 @@
 {
+  List<EmailConfigurationDTO> emails=emailDAO.findByCollectionMetric(emailConfiguration.getCollection(),emailConfiguration.getMetric());
+  if (emails.size() > 0) {
+    EmailConfigurationDTO base=emails.get(0);
+    base.setActive(true);
+    base.setToAddresses(emailConfiguration.getToAddresses());
+    emailDAO.update(base);
+    return Response.ok(base.getId()).build();
+  }
   Long id=emailDAO.save(emailConfiguration);
   return Response.ok(id).build();
 }

@@ -9,11 +9,10 @@
   if (function != null && emailConfiguration != null) {
     if (!emailConfiguration.getFunctions().contains(function)) {
       emailConfiguration.getFunctions().add(function);
-      emailDAO.save(emailConfiguration);
+      emailDAO.update(emailConfiguration);
     }
   }
  else {
     throw new IllegalArgumentException("function or email not found for email : " + emailId + " function : "+ functionId);
   }
-  return Response.ok().build();
 }

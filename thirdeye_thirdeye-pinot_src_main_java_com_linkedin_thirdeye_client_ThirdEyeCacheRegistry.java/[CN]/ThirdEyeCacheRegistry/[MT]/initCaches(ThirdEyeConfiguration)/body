@@ -8,13 +8,13 @@
 ;
   LoadingCache<PinotQuery,ResultSetGroup> resultSetGroupCache=CacheBuilder.newBuilder().removalListener(listener).expireAfterAccess(1,TimeUnit.HOURS).build(new ResultSetGroupCacheLoader(pinotThirdeyeClientConfig));
   cacheRegistry.registerResultSetGroupCache(resultSetGroupCache);
-  LoadingCache<String,Schema> schemaCache=CacheBuilder.newBuilder().build(new SchemaCacheLoader(pinotThirdeyeClientConfig));
+  LoadingCache<String,Schema> schemaCache=CacheBuilder.newBuilder().expireAfterAccess(1,TimeUnit.HOURS).build(new SchemaCacheLoader(pinotThirdeyeClientConfig));
   cacheRegistry.registerSchemaCache(schemaCache);
-  LoadingCache<String,CollectionSchema> collectionSchemaCache=CacheBuilder.newBuilder().build(new CollectionSchemaCacheLoader(pinotThirdeyeClientConfig,webappConfigDAO));
+  LoadingCache<String,CollectionSchema> collectionSchemaCache=CacheBuilder.newBuilder().expireAfterAccess(1,TimeUnit.HOURS).build(new CollectionSchemaCacheLoader(pinotThirdeyeClientConfig,webappConfigDAO));
   cacheRegistry.registerCollectionSchemaCache(collectionSchemaCache);
   LoadingCache<String,Long> collectionMaxDataTimeCache=CacheBuilder.newBuilder().build(new CollectionMaxDataTimeCacheLoader(pinotThirdeyeClientConfig,collectionSchemaCache,resultSetGroupCache));
   cacheRegistry.registerCollectionMaxDataTimeCache(collectionMaxDataTimeCache);
-  LoadingCache<String,CollectionConfig> collectionConfigCache=CacheBuilder.newBuilder().build(new CollectionConfigCacheLoader(webappConfigDAO));
+  LoadingCache<String,CollectionConfig> collectionConfigCache=CacheBuilder.newBuilder().expireAfterAccess(1,TimeUnit.HOURS).build(new CollectionConfigCacheLoader(webappConfigDAO));
   cacheRegistry.registerCollectionConfigCache(collectionConfigCache);
   LoadingCache<String,String> collectionAliasCache=CacheBuilder.newBuilder().build(new CollectionAliasCacheLoader(webappConfigDAO));
   cacheRegistry.registerCollectionAliasCache(collectionAliasCache);

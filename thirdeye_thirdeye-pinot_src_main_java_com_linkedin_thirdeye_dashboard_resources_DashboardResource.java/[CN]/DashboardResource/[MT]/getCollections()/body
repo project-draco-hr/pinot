@@ -1,5 +1,4 @@
 {
-  String jsonCollections=null;
   try {
     List<String> collections=new ArrayList<>();
     for (    String collection : collectionsCache.getCollections()) {
@@ -16,10 +15,10 @@
       }
       collections.add(collection);
     }
-    jsonCollections=OBJECT_MAPPER.writeValueAsString(collections);
+    return collections;
   }
  catch (  Exception e) {
     LOG.error("Error while fetching datasets",e);
+    throw e;
   }
-  return jsonCollections;
 }
