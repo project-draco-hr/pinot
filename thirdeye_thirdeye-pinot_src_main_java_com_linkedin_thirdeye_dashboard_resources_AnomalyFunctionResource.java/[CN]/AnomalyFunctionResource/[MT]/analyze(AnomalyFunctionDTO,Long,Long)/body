@@ -1,9 +1,8 @@
 {
   BaseAnomalyFunction anomalyFunction=anomalyFunctionFactory.fromSpec(anomalyFunctionSpec);
   TimeSeriesResponse finalResponse=TimeSeriesUtil.getTimeSeriesResponse(anomalyFunctionSpec,anomalyFunction,anomalyFunctionSpec.getExploreDimensions(),startTime,endTime);
-  int anomalyCounter=0;
   List<MergedAnomalyResultDTO> mergedAnomalyResults=new ArrayList<>();
-  List<RawAnomalyResultDTO> results;
+  List<RawAnomalyResultDTO> results=new ArrayList<>();
   CollectionSchema collectionSchema;
   List<String> collectionDimensions;
   try {
@@ -26,12 +25,20 @@
       LOG.info("Analyzing anomaly function with dimensionKey: {}, windowStart: {}, windowEnd: {}",dimensionKey,startTime,endTime);
       results=anomalyFunction.analyze(dimensionKey,metricTimeSeries,new DateTime(startTime),new DateTime(endTime),new ArrayList<>());
       LOG.info("{} has {} anomalies in window {} to {}",entry.getKey(),results.size(),startTime,endTime);
-      anomalyCounter+=results.size();
     }
  catch (    Exception e) {
       LOG.error("Could not compute for {}",entry.getKey(),e);
     }
   }
-  LOG.info("{} anomalies found in total",anomalyCounter);
+  if (results.size() > 0) {
+    List<RawAnomalyResultDTO> validResults=new ArrayList<>();
+    for (    RawAnomalyResultDTO anomaly : results) {
+      if (!anomaly.isDataMissing()) {
+        validResults.add(anomaly);
+      }
+    }
+    mergedAnomalyResults.addAll(AnomalyTimeBasedSummarizer.mergeAnomalies(validResults,-1,2 * 60 * 60* 1000));
+    LOG.info("Merging [{}] anomalies to [{}] for preview",validResults.size(),mergedAnomalyResults.size());
+  }
   return mergedAnomalyResults;
 }
