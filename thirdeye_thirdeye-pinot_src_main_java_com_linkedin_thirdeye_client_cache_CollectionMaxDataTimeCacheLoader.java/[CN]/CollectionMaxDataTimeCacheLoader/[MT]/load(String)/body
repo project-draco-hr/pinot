@@ -20,8 +20,8 @@
         maxTime=timeSpec.getDataGranularity().toMillis(endTime + 1) - 1;
       }
  else {
-        DateTimeFormatter dateTimeFormatter=DateTimeFormat.forPattern(timeFormat);
-        maxTime=DateTime.parse(String.valueOf(endTime),dateTimeFormatter).getMillis();
+        DateTimeFormatter inputDataDateTimeFormatter=DateTimeFormat.forPattern(timeFormat).withZone(Utils.getDataTimeZone(collection));
+        maxTime=DateTime.parse(String.valueOf(endTime),inputDataDateTimeFormatter).getMillis();
       }
     }
   }
