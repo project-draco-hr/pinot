@@ -3,5 +3,6 @@
     throw new RuntimeException("Cannot create multiple instances");
   }
   _instance=new SegmentCompletionManager(helixManager,segmentManager);
+  SegmentCompletionProtocol.setMaxSegmentCommitTimeMs(TimeUnit.MILLISECONDS.convert(controllerConf.getSegmentCommitTimeoutSeconds(),TimeUnit.SECONDS));
   return _instance;
 }

@@ -17,7 +17,7 @@
   segmentCompletionMgr._secconds+=SegmentCompletionProtocol.MAX_HOLD_TIME_MS / 1000;
   response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s1Offset);
   Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.CATCH_UP);
-  segmentCompletionMgr._secconds+=6 * SegmentCompletionProtocol.MAX_HOLD_TIME_MS / 1000;
+  segmentCompletionMgr._secconds+=SegmentCompletionProtocol.getMaxSegmentCommitTimeMs() * SegmentCompletionProtocol.MAX_HOLD_TIME_MS / 1000;
   response=segmentCompletionMgr.segmentConsumed(segmentNameStr,s1,s2Offset);
   Assert.assertEquals(response.getStatus(),SegmentCompletionProtocol.ControllerResponseStatus.HOLD);
   Assert.assertFalse(fsmMap.containsKey(segmentNameStr));
