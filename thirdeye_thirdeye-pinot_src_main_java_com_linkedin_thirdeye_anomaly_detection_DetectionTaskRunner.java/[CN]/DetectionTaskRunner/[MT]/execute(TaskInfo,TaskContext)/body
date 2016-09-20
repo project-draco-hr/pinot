@@ -3,15 +3,12 @@
   List<TaskResult> taskResult=new ArrayList<>();
   LOG.info("Begin executing task {}",taskInfo);
   resultDAO=taskContext.getResultDAO();
-  anomalyFunctionFactory=taskContext.getAnomalyFunctionFactory();
-  anomalyFunctionSpec=detectionTaskInfo.getAnomalyFunctionSpec();
+  AnomalyFunctionFactory anomalyFunctionFactory=taskContext.getAnomalyFunctionFactory();
+  AnomalyFunctionDTO anomalyFunctionSpec=detectionTaskInfo.getAnomalyFunctionSpec();
   anomalyFunction=anomalyFunctionFactory.fromSpec(anomalyFunctionSpec);
   windowStart=detectionTaskInfo.getWindowStartTime();
   windowEnd=detectionTaskInfo.getWindowEndTime();
-  TimeGranularity timeGranularity=new TimeGranularity(anomalyFunctionSpec.getBucketSize(),anomalyFunctionSpec.getBucketUnit());
-  metricFunction=new MetricFunction(anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getMetric());
-  String filters=anomalyFunctionSpec.getFilters();
-  LOG.info("Running anomaly detection job with metricFunction: {}, collection: {}",metricFunction,anomalyFunctionSpec.getCollection());
+  LOG.info("Running anomaly detection job with metricFunction: [{}], metric [{}], collection: [{}]",anomalyFunctionSpec.getFunctionName(),anomalyFunctionSpec.getMetric(),anomalyFunctionSpec.getCollection());
   CollectionSchema collectionSchema=null;
   try {
     collectionSchema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(anomalyFunctionSpec.getCollection());
@@ -21,37 +18,7 @@
     LOG.error("Exception when reading collection schema cache",e);
   }
   knownAnomalies=getExistingAnomalies();
-  TimeSeriesRequest request=new TimeSeriesRequest();
-  request.setCollectionName(anomalyFunctionSpec.getCollection());
-  List<MetricExpression> metricExpressions=Utils.convertToMetricExpressions(metricFunction.getMetricName(),anomalyFunctionSpec.getMetricFunction(),anomalyFunctionSpec.getCollection());
-  request.setMetricExpressions(metricExpressions);
-  request.setAggregationTimeGranularity(timeGranularity);
-  request.setEndDateInclusive(false);
-  if (StringUtils.isNotBlank(filters)) {
-    request.setFilterSet(ThirdEyeUtils.getFilterSet(filters));
-  }
-  String exploreDimension=detectionTaskInfo.getGroupByDimension();
-  if (StringUtils.isNotBlank(exploreDimension)) {
-    request.setGroupByDimensions(Collections.singletonList(detectionTaskInfo.getGroupByDimension()));
-  }
-  List<Pair<Long,Long>> startEndTimeRanges=anomalyFunction.getDataRangeIntervals(windowStart.getMillis(),windowEnd.getMillis());
-  List<TimeSeriesRow> timeSeriesRows=new ArrayList<>();
-  for (  Pair<Long,Long> startEndInterval : startEndTimeRanges) {
-    DateTime startTime=new DateTime(startEndInterval.getFirst());
-    DateTime endTime=new DateTime(startEndInterval.getSecond());
-    request.setStart(startTime);
-    request.setEnd(endTime);
-    LOG.info("Fetching data with startTime: [{}], endTime: [{}], metricExpressions: [{}], timeGranularity: [{}]",startTime,endTime,metricExpressions,timeGranularity);
-    try {
-      LOG.debug("Executing {}",request);
-      TimeSeriesResponse response=timeSeriesHandler.handle(request);
-      timeSeriesRows.addAll(response.getRows());
-    }
- catch (    Exception e) {
-      throw new JobExecutionException(e);
-    }
-  }
-  TimeSeriesResponse finalResponse=new TimeSeriesResponse(timeSeriesRows);
+  TimeSeriesResponse finalResponse=TimeSeriesUtil.getTimeSeriesResponse(anomalyFunctionSpec,anomalyFunction,detectionTaskInfo.getGroupByDimension(),windowStart.getMillis(),windowEnd.getMillis());
   exploreDimensionsAndAnalyze(finalResponse);
   return taskResult;
 }

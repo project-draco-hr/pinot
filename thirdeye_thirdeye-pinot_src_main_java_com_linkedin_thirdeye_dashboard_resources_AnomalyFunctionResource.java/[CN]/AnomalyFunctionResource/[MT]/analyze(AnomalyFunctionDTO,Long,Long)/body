@@ -1,0 +1,37 @@
+{
+  BaseAnomalyFunction anomalyFunction=anomalyFunctionFactory.fromSpec(anomalyFunctionSpec);
+  TimeSeriesResponse finalResponse=TimeSeriesUtil.getTimeSeriesResponse(anomalyFunctionSpec,anomalyFunction,anomalyFunctionSpec.getExploreDimensions(),startTime,endTime);
+  int anomalyCounter=0;
+  List<MergedAnomalyResultDTO> mergedAnomalyResults=new ArrayList<>();
+  List<RawAnomalyResultDTO> results;
+  CollectionSchema collectionSchema;
+  List<String> collectionDimensions;
+  try {
+    collectionSchema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(anomalyFunctionSpec.getCollection());
+    collectionDimensions=collectionSchema.getDimensionNames();
+  }
+ catch (  Exception e) {
+    LOG.error("Exception when reading collection schema cache",e);
+    return mergedAnomalyResults;
+  }
+  Map<DimensionKey,MetricTimeSeries> res=timeSeriesResponseConverter.toMap(finalResponse,collectionDimensions);
+  for (  Map.Entry<DimensionKey,MetricTimeSeries> entry : res.entrySet()) {
+    if (entry.getValue().getTimeWindowSet().size() < 2) {
+      LOG.warn("Insufficient data for {} to run anomaly detection function",entry.getKey());
+      continue;
+    }
+    try {
+      DimensionKey dimensionKey=entry.getKey();
+      MetricTimeSeries metricTimeSeries=entry.getValue();
+      LOG.info("Analyzing anomaly function with dimensionKey: {}, windowStart: {}, windowEnd: {}",dimensionKey,startTime,endTime);
+      results=anomalyFunction.analyze(dimensionKey,metricTimeSeries,new DateTime(startTime),new DateTime(endTime),new ArrayList<>());
+      LOG.info("{} has {} anomalies in window {} to {}",entry.getKey(),results.size(),startTime,endTime);
+      anomalyCounter+=results.size();
+    }
+ catch (    Exception e) {
+      LOG.error("Could not compute for {}",entry.getKey(),e);
+    }
+  }
+  LOG.info("{} anomalies found in total",anomalyCounter);
+  return mergedAnomalyResults;
+}
