@@ -1,0 +1,17 @@
+{
+  List<String> schemaNames=getSchemaNames();
+  LOGGER.info("Validating schemas: " + schemaNames);
+  for (  String schemaName : schemaNames) {
+    LOGGER.info("  Validating schema: \"{}\"",schemaName);
+    try {
+      ZNRecord record=_helixPropertyStore.get(SCHEMA_PATH + "/" + schemaName,null,0);
+      Schema schema=SchemaUtils.fromZNRecord(record);
+      if (!SchemaValidator.validate(schema)) {
+        LOGGER.error("    Schema validation failed for schema: \"{}\"",schemaName);
+      }
+    }
+ catch (    Exception e) {
+      LOGGER.error("    Caught exception while validating schema: \"{}\"",schemaName,e);
+    }
+  }
+}

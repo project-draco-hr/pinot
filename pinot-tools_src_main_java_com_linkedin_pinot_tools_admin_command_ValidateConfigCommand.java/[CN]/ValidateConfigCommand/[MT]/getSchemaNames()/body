@@ -1,0 +1,17 @@
+{
+  if (_schemaNames == null) {
+    return _helixPropertyStore.getChildNames(SCHEMA_PATH,0);
+  }
+ else {
+    Set<String> schemaNames=new HashSet<>();
+    for (    String schemaName : _schemaNames.split(" ")) {
+      if (!schemaName.isEmpty()) {
+        schemaNames.add(schemaName);
+      }
+    }
+    if (schemaNames.size() == 0) {
+      throw new RuntimeException("No schema name specified.");
+    }
+    return new ArrayList<>(schemaNames);
+  }
+}

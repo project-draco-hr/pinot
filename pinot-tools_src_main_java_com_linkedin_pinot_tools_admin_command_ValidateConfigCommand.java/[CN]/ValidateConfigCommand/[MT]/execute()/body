@@ -1,0 +1,17 @@
+{
+  if (!_validateTableConfig && !_validateSchema) {
+    throw new RuntimeException("Need to specify at least one of -schema and -tableConfig");
+  }
+  LOGGER.info("Connecting to Zookeeper: {}, cluster: ",_zkAddress,_clusterName);
+  ZNRecordSerializer serializer=new ZNRecordSerializer();
+  String path=PropertyPathConfig.getPath(PropertyType.PROPERTYSTORE,_clusterName);
+  _helixPropertyStore=new ZkHelixPropertyStore<>(_zkAddress,serializer,path);
+  LOGGER.info("\n\n-------------------- Starting Validation --------------------");
+  if (_validateTableConfig) {
+    validateTableConfig();
+  }
+  if (_validateSchema) {
+    validateSchema();
+  }
+  return true;
+}

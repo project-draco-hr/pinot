@@ -1,0 +1,17 @@
+{
+  if (_tableNames == null) {
+    return _helixPropertyStore.getChildNames(TABLE_CONFIG_PATH,0);
+  }
+ else {
+    Set<String> tableNames=new HashSet<>();
+    for (    String tableName : _tableNames.split(" ")) {
+      if (!tableName.isEmpty()) {
+        tableNames.add(tableName);
+      }
+    }
+    if (tableNames.size() == 0) {
+      throw new RuntimeException("No table name specified.");
+    }
+    return new ArrayList<>(tableNames);
+  }
+}
