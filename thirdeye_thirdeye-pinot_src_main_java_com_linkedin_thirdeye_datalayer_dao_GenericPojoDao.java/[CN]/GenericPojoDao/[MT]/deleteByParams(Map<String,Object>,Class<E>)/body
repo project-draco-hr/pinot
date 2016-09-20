@@ -9,11 +9,14 @@
       for (      AbstractIndexEntity entity : indexEntities) {
         idsToDelete.add(entity.getBaseId());
       }
-      PreparedStatement statement=sqlQueryBuilder.createDeleteStatement(connection,pojoInfo.indexEntityClass,idsToDelete);
-      int indexRowsDeleted=statement.executeUpdate();
-      PreparedStatement baseTableDeleteStatement=sqlQueryBuilder.createDeleteStatement(connection,GenericJsonEntity.class,idsToDelete);
-      int baseRowsDeleted=baseTableDeleteStatement.executeUpdate();
-      assert(baseRowsDeleted == indexRowsDeleted);
+      int baseRowsDeleted=0;
+      if (!idsToDelete.isEmpty()) {
+        PreparedStatement statement=sqlQueryBuilder.createDeleteStatement(connection,pojoInfo.indexEntityClass,idsToDelete);
+        int indexRowsDeleted=statement.executeUpdate();
+        PreparedStatement baseTableDeleteStatement=sqlQueryBuilder.createDeleteStatement(connection,GenericJsonEntity.class,idsToDelete);
+        baseRowsDeleted=baseTableDeleteStatement.executeUpdate();
+        assert(baseRowsDeleted == indexRowsDeleted);
+      }
       return baseRowsDeleted;
     }
   }

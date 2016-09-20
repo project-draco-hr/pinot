@@ -1,12 +1,24 @@
 {
   String persistenceConfig=System.getProperty("dw.rootDir") + "/persistence.yml";
   LOG.info("Loading persistence config from [{}]",persistenceConfig);
-  PersistenceUtil.init(new File(persistenceConfig));
-  anomalyFunctionDAO=PersistenceUtil.getInstance(AnomalyFunctionManagerImpl.class);
-  anomalyResultDAO=PersistenceUtil.getInstance(RawAnomalyResultManagerImpl.class);
-  emailConfigurationDAO=PersistenceUtil.getInstance(EmailConfigurationManagerImpl.class);
-  anomalyJobDAO=PersistenceUtil.getInstance(JobManagerImpl.class);
-  anomalyTaskDAO=PersistenceUtil.getInstance(TaskManagerImpl.class);
-  webappConfigDAO=PersistenceUtil.getInstance(WebappConfigManagerImpl.class);
-  anomalyMergedResultDAO=PersistenceUtil.getInstance(MergedAnomalyResultManagerImpl.class);
+  if ("jdbc".equalsIgnoreCase(mode)) {
+    DaoProviderUtil.init(new File(persistenceConfig));
+    anomalyFunctionDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.AnomalyFunctionManagerImpl.class);
+    anomalyResultDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.RawAnomalyResultManagerImpl.class);
+    emailConfigurationDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.EmailConfigurationManagerImpl.class);
+    anomalyJobDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.JobManagerImpl.class);
+    anomalyTaskDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.TaskManagerImpl.class);
+    webappConfigDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.WebappConfigManagerImpl.class);
+    anomalyMergedResultDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.MergedAnomalyResultManagerImpl.class);
+  }
+ else {
+    PersistenceUtil.init(new File(persistenceConfig));
+    anomalyFunctionDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.AnomalyFunctionManagerImpl.class);
+    anomalyResultDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.RawAnomalyResultManagerImpl.class);
+    emailConfigurationDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.EmailConfigurationManagerImpl.class);
+    anomalyJobDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.JobManagerImpl.class);
+    anomalyTaskDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.TaskManagerImpl.class);
+    webappConfigDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.WebappConfigManagerImpl.class);
+    anomalyMergedResultDAO=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.MergedAnomalyResultManagerImpl.class);
+  }
 }

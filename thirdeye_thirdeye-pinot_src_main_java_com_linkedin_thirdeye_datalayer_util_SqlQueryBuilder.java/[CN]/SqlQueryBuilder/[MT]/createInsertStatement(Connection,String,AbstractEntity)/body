@@ -11,12 +11,15 @@
   for (  ColumnInfo columnInfo : columnInfoMap.values()) {
     if (columnInfo.field != null && !AUTO_UPDATE_COLUMN_SET.contains(columnInfo.columnNameInDB.toLowerCase())) {
       Object val=columnInfo.field.get(entity);
-      System.out.println("Setting value:" + val + " for "+ columnInfo.columnNameInDB);
+      System.out.println("Setting value:" + val + " for "+ columnInfo.columnNameInDB+ " sqlType:"+ columnInfo.sqlType);
       if (val != null) {
         if (columnInfo.sqlType == Types.CLOB) {
           Clob clob=conn.createClob();
           clob.setString(1,val.toString());
           preparedStatement.setClob(parameterIndex++,clob);
+        }
+ else         if (columnInfo.sqlType == Types.TIMESTAMP) {
+          preparedStatement.setObject(parameterIndex++,val,columnInfo.sqlType);
         }
  else {
           preparedStatement.setObject(parameterIndex++,val.toString(),columnInfo.sqlType);
