@@ -1,7 +1,7 @@
 {
   String persistenceConfig=System.getProperty("dw.rootDir") + "/persistence.yml";
   LOG.info("Loading persistence config from [{}]",persistenceConfig);
-  if ("jdbc".equalsIgnoreCase(mode)) {
+  if ("jdbc".equalsIgnoreCase(implMode)) {
     DaoProviderUtil.init(new File(persistenceConfig));
     anomalyFunctionDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.AnomalyFunctionManagerImpl.class);
     anomalyResultDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.RawAnomalyResultManagerImpl.class);
