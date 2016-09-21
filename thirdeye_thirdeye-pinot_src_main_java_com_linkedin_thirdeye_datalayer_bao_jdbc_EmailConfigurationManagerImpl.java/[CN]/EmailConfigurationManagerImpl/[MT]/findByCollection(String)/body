@@ -1,4 +1,10 @@
 {
   Predicate predicate=Predicate.EQ("collection",collection);
-  return genericPojoDao.get(predicate,EmailConfigurationDTO.class);
+  List<EmailConfigurationBean> list=genericPojoDao.get(predicate,EmailConfigurationBean.class);
+  List<EmailConfigurationDTO> result=new ArrayList<>();
+  for (  EmailConfigurationBean bean : list) {
+    EmailConfigurationDTO dto=convertEmailConfigurationBean2DTO(bean);
+    result.add(dto);
+  }
+  return result;
 }
