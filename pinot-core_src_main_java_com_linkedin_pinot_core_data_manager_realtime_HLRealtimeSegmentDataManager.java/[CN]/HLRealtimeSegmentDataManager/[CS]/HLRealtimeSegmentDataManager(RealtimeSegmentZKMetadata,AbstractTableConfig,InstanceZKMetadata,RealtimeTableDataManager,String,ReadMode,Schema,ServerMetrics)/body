@@ -125,10 +125,7 @@ catch (        Error e) {
         long segStartTime=realtimeSegment.getMinTime();
         long segEndTime=realtimeSegment.getMaxTime();
         TimeUnit timeUnit=schema.getTimeFieldSpec().getOutgoingGranularitySpec().getTimeType();
-        Configuration configuration=new PropertyListConfiguration();
-        configuration.setProperty(IndexLoadingConfigMetadata.KEY_OF_LOADING_INVERTED_INDEX,invertedIndexColumns);
-        IndexLoadingConfigMetadata configMetadata=new IndexLoadingConfigMetadata(configuration);
-        IndexSegment segment=Loaders.IndexSegment.load(new File(resourceDir,segmentMetatdaZk.getSegmentName()),mode,configMetadata);
+        IndexSegment segment=Loaders.IndexSegment.load(new File(resourceDir,segmentMetatdaZk.getSegmentName()),mode,realtimeTableDataManager.getIndexLoadingConfigMetadata());
         segmentLogger.info("Committing Kafka offsets");
         boolean commitSuccessful=false;
         try {
