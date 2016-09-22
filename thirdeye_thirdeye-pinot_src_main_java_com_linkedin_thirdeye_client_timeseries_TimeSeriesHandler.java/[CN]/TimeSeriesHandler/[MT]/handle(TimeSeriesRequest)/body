@@ -11,7 +11,7 @@
   timeranges=TimeRangeUtils.computeTimeRanges(aggregationTimeGranularity,start,end);
   ThirdEyeRequest request=createThirdEyeRequest("timeseries",timeSeriesRequest,start,end);
   Future<ThirdEyeResponse> responseFuture=queryCache.getQueryResultAsync(request);
-  ThirdEyeResponse response=responseFuture.get(60,TimeUnit.SECONDS);
+  ThirdEyeResponse response=responseFuture.get(5,TimeUnit.MINUTES);
   TimeSeriesResponseParser timeSeriesResponseParser=new TimeSeriesResponseParser(response,timeranges,timeSeriesRequest.getAggregationTimeGranularity(),timeSeriesRequest.getGroupByDimensions());
   List<TimeSeriesRow> rows=timeSeriesResponseParser.parseResponse();
   computeDerivedMetrics(timeSeriesRequest,rows);

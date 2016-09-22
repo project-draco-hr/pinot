@@ -55,10 +55,10 @@
   Double severity;
   if (baselineValue != 0) {
     severity=(currentValue - baselineValue) / baselineValue;
+    anomalyMergedResult.setWeight(severity);
   }
  else {
-    severity=0.0;
+    LOG.error("Could not recompute severity for merged anomaly [{}], assigning weighted avg",anomalyMergedResult.toString());
   }
-  anomalyMergedResult.setWeight(severity);
-  anomalyMergedResult.setMessage(createMessage(severity,currentValue,baselineValue));
+  anomalyMergedResult.setMessage(createMessage(anomalyMergedResult.getWeight(),currentValue,baselineValue));
 }
