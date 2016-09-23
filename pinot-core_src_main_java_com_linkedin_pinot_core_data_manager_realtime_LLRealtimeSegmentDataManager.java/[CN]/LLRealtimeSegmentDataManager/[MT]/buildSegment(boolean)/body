@@ -1,4 +1,5 @@
 {
+  long startTimeMillis=System.currentTimeMillis();
   File tempSegmentFolder=new File(_resourceTmpDir,"tmp-" + _segmentNameStr + "-"+ String.valueOf(now()));
   RealtimeSegmentConverter converter=new RealtimeSegmentConverter(_realtimeSegment,tempSegmentFolder.getAbsolutePath(),_schema,_segmentZKMetadata.getTableName(),_segmentZKMetadata.getSegmentName(),_sortedColumn,_invertedIndexColumns);
   logStatistics();
@@ -28,5 +29,7 @@
     return false;
   }
   FileUtils.deleteQuietly(tempSegmentFolder);
+  long endTimeMillis=System.currentTimeMillis();
+  _serverMetrics.setValueOfTableGauge(_metricKeyName,ServerGauge.LAST_REALTIME_SEGMENT_FLUSH_DURATION_MILLIS,(endTimeMillis - startTimeMillis));
   return true;
 }

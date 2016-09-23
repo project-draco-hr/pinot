@@ -1,4 +1,5 @@
 {
+  _fieldExtractor.resetCounters();
   final long _endOffset=Long.MAX_VALUE;
   segmentLogger.info("Starting consumption loop start offset {}, finalOffset {}",_currentOffset,_finalOffset);
   while (!_receivedStop && !endCriteriaReached()) {
@@ -20,6 +21,9 @@
       GenericRow row=_messageDecoder.decode(array,offset,length);
       if (row != null) {
         row=_fieldExtractor.transform(row);
+        if (row != null) {
+          _serverMetrics.addMeteredTableValue(_metricKeyName,ServerMeter.REALTIME_ROWS_CONSUMED,1);
+        }
         boolean canTakeMore=_realtimeSegment.index(row);
         if (!canTakeMore) {
           segmentLogger.warn("We got full during indexing");
@@ -37,4 +41,8 @@
       Uninterruptibles.sleepUninterruptibly(100,TimeUnit.MILLISECONDS);
     }
   }
+  _serverMetrics.addMeteredTableValue(_metricKeyName,ServerMeter.ROWS_WITH_ERRORS,(long)_fieldExtractor.getTotalErrors());
+  _serverMetrics.addMeteredTableValue(_metricKeyName,ServerMeter.ROWS_NEEDING_CONVERSIONS,(long)_fieldExtractor.getTotalConversions());
+  _serverMetrics.addMeteredTableValue(_metricKeyName,ServerMeter.ROWS_WITH_NULL_VALUES,(long)_fieldExtractor.getTotalNulls());
+  _serverMetrics.addMeteredTableValue(_metricKeyName,ServerMeter.COLUMNS_WITH_NULL_VALUES,(long)_fieldExtractor.getTotalNullCols());
 }

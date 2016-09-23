@@ -18,6 +18,7 @@
   _kafkaPartitionId=_segmentName.getPartitionId();
   _segmentMaxRowCount=kafkaStreamProviderConfig.getSizeThresholdToFlushSegment();
   _tableName=_tableConfig.getTableName();
+  _metricKeyName=_tableName + "-" + _kafkaTopic+ "-"+ _kafkaPartitionId;
   segmentLogger=LoggerFactory.getLogger(LLRealtimeSegmentDataManager.class.getName() + "_" + _segmentNameStr);
   if (indexingConfig.getSortedColumn().isEmpty()) {
     segmentLogger.info("RealtimeDataResourceZKMetadata contains no information about sorted column for segment {}",_segmentName);
