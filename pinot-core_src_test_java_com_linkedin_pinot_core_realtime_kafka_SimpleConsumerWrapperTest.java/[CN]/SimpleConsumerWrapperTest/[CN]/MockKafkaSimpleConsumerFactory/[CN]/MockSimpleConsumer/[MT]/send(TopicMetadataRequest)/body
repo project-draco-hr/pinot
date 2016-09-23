@@ -9,13 +9,13 @@
  else {
       PartitionMetadata[] partitionMetadataArray=new PartitionMetadata[partitionCount];
       for (int j=0; j < partitionCount; j++) {
-        partitionMetadataArray[j]=new PartitionMetadata(j,Some.apply(brokerArray[partitionLeaderIndices[j]]),List.<Broker>empty(),List.<Broker>empty(),Errors.NONE.code());
+        partitionMetadataArray[j]=new PartitionMetadata(j,Some.apply(brokerArray[partitionLeaderIndices[j]]),List.<BrokerEndPoint>empty(),List.<BrokerEndPoint>empty(),Errors.NONE.code());
       }
       Seq<PartitionMetadata> partitionsMetadata=List.fromArray(partitionMetadataArray);
       topicMetadataArray[i]=new TopicMetadata(topic,partitionsMetadata,Errors.NONE.code());
     }
   }
-  Seq<Broker> brokers=List.fromArray(brokerArray);
+  Seq<BrokerEndPoint> brokers=List.fromArray(brokerArray);
   Seq<TopicMetadata> topicsMetadata=List.fromArray(topicMetadataArray);
   return new TopicMetadataResponse(new kafka.api.TopicMetadataResponse(brokers,topicsMetadata,-1));
 }
