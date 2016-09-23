@@ -1,0 +1,10 @@
+{
+  List<String> columnValues=_columnToValueList.get(columnName);
+  String leftValue=pickRandom(columnValues);
+  String rightValue=pickRandom(columnValues);
+  List<String> h2ComparisonClauses=new ArrayList<>(BaseClusterIntegrationTest.MAX_ELEMENTS_IN_MULTI_VALUE);
+  for (int i=0; i < BaseClusterIntegrationTest.MAX_ELEMENTS_IN_MULTI_VALUE; i++) {
+    h2ComparisonClauses.add(columnName + "__MV" + i+ " BETWEEN "+ leftValue+ " AND "+ rightValue);
+  }
+  return new StringQueryFragment(columnName + " BETWEEN " + leftValue+ " AND "+ rightValue,"(" + StringUtils.join(h2ComparisonClauses," OR ") + ")");
+}

@@ -1,43 +1,48 @@
 {
-  _pqlTableName=pqlTableName;
+  _pinotTableName=pinotTableName;
   _h2TableName=h2TableName;
   File schemaAvroFile=avroFiles.get(0);
-  GenericDatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
-  DataFileReader<GenericRecord> fileReader=null;
-  try {
-    fileReader=new DataFileReader<GenericRecord>(schemaAvroFile,datumReader);
+  GenericDatumReader<GenericRecord> datumReader=new GenericDatumReader<>();
+  try (DataFileReader<GenericRecord> fileReader=new DataFileReader<>(schemaAvroFile,datumReader)){
     Schema schema=fileReader.getSchema();
     for (    Schema.Field field : schema.getFields()) {
+      String fieldName=field.name();
       Schema fieldSchema=field.schema();
       Schema.Type fieldType=fieldSchema.getType();
-      String fieldName=field.name();
 switch (fieldType) {
 case UNION:
-        List<Schema> unionTypes=fieldSchema.getTypes();
-      _columnNames.add(fieldName);
-    _columnToValues.put(fieldName,new TreeSet<String>());
-  if (unionTypes.get(0).getType() == Schema.Type.ARRAY) {
-    _columnNames.add(fieldName);
-    _multivalueColumnCardinality.put(fieldName,0);
+        _columnNames.add(fieldName);
+      _columnToValueSet.put(fieldName,new HashSet<String>());
+    Schema.Type type=fieldSchema.getTypes().get(0).getType();
+  if (type == Schema.Type.ARRAY) {
+    _multiValueColumnMaxNumElements.put(fieldName,0);
   }
- else   if (unionTypes.get(0).getType() != Schema.Type.STRING) {
-    _nonMultivalueNumericalColumnNames.add(fieldName);
+ else {
+    _singleValueColumnNames.add(fieldName);
+    if (type != Schema.Type.STRING && type != Schema.Type.BOOLEAN) {
+      _singleValueNumericalColumnNames.add(fieldName);
+    }
   }
 break;
 case ARRAY:
 _columnNames.add(fieldName);
-_multivalueColumnCardinality.put(fieldName,0);
+_columnToValueSet.put(fieldName,new HashSet<String>());
+_multiValueColumnMaxNumElements.put(fieldName,0);
 break;
 case INT:
 case LONG:
 case FLOAT:
 case DOUBLE:
 _columnNames.add(fieldName);
-_columnToValues.put(fieldName,new TreeSet<String>());
-_nonMultivalueNumericalColumnNames.add(fieldName);
+_columnToValueSet.put(fieldName,new HashSet<String>());
+_singleValueColumnNames.add(fieldName);
+_singleValueNumericalColumnNames.add(fieldName);
 break;
-case RECORD:
-LOGGER.warn("Ignoring field {} of type RECORD",fieldName);
+case BOOLEAN:
+case STRING:
+_columnNames.add(fieldName);
+_columnToValueSet.put(fieldName,new HashSet<String>());
+_singleValueColumnNames.add(fieldName);
 break;
 default :
 LOGGER.warn("Ignoring field {} of type {}",fieldName,fieldType);
@@ -47,9 +52,6 @@ break;
 }
  catch (Exception e) {
 throw new RuntimeException(e);
-}
- finally {
-IOUtils.closeQuietly(fileReader);
 }
 for (File avroFile : avroFiles) {
 addAvroData(avroFile);

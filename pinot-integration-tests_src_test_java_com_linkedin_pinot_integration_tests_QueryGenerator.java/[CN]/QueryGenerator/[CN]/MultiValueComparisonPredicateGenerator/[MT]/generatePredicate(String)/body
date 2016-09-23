@@ -1,0 +1,12 @@
+{
+  String columnValue=pickRandom(_columnToValueList.get(columnName));
+  String comparisonOperator=pickRandom(COMPARISON_OPERATORS);
+  while (comparisonOperator.equals("<>")) {
+    comparisonOperator=pickRandom(COMPARISON_OPERATORS);
+  }
+  List<String> h2ComparisonClauses=new ArrayList<>(BaseClusterIntegrationTest.MAX_ELEMENTS_IN_MULTI_VALUE);
+  for (int i=0; i < BaseClusterIntegrationTest.MAX_ELEMENTS_IN_MULTI_VALUE; i++) {
+    h2ComparisonClauses.add(joinWithSpaces(columnName + "__MV" + i,comparisonOperator,columnValue));
+  }
+  return new StringQueryFragment(joinWithSpaces(columnName,comparisonOperator,columnValue),"(" + StringUtils.join(h2ComparisonClauses," OR ") + ")");
+}

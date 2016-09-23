@@ -1,0 +1,14 @@
+{
+  List<String> columnValues=_columnToValueList.get(columnName);
+  int numValues=Math.min(RANDOM.nextInt(MAX_NUM_IN_CLAUSE_VALUES) + 1,columnValues.size());
+  Set<String> values=new HashSet<>();
+  while (values.size() < numValues) {
+    values.add(pickRandom(columnValues));
+  }
+  String inValues=StringUtils.join(values,", ");
+  List<String> h2InClauses=new ArrayList<>(BaseClusterIntegrationTest.MAX_ELEMENTS_IN_MULTI_VALUE);
+  for (int i=0; i < BaseClusterIntegrationTest.MAX_ELEMENTS_IN_MULTI_VALUE; i++) {
+    h2InClauses.add(columnName + "__MV" + i+ " IN ("+ inValues+ ")");
+  }
+  return new StringQueryFragment(columnName + " IN (" + inValues+ ")","(" + StringUtils.join(h2InClauses," OR ") + ")");
+}

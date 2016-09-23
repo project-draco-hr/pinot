@@ -20,10 +20,10 @@ case UNION:
     typeName="bigint";
   }
 if (types.size() == 1) {
-  columnNameAndType=field.name() + " " + typeName+ " not null";
+  columnNameAndType=fieldName + " " + typeName+ " not null";
 }
  else {
-  columnNameAndType=field.name() + " " + typeName;
+  columnNameAndType=fieldName + " " + typeName;
 }
 columnNamesAndTypes.add(columnNameAndType.replace("string","varchar(128)"));
 ++columnCount;
@@ -34,28 +34,29 @@ if (elementTypeName.equalsIgnoreCase("int")) {
 elementTypeName="bigint";
 }
 elementTypeName=elementTypeName.replace("string","varchar(128)");
-for (int i=0; i < MAX_MULTIVALUE_CARDINALITY; i++) {
-columnNamesAndTypes.add(field.name() + i + " "+ elementTypeName);
+for (int i=0; i < MAX_ELEMENTS_IN_MULTI_VALUE; i++) {
+columnNamesAndTypes.add(fieldName + "__MV" + i+ " "+ elementTypeName);
 }
 ++columnCount;
 break;
+case BOOLEAN:
 case INT:
 case LONG:
 case FLOAT:
 case DOUBLE:
+case STRING:
 String fieldTypeName=fieldType.getName();
 if (fieldTypeName.equalsIgnoreCase("int")) {
 fieldTypeName="bigint";
 }
-columnNameAndType=field.name() + " " + fieldTypeName+ " not null";
+columnNameAndType=fieldName + " " + fieldTypeName+ " not null";
 columnNamesAndTypes.add(columnNameAndType.replace("string","varchar(128)"));
 ++columnCount;
 break;
 case RECORD:
 continue;
 default :
-LOGGER.warn("Ignoring field {} of type {}",field.name(),field.schema());
-continue;
+LOGGER.warn("Ignoring field {} of type {}",fieldName,field.schema());
 }
 }
 connection.prepareCall("create table mytable(" + StringUtil.join(",",columnNamesAndTypes.toArray(new String[columnNamesAndTypes.size()])) + ")").execute();
@@ -77,7 +78,7 @@ for (int avroIndex=0; avroIndex < columnCount; ++avroIndex) {
 Object value=record.get(avroIndex);
 if (value instanceof GenericData.Array) {
 GenericData.Array array=(GenericData.Array)value;
-for (int i=0; i < MAX_MULTIVALUE_CARDINALITY; i++) {
+for (int i=0; i < MAX_ELEMENTS_IN_MULTI_VALUE; i++) {
 if (i < array.size()) {
 value=array.get(i);
 if (value instanceof Utf8) {

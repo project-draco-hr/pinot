@@ -1,148 +1,238 @@
 {
   try {
-    queryCount++;
-    Statement statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    _queryCount++;
     JSONObject response=postQuery(pqlQuery);
-    if (response.getJSONArray("exceptions").length() > 0) {
-      String processingException=response.getJSONArray("exceptions").get(0).toString();
-      if (GATHER_FAILED_QUERIES) {
-        saveFailedQuery(pqlQuery,sqlQueries,"Got exceptions in pql query " + pqlQuery + ", got "+ response+ " "+ processingException);
-      }
- else {
-        Assert.fail("Got exceptions in pql query: " + pqlQuery + " "+ processingException);
-      }
+    JSONArray exceptions=response.getJSONArray("exceptions");
+    if (exceptions.length() > 0) {
+      String failureMessage="Got exceptions: " + exceptions;
+      failure(pqlQuery,sqlQueries,failureMessage,null);
+      return;
     }
-    if (response.has("aggregationResults") && response.getJSONArray("aggregationResults").length() != 0) {
+    long numTotalDocs=response.getLong("totalDocs");
+    if (numTotalDocs != TOTAL_DOCS) {
+      String failureMessage="Number of total documents does not match, expected: " + TOTAL_DOCS + ", got: "+ numTotalDocs;
+      failure(pqlQuery,sqlQueries,failureMessage,null);
+      return;
+    }
+    if (sqlQueries == null) {
+      return;
+    }
+    Statement h2statement=_connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    int numDocsScanned=response.getInt("numDocsScanned");
+    if (response.has("aggregationResults")) {
       JSONArray aggregationResultsArray=response.getJSONArray("aggregationResults");
+      int numAggregationResults=aggregationResultsArray.length();
+      int numSqlQueries=sqlQueries.size();
+      if (numAggregationResults != numSqlQueries) {
+        String failureMessage="Number of aggregation results: " + numAggregationResults + " does not match number of SQL queries: "+ numSqlQueries;
+        failure(pqlQuery,sqlQueries,failureMessage);
+      }
       JSONObject firstAggregationResult=aggregationResultsArray.getJSONObject(0);
       if (firstAggregationResult.has("value")) {
-        LOGGER.debug("Trying to execute sql query: " + sqlQueries.get(0));
-        statement.execute(sqlQueries.get(0));
-        ResultSet rs=statement.getResultSet();
-        LOGGER.debug("Trying to get result from sql: " + rs);
-        final String bqlValue=firstAggregationResult.getString("value");
-        rs.first();
-        final String sqlValue=rs.getString(1);
-        LOGGER.debug("bql value: " + bqlValue);
-        LOGGER.debug("sql value: " + sqlValue);
-        long compareSqlValue=-1;
-        long compareBqlValue=-1;
-        if (bqlValue != null && sqlValue != null) {
-          try {
-            compareSqlValue=new BigDecimal(sqlValue).longValue();
-            compareBqlValue=new BigDecimal(bqlValue).longValue();
+        for (int i=0; i < numAggregationResults; i++) {
+          h2statement.execute(sqlQueries.get(i));
+          ResultSet sqlResultSet=h2statement.getResultSet();
+          sqlResultSet.first();
+          String sqlValue=sqlResultSet.getString(1);
+          if (sqlValue == null) {
+            if (numDocsScanned != 0) {
+              String failureMessage="No record selected in H2 but number of records selected in Pinot: " + numDocsScanned;
+              failure(pqlQuery,sqlQueries,failureMessage);
+            }
+            return;
           }
- catch (          NumberFormatException e) {
-            LOGGER.warn("Ignoring number format excection in " + sqlValue);
-            compareBqlValue=-2;
+          String pqlValue=aggregationResultsArray.getJSONObject(i).getString("value");
+          double expectedValue=Double.parseDouble(sqlValue);
+          double actualValue=Double.parseDouble(pqlValue);
+          if (Math.abs(actualValue - expectedValue) >= 1.0) {
+            String failureMessage="Value: " + i + " does not match, expected: "+ sqlValue+ ", got: "+ pqlValue;
+            failure(pqlQuery,sqlQueries,failureMessage);
+            return;
           }
-        }
-        if (GATHER_FAILED_QUERIES) {
-          if (!EqualityUtils.isEqual(compareBqlValue,compareSqlValue)) {
-            saveFailedQuery(pqlQuery,sqlQueries,"Values did not match for query " + pqlQuery + ", expected "+ sqlValue+ ", got "+ bqlValue);
-          }
-        }
- else {
-          Assert.assertEquals(compareBqlValue,compareSqlValue,"Values did not match for query " + pqlQuery + ",SQL:"+ sqlValue+ ",BQL:"+ bqlValue);
         }
       }
  else       if (firstAggregationResult.has("groupByResult")) {
-        for (int aggregationGroupIndex=0; aggregationGroupIndex < aggregationResultsArray.length(); aggregationGroupIndex++) {
-          JSONArray groupByResults=aggregationResultsArray.getJSONObject(aggregationGroupIndex).getJSONArray("groupByResult");
-          if (groupByResults.length() != 0) {
-            int groupKeyCount=groupByResults.getJSONObject(0).getJSONArray("group").length();
-            Map<String,String> actualValues=new TreeMap<String,String>(new NullableStringComparator());
-            for (int resultIndex=0; resultIndex < groupByResults.length(); ++resultIndex) {
-              JSONArray group=groupByResults.getJSONObject(resultIndex).getJSONArray("group");
-              String pinotGroupKey=group.getString(0);
-              for (int groupKeyIndex=1; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
-                pinotGroupKey+="\t" + group.getString(groupKeyIndex);
-              }
-              actualValues.put(pinotGroupKey,groupByResults.getJSONObject(resultIndex).getString("value"));
-            }
-            Map<String,String> correctValues=new TreeMap<String,String>(new NullableStringComparator());
-            LOGGER.debug("Trying to execute sql query:{}",sqlQueries.get(aggregationGroupIndex));
-            statement.execute(sqlQueries.get(aggregationGroupIndex));
-            ResultSet rs=statement.getResultSet();
-            LOGGER.debug("Trying to get result from sql: " + rs);
-            rs.beforeFirst();
-            try {
-              while (rs.next()) {
-                String h2GroupKey=rs.getString(1);
-                for (int groupKeyIndex=1; groupKeyIndex < groupKeyCount; groupKeyIndex++) {
-                  h2GroupKey+="\t" + rs.getString(groupKeyIndex + 1);
-                }
-                correctValues.put(h2GroupKey,rs.getString(groupKeyCount + 1));
-              }
-            }
- catch (            Exception e) {
-              LOGGER.error("Catch exception when constructing H2 results for group by query",e);
-            }
-            LOGGER.debug("Trying to get result from sql: " + correctValues.toString());
-            LOGGER.debug("Trying to compare result from bql: " + actualValues);
-            LOGGER.debug("Trying to compare result from sql: " + correctValues);
-            if (correctValues.size() < 10000) {
-              Set<String> pinotKeys=actualValues.keySet();
-              for (              String pinotKey : pinotKeys) {
-                if (GATHER_FAILED_QUERIES) {
-                  if (!correctValues.containsKey((pinotKey))) {
-                    saveFailedQuery(pqlQuery,sqlQueries,"Result group '" + pinotKey + "' returned by Pinot was not returned by H2 for query "+ pqlQuery,"Bql values: " + actualValues,"Sql values: " + correctValues);
-                    break;
-                  }
+        JSONArray firstGroupByResults=aggregationResultsArray.getJSONObject(0).getJSONArray("groupByResult");
+        int numGroups=firstGroupByResults.length();
+        int numGroupKeys;
+        if (numGroups == 0) {
+          numGroupKeys=0;
+        }
  else {
-                    double actualValue=Double.parseDouble(actualValues.get(pinotKey));
-                    double correctValue=Double.parseDouble(correctValues.get(pinotKey));
-                    if (1.0 < Math.abs(actualValue - correctValue)) {
-                      saveFailedQuery(pqlQuery,sqlQueries,"Results differ between Pinot and H2 for query " + pqlQuery + ", expected "+ correctValue+ ", got "+ actualValue+ " for group "+ pinotKey,"Bql values: " + actualValues,"Sql values: " + correctValues);
-                      break;
-                    }
-                  }
-                }
- else {
-                  if (!correctValues.containsKey(pinotKey)) {
-                    LOGGER.error("actualValues from Pinot: " + actualValues);
-                    LOGGER.error("correct values from H2: " + correctValues);
-                  }
-                  Assert.assertTrue(correctValues.containsKey(pinotKey),"Result group '" + pinotKey + "' returned by Pinot was not returned by H2 for query "+ pqlQuery);
-                  Assert.assertEquals(Double.parseDouble(actualValues.get(pinotKey)),Double.parseDouble(correctValues.get(pinotKey)),1.0d,"Results differ between Pinot and H2 for query " + pqlQuery + ", expected "+ correctValues.get(pinotKey)+ ", got "+ actualValues.get(pinotKey)+ " for group "+ pinotKey+ "\nBql values: "+ actualValues+ "\nSql values: "+ correctValues);
-                }
+          numGroupKeys=firstGroupByResults.getJSONObject(0).getJSONArray("group").length();
+        }
+        for (int i=0; i < numAggregationResults; i++) {
+          JSONArray groupByResults=aggregationResultsArray.getJSONObject(i).getJSONArray("groupByResult");
+          h2statement.execute(sqlQueries.get(i));
+          ResultSet sqlResultSet=h2statement.getResultSet();
+          Map<String,String> expectedValues=new HashMap<>();
+          int sqlNumGroups;
+          for (sqlNumGroups=0; sqlResultSet.next() && sqlNumGroups < MAX_COMPARISON_LIMIT; sqlNumGroups++) {
+            if (numGroupKeys != 0) {
+              StringBuilder groupKey=new StringBuilder();
+              for (int groupKeyIndex=1; groupKeyIndex <= numGroupKeys; groupKeyIndex++) {
+                groupKey.append(convertBooleanToLowerCase(sqlResultSet.getString(groupKeyIndex))).append(' ');
               }
+              expectedValues.put(groupKey.toString(),sqlResultSet.getString(numGroupKeys + 1));
             }
- else {
-              LOGGER.warn("SQL: {} returned more than 10k rows, skipping comparison",sqlQueries.get(aggregationGroupIndex));
-              queryCount--;
+          }
+          if (sqlNumGroups == 0) {
+            if (numGroups != 0) {
+              String failureMessage="No group returned in H2 but number of groups returned in Pinot: " + numGroups;
+              failure(pqlQuery,sqlQueries,failureMessage);
+              return;
+            }
+            if (numDocsScanned != 0) {
+              String failureMessage="No group returned in Pinot but number of records selected: " + numDocsScanned;
+              failure(pqlQuery,sqlQueries,failureMessage);
+            }
+            return;
+          }
+ else           if (sqlNumGroups < MAX_COMPARISON_LIMIT) {
+            for (int resultIndex=0; resultIndex < numGroups; resultIndex++) {
+              JSONObject groupByResult=groupByResults.getJSONObject(resultIndex);
+              JSONArray group=groupByResult.getJSONArray("group");
+              StringBuilder groupKeyBuilder=new StringBuilder();
+              for (int groupKeyIndex=0; groupKeyIndex < numGroupKeys; groupKeyIndex++) {
+                groupKeyBuilder.append(group.getString(groupKeyIndex)).append(' ');
+              }
+              String groupKey=groupKeyBuilder.toString();
+              if (!expectedValues.containsKey(groupKey)) {
+                String failureMessage="Group returned in Pinot but not in H2: " + groupKey;
+                failure(pqlQuery,sqlQueries,failureMessage);
+                return;
+              }
+              String sqlValue=expectedValues.get(groupKey);
+              String pqlValue=groupByResult.getString("value");
+              double expectedValue=Double.parseDouble(sqlValue);
+              double actualValue=Double.parseDouble(pqlValue);
+              if (Math.abs(actualValue - expectedValue) >= 1.0) {
+                String failureMessage="Value: " + i + " does not match, expected: "+ sqlValue+ ", got: "+ pqlValue+ ", for group: "+ groupKey;
+                failure(pqlQuery,sqlQueries,failureMessage);
+                return;
+              }
             }
           }
  else {
-            statement.execute(sqlQueries.get(aggregationGroupIndex));
-            ResultSet rs=statement.getResultSet();
-            rs.beforeFirst();
-            int rowCount=0;
-            while (rs.next()) {
-              rowCount++;
-            }
-            if (rowCount != 0) {
-              if (GATHER_FAILED_QUERIES) {
-                saveFailedQuery(pqlQuery,sqlQueries,"Pinot did not return any results while " + rowCount + " rows were expected for query "+ pqlQuery);
-              }
- else {
-                Assert.fail("Pinot did not return any results while " + rowCount + " results were expected for query "+ pqlQuery);
-              }
-            }
+            LOGGER.debug("SQL: {} returned at least {} rows, skipping comparison.",sqlQueries.get(0),MAX_COMPARISON_LIMIT);
+            return;
           }
         }
       }
+ else {
+        String failureMessage="Inside aggregation results, no aggregation or group-by results found";
+        failure(pqlQuery,sqlQueries,failureMessage);
+      }
+    }
+ else     if (response.has("selectionResults")) {
+      h2statement.execute(sqlQueries.get(0));
+      ResultSet sqlResultSet=h2statement.getResultSet();
+      ResultSetMetaData sqlMetaData=sqlResultSet.getMetaData();
+      Set<String> expectedValues=new HashSet<>();
+      Map<String,String> reusableExpectedValueMap=new HashMap<>();
+      Map<String,List<String>> reusableMultiValuesMap=new HashMap<>();
+      List<String> reusableColumnOrder=new ArrayList<>();
+      int numResults;
+      for (numResults=0; sqlResultSet.next() && numResults < MAX_COMPARISON_LIMIT; numResults++) {
+        reusableExpectedValueMap.clear();
+        reusableMultiValuesMap.clear();
+        reusableColumnOrder.clear();
+        int numColumns=sqlMetaData.getColumnCount();
+        for (int i=1; i <= numColumns; i++) {
+          String columnName=sqlMetaData.getColumnName(i);
+          String columnValue=sqlResultSet.getString(i);
+          if (columnValue == null) {
+            columnValue="null";
+          }
+ else {
+            columnValue=convertBooleanToLowerCase(columnValue);
+          }
+          int length=columnName.length();
+          if (length > 5 && columnName.substring(length - 5,length - 1).equals("__MV")) {
+            String multiValueColumnName=columnName.substring(0,length - 5);
+            List<String> multiValue=reusableMultiValuesMap.get(multiValueColumnName);
+            if (multiValue == null) {
+              multiValue=new ArrayList<>();
+              reusableMultiValuesMap.put(multiValueColumnName,multiValue);
+              reusableColumnOrder.add(multiValueColumnName);
+            }
+            multiValue.add(columnValue);
+          }
+ else {
+            reusableExpectedValueMap.put(columnName,columnValue);
+            reusableColumnOrder.add(columnName);
+          }
+        }
+        for (        Map.Entry<String,List<String>> entry : reusableMultiValuesMap.entrySet()) {
+          List<String> multiValue=entry.getValue();
+          Collections.sort(multiValue);
+          reusableExpectedValueMap.put(entry.getKey(),multiValue.toString());
+        }
+        StringBuilder expectedValue=new StringBuilder();
+        for (        String column : reusableColumnOrder) {
+          expectedValue.append(column).append(':').append(reusableExpectedValueMap.get(column)).append(' ');
+        }
+        expectedValues.add(expectedValue.toString());
+      }
+      JSONObject selectionColumnsAndResults=response.getJSONObject("selectionResults");
+      JSONArray selectionColumns=selectionColumnsAndResults.getJSONArray("columns");
+      JSONArray selectionResults=selectionColumnsAndResults.getJSONArray("results");
+      int numSelectionResults=selectionResults.length();
+      if (numResults == 0) {
+        if (numSelectionResults != 0) {
+          String failureMessage="No record selected in H2 but number of records selected in Pinot: " + numSelectionResults;
+          failure(pqlQuery,sqlQueries,failureMessage);
+          return;
+        }
+        if (numDocsScanned != 0) {
+          String failureMessage="No selection result returned in Pinot but number of records selected: " + numDocsScanned;
+          failure(pqlQuery,sqlQueries,failureMessage);
+        }
+      }
+ else       if (numResults < MAX_COMPARISON_LIMIT) {
+        int numColumns=selectionColumns.length();
+        for (int i=0; i < numSelectionResults; i++) {
+          StringBuilder actualValueBuilder=new StringBuilder();
+          JSONArray selectionResult=selectionResults.getJSONArray(i);
+          for (int columnIndex=0; columnIndex < numColumns; columnIndex++) {
+            String columnName=selectionColumns.getString(columnIndex).toUpperCase();
+            Object columnResult=selectionResult.get(columnIndex);
+            if (columnResult instanceof JSONArray) {
+              JSONArray columnResultsArray=(JSONArray)columnResult;
+              List<String> multiValue=new ArrayList<>();
+              int length=columnResultsArray.length();
+              for (int elementIndex=0; elementIndex < length; elementIndex++) {
+                multiValue.add(columnResultsArray.getString(elementIndex));
+              }
+              for (int elementIndex=length; elementIndex < MAX_ELEMENTS_IN_MULTI_VALUE; elementIndex++) {
+                multiValue.add("null");
+              }
+              Collections.sort(multiValue);
+              actualValueBuilder.append(columnName).append(':').append(multiValue.toString()).append(' ');
+            }
+ else {
+              actualValueBuilder.append(columnName).append(':').append((String)columnResult).append(' ');
+            }
+          }
+          String actualValue=actualValueBuilder.toString();
+          if (!expectedValues.contains(actualValue)) {
+            String failureMessage="Selection result returned in Pinot but not in H2: " + actualValue;
+            failure(pqlQuery,sqlQueries,failureMessage);
+            return;
+          }
+        }
+      }
+ else {
+        LOGGER.debug("SQL: {} returned at least {} rows, skipping comparison.",sqlQueries.get(0),MAX_COMPARISON_LIMIT);
+      }
     }
  else {
+      String failureMessage="No aggregation or selection results found for query: " + pqlQuery;
+      failure(pqlQuery,sqlQueries,failureMessage);
     }
   }
- catch (  JSONException exception) {
-    if (GATHER_FAILED_QUERIES) {
-      saveFailedQuery(pqlQuery,sqlQueries,"Query did not return valid JSON while running query " + pqlQuery);
-      exception.printStackTrace();
-    }
- else {
-      Assert.fail("Query did not return valid JSON while running query " + pqlQuery,exception);
-    }
+ catch (  Exception e) {
+    String failureMessage="Caught exception while running query.";
+    failure(pqlQuery,sqlQueries,failureMessage,e);
   }
 }

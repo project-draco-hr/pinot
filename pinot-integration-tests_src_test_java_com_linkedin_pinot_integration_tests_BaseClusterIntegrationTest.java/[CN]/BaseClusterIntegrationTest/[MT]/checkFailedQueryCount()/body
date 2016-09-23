@@ -1,18 +1,13 @@
 {
-  if (GATHER_FAILED_QUERIES && failedQueryCount != 0) {
-    File file=new File(getClass().getSimpleName() + "-failed.txt");
-    PrintWriter out=null;
-    try {
-      out=new PrintWriter(new FileWriter(file,true));
-      out.println("# " + failedQueryCount + "/"+ queryCount+ " queries did not match with H2");
-      out.close();
-    }
- catch (    IOException e) {
-      LOGGER.warn("Failed to write to failed queries file",e);
-    }
- finally {
-      IOUtils.closeQuietly(out);
+  if (GATHER_FAILED_QUERIES) {
+    if (_failedQueryCount != 0) {
+      try (PrintWriter printWriter=new PrintWriter(new FileWriter(_failedQueriesFile,true))){
+        printWriter.println("# " + _failedQueryCount + "/"+ _queryCount+ " queries did not match with H2");
+      }
+ catch (      IOException e) {
+        LOGGER.warn("Caught exception while writing to failed queries file",e);
+      }
+      Assert.fail("Queries have failed during this test, check" + _failedQueriesFile + " for details.");
     }
   }
-  Assert.assertTrue(failedQueryCount == 0,"Queries have failed during this test.");
 }

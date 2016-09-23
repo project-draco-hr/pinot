@@ -1,16 +1,18 @@
 {
-  List<String> queries=new ArrayList<String>();
-  if (_groupColumns.isEmpty()) {
-    for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
-      queries.add(joinWithSpaces("SELECT",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generateH2Sql(),_limit.generateH2Sql()));
+  List<String> queries=new ArrayList<>();
+  for (  String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
+    if (aggregateColumnAndFunction.startsWith("AVG(")) {
+      aggregateColumnAndFunction=aggregateColumnAndFunction.replace("AVG(","AVG(CAST(").replace(")"," AS DOUBLE))");
     }
-  }
+ else     if (aggregateColumnAndFunction.startsWith("DISTINCTCOUNT(")) {
+      aggregateColumnAndFunction=aggregateColumnAndFunction.replace("DISTINCTCOUNT(","COUNT(DISTINCT ");
+    }
+    if (_groupColumns.isEmpty()) {
+      queries.add(joinWithSpaces("SELECT",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generateH2Sql(),_top.generateH2Sql()));
+    }
  else {
-    for (    String aggregateColumnAndFunction : _aggregateColumnsAndFunctions) {
-      if (aggregateColumnAndFunction.startsWith("avg(")) {
-        aggregateColumnAndFunction=aggregateColumnAndFunction.replace("avg(","avg(cast(").replace(")"," as double))");
-      }
-      queries.add(joinWithSpaces("SELECT",joinWithCommas(_groupColumns) + ",",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generateH2Sql(),"GROUP BY",joinWithCommas(_groupColumns),_limit.generateH2Sql()));
+      String groupByColumns=StringUtils.join(_groupColumns,", ");
+      queries.add(joinWithSpaces("SELECT",groupByColumns + ",",aggregateColumnAndFunction,"FROM",_h2TableName,_predicate.generateH2Sql(),"GROUP BY",groupByColumns,_top.generateH2Sql()));
     }
   }
   return queries;

@@ -1,0 +1,22 @@
+{
+  if (GATHER_FAILED_QUERIES) {
+    if (e == null) {
+      saveFailedQuery(pqlQuery,sqlQueries,failureMessage);
+    }
+ else {
+      saveFailedQuery(pqlQuery,sqlQueries,failureMessage,e.toString());
+    }
+  }
+ else {
+    failureMessage+="\nPQL: " + pqlQuery;
+    if (sqlQueries != null) {
+      failureMessage+="\nSQL: " + sqlQueries;
+    }
+    if (e == null) {
+      Assert.fail(failureMessage);
+    }
+ else {
+      Assert.fail(failureMessage,e);
+    }
+  }
+}

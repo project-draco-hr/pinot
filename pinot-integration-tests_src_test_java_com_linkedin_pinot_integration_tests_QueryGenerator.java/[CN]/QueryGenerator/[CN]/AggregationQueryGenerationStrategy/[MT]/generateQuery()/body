@@ -1,32 +1,30 @@
 {
-  Set<String> groupColumns=new HashSet<String>();
-  int groupColumnCount=RANDOM.nextInt(2) + 1;
-  for (int i=0; i < groupColumnCount; i++) {
-    groupColumns.add(pickRandom(_nonMultivalueColumnNames));
-  }
-  int aggregationColumnCount=RANDOM.nextInt(2) + 1;
-  Set<String> aggregationColumns=new HashSet<String>();
-  for (int i=0; i < aggregationColumnCount; i++) {
-    String randomColumn=pickRandom(_nonMultivalueNumericalColumnNames);
-    if (!groupColumns.contains(randomColumn)) {
-      aggregationColumns.add(randomColumn);
-    }
-  }
-  List<String> aggregationColumnsAndFunctions=new ArrayList<String>();
-  if (aggregationColumns.isEmpty()) {
+  int aggregationColumnCount=RANDOM.nextInt(MAX_NUM_AGGREGATION_COLUMNS + 1);
+  Set<String> aggregationColumnsAndFunctions=new HashSet<>();
+  if (aggregationColumnCount == 0) {
     aggregationColumnsAndFunctions.add("COUNT(*)");
   }
  else {
-    for (    String aggregationColumn : aggregationColumns) {
-      int aggregationFunctionCount=RANDOM.nextInt(aggregationFunctions.size()) + 1;
-      for (int i=0; i < aggregationFunctionCount; i++) {
-        aggregationColumnsAndFunctions.add(pickRandom(aggregationFunctions) + "(" + aggregationColumn+ ")");
-      }
-    }
-  }
-  aggregationColumnsAndFunctions=Collections.singletonList(aggregationColumnsAndFunctions.get(0));
-  QueryFragment predicate=generatePredicate();
-  int resultLimit=RANDOM.nextInt(30);
-  LimitQueryFragment limit=new LimitQueryFragment(resultLimit);
-  return new AggregationQuery(new ArrayList<String>(groupColumns),aggregationColumnsAndFunctions,predicate,limit);
+    while (aggregationColumnsAndFunctions.size() < aggregationColumnCount) {
+      String aggregationFunction=pickRandom(AGGREGATION_FUNCTIONS);
+      String aggregationColumn;
+switch (aggregationFunction) {
+case "COUNT":
+case "DISTINCTCOUNT":
+        aggregationColumn=pickRandom(_singleValueColumnNames);
+      break;
+default :
+    aggregationColumn=pickRandom(_singleValueNumericalColumnNames);
+}
+aggregationColumnsAndFunctions.add(aggregationFunction + "(" + aggregationColumn+ ")");
+}
+}
+PredicateQueryFragment predicate=generatePredicate();
+int groupColumnCount=Math.min(RANDOM.nextInt(MAX_NUM_GROUP_BY_COLUMNS + 1),_singleValueColumnNames.size());
+Set<String> groupColumns=new HashSet<>();
+while (groupColumns.size() < groupColumnCount) {
+groupColumns.add(pickRandom(_singleValueColumnNames));
+}
+TopQueryFragment top=new TopQueryFragment(RANDOM.nextInt(MAX_RESULT_LIMIT + 1));
+return new AggregationQuery(new ArrayList<>(aggregationColumnsAndFunctions),predicate,groupColumns,top);
 }

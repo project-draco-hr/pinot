@@ -1,9 +1,8 @@
 {
-  String queryBody=joinWithSpaces("SELECT",joinWithCommas(_aggregateColumnsAndFunctions),"FROM",_pqlTableName,_predicate.generatePql());
   if (_groupColumns.isEmpty()) {
-    return queryBody + " " + _limit.generatePql();
+    return joinWithSpaces("SELECT",StringUtils.join(_aggregateColumnsAndFunctions,", "),"FROM",_pinotTableName,_predicate.generatePql(),_top.generatePql());
   }
  else {
-    return queryBody + " GROUP BY " + joinWithCommas(_groupColumns)+ " "+ _limit.generatePql();
+    return joinWithSpaces("SELECT",StringUtils.join(_aggregateColumnsAndFunctions,", "),"FROM",_pinotTableName,_predicate.generatePql(),"GROUP BY",StringUtils.join(_groupColumns,", "),_top.generatePql());
   }
 }

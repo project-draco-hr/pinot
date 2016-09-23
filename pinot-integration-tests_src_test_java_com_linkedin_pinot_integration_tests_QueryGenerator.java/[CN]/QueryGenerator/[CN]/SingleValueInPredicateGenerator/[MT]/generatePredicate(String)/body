@@ -1,0 +1,16 @@
+{
+  List<String> columnValues=_columnToValueList.get(columnName);
+  int numValues=Math.min(RANDOM.nextInt(MAX_NUM_IN_CLAUSE_VALUES) + 1,columnValues.size());
+  Set<String> values=new HashSet<>();
+  while (values.size() < numValues) {
+    values.add(pickRandom(columnValues));
+  }
+  String inValues=StringUtils.join(values,", ");
+  boolean notIn=RANDOM.nextBoolean();
+  if (notIn) {
+    return new StringQueryFragment(columnName + " NOT IN (" + inValues+ ")");
+  }
+ else {
+    return new StringQueryFragment(columnName + " IN (" + inValues+ ")");
+  }
+}

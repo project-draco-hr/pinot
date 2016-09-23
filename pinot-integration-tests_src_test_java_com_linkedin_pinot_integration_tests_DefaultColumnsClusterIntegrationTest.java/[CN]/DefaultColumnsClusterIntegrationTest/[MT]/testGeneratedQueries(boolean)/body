@@ -1,0 +1,14 @@
+{
+  _queryGenerator.setSkipMultiValuePredicates(!withMultiValues);
+  int generatedQueryCount=getGeneratedQueryCount();
+  for (int i=0; i < generatedQueryCount; i++) {
+    QueryGenerator.Query query=_queryGenerator.generateQuery();
+    String pqlQuery=query.generatePql();
+    while (pqlQuery.startsWith("SELECT *")) {
+      query=_queryGenerator.generateQuery();
+      pqlQuery=query.generatePql();
+    }
+    LOGGER.debug("Running query: {}",pqlQuery);
+    runQuery(pqlQuery,query.generateH2Sql());
+  }
+}

@@ -1,25 +1,17 @@
 {
-  GenericDatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
-  DataFileReader<GenericRecord> fileReader=null;
-  try {
-    fileReader=new DataFileReader<GenericRecord>(avroFile,datumReader);
+  GenericDatumReader<GenericRecord> datumReader=new GenericDatumReader<>();
+  try (DataFileReader<GenericRecord> fileReader=new DataFileReader<>(avroFile,datumReader)){
     for (    GenericRecord genericRecord : fileReader) {
       for (      String columnName : _columnNames) {
-        SortedSet<String> values=_columnToValues.get(columnName);
-        if (values == null) {
-          values=new TreeSet<String>();
-          _columnToValues.put(columnName,values);
-        }
+        Set<String> values=_columnToValueSet.get(columnName);
         Object avroValue=genericRecord.get(columnName);
-        if (avroValue == null) {
-          continue;
-        }
- else {
-          if (_multivalueColumnCardinality.containsKey(columnName)) {
+        if (avroValue != null) {
+          Integer storedMaxNumElements=_multiValueColumnMaxNumElements.get(columnName);
+          if (storedMaxNumElements != null) {
             GenericData.Array array=(GenericData.Array)avroValue;
-            Integer storedCardinality=_multivalueColumnCardinality.get(columnName);
-            if (storedCardinality < array.size()) {
-              _multivalueColumnCardinality.put(columnName,array.size());
+            int numElements=array.size();
+            if (storedMaxNumElements < numElements) {
+              _multiValueColumnMaxNumElements.put(columnName,numElements);
             }
             for (            Object element : array) {
               storeAvroValueIntoValueSet(values,element);
@@ -34,8 +26,5 @@
   }
  catch (  Exception e) {
     throw new RuntimeException(e);
-  }
- finally {
-    IOUtils.closeQuietly(fileReader);
   }
 }

@@ -1,25 +1,25 @@
 {
-  int predicateCount=RANDOM.nextInt(3);
-  List<QueryFragment> predicates=new ArrayList<QueryFragment>();
-  for (int i=0; i < predicateCount; i++) {
+  int predicateCount=RANDOM.nextInt(MAX_NUM_PREDICATES + 1);
+  List<QueryFragment> predicates=new ArrayList<>(predicateCount);
+  while (predicates.size() < predicateCount) {
     String columnName=pickRandom(_columnNames);
     if (!_columnToValueList.get(columnName).isEmpty()) {
-      if (!_multivalueColumnCardinality.containsKey(columnName)) {
-        predicates.add(pickRandom(_predicateGenerators).generatePredicate(columnName));
+      if (!_multiValueColumnMaxNumElements.containsKey(columnName)) {
+        predicates.add(pickRandom(_singleValuePredicateGenerators).generatePredicate(columnName));
       }
- else {
-        if (!skipMultivaluePredicates) {
-          predicates.add(new MultivaluePredicateGenerator().generatePredicate(columnName));
-        }
+ else       if (!_skipMultiValuePredicates) {
+        predicates.add(pickRandom(_multiValuePredicateGenerators).generatePredicate(columnName));
       }
     }
   }
-  if (predicates.size() < 2) {
+  if (predicateCount < 2) {
     return new PredicateQueryFragment(predicates,Collections.<QueryFragment>emptyList());
   }
-  List<QueryFragment> operators=new ArrayList<QueryFragment>(predicates.size() - 1);
-  for (int i=1; i < predicates.size(); i++) {
-    operators.add(new StringQueryFragment(pickRandom(_booleanOperators)));
+ else {
+    List<QueryFragment> operators=new ArrayList<>(predicateCount - 1);
+    for (int i=1; i < predicateCount; i++) {
+      operators.add(new StringQueryFragment(pickRandom(BOOLEAN_OPERATORS)));
+    }
+    return new PredicateQueryFragment(predicates,operators);
   }
-  return new PredicateQueryFragment(predicates,operators);
 }

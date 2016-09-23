@@ -1,19 +1,16 @@
 {
-  Set<String> projectionColumns=new HashSet<String>();
-  int projectionColumnCount=RANDOM.nextInt(3);
-  for (int i=0; i < projectionColumnCount; i++) {
-    projectionColumns.add(pickRandom(_nonMultivalueColumnNames));
+  int projectionColumnCount=Math.min(RANDOM.nextInt(MAX_NUM_SELECTION_COLUMNS) + 1,_columnNames.size());
+  Set<String> projectionColumns=new HashSet<>();
+  while (projectionColumns.size() < projectionColumnCount) {
+    projectionColumns.add(pickRandom(_columnNames));
   }
-  if (projectionColumns.isEmpty()) {
-    projectionColumns.add("*");
+  int orderByColumnCount=Math.min(RANDOM.nextInt(MAX_NUM_ORDER_BY_COLUMNS + 1),_singleValueColumnNames.size());
+  Set<String> orderByColumns=new HashSet<>();
+  while (orderByColumns.size() < orderByColumnCount) {
+    orderByColumns.add(pickRandom(_singleValueColumnNames));
   }
-  Set<String> orderByColumns=new HashSet<String>();
-  int orderByColumnCount=RANDOM.nextInt(1);
-  for (int i=0; i < orderByColumnCount; i++) {
-    orderByColumns.add(pickRandom(_nonMultivalueColumnNames));
-  }
-  QueryFragment predicate=generatePredicate();
-  int resultLimit=RANDOM.nextInt(30) + 1;
+  PredicateQueryFragment predicate=generatePredicate();
+  int resultLimit=RANDOM.nextInt(MAX_RESULT_LIMIT + 1);
   LimitQueryFragment limit=new LimitQueryFragment(resultLimit);
-  return new SelectionQuery(projectionColumns,new OrderByQueryFragment(orderByColumns),predicate,limit);
+  return new SelectionQuery(new ArrayList<>(projectionColumns),predicate,new OrderByQueryFragment(orderByColumns),limit);
 }
