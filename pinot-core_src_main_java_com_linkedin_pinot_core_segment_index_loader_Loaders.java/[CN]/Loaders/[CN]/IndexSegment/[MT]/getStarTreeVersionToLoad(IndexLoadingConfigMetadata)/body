@@ -1,8 +1,7 @@
 {
-  if (indexLoadingConfigMetadata == null) {
-    return StarTreeFormatVersion.ON_HEAP;
+  String starTreeFormatVersionString=CommonConstants.Server.DEFAULT_STAR_TREE_FORMAT_VERSION;
+  if (indexLoadingConfigMetadata != null) {
+    starTreeFormatVersionString=indexLoadingConfigMetadata.getStarTreeVersionToLoad();
   }
- else {
-    return StarTreeFormatVersion.valueOf(indexLoadingConfigMetadata.getStarTreeVersionToLoad().toUpperCase());
-  }
+  return StarTreeFormatVersion.valueOf(starTreeFormatVersionString);
 }
