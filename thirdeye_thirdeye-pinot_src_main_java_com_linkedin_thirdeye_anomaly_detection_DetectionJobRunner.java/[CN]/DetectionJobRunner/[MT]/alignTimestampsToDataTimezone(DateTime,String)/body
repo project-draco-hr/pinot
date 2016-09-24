@@ -1,0 +1,19 @@
+{
+  try {
+    CollectionSchema collectionSchema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(collection);
+    TimeGranularity dataGranularity=collectionSchema.getTime().getDataGranularity();
+    String timeFormat=collectionSchema.getTime().getFormat();
+    if (dataGranularity.getUnit().equals(TimeUnit.DAYS)) {
+      DateTimeZone dataTimeZone=Utils.getDataTimeZone(collection);
+      DateTimeFormatter inputDataDateTimeFormatter=DateTimeFormat.forPattern(timeFormat).withZone(dataTimeZone);
+      long inputMillis=inputDateTime.getMillis();
+      String inputDateTimeString=inputDataDateTimeFormatter.print(inputMillis);
+      long timeZoneOffsetMillis=inputDataDateTimeFormatter.parseMillis(inputDateTimeString);
+      inputDateTime=new DateTime(timeZoneOffsetMillis);
+    }
+  }
+ catch (  ExecutionException e) {
+    LOG.error("Exeption in aligning timestamp to data time zone",e);
+  }
+  return inputDateTime;
+}

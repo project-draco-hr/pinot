@@ -23,6 +23,8 @@
     long windowMillis=TimeUnit.MILLISECONDS.convert(windowSize,windowUnit);
     windowStartTime=windowEndTime.minus(windowMillis);
   }
+  windowStartTime=alignTimestampsToDataTimezone(windowStartTime,anomalyFunctionSpec.getCollection());
+  windowEndTime=alignTimestampsToDataTimezone(windowEndTime,anomalyFunctionSpec.getCollection());
   detectionJobContext.setWindowStartTime(windowStartTime);
   detectionJobContext.setWindowEndTime(windowEndTime);
   Long jobExecutionId=createJob();
