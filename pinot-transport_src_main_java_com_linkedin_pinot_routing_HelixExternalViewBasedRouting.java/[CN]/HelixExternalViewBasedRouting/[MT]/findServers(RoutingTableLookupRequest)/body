@@ -5,18 +5,18 @@
     if (_brokerRoutingTable.containsKey(tableName) && _brokerRoutingTable.get(tableName).size() != 0) {
       if (_llcBrokerRoutingTable.containsKey(tableName) && _llcBrokerRoutingTable.get(tableName).size() != 0) {
         if (_routingTableSelector.shouldUseLLCRouting(tableName)) {
-          serverToSegmentSetMaps=_llcBrokerRoutingTable.get(tableName);
+          serverToSegmentSetMaps=routeToLLC(tableName);
         }
  else {
-          serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
+          serverToSegmentSetMaps=routeToHLC(tableName);
         }
       }
  else {
-        serverToSegmentSetMaps=_brokerRoutingTable.get(tableName);
+        serverToSegmentSetMaps=routeToHLC(tableName);
       }
     }
  else {
-      serverToSegmentSetMaps=_llcBrokerRoutingTable.get(tableName);
+      serverToSegmentSetMaps=routeToLLC(tableName);
     }
   }
  else {

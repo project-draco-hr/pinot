@@ -6,7 +6,7 @@
   final int rowsConsumed=_numRowsConsumed - _lastConsumedCount;
   final long prevTime=_lastConsumedCount == 0 ? _consumeStartTime : _lastLogTime;
   if (now - prevTime > TimeUnit.MINUTES.toMillis(TIME_THRESHOLD_FOR_LOG_MINUTES) || rowsConsumed >= MSG_COUNT_THRESHOLD_FOR_LOG) {
-    segmentLogger.info("Consumed {} events from (rate:{}/s)",rowsConsumed,(float)(rowsConsumed) * 1000 / (now - prevTime));
+    segmentLogger.info("Consumed {} events from (rate:{}/s), currentOffset={}",rowsConsumed,(float)(rowsConsumed) * 1000 / (now - prevTime),_currentOffset);
     _lastConsumedCount=_numRowsConsumed;
     _lastLogTime=now;
   }

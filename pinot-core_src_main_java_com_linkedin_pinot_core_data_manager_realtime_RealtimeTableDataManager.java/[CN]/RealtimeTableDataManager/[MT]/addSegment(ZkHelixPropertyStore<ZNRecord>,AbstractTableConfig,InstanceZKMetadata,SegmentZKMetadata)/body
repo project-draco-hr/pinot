@@ -37,17 +37,7 @@
  else {
       LLCRealtimeSegmentZKMetadata llcSegmentMetadata=(LLCRealtimeSegmentZKMetadata)segmentZKMetadata;
       if (segmentZKMetadata.getStatus().equals(Status.DONE)) {
-        final String uri=llcSegmentMetadata.getDownloadUrl();
-        File tempSegmentFolder=new File(_indexDir,"tmp-" + String.valueOf(System.currentTimeMillis()));
-        File tempFile=new File(_indexDir,segmentId + ".tar.gz");
-        SegmentFetcherFactory.getSegmentFetcherBasedOnURI(uri).fetchSegmentToLocal(uri,tempFile);
-        LOGGER.info("Downloaded file from {} to {}; Length of downloaded file: {}",uri,tempFile,tempFile.length());
-        TarGzCompressionUtils.unTar(tempFile,tempSegmentFolder);
-        FileUtils.deleteQuietly(tempFile);
-        FileUtils.moveDirectory(tempSegmentFolder.listFiles()[0],new File(_indexDir,segmentId));
-        FileUtils.deleteQuietly(tempSegmentFolder);
-        LOGGER.info("Replacing LLC Segment {}",segmentId);
-        replaceLLSegment(segmentId);
+        downloadAndReplaceSegment(segmentId,llcSegmentMetadata);
         return;
       }
       manager=new LLRealtimeSegmentDataManager(segmentZKMetadata,tableConfig,instanceZKMetadata,this,_indexDir.getAbsolutePath(),SchemaUtils.fromZNRecord(record),_serverMetrics);
