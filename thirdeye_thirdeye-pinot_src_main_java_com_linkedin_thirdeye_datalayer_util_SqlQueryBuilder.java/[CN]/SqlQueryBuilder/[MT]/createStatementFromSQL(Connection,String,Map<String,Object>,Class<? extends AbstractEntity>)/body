@@ -26,7 +26,7 @@
     String entityName=entry.getValue();
     sql=sql.toString().replaceAll(entityName,dbName);
   }
-  System.out.println("Generated SQL:" + sql);
+  LOG.debug("Generated SQL:{} ",sql);
   PreparedStatement ps=connection.prepareStatement(sql);
   int parameterIndex=1;
   LinkedHashMap<String,ColumnInfo> columnInfo=entityMappingHolder.columnInfoPerTable.get(tableName);
@@ -36,7 +36,7 @@
     if (Enum.class.isAssignableFrom(val.getClass())) {
       val=val.toString();
     }
-    System.out.println("Setting " + dbFieldName + " to "+ val);
+    LOG.debug("Setting {} to {}",dbFieldName,val);
     ps.setObject(parameterIndex++,val,columnInfo.get(dbFieldName).sqlType);
   }
   return ps;

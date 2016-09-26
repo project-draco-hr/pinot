@@ -14,14 +14,14 @@
     }
     sqlBuilder.append(whereClause.toString());
   }
-  System.out.println("FIND BY SQL:" + sqlBuilder.toString());
+  LOG.debug("FIND BY SQL: {} " + sqlBuilder);
   PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
   int parameterIndex=1;
   LinkedHashMap<String,ColumnInfo> columnInfoMap=entityMappingHolder.columnInfoPerTable.get(tableName);
   for (  Entry<String,Object> paramEntry : parametersMap.entrySet()) {
     String dbFieldName=paramEntry.getKey();
     ColumnInfo info=columnInfoMap.get(dbFieldName);
-    System.out.println("Setting parameter:" + parameterIndex + " to "+ paramEntry.getValue().toString());
+    LOG.debug("Setting parameter: {} to {}",parameterIndex,paramEntry.getValue());
     prepareStatement.setObject(parameterIndex++,paramEntry.getValue().toString(),info.sqlType);
   }
   return prepareStatement;

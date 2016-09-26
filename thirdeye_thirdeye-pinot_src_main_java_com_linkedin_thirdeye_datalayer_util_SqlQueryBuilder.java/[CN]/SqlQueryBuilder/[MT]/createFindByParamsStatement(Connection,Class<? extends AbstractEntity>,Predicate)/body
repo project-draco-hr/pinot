@@ -6,7 +6,7 @@
   List<Pair<String,Object>> parametersList=new ArrayList<>();
   generateWhereClause(entityNameToDBNameMapping,predicate,parametersList,whereClause);
   sqlBuilder.append(whereClause.toString());
-  System.out.println("createFindByParamsStatement Query " + sqlBuilder.toString());
+  LOG.debug("createFindByParamsStatement Query:{} " + sqlBuilder);
   PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
   int parameterIndex=1;
   LinkedHashMap<String,ColumnInfo> columnInfoMap=entityMappingHolder.columnInfoPerTable.get(tableName);
@@ -14,7 +14,7 @@
     String dbFieldName=pair.getKey();
     ColumnInfo info=columnInfoMap.get(dbFieldName);
     prepareStatement.setObject(parameterIndex++,pair.getValue(),info.sqlType);
-    System.out.println("Setting " + pair.getKey() + " to "+ pair.getValue());
+    LOG.debug("Setting {} to {}",pair.getKey(),pair.getValue());
   }
   return prepareStatement;
 }

@@ -2,7 +2,7 @@
   if (!insertSqlMap.containsKey(tableName)) {
     String insertSql=generateInsertSql(tableName,entityMappingHolder.columnInfoPerTable.get(tableName.toLowerCase()));
     insertSqlMap.put(tableName,insertSql);
-    System.out.println(insertSql);
+    LOG.debug(insertSql);
   }
   String sql=insertSqlMap.get(tableName);
   PreparedStatement preparedStatement=conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
@@ -11,7 +11,7 @@
   for (  ColumnInfo columnInfo : columnInfoMap.values()) {
     if (columnInfo.field != null && !AUTO_UPDATE_COLUMN_SET.contains(columnInfo.columnNameInDB.toLowerCase())) {
       Object val=columnInfo.field.get(entity);
-      System.out.println("Setting value:" + val + " for "+ columnInfo.columnNameInDB+ " sqlType:"+ columnInfo.sqlType);
+      LOG.debug("Setting value: {} for:{} sqlType:{}",val,columnInfo.columnNameInDB,columnInfo.sqlType);
       if (val != null) {
         if (columnInfo.sqlType == Types.CLOB) {
           Clob clob=conn.createClob();

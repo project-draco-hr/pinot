@@ -23,13 +23,13 @@
   }
   sqlBuilder.append(" WHERE base_id=?");
   parameterMap.put(BASE_ID,entity.getBaseId());
-  System.out.println("Update statement:" + sqlBuilder.toString());
+  LOG.debug("Update statement:{}",sqlBuilder);
   int parameterIndex=1;
   PreparedStatement prepareStatement=connection.prepareStatement(sqlBuilder.toString());
   for (  Entry<String,Object> paramEntry : parameterMap.entrySet()) {
     String dbFieldName=paramEntry.getKey();
     ColumnInfo info=columnInfoMap.get(dbFieldName);
-    System.out.println("Setting value:" + paramEntry.getValue() + " for "+ dbFieldName);
+    LOG.debug("Setting value: {} for {}",paramEntry.getValue(),dbFieldName);
     prepareStatement.setObject(parameterIndex++,paramEntry.getValue(),info.sqlType);
   }
   return prepareStatement;
