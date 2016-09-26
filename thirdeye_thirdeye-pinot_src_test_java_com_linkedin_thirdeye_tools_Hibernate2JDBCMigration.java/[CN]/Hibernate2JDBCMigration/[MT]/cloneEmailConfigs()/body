@@ -1,0 +1,21 @@
+{
+  EmailConfigurationManager hibernateManager=PersistenceUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.hibernate.EmailConfigurationManagerImpl.class);
+  EmailConfigurationManager jdbcManager=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.EmailConfigurationManagerImpl.class);
+  List<EmailConfigurationDTO> dtoSrcList=hibernateManager.findAll();
+  List<EmailConfigurationDTO> dtoTgtList=jdbcManager.findAll();
+  Set<String> uniques=new HashSet<>();
+  for (  EmailConfigurationDTO dto : dtoTgtList) {
+    String key=dto.getCollection() + "_" + dto.getMetric();
+    uniques.add(key);
+  }
+  for (  EmailConfigurationDTO dto : dtoSrcList) {
+    String key=dto.getCollection() + "_" + dto.getMetric();
+    if (!uniques.contains(key)) {
+      dto.setId(null);
+      jdbcManager.save(dto);
+    }
+ else {
+      System.out.println("Skipping creating emailConfig for key:" + key + " since it already exists.");
+    }
+  }
+}
