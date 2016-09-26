@@ -24,7 +24,12 @@
     LOG.error("Could not recompute severity",e);
   }
   try {
-    mergedResultDAO.update(mergedResult);
+    if (!existingResults.contains(mergedResult)) {
+      mergedResultDAO.update(mergedResult);
+    }
+ else {
+      LOG.info("MergedResult [{}] is already present",mergedResult);
+    }
     for (    RawAnomalyResultDTO rawAnomalyResultDTO : mergedResult.getAnomalyResults()) {
       anomalyResultDAO.update(rawAnomalyResultDTO);
     }

@@ -27,12 +27,12 @@
   anomalyFunctionSpec.setWindowSize(Integer.valueOf(windowSize));
   anomalyFunctionSpec.setWindowUnit(TimeUnit.valueOf(windowUnit));
   anomalyFunctionSpec.setWindowDelay(Integer.valueOf(windowDelay));
-  if (StringUtils.isEmpty(windowDelayUnit)) {
-    anomalyFunctionSpec.setWindowDelayUnit(dataGranularity.getUnit());
+  TimeUnit dataGranularityUnit=dataGranularity.getUnit();
+  TimeUnit windowDelayTimeUnit=dataGranularityUnit.equals(TimeUnit.MINUTES) || dataGranularityUnit.equals(TimeUnit.HOURS) ? TimeUnit.HOURS : TimeUnit.DAYS;
+  if (StringUtils.isNotEmpty(windowDelayUnit)) {
+    windowDelayTimeUnit=TimeUnit.valueOf(windowDelayUnit);
   }
- else {
-    anomalyFunctionSpec.setWindowDelayUnit(TimeUnit.valueOf(windowDelayUnit));
-  }
+  anomalyFunctionSpec.setWindowDelayUnit(windowDelayTimeUnit);
   anomalyFunctionSpec.setBucketSize(dataGranularity.getSize());
   anomalyFunctionSpec.setBucketUnit(dataGranularity.getUnit());
   if (!StringUtils.isBlank(filters)) {

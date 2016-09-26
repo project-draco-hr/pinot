@@ -13,6 +13,7 @@
         detectionJobScheduler=new DetectionJobScheduler(anomalyJobDAO,anomalyTaskDAO,anomalyFunctionDAO);
         detectionJobScheduler.start();
         environment.jersey().register(new DetectionJobResource(detectionJobScheduler,anomalyFunctionDAO));
+        environment.jersey().register(new AnomalyFunctionResource(config.getFunctionConfigPath()));
       }
       if (config.isMonitor()) {
         monitorJobScheduler=new MonitorJobScheduler(anomalyJobDAO,anomalyTaskDAO,config.getMonitorConfiguration());

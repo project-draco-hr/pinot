@@ -36,10 +36,12 @@
   timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime()));
   timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime()));
   TimeSeriesResponse responseCurrent=timeSeriesHandler.handle(timeSeriesRequest);
+  LOG.info("printing current start end millis : {} {}, joda {} {}",anomalyMergedResult.getStartTime(),anomalyMergedResult.getEndTime(),new DateTime(anomalyMergedResult.getStartTime()),new DateTime(anomalyMergedResult.getEndTime()));
   long baselineOffset=AnomalyFunctionUtils.getBaselineOffset(anomalyFunctionSpec);
   timeSeriesRequest.setStart(new DateTime(anomalyMergedResult.getStartTime() - baselineOffset));
   timeSeriesRequest.setEnd(new DateTime(anomalyMergedResult.getEndTime() - baselineOffset));
   TimeSeriesResponse responseBaseline=timeSeriesHandler.handle(timeSeriesRequest);
+  LOG.info("printing baseline start end millis : {} {}, joda {} {}",anomalyMergedResult.getStartTime() - baselineOffset,anomalyMergedResult.getEndTime() - baselineOffset,new DateTime(anomalyMergedResult.getStartTime() - baselineOffset),new DateTime(anomalyMergedResult.getEndTime() - baselineOffset));
   Double currentValue;
   Double baselineValue;
   if (Utils.isDerievedMetric(anomalyFunctionSpec.getCollection(),anomalyFunctionSpec.getMetric())) {
