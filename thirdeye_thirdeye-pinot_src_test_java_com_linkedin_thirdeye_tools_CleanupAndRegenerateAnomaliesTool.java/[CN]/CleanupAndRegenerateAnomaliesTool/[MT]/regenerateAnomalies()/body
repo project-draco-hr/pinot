@@ -1,0 +1,11 @@
+{
+  for (  String dataset : datasets) {
+    List<AnomalyFunctionDTO> anomalyFunctions=anomalyFunctionDAO.findAllByCollection(dataset);
+    for (    AnomalyFunctionDTO anomalyFunction : anomalyFunctions) {
+      Long functionId=anomalyFunction.getId();
+      LOG.info("Running adhoc function {}",functionId);
+      String response=detectionResourceHttpUtils.runAdhocAnomalyFunction(String.valueOf(functionId),startTime,endTime);
+      LOG.info("Response {}",response);
+    }
+  }
+}

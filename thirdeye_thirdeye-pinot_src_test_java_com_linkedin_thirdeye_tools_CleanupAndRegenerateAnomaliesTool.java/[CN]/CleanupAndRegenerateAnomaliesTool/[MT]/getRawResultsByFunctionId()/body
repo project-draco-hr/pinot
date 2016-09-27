@@ -1,0 +1,14 @@
+{
+  Map<Long,List<RawAnomalyResultDTO>> rawResultsByFunctionId=new HashMap<>();
+  List<RawAnomalyResultDTO> rawResults=rawResultDAO.findAll();
+  for (  RawAnomalyResultDTO rawResult : rawResults) {
+    Long functionId=rawResult.getFunctionId();
+    if (rawResultsByFunctionId.containsKey(functionId)) {
+      rawResultsByFunctionId.get(functionId).add(rawResult);
+    }
+ else {
+      rawResultsByFunctionId.put(functionId,Lists.newArrayList(rawResult));
+    }
+  }
+  return rawResultsByFunctionId;
+}

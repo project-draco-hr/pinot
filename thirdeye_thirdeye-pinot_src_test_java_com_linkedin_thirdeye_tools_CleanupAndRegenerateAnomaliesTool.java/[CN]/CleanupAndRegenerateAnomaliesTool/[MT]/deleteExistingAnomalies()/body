@@ -1,0 +1,21 @@
+{
+  Map<Long,List<RawAnomalyResultDTO>> rawResultsByFunctionId=getRawResultsByFunctionId();
+  for (  String dataset : datasets) {
+    List<AnomalyFunctionDTO> anomalyFunctionDTOs=anomalyFunctionDAO.findAllByCollection(dataset);
+    LOG.info("Beginning cleanup of dataset {}",dataset);
+    for (    AnomalyFunctionDTO anomalyFunctionDTO : anomalyFunctionDTOs) {
+      Long functionId=anomalyFunctionDTO.getId();
+      LOG.info("Beginning cleanup of functionId {}",functionId);
+      List<RawAnomalyResultDTO> rawResults=rawResultsByFunctionId.get(functionId);
+      if (CollectionUtils.isNotEmpty(rawResults)) {
+        deleteRawResults(rawResults);
+      }
+      List<MergedAnomalyResultDTO> mergedResults=mergedResultDAO.findByFunctionId(functionId);
+      if (CollectionUtils.isNotEmpty(mergedResults)) {
+        deleteMergedResults(mergedResults);
+      }
+    }
+  }
+  LOG.info("Deleted {} raw anomalies",rawAnomaliesDeleted);
+  LOG.info("Deleted {} merged anomalies",mergedAnomaliesDeleted);
+}

@@ -1,0 +1,21 @@
+{
+  if (args.length < 5) {
+    System.err.println("USAGE CleanupAndRegenerateAnomaliesTool <persistence_file_path> " + "<detector_host> <detector_port> <start_time_iso> <end_time_iso> <datasets>");
+    System.exit(1);
+  }
+  File persistenceFile=new File(args[0]);
+  if (!persistenceFile.exists()) {
+    System.err.println("Missing file:" + persistenceFile);
+    System.exit(1);
+  }
+  String detectionHost=args[1];
+  int detectionPort=Integer.valueOf(args[2]);
+  String startTime=args[3];
+  String endTime=args[4];
+  String datasets=null;
+  if (args.length > 5) {
+    datasets=args[6];
+  }
+  CleanupAndRegenerateAnomaliesTool tool=new CleanupAndRegenerateAnomaliesTool(startTime,endTime,datasets,persistenceFile,detectionHost,detectionPort);
+  tool.run();
+}
