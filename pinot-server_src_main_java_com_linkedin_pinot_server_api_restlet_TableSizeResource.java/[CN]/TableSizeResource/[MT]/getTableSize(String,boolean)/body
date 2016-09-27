@@ -11,17 +11,21 @@
   tableSizeInfo.tableName=tableDataManager.getTableName();
   tableSizeInfo.diskSizeInBytes=0L;
   ImmutableList<SegmentDataManager> segmentDataManagers=tableDataManager.acquireAllSegments();
-  for (  SegmentDataManager segmentDataManager : segmentDataManagers) {
-    IndexSegment segment=segmentDataManager.getSegment();
-    long segmentSizeBytes=segment.getDiskSizeBytes();
-    if (detailed) {
-      SegmentSizeInfo segmentSizeInfo=new SegmentSizeInfo(segment.getSegmentName(),segmentSizeBytes);
-      tableSizeInfo.segments.add(segmentSizeInfo);
+  try {
+    for (    SegmentDataManager segmentDataManager : segmentDataManagers) {
+      IndexSegment segment=segmentDataManager.getSegment();
+      long segmentSizeBytes=segment.getDiskSizeBytes();
+      if (detailed) {
+        SegmentSizeInfo segmentSizeInfo=new SegmentSizeInfo(segment.getSegmentName(),segmentSizeBytes);
+        tableSizeInfo.segments.add(segmentSizeInfo);
+      }
+      tableSizeInfo.diskSizeInBytes+=segmentSizeBytes;
     }
-    tableSizeInfo.diskSizeInBytes+=segmentSizeBytes;
   }
-  for (  SegmentDataManager segmentDataManager : segmentDataManagers) {
-    tableDataManager.releaseSegment(segmentDataManager);
+  finally {
+    for (    SegmentDataManager segmentDataManager : segmentDataManagers) {
+      tableDataManager.releaseSegment(segmentDataManager);
+    }
   }
   try {
     return new StringRepresentation(new ObjectMapper().writeValueAsString(tableSizeInfo));

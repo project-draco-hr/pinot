@@ -2,7 +2,7 @@
   TableSizeReader tableSizeReader=new TableSizeReader(executor,connectionManager,_pinotHelixResourceManager);
   TableSizeReader.TableSizeDetails tableSizeDetails=null;
   try {
-    tableSizeDetails=tableSizeReader.getTableSizeDetails(tableName,_controllerConf.getServerAdminRequestTimeoutSeconds());
+    tableSizeDetails=tableSizeReader.getTableSizeDetails(tableName,_controllerConf.getServerAdminRequestTimeoutSeconds() * 1000);
   }
  catch (  Throwable t) {
     LOGGER.error("Failed to read table size for: {}",tableName,t);
