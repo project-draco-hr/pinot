@@ -1,11 +1,13 @@
 {
-  for (  String dataset : datasets) {
-    List<AnomalyFunctionDTO> anomalyFunctions=anomalyFunctionDAO.findAllByCollection(dataset);
-    for (    AnomalyFunctionDTO anomalyFunction : anomalyFunctions) {
-      Long functionId=anomalyFunction.getId();
-      LOG.info("Running adhoc function {}",functionId);
-      String response=detectionResourceHttpUtils.runAdhocAnomalyFunction(String.valueOf(functionId),startTime,endTime);
-      LOG.info("Response {}",response);
+  for (  Long functionId : functionIds) {
+    AnomalyFunctionDTO anomalyFunction=anomalyFunctionDAO.findById(functionId);
+    boolean isActive=anomalyFunction.getIsActive();
+    if (!isActive) {
+      LOG.info("Skipping function {}",functionId);
+      continue;
     }
+    LOG.info("Running adhoc function {}",functionId);
+    String response=detectionResourceHttpUtils.runAdhocAnomalyFunction(String.valueOf(functionId),startTime,endTime);
+    LOG.info("Response {}",response);
   }
 }

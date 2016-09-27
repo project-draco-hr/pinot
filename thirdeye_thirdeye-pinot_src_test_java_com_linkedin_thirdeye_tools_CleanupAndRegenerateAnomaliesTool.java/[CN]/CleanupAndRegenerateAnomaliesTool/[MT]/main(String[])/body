@@ -1,21 +1,43 @@
 {
-  if (args.length < 5) {
-    System.err.println("USAGE CleanupAndRegenerateAnomaliesTool <persistence_file_path> " + "<detector_host> <detector_port> <start_time_iso> <end_time_iso> <datasets>");
+  if (args.length != 2) {
+    System.err.println("USAGE CleanupAndRegenerateAnomaliesTool <config_yml_file> <mode> \n " + "Please take note: \nDELETE mode will delete all anomalies for that functionId/dataset, " + "\nGENERATE mode will generate anomalies in time range you specify");
     System.exit(1);
   }
-  File persistenceFile=new File(args[0]);
+  File configFile=new File(args[0]);
+  CleanupAndRegenerateAnomaliesConfig config=OBJECT_MAPPER.readValue(configFile,CleanupAndRegenerateAnomaliesConfig.class);
+  String mode=args[1];
+  File persistenceFile=new File(config.getPersistenceFile());
   if (!persistenceFile.exists()) {
     System.err.println("Missing file:" + persistenceFile);
     System.exit(1);
   }
-  String detectionHost=args[1];
-  int detectionPort=Integer.valueOf(args[2]);
-  String startTime=args[3];
-  String endTime=args[4];
-  String datasets=null;
-  if (args.length > 5) {
-    datasets=args[6];
+  String detectorHost=config.getDetectorHost();
+  int detectorPort=config.getDetectorPort();
+  if (StringUtils.isBlank(detectorHost)) {
+    LOG.error("Detector host and port must be provided");
+    System.exit(1);
   }
-  CleanupAndRegenerateAnomaliesTool tool=new CleanupAndRegenerateAnomaliesTool(startTime,endTime,datasets,persistenceFile,detectionHost,detectionPort);
-  tool.run();
+  String startTimeIso=config.getStartTimeIso();
+  String endTimeIso=config.getEndTimeIso();
+  if (Mode.valueOf(mode).equals(Mode.GENERATE) && (StringUtils.isBlank(startTimeIso) || StringUtils.isBlank(endTimeIso))) {
+    LOG.error("StarteTime and endTime must be provided in generate mode");
+    System.exit(1);
+  }
+  String datasets=config.getDatasets();
+  String functionIds=config.getFunctionIds();
+  if (StringUtils.isBlank(datasets) && StringUtils.isBlank(functionIds)) {
+    LOG.error("Must provide one of datasets or functionIds");
+    System.exit(1);
+  }
+  CleanupAndRegenerateAnomaliesTool tool=new CleanupAndRegenerateAnomaliesTool(startTimeIso,endTimeIso,datasets,functionIds,persistenceFile,detectorHost,detectorPort);
+  if (Mode.valueOf(mode).equals(Mode.DELETE)) {
+    tool.deleteExistingAnomalies();
+  }
+ else   if (Mode.valueOf(mode).equals(Mode.GENERATE)) {
+    tool.regenerateAnomalies();
+  }
+ else {
+    LOG.error("Incorrect mode {}",mode);
+    System.exit(1);
+  }
 }

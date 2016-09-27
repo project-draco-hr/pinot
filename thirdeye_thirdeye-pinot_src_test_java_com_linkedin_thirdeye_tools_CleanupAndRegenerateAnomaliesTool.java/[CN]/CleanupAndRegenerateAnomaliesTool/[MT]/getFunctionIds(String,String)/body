@@ -1,0 +1,19 @@
+{
+  List<Long> functionIdsList=new ArrayList<>();
+  if (StringUtils.isNotBlank(functionIds)) {
+    String[] tokens=functionIds.split(",");
+    for (    String token : tokens) {
+      functionIdsList.add(Long.valueOf(token));
+    }
+  }
+ else   if (StringUtils.isNotBlank(datasets)) {
+    List<String> datasetsList=Lists.newArrayList(datasets.split(","));
+    for (    String dataset : datasetsList) {
+      List<AnomalyFunctionDTO> anomalyFunctions=anomalyFunctionDAO.findAllByCollection(dataset);
+      for (      AnomalyFunctionDTO anomalyFunction : anomalyFunctions) {
+        functionIdsList.add(anomalyFunction.getId());
+      }
+    }
+  }
+  return functionIdsList;
+}
