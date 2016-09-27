@@ -1,0 +1,27 @@
+{
+  ZNRecord partitionAssignment=PinotLLCRealtimeSegmentManager.getInstance().getKafkaPartitionAssignment(realtimeTableName);
+  Map<String,List<String>> partitionToHostsMap=partitionAssignment.getListFields();
+  Set<Integer> kafkaPartitions=new HashSet<Integer>(partitionToHostsMap.size());
+  for (  String partitionStr : partitionToHostsMap.keySet()) {
+    kafkaPartitions.add(Integer.valueOf(partitionStr));
+  }
+  IdealState idealState=HelixHelper.getTableIdealState(_pinotHelixResourceManager.getHelixZkManager(),realtimeTableName);
+  Set<String> segmentIds=idealState.getPartitionSet();
+  for (  String segmentId : segmentIds) {
+    if (SegmentName.isLowLevelConsumerSegmentName(segmentId)) {
+      Map<String,String> stateMap=idealState.getInstanceStateMap(segmentId);
+      Iterator<String> iterator=stateMap.values().iterator();
+      if (iterator.hasNext()) {
+        String value=iterator.next();
+        if (value.equals(PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE)) {
+          LLCSegmentName llcSegmentName=new LLCSegmentName(segmentId);
+          kafkaPartitions.remove(llcSegmentName.getPartitionId());
+        }
+      }
+    }
+  }
+  for (  Integer kafkaPartition : kafkaPartitions) {
+    LOGGER.warn("Table {}, kafka partition {} has no segments in CONSUMING state",realtimeTableName,kafkaPartition);
+  }
+  _validationMetrics.updateNumNonConsumingPartitionsMetric(realtimeTableName,kafkaPartitions.size());
+}

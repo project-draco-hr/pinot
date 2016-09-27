@@ -1,0 +1,46 @@
+{
+  final String topicName="topic";
+  final int kafkaPartitionCount=2;
+  final String realtimeTableName="table_REALTIME";
+  final String tableName=TableNameBuilder.extractRawTableName(realtimeTableName);
+  final String S1="S1";
+  final String S2="S2";
+  final String S3="S3";
+  final List<String> hosts=Arrays.asList(new String[]{S1,S2,S3});
+  final HelixPropertyStore propertyStore=_pinotHelixResourceManager.getPropertyStore();
+  final HelixAdmin helixAdmin=_pinotHelixResourceManager.getHelixAdmin();
+  ZNRecord znRecord=new ZNRecord(topicName);
+  for (int i=0; i < kafkaPartitionCount; i++) {
+    znRecord.setListField(Integer.toString(i),hosts);
+  }
+  final String path=ZKMetadataProvider.constructPropertyStorePathForKafkaPartitions(realtimeTableName);
+  propertyStore.set(path,znRecord,AccessOption.PERSISTENT);
+  long msSinceEpoch=1540;
+  LLCSegmentName p0s0=new LLCSegmentName(tableName,0,0,msSinceEpoch);
+  LLCSegmentName p0s1=new LLCSegmentName(tableName,0,1,msSinceEpoch);
+  LLCSegmentName p1s0=new LLCSegmentName(tableName,1,0,msSinceEpoch);
+  LLCSegmentName p1s1=new LLCSegmentName(tableName,1,1,msSinceEpoch);
+  IdealState idealstate=PinotTableIdealStateBuilder.buildEmptyIdealStateFor(realtimeTableName,3,helixAdmin,HELIX_CLUSTER_NAME);
+  idealstate.setPartitionState(p0s0.getSegmentName(),S1,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  idealstate.setPartitionState(p0s0.getSegmentName(),S2,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  idealstate.setPartitionState(p0s0.getSegmentName(),S3,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  idealstate.setPartitionState(p1s0.getSegmentName(),S1,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  idealstate.setPartitionState(p1s0.getSegmentName(),S2,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  idealstate.setPartitionState(p1s0.getSegmentName(),S3,PinotHelixSegmentOnlineOfflineStateModelGenerator.ONLINE_STATE);
+  idealstate.setPartitionState(p1s1.getSegmentName(),S1,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  idealstate.setPartitionState(p1s1.getSegmentName(),S2,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  idealstate.setPartitionState(p1s1.getSegmentName(),S3,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  helixAdmin.addResource(HELIX_CLUSTER_NAME,realtimeTableName,idealstate);
+  FakeValidationMetrics validationMetrics=new FakeValidationMetrics();
+  ValidationManager validationManager=new ValidationManager(validationMetrics,_pinotHelixResourceManager,new ControllerConf());
+  validationManager.validateLLCSegments(realtimeTableName);
+  Assert.assertEquals(validationMetrics.partitionCount,1);
+  helixAdmin.dropResource(HELIX_CLUSTER_NAME,realtimeTableName);
+  idealstate.setPartitionState(p0s1.getSegmentName(),S1,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  idealstate.setPartitionState(p0s1.getSegmentName(),S2,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  idealstate.setPartitionState(p0s1.getSegmentName(),S3,PinotHelixSegmentOnlineOfflineStateModelGenerator.CONSUMING_STATE);
+  helixAdmin.addResource(HELIX_CLUSTER_NAME,realtimeTableName,idealstate);
+  validationManager.validateLLCSegments(realtimeTableName);
+  Assert.assertEquals(validationMetrics.partitionCount,0);
+  helixAdmin.dropResource(HELIX_CLUSTER_NAME,realtimeTableName);
+}
