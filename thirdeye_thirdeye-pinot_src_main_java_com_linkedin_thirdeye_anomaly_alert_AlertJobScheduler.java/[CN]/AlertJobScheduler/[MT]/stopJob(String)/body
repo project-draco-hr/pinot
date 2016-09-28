@@ -1,0 +1,7 @@
+{
+  if (!quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
+    throw new IllegalStateException("Cannot stop alert config " + jobKey + ", it has not been scheduled");
+  }
+  quartzScheduler.deleteJob(JobKey.jobKey(jobKey));
+  LOG.info("Stopped alert config {}",jobKey);
+}

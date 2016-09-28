@@ -1,0 +1,44 @@
+{
+  try {
+    LOG.info("Reading all anomaly functions");
+    List<AnomalyFunctionDTO> anomalyFunctions=readAnomalyFunctionSpecs();
+    List<String> scheduledJobs=getScheduledJobs();
+    LOG.info("Scheduled jobs {}",scheduledJobs);
+    for (    AnomalyFunctionDTO anomalyFunction : anomalyFunctions) {
+      Long id=anomalyFunction.getId();
+      String jobKey=getJobKey(id,anomalyFunction.getFunctionName());
+      boolean isActive=anomalyFunction.getIsActive();
+      boolean isScheduled=scheduledJobs.contains(jobKey);
+      if (isActive && !isScheduled) {
+        LOG.info("Found active but not scheduled {}",id);
+        startJob(anomalyFunction,jobKey);
+      }
+ else       if (!isActive && isScheduled) {
+        LOG.info("Found inactive but scheduled {}",id);
+        stopJob(jobKey);
+      }
+ else       if (isActive && isScheduled) {
+        String cronInDatabase=anomalyFunction.getCron();
+        List<Trigger> triggers=(List<Trigger>)quartzScheduler.getTriggersOfJob(JobKey.jobKey(jobKey));
+        CronTrigger cronTrigger=(CronTrigger)triggers.get(0);
+        String cronInSchedule=cronTrigger.getCronExpression();
+        if (!cronInDatabase.equals(cronInSchedule)) {
+          LOG.info("Cron expression for function {} with jobKey {} has been changed from {}  to {}. " + "Restarting schedule",id,jobKey,cronInSchedule,cronInDatabase);
+          stopJob(jobKey);
+          startJob(anomalyFunction,jobKey);
+        }
+      }
+    }
+    for (    String scheduledJobKey : scheduledJobs) {
+      Long functionId=getIdFromJobKey(scheduledJobKey);
+      AnomalyFunctionDTO anomalyFunctionSpec=anomalyFunctionDAO.findById(functionId);
+      if (anomalyFunctionSpec == null) {
+        LOG.info("Found scheduled, but not in database {}",functionId);
+        stopJob(scheduledJobKey);
+      }
+    }
+  }
+ catch (  SchedulerException e) {
+    LOG.error("Exception in reading active jobs",e);
+  }
+}

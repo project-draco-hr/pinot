@@ -1,0 +1,13 @@
+{
+  if (quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
+    throw new IllegalStateException("Anomaly function " + jobKey + " is already scheduled");
+  }
+  DetectionJobContext detectionJobContext=new DetectionJobContext();
+  detectionJobContext.setAnomalyFunctionDAO(anomalyFunctionDAO);
+  detectionJobContext.setAnomalyJobDAO(anomalyJobDAO);
+  detectionJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
+  detectionJobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
+  detectionJobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
+  detectionJobContext.setJobName(jobKey);
+  scheduleJob(detectionJobContext,anomalyFunctionSpec);
+}

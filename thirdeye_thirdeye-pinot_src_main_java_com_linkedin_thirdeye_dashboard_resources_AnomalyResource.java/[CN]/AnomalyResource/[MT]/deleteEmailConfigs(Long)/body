@@ -6,9 +6,6 @@
   if (emailConfiguration == null) {
     throw new IllegalStateException("No emailConfiguraiton for id " + id);
   }
-  if (emailConfiguration.isActive()) {
-    alertResourceHttpUtils.disableEmailConfiguration(String.valueOf(id));
-  }
   emailConfigurationDAO.deleteById(id);
   return Response.noContent().build();
 }

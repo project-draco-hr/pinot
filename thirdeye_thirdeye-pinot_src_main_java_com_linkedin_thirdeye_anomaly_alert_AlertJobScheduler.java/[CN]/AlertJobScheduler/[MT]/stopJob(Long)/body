@@ -1,8 +1,4 @@
 {
   String jobKey=getJobKey(id);
-  if (!quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
-    throw new IllegalStateException("Cannot stop alert config with id " + id + ", it has not been scheduled");
-  }
-  quartzScheduler.deleteJob(JobKey.jobKey(jobKey));
-  LOG.info("Stopped alert config {}",id);
+  stopJob(jobKey);
 }

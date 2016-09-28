@@ -6,9 +6,6 @@
   if (anomalyFunctionSpec == null) {
     throw new IllegalStateException("No anomalyFunctionSpec with id " + id);
   }
-  if (anomalyFunctionSpec.getIsActive()) {
-    detectionResourceHttpUtils.disableAnomalyFunction(String.valueOf(id));
-  }
   List<EmailConfigurationDTO> emailConfigurations=emailConfigurationDAO.findByFunctionId(id);
   for (  EmailConfigurationDTO emailConfiguration : emailConfigurations) {
     emailConfiguration.getFunctions().remove(anomalyFunctionSpec);

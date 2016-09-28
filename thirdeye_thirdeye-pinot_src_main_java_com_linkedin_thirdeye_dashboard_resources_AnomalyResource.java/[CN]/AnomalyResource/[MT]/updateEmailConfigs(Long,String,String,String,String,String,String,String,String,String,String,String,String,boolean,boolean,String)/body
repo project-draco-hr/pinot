@@ -6,10 +6,7 @@
   if (emailConfiguration == null) {
     throw new IllegalStateException("No email configuration for id " + id);
   }
-  if (emailConfiguration.isActive()) {
-    alertResourceHttpUtils.disableEmailConfiguration(String.valueOf(id));
-  }
-  emailConfiguration.setActive(false);
+  emailConfiguration.setActive(isActive);
   emailConfiguration.setId(id);
   emailConfiguration.setCollection(dataset);
   emailConfiguration.setMetric(metric);
@@ -43,8 +40,5 @@
   }
   emailConfiguration.setFunctions(anomalyFunctionSpecs);
   emailConfigurationDAO.update(emailConfiguration);
-  if (isActive) {
-    alertResourceHttpUtils.enableEmailConfiguration(String.valueOf(id));
-  }
   return Response.ok(id).build();
 }

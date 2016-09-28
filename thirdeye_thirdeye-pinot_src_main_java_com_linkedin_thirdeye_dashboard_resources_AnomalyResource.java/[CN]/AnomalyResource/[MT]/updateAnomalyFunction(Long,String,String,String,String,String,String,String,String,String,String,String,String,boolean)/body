@@ -6,17 +6,9 @@
   if (anomalyFunctionSpec == null) {
     throw new IllegalStateException("AnomalyFunctionSpec with id " + id + " does not exist");
   }
-  if (anomalyFunctionSpec.getIsActive()) {
-    try {
-      detectionResourceHttpUtils.disableAnomalyFunction(String.valueOf(id));
-    }
- catch (    Exception e) {
-      LOG.error("Could not disable the function : " + id,e);
-    }
-  }
   CollectionSchema schema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset);
   TimeGranularity dataGranularity=schema.getTime().getDataGranularity();
-  anomalyFunctionSpec.setIsActive(false);
+  anomalyFunctionSpec.setActive(isActive);
   anomalyFunctionSpec.setCollection(dataset);
   anomalyFunctionSpec.setFunctionName(functionName);
   anomalyFunctionSpec.setMetric(metric);
@@ -52,8 +44,5 @@
   }
   anomalyFunctionSpec.setCron(cron);
   anomalyFunctionDAO.update(anomalyFunctionSpec);
-  if (isActive) {
-    detectionResourceHttpUtils.enableAnomalyFunction(String.valueOf(id));
-  }
   return Response.ok(id).build();
 }

@@ -6,28 +6,33 @@
   anomalyFunctionSpecDAO=detectionJobContext.getAnomalyFunctionDAO();
   anomalyFunctionId=detectionJobContext.getAnomalyFunctionId();
   AnomalyFunctionDTO anomalyFunctionSpec=getAnomalyFunctionSpec(anomalyFunctionId);
-  detectionJobContext.setAnomalyFunctionSpec(anomalyFunctionSpec);
-  windowStartTime=detectionJobContext.getWindowStartTime();
-  windowEndTime=detectionJobContext.getWindowEndTime();
-  if (windowEndTime == null) {
-    long delayMillis=0;
-    if (anomalyFunctionSpec.getWindowDelay() != null) {
-      delayMillis=TimeUnit.MILLISECONDS.convert(anomalyFunctionSpec.getWindowDelay(),anomalyFunctionSpec.getWindowDelayUnit());
+  if (anomalyFunctionSpec == null) {
+    LOG.error("AnomalyFunction with id {} does not exist.. Exiting from job execution",anomalyFunctionId);
+  }
+ else {
+    detectionJobContext.setAnomalyFunctionSpec(anomalyFunctionSpec);
+    windowStartTime=detectionJobContext.getWindowStartTime();
+    windowEndTime=detectionJobContext.getWindowEndTime();
+    if (windowEndTime == null) {
+      long delayMillis=0;
+      if (anomalyFunctionSpec.getWindowDelay() != null) {
+        delayMillis=TimeUnit.MILLISECONDS.convert(anomalyFunctionSpec.getWindowDelay(),anomalyFunctionSpec.getWindowDelayUnit());
+      }
+      Date scheduledFireTime=jobExecutionContext.getScheduledFireTime();
+      windowEndTime=new DateTime(scheduledFireTime).minus(delayMillis);
     }
-    Date scheduledFireTime=jobExecutionContext.getScheduledFireTime();
-    windowEndTime=new DateTime(scheduledFireTime).minus(delayMillis);
+    if (windowStartTime == null) {
+      int windowSize=anomalyFunctionSpec.getWindowSize();
+      TimeUnit windowUnit=anomalyFunctionSpec.getWindowUnit();
+      long windowMillis=TimeUnit.MILLISECONDS.convert(windowSize,windowUnit);
+      windowStartTime=windowEndTime.minus(windowMillis);
+    }
+    windowStartTime=alignTimestampsToDataTimezone(windowStartTime,anomalyFunctionSpec.getCollection());
+    windowEndTime=alignTimestampsToDataTimezone(windowEndTime,anomalyFunctionSpec.getCollection());
+    detectionJobContext.setWindowStartTime(windowStartTime);
+    detectionJobContext.setWindowEndTime(windowEndTime);
+    Long jobExecutionId=createJob();
+    detectionJobContext.setJobExecutionId(jobExecutionId);
+    List<Long> taskIds=createTasks();
   }
-  if (windowStartTime == null) {
-    int windowSize=anomalyFunctionSpec.getWindowSize();
-    TimeUnit windowUnit=anomalyFunctionSpec.getWindowUnit();
-    long windowMillis=TimeUnit.MILLISECONDS.convert(windowSize,windowUnit);
-    windowStartTime=windowEndTime.minus(windowMillis);
-  }
-  windowStartTime=alignTimestampsToDataTimezone(windowStartTime,anomalyFunctionSpec.getCollection());
-  windowEndTime=alignTimestampsToDataTimezone(windowEndTime,anomalyFunctionSpec.getCollection());
-  detectionJobContext.setWindowStartTime(windowStartTime);
-  detectionJobContext.setWindowEndTime(windowEndTime);
-  Long jobExecutionId=createJob();
-  detectionJobContext.setJobExecutionId(jobExecutionId);
-  List<Long> taskIds=createTasks();
 }

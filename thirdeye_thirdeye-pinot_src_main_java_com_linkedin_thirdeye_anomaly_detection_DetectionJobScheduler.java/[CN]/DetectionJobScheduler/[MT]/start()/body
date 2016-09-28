@@ -1,17 +1,4 @@
 {
   quartzScheduler.start();
-  List<AnomalyFunctionDTO> functionSpecs=readAnomalyFunctionSpecs();
-  for (  AnomalyFunctionDTO anomalyFunctionSpec : functionSpecs) {
-    if (anomalyFunctionSpec.getIsActive()) {
-      DetectionJobContext detectionJobContext=new DetectionJobContext();
-      detectionJobContext.setAnomalyFunctionDAO(anomalyFunctionDAO);
-      detectionJobContext.setAnomalyJobDAO(anomalyJobDAO);
-      detectionJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
-      detectionJobContext.setAnomalyFunctionFactory(anomalyFunctionFactory);
-      detectionJobContext.setAnomalyFunctionId(anomalyFunctionSpec.getId());
-      String jobKey=getJobKey(anomalyFunctionSpec.getId(),anomalyFunctionSpec.getFunctionName());
-      detectionJobContext.setJobName(jobKey);
-      scheduleJob(detectionJobContext,anomalyFunctionSpec);
-    }
-  }
+  scheduledExecutorService.scheduleWithFixedDelay(this,0,30,TimeUnit.MINUTES);
 }

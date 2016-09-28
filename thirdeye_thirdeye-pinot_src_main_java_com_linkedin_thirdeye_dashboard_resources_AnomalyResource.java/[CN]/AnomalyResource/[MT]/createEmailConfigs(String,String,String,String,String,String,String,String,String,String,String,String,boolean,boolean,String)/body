@@ -3,7 +3,7 @@
     throw new UnsupportedOperationException("Received null for one of the mandatory params: " + "dataset " + dataset + ", functionIds "+ functionIds+ ", metric "+ metric+ ", windowSize "+ windowSize+ ", windowUnit "+ windowUnit+ ", fromAddress"+ fromAddress+ ", toAddresses "+ toAddresses);
   }
   EmailConfigurationDTO emailConfiguration=new EmailConfigurationDTO();
-  emailConfiguration.setActive(false);
+  emailConfiguration.setActive(isActive);
   emailConfiguration.setCollection(dataset);
   emailConfiguration.setMetric(metric);
   emailConfiguration.setFromAddress(fromAddress);
@@ -36,8 +36,5 @@
   }
   emailConfiguration.setFunctions(anomalyFunctionSpecs);
   Long id=emailConfigurationDAO.save(emailConfiguration);
-  if (isActive) {
-    alertResourceHttpUtils.enableEmailConfiguration(String.valueOf(id));
-  }
   return Response.ok(id).build();
 }

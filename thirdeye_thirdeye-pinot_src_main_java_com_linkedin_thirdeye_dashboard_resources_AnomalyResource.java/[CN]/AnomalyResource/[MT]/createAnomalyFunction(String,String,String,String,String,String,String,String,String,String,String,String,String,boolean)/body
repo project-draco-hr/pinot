@@ -5,7 +5,7 @@
   CollectionSchema schema=CACHE_REGISTRY_INSTANCE.getCollectionSchemaCache().get(dataset);
   TimeGranularity dataGranularity=schema.getTime().getDataGranularity();
   AnomalyFunctionDTO anomalyFunctionSpec=new AnomalyFunctionDTO();
-  anomalyFunctionSpec.setIsActive(false);
+  anomalyFunctionSpec.setActive(isActive);
   anomalyFunctionSpec.setMetricFunction(MetricAggFunction.valueOf(metric_function));
   anomalyFunctionSpec.setCollection(dataset);
   anomalyFunctionSpec.setFunctionName(functionName);
@@ -50,8 +50,5 @@
   }
   anomalyFunctionSpec.setCron(cron);
   Long id=anomalyFunctionDAO.save(anomalyFunctionSpec);
-  if (isActive) {
-    detectionResourceHttpUtils.enableAnomalyFunction(String.valueOf(id));
-  }
   return Response.ok(id).build();
 }

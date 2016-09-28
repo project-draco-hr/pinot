@@ -1,0 +1,12 @@
+{
+  if (quartzScheduler.checkExists(JobKey.jobKey(jobKey))) {
+    throw new IllegalStateException("Alert config  " + jobKey + " is already scheduled");
+  }
+  AlertJobContext alertJobContext=new AlertJobContext();
+  alertJobContext.setAnomalyJobDAO(anomalyJobDAO);
+  alertJobContext.setAnomalyTaskDAO(anomalyTaskDAO);
+  alertJobContext.setEmailConfigurationDAO(emailConfigurationDAO);
+  alertJobContext.setAlertConfigId(alertConfig.getId());
+  alertJobContext.setJobName(jobKey);
+  scheduleJob(alertJobContext,alertConfig);
+}

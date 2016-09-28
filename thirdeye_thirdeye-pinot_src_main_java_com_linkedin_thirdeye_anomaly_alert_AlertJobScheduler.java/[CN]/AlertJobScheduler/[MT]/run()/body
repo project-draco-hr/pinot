@@ -1,0 +1,44 @@
+{
+  try {
+    LOG.info("Reading all alert configs..");
+    List<EmailConfigurationDTO> alertConfigs=emailConfigurationDAO.findAll();
+    List<String> scheduledJobs=getScheduledJobs();
+    LOG.info("Scheduled jobs {}",scheduledJobs);
+    for (    EmailConfigurationDTO alertConfig : alertConfigs) {
+      Long id=alertConfig.getId();
+      String jobKey=getJobKey(id);
+      boolean isActive=alertConfig.isActive();
+      boolean isScheduled=scheduledJobs.contains(jobKey);
+      if (isActive && !isScheduled) {
+        LOG.info("Found active but not scheduled {}",id);
+        startJob(alertConfig,jobKey);
+      }
+ else       if (!isActive && isScheduled) {
+        LOG.info("Found inactive but scheduled {}",id);
+        stopJob(jobKey);
+      }
+ else       if (isActive && isScheduled) {
+        String cronInDatabase=alertConfig.getCron();
+        List<Trigger> triggers=(List<Trigger>)quartzScheduler.getTriggersOfJob(JobKey.jobKey(jobKey));
+        CronTrigger cronTrigger=(CronTrigger)triggers.get(0);
+        String cronInSchedule=cronTrigger.getCronExpression();
+        if (!cronInDatabase.equals(cronInSchedule)) {
+          LOG.info("Cron expression for config {} with jobKey {} has been changed from {}  to {}. " + "Restarting schedule",id,jobKey,cronInSchedule,cronInDatabase);
+          stopJob(jobKey);
+          startJob(alertConfig,jobKey);
+        }
+      }
+    }
+    for (    String scheduledJobKey : scheduledJobs) {
+      Long configId=getIdFromJobKey(scheduledJobKey);
+      EmailConfigurationDTO alertConfigSpec=emailConfigurationDAO.findById(configId);
+      if (alertConfigSpec == null) {
+        LOG.info("Found scheduled, but not in database {}",configId);
+        stopJob(scheduledJobKey);
+      }
+    }
+  }
+ catch (  SchedulerException e) {
+    LOG.error("Exception in reading active jobs",e);
+  }
+}
