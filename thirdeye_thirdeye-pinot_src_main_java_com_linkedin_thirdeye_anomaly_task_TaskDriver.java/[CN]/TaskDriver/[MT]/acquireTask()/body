@@ -36,7 +36,7 @@
         success=anomalyTaskDAO.updateStatusAndWorkerId(workerId,anomalyTaskSpec.getId(),TaskStatus.WAITING,TaskStatus.RUNNING);
         LOG.info(Thread.currentThread().getId() + " : Task acquired success: {}",success);
       }
- catch (      OptimisticLockException|RollbackException|StaleObjectStateException e) {
+ catch (      Exception e) {
         LOG.warn("[{}] in acquiring task by threadId {} and workerId {}",e.getClass().getSimpleName(),Thread.currentThread().getId(),workerId);
       }
       if (success) {

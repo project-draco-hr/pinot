@@ -1,0 +1,12 @@
+{
+  String persistenceConfig=System.getProperty("dw.rootDir") + "/persistence.yml";
+  LOG.info("Loading persistence config from [{}]",persistenceConfig);
+  DaoProviderUtil.init(new File(persistenceConfig));
+  anomalyFunctionDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.AnomalyFunctionManagerImpl.class);
+  anomalyResultDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.RawAnomalyResultManagerImpl.class);
+  emailConfigurationDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.EmailConfigurationManagerImpl.class);
+  anomalyJobDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.JobManagerImpl.class);
+  anomalyTaskDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.TaskManagerImpl.class);
+  webappConfigDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.WebappConfigManagerImpl.class);
+  anomalyMergedResultDAO=DaoProviderUtil.getInstance(com.linkedin.thirdeye.datalayer.bao.jdbc.MergedAnomalyResultManagerImpl.class);
+}
