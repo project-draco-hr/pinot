@@ -1,0 +1,15 @@
+{
+  if (idealState == null) {
+    idealState=PinotTableIdealStateBuilder.buildInitialHighLevelRealtimeIdealStateFor(realtimeTableName,config,_helixAdmin,_helixClusterName,_propertyStore);
+    LOGGER.info("Adding helix resource with empty HLC IdealState for {}",realtimeTableName);
+    _helixAdmin.addResource(_helixClusterName,realtimeTableName,idealState);
+  }
+ else {
+    LOGGER.info("Not reconfiguring HLC for table {}",realtimeTableName);
+  }
+  LOGGER.info("Successfully created empty ideal state for  high level consumer for {} ",realtimeTableName);
+  String tablePropertyStorePath=ZKMetadataProvider.constructPropertyStorePathForResource(realtimeTableName);
+  if (!_propertyStore.exists(tablePropertyStorePath,AccessOption.PERSISTENT)) {
+    _propertyStore.create(tablePropertyStorePath,new ZNRecord(realtimeTableName),AccessOption.PERSISTENT);
+  }
+}

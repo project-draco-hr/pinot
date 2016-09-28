@@ -1,8 +1,0 @@
-{
-  IdealState idealState;
-  idealState=PinotTableIdealStateBuilder.buildInitialHighLevelRealtimeIdealStateFor(realtimeTableName,config,_helixAdmin,_helixClusterName,_propertyStore);
-  LOGGER.info("Adding helix resource with empty IdealState for {}",realtimeTableName);
-  _helixAdmin.addResource(_helixClusterName,realtimeTableName,idealState);
-  LOGGER.info("Successfully created empty ideal state for  high level consumer for {} ",realtimeTableName);
-  _propertyStore.create(ZKMetadataProvider.constructPropertyStorePathForResource(realtimeTableName),new ZNRecord(realtimeTableName),AccessOption.PERSISTENT);
-}

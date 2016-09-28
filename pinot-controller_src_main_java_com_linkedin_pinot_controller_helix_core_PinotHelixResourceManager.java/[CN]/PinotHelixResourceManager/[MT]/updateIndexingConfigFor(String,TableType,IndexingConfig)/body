@@ -17,4 +17,7 @@
     throw new RuntimeException("tableName : " + tableName + " of type : "+ type+ " not found");
   }
   setTableConfig(config,actualTableName,type);
+  if (type == TableType.REALTIME) {
+    ensureRealtimeClusterIsSetUp(config,tableName,newConfigs);
+  }
 }

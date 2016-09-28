@@ -37,27 +37,9 @@ break;
 case REALTIME:
 final String realtimeTableName=config.getTableName();
 ZKMetadataProvider.setRealtimeTableConfig(_propertyStore,realtimeTableName,AbstractTableConfig.toZnRecord(config));
-KafkaStreamMetadata kafkaStreamMetadata=new KafkaStreamMetadata(config.getIndexingConfig().getStreamConfigs());
-IdealState idealState=_helixAdmin.getResourceIdealState(_helixClusterName,realtimeTableName);
-if (kafkaStreamMetadata.hasHighLevelKafkaConsumerType()) {
-if (kafkaStreamMetadata.hasSimpleKafkaConsumerType()) {
-if (idealState == null) {
-createHelixEntriesForHighLevelConsumer(config,realtimeTableName);
-idealState=_helixAdmin.getResourceIdealState(_helixClusterName,realtimeTableName);
-}
-}
- else {
-if (idealState != null) {
-throw new RuntimeException("Table " + realtimeTableName + " already present");
-}
-createHelixEntriesForHighLevelConsumer(config,realtimeTableName);
-}
-}
-if (kafkaStreamMetadata.hasSimpleKafkaConsumerType()) {
-PinotTableIdealStateBuilder.buildLowLevelRealtimeIdealStateFor(realtimeTableName,config,_helixAdmin,_helixClusterName,idealState);
-LOGGER.info("Successfully added  helix entries for low-level consumers for {} ",realtimeTableName);
-}
-LOGGER.info("Successfully added  or updated the table {} ",realtimeTableName);
+IndexingConfig indexingConfig=config.getIndexingConfig();
+ensureRealtimeClusterIsSetUp(config,realtimeTableName,indexingConfig);
+LOGGER.info("Successfully added or updated the table {} ",realtimeTableName);
 break;
 default :
 throw new RuntimeException("UnSupported table type");
