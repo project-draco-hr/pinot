@@ -1,6 +1,9 @@
 {
   EmailConfigurationBean emailConfigurationBean=genericPojoDao.get(emailConfigId,EmailConfigurationBean.class);
   List<Long> functionIds=emailConfigurationBean.getFunctionIds();
+  if (functionIds == null || functionIds.isEmpty()) {
+    return Collections.emptyList();
+  }
   Long[] functionIdArray=functionIds.toArray(new Long[]{});
   Predicate predicate=Predicate.AND(Predicate.LT("startTime",endTime),Predicate.GT("endTime",startTime),Predicate.IN("functionId",functionIdArray),Predicate.EQ("notified",false));
   List<MergedAnomalyResultBean> list=genericPojoDao.get(predicate,MergedAnomalyResultBean.class);
