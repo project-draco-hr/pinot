@@ -1,0 +1,32 @@
+{
+  EntityType entityType=EntityType.valueOf(entityTypeStr);
+  List<AbstractDTO> results=new ArrayList<>();
+switch (entityType) {
+case WEBAPP_CONFIG:
+    List<WebappConfigDTO> webappConfigDTOs=webappConfigManager.findAll();
+  for (  WebappConfigDTO webappConfigDTO : webappConfigDTOs) {
+    if (webappConfigDTO.getConfigMap() == null) {
+      TypeReference<HashMap<String,Object>> typeRef=new TypeReference<HashMap<String,Object>>(){
+      }
+;
+      try {
+        webappConfigDTO.setConfigMap(OBJECT_MAPPER.readValue(webappConfigDTO.getConfig(),typeRef));
+      }
+ catch (      Exception e) {
+        LOG.error("Unable to read config to map",e);
+      }
+    }
+  }
+results.addAll(webappConfigDTOs);
+break;
+case ANOMALY_FUNCTION:
+results.addAll(anomalyFunctionManager.findAllActiveFunctions());
+break;
+case EMAIL_CONFIGURATION:
+results.addAll(emailConfigurationManager.findAll());
+break;
+default :
+throw new WebApplicationException("Unknown entity type : " + entityType);
+}
+return Response.ok(results).build();
+}

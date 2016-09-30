@@ -1,0 +1,24 @@
+{
+  EntityType entityType=EntityType.valueOf(entityTypeStr);
+  try {
+switch (entityType) {
+case WEBAPP_CONFIG:
+      WebappConfigDTO webappConfigDTO=OBJECT_MAPPER.readValue(jsonPayload,WebappConfigDTO.class);
+    webappConfigManager.update(webappConfigDTO);
+  break;
+case ANOMALY_FUNCTION:
+AnomalyFunctionDTO anomalyFunctionDTO=OBJECT_MAPPER.readValue(jsonPayload,AnomalyFunctionDTO.class);
+anomalyFunctionManager.update(anomalyFunctionDTO);
+break;
+case EMAIL_CONFIGURATION:
+EmailConfigurationDTO emailConfigurationDTO=OBJECT_MAPPER.readValue(jsonPayload,EmailConfigurationDTO.class);
+emailConfigurationManager.update(emailConfigurationDTO);
+break;
+}
+}
+ catch (IOException e) {
+LOG.error("Error saving the entity with payload : " + jsonPayload,e);
+throw new WebApplicationException(e);
+}
+return Response.ok().build();
+}

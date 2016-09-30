@@ -9,7 +9,8 @@
   env.jersey().register(new AnomalyFunctionResource(config.getFunctionConfigPath()));
   env.jersey().register(new DashboardResource(webappConfigDAO));
   env.jersey().register(new CacheResource());
-  env.jersey().register(new AnomalyResource(config,anomalyFunctionDAO,anomalyResultDAO,emailConfigurationDAO,anomalyMergedResultDAO));
+  env.jersey().register(new AnomalyResource(anomalyFunctionDAO,anomalyResultDAO,emailConfigurationDAO,anomalyMergedResultDAO));
   env.jersey().register(new WebappConfigResource(webappConfigDAO));
   env.jersey().register(new EmailResource(anomalyFunctionDAO,emailConfigurationDAO));
+  env.jersey().register(new EntityManagerResource(webappConfigDAO,anomalyFunctionDAO,emailConfigurationDAO));
 }
