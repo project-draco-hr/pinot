@@ -1,0 +1,13 @@
+{
+  LOGGER.info("Deleting files in v1 segment directory: {}",v2SegmentDirectory);
+  File[] files=v2SegmentDirectory.listFiles();
+  if (files == null) {
+    LOGGER.error("v1 segment directory: {}  returned null list of files",v2SegmentDirectory);
+    return;
+  }
+  for (  File file : files) {
+    if (file.isFile() && file.exists()) {
+      FileUtils.deleteQuietly(file);
+    }
+  }
+}

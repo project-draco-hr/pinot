@@ -11,14 +11,4 @@
     Assert.assertEquals(indexSegment.getSegmentMetadata().getVersion(),originalMetadata.getVersion());
     Assert.assertFalse(SegmentDirectoryPaths.segmentDirectoryFor(segmentDirectory,SegmentVersion.v3).exists());
   }
-{
-    IndexSegment indexSegment=Loaders.IndexSegment.load(segmentDirectory,ReadMode.mmap,v3LoadingConfig);
-    Assert.assertEquals(SegmentVersion.valueOf(indexSegment.getSegmentMetadata().getVersion()),SegmentVersion.v3);
-    Assert.assertTrue(SegmentDirectoryPaths.segmentDirectoryFor(segmentDirectory,SegmentVersion.v3).exists());
-    IndexSegment indexSegment1=Loaders.IndexSegment.load(segmentDirectory,ReadMode.mmap,v1LoadingConfig);
-    Assert.assertEquals(SegmentVersion.valueOf(indexSegment1.getSegmentMetadata().getVersion()),SegmentVersion.v1);
-    Assert.assertTrue(SegmentDirectoryPaths.segmentDirectoryFor(segmentDirectory,SegmentVersion.v3).exists());
-    IndexSegment indexSegment2=Loaders.IndexSegment.load(segmentDirectory,ReadMode.mmap,v3LoadingConfig);
-    Assert.assertEquals(SegmentVersion.valueOf(indexSegment.getSegmentMetadata().getVersion()),SegmentVersion.v3);
-  }
 }

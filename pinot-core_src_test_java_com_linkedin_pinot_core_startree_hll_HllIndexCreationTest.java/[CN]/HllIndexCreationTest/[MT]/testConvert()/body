@@ -21,12 +21,6 @@
     Assert.assertNotNull(indexSegment);
     Assert.assertEquals(indexSegment.getSegmentName(),metadata.getName());
     Assert.assertEquals(SegmentVersion.v3,SegmentVersion.valueOf(indexSegment.getSegmentMetadata().getVersion()));
-    FileTime afterLoadTime=Files.getLastModifiedTime(v3Location.toPath());
-    Assert.assertEquals(afterConversionTime,afterLoadTime);
-    IndexSegment v2IndexSegment=Loaders.IndexSegment.load(segmentDirectory,ReadMode.mmap,v1LoadingConfig);
-    Assert.assertNotNull(v2IndexSegment);
-    Assert.assertEquals(SegmentVersion.valueOf(v2IndexSegment.getSegmentMetadata().getVersion()),SegmentVersion.v1);
-    Assert.assertTrue(v3Location.exists());
   }
   finally {
     if (helper != null) {

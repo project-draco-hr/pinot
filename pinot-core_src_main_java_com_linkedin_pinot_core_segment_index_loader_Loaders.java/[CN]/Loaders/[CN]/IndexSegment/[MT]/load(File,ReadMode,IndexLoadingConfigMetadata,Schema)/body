@@ -2,25 +2,27 @@
   Preconditions.checkNotNull(indexDir);
   Preconditions.checkArgument(indexDir.exists(),"Index directory: {} does not exist",indexDir);
   Preconditions.checkArgument(indexDir.isDirectory(),"Index directory: {} is not a directory",indexDir);
-  SegmentMetadataImpl metadata=new SegmentMetadataImpl(indexDir);
-  SegmentVersion configuredVersionToLoad=getSegmentVersionToLoad(indexLoadingConfigMetadata);
-  SegmentVersion metadataVersion=metadata.getSegmentVersion();
   if (indexLoadingConfigMetadata != null) {
     StarTreeFormatVersion starTreeVersionToLoad=getStarTreeVersionToLoad(indexLoadingConfigMetadata);
     StarTreeSerDe.convertStarTreeFormatIfNeeded(indexDir,starTreeVersionToLoad);
   }
-  if (shouldConvertFormat(metadataVersion,configuredVersionToLoad) && !targetFormatAlreadyExists(indexDir,configuredVersionToLoad)) {
-    LOGGER.info("segment:{} needs to be converted from :{} to {} version.",indexDir.getName(),metadataVersion,configuredVersionToLoad);
-    SegmentFormatConverter converter=SegmentFormatConverterFactory.getConverter(metadataVersion,configuredVersionToLoad);
-    LOGGER.info("Using converter:{} to up-convert the format",converter.getClass().getName());
-    converter.convert(indexDir);
-    LOGGER.info("Successfully up-converted segment:{} from :{} to {} version.",indexDir.getName(),metadataVersion,configuredVersionToLoad);
+  SegmentVersion configuredVersionToLoad=getSegmentVersionToLoad(indexLoadingConfigMetadata);
+  if (!targetFormatAlreadyExists(indexDir,configuredVersionToLoad)) {
+    SegmentMetadataImpl metadata=new SegmentMetadataImpl(indexDir);
+    SegmentVersion metadataVersion=metadata.getSegmentVersion();
+    if (shouldConvertFormat(metadataVersion,configuredVersionToLoad)) {
+      LOGGER.info("segment:{} needs to be converted from :{} to {} version.",indexDir.getName(),metadataVersion,configuredVersionToLoad);
+      SegmentFormatConverter converter=SegmentFormatConverterFactory.getConverter(metadataVersion,configuredVersionToLoad);
+      LOGGER.info("Using converter:{} to up-convert segment: {}",converter.getClass().getName(),indexDir.getName());
+      converter.convert(indexDir);
+      LOGGER.info("Successfully up-converted segment:{} from :{} to {} version.",indexDir.getName(),metadataVersion,configuredVersionToLoad);
+    }
   }
   File segmentDirectoryPath=SegmentDirectoryPaths.segmentDirectoryFor(indexDir,configuredVersionToLoad);
   try (SegmentPreProcessor preProcessor=new SegmentPreProcessor(segmentDirectoryPath,indexLoadingConfigMetadata,schema)){
     preProcessor.process();
   }
-   metadata=new SegmentMetadataImpl(segmentDirectoryPath);
+   SegmentMetadataImpl metadata=new SegmentMetadataImpl(segmentDirectoryPath);
   SegmentDirectory segmentDirectory=SegmentDirectory.createFromLocalFS(segmentDirectoryPath,metadata,readMode);
   Map<String,ColumnIndexContainer> indexContainerMap=new HashMap<String,ColumnIndexContainer>();
   SegmentDirectory.Reader segmentReader=segmentDirectory.createReader();
