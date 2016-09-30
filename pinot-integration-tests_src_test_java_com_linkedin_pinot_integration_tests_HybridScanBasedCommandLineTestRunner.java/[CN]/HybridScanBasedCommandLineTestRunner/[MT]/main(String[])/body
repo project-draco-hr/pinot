@@ -4,15 +4,18 @@
   }
   int expectedArgsLen=5;
   int ix=0;
-  if (args[0].startsWith("-")) {
-    if (args[0].equals("--record")) {
-      ix++;
-      expectedArgsLen++;
+  while (args[ix].startsWith("-")) {
+    if (args[ix].equals("--record")) {
       CustomHybridClusterScanComparisonIntegrationTest._recordScanResponses=true;
+    }
+ else     if (args[ix].equals("--llc")) {
+      CustomHybridClusterScanComparisonIntegrationTest._useLlc=true;
     }
  else {
       usage();
     }
+    ix++;
+    expectedArgsLen++;
   }
   if (args.length != expectedArgsLen) {
     usage();

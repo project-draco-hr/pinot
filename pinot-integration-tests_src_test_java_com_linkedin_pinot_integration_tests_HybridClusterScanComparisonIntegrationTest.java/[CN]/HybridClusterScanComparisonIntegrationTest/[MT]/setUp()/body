@@ -6,7 +6,7 @@
   ensureDirectoryExistsAndIsEmpty(_offlineTarDir);
   ensureDirectoryExistsAndIsEmpty(_realtimeTarDir);
   ensureDirectoryExistsAndIsEmpty(_unpackedSegments);
-  startHybridCluster();
+  startHybridCluster(getKafkaPartitionCount());
   extractAvroIfNeeded();
   int avroFileCount=getAvroFileCount();
   Preconditions.checkArgument(3 <= avroFileCount,"Need at least three Avro files for this test");

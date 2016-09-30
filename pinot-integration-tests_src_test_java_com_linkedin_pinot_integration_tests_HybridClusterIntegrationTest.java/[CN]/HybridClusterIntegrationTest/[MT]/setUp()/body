@@ -2,7 +2,7 @@
   ensureDirectoryExistsAndIsEmpty(_tmpDir);
   ensureDirectoryExistsAndIsEmpty(_segmentDir);
   ensureDirectoryExistsAndIsEmpty(_tarDir);
-  startHybridCluster();
+  startHybridCluster(10);
   TarGzCompressionUtils.unTar(new File(TestUtils.getFileFromResourceUrl(OfflineClusterIntegrationTest.class.getClassLoader().getResource("On_Time_On_Time_Performance_2014_100k_subset_nonulls.tar.gz"))),_tmpDir);
   _tmpDir.mkdirs();
   final List<File> avroFiles=getAllAvroFiles();
@@ -11,7 +11,7 @@
   addSchema(schemaFile,schema.getSchemaName());
   final List<String> invertedIndexColumns=makeInvertedIndexColumns();
   final String sortedColumn=makeSortedColumn();
-  addHybridTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schema.getSchemaName(),TENANT_NAME,TENANT_NAME,avroFiles.get(0),sortedColumn,invertedIndexColumns,null);
+  addHybridTable("mytable","DaysSinceEpoch","daysSinceEpoch",KafkaStarterUtils.DEFAULT_ZK_STR,KAFKA_TOPIC,schema.getSchemaName(),TENANT_NAME,TENANT_NAME,avroFiles.get(0),sortedColumn,invertedIndexColumns,null,false);
   LOGGER.info("Running with Sorted column=" + sortedColumn + " and inverted index columns = "+ invertedIndexColumns);
   final List<File> offlineAvroFiles=getOfflineAvroFiles(avroFiles);
   final List<File> realtimeAvroFiles=getRealtimeAvroFiles(avroFiles);
