@@ -1,6 +1,6 @@
 {
-  final IndexSegmentImpl heapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.heap);
-  final IndexSegmentImpl mmapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.mmap);
+  final IndexSegmentImpl heapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(segmentDirectory,ReadMode.heap);
+  final IndexSegmentImpl mmapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(segmentDirectory,ReadMode.mmap);
   final Map<String,ColumnMetadata> metadataMap=((SegmentMetadataImpl)mmapSegment.getSegmentMetadata()).getColumnMetadataMap();
   for (  final String column : metadataMap.keySet()) {
     final ImmutableDictionaryReader heapDictionary=heapSegment.getDictionaryFor(column);

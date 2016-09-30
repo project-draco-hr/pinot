@@ -7,5 +7,9 @@
   final SegmentIndexCreationDriver driver=SegmentCreationDriverFactory.get(null);
   driver.init(config);
   driver.build();
+  List<String> iiColumns=config.getInvertedIndexCreationColumns();
+  invertedIndexColumns=new String[iiColumns.size()];
+  iiColumns.toArray(invertedIndexColumns);
+  segmentDirectory=new File(INDEX_DIR,driver.getSegmentName());
   System.out.println("built at : " + INDEX_DIR.getAbsolutePath());
 }

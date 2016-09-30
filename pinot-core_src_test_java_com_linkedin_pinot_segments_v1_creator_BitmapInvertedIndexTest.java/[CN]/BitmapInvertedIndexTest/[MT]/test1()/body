@@ -1,24 +1,3 @@
 {
-  final IndexSegmentImpl heapSegment=(IndexSegmentImpl)ColumnarSegmentLoader.load(INDEX_DIR,ReadMode.heap);
-  final DataFileStream<GenericRecord> reader=new DataFileStream<GenericRecord>(new FileInputStream(new File(getClass().getClassLoader().getResource(AVRO_DATA).getFile())),new GenericDatumReader<GenericRecord>());
-  int docId=0;
-  while (reader.hasNext()) {
-    final GenericRecord rec=reader.next();
-    for (    final String column : ((SegmentMetadataImpl)heapSegment.getSegmentMetadata()).getColumnMetadataMap().keySet()) {
-      Object entry=rec.get(column);
-      if (entry instanceof Utf8) {
-        entry=((Utf8)entry).toString();
-      }
-      final int dicId=heapSegment.getDictionaryFor(column).indexOf(entry);
-      Assert.assertTrue(heapSegment.getInvertedIndexFor(column).getImmutable(dicId).contains(docId));
-      final int size=heapSegment.getDictionaryFor(column).length();
-      for (int i=0; i < size; ++i) {
-        if (i == dicId) {
-          continue;
-        }
-        Assert.assertFalse(heapSegment.getInvertedIndexFor(column).getImmutable(i).contains(docId));
-      }
-    }
-    ++docId;
-  }
+  testBitMapInvertedIndex(ReadMode.heap);
 }
