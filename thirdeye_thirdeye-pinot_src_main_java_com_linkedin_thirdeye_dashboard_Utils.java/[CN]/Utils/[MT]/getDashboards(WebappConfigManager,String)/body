@@ -2,7 +2,8 @@
   List<WebappConfigDTO> webappConfigs=webappConfigDAO.findByCollectionAndType(collection,WebappConfigType.DASHBOARD_CONFIG);
   List<String> dashboards=new ArrayList<>();
   for (  WebappConfigDTO webappConfig : webappConfigs) {
-    DashboardConfig dashboardConfig=AbstractConfig.fromJSON(webappConfig.getConfig(),DashboardConfig.class);
+    String configJson=Utils.getJsonFromObject(webappConfig.getConfigMap());
+    DashboardConfig dashboardConfig=AbstractConfig.fromJSON(configJson,DashboardConfig.class);
     dashboards.add(dashboardConfig.getDashboardName());
   }
   dashboards.add(DEFAULT_DASHBOARD);

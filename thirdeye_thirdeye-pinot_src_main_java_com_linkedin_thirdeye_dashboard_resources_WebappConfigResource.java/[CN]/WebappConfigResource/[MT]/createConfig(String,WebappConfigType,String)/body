@@ -2,12 +2,11 @@
   try {
     AbstractConfig abstractConfig=WebappConfigFactory.getConfigFromConfigTypeAndJson(type,payload);
     String configName=abstractConfig.getConfigName();
-    String config=abstractConfig.toJSON();
     WebappConfigDTO webappConfig=new WebappConfigDTO();
     webappConfig.setName(configName);
     webappConfig.setCollection(collection);
     webappConfig.setType(type);
-    webappConfig.setConfig(config);
+    webappConfig.setConfigMap(Utils.getMapFromObject(abstractConfig));
     Long id=webappConfigDAO.save(webappConfig);
     LOG.info("Created webappConfig {} with id {}",webappConfig,id);
     return Response.ok(id).build();
