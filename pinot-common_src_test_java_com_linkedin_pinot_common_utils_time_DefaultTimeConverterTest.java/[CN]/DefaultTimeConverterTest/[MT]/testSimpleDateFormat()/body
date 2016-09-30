@@ -1,0 +1,42 @@
+{
+  TimeGranularitySpec incoming;
+  TimeGranularitySpec outgoing;
+  DefaultTimeConverter timeConverter;
+  String SDF_PREFIX=TimeFormat.SIMPLE_DATE_FORMAT.toString();
+  try {
+    incoming=new TimeGranularitySpec(STRING,1,HOURS,SDF_PREFIX + ":yyyyMMdd","1hour");
+    outgoing=new TimeGranularitySpec(STRING,1,HOURS,SDF_PREFIX + ":yyyyMMdd","1hour");
+    timeConverter=new DefaultTimeConverter();
+    timeConverter.init(incoming,outgoing);
+  }
+ catch (  Exception e) {
+    Assert.fail("sdf to sdf must be supported as long as incoming sdf = outgoing sdf");
+  }
+  try {
+    incoming=new TimeGranularitySpec(STRING,1,HOURS,SDF_PREFIX + ":yyyyMMdd","1hour");
+    outgoing=new TimeGranularitySpec(LONG,1,HOURS,"1hour");
+    timeConverter=new DefaultTimeConverter();
+    timeConverter.init(incoming,outgoing);
+    Assert.fail("We don't support converting epoch to sdf currently");
+  }
+ catch (  Exception e) {
+  }
+  try {
+    incoming=new TimeGranularitySpec(STRING,1,HOURS,SDF_PREFIX + ":yyyyMMdd","1hour");
+    outgoing=new TimeGranularitySpec(LONG,1,HOURS,"1hour");
+    timeConverter=new DefaultTimeConverter();
+    timeConverter.init(incoming,outgoing);
+    Assert.fail("We don't support converting sdf to epoch currently");
+  }
+ catch (  Exception e) {
+  }
+  try {
+    incoming=new TimeGranularitySpec(STRING,1,HOURS,SDF_PREFIX + ":yyyyMMdd","1hour");
+    outgoing=new TimeGranularitySpec(STRING,1,HOURS,SDF_PREFIX + ":yyyyMMddHH","1hour");
+    timeConverter=new DefaultTimeConverter();
+    timeConverter.init(incoming,outgoing);
+    Assert.fail("We don't support converting sdf to sdf where incoming sdf != outgoing sdf");
+  }
+ catch (  Exception e) {
+  }
+}

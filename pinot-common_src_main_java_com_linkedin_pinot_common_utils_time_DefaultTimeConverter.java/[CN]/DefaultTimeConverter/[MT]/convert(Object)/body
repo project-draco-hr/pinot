@@ -9,6 +9,11 @@
  else {
     duration=Long.parseLong(incomingTimeValue.toString());
   }
-  long outgoingTime=outgoing.getTimeType().convert(duration * incoming.getTimeUnitSize(),incoming.getTimeType());
-  return convertToOutgoingDataType(outgoingTime / outgoing.getTimeUnitSize());
+  if (conversionSupported) {
+    long outgoingTime=outgoing.getTimeType().convert(duration * incoming.getTimeUnitSize(),incoming.getTimeType());
+    return convertToOutgoingDataType(outgoingTime / outgoing.getTimeUnitSize());
+  }
+ else {
+    throw new RuntimeException("Conversion from Simple Date Format to epoch/simpleDateFormat is not supported");
+  }
 }
