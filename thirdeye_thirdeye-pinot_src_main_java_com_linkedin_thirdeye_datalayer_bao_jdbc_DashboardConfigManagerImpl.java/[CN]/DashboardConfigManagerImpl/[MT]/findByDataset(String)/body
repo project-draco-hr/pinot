@@ -1,0 +1,10 @@
+{
+  Predicate predicate=Predicate.EQ("dataset",dataset);
+  List<DashboardConfigBean> list=genericPojoDao.get(predicate,DashboardConfigBean.class);
+  List<DashboardConfigDTO> result=new ArrayList<>();
+  for (  DashboardConfigBean abstractBean : list) {
+    DashboardConfigDTO dto=MODEL_MAPPER.map(abstractBean,DashboardConfigDTO.class);
+    result.add(dto);
+  }
+  return result;
+}

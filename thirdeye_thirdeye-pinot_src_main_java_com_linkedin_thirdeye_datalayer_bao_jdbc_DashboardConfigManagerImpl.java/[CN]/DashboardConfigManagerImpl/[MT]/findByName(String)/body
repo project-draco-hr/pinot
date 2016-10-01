@@ -1,0 +1,9 @@
+{
+  Predicate predicate=Predicate.EQ("name",name);
+  List<DashboardConfigBean> list=genericPojoDao.get(predicate,DashboardConfigBean.class);
+  DashboardConfigDTO result=null;
+  if (CollectionUtils.isNotEmpty(list)) {
+    result=MODEL_MAPPER.map(list.get(0),DashboardConfigDTO.class);
+  }
+  return result;
+}

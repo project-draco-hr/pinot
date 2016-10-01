@@ -1,0 +1,10 @@
+{
+  Predicate datasetPredicate=Predicate.EQ("dataset",dataset);
+  Predicate metricNamePredicate=Predicate.EQ("name",metricName);
+  List<MetricConfigBean> list=genericPojoDao.get(Predicate.AND(datasetPredicate,metricNamePredicate),MetricConfigBean.class);
+  MetricConfigDTO result=null;
+  if (CollectionUtils.isNotEmpty(list)) {
+    result=MODEL_MAPPER.map(list.get(0),MetricConfigDTO.class);
+  }
+  return result;
+}

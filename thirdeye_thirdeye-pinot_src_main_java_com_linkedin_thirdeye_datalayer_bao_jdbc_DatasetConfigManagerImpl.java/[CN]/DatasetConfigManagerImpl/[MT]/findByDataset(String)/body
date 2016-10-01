@@ -1,0 +1,9 @@
+{
+  Predicate predicate=Predicate.EQ("dataset",dataset);
+  List<DatasetConfigBean> list=genericPojoDao.get(predicate,DatasetConfigBean.class);
+  DatasetConfigDTO result=null;
+  if (CollectionUtils.isNotEmpty(list)) {
+    result=MODEL_MAPPER.map(list.get(0),DatasetConfigDTO.class);
+  }
+  return result;
+}
